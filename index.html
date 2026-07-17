@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07162f">
+  <title>FPL Draft Challenge 2025/26</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <span class="eyebrow">FPL DRAFT CHALLENGE</span>
+      <h1>Build your 2025/26 XI</h1>
+      <p>Type a player for each prompt. Points stay hidden until you reveal your team.</p>
+      <div class="status-row">
+        <span id="databaseStatus">Loading players…</span>
+        <span id="progress">0 / 11 valid</span>
+      </div>
+    </header>
+
+    <section id="challengeGrid" class="challenge-grid" aria-live="polite"></section>
+
+    <section class="actions">
+      <button id="resetButton" class="secondary" type="button">Reset team</button>
+      <button id="revealButton" class="primary" type="button" disabled>Reveal my XI</button>
+    </section>
+
+    <section id="results" class="results hidden">
+      <h2>Your result</h2>
+      <div id="revealedTeam" class="revealed-team"></div>
+      <div class="score-card">
+        <div><span>Total score</span><strong id="totalScore">0</strong></div>
+        <div><span>Perfect score</span><strong id="perfectScore">0</strong></div>
+        <div><span>Efficiency</span><strong id="efficiency">0%</strong></div>
+        <div><span>Grade</span><strong id="grade">–</strong></div>
+      </div>
+      <button id="copyButton" class="primary" type="button">Copy share result</button>
+      <p id="copyStatus" class="copy-status" aria-live="polite"></p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

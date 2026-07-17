@@ -1,0 +1,68 @@
+:root{
+  --navy:#07162f;
+  --blue:#1e73ff;
+  --blue2:#4aa3ff;
+  --card:#ffffff;
+  --bg:#eef4ff;
+  --text:#14213d;
+  --muted:#68738a;
+  --good:#168a4a;
+  --good-bg:#e9f8ef;
+  --bad:#c93434;
+  --bad-bg:#fff0f0;
+  --border:#d8e2f2;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,var(--navy) 0 320px,var(--bg) 320px);color:var(--text);min-height:100vh}
+.shell{width:min(980px,calc(100% - 28px));margin:0 auto;padding:42px 0 72px}
+.hero{color:#fff;text-align:center;margin-bottom:28px}
+.eyebrow{font-size:.78rem;font-weight:800;letter-spacing:.16em;color:#86bdff}
+h1{font-size:clamp(2rem,6vw,4rem);line-height:1;margin:.4rem 0 1rem}
+.hero p{margin:0 auto;max-width:620px;color:#d8e8ff;font-size:1.04rem}
+.status-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+.status-row span{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);padding:8px 12px;border-radius:999px;font-size:.9rem}
+.challenge-grid{display:grid;gap:14px}
+.challenge-card{background:var(--card);border:2px solid transparent;border-radius:18px;padding:17px;box-shadow:0 10px 30px rgba(9,31,72,.08)}
+.challenge-card.valid{border-color:var(--good);background:var(--good-bg)}
+.challenge-card.invalid{border-color:var(--bad);background:var(--bad-bg)}
+.prompt-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.position{flex:0 0 auto;background:var(--navy);color:white;border-radius:9px;padding:6px 9px;font-size:.75rem;font-weight:800}
+.prompt-text{font-weight:750;line-height:1.35}
+.autocomplete{position:relative}
+.player-input{width:100%;border:1px solid var(--border);border-radius:12px;padding:13px 42px 13px 14px;font-size:1rem;background:white;color:var(--text);outline:none}
+.player-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(30,115,255,.14)}
+.clear-button{position:absolute;right:7px;top:7px;width:32px;height:32px;border:0;border-radius:50%;background:#edf2fa;color:#4a5870;font-size:1.2rem;cursor:pointer}
+.suggestions{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 6px);background:white;border:1px solid var(--border);border-radius:12px;box-shadow:0 15px 35px rgba(9,31,72,.18);overflow:hidden}
+.suggestion{width:100%;display:flex;justify-content:space-between;gap:12px;text-align:left;padding:12px 14px;border:0;border-bottom:1px solid #edf1f7;background:white;cursor:pointer}
+.suggestion:last-child{border-bottom:0}
+.suggestion:hover,.suggestion.active{background:#edf5ff}
+.suggestion strong{font-size:.95rem}
+.suggestion span{font-size:.85rem;color:var(--muted)}
+.feedback{min-height:20px;margin:9px 2px 0;font-size:.88rem;color:var(--muted)}
+.valid .feedback{color:var(--good);font-weight:700}
+.invalid .feedback{color:var(--bad);font-weight:700}
+.actions{display:flex;gap:12px;justify-content:center;margin:26px 0}
+button{font:inherit}
+.primary,.secondary{border:0;border-radius:12px;padding:13px 20px;font-weight:800;cursor:pointer}
+.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 8px 20px rgba(30,115,255,.28)}
+.primary:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.secondary{background:white;color:var(--text);border:1px solid var(--border)}
+.results{background:white;border-radius:20px;padding:22px;box-shadow:0 12px 36px rgba(9,31,72,.1)}
+.hidden{display:none}
+.revealed-team{display:grid;gap:8px;margin:18px 0}
+.reveal-row{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid #edf1f7}
+.reveal-row span:first-child{font-weight:800;color:var(--blue)}
+.reveal-row strong:last-child{font-size:1.1rem}
+.score-card{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}
+.score-card div{background:var(--bg);padding:15px;border-radius:12px;text-align:center}
+.score-card span{display:block;font-size:.78rem;color:var(--muted);margin-bottom:5px}
+.score-card strong{font-size:1.3rem}
+.copy-status{color:var(--good);font-weight:700}
+@media(max-width:640px){
+  body{background:linear-gradient(180deg,var(--navy) 0 290px,var(--bg) 290px)}
+  .shell{width:min(100% - 18px,980px);padding-top:28px}
+  .score-card{grid-template-columns:repeat(2,1fr)}
+  .actions{position:sticky;bottom:8px;z-index:10;background:rgba(238,244,255,.92);backdrop-filter:blur(8px);padding:8px;border-radius:16px}
+  .actions button{flex:1}
+}
