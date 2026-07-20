@@ -1,7 +1,7 @@
 <!doctype html>
 
 <html lang="en">
-<head><!-- Daily challenge content now lives in data/todays-challenge.js -->
+<head><!-- Daily challenge content loads from todays-challenge.js in the repository root. -->
 
 
 
@@ -335,10 +335,14 @@ body::before{
 
 
 
-<!-- Challenge #6 is embedded here so it cannot fail to load separately. -->
+<!-- Load the editable daily challenge first. The timestamp prevents an old cached challenge being reused. -->
 <script>
-/* Edit this file to publish the daily challenge. */
-window.FPL_DAILY_CHALLENGE = {
+document.write('<script src="todays-challenge.js?v=' + Date.now() + '"><\/script>');
+</script>
+
+<!-- Safe fallback: used only if todays-challenge.js is missing or fails to load. -->
+<script>
+window.FPL_DAILY_CHALLENGE = window.FPL_DAILY_CHALLENGE || {
   id: "daily-006-underdog-xi",
   number: 6,
   title: "Daily Challenge #6 · The Underdog XI",
