@@ -4,23 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 2</title>
-  <link rel="stylesheet" href="admin.css?v=2.0.0">
+  <title>FPL Challenge Studio · Phase 3</title>
+  <link rel="stylesheet" href="admin.css?v=3.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 2</p>
-        <h1>Score, review and download</h1>
-        <p class="hero-copy">Generate a balanced XI, calculate the exact maximum score with eleven different footballers, inspect answer overlaps, then download a reviewed <code>todays-challenge.js</code> file.</p>
+        <p class="eyebrow">Challenge Studio · Phase 3</p>
+        <h1>Test, record and protect each challenge</h1>
+        <p class="hero-copy">Generate and review the XI, run it through a safe copy of the game, then record it in browser history so recently used prompts stay on cooldown.</p>
       </div>
       <a class="back-link" href="./">Open live game</a>
     </header>
 
     <section class="safety-banner" aria-label="Safety status">
-      <strong>Manual upload only</strong>
-      <span>This page cannot edit the live game or publish to GitHub. It only creates a file for you to review and upload yourself.</span>
+      <strong>Still isolated from the live game</strong>
+      <span>Test Mode and Challenge History use this browser only. Publishing remains a manual GitHub upload.</span>
     </section>
 
     <section class="status-grid" aria-label="Studio status">
@@ -37,8 +37,12 @@
         <strong>1–4–4–2</strong>
       </article>
       <article class="status-card">
+        <span>Challenge history</span>
+        <strong id="historyStatus">Loading…</strong>
+      </article>
+      <article class="status-card">
         <span>Publishing</span>
-        <strong class="safe-text">Download only</strong>
+        <strong class="safe-text">Manual upload</strong>
       </article>
     </section>
 
@@ -85,9 +89,19 @@
           Minimum anti-meta prompts
           <input id="minAntiMeta" type="number" min="0" max="11" value="5">
         </label>
+        <label>
+          Prompt cooldown
+          <select id="cooldownChallenges">
+            <option value="3">Last 3 challenges</option>
+            <option value="5">Last 5 challenges</option>
+            <option value="7" selected>Last 7 challenges</option>
+            <option value="10">Last 10 challenges</option>
+            <option value="14">Last 14 challenges</option>
+          </select>
+        </label>
         <label class="check-label">
           <input id="avoidRecent" type="checkbox" checked>
-          Avoid all Challenge #6 prompts
+          Avoid prompts currently on cooldown
         </label>
       </div>
 
@@ -126,16 +140,58 @@
       <div id="promptSlots" class="prompt-slots"></div>
     </section>
 
-    <section class="panel hidden" id="codePanel">
+    <section class="panel hidden" id="testPanel">
       <div class="panel-heading">
         <div>
           <p class="eyebrow">Step 3</p>
+          <h2>Test Mode</h2>
+          <p class="section-copy">This is a disposable copy of the game. It does not save to or alter the live challenge.</p>
+        </div>
+        <span id="testPassChip" class="phase-chip">Not tested</span>
+      </div>
+
+      <div class="test-toolbar">
+        <div class="summary-chips test-status-chips">
+          <span id="testProgress">0 / 11 valid</span>
+          <span id="testTimer">Time 0:00</span>
+          <span id="testPenalty">Penalties −0</span>
+        </div>
+        <div class="button-row compact-row">
+          <button id="startTestBtn" class="button primary" type="button">Start fresh test</button>
+          <button id="loadPerfectBtn" class="button secondary" type="button">Load optimal XI</button>
+          <button id="autoTestBtn" class="button secondary" type="button">Run automatic checks</button>
+          <button id="resetTestBtn" class="button secondary" type="button">Reset tester</button>
+        </div>
+      </div>
+
+      <div id="autoTestReport" class="warnings" aria-live="polite"></div>
+      <div id="testSlots" class="test-slots"></div>
+
+      <div class="test-footer">
+        <button id="revealTestBtn" class="button primary" type="button" disabled>Reveal test XI</button>
+        <p id="testStatus" class="action-status" role="status">Generate or load a draft above, then start the tester.</p>
+      </div>
+
+      <section id="testResults" class="test-results hidden" aria-label="Test results">
+        <div><span>Player points</span><strong id="testPlayerPoints">0</strong></div>
+        <div><span>Penalties</span><strong id="testPenaltyPoints">0</strong></div>
+        <div><span>Final score</span><strong id="testFinalScore">0</strong></div>
+        <div><span>Perfect score</span><strong id="testPerfectScore">0</strong></div>
+        <div><span>Efficiency</span><strong id="testEfficiency">0%</strong></div>
+        <div><span>Test outcome</span><strong id="testOutcome">—</strong></div>
+      </section>
+    </section>
+
+    <section class="panel hidden" id="codePanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 4</p>
           <h2>Download-ready challenge</h2>
         </div>
         <span class="phase-chip ready-chip">Manual upload</span>
       </div>
 
-      <p class="code-note">The exact perfect score is included. Review the prompts and optimal XI above, then download the file and replace only <code>todays-challenge.js</code> in GitHub.</p>
+      <p class="code-note">The exact perfect score is included. Run the automatic Test Mode checks before recording it in history, then download and replace only <code>todays-challenge.js</code> in GitHub.</p>
       <textarea id="codeOutput" spellcheck="false" aria-label="Generated challenge code"></textarea>
       <div class="button-row">
         <button id="downloadBtn" class="button primary" type="button" disabled>Download todays-challenge.js</button>
@@ -143,10 +199,30 @@
       </div>
       <p id="copyStatus" class="action-status" role="status"></p>
     </section>
+
+    <section class="panel" id="historyPanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 5</p>
+          <h2>Challenge history and cooldown</h2>
+          <p class="section-copy">History is stored only in this browser. Its most recent entries tell the generator which prompts to avoid.</p>
+        </div>
+        <span id="cooldownSummary" class="phase-chip">Loading cooldown…</span>
+      </div>
+
+      <div class="button-row">
+        <button id="recordHistoryBtn" class="button primary" type="button" disabled>Record tested challenge</button>
+        <button id="downloadHistoryBtn" class="button secondary" type="button">Download history backup</button>
+        <button id="downloadHistoryMarkdownBtn" class="button secondary" type="button">Download challenge-history.md</button>
+      </div>
+      <p id="historyActionStatus" class="action-status" role="status"></p>
+      <div id="historyList" class="history-list"></div>
+    </section>
   </main>
 
   <script src="players.js?v=6.2"></script>
   <script src="prompt-library.js?v=2.0.0"></script>
-  <script src="admin.js?v=2.0.0"></script>
+  <script src="admin.js?v=3.0.0"></script>
+  <script src="admin-phase3.js?v=3.0.0"></script>
 </body>
 </html>
