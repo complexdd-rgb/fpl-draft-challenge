@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 3</title>
-  <link rel="stylesheet" href="admin.css?v=3.0.0">
+  <title>FPL Challenge Studio · Phase 4</title>
+  <link rel="stylesheet" href="admin.css?v=4.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 3</p>
-        <h1>Test, record and protect each challenge</h1>
-        <p class="hero-copy">Generate and review the XI, run it through a safe copy of the game, then record it in browser history so recently used prompts stay on cooldown.</p>
+        <p class="eyebrow">Challenge Studio · Phase 4</p>
+        <h1>Build, test and manage every challenge</h1>
+        <p class="hero-copy">Generate and review the XI, test it safely, record its history, and manage the reusable prompt library without touching the live game.</p>
       </div>
       <a class="back-link" href="./">Open live game</a>
     </header>
@@ -218,11 +218,117 @@
       <p id="historyActionStatus" class="action-status" role="status"></p>
       <div id="historyList" class="history-list"></div>
     </section>
+
+    <section class="panel" id="libraryManagerPanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 6</p>
+          <h2>Prompt Library Manager</h2>
+          <p class="section-copy">Add safe rule-built prompts, edit prompt wording and ratings, disable weak prompts, and download a replacement <code>prompt-library.js</code> when you are satisfied.</p>
+        </div>
+        <span class="phase-chip ready-chip">Browser workspace</span>
+      </div>
+
+      <div class="manager-count-grid" aria-label="Prompt library totals">
+        <article><span>Total prompts</span><strong id="managerLibraryCount">0</strong></article>
+        <article><span>Enabled</span><strong id="managerEnabledCount">0</strong></article>
+        <article><span>Disabled</span><strong id="managerDisabledCount">0</strong></article>
+        <article><span>Custom prompts</span><strong id="managerCustomCount">0</strong></article>
+      </div>
+
+      <div class="manager-toolbar">
+        <input id="promptManagerSearch" type="search" placeholder="Search prompt wording, ID or tag" aria-label="Search prompt library">
+        <select id="promptManagerPosition" aria-label="Filter by position">
+          <option value="all">All positions</option>
+          <option value="GK">Goalkeepers</option>
+          <option value="DEF">Defenders</option>
+          <option value="MID">Midfielders</option>
+          <option value="FWD">Forwards</option>
+        </select>
+        <select id="promptManagerDifficulty" aria-label="Filter by difficulty">
+          <option value="all">All difficulties</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <select id="promptManagerStatusFilter" aria-label="Filter by status">
+          <option value="all">All prompts</option>
+          <option value="enabled">Enabled</option>
+          <option value="disabled">Disabled</option>
+          <option value="custom">Custom</option>
+          <option value="built-in">Built-in</option>
+        </select>
+      </div>
+
+      <div class="button-row manager-actions">
+        <button id="newPromptBtn" class="button primary" type="button">Create custom prompt</button>
+        <button id="downloadLibraryBtn" class="button secondary" type="button">Download prompt-library.js</button>
+        <button id="downloadPromptBackupBtn" class="button secondary" type="button">Download manager backup</button>
+        <label class="button secondary file-button" for="importPromptBackupInput">Import backup</label>
+        <input id="importPromptBackupInput" class="visually-hidden" type="file" accept="application/json,.json">
+        <button id="resetPromptManagerBtn" class="button danger-button" type="button">Reset browser edits</button>
+      </div>
+      <p id="managerStatus" class="action-status" role="status"></p>
+
+      <section id="promptEditor" class="prompt-editor hidden" aria-labelledby="promptEditorTitle">
+        <div class="prompt-editor-head">
+          <div>
+            <p class="eyebrow">Prompt editor</p>
+            <h3 id="promptEditorTitle">Create a custom prompt</h3>
+          </div>
+          <button id="cancelPromptEditBtn" class="editor-close" type="button">Close</button>
+        </div>
+        <p id="promptEditorNotice" class="editor-notice"></p>
+
+        <div class="prompt-editor-grid">
+          <label>Prompt ID<input id="promptEditorId" type="text" placeholder="e.g. def_midtable_assists"></label>
+          <label>Position<select id="promptEditorPosition"><option>GK</option><option>DEF</option><option>MID</option><option>FWD</option></select></label>
+          <label class="wide-field">Prompt wording<input id="promptEditorLabel" type="text" maxlength="150"></label>
+          <label class="wide-field">Invalid-answer message<input id="promptEditorFail" type="text" maxlength="180"></label>
+          <label>Difficulty<select id="promptEditorDifficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></label>
+          <label>Rating<input id="promptEditorRating" type="number" min="1" max="5" value="4"></label>
+          <label>Cooldown<input id="promptEditorCooldown" type="number" min="0" max="50" value="7"></label>
+          <label class="wide-field">Tags<input id="promptEditorTags" type="text" placeholder="anti-meta, mid-table, assists"></label>
+          <label class="check-label editor-enabled"><input id="promptEditorEnabled" type="checkbox" checked> Enabled for generation</label>
+        </div>
+
+        <div class="rule-builder">
+          <div class="rule-builder-head">
+            <div>
+              <h4>Safe rule builder</h4>
+              <p>Conditions are converted into the same JavaScript tests used by the game.</p>
+            </div>
+            <label>Match<select id="promptRuleJoin"><option value="all">All conditions</option><option value="any">Any condition</option></select></label>
+          </div>
+          <div id="promptRuleRows" class="rule-rows"></div>
+          <button id="addPromptConditionBtn" class="button secondary small-button" type="button">Add condition</button>
+        </div>
+
+        <div class="button-row">
+          <button id="testPromptBtn" class="button secondary" type="button">Test against player database</button>
+          <button id="savePromptBtn" class="button primary" type="button">Save browser draft</button>
+          <button id="duplicatePromptBtn" class="button secondary hidden" type="button">Duplicate as custom</button>
+        </div>
+        <div id="promptTestResults" class="prompt-test-results" aria-live="polite"></div>
+      </section>
+
+      <div class="library-list-heading">
+        <strong id="promptListSummary">0 prompts</strong>
+        <div class="library-pagination">
+          <button id="promptPreviousPageBtn" type="button">Previous</button>
+          <span id="promptPageLabel">Page 1 of 1</span>
+          <button id="promptNextPageBtn" type="button">Next</button>
+        </div>
+      </div>
+      <div id="promptManagerList" class="prompt-manager-list"></div>
+    </section>
+
   </main>
 
   <script src="players.js?v=6.2"></script>
   <script src="prompt-library.js?v=2.0.0"></script>
-  <script src="admin.js?v=3.0.0"></script>
+  <script src="admin-phase4.js?v=4.0.0"></script>
+  <script src="admin.js?v=4.0.0"></script>
   <script src="admin-phase3.js?v=3.0.0"></script>
 </body>
 </html>

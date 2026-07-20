@@ -477,3 +477,227 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
   .test-results { grid-template-columns: 1fr; }
   .history-card-head { flex-direction: column; }
 }
+
+/* Phase 4: Prompt Library Manager */
+.manager-count-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.manager-count-grid article {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(7, 26, 18, .72);
+}
+.manager-count-grid span { display: block; color: var(--muted); font-size: .73rem; font-weight: 800; }
+.manager-count-grid strong { display: block; margin-top: 5px; color: var(--accent); font-size: 1.25rem; }
+.manager-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.7fr) repeat(3, minmax(150px, .75fr));
+  gap: 9px;
+  margin-bottom: 10px;
+}
+.manager-toolbar input, .manager-toolbar select { margin: 0; }
+.manager-actions { align-items: center; }
+.file-button { display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.danger-button { background: rgba(255, 117, 144, .1); color: var(--danger); border: 1px solid rgba(255, 117, 144, .32); }
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.prompt-editor {
+  margin: 17px 0;
+  padding: 17px;
+  border: 1px solid rgba(55, 199, 255, .32);
+  border-radius: 17px;
+  background: linear-gradient(135deg, rgba(55,199,255,.065), rgba(34,242,140,.045));
+}
+.prompt-editor-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.prompt-editor-head h3 { margin-top: 4px; font-size: 1.25rem; }
+.editor-close {
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #17392a;
+  color: var(--text);
+  font-weight: 850;
+  cursor: pointer;
+}
+.editor-notice {
+  margin: 11px 0 14px;
+  padding: 11px 12px;
+  border: 1px solid rgba(55,199,255,.2);
+  border-radius: 12px;
+  background: rgba(7,26,18,.68);
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: .82rem;
+}
+.prompt-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.prompt-editor-grid .wide-field { grid-column: span 2; }
+.prompt-editor-grid label { min-width: 0; }
+.prompt-editor-grid input, .prompt-editor-grid select { width: 100%; margin-top: 5px; }
+.editor-enabled { align-self: end; min-height: 46px; }
+.rule-builder {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(7, 26, 18, .72);
+}
+.rule-builder-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.rule-builder-head h4 { font-size: 1rem; }
+.rule-builder-head p { margin: 5px 0 0; color: var(--muted); font-size: .79rem; }
+.rule-builder-head label { min-width: 180px; }
+.rule-builder-head select { margin-top: 5px; }
+.rule-rows { display: grid; gap: 8px; margin: 12px 0; }
+.rule-row {
+  display: grid;
+  grid-template-columns: 1.25fr .9fr 1.25fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 9px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  background: rgba(18,49,36,.72);
+}
+.rule-row select, .rule-row input { width: 100%; margin: 0; }
+.rule-value-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.rule-no-value { color: var(--muted); font-size: .78rem; }
+.rule-remove {
+  padding: 9px 10px;
+  border: 1px solid rgba(255,117,144,.28);
+  border-radius: 9px;
+  background: rgba(255,117,144,.08);
+  color: var(--danger);
+  font-weight: 850;
+  cursor: pointer;
+}
+.rule-rows.locked { opacity: .62; }
+.rule-locked-message { padding: 12px; border: 1px dashed var(--line); border-radius: 11px; color: var(--muted); }
+.small-button { padding: 9px 12px; }
+.prompt-test-results { margin-top: 13px; }
+.prompt-test-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 9px;
+}
+.prompt-test-summary > div {
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: rgba(7,26,18,.74);
+}
+.prompt-test-summary span { display: block; color: var(--muted); font-size: .71rem; }
+.prompt-test-summary strong { display: block; margin-top: 4px; font-size: 1.1rem; }
+.prompt-test-answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin: 9px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.prompt-test-answers li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  background: rgba(7,26,18,.7);
+}
+.prompt-test-answers span { color: var(--muted); font-size: .75rem; }
+.library-list-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 10px;
+}
+.library-pagination { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .78rem; }
+.library-pagination button {
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #17392a;
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+}
+.library-pagination button:disabled { opacity: .4; cursor: not-allowed; }
+.prompt-manager-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.library-prompt-card {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(18,49,36,.96), rgba(8,28,19,.96));
+}
+.library-prompt-card.disabled { opacity: .66; border-style: dashed; }
+.library-prompt-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.library-prompt-title { display: flex; gap: 9px; min-width: 0; }
+.library-prompt-title > div { min-width: 0; }
+.library-prompt-title h3 { font-size: .9rem; line-height: 1.35; }
+.library-prompt-title p { margin: 4px 0 0; overflow: hidden; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+.library-prompt-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
+.library-prompt-chips span {
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: .65rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+.library-prompt-chips .on { color: var(--accent); border-color: rgba(34,242,140,.27); }
+.library-prompt-chips .off { color: var(--danger); border-color: rgba(255,117,144,.28); }
+.library-prompt-chips .selected { color: var(--accent-2); border-color: rgba(55,199,255,.28); }
+.library-prompt-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.library-prompt-meta span { color: var(--muted); font-size: .7rem; }
+.library-prompt-meta span + span::before { content: "·"; margin-right: 6px; }
+.library-prompt-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
+.library-prompt-actions button {
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #17392a;
+  color: var(--text);
+  font-size: .73rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+.library-prompt-actions .danger-action { color: var(--danger); border-color: rgba(255,117,144,.25); }
+
+@media (max-width: 1000px) {
+  .manager-toolbar { grid-template-columns: 1fr 1fr; }
+  .prompt-editor-grid { grid-template-columns: 1fr 1fr; }
+  .prompt-manager-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .manager-count-grid, .prompt-test-summary { grid-template-columns: 1fr 1fr; }
+  .rule-builder-head, .library-list-heading { flex-direction: column; align-items: stretch; }
+  .rule-row { grid-template-columns: 1fr; }
+  .rule-value-wrap { grid-template-columns: 1fr; }
+  .prompt-test-answers { grid-template-columns: 1fr; }
+}
+@media (max-width: 620px) {
+  .manager-toolbar, .prompt-editor-grid, .manager-count-grid, .prompt-test-summary { grid-template-columns: 1fr; }
+  .prompt-editor-grid .wide-field { grid-column: auto; }
+  .library-prompt-head { flex-direction: column; }
+  .library-prompt-chips { justify-content: flex-start; }
+}
