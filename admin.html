@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07150f">
+  <title>FPL Challenge Studio · Phase 1</title>
+  <link rel="stylesheet" href="admin.css?v=1.0.0">
+</head>
+<body>
+  <main class="studio-shell">
+    <header class="studio-hero">
+      <div>
+        <p class="eyebrow">Challenge Studio · Phase 1</p>
+        <h1>Safe challenge generator</h1>
+        <p class="hero-copy">This page is completely separate from the live game. It can inspect the player database and create a draft challenge, but it cannot publish or alter <code>index.html</code>.</p>
+      </div>
+      <a class="back-link" href="./">Open live game</a>
+    </header>
+
+    <section class="safety-banner" aria-label="Safety status">
+      <strong>Read-only mode</strong>
+      <span>No game files are edited. Publishing will be added only after the generator has been tested.</span>
+    </section>
+
+    <section class="status-grid" aria-label="Studio status">
+      <article class="status-card">
+        <span>Player database</span>
+        <strong id="dbStatus">Loading…</strong>
+      </article>
+      <article class="status-card">
+        <span>Prompt library</span>
+        <strong id="libraryStatus">Loading…</strong>
+      </article>
+      <article class="status-card">
+        <span>Generation mode</span>
+        <strong>1–4–4–2</strong>
+      </article>
+      <article class="status-card">
+        <span>Publishing</span>
+        <strong class="safe-text">Disabled</strong>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 1</p>
+          <h2>Challenge settings</h2>
+        </div>
+        <span class="phase-chip">Draft only</span>
+      </div>
+
+      <div class="settings-grid">
+        <label>
+          Challenge number
+          <input id="challengeNumber" type="number" min="1" value="7">
+        </label>
+        <label>
+          Challenge name
+          <input id="challengeName" type="text" value="The Generated Mix" maxlength="55">
+        </label>
+        <label>
+          Difficulty target
+          <select id="difficultyTarget">
+            <option value="mixed" selected>Mixed</option>
+            <option value="easy">Easy leaning</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard leaning</option>
+          </select>
+        </label>
+        <label>
+          Release date
+          <input id="releaseDate" type="date">
+        </label>
+        <label>
+          Minimum valid players
+          <input id="minAnswers" type="number" min="2" max="50" value="6">
+        </label>
+        <label>
+          Maximum valid players
+          <input id="maxAnswers" type="number" min="10" max="300" value="100">
+        </label>
+        <label>
+          Minimum anti-meta prompts
+          <input id="minAntiMeta" type="number" min="0" max="11" value="5">
+        </label>
+        <label class="check-label">
+          <input id="avoidRecent" type="checkbox" checked>
+          Avoid all Challenge #6 prompts
+        </label>
+      </div>
+
+      <div class="button-row">
+        <button id="generateBtn" class="button primary" type="button">Generate draft XI</button>
+        <button id="saveDraftBtn" class="button secondary" type="button" disabled>Save draft in this browser</button>
+        <button id="loadDraftBtn" class="button secondary" type="button">Load saved draft</button>
+      </div>
+      <p id="actionStatus" class="action-status" role="status"></p>
+    </section>
+
+    <section class="panel hidden" id="draftPanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 2</p>
+          <h2>Review the generated XI</h2>
+        </div>
+        <div id="draftSummary" class="summary-chips"></div>
+      </div>
+
+      <div id="warnings" class="warnings" aria-live="polite"></div>
+      <div id="promptSlots" class="prompt-slots"></div>
+    </section>
+
+    <section class="panel hidden" id="codePanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 3</p>
+          <h2>Draft challenge code</h2>
+        </div>
+        <span class="phase-chip warning-chip">Not publish-ready</span>
+      </div>
+
+      <p class="code-note">Phase 1 deliberately leaves <code>perfectScore</code> at zero. Exact scoring and one-click publishing will be built after the generator is approved.</p>
+      <textarea id="codeOutput" spellcheck="false" aria-label="Generated challenge code"></textarea>
+      <div class="button-row">
+        <button id="copyCodeBtn" class="button secondary" type="button">Copy draft code</button>
+      </div>
+      <p id="copyStatus" class="action-status" role="status"></p>
+    </section>
+  </main>
+
+  <script src="players.js?v=6.2"></script>
+  <script src="prompt-library.js?v=1.0.0"></script>
+  <script src="admin.js?v=1.0.0"></script>
+</body>
+</html>
