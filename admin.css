@@ -248,3 +248,75 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
   .count-chip { grid-column: 1 / -1; justify-self: start; }
   .prompt-controls { grid-template-columns: 1fr; }
 }
+
+/* Phase 2 scoring and download review */
+.ready-chip {
+  background: rgba(34, 242, 140, .1);
+  color: var(--accent);
+  border-color: rgba(34, 242, 140, .3);
+}
+
+.perfect-panel {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 18px;
+  margin-bottom: 16px;
+  padding: 17px;
+  border: 1px solid rgba(55, 199, 255, .28);
+  border-radius: 17px;
+  background: linear-gradient(135deg, rgba(55, 199, 255, .08), rgba(34, 242, 140, .055));
+}
+.perfect-score-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px;
+  border-radius: 14px;
+  background: #071a12;
+  border: 1px solid var(--line);
+}
+.perfect-score-block span { color: var(--muted); font-size: .78rem; font-weight: 850; }
+.perfect-score-block strong { margin: 5px 0; color: var(--accent); font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; }
+.perfect-score-block small { color: var(--muted); line-height: 1.45; }
+.perfect-xi-block > p { margin: 7px 0 12px; color: var(--muted); font-size: .84rem; }
+.perfect-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.perfect-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  background: rgba(7, 26, 18, .72);
+}
+.perfect-list strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .83rem; }
+.perfect-list span { color: var(--muted); font-size: .75rem; }
+
+.answer-insights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 11px;
+}
+.answer-insights > div {
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 11px;
+  background: rgba(7, 26, 18, .72);
+}
+.answer-insights span { display: block; margin-bottom: 4px; color: var(--muted); font-size: .72rem; font-weight: 800; }
+.answer-insights strong { display: block; overflow: hidden; color: var(--text); font-size: .82rem; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .perfect-panel { grid-template-columns: 1fr; }
+  .perfect-list, .answer-insights { grid-template-columns: 1fr; }
+}

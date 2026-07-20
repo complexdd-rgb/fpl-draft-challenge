@@ -7,7 +7,9 @@
     "relegated", "promoted", "bottom-half", "mid-table", "survival",
     "outside-big-six", "outside-top-four", "manager", "budget", "young", "exact-stat"
   ]);
-  const STORAGE_KEY = "fplChallengeStudioPhase1Draft";
+  const STORAGE_KEY = "fplChallengeStudioPhase2Draft";
+  const LEGACY_STORAGE_KEY = "fplChallengeStudioPhase1Draft";
+  const FORBIDDEN_COST = 1_000_000;
 
   const elements = {
     dbStatus: document.querySelector("#dbStatus"),
@@ -27,9 +29,13 @@
     draftPanel: document.querySelector("#draftPanel"),
     draftSummary: document.querySelector("#draftSummary"),
     warnings: document.querySelector("#warnings"),
+    perfectScore: document.querySelector("#perfectScore"),
+    perfectComparison: document.querySelector("#perfectComparison"),
+    perfectXI: document.querySelector("#perfectXI"),
     promptSlots: document.querySelector("#promptSlots"),
     codePanel: document.querySelector("#codePanel"),
     codeOutput: document.querySelector("#codeOutput"),
+    downloadBtn: document.querySelector("#downloadBtn"),
     copyCodeBtn: document.querySelector("#copyCodeBtn"),
     copyStatus: document.querySelector("#copyStatus")
   };
@@ -40,6 +46,7 @@
   const records = [];
   const statsCache = new Map();
   let selectedPrompts = [];
+  let currentPerfect = null;
 
   for (const player of players) {
     for (const season of player.seasons || []) {
@@ -61,22 +68,22 @@
     if (!players.length || !promptLibrary.length) {
       elements.generateBtn.disabled = true;
       elements.actionStatus.textContent = !players.length
-        ? "The studio cannot find players.js. Upload admin.html beside the existing players.js file."
+        ? "The studio cannot find players.js. Keep admin.html beside the existing players.js file."
         : "The prompt library failed to load.";
       return;
     }
 
-    // Build and cache all answer counts once so generation stays responsive.
     for (const prompt of promptLibrary) getPromptStats(prompt);
     elements.libraryStatus.textContent = `${promptLibrary.length} prompts checked`;
-    elements.actionStatus.textContent = "Ready. Generate a safe draft without changing the live game.";
+    elements.actionStatus.textContent = "Ready. Generate a draft; the live game will not be changed.";
   }
 
   function bindEvents() {
     elements.generateBtn.addEventListener("click", generateDraft);
     elements.saveDraftBtn.addEventListener("click", saveDraft);
     elements.loadDraftBtn.addEventListener("click", loadDraft);
-    elements.copyCodeBtn.addEventListener("click", copyDraftCode);
+    elements.downloadBtn.addEventListener("click", downloadChallengeFile);
+    elements.copyCodeBtn.addEventListener("click", copyChallengeCode);
 
     for (const input of [
       elements.challengeNumber,
@@ -89,10 +96,7 @@
       elements.avoidRecent
     ]) {
       input.addEventListener("change", () => {
-        if (selectedPrompts.length) {
-          renderDraft();
-          updateCodeOutput();
-        }
+        if (selectedPrompts.length) refreshDraft();
       });
     }
   }
@@ -129,17 +133,24 @@
     const bestByPlayer = new Map();
     for (const match of matches) {
       const previous = bestByPlayer.get(match.playerId);
-      if (!previous || match.points > previous.points) bestByPlayer.set(match.playerId, match);
+      if (
+        !previous ||
+        match.points > previous.points ||
+        (match.points === previous.points && seasonSortValue(match.season) > seasonSortValue(previous.season))
+      ) {
+        bestByPlayer.set(match.playerId, match);
+      }
     }
 
-    const topAnswers = [...bestByPlayer.values()]
-      .sort((a, b) => b.points - a.points || a.playerName.localeCompare(b.playerName))
-      .slice(0, 5);
+    const allBestAnswers = [...bestByPlayer.values()]
+      .sort((a, b) => b.points - a.points || a.playerName.localeCompare(b.playerName));
 
     const stats = {
       playerCount: bestByPlayer.size,
       seasonCount: matches.length,
-      topAnswers
+      bestByPlayer,
+      bestAnswer: allBestAnswers[0] || null,
+      topAnswers: allBestAnswers.slice(0, 5)
     };
     statsCache.set(prompt.id, stats);
     return stats;
@@ -214,9 +225,8 @@
     elements.draftPanel.classList.remove("hidden");
     elements.codePanel.classList.remove("hidden");
     elements.saveDraftBtn.disabled = false;
-    renderDraft();
-    updateCodeOutput();
-    elements.actionStatus.textContent = "Draft generated. Review each prompt and use reroll or the dropdown to make changes.";
+    refreshDraft();
+    elements.actionStatus.textContent = "Draft generated. The exact unique-player perfect score has been calculated.";
     elements.draftPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -273,11 +283,136 @@
     return score + Math.random() * .25;
   }
 
+  function refreshDraft() {
+    currentPerfect = calculatePerfectXI(selectedPrompts);
+    renderDraft();
+    updateCodeOutput();
+  }
+
+  function calculatePerfectXI(prompts) {
+    if (prompts.length !== 11) return { possible: false, reason: "The draft does not contain eleven prompts." };
+
+    const playerIdSet = new Set();
+    for (const prompt of prompts) {
+      for (const playerId of getPromptStats(prompt).bestByPlayer.keys()) playerIdSet.add(playerId);
+    }
+    const playerIds = [...playerIdSet];
+    if (playerIds.length < prompts.length) {
+      return { possible: false, reason: "There are not enough different valid footballers to complete the XI." };
+    }
+
+    let maximumPoints = 0;
+    for (const prompt of prompts) {
+      const best = getPromptStats(prompt).bestAnswer;
+      if (best) maximumPoints = Math.max(maximumPoints, best.points);
+    }
+
+    const recordsBySlot = prompts.map(prompt => {
+      const bestByPlayer = getPromptStats(prompt).bestByPlayer;
+      return playerIds.map(playerId => bestByPlayer.get(playerId) || null);
+    });
+
+    const costs = recordsBySlot.map(row => {
+      const values = new Float64Array(playerIds.length);
+      for (let column = 0; column < playerIds.length; column += 1) {
+        const record = row[column];
+        values[column] = record ? maximumPoints - record.points : FORBIDDEN_COST;
+      }
+      return values;
+    });
+
+    const assignment = hungarianMinimumAssignment(costs);
+    if (!assignment) return { possible: false, reason: "The score optimiser could not complete the matching." };
+
+    const picks = assignment.map((column, slotIndex) => {
+      const record = recordsBySlot[slotIndex][column];
+      return record ? { prompt: prompts[slotIndex], record, slotIndex } : null;
+    });
+    if (picks.some(pick => !pick)) {
+      return { possible: false, reason: "No valid eleven-player assignment exists for these prompts." };
+    }
+
+    const score = picks.reduce((sum, pick) => sum + pick.record.points, 0);
+    const naiveScore = prompts.reduce((sum, prompt) => sum + (getPromptStats(prompt).bestAnswer?.points || 0), 0);
+    return {
+      possible: true,
+      score,
+      naiveScore,
+      uniquenessCost: naiveScore - score,
+      picks
+    };
+  }
+
+  function hungarianMinimumAssignment(costs) {
+    const rowCount = costs.length;
+    const columnCount = costs[0]?.length || 0;
+    if (!rowCount || columnCount < rowCount) return null;
+
+    const u = new Float64Array(rowCount + 1);
+    const v = new Float64Array(columnCount + 1);
+    const p = new Int32Array(columnCount + 1);
+    const way = new Int32Array(columnCount + 1);
+
+    for (let row = 1; row <= rowCount; row += 1) {
+      p[0] = row;
+      let column0 = 0;
+      const minValue = new Float64Array(columnCount + 1);
+      minValue.fill(Number.POSITIVE_INFINITY);
+      const used = new Uint8Array(columnCount + 1);
+
+      do {
+        used[column0] = 1;
+        const row0 = p[column0];
+        let delta = Number.POSITIVE_INFINITY;
+        let column1 = 0;
+
+        for (let column = 1; column <= columnCount; column += 1) {
+          if (used[column]) continue;
+          const current = costs[row0 - 1][column - 1] - u[row0] - v[column];
+          if (current < minValue[column]) {
+            minValue[column] = current;
+            way[column] = column0;
+          }
+          if (minValue[column] < delta) {
+            delta = minValue[column];
+            column1 = column;
+          }
+        }
+
+        if (!Number.isFinite(delta)) return null;
+        for (let column = 0; column <= columnCount; column += 1) {
+          if (used[column]) {
+            u[p[column]] += delta;
+            v[column] -= delta;
+          } else {
+            minValue[column] -= delta;
+          }
+        }
+        column0 = column1;
+      } while (p[column0] !== 0);
+
+      do {
+        const column1 = way[column0];
+        p[column0] = p[column1];
+        column0 = column1;
+      } while (column0 !== 0);
+    }
+
+    const assignment = new Int32Array(rowCount);
+    assignment.fill(-1);
+    for (let column = 1; column <= columnCount; column += 1) {
+      if (p[column] !== 0) assignment[p[column] - 1] = column - 1;
+    }
+    return [...assignment];
+  }
+
   function renderDraft() {
     elements.promptSlots.innerHTML = "";
+    const perfectPicks = currentPerfect?.possible ? currentPerfect.picks : [];
 
     selectedPrompts.forEach((prompt, index) => {
       const stats = getPromptStats(prompt);
+      const perfectPick = perfectPicks[index]?.record || null;
       const card = document.createElement("article");
       card.className = "prompt-card";
 
@@ -301,8 +436,7 @@
         const replacement = promptLibrary.find(item => item.id === event.target.value);
         if (!replacement) return;
         selectedPrompts[index] = replacement;
-        renderDraft();
-        updateCodeOutput();
+        refreshDraft();
       });
 
       const reroll = document.createElement("button");
@@ -311,6 +445,19 @@
       reroll.textContent = "Reroll this slot";
       reroll.addEventListener("click", () => rerollSlot(index));
       controls.append(select, reroll);
+
+      const insights = document.createElement("div");
+      insights.className = "answer-insights";
+      insights.innerHTML = `
+        <div>
+          <span>Best individual answer</span>
+          <strong>${formatAnswer(stats.bestAnswer)}</strong>
+        </div>
+        <div>
+          <span>Perfect-XI selection</span>
+          <strong>${formatAnswer(perfectPick)}</strong>
+        </div>
+      `;
 
       const tags = document.createElement("div");
       tags.className = "tags";
@@ -328,11 +475,35 @@
         : "<li>No examples found.</li>";
       answers.innerHTML = `<summary>Show five high-scoring valid examples</summary><ol>${answerItems}</ol>`;
 
-      card.append(head, controls, tags, answers);
+      card.append(head, controls, insights, tags, answers);
       elements.promptSlots.append(card);
     });
 
+    renderPerfectXI();
     renderSummaryAndWarnings();
+  }
+
+  function renderPerfectXI() {
+    elements.perfectXI.innerHTML = "";
+    if (!currentPerfect?.possible) {
+      elements.perfectScore.textContent = "Unavailable";
+      elements.perfectComparison.textContent = currentPerfect?.reason || "No score has been calculated.";
+      const item = document.createElement("li");
+      item.textContent = currentPerfect?.reason || "No valid XI.";
+      elements.perfectXI.append(item);
+      return;
+    }
+
+    elements.perfectScore.textContent = currentPerfect.score.toLocaleString();
+    elements.perfectComparison.textContent = currentPerfect.uniquenessCost > 0
+      ? `Individual maxima total ${currentPerfect.naiveScore.toLocaleString()}; unique-player rule costs ${currentPerfect.uniquenessCost} points.`
+      : `Matches the individual maximum of ${currentPerfect.naiveScore.toLocaleString()} points with no answer conflicts.`;
+
+    for (const pick of currentPerfect.picks) {
+      const item = document.createElement("li");
+      item.innerHTML = `<strong>${pick.slotIndex + 1}. ${escapeHtml(pick.record.playerName)}</strong><span>${escapeHtml(pick.record.season)} · ${escapeHtml(pick.record.club)} · ${pick.record.points} pts</span>`;
+      elements.perfectXI.append(item);
+    }
   }
 
   function populatePromptSelect(select, currentPrompt, currentIndex) {
@@ -364,9 +535,8 @@
     }
 
     selectedPrompts[index] = weightedPick(options, selectedPrompts.filter((_, slotIndex) => slotIndex !== index), settings);
-    renderDraft();
-    updateCodeOutput();
-    elements.actionStatus.textContent = `Slot ${index + 1} was rerolled.`;
+    refreshDraft();
+    elements.actionStatus.textContent = `Slot ${index + 1} was rerolled and the perfect score was recalculated.`;
   }
 
   function renderSummaryAndWarnings() {
@@ -379,6 +549,7 @@
       <span>${antiCount} anti-meta</span>
       <span>${difficultyLabel} average</span>
       <span>${Math.min(...answerRange)}–${Math.max(...answerRange)} valid players</span>
+      <span>${currentPerfect?.possible ? `${currentPerfect.score.toLocaleString()} perfect score` : "Score unavailable"}</span>
     `;
 
     const warnings = [];
@@ -398,9 +569,53 @@
     const narrow = selectedPrompts.filter(prompt => getPromptStats(prompt).playerCount < 6);
     if (narrow.length) warnings.push(`${narrow.length} prompt(s) have fewer than six valid players.`);
 
+    const overlaps = getAnswerOverlapWarnings();
+    warnings.push(...overlaps);
+
+    if (!currentPerfect?.possible) warnings.push(currentPerfect?.reason || "The exact perfect score could not be calculated.");
+    else if (currentPerfect.uniquenessCost >= 80) warnings.push(`The obvious answers overlap heavily: enforcing eleven different players reduces the theoretical total by ${currentPerfect.uniquenessCost} points.`);
+
     elements.warnings.innerHTML = warnings.length
       ? warnings.map(message => `<div class="warning">${escapeHtml(message)}</div>`).join("")
-      : '<div class="success-message">The formation, answer counts, anti-meta target and basic theme balance all pass the Phase 1 checks.</div>';
+      : '<div class="success-message">The formation, answer counts, anti-meta target, theme balance, answer overlap and exact scoring checks all pass.</div>';
+  }
+
+  function getAnswerOverlapWarnings() {
+    const messages = [];
+    const bestAnswerSlots = new Map();
+    const topFiveSlots = new Map();
+
+    selectedPrompts.forEach((prompt, index) => {
+      const stats = getPromptStats(prompt);
+      if (stats.bestAnswer) {
+        const entry = bestAnswerSlots.get(stats.bestAnswer.playerId) || { name: stats.bestAnswer.playerName, slots: [] };
+        entry.slots.push(index + 1);
+        bestAnswerSlots.set(stats.bestAnswer.playerId, entry);
+      }
+      for (const answer of stats.topAnswers) {
+        const entry = topFiveSlots.get(answer.playerId) || { name: answer.playerName, slots: new Set() };
+        entry.slots.add(index + 1);
+        topFiveSlots.set(answer.playerId, entry);
+      }
+    });
+
+    const duplicateLeaders = [...bestAnswerSlots.values()]
+      .filter(entry => entry.slots.length > 1)
+      .sort((a, b) => b.slots.length - a.slots.length)
+      .slice(0, 3);
+    if (duplicateLeaders.length) {
+      messages.push(`Obvious-answer overlap: ${duplicateLeaders.map(entry => `${entry.name} leads slots ${entry.slots.join("/")}`).join("; ")}.`);
+    }
+
+    const broadOverlaps = [...topFiveSlots.values()]
+      .filter(entry => entry.slots.size >= 3)
+      .sort((a, b) => b.slots.size - a.slots.size)
+      .slice(0, 3);
+    if (broadOverlaps.length) {
+      messages.push(`Top-five answer overlap: ${broadOverlaps.map(entry => `${entry.name} appears in ${entry.slots.size} prompts`).join("; ")}.`);
+    }
+
+    return messages;
   }
 
   function updateCodeOutput() {
@@ -410,13 +625,16 @@
     const releaseDate = elements.releaseDate.value || new Date().toISOString().slice(0, 10);
     const difficulty = displayDifficulty();
     const slug = slugify(challengeName) || "generated-mix";
+    const perfectScore = currentPerfect?.possible ? currentPerfect.score : 0;
 
     const promptsCode = selectedPrompts.map(prompt => {
       const testSource = prompt.test.toString();
       return `    {\n      id: ${JSON.stringify(prompt.id)},\n      position: ${JSON.stringify(prompt.position)},\n      label: ${JSON.stringify(prompt.label)},\n      fail: ${JSON.stringify(prompt.fail)},\n      test: ${testSource}\n    }`;
     }).join(",\n");
 
-    elements.codeOutput.value = `/* PHASE 1 DRAFT — exact perfect score has not been calculated. */\nwindow.FPL_DAILY_CHALLENGE = {\n  id: ${JSON.stringify(`daily-${String(challengeNumber).padStart(3, "0")}-${slug}`)},\n  number: ${challengeNumber},\n  title: ${JSON.stringify(`Daily Challenge #${challengeNumber} · ${challengeName}`)},\n  dateLabel: ${JSON.stringify(`Generated Mix · ${difficulty}`)},\n  difficulty: ${JSON.stringify(difficulty)},\n  releaseDate: ${JSON.stringify(releaseDate)},\n  perfectScore: 0,\n  prompts: [\n${promptsCode}\n  ]\n};\n`;
+    elements.codeOutput.value = `/* Generated by FPL Challenge Studio Phase 2.\n   Exact perfect score calculated with eleven unique footballers.\n   Review before manually uploading to GitHub. */\nwindow.FPL_DAILY_CHALLENGE = {\n  id: ${JSON.stringify(`daily-${String(challengeNumber).padStart(3, "0")}-${slug}`)},\n  number: ${challengeNumber},\n  title: ${JSON.stringify(`Challenge #${challengeNumber} · ${challengeName}`)},\n  dateLabel: ${JSON.stringify(`Generated Mix · ${difficulty}`)},\n  difficulty: ${JSON.stringify(difficulty)},\n  releaseDate: ${JSON.stringify(releaseDate)},\n  perfectScore: ${perfectScore},\n  prompts: [\n${promptsCode}\n  ]\n};\n`;
+
+    elements.downloadBtn.disabled = !currentPerfect?.possible;
   }
 
   function displayDifficulty() {
@@ -431,6 +649,7 @@
   function saveDraft() {
     if (!selectedPrompts.length) return;
     const payload = {
+      version: 2,
       savedAt: new Date().toISOString(),
       promptIds: selectedPrompts.map(prompt => prompt.id),
       settings: {
@@ -449,9 +668,9 @@
   }
 
   function loadDraft() {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) {
-      elements.actionStatus.textContent = "No saved Phase 1 draft was found in this browser.";
+      elements.actionStatus.textContent = "No saved Challenge Studio draft was found in this browser.";
       return;
     }
 
@@ -471,23 +690,41 @@
       elements.draftPanel.classList.remove("hidden");
       elements.codePanel.classList.remove("hidden");
       elements.saveDraftBtn.disabled = false;
-      renderDraft();
-      updateCodeOutput();
-      elements.actionStatus.textContent = `Saved draft loaded${payload.savedAt ? ` from ${new Date(payload.savedAt).toLocaleString()}` : ""}.`;
+      refreshDraft();
+      elements.actionStatus.textContent = `Saved draft loaded${payload.savedAt ? ` from ${new Date(payload.savedAt).toLocaleString()}` : ""}. The perfect score was recalculated.`;
     } catch (error) {
       elements.actionStatus.textContent = `The saved draft could not be loaded: ${error.message}`;
     }
   }
 
-  async function copyDraftCode() {
+  function downloadChallengeFile() {
+    if (!currentPerfect?.possible || !elements.codeOutput.value) return;
+    const blob = new Blob([elements.codeOutput.value], { type: "text/javascript;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "todays-challenge.js";
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    elements.copyStatus.textContent = "todays-challenge.js downloaded. Review it, then replace only that file in GitHub.";
+  }
+
+  async function copyChallengeCode() {
     try {
       await navigator.clipboard.writeText(elements.codeOutput.value);
-      elements.copyStatus.textContent = "Draft code copied. Remember: Phase 1 has not calculated the perfect score.";
+      elements.copyStatus.textContent = "Challenge code copied. The live game has not been changed.";
     } catch (error) {
       elements.codeOutput.focus();
       elements.codeOutput.select();
-      elements.copyStatus.textContent = "Automatic copy was blocked. The code has been selected so you can press Ctrl+C.";
+      elements.copyStatus.textContent = "Automatic copy was blocked. The code is selected so you can press Ctrl+C.";
     }
+  }
+
+  function formatAnswer(answer) {
+    if (!answer) return "Unavailable";
+    return `${escapeHtml(answer.playerName)} · ${escapeHtml(answer.season)} · ${answer.points} pts`;
   }
 
   function isAntiMeta(prompt) {
@@ -496,6 +733,11 @@
 
   function difficultyTargetValue(value) {
     return ({ easy: 1.45, medium: 2, hard: 2.65, mixed: 2.1 })[value] || 2.1;
+  }
+
+  function seasonSortValue(season) {
+    const start = Number.parseInt(String(season).slice(0, 4), 10);
+    return Number.isFinite(start) ? start : 0;
   }
 
   function clampNumber(value, minimum, maximum, fallback) {

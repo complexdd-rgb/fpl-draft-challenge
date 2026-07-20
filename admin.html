@@ -4,23 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 1</title>
-  <link rel="stylesheet" href="admin.css?v=1.0.0">
+  <title>FPL Challenge Studio · Phase 2</title>
+  <link rel="stylesheet" href="admin.css?v=2.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 1</p>
-        <h1>Safe challenge generator</h1>
-        <p class="hero-copy">This page is completely separate from the live game. It can inspect the player database and create a draft challenge, but it cannot publish or alter <code>index.html</code>.</p>
+        <p class="eyebrow">Challenge Studio · Phase 2</p>
+        <h1>Score, review and download</h1>
+        <p class="hero-copy">Generate a balanced XI, calculate the exact maximum score with eleven different footballers, inspect answer overlaps, then download a reviewed <code>todays-challenge.js</code> file.</p>
       </div>
       <a class="back-link" href="./">Open live game</a>
     </header>
 
     <section class="safety-banner" aria-label="Safety status">
-      <strong>Read-only mode</strong>
-      <span>No game files are edited. Publishing will be added only after the generator has been tested.</span>
+      <strong>Manual upload only</strong>
+      <span>This page cannot edit the live game or publish to GitHub. It only creates a file for you to review and upload yourself.</span>
     </section>
 
     <section class="status-grid" aria-label="Studio status">
@@ -38,7 +38,7 @@
       </article>
       <article class="status-card">
         <span>Publishing</span>
-        <strong class="safe-text">Disabled</strong>
+        <strong class="safe-text">Download only</strong>
       </article>
     </section>
 
@@ -48,7 +48,7 @@
           <p class="eyebrow">Step 1</p>
           <h2>Challenge settings</h2>
         </div>
-        <span class="phase-chip">Draft only</span>
+        <span class="phase-chip">Safe draft</span>
       </div>
 
       <div class="settings-grid">
@@ -109,6 +109,20 @@
       </div>
 
       <div id="warnings" class="warnings" aria-live="polite"></div>
+
+      <section id="perfectPanel" class="perfect-panel" aria-labelledby="perfectHeading">
+        <div class="perfect-score-block">
+          <span>Exact perfect score</span>
+          <strong id="perfectScore">—</strong>
+          <small id="perfectComparison">Calculating…</small>
+        </div>
+        <div class="perfect-xi-block">
+          <h3 id="perfectHeading">Best unique-player XI</h3>
+          <p>The calculation maximises total FPL points while preventing the same footballer being used twice.</p>
+          <ol id="perfectXI" class="perfect-list"></ol>
+        </div>
+      </section>
+
       <div id="promptSlots" class="prompt-slots"></div>
     </section>
 
@@ -116,22 +130,23 @@
       <div class="panel-heading">
         <div>
           <p class="eyebrow">Step 3</p>
-          <h2>Draft challenge code</h2>
+          <h2>Download-ready challenge</h2>
         </div>
-        <span class="phase-chip warning-chip">Not publish-ready</span>
+        <span class="phase-chip ready-chip">Manual upload</span>
       </div>
 
-      <p class="code-note">Phase 1 deliberately leaves <code>perfectScore</code> at zero. Exact scoring and one-click publishing will be built after the generator is approved.</p>
+      <p class="code-note">The exact perfect score is included. Review the prompts and optimal XI above, then download the file and replace only <code>todays-challenge.js</code> in GitHub.</p>
       <textarea id="codeOutput" spellcheck="false" aria-label="Generated challenge code"></textarea>
       <div class="button-row">
-        <button id="copyCodeBtn" class="button secondary" type="button">Copy draft code</button>
+        <button id="downloadBtn" class="button primary" type="button" disabled>Download todays-challenge.js</button>
+        <button id="copyCodeBtn" class="button secondary" type="button">Copy challenge code</button>
       </div>
       <p id="copyStatus" class="action-status" role="status"></p>
     </section>
   </main>
 
   <script src="players.js?v=6.2"></script>
-  <script src="prompt-library.js?v=1.0.0"></script>
-  <script src="admin.js?v=1.0.0"></script>
+  <script src="prompt-library.js?v=2.0.0"></script>
+  <script src="admin.js?v=2.0.0"></script>
 </body>
 </html>

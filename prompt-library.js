@@ -1,4 +1,4 @@
-/* FPL Challenge Studio prompt library — Phase 1. */
+/* FPL Challenge Studio prompt library — Phase 2. */
 (() => {
   "use strict";
 
