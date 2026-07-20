@@ -5,10 +5,10 @@
   const DIFFICULTY_VALUE = { easy: 1, medium: 2, hard: 3 };
   const DIVERSITY_TAGS = new Set([
     "relegated", "promoted", "bottom-half", "mid-table", "survival",
-    "outside-big-six", "outside-top-four", "manager", "budget", "young", "exact-stat"
+    "outside-big-six", "outside-top-four", "manager", "budget", "young", "exact-stat", "name-rule", "surname", "first-name"
   ]);
-  const STORAGE_KEY = "fplChallengeStudioPhase4Draft";
-  const LEGACY_STORAGE_KEYS = ["fplChallengeStudioPhase3Draft", "fplChallengeStudioPhase2Draft", "fplChallengeStudioPhase1Draft"];
+  const STORAGE_KEY = "fplChallengeStudioPhase5Draft";
+  const LEGACY_STORAGE_KEYS = ["fplChallengeStudioPhase4Draft", "fplChallengeStudioPhase3Draft", "fplChallengeStudioPhase2Draft", "fplChallengeStudioPhase1Draft"];
   const FORBIDDEN_COST = 1_000_000;
 
   const elements = {

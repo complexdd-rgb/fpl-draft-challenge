@@ -701,3 +701,28 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
   .library-prompt-head { flex-direction: column; }
   .library-prompt-chips { justify-content: flex-start; }
 }
+
+/* Phase 5: name-rule starters */
+.name-rule-presets{
+  display:grid;
+  gap:12px;
+  margin:14px 0;
+  padding:14px;
+  border:1px solid rgba(45,231,151,.3);
+  border-radius:15px;
+  background:rgba(5,31,22,.62);
+}
+.name-rule-presets strong{display:block;color:#f4fff9;margin-bottom:3px}
+.name-rule-presets span{display:block;color:var(--muted);font-size:.88rem;line-height:1.45}
+.name-preset-buttons{display:flex;flex-wrap:wrap;gap:8px}
+.name-preset-buttons button{
+  border:1px solid rgba(45,231,151,.35);
+  border-radius:999px;
+  padding:8px 11px;
+  background:#0c3527;
+  color:#eafff5;
+  font-weight:800;
+  cursor:pointer;
+}
+.name-preset-buttons button:hover{background:#14513b;border-color:#39f0a5}
+@media(max-width:700px){.name-preset-buttons button{width:100%;text-align:left}}

@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 4</title>
-  <link rel="stylesheet" href="admin.css?v=4.0.0">
+  <title>FPL Challenge Studio · Phase 5</title>
+  <link rel="stylesheet" href="admin.css?v=5.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 4</p>
-        <h1>Build, test and manage every challenge</h1>
-        <p class="hero-copy">Generate and review the XI, test it safely, record its history, and manage the reusable prompt library without touching the live game.</p>
+        <p class="eyebrow">Challenge Studio · Phase 5</p>
+        <h1>Build, test and expand every challenge</h1>
+        <p class="hero-copy">Generate and review the XI, test it safely, record its history, and expand the reusable prompt library with safe name-based rules without touching the live game.</p>
       </div>
       <a class="back-link" href="./">Open live game</a>
     </header>
@@ -224,7 +224,7 @@
         <div>
           <p class="eyebrow">Step 6</p>
           <h2>Prompt Library Manager</h2>
-          <p class="section-copy">Add safe rule-built prompts, edit prompt wording and ratings, disable weak prompts, and download a replacement <code>prompt-library.js</code> when you are satisfied.</p>
+          <p class="section-copy">Add safe rule-built prompts, including first-name and surname rules, edit ratings, disable weak prompts, and download a replacement <code>prompt-library.js</code> when you are satisfied.</p>
         </div>
         <span class="phase-chip ready-chip">Browser workspace</span>
       </div>
@@ -300,6 +300,19 @@
             </div>
             <label>Match<select id="promptRuleJoin"><option value="all">All conditions</option><option value="any">Any condition</option></select></label>
           </div>
+          <div class="name-rule-presets" aria-label="Name rule starters">
+            <div>
+              <strong>Name rule starters</strong>
+              <span>Choose the position above first, then use a starter and change the letter or wording as needed.</span>
+            </div>
+            <div class="name-preset-buttons">
+              <button type="button" data-name-preset="surname-starts">Surname starts with</button>
+              <button type="button" data-name-preset="first-starts">First name starts with</button>
+              <button type="button" data-name-preset="surname-son">Surname ends in “son”</button>
+              <button type="button" data-name-preset="same-initials">Same initials</button>
+              <button type="button" data-name-preset="hyphenated">Hyphenated surname</button>
+            </div>
+          </div>
           <div id="promptRuleRows" class="rule-rows"></div>
           <button id="addPromptConditionBtn" class="button secondary small-button" type="button">Add condition</button>
         </div>
@@ -327,8 +340,8 @@
 
   <script src="players.js?v=6.2"></script>
   <script src="prompt-library.js?v=2.0.0"></script>
-  <script src="admin-phase4.js?v=4.0.0"></script>
-  <script src="admin.js?v=4.0.0"></script>
+  <script src="admin-phase5.js?v=5.0.0"></script>
+  <script src="admin.js?v=5.0.0"></script>
   <script src="admin-phase3.js?v=3.0.0"></script>
 </body>
 </html>
