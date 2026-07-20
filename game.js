@@ -1,6 +1,15 @@
 /* Core FPL Daily Challenge game engine. */
 "use strict";
-const challenge = window.FPL_CHALLENGES[window.FPL_CHALLENGES.length - 1];
+const challenge = window.FPL_DAILY_CHALLENGE ||
+  (Array.isArray(window.FPL_CHALLENGES)
+    ? window.FPL_CHALLENGES[window.FPL_CHALLENGES.length - 1]
+    : null);
+
+if (!challenge) {
+  const status = document.getElementById("dbStatus");
+  if (status) status.textContent = "Challenge failed to load";
+  throw new Error("No FPL daily challenge was loaded.");
+}
 const groupedPlayers = window.FPL_PLAYERS || [];
 const flatSeasons = groupedPlayers.flatMap(player => player.seasons.map(season => ({...season,playerId:player.playerId,name:player.name})));
 const INVALID_PENALTY = 10;
