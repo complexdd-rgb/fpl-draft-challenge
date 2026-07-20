@@ -1,0 +1,94 @@
+/* Edit this file to publish the daily challenge. */
+window.FPL_DAILY_CHALLENGE = {
+  id: "daily-005-mixed-bag",
+  number: 5,
+  title: "Daily Challenge #5 · The Mixed Bag",
+  dateLabel: "Easy & Medium",
+  difficulty: "Easy / Medium",
+  releaseDate: "2026-07-19",
+  perfectScore: 2564,
+  prompts: [
+    {
+      id: "gk_points_130",
+      position: "GK",
+      label: "Goalkeeper with at least 130 FPL points",
+      fail: "That goalkeeper season needs at least 130 FPL points.",
+      test: p => p.points >= 130
+    },
+    {
+      id: "def_champion",
+      position: "DEF",
+      label: "Defender from a league-winning side",
+      fail: "That defender season must be for the Premier League champions.",
+      test: p => p.champions === true
+    },
+    {
+      id: "def_pep",
+      position: "DEF",
+      label: "Defender managed by Pep Guardiola",
+      fail: "That defender season must have been managed by Pep Guardiola.",
+      test: p => Array.isArray(p.managers) && p.managers.includes("Pep Guardiola")
+    },
+    {
+      id: "def_assists_8",
+      position: "DEF",
+      label: "Defender with at least 8 assists",
+      fail: "That defender season needs at least 8 assists.",
+      test: p => p.assists >= 8
+    },
+    {
+      id: "def_promoted_90",
+      position: "DEF",
+      label: "Defender from a promoted club with 90+ points",
+      fail: "That season must be for a promoted club and score at least 90 FPL points.",
+      test: p => p.promoted === true && p.points >= 90
+    },
+    {
+      id: "mid_points_180",
+      position: "MID",
+      label: "Midfielder with at least 180 FPL points",
+      fail: "That midfielder season needs at least 180 FPL points.",
+      test: p => p.points >= 180
+    },
+    {
+      id: "mid_assists_12",
+      position: "MID",
+      label: "Midfielder with at least 12 assists",
+      fail: "That midfielder season needs at least 12 assists.",
+      test: p => p.assists >= 12
+    },
+    {
+      id: "mid_young_100",
+      position: "MID",
+      label: "Midfielder aged 23 or under with 100+ points",
+      fail: "That midfielder must be aged 23 or under at the season start and score at least 100 points.",
+      test: p => Number.isFinite(p.ageAtSeasonStart) &&
+                 p.ageAtSeasonStart <= 23 &&
+                 p.points >= 100
+    },
+    {
+      id: "mid_klopp_150",
+      position: "MID",
+      label: "Midfielder managed by Jürgen Klopp with 150+ points",
+      fail: "That season must be under Jürgen Klopp and score at least 150 FPL points.",
+      test: p => Array.isArray(p.managers) &&
+                 p.managers.includes("Jürgen Klopp") &&
+                 p.points >= 150
+    },
+    {
+      id: "fwd_goals_20",
+      position: "FWD",
+      label: "Forward with at least 20 goals",
+      fail: "That forward season needs at least 20 goals.",
+      test: p => p.goals >= 20
+    },
+    {
+      id: "fwd_outside_big_six_160",
+      position: "FWD",
+      label: "Forward outside the traditional Big Six with 160+ points",
+      fail: "That forward must play outside the traditional Big Six and score at least 160 points.",
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
+                 p.points >= 160
+    }
+  ]
+};

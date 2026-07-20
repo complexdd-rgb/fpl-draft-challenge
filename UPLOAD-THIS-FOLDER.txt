@@ -1,0 +1,11 @@
+FPL DAILY CHALLENGE — FLAT GITHUB UPLOAD
+
+1. Extract this ZIP on your computer.
+2. Open the extracted folder.
+3. On GitHub, choose Add file > Upload files.
+4. Drag ALL the files inside this folder into GitHub.
+5. Commit the changes.
+6. Wait for GitHub Pages to finish deploying, then press Ctrl+F5 on the live site.
+
+Important: upload the extracted files, not the ZIP itself.
+All files are intentionally in the repository's main/root folder.
