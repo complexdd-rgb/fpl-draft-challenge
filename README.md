@@ -1,25 +1,15 @@
-# FPL Daily Challenge 2.0
+# FPL Daily Challenge Project Documents
 
-Upload all three files to the root of the same GitHub Pages repository:
+Recommended repository structure:
 
-- `index.html`
-- `players.js`
-- `challenges.js`
+```text
+index.html
+visuals.css
+README.md
+docs/
+  prompt-library.md
+  challenge-history.md
+  ideas.md
+```
 
-Do not put them in separate folders.
-
-## Version 2.0 features
-
-- Historical data from 2016/17 through 2024/25
-- Player search with a season dropdown beside the selected name
-- One footballer per XI, regardless of season
-- Season-aware validation and scoring
-- 10-point invalid-pick penalty
-- Pitch formation reveal
-- Top-five player-season answers for every prompt
-- Player data separated from the game
-- Challenge definitions separated into `challenges.js`
-
-The database contains 2,541 grouped footballers and 6,517 player-season records.
-
-Historical data source: Vaastav/Fantasy-Premier-League.
+Use `prompt-library.md` when building each day's challenge, record the finished challenge in `challenge-history.md`, and keep unfinished feature ideas in `ideas.md`.
