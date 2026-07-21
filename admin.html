@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 11</title>
-  <link rel="stylesheet" href="admin.css?v=10.0.0">
+  <title>FPL Challenge Studio · Phase 12</title>
+  <link rel="stylesheet" href="admin.css?v=12.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 11</p>
+        <p class="eyebrow">Challenge Studio · Phase 12</p>
         <h1>Build, test, publish, repair and expand the historical database safely</h1>
         <p class="hero-copy">Generate and review the XI, test it safely, manage prompts, publish checked files, repair the database and import one verified historical season at a time without touching the live game.</p>
       </div>
@@ -835,9 +835,88 @@
     </section>
 
 
+    <section class="panel legacy-import-centre" id="legacyImportCentre" aria-labelledby="legacyImportHeading">
+      <div class="panel-heading legacy-heading">
+        <div>
+          <p class="eyebrow">Step 13</p>
+          <h2 id="legacyImportHeading">2015/16 Official FPL Archive Import</h2>
+          <p>Reads the 723 original player JSON files captured from the official 2015/16 FPL API, combines them with the verified historical-price supplement and produces a protected database expansion package.</p>
+        </div>
+        <span id="legacyImportStatus" class="audit-status-chip pending">Waiting for archive</span>
+      </div>
+
+      <div class="safe-mode-banner">
+        <strong>Exact season snapshot</strong>
+        <span>Club, FPL position and season totals come from the archived official API files. Existing identities are matched conservatively; uncertain rows are quarantined rather than guessed.</span>
+      </div>
+
+      <div class="legacy-source-grid">
+        <label class="import-file-card legacy-file-card">
+          <strong>Official 2015/16 source</strong>
+          <span>Select the downloaded GitHub repository ZIP, or select all JSON files from its <code>PlayersInfo</code> folder.</span>
+          <input id="legacyArchiveInput" type="file" accept=".zip,.json,application/zip,application/json" multiple>
+          <small id="legacyArchiveFileStatus">No archive selected.</small>
+        </label>
+        <div class="legacy-source-note">
+          <strong>Expected source</strong>
+          <span><code>mvbfontes/premierleaguedatasets</code> — 723 official FPL player snapshots from 2015/16.</span>
+          <span>The importer accepts the repository ZIP directly, so you do not need to open 723 files individually.</span>
+          <a class="legacy-source-link" href="https://github.com/mvbfontes/premierleaguedatasets" target="_blank" rel="noopener">Open the 2015/16 source repository</a>
+        </div>
+      </div>
+
+      <div class="button-row legacy-button-row">
+        <button id="readLegacyArchiveBtn" class="button primary" type="button">Read 2015/16 archive</button>
+        <button id="buildLegacyPreviewBtn" class="button secondary" type="button" disabled>Build expansion preview</button>
+        <button id="resetLegacyImportBtn" class="button secondary" type="button">Reset 2015/16 workspace</button>
+      </div>
+      <p id="legacyImportActionStatus" class="action-status" role="status">Choose the source ZIP to begin.</p>
+
+      <div id="legacyImportPreview" class="legacy-preview hidden">
+        <div class="summary-grid legacy-summary-grid">
+          <div class="summary-card"><span>JSON snapshots</span><strong id="legacySnapshotCount">0</strong></div>
+          <div class="summary-card"><span>Importable seasons</span><strong id="legacyImportableCount">0</strong></div>
+          <div class="summary-card"><span>Matched identities</span><strong id="legacyMatchedCount">0</strong></div>
+          <div class="summary-card"><span>New identities</span><strong id="legacyNewCount">0</strong></div>
+          <div class="summary-card"><span>Needs review</span><strong id="legacyReviewCount">0</strong></div>
+          <div class="summary-card"><span>Quarantined</span><strong id="legacyQuarantineCount">0</strong></div>
+          <div class="summary-card"><span>Projected players</span><strong id="legacyProjectedPlayers">0</strong></div>
+          <div class="summary-card"><span>Projected seasons</span><strong id="legacyProjectedSeasons">0</strong></div>
+        </div>
+
+        <div id="legacyImportWarnings" class="warnings" aria-live="polite"></div>
+
+        <section id="legacyReviewPanel" class="legacy-review-panel hidden" aria-labelledby="legacyReviewHeading">
+          <div class="repair-regression-head">
+            <div><p class="eyebrow">Identity review</p><h3 id="legacyReviewHeading">Rows withheld from automatic merging</h3><p>These records are excluded from the upload-ready database until a safe identity can be established.</p></div>
+            <span id="legacyReviewShown" class="phase-chip">0 rows</span>
+          </div>
+          <div id="legacyReviewList" class="legacy-review-list"></div>
+        </section>
+
+        <section class="legacy-regression-panel" aria-labelledby="legacyRegressionHeading">
+          <div class="repair-regression-head">
+            <div><p class="eyebrow">Safety gate</p><h3 id="legacyRegressionHeading">2015/16 regression checks</h3><p>The package is blocked if identities, prices, prompt tests or unique-player scoring are unsafe.</p></div>
+            <button id="runLegacyChecksBtn" class="button secondary" type="button">Run checks again</button>
+          </div>
+          <div id="legacyRegressionList" class="repair-regression-list"><div class="repair-empty-state">Build the preview to run the checks.</div></div>
+        </section>
+
+        <div class="import-download-panel">
+          <div>
+            <h3>Protected 2015/16 expansion package</h3>
+            <p id="legacyDownloadExplanation">The upload-ready package unlocks after all blocking checks pass. If today’s perfect score changes, a corrected <code>todays-challenge.js</code> is included automatically.</p>
+          </div>
+          <button id="downloadLegacyPackBtn" class="button primary" type="button" disabled>Download review package</button>
+        </div>
+        <p id="legacyDownloadStatus" class="action-status" role="status"></p>
+      </div>
+    </section>
+
+
   </main>
 
-  <script src="players.js?v=6.2"></script>
+  <script src="players.js?v=12.0.0"></script>
   <script src="prompt-library.js?v=2.0.0"></script>
   <script src="admin-phase5.js?v=8.0.0"></script>
   <script src="admin.js?v=8.0.0"></script>
@@ -848,5 +927,7 @@
   <script src="admin-phase9.js?v=9.0.0"></script>
   <script src="admin-phase10.js?v=10.0.0"></script>
   <script src="admin-phase11.js?v=11.0.0"></script>
+  <script src="fpl-history-2015-16.js?v=12.0.0"></script>
+  <script src="admin-phase12.js?v=12.0.0"></script>
 </body>
 </html>

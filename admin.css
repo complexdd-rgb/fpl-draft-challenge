@@ -1088,3 +1088,25 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
 /* Phase 11 — player identity consolidation */
 .identity-centre{margin-top:24px}.identity-heading{align-items:flex-start}.identity-banner{margin:14px 0 18px}.identity-summary-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.identity-actions{margin-top:16px}.identity-results{margin-top:18px}.identity-toolbar{display:grid;grid-template-columns:190px minmax(240px,1fr) auto;gap:12px;align-items:end;margin-bottom:14px}.identity-toolbar label{display:grid;gap:6px;color:var(--muted);font-size:.82rem;font-weight:800}.identity-toolbar select,.identity-toolbar input{width:100%;min-height:44px;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:#071b13;color:var(--text);padding:10px 12px}.identity-candidate-list{display:grid;gap:12px}.identity-card{border:1px solid rgba(255,255,255,.12);border-radius:17px;background:linear-gradient(145deg,rgba(20,53,39,.96),rgba(8,29,20,.96));padding:15px}.identity-card.safe{border-color:rgba(0,255,135,.34)}.identity-card.review{border-color:rgba(255,209,102,.34)}.identity-card.blocked{border-color:rgba(255,85,119,.38)}.identity-card-head{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start}.identity-select{width:22px;height:22px;margin-top:2px;accent-color:var(--accent)}.identity-select:disabled{opacity:.35}.identity-names{font-size:1rem;font-weight:950;line-height:1.35}.identity-arrow{color:var(--accent);padding:0 5px}.identity-confidence{display:inline-flex;align-items:center;border-radius:999px;padding:6px 9px;font-size:.72rem;font-weight:950;text-transform:uppercase;letter-spacing:.06em;background:rgba(255,255,255,.08)}.identity-card.safe .identity-confidence{color:var(--accent)}.identity-card.review .identity-confidence{color:var(--gold)}.identity-card.blocked .identity-confidence{color:var(--danger)}.identity-reasons{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.identity-reason{border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:5px 8px;color:#cce1d5;font-size:.75rem}.identity-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}.identity-player-box{border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.18);padding:10px}.identity-player-box strong,.identity-player-box small{display:block}.identity-player-box small{color:var(--muted);margin-top:4px;line-height:1.45}.identity-canonical{margin-top:10px;color:#dff6e8;font-size:.84rem}.identity-warning{margin-top:8px;color:#ffb3c1;font-size:.82rem}.identity-empty{padding:24px;border:1px dashed rgba(255,255,255,.16);border-radius:15px;text-align:center;color:var(--muted)}.identity-regression-panel{margin-top:18px;border-top:1px solid rgba(255,255,255,.1);padding-top:18px}
 @media(max-width:1000px){.identity-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:720px){.identity-summary-grid{grid-template-columns:1fr 1fr}.identity-toolbar{grid-template-columns:1fr}.identity-card-head{grid-template-columns:auto 1fr}.identity-confidence{grid-column:2}.identity-columns{grid-template-columns:1fr}}
+
+/* Phase 12 — official 2015/16 archive import */
+.legacy-import-centre{margin-top:24px}
+.legacy-source-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:14px;margin-top:18px}
+.legacy-source-note{display:flex;flex-direction:column;gap:8px;padding:17px;border:1px solid rgba(255,255,255,.11);border-radius:17px;background:rgba(0,0,0,.18);color:var(--muted)}
+.legacy-source-note strong{color:var(--text)}
+.legacy-file-card input{margin-top:12px}
+.legacy-button-row{margin-top:16px}
+.legacy-preview{margin-top:20px}
+.legacy-summary-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.legacy-review-panel,.legacy-regression-panel{margin-top:18px;padding:16px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(0,0,0,.14)}
+.legacy-review-list{display:grid;gap:10px;margin-top:14px;max-height:540px;overflow:auto;padding-right:4px}
+.legacy-review-card{padding:14px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:#0b1e16}
+.legacy-review-card strong{display:block;margin-bottom:5px}
+.legacy-review-card span,.legacy-review-card small{display:block;color:var(--muted);line-height:1.45}
+.legacy-review-card.quarantine{border-color:rgba(255,85,119,.35)}
+.legacy-review-card.review{border-color:rgba(255,209,102,.34)}
+.legacy-source-progress{height:9px;border-radius:999px;overflow:hidden;background:rgba(0,0,0,.3);margin-top:10px}
+.legacy-source-progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#04d9ff);transition:width .2s ease}
+@media(max-width:860px){.legacy-source-grid{grid-template-columns:1fr}.legacy-summary-grid{grid-template-columns:1fr 1fr}}
+
+.legacy-source-link{display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;margin-top:4px;padding:9px 12px;border:1px solid rgba(0,255,135,.28);border-radius:10px;background:rgba(0,255,135,.08);color:#8affc5;font-weight:850;text-decoration:none}.legacy-source-link:hover{background:rgba(0,255,135,.14);border-color:rgba(0,255,135,.5)}
