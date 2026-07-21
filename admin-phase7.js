@@ -45,6 +45,11 @@
     elements.auditNextPageBtn.addEventListener("click", () => changePage(1));
 
     const seasonCount = players.reduce((total, player) => total + (Array.isArray(player.seasons) ? player.seasons.length : 0), 0);
+    window.FPL_DATABASE_AUDITOR = {
+      getReport: () => state.report,
+      run: runAudit
+    };
+
     elements.auditPlayerCount.textContent = players.length.toLocaleString();
     elements.auditSeasonCount.textContent = seasonCount.toLocaleString();
 
@@ -67,6 +72,7 @@
     state.filteredGroups = [];
     state.page = 1;
     state.report = null;
+    window.FPL_DATABASE_AUDIT_REPORT = null;
 
     setTopStatus("Auditing…", "pending");
     elements.runDatabaseAuditBtn.disabled = true;
@@ -310,6 +316,9 @@
       groupedFindings: state.groups,
       detailedFindings: state.rows
     };
+
+    window.FPL_DATABASE_AUDIT_REPORT = state.report;
+    document.dispatchEvent(new CustomEvent("fplstudio:databaseauditcomplete", { detail: { report: state.report } }));
 
     elements.auditPlayerCount.textContent = players.length.toLocaleString();
     elements.auditSeasonCount.textContent = seasonCount.toLocaleString();
