@@ -863,3 +863,84 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
   .publish-checklist-head,.publish-pack-panel{align-items:stretch;flex-direction:column}
   .publish-checklist-head .button,.publish-pack-panel .button{width:100%}
 }
+
+/* Phase 7 — Player Database Auditor */
+.database-auditor{position:relative}
+.audit-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:10px;
+  margin:0 0 16px;
+}
+.audit-summary-grid article{
+  min-height:92px;
+  padding:14px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:15px;
+  background:rgba(0,0,0,.14);
+}
+.audit-summary-grid span{display:block;color:var(--muted,#adc4b7);font-size:.75rem;font-weight:800}
+.audit-summary-grid strong{display:block;margin-top:8px;color:#71ffb2;font-size:1.45rem}
+.audit-summary-grid .audit-critical-card strong{color:#ff8da4}
+.audit-summary-grid .audit-warning-card strong{color:#ffd166}
+.audit-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.audit-progress-wrap{margin:14px 0;padding:14px;border:1px solid rgba(255,255,255,.10);border-radius:15px;background:rgba(0,0,0,.13)}
+.audit-progress-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:9px;color:var(--muted,#adc4b7);font-size:.85rem}
+.audit-progress-shell{height:10px;overflow:hidden;border:1px solid rgba(255,255,255,.10);border-radius:999px;background:rgba(0,0,0,.30)}
+.audit-progress-bar{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#00ff87,#04d9ff);transition:width .18s ease}
+.audit-readiness-panel{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  margin:16px 0;
+  padding:17px;
+  border:1px solid rgba(255,209,102,.22);
+  border-radius:17px;
+  background:linear-gradient(135deg,rgba(255,209,102,.07),rgba(0,255,135,.035));
+}
+.audit-readiness-panel>div:first-child{max-width:680px}
+.audit-readiness-panel span{color:var(--muted,#adc4b7);font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.audit-readiness-panel strong{display:block;margin:5px 0 6px;font-size:1.18rem}
+.audit-readiness-panel p{margin:0;color:var(--muted,#adc4b7);line-height:1.55}
+.audit-priority-list{display:grid;min-width:260px;gap:7px}
+.audit-priority-list div{display:flex;justify-content:space-between;gap:15px;padding:9px 11px;border:1px solid rgba(255,255,255,.09);border-radius:11px;background:rgba(0,0,0,.15);font-size:.78rem}
+.audit-priority-list strong{margin:0;color:#ff8da4;font-size:.88rem}
+.audit-category-summary{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:16px 0}
+.audit-category-summary button{padding:12px 9px;border:1px solid rgba(255,255,255,.10);border-radius:13px;background:rgba(0,0,0,.13);color:var(--text,#f7fff9);cursor:pointer;text-align:left}
+.audit-category-summary button:hover{border-color:rgba(0,255,135,.45);transform:translateY(-1px)}
+.audit-category-summary span{display:block;color:var(--muted,#adc4b7);font-size:.7rem;font-weight:800}
+.audit-category-summary strong{display:block;margin-top:5px;color:#71ffb2;font-size:1.05rem}
+.audit-filter-bar{display:grid;grid-template-columns:minmax(240px,1fr) 190px 210px;gap:10px;margin:15px 0}
+.audit-filter-bar input,.audit-filter-bar select{width:100%;min-height:46px;padding:10px 12px;border:1px solid rgba(255,255,255,.13);border-radius:12px;background:#071a12;color:var(--text,#f7fff9)}
+.audit-list-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 0 10px}
+.audit-issue-list{display:grid;gap:10px}
+.audit-issue-card{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;padding:15px;border:1px solid rgba(255,255,255,.10);border-radius:16px;background:rgba(0,0,0,.13)}
+.audit-issue-card.critical{border-color:rgba(255,85,119,.28)}
+.audit-issue-card.warning{border-color:rgba(255,209,102,.25)}
+.audit-issue-card.info{border-color:rgba(4,217,255,.19)}
+.audit-issue-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;font-weight:1000}
+.audit-issue-card.critical .audit-issue-icon{background:rgba(255,85,119,.16);color:#ff8da4}
+.audit-issue-card.warning .audit-issue-icon{background:rgba(255,209,102,.15);color:#ffd166}
+.audit-issue-card.info .audit-issue-icon{background:rgba(4,217,255,.13);color:#73e9ff}
+.audit-issue-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.audit-issue-head span{color:var(--muted,#adc4b7);font-size:.69rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em}
+.audit-issue-head h3{margin:3px 0 0;font-size:1rem}
+.audit-issue-head>strong{min-width:50px;text-align:right;color:#fff;font-size:1.15rem}
+.audit-issue-content>p{margin:7px 0;color:var(--muted,#adc4b7);line-height:1.5;font-size:.86rem}
+.audit-issue-content details{margin-top:10px;border:1px solid rgba(255,255,255,.08);border-radius:11px;overflow:hidden;background:rgba(0,0,0,.10)}
+.audit-issue-content summary{padding:10px 12px;cursor:pointer;font-weight:850;font-size:.82rem}
+.audit-issue-content ul{display:grid;gap:7px;margin:0;padding:0 12px 12px;list-style:none}
+.audit-issue-content li{padding:9px 10px;border-radius:9px;background:rgba(255,255,255,.035)}
+.audit-issue-content li strong,.audit-issue-content li span,.audit-issue-content li small{display:block}
+.audit-issue-content li strong{font-size:.82rem}
+.audit-issue-content li span{margin-top:3px;color:#d9ece1;font-size:.76rem}
+.audit-issue-content li small{margin-top:3px;color:var(--muted,#adc4b7);line-height:1.4}
+.audit-recommendation{display:flex;gap:9px;margin-top:10px;padding:9px 11px;border-left:3px solid rgba(0,255,135,.55);background:rgba(0,255,135,.04);font-size:.79rem;line-height:1.45}
+.audit-recommendation strong{white-space:nowrap;color:#71ffb2}
+.audit-empty-state{padding:28px;border:1px dashed rgba(255,255,255,.15);border-radius:14px;color:var(--muted,#adc4b7);text-align:center}
+#auditReadyChip.audit-ready{background:rgba(0,255,135,.15);color:#73ffb5;border-color:rgba(0,255,135,.30)}
+#auditReadyChip.audit-warning{background:rgba(255,209,102,.13);color:#ffd166;border-color:rgba(255,209,102,.28)}
+#auditReadyChip.audit-blocked{background:rgba(255,85,119,.14);color:#ff8da4;border-color:rgba(255,85,119,.28)}
+@media(max-width:1050px){.audit-summary-grid{grid-template-columns:repeat(3,1fr)}.audit-category-summary{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.audit-filter-bar{grid-template-columns:1fr}.audit-readiness-panel{flex-direction:column}.audit-priority-list{min-width:0}.audit-category-summary{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.audit-summary-grid{grid-template-columns:1fr 1fr}.audit-toolbar .button{width:100%}.audit-issue-card{grid-template-columns:1fr}.audit-issue-icon{width:28px;height:28px}.audit-list-heading{align-items:flex-start;flex-direction:column}.audit-recommendation{flex-direction:column}.audit-recommendation strong{white-space:normal}}

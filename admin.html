@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 6</title>
-  <link rel="stylesheet" href="admin.css?v=6.0.1">
+  <title>FPL Challenge Studio · Phase 7</title>
+  <link rel="stylesheet" href="admin.css?v=7.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 6</p>
-        <h1>Build, test and publish every challenge safely</h1>
-        <p class="hero-copy">Generate and review the XI, test it safely, record its history, manage the prompt library, and prepare one checked publishing pack without touching the live game.</p>
+        <p class="eyebrow">Challenge Studio · Phase 7</p>
+        <h1>Build, test, publish and audit every challenge safely</h1>
+        <p class="hero-copy">Generate and review the XI, test it safely, manage the prompt library, prepare a checked publishing pack, and audit the player database without touching the live game.</p>
       </div>
       <a class="back-link" href="./">Open live game</a>
     </header>
@@ -27,6 +27,10 @@
       <article class="status-card">
         <span>Player database</span>
         <strong id="dbStatus">Loading…</strong>
+      </article>
+      <article class="status-card">
+        <span>Database audit</span>
+        <strong id="auditStatusTop">Not run</strong>
       </article>
       <article class="status-card">
         <span>Prompt library</span>
@@ -388,13 +392,88 @@
       <p id="publishActionStatus" class="action-status" role="status"></p>
     </section>
 
+    <section class="panel database-auditor" id="databaseAuditorPanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 8</p>
+          <h2>Player Database Auditor</h2>
+          <p class="section-copy">Scan every player and season for duplicate identities, merged records, impossible ages, invalid positions, broken statistics and missing metadata before expanding the historical player pool.</p>
+        </div>
+        <span id="auditReadyChip" class="phase-chip">Not run</span>
+      </div>
+
+      <div class="audit-summary-grid" aria-label="Database audit summary">
+        <article><span>Players scanned</span><strong id="auditPlayerCount">0</strong></article>
+        <article><span>Seasons scanned</span><strong id="auditSeasonCount">0</strong></article>
+        <article class="audit-critical-card"><span>Blocking issues</span><strong id="auditCriticalCount">0</strong></article>
+        <article class="audit-warning-card"><span>Warnings</span><strong id="auditWarningCount">0</strong></article>
+        <article><span>Metadata gaps</span><strong id="auditInfoCount">0</strong></article>
+        <article><span>Name-rule ready</span><strong id="auditNameReady">0%</strong></article>
+      </div>
+
+      <div class="audit-toolbar">
+        <button id="runDatabaseAuditBtn" class="button primary" type="button">Run full database audit</button>
+        <button id="downloadAuditJsonBtn" class="button secondary" type="button" disabled>Download JSON report</button>
+        <button id="downloadAuditCsvBtn" class="button secondary" type="button" disabled>Download issues CSV</button>
+        <button id="copyAuditSummaryBtn" class="button secondary" type="button" disabled>Copy audit summary</button>
+      </div>
+
+      <div id="auditProgressWrap" class="audit-progress-wrap hidden" aria-live="polite">
+        <div class="audit-progress-label"><span id="auditProgressText">Preparing audit…</span><strong id="auditProgressPercent">0%</strong></div>
+        <div class="audit-progress-shell"><div id="auditProgressBar" class="audit-progress-bar"></div></div>
+      </div>
+      <p id="auditActionStatus" class="action-status" role="status">The auditor is read-only. It never changes <code>players.js</code>.</p>
+
+      <section id="auditReadinessPanel" class="audit-readiness-panel hidden" aria-labelledby="auditReadinessHeading">
+        <div>
+          <span>Expansion readiness</span>
+          <strong id="auditReadinessHeading">Waiting for audit</strong>
+          <p id="auditReadinessCopy"></p>
+        </div>
+        <div id="auditPriorityList" class="audit-priority-list"></div>
+      </section>
+
+      <div id="auditCategorySummary" class="audit-category-summary"></div>
+
+      <div class="audit-filter-bar">
+        <input id="auditSearch" type="search" placeholder="Search player, issue or season" aria-label="Search database audit findings">
+        <select id="auditSeverityFilter" aria-label="Filter audit by severity">
+          <option value="all">All severities</option>
+          <option value="critical">Blocking issues</option>
+          <option value="warning">Warnings</option>
+          <option value="info">Metadata gaps</option>
+        </select>
+        <select id="auditCategoryFilter" aria-label="Filter audit by category">
+          <option value="all">All categories</option>
+          <option value="identity">Identity</option>
+          <option value="structure">Structure</option>
+          <option value="statistics">Statistics</option>
+          <option value="age">Age and birth dates</option>
+          <option value="league">League metadata</option>
+          <option value="metadata">Missing metadata</option>
+          <option value="names">Name rules</option>
+        </select>
+      </div>
+
+      <div class="audit-list-heading">
+        <strong id="auditListSummary">Run the audit to see findings</strong>
+        <div class="library-pagination">
+          <button id="auditPreviousPageBtn" type="button" disabled>Previous</button>
+          <span id="auditPageLabel">Page 1 of 1</span>
+          <button id="auditNextPageBtn" type="button" disabled>Next</button>
+        </div>
+      </div>
+      <div id="auditIssueList" class="audit-issue-list"></div>
+    </section>
+
   </main>
 
   <script src="players.js?v=6.2"></script>
   <script src="prompt-library.js?v=2.0.0"></script>
-  <script src="admin-phase5.js?v=6.0.1"></script>
-  <script src="admin.js?v=6.0.1"></script>
-  <script src="admin-phase3.js?v=6.0.1"></script>
-  <script src="admin-phase6.js?v=6.0.1"></script>
+  <script src="admin-phase5.js?v=7.0.0"></script>
+  <script src="admin.js?v=7.0.0"></script>
+  <script src="admin-phase3.js?v=7.0.0"></script>
+  <script src="admin-phase6.js?v=7.0.0"></script>
+  <script src="admin-phase7.js?v=7.0.0"></script>
 </body>
 </html>
