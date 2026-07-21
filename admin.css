@@ -1032,3 +1032,23 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
 @media(max-width:1100px){.repair-summary-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.repair-filter-bar{grid-template-columns:1fr}.repair-regression-head,.repair-download-panel,.repair-safety-banner{flex-direction:column;align-items:flex-start}.repair-change-grid{grid-template-columns:1fr}.repair-change-arrow{transform:rotate(90deg);justify-self:center}.repair-item-head{flex-direction:column}.repair-item-target{text-align:left}}
 @media(max-width:560px){.repair-summary-grid{grid-template-columns:1fr 1fr}.repair-toolbar .button{width:100%}.repair-item-card{grid-template-columns:1fr}.repair-item-check{justify-content:flex-start}.repair-list-heading{align-items:flex-start;flex-direction:column}.repair-download-panel .button{width:100%}}
+
+/* Phase 9 — automatic conservative repair engine */
+.auto-repair-section{border-color:rgba(0,255,135,.28);background:linear-gradient(155deg,rgba(8,43,30,.98),rgba(6,25,18,.98))}
+.safe-mode-banner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 16px;padding:13px 15px;border:1px solid rgba(4,217,255,.3);border-radius:14px;background:rgba(4,217,255,.07)}
+.safe-mode-banner strong{color:var(--accent-2)}
+.safe-mode-banner span{color:var(--muted)}
+.auto-repair-stats{margin-bottom:16px}
+.auto-repair-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+.auto-repair-summary>div{padding:14px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(0,0,0,.18)}
+.auto-repair-summary strong,.auto-repair-summary span{display:block}
+.auto-repair-summary strong{font-size:1.08rem;color:var(--accent)}
+.auto-repair-summary span{margin-top:4px;color:var(--muted);font-size:.82rem}
+.auto-repair-two-column{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.auto-repair-panel{padding:16px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(0,0,0,.14)}
+.auto-repair-change-list{display:grid;gap:8px;margin-top:12px}
+.auto-repair-change-row{display:flex;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(0,0,0,.16)}
+.auto-repair-change-row strong{font-size:.9rem}
+.auto-repair-change-row span{color:var(--muted);font-size:.82rem;text-align:right}
+@media(max-width:850px){.auto-repair-summary{grid-template-columns:1fr 1fr}.auto-repair-two-column{grid-template-columns:1fr}}
+@media(max-width:560px){.auto-repair-summary{grid-template-columns:1fr}.safe-mode-banner{align-items:flex-start;flex-direction:column}}

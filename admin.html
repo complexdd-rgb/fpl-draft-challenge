@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 8</title>
+  <title>FPL Challenge Studio · Phase 9</title>
   <link rel="stylesheet" href="admin.css?v=8.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 8</p>
+        <p class="eyebrow">Challenge Studio · Phase 9</p>
         <h1>Build, test, publish, audit and repair every challenge safely</h1>
         <p class="hero-copy">Generate and review the XI, test it safely, manage the prompt library, prepare a checked publishing pack, audit the player database, and build a reversible repair workspace without touching the live game.</p>
       </div>
@@ -561,6 +561,73 @@
     </section>
 
 
+    <section class="studio-section auto-repair-section" aria-labelledby="autoRepairHeading">
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">Step 10</p>
+          <h2 id="autoRepairHeading">One-click Automatic Repair Engine</h2>
+          <p>Builds a fresh cleaned copy from the original database. It removes obvious non-player records, separates known same-name footballers, merges safe ID variants, withholds untrusted ages and quarantines anything that cannot be trusted without inventing data.</p>
+        </div>
+        <span id="autoRepairStatus" class="audit-status-chip pending">Ready</span>
+      </div>
+
+      <div class="safe-mode-banner">
+        <strong>Conservative auto mode</strong>
+        <span>No guessed clubs, positions, prices or statistics. An unsafe record is quarantined rather than fabricated.</span>
+      </div>
+
+      <div class="summary-grid auto-repair-stats">
+        <div class="summary-card"><span>Detected blockers</span><strong id="autoRepairDetected">—</strong></div>
+        <div class="summary-card"><span>Automatic actions</span><strong id="autoRepairFixed">0</strong></div>
+        <div class="summary-card"><span>Quarantined records</span><strong id="autoRepairQuarantined">0</strong></div>
+        <div class="summary-card"><span>Remaining blockers</span><strong id="autoRepairRemaining">—</strong></div>
+      </div>
+
+      <div class="repair-toolbar">
+        <button id="runAutoRepairBtn" class="button primary" type="button">Run one-click auto repair</button>
+        <button id="downloadAutoRepairBtn" class="button secondary" type="button" disabled>Download upload-ready repair ZIP</button>
+      </div>
+
+      <div id="autoRepairProgressWrap" class="audit-progress-wrap hidden" aria-live="polite">
+        <div class="audit-progress-label"><span id="autoRepairProgressText">Preparing automatic repair…</span><strong id="autoRepairProgressPercent">0%</strong></div>
+        <div class="audit-progress-shell"><div id="autoRepairProgressBar" class="audit-progress-bar"></div></div>
+      </div>
+      <p id="autoRepairActionStatus" class="action-status" role="status">Ready to clean a separate copy. The live players.js is never edited by this page.</p>
+
+      <div id="autoRepairSummary" class="auto-repair-summary"></div>
+
+      <div class="auto-repair-two-column">
+        <section class="auto-repair-panel" aria-labelledby="autoRepairActionsHeading">
+          <div class="repair-regression-head">
+            <div>
+              <p class="eyebrow">Automatic actions</p>
+              <h3 id="autoRepairActionsHeading">What the engine changed</h3>
+            </div>
+          </div>
+          <div id="autoRepairChangeList" class="auto-repair-change-list"><div class="repair-empty-state">Run the automatic repair to see the grouped actions.</div></div>
+        </section>
+
+        <section class="auto-repair-panel" aria-labelledby="autoRepairSafetyHeading">
+          <div class="repair-regression-head">
+            <div>
+              <p class="eyebrow">Safety gate</p>
+              <h3 id="autoRepairSafetyHeading">Upload checks</h3>
+            </div>
+          </div>
+          <div id="autoRepairRegressionList" class="repair-regression-list"><div class="repair-empty-state">The safety checks run automatically after cleaning.</div></div>
+        </section>
+      </div>
+
+      <div class="repair-download-panel">
+        <div>
+          <h3>Protected download package</h3>
+          <p>The button unlocks only after zero blockers remain, every enabled prompt works, and the live challenge still has the same exact perfect score.</p>
+        </div>
+      </div>
+      <p id="autoRepairDownloadStatus" class="action-status" role="status"></p>
+    </section>
+
+
   </main>
 
   <script src="players.js?v=6.2"></script>
@@ -571,5 +638,6 @@
   <script src="admin-phase6.js?v=8.0.0"></script>
   <script src="admin-phase7.js?v=8.0.0"></script>
   <script src="admin-phase8.js?v=8.0.0"></script>
+  <script src="admin-phase9.js?v=9.0.0"></script>
 </body>
 </html>
