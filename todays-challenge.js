@@ -2,90 +2,90 @@
    Exact perfect score calculated with eleven unique footballers.
    Review before manually uploading to GitHub. */
 window.FPL_DAILY_CHALLENGE = {
-  id: "daily-007-the-generated-mix",
-  number: 7,
-  title: "Challenge #7 · The Generated Mix",
+  id: "daily-008-the-generated-mix",
+  number: 8,
+  title: "Challenge #8 · The Generated Mix",
   dateLabel: "Generated Mix · Mixed",
   difficulty: "Mixed",
-  releaseDate: "2026-07-21",
-  perfectScore: 2005,
+  releaseDate: "2026-07-22",
+  perfectScore: 2150,
   prompts: [
     {
-      id: "gk_promoted_90_points",
+      id: "gk_final_45_100",
       position: "GK",
-      label: "Goalkeeper from a promoted club with at least 90 FPL points",
-      fail: "That goalkeeper must play for a promoted club and score at least 90 FPL points.",
-      test: p => p.promoted === true && p.points >= 90
+      label: "Goalkeeper who finished at £4.5m or less with 100+ points",
+      fail: "That goalkeeper must finish at £4.5m or less and score at least 100 FPL points.",
+      test: p => p.finalPrice <= 4.5 && p.points >= 100
     },
     {
-      id: "def_exact_3_goals_midtable",
+      id: "def_promoted_80_points",
       position: "DEF",
-      label: "Defender from a club finishing 7th–12th who scored exactly three goals",
-      fail: "That defender's club must finish 7th–12th and the player must score exactly three goals.",
-      test: p => Number.isFinite(p.leaguePosition) && p.leaguePosition >= 7 && p.leaguePosition <= 12 && p.goals === 3
+      label: "Defender from a promoted club with at least 80 FPL points",
+      fail: "That defender must play for a promoted club and score at least 80 FPL points.",
+      test: p => p.promoted === true && p.points >= 80
     },
     {
-      id: "def_surname_t_1000",
+      id: "def_yellow_8_100points",
       position: "DEF",
-      label: "Defender whose surname starts with T and played 1,000+ minutes",
-      fail: "That defender’s surname must start with T and the season must include at least 1,000 minutes.",
-      test: p => { const __raw=String(p.name || p.playerName || "").trim(); const __norm=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"'").trim().toLowerCase(); const __tokens=__raw.split(/\s+/).filter(Boolean); const __particles=new Set(["al","ap","bin","bint","da","das","de","del","della","den","der","di","dos","du","el","la","le","van","von","y"]); let __start=Math.max(0,__tokens.length-1); while(__start>0 && __particles.has(__norm(__tokens[__start-1]))) __start--; const __first=__norm(__tokens[0]||""); const __surname=__norm(__tokens.slice(__start).join(" ")); const __letters=v=>__norm(v).replace(/[^a-z]/g,"").length; return (__surname.startsWith("t") && p.minutes >= 1000); }
+      label: "Defender with eight or more yellow cards and at least 100 FPL points",
+      fail: "That defender season must include at least eight yellow cards and 100 FPL points.",
+      test: p => p.yellowCards >= 8 && p.points >= 100
     },
     {
-      id: "def_10yellows_2000",
+      id: "def_assists_gt_goals_5",
       position: "DEF",
-      label: "Defender with 10+ yellow cards who played 2,000+ minutes",
-      fail: "That defender season must include at least 10 yellow cards and 2,000 minutes.",
-      test: p => p.yellowCards >= 10 && p.minutes >= 2000
+      label: "Defender with 5+ assists and more assists than goals",
+      fail: "That defender season must record at least five assists and more assists than goals.",
+      test: p => p.assists >= 5 && p.assists > p.goals
     },
     {
-      id: "def_nuno_2000",
+      id: "def_relegated_5cs",
       position: "DEF",
-      label: "Defender managed by Nuno Espírito Santo who played 2,000+ minutes",
-      fail: "That defender season must be managed by Nuno Espírito Santo and include at least 2,000 minutes.",
-      test: p => Array.isArray(p.managers) && p.managers.includes("Nuno Espírito Santo") && p.minutes >= 2000
+      label: "Defender from a relegated club with at least five clean sheets",
+      fail: "That defender must play for a relegated club and record at least five clean sheets.",
+      test: p => p.relegated === true && p.cleanSheets >= 5
     },
     {
-      id: "mid_howe_100",
+      id: "mid_champion_10assists",
       position: "MID",
-      label: "Midfielder managed by Eddie Howe with at least 100 FPL points",
-      fail: "That midfielder season must be managed by Eddie Howe and score at least 100 points.",
-      test: p => Array.isArray(p.managers) && p.managers.includes("Eddie Howe") && p.points >= 100
+      label: "Midfielder from the champions with at least 10 assists",
+      fail: "That midfielder must play for the champions and record at least 10 assists.",
+      test: p => p.champions === true && p.assists >= 10
     },
     {
-      id: "mid_promoted_8_involvements",
+      id: "mid_13_17_8involvements",
       position: "MID",
-      label: "Midfielder from a promoted club with at least eight goal involvements",
-      fail: "That midfielder must play for a promoted club and record at least eight combined goals and assists.",
-      test: p => p.promoted === true && (p.goals + p.assists) >= 8
+      label: "Midfielder from a club finishing 13th–17th with at least eight goal involvements",
+      fail: "That midfielder's club must finish 13th–17th and the player must record at least eight combined goals and assists.",
+      test: p => Number.isFinite(p.leaguePosition) && p.leaguePosition >= 13 && p.leaguePosition <= 17 && (p.goals + p.assists) >= 8
     },
     {
-      id: "mid_2500_10bonus_astgtgoal",
+      id: "mid_top4_15gi",
       position: "MID",
-      label: "Midfielder with 2,500+ minutes, 10+ bonus and more assists than goals",
-      fail: "That midfielder season must include 2,500 minutes, at least 10 bonus points and more assists than goals.",
-      test: p => p.minutes >= 2500 && p.bonus >= 10 && p.assists > p.goals
+      label: "Midfielder from a top-four club with 15+ goal involvements",
+      fail: "That midfielder’s club must finish in the top four and the season must include at least 15 goals plus assists.",
+      test: p => p.topFour === true && (p.goals + p.assists) >= 15
     },
     {
-      id: "mid_outside_big6_2000_10gi",
+      id: "mid_nuno_100",
       position: "MID",
-      label: "Midfielder outside the Big Six with 2,000+ minutes and 10+ goal involvements",
-      fail: "That midfielder must play outside the traditional Big Six, complete 2,000 minutes and record at least 10 goals plus assists.",
-      test: p => !["Arsenal","Chelsea","Liverpool","Man City","Man Utd","Spurs"].includes(p.club) && p.minutes >= 2000 && (p.goals + p.assists) >= 10
+      label: "Midfielder managed by Nuno Espírito Santo with at least 100 FPL points",
+      fail: "That midfielder season must be managed by Nuno Espírito Santo and score at least 100 points.",
+      test: p => Array.isArray(p.managers) && p.managers.includes("Nuno Espírito Santo") && p.points >= 100
     },
     {
-      id: "fwd_promoted_5goals",
+      id: "fwd_final6_8goals",
       position: "FWD",
-      label: "Forward from a promoted club with at least five goals",
-      fail: "That forward must play for a promoted club and score at least five goals.",
-      test: p => p.promoted === true && p.goals >= 5
+      label: "Forward who finished at £6.0m or less and scored 8+ goals",
+      fail: "That forward must finish at £6.0m or less and score at least eight goals.",
+      test: p => p.finalPrice <= 6 && p.goals >= 8
     },
     {
-      id: "fwd_relegated_5goals",
+      id: "fwd_9goals_zero_assists",
       position: "FWD",
-      label: "Forward from a relegated club with at least five goals",
-      fail: "That forward must play for a relegated club and score at least five goals.",
-      test: p => p.relegated === true && p.goals >= 5
+      label: "Forward with 9+ goals and no assists",
+      fail: "That forward season must include at least nine goals and no assists.",
+      test: p => p.goals >= 9 && p.assists === 0
     }
   ]
 };
