@@ -1,7 +1,7 @@
 <!doctype html>
 
 <html lang="en">
-<head><!-- Daily challenge content loads from todays-challenge.js in the repository root. -->
+<head><!-- Daily challenge content now lives in data/todays-challenge.js -->
 
 
 
@@ -141,9 +141,10 @@ body::before{
   color:#e6f7ec;
   backdrop-filter:blur(8px);
 }
-.grid{gap:12px;margin-top:16px}
+.grid{gap:12px;margin-top:16px;position:relative}
 .slot{
   position:relative;
+  z-index:1;
   overflow:visible;
   border:1px solid var(--line);
   border-radius:18px;
@@ -151,7 +152,10 @@ body::before{
   box-shadow:0 10px 26px rgba(0,0,0,.18);
   transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
 }
-.slot:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22)}
+.slot:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22);z-index:2}
+/* Keep the open player search above every following prompt card. */
+.slot:focus-within,
+.slot:has(.suggestions:not(.hidden)){z-index:500}
 .slot.valid{
   border-color:rgba(0,255,135,.62);
   box-shadow:0 0 0 1px rgba(0,255,135,.11),0 14px 30px rgba(0,0,0,.22);
@@ -191,7 +195,9 @@ body::before{
   box-shadow:0 0 0 3px rgba(0,255,135,.12);
 }
 .suggestions{
-  z-index:100;
+  z-index:1000;
+  max-height:min(280px,45vh);
+  overscroll-behavior:contain;
   background:#0d2118;
   border:1px solid rgba(255,255,255,.16);
   box-shadow:0 18px 44px rgba(0,0,0,.46);
@@ -335,14 +341,10 @@ body::before{
 
 
 
-<!-- Load the editable daily challenge first. The timestamp prevents an old cached challenge being reused. -->
+<!-- Challenge #6 is embedded here so it cannot fail to load separately. -->
 <script>
-document.write('<script src="todays-challenge.js?v=' + Date.now() + '"><\/script>');
-</script>
-
-<!-- Safe fallback: used only if todays-challenge.js is missing or fails to load. -->
-<script>
-window.FPL_DAILY_CHALLENGE = window.FPL_DAILY_CHALLENGE || {
+/* Edit this file to publish the daily challenge. */
+window.FPL_DAILY_CHALLENGE = {
   id: "daily-006-underdog-xi",
   number: 6,
   title: "Daily Challenge #6 · The Underdog XI",
