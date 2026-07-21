@@ -209,7 +209,8 @@
       imported.push({ playerId: player.playerId, name: player.name, sourceName: converted.name, record: converted.record, historyVerified: Boolean(converted.history) });
     }
 
-    preview = { database, imported, matched, created, review, quarantine, crossChecks, sourceErrors: clone(sourceErrors), generatedAt: new Date().toISOString() };
+    const partialStartingPrice = imported.filter(item => !Number.isFinite(item.record.startingPrice)).length;
+    preview = { database, imported, matched, created, review, quarantine, crossChecks, partialStartingPrice, sourceErrors: clone(sourceErrors), generatedAt: new Date().toISOString() };
     liveAssets = await loadLiveAssets();
 
     updatePreviewUi();
@@ -247,7 +248,8 @@
       const change = numeric(first(snapshot, ["cost_change_start"]));
       if (now != null && change != null) startingPrice = roundOne((now - change) / (Math.abs(now) > 30 ? 10 : 1));
     }
-    if (!validPrice(startingPrice) || !validPrice(finalPrice)) return fail("A trustworthy starting or final FPL price is unavailable.");
+    if (!validPrice(finalPrice)) return fail("A trustworthy final FPL price is unavailable.");
+    const startingPriceKnown = validPrice(startingPrice);
 
     const stats = history ? {
       points: history.points, minutes: history.minutes, goals: history.goals, assists: history.assists,
@@ -271,7 +273,7 @@
       goalsConceded: stats.goalsConceded,
       yellowCards: stats.yellowCards,
       redCards: stats.redCards,
-      startingPrice: roundOne(startingPrice),
+      ...(startingPriceKnown ? { startingPrice: roundOne(startingPrice) } : {}),
       finalPrice: roundOne(finalPrice),
       managers: [...clubMeta.managers],
       leaguePosition: clubMeta.position,
@@ -286,7 +288,8 @@
         historySupplement: history ? history.source : null,
         sourcePlayerId: first(snapshot, ["id"]) ?? null,
         sourceCode: code || null,
-        confidence: history ? "verified-cross-source" : "verified-official-snapshot"
+        startingPriceConfidence: startingPriceKnown ? "verified" : "unavailable",
+        confidence: history ? "verified-cross-source" : startingPriceKnown ? "verified-official-snapshot" : "verified-official-stats-final-price-only"
       }
     };
 
@@ -392,7 +395,15 @@
     addCheck(results, existingDataUnchanged(database), "Existing database preserved", "All pre-existing player identities and season records remain unchanged.");
 
     const invalidImported = preview.imported.filter(item => !validImportedRecord(item.record));
-    addCheck(results, invalidImported.length === 0, "Imported schema and metadata", invalidImported.length ? `${invalidImported.length} imported records are invalid.` : "All imported records have valid clubs, positions, prices, statistics and 2015/16 flags.");
+    addCheck(results, invalidImported.length === 0, "Imported schema and metadata", invalidImported.length ? `${invalidImported.length} imported records are invalid.` : "All imported records have valid clubs, positions, statistics, final prices and 2015/16 flags.");
+    results.push({
+      state: preview.partialStartingPrice ? "warn" : "pass",
+      title: "Historical starting-price coverage",
+      detail: preview.partialStartingPrice
+        ? `${preview.partialStartingPrice} official records have no recoverable starting price. Their startingPrice field is omitted, so they cannot accidentally pass starting-price prompts.`
+        : "Every imported record has a verified starting price.",
+      blocking: false
+    });
 
     const promptResult = testPrompts(database);
     addCheck(results, promptResult.failures.length === 0, "Prompt-library regression", promptResult.failures.length ? promptResult.failures.slice(0, 4).join("; ") : `${promptResult.tested} enabled prompts execute successfully after expansion.`);
@@ -451,6 +462,7 @@
 
     const warnings = [];
     if (preview.review.length) warnings.push(warning("Identity review", `${preview.review.length} uncertain records are safely excluded from the upload database.`));
+    if (preview.partialStartingPrice) warnings.push(warning("Historical starting prices", `${preview.partialStartingPrice} official 2015/16 records have verified stats and final prices but no recoverable starting price. They are imported safely and cannot satisfy starting-price prompts.`));
     if (preview.quarantine.length) warnings.push(warning("Quarantine", `${preview.quarantine.length} incomplete or invalid records are excluded.`));
     if (sourceErrors.length) warnings.push(warning("Archive file errors", `${sourceErrors.length} source files could not be parsed.`));
     els.legacyImportWarnings.innerHTML = warnings.join("") || '<div class="success-box"><strong>Clean source pass</strong><span>No source-file or identity warnings were raised.</span></div>';
@@ -504,6 +516,7 @@
       sourceSnapshots: sourceSnapshots.length, imported: preview.imported.length,
       matched: preview.matched.length, created: preview.created.length,
       review: preview.review.length, quarantine: preview.quarantine.length,
+      partialStartingPrice: preview.partialStartingPrice || 0,
       livePerfectScoreBefore: preview.challengeInfo?.declared ?? null,
       livePerfectScoreAfter: preview.challengeInfo?.after?.score ?? null,
       checks
@@ -517,7 +530,7 @@
 
     const zipBuilder = window.FPL_STUDIO_PHASE6?.buildZipBlob;
     if (typeof zipBuilder !== "function") return showError("The Phase 6 ZIP builder is unavailable. Refresh the Studio and try again.");
-    downloadBlob(`fpl-2015-16-expansion-${blocked ? "review" : "upload-ready"}-${dateStamp()}.zip`, zipBuilder(files));
+    downloadBlob(`fpl-2015-16-expansion-12-1-${blocked ? "review" : "upload-ready"}-${dateStamp()}.zip`, zipBuilder(files));
     els.legacyDownloadStatus.textContent = blocked ? "Review package downloaded. Do not upload its preview files yet." : "Upload-ready package downloaded. Follow README-UPLOAD.txt in order.";
   }
 
@@ -717,7 +730,10 @@
   }
   function validImportedRecord(record) {
     const club = Object.values(CLUBS).some(item => item.club === record.club);
-    return record.season === SEASON && club && VALID_POSITIONS.has(record.position) && validPrice(record.startingPrice) && validPrice(record.finalPrice) && Number.isInteger(record.leaguePosition) && record.leaguePosition >= 1 && record.leaguePosition <= 20 && Array.isArray(record.managers) && record.managers.length && ["points", "minutes", "goals", "assists", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards"].every(key => Number.isFinite(record[key]) && record[key] >= 0);
+    const startingPriceValid = record.startingPrice == null
+      ? record.source?.startingPriceConfidence === "unavailable"
+      : validPrice(record.startingPrice);
+    return record.season === SEASON && club && VALID_POSITIONS.has(record.position) && startingPriceValid && validPrice(record.finalPrice) && Number.isInteger(record.leaguePosition) && record.leaguePosition >= 1 && record.leaguePosition <= 20 && Array.isArray(record.managers) && record.managers.length && ["points", "minutes", "goals", "assists", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards"].every(key => Number.isFinite(record[key]) && record[key] >= 0);
   }
   function existingDataUnchanged(database) {
     const map = new Map(database.map(player => [player.playerId, player]));
@@ -765,8 +781,32 @@
   function formatBytes(value) { if (value < 1024) return `${value} B`; if (value < 1024 ** 2) return `${(value / 1024).toFixed(1)} KB`; return `${(value / 1024 ** 2).toFixed(1)} MB`; }
   function serialisePlayers(database, note) { return `/* ${note}. */\nwindow.FPL_PLAYERS = ${JSON.stringify(database)};\n`; }
   function replacePerfectScore(source, score) { return /perfectScore\s*:\s*\d+/.test(source) ? source.replace(/perfectScore\s*:\s*\d+/, `perfectScore: ${score}`) : source; }
-  function patchIndexFor2015(source) { return String(source).replaceAll("2016/17–2025/26", "2015/16–2025/26").replace(/players\.js\?v=[^\"']+/g, "players.js?v=12.0.0"); }
-  function readmeText(summary, blocked) { return `${blocked ? "REVIEW ONLY — DO NOT UPLOAD THE PREVIEW FILES" : "2015/16 FPL DATABASE EXPANSION — UPLOAD READY"}\n\nSeason added: 2015/16\nOfficial source snapshots read: ${summary.sourceSnapshots}\nVerified player-seasons imported: ${summary.imported}\nMatched existing identities: ${summary.matched}\nNew historical identities: ${summary.created}\nWithheld for review: ${summary.review}\nQuarantined: ${summary.quarantine}\n\n${blocked ? "Resolve the failed checks shown in REPORTS/import-summary.json before uploading." : "Upload every file inside UPLOAD/ to the root of your GitHub repository, replacing the existing files. Commit them together, wait for GitHub Pages to turn green, then refresh with Ctrl+Shift+R."}\n\nBackups and detailed reports are included.\n`; }
+  function patchIndexFor2015(source) {
+    return String(source)
+      .replaceAll("2016/17–2025/26", "2015/16–2025/26")
+      .replace(/players\.js\?v=[^"']+/g, "players.js?v=12.1.0")
+      .replace(
+        "£${record.startingPrice.toFixed(1)}m starting price",
+        '${Number.isFinite(record.startingPrice) ? `£${record.startingPrice.toFixed(1)}m starting price` : "Starting price unavailable"}'
+      );
+  }
+  function readmeText(summary, blocked) { return `${blocked ? "REVIEW ONLY — DO NOT UPLOAD THE PREVIEW FILES" : "2015/16 FPL DATABASE EXPANSION — UPLOAD READY"}
+
+Season added: 2015/16
+Official source snapshots read: ${summary.sourceSnapshots}
+Verified player-seasons imported: ${summary.imported}
+Matched existing identities: ${summary.matched}
+New historical identities: ${summary.created}
+Verified records without recoverable starting price: ${summary.partialStartingPrice || 0}
+Withheld for review: ${summary.review}
+Quarantined: ${summary.quarantine}
+
+Records without a recoverable starting price remain eligible for all non-price prompts, but are automatically excluded from starting-price prompts.
+
+${blocked ? "Resolve the failed checks shown in REPORTS/import-summary.json before uploading." : "Upload every file inside UPLOAD/ to the root of your GitHub repository, replacing the existing files. Commit them together, wait for GitHub Pages to turn green, then refresh with Ctrl+Shift+R."}
+
+Backups and detailed reports are included.
+`; }
   function setStatus(text, state) { els.legacyImportStatus.textContent = text; els.legacyImportStatus.className = `audit-status-chip ${state}`; }
   function showError(message) { setStatus("Needs attention", "blocked"); els.legacyImportActionStatus.textContent = message; }
   function escapeHtml(value) { return String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]); }
