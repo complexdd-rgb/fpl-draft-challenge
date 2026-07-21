@@ -1,865 +1,830 @@
-:root {
-  --bg: #04100b;
-  --panel: #0d241a;
-  --panel-2: #123124;
-  --line: #285642;
-  --text: #f3fff8;
-  --muted: #a8c5b6;
-  --accent: #22f28c;
-  --accent-2: #37c7ff;
-  --danger: #ff7590;
-  --warning: #ffd875;
-  --shadow: 0 20px 55px rgba(0, 0, 0, .28);
-}
+(() => {
+  "use strict";
 
-* { box-sizing: border-box; }
-html { color-scheme: dark; }
-body {
-  margin: 0;
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top right, rgba(34, 242, 140, .11), transparent 28rem),
-    linear-gradient(180deg, #06170f, var(--bg));
-  color: var(--text);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-button, input, select, textarea { font: inherit; }
-code { color: #9bf7c7; }
-.hidden { display: none !important; }
+  const FORMATION = ["GK", "DEF", "DEF", "DEF", "DEF", "MID", "MID", "MID", "MID", "FWD", "FWD"];
+  const DIFFICULTY_VALUE = { easy: 1, medium: 2, hard: 3 };
+  const DIVERSITY_TAGS = new Set([
+    "relegated", "promoted", "bottom-half", "mid-table", "survival",
+    "outside-big-six", "outside-top-four", "manager", "budget", "young", "exact-stat", "name-rule", "surname", "first-name"
+  ]);
+  const STORAGE_KEY = "fplChallengeStudioPhase5Draft";
+  const LEGACY_STORAGE_KEYS = ["fplChallengeStudioPhase4Draft", "fplChallengeStudioPhase3Draft", "fplChallengeStudioPhase2Draft", "fplChallengeStudioPhase1Draft"];
+  const FORBIDDEN_COST = 1_000_000;
 
-.studio-shell {
-  width: min(1180px, 100%);
-  margin: 0 auto;
-  padding: 24px 16px 70px;
-}
+  const elements = {
+    dbStatus: document.querySelector("#dbStatus"),
+    libraryStatus: document.querySelector("#libraryStatus"),
+    challengeNumber: document.querySelector("#challengeNumber"),
+    challengeName: document.querySelector("#challengeName"),
+    difficultyTarget: document.querySelector("#difficultyTarget"),
+    releaseDate: document.querySelector("#releaseDate"),
+    minAnswers: document.querySelector("#minAnswers"),
+    maxAnswers: document.querySelector("#maxAnswers"),
+    minAntiMeta: document.querySelector("#minAntiMeta"),
+    avoidRecent: document.querySelector("#avoidRecent"),
+    cooldownChallenges: document.querySelector("#cooldownChallenges"),
+    generateBtn: document.querySelector("#generateBtn"),
+    saveDraftBtn: document.querySelector("#saveDraftBtn"),
+    loadDraftBtn: document.querySelector("#loadDraftBtn"),
+    actionStatus: document.querySelector("#actionStatus"),
+    draftPanel: document.querySelector("#draftPanel"),
+    draftSummary: document.querySelector("#draftSummary"),
+    warnings: document.querySelector("#warnings"),
+    perfectScore: document.querySelector("#perfectScore"),
+    perfectComparison: document.querySelector("#perfectComparison"),
+    perfectXI: document.querySelector("#perfectXI"),
+    promptSlots: document.querySelector("#promptSlots"),
+    codePanel: document.querySelector("#codePanel"),
+    codeOutput: document.querySelector("#codeOutput"),
+    downloadBtn: document.querySelector("#downloadBtn"),
+    copyCodeBtn: document.querySelector("#copyCodeBtn"),
+    copyStatus: document.querySelector("#copyStatus")
+  };
 
-.studio-hero,
-.panel,
-.safety-banner,
-.status-card {
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-}
+  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
+  const promptLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
+  const recentPromptIds = new Set(Array.isArray(window.FPL_RECENT_PROMPT_IDS) ? window.FPL_RECENT_PROMPT_IDS : []);
+  const records = [];
+  const statsCache = new Map();
+  let selectedPrompts = [];
+  let currentPerfect = null;
 
-.studio-hero {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  align-items: flex-start;
-  padding: 28px;
-  border-radius: 26px;
-  background: linear-gradient(135deg, rgba(21, 67, 47, .98), rgba(8, 31, 22, .98));
-}
+  for (const player of players) {
+    for (const season of player.seasons || []) {
+      records.push({
+        ...season,
+        playerId: player.playerId,
+        playerName: player.name
+      });
+    }
+  }
 
-.eyebrow {
-  margin: 0 0 8px;
-  color: var(--accent);
-  font-size: .76rem;
-  font-weight: 900;
-  letter-spacing: .13em;
-  text-transform: uppercase;
-}
+  initialise();
 
-h1, h2, h3 { margin: 0; }
-h1 { font-size: clamp(2rem, 5vw, 3.7rem); line-height: 1; }
-h2 { font-size: clamp(1.35rem, 3vw, 2rem); }
-.hero-copy { max-width: 760px; margin: 14px 0 0; color: var(--muted); line-height: 1.6; }
+  function initialise() {
+    setDefaultReleaseDate();
+    updateStatusCards();
+    bindEvents();
 
-.back-link,
-.button {
-  border-radius: 13px;
-  padding: 12px 16px;
-  font-weight: 900;
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform .16s ease, opacity .16s ease, border-color .16s ease;
-}
-.back-link {
-  color: var(--text);
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.15);
-  white-space: nowrap;
-}
-.button:hover:not(:disabled), .back-link:hover { transform: translateY(-1px); }
-.button:disabled { opacity: .4; cursor: not-allowed; }
+    if (!players.length || !promptLibrary.length) {
+      elements.generateBtn.disabled = true;
+      elements.actionStatus.textContent = !players.length
+        ? "The studio cannot find players.js. Keep admin.html beside the existing players.js file."
+        : "The prompt library failed to load.";
+      return;
+    }
 
-.safety-banner {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 14px;
-  padding: 13px 17px;
-  border-radius: 16px;
-  background: rgba(34, 242, 140, .09);
-  color: var(--muted);
-}
-.safety-banner strong { color: var(--accent); }
+    for (const prompt of promptLibrary) getPromptStats(prompt);
+    updateLibraryStatus("checked");
+    elements.actionStatus.textContent = "Ready. Generate a draft; the live game will not be changed.";
+  }
 
-.status-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-top: 14px;
-}
-.status-card {
-  padding: 16px;
-  border-radius: 17px;
-  background: rgba(13, 36, 26, .92);
-}
-.status-card span { display: block; color: var(--muted); font-size: .78rem; margin-bottom: 5px; }
-.status-card strong { font-size: 1rem; }
-.safe-text { color: var(--accent); }
+  function bindEvents() {
+    elements.generateBtn.addEventListener("click", generateDraft);
+    elements.saveDraftBtn.addEventListener("click", saveDraft);
+    elements.loadDraftBtn.addEventListener("click", loadDraft);
+    elements.downloadBtn.addEventListener("click", downloadChallengeFile);
+    elements.copyCodeBtn.addEventListener("click", copyChallengeCode);
 
-.panel {
-  margin-top: 18px;
-  padding: 22px;
-  border-radius: 22px;
-  background: rgba(13, 36, 26, .96);
-}
-.panel-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 18px;
-}
-.phase-chip,
-.summary-chips span,
-.tag,
-.count-chip {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  padding: 7px 10px;
-  font-size: .76rem;
-  font-weight: 900;
-}
-.phase-chip { background: rgba(55, 199, 255, .12); color: var(--accent-2); border: 1px solid rgba(55, 199, 255, .25); }
-.warning-chip { background: rgba(255, 216, 117, .1); color: var(--warning); border-color: rgba(255, 216, 117, .3); }
+    for (const input of [
+      elements.challengeNumber,
+      elements.challengeName,
+      elements.difficultyTarget,
+      elements.releaseDate,
+      elements.minAnswers,
+      elements.maxAnswers,
+      elements.minAntiMeta,
+      elements.cooldownChallenges,
+      elements.avoidRecent
+    ]) {
+      input.addEventListener("change", () => {
+        if (selectedPrompts.length) refreshDraft();
+      });
+    }
+  }
 
-.settings-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 13px;
-}
-label { color: var(--muted); font-size: .8rem; font-weight: 800; }
-input, select, textarea {
-  width: 100%;
-  margin-top: 7px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #071a12;
-  color: var(--text);
-  padding: 12px;
-}
-input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); border-color: transparent; }
-.check-label {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  align-self: end;
-  min-height: 44px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #071a12;
-}
-.check-label input { width: auto; margin: 0; accent-color: var(--accent); }
+  function setDefaultReleaseDate() {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    elements.releaseDate.value = localDate.toISOString().slice(0, 10);
+  }
 
-.button-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 17px; }
-.button { border: 0; }
-.button.primary { background: linear-gradient(135deg, var(--accent), #a8ff55); color: #032013; }
-.button.secondary { background: #17392a; color: var(--text); border: 1px solid var(--line); }
-.action-status { min-height: 20px; margin: 10px 0 0; color: var(--muted); }
+  function updateStatusCards() {
+    elements.dbStatus.textContent = players.length
+      ? `${players.length.toLocaleString()} players · ${records.length.toLocaleString()} seasons`
+      : "Not found";
+    elements.libraryStatus.textContent = promptLibrary.length
+      ? `${promptLibrary.filter(prompt => prompt.enabled !== false).length} enabled · ${promptLibrary.length} total loading…`
+      : "Not found";
+  }
 
-.summary-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
-.summary-chips span { background: #17392a; color: var(--text); border: 1px solid var(--line); }
-.warnings { display: grid; gap: 8px; margin-bottom: 14px; }
-.warning, .success-message {
-  padding: 11px 13px;
-  border-radius: 12px;
-  font-size: .86rem;
-  font-weight: 750;
-}
-.warning { background: rgba(255, 117, 144, .1); border: 1px solid rgba(255, 117, 144, .33); color: #ffc3cf; }
-.success-message { background: rgba(34, 242, 140, .08); border: 1px solid rgba(34, 242, 140, .28); color: #b7ffda; }
+  function updateLibraryStatus(suffix = "") {
+    const enabledCount = promptLibrary.filter(prompt => prompt.enabled !== false).length;
+    const customCount = promptLibrary.filter(prompt => prompt.studioRule).length;
+    const pieces = [`${enabledCount} enabled`, `${promptLibrary.length} total`];
+    if (customCount) pieces.push(`${customCount} custom`);
+    if (suffix) pieces.push(suffix);
+    elements.libraryStatus.textContent = pieces.join(" · ");
+  }
 
-.prompt-slots { display: grid; gap: 11px; }
-.prompt-card {
-  border: 1px solid var(--line);
-  border-radius: 17px;
-  padding: 15px;
-  background: linear-gradient(135deg, rgba(18,49,36,.98), rgba(8,28,19,.98));
-}
-.prompt-card-head {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 11px;
-  align-items: start;
-}
-.position-badge {
-  display: grid;
-  place-items: center;
-  min-width: 48px;
-  min-height: 42px;
-  border-radius: 11px;
-  background: #1a7b51;
-  font-weight: 1000;
-}
-.prompt-card h3 { font-size: 1rem; line-height: 1.35; }
-.prompt-meta { margin-top: 7px; color: var(--muted); font-size: .8rem; }
-.count-chip { background: rgba(55,199,255,.1); color: #9ee9ff; border: 1px solid rgba(55,199,255,.25); white-space: nowrap; }
-.prompt-controls {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  margin-top: 13px;
-}
-.prompt-controls select { margin: 0; }
-.reroll-button {
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  padding: 10px 13px;
-  background: #17392a;
-  color: var(--text);
-  font-weight: 900;
-  cursor: pointer;
-}
-.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.tag { padding: 5px 8px; background: rgba(255,255,255,.055); color: var(--muted); border: 1px solid rgba(255,255,255,.08); }
-.tag.anti { color: var(--accent); border-color: rgba(34,242,140,.25); }
-.sample-answer { margin-top: 11px; }
-.sample-answer summary { color: var(--accent-2); font-size: .82rem; font-weight: 850; cursor: pointer; }
-.sample-answer ol { margin: 9px 0 0; padding-left: 22px; color: var(--muted); font-size: .82rem; line-height: 1.7; }
+  function getPromptStats(prompt) {
+    if (statsCache.has(prompt.id)) return statsCache.get(prompt.id);
 
-.code-note { color: var(--muted); line-height: 1.55; }
-#codeOutput { min-height: 520px; resize: vertical; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: .78rem; line-height: 1.5; }
+    const matches = [];
+    for (const record of records) {
+      if (record.position !== prompt.position) continue;
+      try {
+        if (prompt.test(record)) matches.push(record);
+      } catch (error) {
+        console.warn(`Prompt ${prompt.id} failed while checking a record.`, error);
+      }
+    }
 
-@media (max-width: 900px) {
-  .status-grid, .settings-grid { grid-template-columns: 1fr 1fr; }
-  .studio-hero { flex-direction: column; }
-}
-@media (max-width: 620px) {
-  .status-grid, .settings-grid { grid-template-columns: 1fr; }
-  .studio-shell { padding-inline: 10px; }
-  .studio-hero, .panel { padding: 18px; }
-  .panel-heading, .safety-banner { align-items: flex-start; flex-direction: column; }
-  .prompt-card-head { grid-template-columns: auto minmax(0, 1fr); }
-  .count-chip { grid-column: 1 / -1; justify-self: start; }
-  .prompt-controls { grid-template-columns: 1fr; }
-}
+    const bestByPlayer = new Map();
+    for (const match of matches) {
+      const previous = bestByPlayer.get(match.playerId);
+      if (
+        !previous ||
+        match.points > previous.points ||
+        (match.points === previous.points && seasonSortValue(match.season) > seasonSortValue(previous.season))
+      ) {
+        bestByPlayer.set(match.playerId, match);
+      }
+    }
 
-/* Phase 2 scoring and download review */
-.ready-chip {
-  background: rgba(34, 242, 140, .1);
-  color: var(--accent);
-  border-color: rgba(34, 242, 140, .3);
-}
+    const allBestAnswers = [...bestByPlayer.values()]
+      .sort((a, b) => b.points - a.points || a.playerName.localeCompare(b.playerName));
 
-.perfect-panel {
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 18px;
-  margin-bottom: 16px;
-  padding: 17px;
-  border: 1px solid rgba(55, 199, 255, .28);
-  border-radius: 17px;
-  background: linear-gradient(135deg, rgba(55, 199, 255, .08), rgba(34, 242, 140, .055));
-}
-.perfect-score-block {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 16px;
-  border-radius: 14px;
-  background: #071a12;
-  border: 1px solid var(--line);
-}
-.perfect-score-block span { color: var(--muted); font-size: .78rem; font-weight: 850; }
-.perfect-score-block strong { margin: 5px 0; color: var(--accent); font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; }
-.perfect-score-block small { color: var(--muted); line-height: 1.45; }
-.perfect-xi-block > p { margin: 7px 0 12px; color: var(--muted); font-size: .84rem; }
-.perfect-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 7px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.perfect-list li {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-  padding: 9px 10px;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 10px;
-  background: rgba(7, 26, 18, .72);
-}
-.perfect-list strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .83rem; }
-.perfect-list span { color: var(--muted); font-size: .75rem; }
+    const stats = {
+      playerCount: bestByPlayer.size,
+      seasonCount: matches.length,
+      bestByPlayer,
+      bestAnswer: allBestAnswers[0] || null,
+      topAnswers: allBestAnswers.slice(0, 5)
+    };
+    statsCache.set(prompt.id, stats);
+    return stats;
+  }
 
-.answer-insights {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 9px;
-  margin-top: 11px;
-}
-.answer-insights > div {
-  min-width: 0;
-  padding: 10px 11px;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 11px;
-  background: rgba(7, 26, 18, .72);
-}
-.answer-insights span { display: block; margin-bottom: 4px; color: var(--muted); font-size: .72rem; font-weight: 800; }
-.answer-insights strong { display: block; overflow: hidden; color: var(--text); font-size: .82rem; text-overflow: ellipsis; white-space: nowrap; }
+  function currentSettings() {
+    const minAnswers = clampNumber(elements.minAnswers.value, 2, 300, 6);
+    const maxAnswers = clampNumber(elements.maxAnswers.value, minAnswers, 500, 100);
+    const minAntiMeta = clampNumber(elements.minAntiMeta.value, 0, 11, 5);
+    return {
+      minAnswers,
+      maxAnswers,
+      minAntiMeta,
+      avoidRecent: elements.avoidRecent.checked,
+      difficultyTarget: elements.difficultyTarget.value,
+      cooldownChallenges: clampNumber(elements.cooldownChallenges?.value, 1, 50, 7)
+    };
+  }
 
-@media (max-width: 760px) {
-  .perfect-panel { grid-template-columns: 1fr; }
-  .perfect-list, .answer-insights { grid-template-columns: 1fr; }
-}
+  function eligiblePrompts(position, settings, excludedIds = new Set()) {
+    return promptLibrary.filter(prompt => {
+      if (prompt.enabled === false) return false;
+      if (prompt.position !== position || excludedIds.has(prompt.id)) return false;
+      if (settings.avoidRecent) {
+        const phase3Cooldown = window.FPL_STUDIO_PHASE3?.getCooldownPromptIds?.();
+        const blockedByHistory = phase3Cooldown instanceof Set && phase3Cooldown.has(prompt.id);
+        const blockedByBaseline = !(phase3Cooldown instanceof Set) && recentPromptIds.has(prompt.id);
+        if (blockedByHistory || blockedByBaseline) return false;
+      }
+      const count = getPromptStats(prompt).playerCount;
+      return count >= settings.minAnswers && count <= settings.maxAnswers;
+    });
+  }
+
+  function generateDraft() {
+    const settings = currentSettings();
+    elements.actionStatus.textContent = "Generating and checking prompt balance…";
+
+    const positionAvailability = Object.fromEntries(
+      ["GK", "DEF", "MID", "FWD"].map(position => [position, eligiblePrompts(position, settings).length])
+    );
+    const required = { GK: 1, DEF: 4, MID: 4, FWD: 2 };
+    const missing = Object.keys(required).filter(position => positionAvailability[position] < required[position]);
+
+    if (missing.length) {
+      elements.actionStatus.textContent = `Not enough eligible ${missing.join(", ")} prompts. Increase the maximum answers, lower the minimum, or allow Challenge #6 prompts.`;
+      return;
+    }
+
+    let best = null;
+    let bestScore = Number.POSITIVE_INFINITY;
+
+    for (let attempt = 0; attempt < 900; attempt += 1) {
+      const used = new Set();
+      const candidate = [];
+
+      for (const position of FORMATION) {
+        const options = eligiblePrompts(position, settings, used);
+        const choice = weightedPick(options, candidate, settings);
+        if (!choice) break;
+        candidate.push(choice);
+        used.add(choice.id);
+      }
+
+      if (candidate.length !== 11) continue;
+      const score = scoreDraft(candidate, settings);
+      if (score < bestScore) {
+        best = candidate;
+        bestScore = score;
+      }
+    }
+
+    if (!best) {
+      elements.actionStatus.textContent = "A complete XI could not be generated with those restrictions.";
+      return;
+    }
+
+    selectedPrompts = best;
+    elements.draftPanel.classList.remove("hidden");
+    elements.codePanel.classList.remove("hidden");
+    elements.saveDraftBtn.disabled = false;
+    refreshDraft();
+    elements.actionStatus.textContent = "Draft generated. The exact unique-player perfect score has been calculated.";
+    elements.draftPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function weightedPick(options, currentDraft, settings) {
+    if (!options.length) return null;
+    const target = difficultyTargetValue(settings.difficultyTarget);
+    const currentAnti = currentDraft.filter(isAntiMeta).length;
+    const antiNeeded = Math.max(0, settings.minAntiMeta - currentAnti);
+    const remainingSlots = 11 - currentDraft.length;
+
+    const weighted = options.map(prompt => {
+      const difficultyDistance = Math.abs(DIFFICULTY_VALUE[prompt.difficulty] - target);
+      let weight = Math.max(1, prompt.rating || 3) * (1 / (1 + difficultyDistance));
+      if (antiNeeded >= remainingSlots && isAntiMeta(prompt)) weight *= 8;
+      else if (antiNeeded > 0 && isAntiMeta(prompt)) weight *= 2;
+
+      const tagsAlreadyUsed = new Set(currentDraft.flatMap(item => item.tags.filter(tag => DIVERSITY_TAGS.has(tag))));
+      const repeatedThemeCount = prompt.tags.filter(tag => DIVERSITY_TAGS.has(tag) && tagsAlreadyUsed.has(tag)).length;
+      weight /= 1 + repeatedThemeCount * 1.6;
+      return { prompt, weight };
+    });
+
+    const total = weighted.reduce((sum, item) => sum + item.weight, 0);
+    let random = Math.random() * total;
+    for (const item of weighted) {
+      random -= item.weight;
+      if (random <= 0) return item.prompt;
+    }
+    return weighted[weighted.length - 1].prompt;
+  }
+
+  function scoreDraft(draft, settings) {
+    let score = 0;
+    const target = difficultyTargetValue(settings.difficultyTarget);
+    const averageDifficulty = draft.reduce((sum, prompt) => sum + DIFFICULTY_VALUE[prompt.difficulty], 0) / draft.length;
+    score += Math.abs(averageDifficulty - target) * 20;
+
+    const antiCount = draft.filter(isAntiMeta).length;
+    if (antiCount < settings.minAntiMeta) score += (settings.minAntiMeta - antiCount) * 150;
+
+    const tagCounts = new Map();
+    for (const prompt of draft) {
+      for (const tag of prompt.tags) {
+        if (!DIVERSITY_TAGS.has(tag)) continue;
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+      }
+      const answerCount = getPromptStats(prompt).playerCount;
+      score += Math.abs(Math.log(Math.max(answerCount, 1)) - Math.log(25)) * .8;
+    }
+    for (const count of tagCounts.values()) {
+      if (count > 2) score += (count - 2) * 14;
+    }
+
+    return score + Math.random() * .25;
+  }
+
+  function refreshDraft() {
+    currentPerfect = calculatePerfectXI(selectedPrompts);
+    renderDraft();
+    updateCodeOutput();
+    document.dispatchEvent(new CustomEvent("fplstudio:draftchange", {
+      detail: {
+        promptIds: selectedPrompts.map(prompt => prompt.id),
+        perfectScore: currentPerfect?.possible ? currentPerfect.score : 0
+      }
+    }));
+  }
+
+  function calculatePerfectXI(prompts) {
+    if (prompts.length !== 11) return { possible: false, reason: "The draft does not contain eleven prompts." };
+
+    const playerIdSet = new Set();
+    for (const prompt of prompts) {
+      for (const playerId of getPromptStats(prompt).bestByPlayer.keys()) playerIdSet.add(playerId);
+    }
+    const playerIds = [...playerIdSet];
+    if (playerIds.length < prompts.length) {
+      return { possible: false, reason: "There are not enough different valid footballers to complete the XI." };
+    }
+
+    let maximumPoints = 0;
+    for (const prompt of prompts) {
+      const best = getPromptStats(prompt).bestAnswer;
+      if (best) maximumPoints = Math.max(maximumPoints, best.points);
+    }
+
+    const recordsBySlot = prompts.map(prompt => {
+      const bestByPlayer = getPromptStats(prompt).bestByPlayer;
+      return playerIds.map(playerId => bestByPlayer.get(playerId) || null);
+    });
+
+    const costs = recordsBySlot.map(row => {
+      const values = new Float64Array(playerIds.length);
+      for (let column = 0; column < playerIds.length; column += 1) {
+        const record = row[column];
+        values[column] = record ? maximumPoints - record.points : FORBIDDEN_COST;
+      }
+      return values;
+    });
+
+    const assignment = hungarianMinimumAssignment(costs);
+    if (!assignment) return { possible: false, reason: "The score optimiser could not complete the matching." };
+
+    const picks = assignment.map((column, slotIndex) => {
+      const record = recordsBySlot[slotIndex][column];
+      return record ? { prompt: prompts[slotIndex], record, slotIndex } : null;
+    });
+    if (picks.some(pick => !pick)) {
+      return { possible: false, reason: "No valid eleven-player assignment exists for these prompts." };
+    }
+
+    const score = picks.reduce((sum, pick) => sum + pick.record.points, 0);
+    const naiveScore = prompts.reduce((sum, prompt) => sum + (getPromptStats(prompt).bestAnswer?.points || 0), 0);
+    return {
+      possible: true,
+      score,
+      naiveScore,
+      uniquenessCost: naiveScore - score,
+      picks
+    };
+  }
+
+  function hungarianMinimumAssignment(costs) {
+    const rowCount = costs.length;
+    const columnCount = costs[0]?.length || 0;
+    if (!rowCount || columnCount < rowCount) return null;
+
+    const u = new Float64Array(rowCount + 1);
+    const v = new Float64Array(columnCount + 1);
+    const p = new Int32Array(columnCount + 1);
+    const way = new Int32Array(columnCount + 1);
+
+    for (let row = 1; row <= rowCount; row += 1) {
+      p[0] = row;
+      let column0 = 0;
+      const minValue = new Float64Array(columnCount + 1);
+      minValue.fill(Number.POSITIVE_INFINITY);
+      const used = new Uint8Array(columnCount + 1);
+
+      do {
+        used[column0] = 1;
+        const row0 = p[column0];
+        let delta = Number.POSITIVE_INFINITY;
+        let column1 = 0;
+
+        for (let column = 1; column <= columnCount; column += 1) {
+          if (used[column]) continue;
+          const current = costs[row0 - 1][column - 1] - u[row0] - v[column];
+          if (current < minValue[column]) {
+            minValue[column] = current;
+            way[column] = column0;
+          }
+          if (minValue[column] < delta) {
+            delta = minValue[column];
+            column1 = column;
+          }
+        }
+
+        if (!Number.isFinite(delta)) return null;
+        for (let column = 0; column <= columnCount; column += 1) {
+          if (used[column]) {
+            u[p[column]] += delta;
+            v[column] -= delta;
+          } else {
+            minValue[column] -= delta;
+          }
+        }
+        column0 = column1;
+      } while (p[column0] !== 0);
+
+      do {
+        const column1 = way[column0];
+        p[column0] = p[column1];
+        column0 = column1;
+      } while (column0 !== 0);
+    }
+
+    const assignment = new Int32Array(rowCount);
+    assignment.fill(-1);
+    for (let column = 1; column <= columnCount; column += 1) {
+      if (p[column] !== 0) assignment[p[column] - 1] = column - 1;
+    }
+    return [...assignment];
+  }
+
+  function renderDraft() {
+    elements.promptSlots.innerHTML = "";
+    const perfectPicks = currentPerfect?.possible ? currentPerfect.picks : [];
+
+    selectedPrompts.forEach((prompt, index) => {
+      const stats = getPromptStats(prompt);
+      const perfectPick = perfectPicks[index]?.record || null;
+      const card = document.createElement("article");
+      card.className = "prompt-card";
+
+      const head = document.createElement("div");
+      head.className = "prompt-card-head";
+      head.innerHTML = `
+        <span class="position-badge">${escapeHtml(prompt.position)}</span>
+        <div>
+          <h3>${index + 1}. ${escapeHtml(prompt.label)}</h3>
+          <p class="prompt-meta">${capitalise(prompt.difficulty)} · Rating ${prompt.rating}/5 · ${stats.seasonCount} matching player-seasons</p>
+        </div>
+        <span class="count-chip">${stats.playerCount} valid players</span>
+      `;
+
+      const controls = document.createElement("div");
+      controls.className = "prompt-controls";
+      const select = document.createElement("select");
+      select.setAttribute("aria-label", `Change prompt ${index + 1}`);
+      populatePromptSelect(select, prompt, index);
+      select.addEventListener("change", event => {
+        const replacement = promptLibrary.find(item => item.id === event.target.value);
+        if (!replacement) return;
+        selectedPrompts[index] = replacement;
+        refreshDraft();
+      });
+
+      const reroll = document.createElement("button");
+      reroll.type = "button";
+      reroll.className = "reroll-button";
+      reroll.textContent = "Reroll this slot";
+      reroll.addEventListener("click", () => rerollSlot(index));
+      controls.append(select, reroll);
+
+      const insights = document.createElement("div");
+      insights.className = "answer-insights";
+      insights.innerHTML = `
+        <div>
+          <span>Best individual answer</span>
+          <strong>${formatAnswer(stats.bestAnswer)}</strong>
+        </div>
+        <div>
+          <span>Perfect-XI selection</span>
+          <strong>${formatAnswer(perfectPick)}</strong>
+        </div>
+      `;
+
+      const tags = document.createElement("div");
+      tags.className = "tags";
+      for (const tagName of prompt.tags) {
+        const tag = document.createElement("span");
+        tag.className = `tag${tagName === "anti-meta" ? " anti" : ""}`;
+        tag.textContent = tagName;
+        tags.append(tag);
+      }
+
+      const answers = document.createElement("details");
+      answers.className = "sample-answer";
+      const answerItems = stats.topAnswers.length
+        ? stats.topAnswers.map(answer => `<li>${escapeHtml(answer.playerName)} — ${escapeHtml(answer.season)}, ${escapeHtml(answer.club)} · ${answer.points} pts</li>`).join("")
+        : "<li>No examples found.</li>";
+      answers.innerHTML = `<summary>Show five high-scoring valid examples</summary><ol>${answerItems}</ol>`;
+
+      card.append(head, controls, insights, tags, answers);
+      elements.promptSlots.append(card);
+    });
+
+    renderPerfectXI();
+    renderSummaryAndWarnings();
+  }
+
+  function renderPerfectXI() {
+    elements.perfectXI.innerHTML = "";
+    if (!currentPerfect?.possible) {
+      elements.perfectScore.textContent = "Unavailable";
+      elements.perfectComparison.textContent = currentPerfect?.reason || "No score has been calculated.";
+      const item = document.createElement("li");
+      item.textContent = currentPerfect?.reason || "No valid XI.";
+      elements.perfectXI.append(item);
+      return;
+    }
+
+    elements.perfectScore.textContent = currentPerfect.score.toLocaleString();
+    elements.perfectComparison.textContent = currentPerfect.uniquenessCost > 0
+      ? `Individual maxima total ${currentPerfect.naiveScore.toLocaleString()}; unique-player rule costs ${currentPerfect.uniquenessCost} points.`
+      : `Matches the individual maximum of ${currentPerfect.naiveScore.toLocaleString()} points with no answer conflicts.`;
+
+    for (const pick of currentPerfect.picks) {
+      const item = document.createElement("li");
+      item.innerHTML = `<strong>${pick.slotIndex + 1}. ${escapeHtml(pick.record.playerName)}</strong><span>${escapeHtml(pick.record.season)} · ${escapeHtml(pick.record.club)} · ${pick.record.points} pts</span>`;
+      elements.perfectXI.append(item);
+    }
+  }
+
+  function populatePromptSelect(select, currentPrompt, currentIndex) {
+    const settings = currentSettings();
+    const selectedElsewhere = new Set(
+      selectedPrompts.filter((_, index) => index !== currentIndex).map(prompt => prompt.id)
+    );
+    let options = eligiblePrompts(currentPrompt.position, settings, selectedElsewhere);
+    if (!options.some(prompt => prompt.id === currentPrompt.id)) options = [currentPrompt, ...options];
+    options.sort((a, b) => a.label.localeCompare(b.label));
+
+    for (const prompt of options) {
+      const option = document.createElement("option");
+      option.value = prompt.id;
+      option.selected = prompt.id === currentPrompt.id;
+      option.textContent = `${prompt.label} (${getPromptStats(prompt).playerCount})`;
+      select.append(option);
+    }
+  }
+
+  function rerollSlot(index) {
+    const current = selectedPrompts[index];
+    const settings = currentSettings();
+    const excluded = new Set(selectedPrompts.map(prompt => prompt.id));
+    const options = eligiblePrompts(current.position, settings, excluded);
+    if (!options.length) {
+      elements.actionStatus.textContent = `No other eligible ${current.position} prompt is available with the current restrictions.`;
+      return;
+    }
+
+    selectedPrompts[index] = weightedPick(options, selectedPrompts.filter((_, slotIndex) => slotIndex !== index), settings);
+    refreshDraft();
+    elements.actionStatus.textContent = `Slot ${index + 1} was rerolled and the perfect score was recalculated.`;
+  }
+
+  function renderSummaryAndWarnings() {
+    const antiCount = selectedPrompts.filter(isAntiMeta).length;
+    const average = selectedPrompts.reduce((sum, prompt) => sum + DIFFICULTY_VALUE[prompt.difficulty], 0) / selectedPrompts.length;
+    const difficultyLabel = average < 1.65 ? "Easy" : average < 2.35 ? "Medium" : "Hard";
+    const answerRange = selectedPrompts.map(prompt => getPromptStats(prompt).playerCount);
+
+    elements.draftSummary.innerHTML = `
+      <span>${antiCount} anti-meta</span>
+      <span>${difficultyLabel} average</span>
+      <span>${Math.min(...answerRange)}–${Math.max(...answerRange)} valid players</span>
+      <span>${currentPerfect?.possible ? `${currentPerfect.score.toLocaleString()} perfect score` : "Score unavailable"}</span>
+    `;
+
+    const warnings = [];
+    const settings = currentSettings();
+    const disabledSelected = selectedPrompts.filter(prompt => prompt.enabled === false);
+    if (disabledSelected.length) warnings.push(`${disabledSelected.length} selected prompt(s) are disabled in the Prompt Library Manager. Reroll them before publishing.`);
+    if (antiCount < settings.minAntiMeta) warnings.push(`Only ${antiCount} anti-meta prompts are selected; your target is ${settings.minAntiMeta}.`);
+
+    const themeCounts = new Map();
+    for (const prompt of selectedPrompts) {
+      for (const tag of prompt.tags) {
+        if (!DIVERSITY_TAGS.has(tag)) continue;
+        themeCounts.set(tag, (themeCounts.get(tag) || 0) + 1);
+      }
+    }
+    const repeated = [...themeCounts.entries()].filter(([, count]) => count > 2);
+    if (repeated.length) warnings.push(`Repeated themes: ${repeated.map(([tag, count]) => `${tag} ×${count}`).join(", ")}. Consider rerolling one slot.`);
+
+    const narrow = selectedPrompts.filter(prompt => getPromptStats(prompt).playerCount < 6);
+    if (narrow.length) warnings.push(`${narrow.length} prompt(s) have fewer than six valid players.`);
+
+    const overlaps = getAnswerOverlapWarnings();
+    warnings.push(...overlaps);
+
+    if (settings.avoidRecent && window.FPL_STUDIO_PHASE3?.isPromptCoolingDown) {
+      const cooldownConflicts = selectedPrompts.filter(prompt => window.FPL_STUDIO_PHASE3.isPromptCoolingDown(prompt.id));
+      if (cooldownConflicts.length) warnings.push(`${cooldownConflicts.length} selected prompt(s) are currently on history cooldown. Reroll those slots before recording the challenge.`);
+    }
+
+    if (!currentPerfect?.possible) warnings.push(currentPerfect?.reason || "The exact perfect score could not be calculated.");
+    else if (currentPerfect.uniquenessCost >= 80) warnings.push(`The obvious answers overlap heavily: enforcing eleven different players reduces the theoretical total by ${currentPerfect.uniquenessCost} points.`);
+
+    elements.warnings.innerHTML = warnings.length
+      ? warnings.map(message => `<div class="warning">${escapeHtml(message)}</div>`).join("")
+      : '<div class="success-message">The formation, answer counts, anti-meta target, theme balance, answer overlap and exact scoring checks all pass.</div>';
+  }
+
+  function getAnswerOverlapWarnings() {
+    const messages = [];
+    const bestAnswerSlots = new Map();
+    const topFiveSlots = new Map();
+
+    selectedPrompts.forEach((prompt, index) => {
+      const stats = getPromptStats(prompt);
+      if (stats.bestAnswer) {
+        const entry = bestAnswerSlots.get(stats.bestAnswer.playerId) || { name: stats.bestAnswer.playerName, slots: [] };
+        entry.slots.push(index + 1);
+        bestAnswerSlots.set(stats.bestAnswer.playerId, entry);
+      }
+      for (const answer of stats.topAnswers) {
+        const entry = topFiveSlots.get(answer.playerId) || { name: answer.playerName, slots: new Set() };
+        entry.slots.add(index + 1);
+        topFiveSlots.set(answer.playerId, entry);
+      }
+    });
+
+    const duplicateLeaders = [...bestAnswerSlots.values()]
+      .filter(entry => entry.slots.length > 1)
+      .sort((a, b) => b.slots.length - a.slots.length)
+      .slice(0, 3);
+    if (duplicateLeaders.length) {
+      messages.push(`Obvious-answer overlap: ${duplicateLeaders.map(entry => `${entry.name} leads slots ${entry.slots.join("/")}`).join("; ")}.`);
+    }
+
+    const broadOverlaps = [...topFiveSlots.values()]
+      .filter(entry => entry.slots.size >= 3)
+      .sort((a, b) => b.slots.size - a.slots.size)
+      .slice(0, 3);
+    if (broadOverlaps.length) {
+      messages.push(`Top-five answer overlap: ${broadOverlaps.map(entry => `${entry.name} appears in ${entry.slots.size} prompts`).join("; ")}.`);
+    }
+
+    return messages;
+  }
+
+  function updateCodeOutput() {
+    if (!selectedPrompts.length) return;
+    const challengeNumber = clampNumber(elements.challengeNumber.value, 1, 9999, 7);
+    const challengeName = elements.challengeName.value.trim() || "Generated Mix";
+    const releaseDate = elements.releaseDate.value || new Date().toISOString().slice(0, 10);
+    const difficulty = displayDifficulty();
+    const slug = slugify(challengeName) || "generated-mix";
+    const perfectScore = currentPerfect?.possible ? currentPerfect.score : 0;
+
+    const promptsCode = selectedPrompts.map(prompt => {
+      const testSource = prompt.test.toString();
+      return `    {\n      id: ${JSON.stringify(prompt.id)},\n      position: ${JSON.stringify(prompt.position)},\n      label: ${JSON.stringify(prompt.label)},\n      fail: ${JSON.stringify(prompt.fail)},\n      test: ${testSource}\n    }`;
+    }).join(",\n");
+
+    elements.codeOutput.value = `/* Generated by FPL Challenge Studio Phase 4.\n   Exact perfect score calculated with eleven unique footballers.\n   Review before manually uploading to GitHub. */\nwindow.FPL_DAILY_CHALLENGE = {\n  id: ${JSON.stringify(`daily-${String(challengeNumber).padStart(3, "0")}-${slug}`)},\n  number: ${challengeNumber},\n  title: ${JSON.stringify(`Challenge #${challengeNumber} · ${challengeName}`)},\n  dateLabel: ${JSON.stringify(`Generated Mix · ${difficulty}`)},\n  difficulty: ${JSON.stringify(difficulty)},\n  releaseDate: ${JSON.stringify(releaseDate)},\n  perfectScore: ${perfectScore},\n  prompts: [\n${promptsCode}\n  ]\n};\n`;
+
+    elements.downloadBtn.disabled = !currentPerfect?.possible;
+  }
+
+  function displayDifficulty() {
+    if (!selectedPrompts.length) return "Mixed";
+    const counts = { easy: 0, medium: 0, hard: 0 };
+    selectedPrompts.forEach(prompt => { counts[prompt.difficulty] += 1; });
+    if (counts.hard >= 6) return "Medium / Hard";
+    if (counts.easy >= 6) return "Easy / Medium";
+    return "Mixed";
+  }
+
+  function saveDraft() {
+    if (!selectedPrompts.length) return;
+    const payload = {
+      version: 4,
+      savedAt: new Date().toISOString(),
+      promptIds: selectedPrompts.map(prompt => prompt.id),
+      settings: {
+        challengeNumber: elements.challengeNumber.value,
+        challengeName: elements.challengeName.value,
+        difficultyTarget: elements.difficultyTarget.value,
+        releaseDate: elements.releaseDate.value,
+        minAnswers: elements.minAnswers.value,
+        maxAnswers: elements.maxAnswers.value,
+        minAntiMeta: elements.minAntiMeta.value,
+        cooldownChallenges: elements.cooldownChallenges?.value || "7",
+        avoidRecent: elements.avoidRecent.checked
+      }
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    elements.actionStatus.textContent = "Draft saved in this browser. It has not been published or sent anywhere.";
+  }
+
+  function loadDraft() {
+    const raw = localStorage.getItem(STORAGE_KEY) || LEGACY_STORAGE_KEYS.map(key => localStorage.getItem(key)).find(Boolean);
+    if (!raw) {
+      elements.actionStatus.textContent = "No saved Challenge Studio draft was found in this browser.";
+      return;
+    }
+
+    try {
+      const payload = JSON.parse(raw);
+      const prompts = payload.promptIds.map(id => promptLibrary.find(prompt => prompt.id === id)).filter(Boolean);
+      if (prompts.length !== 11) throw new Error("The saved prompt list is incomplete.");
+
+      const settings = payload.settings || {};
+      for (const [key, value] of Object.entries(settings)) {
+        if (!elements[key]) continue;
+        if (elements[key].type === "checkbox") elements[key].checked = Boolean(value);
+        else elements[key].value = value;
+      }
+
+      selectedPrompts = prompts;
+      elements.draftPanel.classList.remove("hidden");
+      elements.codePanel.classList.remove("hidden");
+      elements.saveDraftBtn.disabled = false;
+      refreshDraft();
+      elements.actionStatus.textContent = `Saved draft loaded${payload.savedAt ? ` from ${new Date(payload.savedAt).toLocaleString()}` : ""}. The perfect score was recalculated.`;
+    } catch (error) {
+      elements.actionStatus.textContent = `The saved draft could not be loaded: ${error.message}`;
+    }
+  }
+
+  function downloadChallengeFile() {
+    if (!currentPerfect?.possible || !elements.codeOutput.value) return;
+    const blob = new Blob([elements.codeOutput.value], { type: "text/javascript;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "todays-challenge.js";
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    elements.copyStatus.textContent = "todays-challenge.js downloaded. Review it, then replace only that file in GitHub.";
+  }
+
+  async function copyChallengeCode() {
+    try {
+      await navigator.clipboard.writeText(elements.codeOutput.value);
+      elements.copyStatus.textContent = "Challenge code copied. The live game has not been changed.";
+    } catch (error) {
+      elements.codeOutput.focus();
+      elements.codeOutput.select();
+      elements.copyStatus.textContent = "Automatic copy was blocked. The code is selected so you can press Ctrl+C.";
+    }
+  }
+
+  function formatAnswer(answer) {
+    if (!answer) return "Unavailable";
+    return `${escapeHtml(answer.playerName)} · ${escapeHtml(answer.season)} · ${answer.points} pts`;
+  }
+
+  function isAntiMeta(prompt) {
+    return prompt.tags.includes("anti-meta");
+  }
+
+  function difficultyTargetValue(value) {
+    return ({ easy: 1.45, medium: 2, hard: 2.65, mixed: 2.1 })[value] || 2.1;
+  }
+
+  function seasonSortValue(season) {
+    const start = Number.parseInt(String(season).slice(0, 4), 10);
+    return Number.isFinite(start) ? start : 0;
+  }
+
+  function clampNumber(value, minimum, maximum, fallback) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return fallback;
+    return Math.min(maximum, Math.max(minimum, Math.round(number)));
+  }
+
+  function slugify(value) {
+    return value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 50);
+  }
+
+  function capitalise(value) {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
 
 
-/* Phase 3: Test Mode and Challenge History */
-.status-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.section-copy { margin: 7px 0 0; color: var(--muted); line-height: 1.5; font-size: .86rem; }
-.compact-row { margin-top: 0; }
-.test-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 14px;
-  padding: 13px;
-  border: 1px solid var(--line);
-  border-radius: 15px;
-  background: rgba(7, 26, 18, .72);
-}
-.test-status-chips { justify-content: flex-start; }
-.test-slots { display: grid; gap: 11px; }
-.test-slot {
-  position: relative;
-  padding: 15px;
-  border: 1px solid var(--line);
-  border-radius: 17px;
-  background: linear-gradient(135deg, rgba(18,49,36,.98), rgba(8,28,19,.98));
-}
-.test-slot.valid { border-color: rgba(34, 242, 140, .7); }
-.test-slot.invalid-flash { animation: testShake .35s; background: rgba(255, 117, 144, .11); }
-.test-slot-head { display: flex; align-items: flex-start; gap: 11px; }
-.test-slot-head h3 { font-size: .96rem; line-height: 1.4; }
-.test-valid-mark {
-  margin-left: auto;
-  display: grid;
-  place-items: center;
-  width: 29px;
-  height: 29px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #032013;
-  font-weight: 1000;
-}
-.test-choice-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 130px auto;
-  gap: 9px;
-  margin-top: 12px;
-  align-items: center;
-}
-.test-search-wrap { position: relative; }
-.test-player-search, .test-season-select { margin: 0; }
-.test-suggestions {
-  position: absolute;
-  z-index: 50;
-  top: calc(100% + 5px);
-  left: 0;
-  right: 0;
-  max-height: 260px;
-  overflow: auto;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #071a12;
-  box-shadow: var(--shadow);
-}
-.test-suggestion {
-  display: block;
-  width: 100%;
-  padding: 10px 11px;
-  border: 0;
-  border-bottom: 1px solid rgba(255,255,255,.07);
-  background: transparent;
-  color: var(--text);
-  text-align: left;
-  cursor: pointer;
-}
-.test-suggestion:last-child { border-bottom: 0; }
-.test-suggestion:hover, .test-suggestion.active { background: #17392a; }
-.test-suggestion small { display: block; margin-top: 3px; color: var(--muted); }
-.test-confirm, .test-clear {
-  border-radius: 11px;
-  font-weight: 900;
-  cursor: pointer;
-}
-.test-confirm { border: 0; padding: 12px 15px; background: var(--accent); color: #032013; }
-.test-confirm:disabled { opacity: .4; cursor: not-allowed; }
-.test-clear { margin-top: 8px; padding: 4px 0; border: 0; background: transparent; color: var(--muted); }
-.test-selected-meta, .test-feedback { margin-top: 7px; font-size: .8rem; color: var(--muted); }
-.test-feedback.good { color: #9bffd0; }
-.test-feedback.bad { color: #ffc3cf; }
-.test-footer { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-top: 15px; }
-.test-results {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 9px;
-  margin-top: 14px;
-}
-.test-results > div {
-  padding: 11px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: rgba(7, 26, 18, .72);
-}
-.test-results span { display: block; margin-bottom: 5px; color: var(--muted); font-size: .72rem; }
-.test-results strong { font-size: 1.1rem; }
-.test-pass { color: var(--accent) !important; border-color: rgba(34, 242, 140, .3) !important; background: rgba(34, 242, 140, .1) !important; }
-.test-fail { color: var(--danger) !important; border-color: rgba(255, 117, 144, .3) !important; background: rgba(255, 117, 144, .1) !important; }
-.history-list { display: grid; gap: 10px; margin-top: 17px; }
-.history-card {
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 15px;
-  background: linear-gradient(135deg, rgba(18,49,36,.96), rgba(8,28,19,.96));
-}
-.history-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.history-card h3 { font-size: .98rem; }
-.history-meta { margin: 6px 0 0; color: var(--muted); font-size: .78rem; }
-.history-status {
-  display: inline-flex;
-  padding: 6px 9px;
-  border: 1px solid rgba(55,199,255,.25);
-  border-radius: 999px;
-  color: var(--accent-2);
-  font-size: .72rem;
-  font-weight: 900;
-  white-space: nowrap;
-}
-.history-status.published { color: var(--accent); border-color: rgba(34,242,140,.28); }
-.history-prompts { margin: 11px 0 0; color: var(--muted); }
-.history-prompts summary { cursor: pointer; color: var(--accent-2); font-weight: 850; font-size: .8rem; }
-.history-prompts ol { margin: 8px 0 0; padding-left: 23px; font-size: .78rem; line-height: 1.65; }
-.history-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
-.history-actions button {
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #17392a;
-  color: var(--text);
-  font-weight: 850;
-  cursor: pointer;
-}
-.history-empty { padding: 15px; border: 1px dashed var(--line); border-radius: 13px; color: var(--muted); }
-@keyframes testShake { 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-3px); } }
+  window.FPL_STUDIO_API = Object.freeze({
+    getSelectedPrompts: () => selectedPrompts.slice(),
+    getPerfectResult: () => currentPerfect,
+    getPromptStats,
+    getPromptLibrary: () => promptLibrary,
+    isPromptSelected: promptId => selectedPrompts.some(prompt => prompt.id === promptId),
+    invalidatePromptStats: promptId => {
+      if (promptId) statsCache.delete(promptId);
+      else statsCache.clear();
+    },
+    refreshLibrary: ({ recalculateDraft = true } = {}) => {
+      statsCache.clear();
+      updateLibraryStatus("checked");
+      if (recalculateDraft && selectedPrompts.length) refreshDraft();
+    },
+    getChallengeMeta: () => ({
+      number: clampNumber(elements.challengeNumber.value, 1, 9999, 7),
+      name: elements.challengeName.value.trim() || "Generated Mix",
+      releaseDate: elements.releaseDate.value || new Date().toISOString().slice(0, 10),
+      difficulty: displayDifficulty(),
+      code: elements.codeOutput.value
+    }),
+    refreshDraft: () => selectedPrompts.length && refreshDraft()
+  });
 
-@media (max-width: 1000px) {
-  .status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .test-results { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-@media (max-width: 760px) {
-  .test-toolbar, .test-footer { align-items: flex-start; flex-direction: column; }
-  .test-choice-row { grid-template-columns: 1fr 110px; }
-  .test-confirm { grid-column: 1 / -1; }
-  .test-results { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 620px) {
-  .status-grid { grid-template-columns: 1fr; }
-  .test-results { grid-template-columns: 1fr; }
-  .history-card-head { flex-direction: column; }
-}
-
-/* Phase 4: Prompt Library Manager */
-.manager-count-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.manager-count-grid article {
-  padding: 13px;
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  background: rgba(7, 26, 18, .72);
-}
-.manager-count-grid span { display: block; color: var(--muted); font-size: .73rem; font-weight: 800; }
-.manager-count-grid strong { display: block; margin-top: 5px; color: var(--accent); font-size: 1.25rem; }
-.manager-toolbar {
-  display: grid;
-  grid-template-columns: minmax(240px, 1.7fr) repeat(3, minmax(150px, .75fr));
-  gap: 9px;
-  margin-bottom: 10px;
-}
-.manager-toolbar input, .manager-toolbar select { margin: 0; }
-.manager-actions { align-items: center; }
-.file-button { display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
-.danger-button { background: rgba(255, 117, 144, .1); color: var(--danger); border: 1px solid rgba(255, 117, 144, .32); }
-.visually-hidden {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-.prompt-editor {
-  margin: 17px 0;
-  padding: 17px;
-  border: 1px solid rgba(55, 199, 255, .32);
-  border-radius: 17px;
-  background: linear-gradient(135deg, rgba(55,199,255,.065), rgba(34,242,140,.045));
-}
-.prompt-editor-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.prompt-editor-head h3 { margin-top: 4px; font-size: 1.25rem; }
-.editor-close {
-  padding: 8px 11px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #17392a;
-  color: var(--text);
-  font-weight: 850;
-  cursor: pointer;
-}
-.editor-notice {
-  margin: 11px 0 14px;
-  padding: 11px 12px;
-  border: 1px solid rgba(55,199,255,.2);
-  border-radius: 12px;
-  background: rgba(7,26,18,.68);
-  color: var(--muted);
-  line-height: 1.45;
-  font-size: .82rem;
-}
-.prompt-editor-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-.prompt-editor-grid .wide-field { grid-column: span 2; }
-.prompt-editor-grid label { min-width: 0; }
-.prompt-editor-grid input, .prompt-editor-grid select { width: 100%; margin-top: 5px; }
-.editor-enabled { align-self: end; min-height: 46px; }
-.rule-builder {
-  margin-top: 14px;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: rgba(7, 26, 18, .72);
-}
-.rule-builder-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
-.rule-builder-head h4 { font-size: 1rem; }
-.rule-builder-head p { margin: 5px 0 0; color: var(--muted); font-size: .79rem; }
-.rule-builder-head label { min-width: 180px; }
-.rule-builder-head select { margin-top: 5px; }
-.rule-rows { display: grid; gap: 8px; margin: 12px 0; }
-.rule-row {
-  display: grid;
-  grid-template-columns: 1.25fr .9fr 1.25fr auto;
-  gap: 8px;
-  align-items: center;
-  padding: 9px;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 12px;
-  background: rgba(18,49,36,.72);
-}
-.rule-row select, .rule-row input { width: 100%; margin: 0; }
-.rule-value-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-.rule-no-value { color: var(--muted); font-size: .78rem; }
-.rule-remove {
-  padding: 9px 10px;
-  border: 1px solid rgba(255,117,144,.28);
-  border-radius: 9px;
-  background: rgba(255,117,144,.08);
-  color: var(--danger);
-  font-weight: 850;
-  cursor: pointer;
-}
-.rule-rows.locked { opacity: .62; }
-.rule-locked-message { padding: 12px; border: 1px dashed var(--line); border-radius: 11px; color: var(--muted); }
-.small-button { padding: 9px 12px; }
-.prompt-test-results { margin-top: 13px; }
-.prompt-test-summary {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 9px;
-}
-.prompt-test-summary > div {
-  padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  background: rgba(7,26,18,.74);
-}
-.prompt-test-summary span { display: block; color: var(--muted); font-size: .71rem; }
-.prompt-test-summary strong { display: block; margin-top: 4px; font-size: 1.1rem; }
-.prompt-test-answers {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 7px;
-  margin: 9px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.prompt-test-answers li {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 9px 10px;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 10px;
-  background: rgba(7,26,18,.7);
-}
-.prompt-test-answers span { color: var(--muted); font-size: .75rem; }
-.library-list-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin: 18px 0 10px;
-}
-.library-pagination { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .78rem; }
-.library-pagination button {
-  padding: 7px 9px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: #17392a;
-  color: var(--text);
-  font-weight: 800;
-  cursor: pointer;
-}
-.library-pagination button:disabled { opacity: .4; cursor: not-allowed; }
-.prompt-manager-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.library-prompt-card {
-  min-width: 0;
-  padding: 13px;
-  border: 1px solid var(--line);
-  border-radius: 15px;
-  background: linear-gradient(135deg, rgba(18,49,36,.96), rgba(8,28,19,.96));
-}
-.library-prompt-card.disabled { opacity: .66; border-style: dashed; }
-.library-prompt-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.library-prompt-title { display: flex; gap: 9px; min-width: 0; }
-.library-prompt-title > div { min-width: 0; }
-.library-prompt-title h3 { font-size: .9rem; line-height: 1.35; }
-.library-prompt-title p { margin: 4px 0 0; overflow: hidden; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
-.library-prompt-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
-.library-prompt-chips span {
-  padding: 5px 7px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: .65rem;
-  font-weight: 850;
-  white-space: nowrap;
-}
-.library-prompt-chips .on { color: var(--accent); border-color: rgba(34,242,140,.27); }
-.library-prompt-chips .off { color: var(--danger); border-color: rgba(255,117,144,.28); }
-.library-prompt-chips .selected { color: var(--accent-2); border-color: rgba(55,199,255,.28); }
-.library-prompt-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
-.library-prompt-meta span { color: var(--muted); font-size: .7rem; }
-.library-prompt-meta span + span::before { content: "·"; margin-right: 6px; }
-.library-prompt-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
-.library-prompt-actions button {
-  padding: 7px 9px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: #17392a;
-  color: var(--text);
-  font-size: .73rem;
-  font-weight: 850;
-  cursor: pointer;
-}
-.library-prompt-actions .danger-action { color: var(--danger); border-color: rgba(255,117,144,.25); }
-
-@media (max-width: 1000px) {
-  .manager-toolbar { grid-template-columns: 1fr 1fr; }
-  .prompt-editor-grid { grid-template-columns: 1fr 1fr; }
-  .prompt-manager-list { grid-template-columns: 1fr; }
-}
-@media (max-width: 760px) {
-  .manager-count-grid, .prompt-test-summary { grid-template-columns: 1fr 1fr; }
-  .rule-builder-head, .library-list-heading { flex-direction: column; align-items: stretch; }
-  .rule-row { grid-template-columns: 1fr; }
-  .rule-value-wrap { grid-template-columns: 1fr; }
-  .prompt-test-answers { grid-template-columns: 1fr; }
-}
-@media (max-width: 620px) {
-  .manager-toolbar, .prompt-editor-grid, .manager-count-grid, .prompt-test-summary { grid-template-columns: 1fr; }
-  .prompt-editor-grid .wide-field { grid-column: auto; }
-  .library-prompt-head { flex-direction: column; }
-  .library-prompt-chips { justify-content: flex-start; }
-}
-
-/* Phase 5: name-rule starters */
-.name-rule-presets{
-  display:grid;
-  gap:12px;
-  margin:14px 0;
-  padding:14px;
-  border:1px solid rgba(45,231,151,.3);
-  border-radius:15px;
-  background:rgba(5,31,22,.62);
-}
-.name-rule-presets strong{display:block;color:#f4fff9;margin-bottom:3px}
-.name-rule-presets span{display:block;color:var(--muted);font-size:.88rem;line-height:1.45}
-.name-preset-buttons{display:flex;flex-wrap:wrap;gap:8px}
-.name-preset-buttons button{
-  border:1px solid rgba(45,231,151,.35);
-  border-radius:999px;
-  padding:8px 11px;
-  background:#0c3527;
-  color:#eafff5;
-  font-weight:800;
-  cursor:pointer;
-}
-.name-preset-buttons button:hover{background:#14513b;border-color:#39f0a5}
-@media(max-width:700px){.name-preset-buttons button{width:100%;text-align:left}}
-
-/* ============================================================
-   Phase 6 — Publishing Centre
-============================================================ */
-.publish-centre{
-  border-color:rgba(0,255,135,.24);
-  background:
-    linear-gradient(145deg,rgba(0,255,135,.045),transparent 34%),
-    var(--panel,#10241c);
-}
-.publish-overview-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:12px;
-  margin:4px 0 16px;
-}
-.publish-summary-card{
-  min-height:116px;
-  padding:16px;
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;
-  background:rgba(0,0,0,.16);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:6px;
-}
-.publish-summary-card span{
-  color:var(--muted,#adc4b7);
-  font-size:.76rem;
-  font-weight:900;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-}
-.publish-summary-card strong{font-size:1.03rem;line-height:1.3}
-.publish-summary-card small{color:var(--muted,#adc4b7);line-height:1.45}
-.publish-state-card.ready{
-  border-color:rgba(0,255,135,.44);
-  box-shadow:0 0 0 1px rgba(0,255,135,.08);
-}
-.publish-state-card.ready strong{color:#72ffb5}
-.publish-state-card.warning{
-  border-color:rgba(255,209,102,.48);
-}
-.publish-state-card.warning strong{color:#ffd166}
-.publish-state-card.blocked{
-  border-color:rgba(255,85,119,.46);
-}
-.publish-state-card.blocked strong{color:#ff8da4}
-.publish-comparison{
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:9px;
-  margin-bottom:16px;
-}
-.publish-comparison article{
-  padding:12px;
-  border:1px solid rgba(255,255,255,.09);
-  border-radius:13px;
-  background:rgba(0,0,0,.13);
-}
-.publish-comparison span{
-  display:block;
-  margin-bottom:5px;
-  color:var(--muted,#adc4b7);
-  font-size:.72rem;
-  font-weight:800;
-  text-transform:uppercase;
-}
-.publish-comparison strong{font-size:.93rem;line-height:1.3}
-.publish-checklist-wrap{
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:17px;
-  overflow:hidden;
-  background:rgba(0,0,0,.13);
-}
-.publish-checklist-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:14px;
-  padding:16px;
-  border-bottom:1px solid rgba(255,255,255,.09);
-}
-.publish-checklist-head h3,.publish-pack-panel h3{margin:0 0 4px}
-.publish-checklist-head p,.publish-pack-panel p{margin:0;color:var(--muted,#adc4b7);line-height:1.5}
-.publish-checklist{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:0;
-}
-.publish-check{
-  display:grid;
-  grid-template-columns:30px minmax(0,1fr);
-  gap:10px;
-  padding:14px 16px;
-  border-bottom:1px solid rgba(255,255,255,.075);
-}
-.publish-check:nth-child(odd){border-right:1px solid rgba(255,255,255,.075)}
-.publish-check-icon{
-  display:grid;
-  place-items:center;
-  width:26px;height:26px;
-  border-radius:50%;
-  font-weight:1000;
-}
-.publish-check.pass .publish-check-icon{background:rgba(0,255,135,.16);color:#73ffb5}
-.publish-check.warning .publish-check-icon{background:rgba(255,209,102,.16);color:#ffd166}
-.publish-check.fail .publish-check-icon{background:rgba(255,85,119,.17);color:#ff8da4}
-.publish-check.pending .publish-check-icon{background:rgba(255,255,255,.09);color:var(--muted,#adc4b7)}
-.publish-check strong{display:block;margin-bottom:3px;font-size:.92rem}
-.publish-check p{margin:0;color:var(--muted,#adc4b7);font-size:.82rem;line-height:1.45}
-.publish-pack-panel{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:18px;
-  margin-top:16px;
-  padding:16px;
-  border:1px solid rgba(0,255,135,.18);
-  border-radius:16px;
-  background:linear-gradient(135deg,rgba(0,255,135,.07),rgba(4,217,255,.035));
-}
-#publishReadyChip.ready-chip,#publishReadyChip.publish-ready{background:rgba(0,255,135,.15);color:#73ffb5;border-color:rgba(0,255,135,.30)}
-#publishReadyChip.publish-warning{background:rgba(255,209,102,.13);color:#ffd166;border-color:rgba(255,209,102,.28)}
-#publishReadyChip.publish-blocked{background:rgba(255,85,119,.14);color:#ff8da4;border-color:rgba(255,85,119,.28)}
-@media(max-width:850px){
-  .publish-overview-grid{grid-template-columns:1fr}
-  .publish-comparison{grid-template-columns:1fr 1fr}
-  .publish-checklist{grid-template-columns:1fr}
-  .publish-check:nth-child(odd){border-right:0}
-}
-@media(max-width:620px){
-  .publish-comparison{grid-template-columns:1fr}
-  .publish-checklist-head,.publish-pack-panel{align-items:stretch;flex-direction:column}
-  .publish-checklist-head .button,.publish-pack-panel .button{width:100%}
-}
+})();

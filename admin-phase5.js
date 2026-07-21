@@ -1,795 +1,1041 @@
 (() => {
   "use strict";
 
-  const FORMATION = ["GK", "DEF", "DEF", "DEF", "DEF", "MID", "MID", "MID", "MID", "FWD", "FWD"];
-  const DIFFICULTY_VALUE = { easy: 1, medium: 2, hard: 3 };
-  const DIVERSITY_TAGS = new Set([
-    "relegated", "promoted", "bottom-half", "mid-table", "survival",
-    "outside-big-six", "outside-top-four", "manager", "budget", "young", "exact-stat", "name-rule", "surname", "first-name"
-  ]);
-  const STORAGE_KEY = "fplChallengeStudioPhase5Draft";
-  const LEGACY_STORAGE_KEYS = ["fplChallengeStudioPhase4Draft", "fplChallengeStudioPhase3Draft", "fplChallengeStudioPhase2Draft", "fplChallengeStudioPhase1Draft"];
-  const FORBIDDEN_COST = 1_000_000;
+  const STORAGE_KEY = "fplChallengeStudioPromptManagerV1";
+  const BIG_SIX = ["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"];
+  const library = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
+  const baseIds = new Set(library.map(prompt => prompt.id));
 
-  const elements = {
-    dbStatus: document.querySelector("#dbStatus"),
-    libraryStatus: document.querySelector("#libraryStatus"),
-    challengeNumber: document.querySelector("#challengeNumber"),
-    challengeName: document.querySelector("#challengeName"),
-    difficultyTarget: document.querySelector("#difficultyTarget"),
-    releaseDate: document.querySelector("#releaseDate"),
-    minAnswers: document.querySelector("#minAnswers"),
-    maxAnswers: document.querySelector("#maxAnswers"),
-    minAntiMeta: document.querySelector("#minAntiMeta"),
-    avoidRecent: document.querySelector("#avoidRecent"),
-    cooldownChallenges: document.querySelector("#cooldownChallenges"),
-    generateBtn: document.querySelector("#generateBtn"),
-    saveDraftBtn: document.querySelector("#saveDraftBtn"),
-    loadDraftBtn: document.querySelector("#loadDraftBtn"),
-    actionStatus: document.querySelector("#actionStatus"),
-    draftPanel: document.querySelector("#draftPanel"),
-    draftSummary: document.querySelector("#draftSummary"),
-    warnings: document.querySelector("#warnings"),
-    perfectScore: document.querySelector("#perfectScore"),
-    perfectComparison: document.querySelector("#perfectComparison"),
-    perfectXI: document.querySelector("#perfectXI"),
-    promptSlots: document.querySelector("#promptSlots"),
-    codePanel: document.querySelector("#codePanel"),
-    codeOutput: document.querySelector("#codeOutput"),
-    downloadBtn: document.querySelector("#downloadBtn"),
-    copyCodeBtn: document.querySelector("#copyCodeBtn"),
-    copyStatus: document.querySelector("#copyStatus")
-  };
+  const FIELD_DEFS = Object.freeze({
+    points: { label: "FPL points", type: "number" },
+    minutes: { label: "Minutes", type: "number" },
+    goals: { label: "Goals", type: "number" },
+    assists: { label: "Assists", type: "number" },
+    goalInvolvements: { label: "Goals + assists", type: "number", derived: true },
+    cleanSheets: { label: "Clean sheets", type: "number" },
+    bonus: { label: "Bonus points", type: "number" },
+    saves: { label: "Saves", type: "number" },
+    goalsConceded: { label: "Goals conceded", type: "number" },
+    yellowCards: { label: "Yellow cards", type: "number" },
+    redCards: { label: "Red cards", type: "number" },
+    startingPrice: { label: "Starting price (£m)", type: "number" },
+    finalPrice: { label: "Final price (£m)", type: "number" },
+    leaguePosition: { label: "League position", type: "number" },
+    ageAtSeasonStart: { label: "Age at season start", type: "number" },
+    champions: { label: "League champions", type: "boolean" },
+    topFour: { label: "Top-four club", type: "boolean" },
+    bottomHalf: { label: "Bottom-half club", type: "boolean" },
+    relegated: { label: "Relegated club", type: "boolean" },
+    promoted: { label: "Promoted club", type: "boolean" },
+    outsideBigSix: { label: "Outside traditional Big Six", type: "boolean", derived: true },
+    assistsMoreThanGoals: { label: "More assists than goals", type: "boolean", derived: true },
+    fullName: { label: "Full player name", type: "nameText", derived: true },
+    firstName: { label: "First name", type: "nameText", derived: true },
+    surname: { label: "Surname / family name", type: "nameText", derived: true },
+    firstInitial: { label: "First-name initial", type: "nameText", derived: true },
+    surnameInitial: { label: "Surname initial", type: "nameText", derived: true },
+    fullNameLength: { label: "Full-name letter count", type: "number", derived: true },
+    firstNameLength: { label: "First-name letter count", type: "number", derived: true },
+    surnameLength: { label: "Surname letter count", type: "number", derived: true },
+    nameWordCount: { label: "Name word count", type: "number", derived: true },
+    hyphenatedSurname: { label: "Hyphenated surname", type: "boolean", derived: true },
+    sameInitials: { label: "First name and surname share an initial", type: "boolean", derived: true },
+    singleWordName: { label: "Single-word player name", type: "boolean", derived: true },
+    club: { label: "Club", type: "text" },
+    manager: { label: "Manager", type: "manager" }
+  });
 
-  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
-  const promptLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
-  const recentPromptIds = new Set(Array.isArray(window.FPL_RECENT_PROMPT_IDS) ? window.FPL_RECENT_PROMPT_IDS : []);
-  const records = [];
-  const statsCache = new Map();
-  let selectedPrompts = [];
-  let currentPerfect = null;
+  const NUMBER_OPERATORS = Object.freeze({
+    gte: "at least",
+    lte: "at most",
+    eq: "exactly",
+    gt: "more than",
+    lt: "less than",
+    between: "between"
+  });
+  const TEXT_OPERATORS = Object.freeze({ equals: "is", notEquals: "is not", contains: "contains" });
+  const NAME_TEXT_OPERATORS = Object.freeze({ equals: "is", notEquals: "is not", startsWith: "starts with", endsWith: "ends with", contains: "contains" });
+  const BOOLEAN_OPERATORS = Object.freeze({ isTrue: "is true", isFalse: "is false" });
 
-  for (const player of players) {
-    for (const season of player.seasons || []) {
-      records.push({
-        ...season,
-        playerId: player.playerId,
-        playerName: player.name
-      });
+  let state = loadState();
+  applyStoredState();
+  window.addEventListener("load", initialiseManager, { once: true });
+
+  function blankState() {
+    return { version: 1, overrides: {}, customs: [], deletedIds: [] };
+  }
+
+  function loadState() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      if (!parsed || typeof parsed !== "object") return blankState();
+      return {
+        version: 1,
+        overrides: parsed.overrides && typeof parsed.overrides === "object" ? parsed.overrides : {},
+        customs: Array.isArray(parsed.customs) ? parsed.customs : [],
+        deletedIds: Array.isArray(parsed.deletedIds) ? parsed.deletedIds : []
+      };
+    } catch (error) {
+      console.warn("Prompt manager storage could not be read.", error);
+      return blankState();
     }
   }
 
-  initialise();
-
-  function initialise() {
-    setDefaultReleaseDate();
-    updateStatusCards();
-    bindEvents();
-
-    if (!players.length || !promptLibrary.length) {
-      elements.generateBtn.disabled = true;
-      elements.actionStatus.textContent = !players.length
-        ? "The studio cannot find players.js. Keep admin.html beside the existing players.js file."
-        : "The prompt library failed to load.";
-      return;
+  function applyStoredState() {
+    for (const prompt of library) {
+      prompt.enabled = prompt.enabled !== false;
+      prompt._studioBuiltIn = !prompt.studioRule;
+      prompt._studioCustom = Boolean(prompt.studioRule);
+      const override = state.overrides[prompt.id];
+      if (override) applyMetadata(prompt, override);
     }
 
-    for (const prompt of promptLibrary) getPromptStats(prompt);
-    updateLibraryStatus("checked");
-    elements.actionStatus.textContent = "Ready. Generate a draft; the live game will not be changed.";
-  }
+    const deleted = new Set(state.deletedIds);
+    for (let index = library.length - 1; index >= 0; index -= 1) {
+      if (deleted.has(library[index].id) && library[index].studioRule) library.splice(index, 1);
+    }
 
-  function bindEvents() {
-    elements.generateBtn.addEventListener("click", generateDraft);
-    elements.saveDraftBtn.addEventListener("click", saveDraft);
-    elements.loadDraftBtn.addEventListener("click", loadDraft);
-    elements.downloadBtn.addEventListener("click", downloadChallengeFile);
-    elements.copyCodeBtn.addEventListener("click", copyChallengeCode);
-
-    for (const input of [
-      elements.challengeNumber,
-      elements.challengeName,
-      elements.difficultyTarget,
-      elements.releaseDate,
-      elements.minAnswers,
-      elements.maxAnswers,
-      elements.minAntiMeta,
-      elements.cooldownChallenges,
-      elements.avoidRecent
-    ]) {
-      input.addEventListener("change", () => {
-        if (selectedPrompts.length) refreshDraft();
-      });
+    for (const saved of state.customs) {
+      if (!saved?.id || deleted.has(saved.id)) continue;
+      const prompt = hydrateCustomPrompt(saved);
+      const existing = library.find(item => item.id === prompt.id);
+      if (existing) Object.assign(existing, prompt);
+      else library.push(prompt);
     }
   }
 
-  function setDefaultReleaseDate() {
-    const date = new Date();
-    date.setDate(date.getDate() + 1);
-    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-    elements.releaseDate.value = localDate.toISOString().slice(0, 10);
-  }
-
-  function updateStatusCards() {
-    elements.dbStatus.textContent = players.length
-      ? `${players.length.toLocaleString()} players · ${records.length.toLocaleString()} seasons`
-      : "Not found";
-    elements.libraryStatus.textContent = promptLibrary.length
-      ? `${promptLibrary.filter(prompt => prompt.enabled !== false).length} enabled · ${promptLibrary.length} total loading…`
-      : "Not found";
-  }
-
-  function updateLibraryStatus(suffix = "") {
-    const enabledCount = promptLibrary.filter(prompt => prompt.enabled !== false).length;
-    const customCount = promptLibrary.filter(prompt => prompt.studioRule).length;
-    const pieces = [`${enabledCount} enabled`, `${promptLibrary.length} total`];
-    if (customCount) pieces.push(`${customCount} custom`);
-    if (suffix) pieces.push(suffix);
-    elements.libraryStatus.textContent = pieces.join(" · ");
-  }
-
-  function getPromptStats(prompt) {
-    if (statsCache.has(prompt.id)) return statsCache.get(prompt.id);
-
-    const matches = [];
-    for (const record of records) {
-      if (record.position !== prompt.position) continue;
-      try {
-        if (prompt.test(record)) matches.push(record);
-      } catch (error) {
-        console.warn(`Prompt ${prompt.id} failed while checking a record.`, error);
-      }
-    }
-
-    const bestByPlayer = new Map();
-    for (const match of matches) {
-      const previous = bestByPlayer.get(match.playerId);
-      if (
-        !previous ||
-        match.points > previous.points ||
-        (match.points === previous.points && seasonSortValue(match.season) > seasonSortValue(previous.season))
-      ) {
-        bestByPlayer.set(match.playerId, match);
-      }
-    }
-
-    const allBestAnswers = [...bestByPlayer.values()]
-      .sort((a, b) => b.points - a.points || a.playerName.localeCompare(b.playerName));
-
-    const stats = {
-      playerCount: bestByPlayer.size,
-      seasonCount: matches.length,
-      bestByPlayer,
-      bestAnswer: allBestAnswers[0] || null,
-      topAnswers: allBestAnswers.slice(0, 5)
-    };
-    statsCache.set(prompt.id, stats);
-    return stats;
-  }
-
-  function currentSettings() {
-    const minAnswers = clampNumber(elements.minAnswers.value, 2, 300, 6);
-    const maxAnswers = clampNumber(elements.maxAnswers.value, minAnswers, 500, 100);
-    const minAntiMeta = clampNumber(elements.minAntiMeta.value, 0, 11, 5);
+  function hydrateCustomPrompt(saved) {
+    const studioRule = normaliseStudioRule(saved.studioRule);
+    const testSource = studioRule.kind === "builder"
+      ? compileRuleSource(studioRule)
+      : String(studioRule.source || saved.testSource || "p => false");
     return {
-      minAnswers,
-      maxAnswers,
-      minAntiMeta,
-      avoidRecent: elements.avoidRecent.checked,
-      difficultyTarget: elements.difficultyTarget.value,
-      cooldownChallenges: clampNumber(elements.cooldownChallenges?.value, 1, 50, 7)
+      id: String(saved.id),
+      position: validPosition(saved.position),
+      label: String(saved.label || "Untitled prompt"),
+      fail: String(saved.fail || "That player-season does not meet the prompt."),
+      difficulty: validDifficulty(saved.difficulty),
+      tags: normaliseTags(saved.tags),
+      rating: clamp(saved.rating, 1, 5, 3),
+      cooldown: clamp(saved.cooldown, 0, 50, 7),
+      enabled: saved.enabled !== false,
+      studioRule,
+      test: functionFromSource(testSource),
+      _studioBuiltIn: false,
+      _studioCustom: true
     };
   }
 
-  function eligiblePrompts(position, settings, excludedIds = new Set()) {
-    return promptLibrary.filter(prompt => {
-      if (prompt.enabled === false) return false;
-      if (prompt.position !== position || excludedIds.has(prompt.id)) return false;
-      if (settings.avoidRecent) {
-        const phase3Cooldown = window.FPL_STUDIO_PHASE3?.getCooldownPromptIds?.();
-        const blockedByHistory = phase3Cooldown instanceof Set && phase3Cooldown.has(prompt.id);
-        const blockedByBaseline = !(phase3Cooldown instanceof Set) && recentPromptIds.has(prompt.id);
-        if (blockedByHistory || blockedByBaseline) return false;
-      }
-      const count = getPromptStats(prompt).playerCount;
-      return count >= settings.minAnswers && count <= settings.maxAnswers;
-    });
+  function initialiseManager() {
+    const core = window.FPL_STUDIO_API;
+    if (!core) return;
+
+    const elements = getElements();
+    if (!elements.panel) return;
+
+    const ui = {
+      editingId: null,
+      previewPrompt: null,
+      page: 1,
+      pageSize: 24
+    };
+
+    bindEvents(elements, ui, core);
+    renderAll(elements, ui, core);
   }
 
-  function generateDraft() {
-    const settings = currentSettings();
-    elements.actionStatus.textContent = "Generating and checking prompt balance…";
-
-    const positionAvailability = Object.fromEntries(
-      ["GK", "DEF", "MID", "FWD"].map(position => [position, eligiblePrompts(position, settings).length])
-    );
-    const required = { GK: 1, DEF: 4, MID: 4, FWD: 2 };
-    const missing = Object.keys(required).filter(position => positionAvailability[position] < required[position]);
-
-    if (missing.length) {
-      elements.actionStatus.textContent = `Not enough eligible ${missing.join(", ")} prompts. Increase the maximum answers, lower the minimum, or allow Challenge #6 prompts.`;
-      return;
-    }
-
-    let best = null;
-    let bestScore = Number.POSITIVE_INFINITY;
-
-    for (let attempt = 0; attempt < 900; attempt += 1) {
-      const used = new Set();
-      const candidate = [];
-
-      for (const position of FORMATION) {
-        const options = eligiblePrompts(position, settings, used);
-        const choice = weightedPick(options, candidate, settings);
-        if (!choice) break;
-        candidate.push(choice);
-        used.add(choice.id);
-      }
-
-      if (candidate.length !== 11) continue;
-      const score = scoreDraft(candidate, settings);
-      if (score < bestScore) {
-        best = candidate;
-        bestScore = score;
-      }
-    }
-
-    if (!best) {
-      elements.actionStatus.textContent = "A complete XI could not be generated with those restrictions.";
-      return;
-    }
-
-    selectedPrompts = best;
-    elements.draftPanel.classList.remove("hidden");
-    elements.codePanel.classList.remove("hidden");
-    elements.saveDraftBtn.disabled = false;
-    refreshDraft();
-    elements.actionStatus.textContent = "Draft generated. The exact unique-player perfect score has been calculated.";
-    elements.draftPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  function weightedPick(options, currentDraft, settings) {
-    if (!options.length) return null;
-    const target = difficultyTargetValue(settings.difficultyTarget);
-    const currentAnti = currentDraft.filter(isAntiMeta).length;
-    const antiNeeded = Math.max(0, settings.minAntiMeta - currentAnti);
-    const remainingSlots = 11 - currentDraft.length;
-
-    const weighted = options.map(prompt => {
-      const difficultyDistance = Math.abs(DIFFICULTY_VALUE[prompt.difficulty] - target);
-      let weight = Math.max(1, prompt.rating || 3) * (1 / (1 + difficultyDistance));
-      if (antiNeeded >= remainingSlots && isAntiMeta(prompt)) weight *= 8;
-      else if (antiNeeded > 0 && isAntiMeta(prompt)) weight *= 2;
-
-      const tagsAlreadyUsed = new Set(currentDraft.flatMap(item => item.tags.filter(tag => DIVERSITY_TAGS.has(tag))));
-      const repeatedThemeCount = prompt.tags.filter(tag => DIVERSITY_TAGS.has(tag) && tagsAlreadyUsed.has(tag)).length;
-      weight /= 1 + repeatedThemeCount * 1.6;
-      return { prompt, weight };
-    });
-
-    const total = weighted.reduce((sum, item) => sum + item.weight, 0);
-    let random = Math.random() * total;
-    for (const item of weighted) {
-      random -= item.weight;
-      if (random <= 0) return item.prompt;
-    }
-    return weighted[weighted.length - 1].prompt;
-  }
-
-  function scoreDraft(draft, settings) {
-    let score = 0;
-    const target = difficultyTargetValue(settings.difficultyTarget);
-    const averageDifficulty = draft.reduce((sum, prompt) => sum + DIFFICULTY_VALUE[prompt.difficulty], 0) / draft.length;
-    score += Math.abs(averageDifficulty - target) * 20;
-
-    const antiCount = draft.filter(isAntiMeta).length;
-    if (antiCount < settings.minAntiMeta) score += (settings.minAntiMeta - antiCount) * 150;
-
-    const tagCounts = new Map();
-    for (const prompt of draft) {
-      for (const tag of prompt.tags) {
-        if (!DIVERSITY_TAGS.has(tag)) continue;
-        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-      }
-      const answerCount = getPromptStats(prompt).playerCount;
-      score += Math.abs(Math.log(Math.max(answerCount, 1)) - Math.log(25)) * .8;
-    }
-    for (const count of tagCounts.values()) {
-      if (count > 2) score += (count - 2) * 14;
-    }
-
-    return score + Math.random() * .25;
-  }
-
-  function refreshDraft() {
-    currentPerfect = calculatePerfectXI(selectedPrompts);
-    renderDraft();
-    updateCodeOutput();
-    document.dispatchEvent(new CustomEvent("fplstudio:draftchange", {
-      detail: {
-        promptIds: selectedPrompts.map(prompt => prompt.id),
-        perfectScore: currentPerfect?.possible ? currentPerfect.score : 0
-      }
-    }));
-  }
-
-  function calculatePerfectXI(prompts) {
-    if (prompts.length !== 11) return { possible: false, reason: "The draft does not contain eleven prompts." };
-
-    const playerIdSet = new Set();
-    for (const prompt of prompts) {
-      for (const playerId of getPromptStats(prompt).bestByPlayer.keys()) playerIdSet.add(playerId);
-    }
-    const playerIds = [...playerIdSet];
-    if (playerIds.length < prompts.length) {
-      return { possible: false, reason: "There are not enough different valid footballers to complete the XI." };
-    }
-
-    let maximumPoints = 0;
-    for (const prompt of prompts) {
-      const best = getPromptStats(prompt).bestAnswer;
-      if (best) maximumPoints = Math.max(maximumPoints, best.points);
-    }
-
-    const recordsBySlot = prompts.map(prompt => {
-      const bestByPlayer = getPromptStats(prompt).bestByPlayer;
-      return playerIds.map(playerId => bestByPlayer.get(playerId) || null);
-    });
-
-    const costs = recordsBySlot.map(row => {
-      const values = new Float64Array(playerIds.length);
-      for (let column = 0; column < playerIds.length; column += 1) {
-        const record = row[column];
-        values[column] = record ? maximumPoints - record.points : FORBIDDEN_COST;
-      }
-      return values;
-    });
-
-    const assignment = hungarianMinimumAssignment(costs);
-    if (!assignment) return { possible: false, reason: "The score optimiser could not complete the matching." };
-
-    const picks = assignment.map((column, slotIndex) => {
-      const record = recordsBySlot[slotIndex][column];
-      return record ? { prompt: prompts[slotIndex], record, slotIndex } : null;
-    });
-    if (picks.some(pick => !pick)) {
-      return { possible: false, reason: "No valid eleven-player assignment exists for these prompts." };
-    }
-
-    const score = picks.reduce((sum, pick) => sum + pick.record.points, 0);
-    const naiveScore = prompts.reduce((sum, prompt) => sum + (getPromptStats(prompt).bestAnswer?.points || 0), 0);
+  function getElements() {
     return {
-      possible: true,
-      score,
-      naiveScore,
-      uniquenessCost: naiveScore - score,
-      picks
+      panel: document.querySelector("#libraryManagerPanel"),
+      managerStatus: document.querySelector("#managerStatus"),
+      libraryCount: document.querySelector("#managerLibraryCount"),
+      enabledCount: document.querySelector("#managerEnabledCount"),
+      disabledCount: document.querySelector("#managerDisabledCount"),
+      customCount: document.querySelector("#managerCustomCount"),
+      search: document.querySelector("#promptManagerSearch"),
+      position: document.querySelector("#promptManagerPosition"),
+      difficulty: document.querySelector("#promptManagerDifficulty"),
+      status: document.querySelector("#promptManagerStatusFilter"),
+      newBtn: document.querySelector("#newPromptBtn"),
+      downloadBtn: document.querySelector("#downloadLibraryBtn"),
+      backupBtn: document.querySelector("#downloadPromptBackupBtn"),
+      importInput: document.querySelector("#importPromptBackupInput"),
+      resetBtn: document.querySelector("#resetPromptManagerBtn"),
+      editor: document.querySelector("#promptEditor"),
+      editorTitle: document.querySelector("#promptEditorTitle"),
+      editorNotice: document.querySelector("#promptEditorNotice"),
+      id: document.querySelector("#promptEditorId"),
+      promptPosition: document.querySelector("#promptEditorPosition"),
+      label: document.querySelector("#promptEditorLabel"),
+      fail: document.querySelector("#promptEditorFail"),
+      promptDifficulty: document.querySelector("#promptEditorDifficulty"),
+      rating: document.querySelector("#promptEditorRating"),
+      cooldown: document.querySelector("#promptEditorCooldown"),
+      tags: document.querySelector("#promptEditorTags"),
+      enabled: document.querySelector("#promptEditorEnabled"),
+      join: document.querySelector("#promptRuleJoin"),
+      rules: document.querySelector("#promptRuleRows"),
+      addConditionBtn: document.querySelector("#addPromptConditionBtn"),
+      testBtn: document.querySelector("#testPromptBtn"),
+      saveBtn: document.querySelector("#savePromptBtn"),
+      duplicateBtn: document.querySelector("#duplicatePromptBtn"),
+      cancelBtn: document.querySelector("#cancelPromptEditBtn"),
+      testResults: document.querySelector("#promptTestResults"),
+      list: document.querySelector("#promptManagerList"),
+      listSummary: document.querySelector("#promptListSummary"),
+      previousBtn: document.querySelector("#promptPreviousPageBtn"),
+      nextBtn: document.querySelector("#promptNextPageBtn"),
+      pageLabel: document.querySelector("#promptPageLabel")
     };
   }
 
-  function hungarianMinimumAssignment(costs) {
-    const rowCount = costs.length;
-    const columnCount = costs[0]?.length || 0;
-    if (!rowCount || columnCount < rowCount) return null;
-
-    const u = new Float64Array(rowCount + 1);
-    const v = new Float64Array(columnCount + 1);
-    const p = new Int32Array(columnCount + 1);
-    const way = new Int32Array(columnCount + 1);
-
-    for (let row = 1; row <= rowCount; row += 1) {
-      p[0] = row;
-      let column0 = 0;
-      const minValue = new Float64Array(columnCount + 1);
-      minValue.fill(Number.POSITIVE_INFINITY);
-      const used = new Uint8Array(columnCount + 1);
-
-      do {
-        used[column0] = 1;
-        const row0 = p[column0];
-        let delta = Number.POSITIVE_INFINITY;
-        let column1 = 0;
-
-        for (let column = 1; column <= columnCount; column += 1) {
-          if (used[column]) continue;
-          const current = costs[row0 - 1][column - 1] - u[row0] - v[column];
-          if (current < minValue[column]) {
-            minValue[column] = current;
-            way[column] = column0;
-          }
-          if (minValue[column] < delta) {
-            delta = minValue[column];
-            column1 = column;
-          }
-        }
-
-        if (!Number.isFinite(delta)) return null;
-        for (let column = 0; column <= columnCount; column += 1) {
-          if (used[column]) {
-            u[p[column]] += delta;
-            v[column] -= delta;
-          } else {
-            minValue[column] -= delta;
-          }
-        }
-        column0 = column1;
-      } while (p[column0] !== 0);
-
-      do {
-        const column1 = way[column0];
-        p[column0] = p[column1];
-        column0 = column1;
-      } while (column0 !== 0);
-    }
-
-    const assignment = new Int32Array(rowCount);
-    assignment.fill(-1);
-    for (let column = 1; column <= columnCount; column += 1) {
-      if (p[column] !== 0) assignment[p[column] - 1] = column - 1;
-    }
-    return [...assignment];
-  }
-
-  function renderDraft() {
-    elements.promptSlots.innerHTML = "";
-    const perfectPicks = currentPerfect?.possible ? currentPerfect.picks : [];
-
-    selectedPrompts.forEach((prompt, index) => {
-      const stats = getPromptStats(prompt);
-      const perfectPick = perfectPicks[index]?.record || null;
-      const card = document.createElement("article");
-      card.className = "prompt-card";
-
-      const head = document.createElement("div");
-      head.className = "prompt-card-head";
-      head.innerHTML = `
-        <span class="position-badge">${escapeHtml(prompt.position)}</span>
-        <div>
-          <h3>${index + 1}. ${escapeHtml(prompt.label)}</h3>
-          <p class="prompt-meta">${capitalise(prompt.difficulty)} · Rating ${prompt.rating}/5 · ${stats.seasonCount} matching player-seasons</p>
-        </div>
-        <span class="count-chip">${stats.playerCount} valid players</span>
-      `;
-
-      const controls = document.createElement("div");
-      controls.className = "prompt-controls";
-      const select = document.createElement("select");
-      select.setAttribute("aria-label", `Change prompt ${index + 1}`);
-      populatePromptSelect(select, prompt, index);
-      select.addEventListener("change", event => {
-        const replacement = promptLibrary.find(item => item.id === event.target.value);
-        if (!replacement) return;
-        selectedPrompts[index] = replacement;
-        refreshDraft();
+  function bindEvents(elements, ui, core) {
+    for (const input of [elements.search, elements.position, elements.difficulty, elements.status]) {
+      input.addEventListener(input === elements.search ? "input" : "change", () => {
+        ui.page = 1;
+        renderPromptList(elements, ui, core);
       });
+    }
 
-      const reroll = document.createElement("button");
-      reroll.type = "button";
-      reroll.className = "reroll-button";
-      reroll.textContent = "Reroll this slot";
-      reroll.addEventListener("click", () => rerollSlot(index));
-      controls.append(select, reroll);
-
-      const insights = document.createElement("div");
-      insights.className = "answer-insights";
-      insights.innerHTML = `
-        <div>
-          <span>Best individual answer</span>
-          <strong>${formatAnswer(stats.bestAnswer)}</strong>
-        </div>
-        <div>
-          <span>Perfect-XI selection</span>
-          <strong>${formatAnswer(perfectPick)}</strong>
-        </div>
-      `;
-
-      const tags = document.createElement("div");
-      tags.className = "tags";
-      for (const tagName of prompt.tags) {
-        const tag = document.createElement("span");
-        tag.className = `tag${tagName === "anti-meta" ? " anti" : ""}`;
-        tag.textContent = tagName;
-        tags.append(tag);
-      }
-
-      const answers = document.createElement("details");
-      answers.className = "sample-answer";
-      const answerItems = stats.topAnswers.length
-        ? stats.topAnswers.map(answer => `<li>${escapeHtml(answer.playerName)} — ${escapeHtml(answer.season)}, ${escapeHtml(answer.club)} · ${answer.points} pts</li>`).join("")
-        : "<li>No examples found.</li>";
-      answers.innerHTML = `<summary>Show five high-scoring valid examples</summary><ol>${answerItems}</ol>`;
-
-      card.append(head, controls, insights, tags, answers);
-      elements.promptSlots.append(card);
+    elements.newBtn.addEventListener("click", () => openNewEditor(elements, ui));
+    elements.cancelBtn.addEventListener("click", () => closeEditor(elements, ui));
+    elements.addConditionBtn.addEventListener("click", () => addRuleRow(elements, blankCondition()));
+    elements.testBtn.addEventListener("click", () => previewEditorPrompt(elements, ui, core));
+    elements.saveBtn.addEventListener("click", () => saveEditorPrompt(elements, ui, core));
+    elements.duplicateBtn.addEventListener("click", () => duplicateEditingPrompt(elements, ui));
+    elements.downloadBtn.addEventListener("click", () => downloadPromptLibrary(elements));
+    elements.backupBtn.addEventListener("click", () => downloadManagerBackup(elements));
+    elements.importInput.addEventListener("change", event => importManagerBackup(event, elements));
+    elements.resetBtn.addEventListener("click", () => resetManagerChanges(elements));
+    elements.previousBtn.addEventListener("click", () => {
+      ui.page = Math.max(1, ui.page - 1);
+      renderPromptList(elements, ui, core);
+    });
+    elements.nextBtn.addEventListener("click", () => {
+      ui.page += 1;
+      renderPromptList(elements, ui, core);
     });
 
-    renderPerfectXI();
-    renderSummaryAndWarnings();
+    elements.list.addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const prompt = library.find(item => item.id === button.dataset.id);
+      if (!prompt) return;
+      const action = button.dataset.action;
+      if (action === "edit") openExistingEditor(elements, ui, prompt);
+      if (action === "test") renderPromptTest(elements, prompt, core);
+      if (action === "toggle") togglePrompt(prompt, elements, ui, core);
+      if (action === "duplicate") duplicatePrompt(prompt, elements, ui);
+      if (action === "delete") deleteCustomPrompt(prompt, elements, ui, core);
+    });
+
+    elements.rules.addEventListener("click", event => {
+      const remove = event.target.closest("button[data-remove-rule]");
+      if (!remove) return;
+      remove.closest(".rule-row")?.remove();
+      if (!elements.rules.children.length) addRuleRow(elements, blankCondition());
+    });
+
+    elements.rules.addEventListener("change", event => {
+      if (!event.target.matches("select[data-rule-field]")) return;
+      rebuildRuleRow(event.target.closest(".rule-row"));
+    });
+
+    elements.editor.addEventListener("click", event => {
+      const button = event.target.closest("button[data-name-preset]");
+      if (!button) return;
+      applyNamePreset(elements, ui, button.dataset.namePreset);
+    });
   }
 
-  function renderPerfectXI() {
-    elements.perfectXI.innerHTML = "";
-    if (!currentPerfect?.possible) {
-      elements.perfectScore.textContent = "Unavailable";
-      elements.perfectComparison.textContent = currentPerfect?.reason || "No score has been calculated.";
-      const item = document.createElement("li");
-      item.textContent = currentPerfect?.reason || "No valid XI.";
-      elements.perfectXI.append(item);
-      return;
+  function renderAll(elements, ui, core) {
+    renderManagerCounts(elements);
+    renderPromptList(elements, ui, core);
+    elements.managerStatus.textContent = "Library Manager is ready. Changes stay in this browser until you download prompt-library.js.";
+  }
+
+  function renderManagerCounts(elements) {
+    const enabled = library.filter(prompt => prompt.enabled !== false).length;
+    const custom = library.filter(prompt => prompt.studioRule).length;
+    elements.libraryCount.textContent = library.length.toLocaleString();
+    elements.enabledCount.textContent = enabled.toLocaleString();
+    elements.disabledCount.textContent = (library.length - enabled).toLocaleString();
+    elements.customCount.textContent = custom.toLocaleString();
+  }
+
+  function filteredPrompts(elements) {
+    const query = elements.search.value.trim().toLowerCase();
+    return library
+      .filter(prompt => !query || [prompt.id, prompt.label, prompt.fail, ...(prompt.tags || [])].join(" ").toLowerCase().includes(query))
+      .filter(prompt => elements.position.value === "all" || prompt.position === elements.position.value)
+      .filter(prompt => elements.difficulty.value === "all" || prompt.difficulty === elements.difficulty.value)
+      .filter(prompt => {
+        if (elements.status.value === "enabled") return prompt.enabled !== false;
+        if (elements.status.value === "disabled") return prompt.enabled === false;
+        if (elements.status.value === "custom") return Boolean(prompt.studioRule);
+        if (elements.status.value === "built-in") return !prompt.studioRule;
+        return true;
+      })
+      .sort((a, b) => a.position.localeCompare(b.position) || a.label.localeCompare(b.label));
+  }
+
+  function renderPromptList(elements, ui, core) {
+    const prompts = filteredPrompts(elements);
+    const totalPages = Math.max(1, Math.ceil(prompts.length / ui.pageSize));
+    ui.page = Math.min(ui.page, totalPages);
+    const start = (ui.page - 1) * ui.pageSize;
+    const pagePrompts = prompts.slice(start, start + ui.pageSize);
+
+    elements.listSummary.textContent = `${prompts.length} matching prompt${prompts.length === 1 ? "" : "s"}`;
+    elements.pageLabel.textContent = `Page ${ui.page} of ${totalPages}`;
+    elements.previousBtn.disabled = ui.page <= 1;
+    elements.nextBtn.disabled = ui.page >= totalPages;
+
+    elements.list.innerHTML = pagePrompts.length ? pagePrompts.map(prompt => {
+      const stats = core.getPromptStats(prompt);
+      const selected = core.isPromptSelected?.(prompt.id);
+      const origin = prompt.studioRule ? "Custom" : "Built-in";
+      const status = prompt.enabled === false ? "Disabled" : "Enabled";
+      return `<article class="library-prompt-card ${prompt.enabled === false ? "disabled" : ""}">
+        <div class="library-prompt-head">
+          <div class="library-prompt-title">
+            <span class="position-badge">${escapeHtml(prompt.position)}</span>
+            <div>
+              <h3>${escapeHtml(prompt.label)}</h3>
+              <p>${escapeHtml(prompt.id)}</p>
+            </div>
+          </div>
+          <div class="library-prompt-chips">
+            <span>${escapeHtml(origin)}</span>
+            <span class="${prompt.enabled === false ? "off" : "on"}">${status}</span>
+            ${selected ? '<span class="selected">In current XI</span>' : ""}
+          </div>
+        </div>
+        <div class="library-prompt-meta">
+          <span>${capitalise(prompt.difficulty)}</span>
+          <span>Rating ${prompt.rating}/5</span>
+          <span>Cooldown ${prompt.cooldown ?? 7}</span>
+          <span>${stats.playerCount} players</span>
+          <span>${stats.seasonCount} seasons</span>
+        </div>
+        <div class="tags">${(prompt.tags || []).map(tag => `<span class="tag${tag === "anti-meta" ? " anti" : ""}">${escapeHtml(tag)}</span>`).join("")}</div>
+        <div class="library-prompt-actions">
+          <button type="button" data-action="edit" data-id="${escapeAttribute(prompt.id)}">Edit</button>
+          <button type="button" data-action="test" data-id="${escapeAttribute(prompt.id)}">Test</button>
+          <button type="button" data-action="toggle" data-id="${escapeAttribute(prompt.id)}">${prompt.enabled === false ? "Enable" : "Disable"}</button>
+          <button type="button" data-action="duplicate" data-id="${escapeAttribute(prompt.id)}">Duplicate</button>
+          ${prompt.studioRule ? `<button class="danger-action" type="button" data-action="delete" data-id="${escapeAttribute(prompt.id)}">Delete</button>` : ""}
+        </div>
+      </article>`;
+    }).join("") : '<div class="history-empty">No prompts match those filters.</div>';
+  }
+
+  function openNewEditor(elements, ui) {
+    ui.editingId = null;
+    elements.editorTitle.textContent = "Create a custom prompt";
+    elements.editorNotice.innerHTML = "Use the rule builder below. The player position is automatically enforced by the generator.";
+    elements.id.value = "";
+    elements.id.disabled = false;
+    elements.promptPosition.value = "GK";
+    elements.promptPosition.disabled = false;
+    elements.label.value = "";
+    elements.fail.value = "";
+    elements.promptDifficulty.value = "medium";
+    elements.rating.value = "4";
+    elements.cooldown.value = "7";
+    elements.tags.value = "anti-meta";
+    elements.enabled.checked = true;
+    elements.join.value = "all";
+    elements.rules.innerHTML = "";
+    addRuleRow(elements, blankCondition());
+    setRuleBuilderLocked(elements, false);
+    elements.duplicateBtn.classList.add("hidden");
+    elements.testResults.innerHTML = "";
+    elements.editor.classList.remove("hidden");
+    elements.editor.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function openExistingEditor(elements, ui, prompt) {
+    ui.editingId = prompt.id;
+    elements.editorTitle.textContent = `Edit ${prompt.studioRule ? "custom" : "built-in"} prompt`;
+    elements.id.value = prompt.id;
+    elements.id.disabled = true;
+    elements.promptPosition.value = prompt.position;
+    elements.promptPosition.disabled = !prompt.studioRule;
+    elements.label.value = prompt.label;
+    elements.fail.value = prompt.fail;
+    elements.promptDifficulty.value = prompt.difficulty;
+    elements.rating.value = prompt.rating;
+    elements.cooldown.value = prompt.cooldown ?? 7;
+    elements.tags.value = (prompt.tags || []).join(", ");
+    elements.enabled.checked = prompt.enabled !== false;
+    elements.rules.innerHTML = "";
+
+    const editableBuilder = prompt.studioRule?.kind === "builder";
+    if (editableBuilder) {
+      elements.join.value = prompt.studioRule.join || "all";
+      for (const condition of prompt.studioRule.conditions || []) addRuleRow(elements, condition);
+      if (!elements.rules.children.length) addRuleRow(elements, blankCondition());
+      elements.editorNotice.innerHTML = "This custom prompt has an editable safe rule. Changes are tested against the full player database before saving.";
+    } else {
+      elements.join.value = "all";
+      elements.editorNotice.innerHTML = prompt.studioRule
+        ? "This duplicated prompt keeps its original JavaScript rule. Its wording, rating, tags and status can be edited, but the rule itself is locked."
+        : "Built-in rules are locked to protect working prompts. You can edit wording, difficulty, rating, tags, cooldown and status, or create a new custom rule.";
     }
+    setRuleBuilderLocked(elements, !editableBuilder);
+    elements.duplicateBtn.classList.remove("hidden");
+    elements.testResults.innerHTML = "";
+    elements.editor.classList.remove("hidden");
+    elements.editor.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
-    elements.perfectScore.textContent = currentPerfect.score.toLocaleString();
-    elements.perfectComparison.textContent = currentPerfect.uniquenessCost > 0
-      ? `Individual maxima total ${currentPerfect.naiveScore.toLocaleString()}; unique-player rule costs ${currentPerfect.uniquenessCost} points.`
-      : `Matches the individual maximum of ${currentPerfect.naiveScore.toLocaleString()} points with no answer conflicts.`;
+  function closeEditor(elements, ui) {
+    ui.editingId = null;
+    ui.previewPrompt = null;
+    elements.editor.classList.add("hidden");
+    elements.testResults.innerHTML = "";
+  }
 
-    for (const pick of currentPerfect.picks) {
-      const item = document.createElement("li");
-      item.innerHTML = `<strong>${pick.slotIndex + 1}. ${escapeHtml(pick.record.playerName)}</strong><span>${escapeHtml(pick.record.season)} · ${escapeHtml(pick.record.club)} · ${pick.record.points} pts</span>`;
-      elements.perfectXI.append(item);
+  function setRuleBuilderLocked(elements, locked) {
+    elements.join.disabled = locked;
+    elements.addConditionBtn.disabled = locked;
+    elements.rules.classList.toggle("locked", locked);
+    for (const control of elements.rules.querySelectorAll("input, select, button")) control.disabled = locked;
+    if (locked && !elements.rules.children.length) {
+      elements.rules.innerHTML = '<div class="rule-locked-message">The existing rule remains unchanged.</div>';
     }
   }
 
-  function populatePromptSelect(select, currentPrompt, currentIndex) {
-    const settings = currentSettings();
-    const selectedElsewhere = new Set(
-      selectedPrompts.filter((_, index) => index !== currentIndex).map(prompt => prompt.id)
-    );
-    let options = eligiblePrompts(currentPrompt.position, settings, selectedElsewhere);
-    if (!options.some(prompt => prompt.id === currentPrompt.id)) options = [currentPrompt, ...options];
-    options.sort((a, b) => a.label.localeCompare(b.label));
+  function blankCondition() {
+    return { field: "points", operator: "gte", value: 100, value2: 150 };
+  }
 
-    for (const prompt of options) {
-      const option = document.createElement("option");
-      option.value = prompt.id;
-      option.selected = prompt.id === currentPrompt.id;
-      option.textContent = `${prompt.label} (${getPromptStats(prompt).playerCount})`;
-      select.append(option);
+  function applyNamePreset(elements, ui, preset) {
+    const position = validPosition(elements.promptPosition.value);
+    const positionName = { GK: "Goalkeeper", DEF: "Defender", MID: "Midfielder", FWD: "Forward" }[position];
+    const positionId = position.toLowerCase();
+    const presets = {
+      "surname-starts": {
+        id: `${positionId}_surname_t`,
+        label: `${positionName} whose surname starts with T`,
+        fail: `That ${positionName.toLowerCase()}'s surname must start with T.`,
+        tags: "anti-meta, name-rule, surname, initial",
+        difficulty: "medium",
+        condition: { field: "surname", operator: "startsWith", value: "T", value2: "" }
+      },
+      "first-starts": {
+        id: `${positionId}_first_name_b`,
+        label: `${positionName} whose first name starts with B`,
+        fail: `That ${positionName.toLowerCase()}'s first name must start with B.`,
+        tags: "anti-meta, name-rule, first-name, initial",
+        difficulty: "medium",
+        condition: { field: "firstName", operator: "startsWith", value: "B", value2: "" }
+      },
+      "surname-son": {
+        id: `${positionId}_surname_ends_son`,
+        label: `${positionName} whose surname ends in “son”`,
+        fail: `That ${positionName.toLowerCase()}'s surname must end in “son”.`,
+        tags: "anti-meta, name-rule, surname",
+        difficulty: "hard",
+        condition: { field: "surname", operator: "endsWith", value: "son", value2: "" }
+      },
+      "same-initials": {
+        id: `${positionId}_same_name_initials`,
+        label: `${positionName} whose first name and surname start with the same letter`,
+        fail: `That ${positionName.toLowerCase()}'s first name and surname must start with the same letter.`,
+        tags: "anti-meta, name-rule, initials",
+        difficulty: "hard",
+        condition: { field: "sameInitials", operator: "isTrue", value: "", value2: "" }
+      },
+      "hyphenated": {
+        id: `${positionId}_hyphenated_surname`,
+        label: `${positionName} with a hyphenated surname`,
+        fail: `That ${positionName.toLowerCase()} must have a hyphenated surname.`,
+        tags: "anti-meta, name-rule, surname, hyphenated",
+        difficulty: "hard",
+        condition: { field: "hyphenatedSurname", operator: "isTrue", value: "", value2: "" }
+      }
+    };
+    const selected = presets[preset];
+    if (!selected) return;
+
+    if (ui.editingId) {
+      ui.editingId = null;
+      elements.id.disabled = false;
+      elements.promptPosition.disabled = false;
+      elements.editorTitle.textContent = "Create a custom name prompt";
+      elements.duplicateBtn.classList.add("hidden");
+    }
+    elements.id.value = uniqueId(selected.id);
+    elements.label.value = selected.label;
+    elements.fail.value = selected.fail;
+    elements.promptDifficulty.value = selected.difficulty;
+    elements.rating.value = "4";
+    elements.cooldown.value = "7";
+    elements.tags.value = selected.tags;
+    elements.enabled.checked = true;
+    elements.join.value = "all";
+    elements.rules.innerHTML = "";
+    addRuleRow(elements, selected.condition);
+    setRuleBuilderLocked(elements, false);
+    elements.editorNotice.innerHTML = "Name starter loaded. Change the letter, text or wording, then test it against the full database before saving.";
+    elements.testResults.innerHTML = "";
+  }
+
+  function addRuleRow(elements, condition) {
+    const row = document.createElement("div");
+    row.className = "rule-row";
+    row.dataset.value = condition.value ?? "";
+    row.dataset.value2 = condition.value2 ?? "";
+    row.innerHTML = `
+      <select data-rule-field aria-label="Rule field">
+        ${Object.entries(FIELD_DEFS).map(([key, definition]) => `<option value="${escapeAttribute(key)}" ${key === condition.field ? "selected" : ""}>${escapeHtml(definition.label)}</option>`).join("")}
+      </select>
+      <span class="rule-operator-wrap"></span>
+      <span class="rule-value-wrap"></span>
+      <button class="rule-remove" type="button" data-remove-rule aria-label="Remove condition">Remove</button>`;
+    elements.rules.append(row);
+    rebuildRuleRow(row, condition);
+  }
+
+  function rebuildRuleRow(row, suppliedCondition = null) {
+    const field = row.querySelector("[data-rule-field]").value;
+    const definition = FIELD_DEFS[field];
+    const operatorWrap = row.querySelector(".rule-operator-wrap");
+    const valueWrap = row.querySelector(".rule-value-wrap");
+    const previousOperator = suppliedCondition?.operator || row.querySelector("[data-rule-operator]")?.value;
+    const previousValue = suppliedCondition?.value ?? row.querySelector("[data-rule-value]")?.value ?? row.dataset.value;
+    const previousValue2 = suppliedCondition?.value2 ?? row.querySelector("[data-rule-value2]")?.value ?? row.dataset.value2;
+
+    const operatorSet = definition.type === "number"
+      ? NUMBER_OPERATORS
+      : definition.type === "boolean"
+        ? BOOLEAN_OPERATORS
+        : definition.type === "nameText"
+          ? NAME_TEXT_OPERATORS
+          : TEXT_OPERATORS;
+    const operator = operatorSet[previousOperator] ? previousOperator : Object.keys(operatorSet)[0];
+    operatorWrap.innerHTML = `<select data-rule-operator aria-label="Rule operator">${Object.entries(operatorSet).map(([key, label]) => `<option value="${key}" ${key === operator ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select>`;
+
+    if (definition.type === "boolean") {
+      valueWrap.innerHTML = '<span class="rule-no-value">No value needed</span>';
+    } else if (definition.type === "number") {
+      valueWrap.innerHTML = `<input data-rule-value type="number" step="any" value="${escapeAttribute(previousValue === "" ? 0 : previousValue)}" aria-label="Rule value">
+        <input data-rule-value2 class="${operator === "between" ? "" : "hidden"}" type="number" step="any" value="${escapeAttribute(previousValue2 === "" ? 0 : previousValue2)}" aria-label="Second rule value">`;
+      operatorWrap.querySelector("select").addEventListener("change", event => {
+        valueWrap.querySelector("[data-rule-value2]").classList.toggle("hidden", event.target.value !== "between");
+      });
+    } else {
+      const placeholder = definition.type === "manager"
+        ? "e.g. David Moyes"
+        : definition.type === "nameText"
+          ? (field.toLowerCase().includes("initial") ? "e.g. M" : "e.g. Smith")
+          : "e.g. Everton";
+      valueWrap.innerHTML = `<input data-rule-value type="text" value="${escapeAttribute(previousValue)}" placeholder="${placeholder}" aria-label="Rule text value">`;
     }
   }
 
-  function rerollSlot(index) {
-    const current = selectedPrompts[index];
-    const settings = currentSettings();
-    const excluded = new Set(selectedPrompts.map(prompt => prompt.id));
-    const options = eligiblePrompts(current.position, settings, excluded);
-    if (!options.length) {
-      elements.actionStatus.textContent = `No other eligible ${current.position} prompt is available with the current restrictions.`;
-      return;
-    }
+  function collectEditorPrompt(elements, ui, { preview = false } = {}) {
+    const existing = ui.editingId ? library.find(prompt => prompt.id === ui.editingId) : null;
+    const id = ui.editingId || slugify(elements.id.value);
+    if (!id) throw new Error("Enter a unique prompt ID using letters, numbers, hyphens or underscores.");
+    if (!ui.editingId && library.some(prompt => prompt.id === id)) throw new Error("That prompt ID already exists.");
+    if (!elements.label.value.trim()) throw new Error("Enter the prompt wording.");
+    if (!elements.fail.value.trim()) throw new Error("Enter the invalid-answer message.");
 
-    selectedPrompts[index] = weightedPick(options, selectedPrompts.filter((_, slotIndex) => slotIndex !== index), settings);
-    refreshDraft();
-    elements.actionStatus.textContent = `Slot ${index + 1} was rerolled and the perfect score was recalculated.`;
+    let studioRule = existing?.studioRule || null;
+    let test = existing?.test || null;
+    const builderEditable = !existing || existing.studioRule?.kind === "builder";
+    if (builderEditable) {
+      studioRule = collectRule(elements);
+      const source = compileRuleSource(studioRule);
+      test = functionFromSource(source);
+    }
+    if (typeof test !== "function") throw new Error("This prompt does not have a working test rule.");
+
+    return {
+      id: preview ? `__preview_${Date.now()}` : id,
+      originalId: id,
+      position: validPosition(elements.promptPosition.value),
+      label: elements.label.value.trim(),
+      fail: elements.fail.value.trim(),
+      difficulty: validDifficulty(elements.promptDifficulty.value),
+      tags: normaliseTags(elements.tags.value),
+      rating: clamp(elements.rating.value, 1, 5, 3),
+      cooldown: clamp(elements.cooldown.value, 0, 50, 7),
+      enabled: elements.enabled.checked,
+      studioRule,
+      test,
+      _studioBuiltIn: existing ? existing._studioBuiltIn : false,
+      _studioCustom: existing ? existing._studioCustom : true
+    };
   }
 
-  function renderSummaryAndWarnings() {
-    const antiCount = selectedPrompts.filter(isAntiMeta).length;
-    const average = selectedPrompts.reduce((sum, prompt) => sum + DIFFICULTY_VALUE[prompt.difficulty], 0) / selectedPrompts.length;
-    const difficultyLabel = average < 1.65 ? "Easy" : average < 2.35 ? "Medium" : "Hard";
-    const answerRange = selectedPrompts.map(prompt => getPromptStats(prompt).playerCount);
+  function collectRule(elements) {
+    const conditions = [...elements.rules.querySelectorAll(".rule-row")].map(row => {
+      const field = row.querySelector("[data-rule-field]")?.value;
+      const operator = row.querySelector("[data-rule-operator]")?.value;
+      const value = row.querySelector("[data-rule-value]")?.value ?? "";
+      const value2 = row.querySelector("[data-rule-value2]")?.value ?? "";
+      return { field, operator, value, value2 };
+    });
+    if (!conditions.length) throw new Error("Add at least one rule condition.");
+    if (conditions.length > 6) throw new Error("Use no more than six conditions in one prompt.");
+    for (const condition of conditions) validateCondition(condition);
+    return { kind: "builder", join: elements.join.value === "any" ? "any" : "all", conditions };
+  }
 
-    elements.draftSummary.innerHTML = `
-      <span>${antiCount} anti-meta</span>
-      <span>${difficultyLabel} average</span>
-      <span>${Math.min(...answerRange)}–${Math.max(...answerRange)} valid players</span>
-      <span>${currentPerfect?.possible ? `${currentPerfect.score.toLocaleString()} perfect score` : "Score unavailable"}</span>
-    `;
+  function validateCondition(condition) {
+    const definition = FIELD_DEFS[condition.field];
+    if (!definition) throw new Error("One rule uses an unknown field.");
+    if (definition.type === "number") {
+      if (!Number.isFinite(Number(condition.value))) throw new Error(`${definition.label} needs a number.`);
+      if (condition.operator === "between" && !Number.isFinite(Number(condition.value2))) throw new Error(`${definition.label} needs two numbers for a between rule.`);
+    }
+    if ((definition.type === "text" || definition.type === "manager" || definition.type === "nameText") && !String(condition.value).trim()) throw new Error(`${definition.label} needs text.`);
+  }
 
+  function previewEditorPrompt(elements, ui, core) {
+    try {
+      const prompt = collectEditorPrompt(elements, ui, { preview: true });
+      ui.previewPrompt = prompt;
+      renderPromptTest(elements, prompt, core);
+    } catch (error) {
+      elements.testResults.innerHTML = `<div class="warning">${escapeHtml(error.message)}</div>`;
+    }
+  }
+
+  function renderPromptTest(elements, prompt, core) {
+    core.invalidatePromptStats?.(prompt.id);
+    const stats = core.getPromptStats(prompt);
     const warnings = [];
-    const settings = currentSettings();
-    const disabledSelected = selectedPrompts.filter(prompt => prompt.enabled === false);
-    if (disabledSelected.length) warnings.push(`${disabledSelected.length} selected prompt(s) are disabled in the Prompt Library Manager. Reroll them before publishing.`);
-    if (antiCount < settings.minAntiMeta) warnings.push(`Only ${antiCount} anti-meta prompts are selected; your target is ${settings.minAntiMeta}.`);
-
-    const themeCounts = new Map();
-    for (const prompt of selectedPrompts) {
-      for (const tag of prompt.tags) {
-        if (!DIVERSITY_TAGS.has(tag)) continue;
-        themeCounts.set(tag, (themeCounts.get(tag) || 0) + 1);
-      }
-    }
-    const repeated = [...themeCounts.entries()].filter(([, count]) => count > 2);
-    if (repeated.length) warnings.push(`Repeated themes: ${repeated.map(([tag, count]) => `${tag} ×${count}`).join(", ")}. Consider rerolling one slot.`);
-
-    const narrow = selectedPrompts.filter(prompt => getPromptStats(prompt).playerCount < 6);
-    if (narrow.length) warnings.push(`${narrow.length} prompt(s) have fewer than six valid players.`);
-
-    const overlaps = getAnswerOverlapWarnings();
-    warnings.push(...overlaps);
-
-    if (settings.avoidRecent && window.FPL_STUDIO_PHASE3?.isPromptCoolingDown) {
-      const cooldownConflicts = selectedPrompts.filter(prompt => window.FPL_STUDIO_PHASE3.isPromptCoolingDown(prompt.id));
-      if (cooldownConflicts.length) warnings.push(`${cooldownConflicts.length} selected prompt(s) are currently on history cooldown. Reroll those slots before recording the challenge.`);
-    }
-
-    if (!currentPerfect?.possible) warnings.push(currentPerfect?.reason || "The exact perfect score could not be calculated.");
-    else if (currentPerfect.uniquenessCost >= 80) warnings.push(`The obvious answers overlap heavily: enforcing eleven different players reduces the theoretical total by ${currentPerfect.uniquenessCost} points.`);
-
-    elements.warnings.innerHTML = warnings.length
-      ? warnings.map(message => `<div class="warning">${escapeHtml(message)}</div>`).join("")
-      : '<div class="success-message">The formation, answer counts, anti-meta target, theme balance, answer overlap and exact scoring checks all pass.</div>';
+    if (stats.playerCount < 2) warnings.push("This prompt has fewer than two different valid footballers.");
+    else if (stats.playerCount < 6) warnings.push("This is a narrow prompt with fewer than six valid footballers.");
+    if (stats.playerCount > 150) warnings.push("This prompt is very broad with more than 150 valid footballers.");
+    const answers = stats.topAnswers.length
+      ? stats.topAnswers.map(answer => `<li><strong>${escapeHtml(answer.playerName)}</strong><span>${escapeHtml(answer.season)} · ${escapeHtml(answer.club)} · ${answer.points} points</span></li>`).join("")
+      : "<li>No valid player-seasons found.</li>";
+    elements.testResults.innerHTML = `<div class="prompt-test-summary">
+        <div><span>Valid players</span><strong>${stats.playerCount}</strong></div>
+        <div><span>Matching seasons</span><strong>${stats.seasonCount}</strong></div>
+        <div><span>Best score</span><strong>${stats.bestAnswer?.points ?? 0}</strong></div>
+      </div>
+      ${warnings.map(message => `<div class="warning">${escapeHtml(message)}</div>`).join("")}
+      ${!warnings.length ? '<div class="success-message">The prompt rule runs successfully against the full database.</div>' : ""}
+      <ol class="prompt-test-answers">${answers}</ol>`;
+    elements.editor.classList.remove("hidden");
+    elements.testResults.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  function getAnswerOverlapWarnings() {
-    const messages = [];
-    const bestAnswerSlots = new Map();
-    const topFiveSlots = new Map();
+  function saveEditorPrompt(elements, ui, core) {
+    try {
+      const candidate = collectEditorPrompt(elements, ui);
+      const statsPrompt = { ...candidate, id: `__savecheck_${Date.now()}` };
+      const stats = core.getPromptStats(statsPrompt);
+      if (stats.playerCount === 0) throw new Error("This prompt has no valid player answers. Adjust the rule before saving.");
 
-    selectedPrompts.forEach((prompt, index) => {
-      const stats = getPromptStats(prompt);
-      if (stats.bestAnswer) {
-        const entry = bestAnswerSlots.get(stats.bestAnswer.playerId) || { name: stats.bestAnswer.playerName, slots: [] };
-        entry.slots.push(index + 1);
-        bestAnswerSlots.set(stats.bestAnswer.playerId, entry);
+      if (ui.editingId) {
+        const existing = library.find(prompt => prompt.id === ui.editingId);
+        if (!existing) throw new Error("The prompt being edited could not be found.");
+        const preservedBuiltIn = existing._studioBuiltIn;
+        const preservedCustom = existing._studioCustom;
+        Object.assign(existing, candidate, { id: ui.editingId, _studioBuiltIn: preservedBuiltIn, _studioCustom: preservedCustom });
+        savePromptToState(existing);
+      } else {
+        const custom = { ...candidate, _studioBuiltIn: false, _studioCustom: true };
+        library.push(custom);
+        savePromptToState(custom);
+        ui.editingId = custom.id;
       }
-      for (const answer of stats.topAnswers) {
-        const entry = topFiveSlots.get(answer.playerId) || { name: answer.playerName, slots: new Set() };
-        entry.slots.add(index + 1);
-        topFiveSlots.set(answer.playerId, entry);
-      }
-    });
 
-    const duplicateLeaders = [...bestAnswerSlots.values()]
-      .filter(entry => entry.slots.length > 1)
-      .sort((a, b) => b.slots.length - a.slots.length)
-      .slice(0, 3);
-    if (duplicateLeaders.length) {
-      messages.push(`Obvious-answer overlap: ${duplicateLeaders.map(entry => `${entry.name} leads slots ${entry.slots.join("/")}`).join("; ")}.`);
+      persistState();
+      const affectsDraft = Boolean(ui.editingId && core.isPromptSelected?.(ui.editingId));
+      core.refreshLibrary?.({ recalculateDraft: affectsDraft });
+      renderManagerCounts(elements);
+      renderPromptList(elements, ui, core);
+      elements.managerStatus.textContent = `${candidate.label} saved in this browser with ${stats.playerCount} valid players.`;
+      closeEditor(elements, ui);
+    } catch (error) {
+      elements.testResults.innerHTML = `<div class="warning">${escapeHtml(error.message)}</div>`;
     }
-
-    const broadOverlaps = [...topFiveSlots.values()]
-      .filter(entry => entry.slots.size >= 3)
-      .sort((a, b) => b.slots.size - a.slots.size)
-      .slice(0, 3);
-    if (broadOverlaps.length) {
-      messages.push(`Top-five answer overlap: ${broadOverlaps.map(entry => `${entry.name} appears in ${entry.slots.size} prompts`).join("; ")}.`);
-    }
-
-    return messages;
   }
 
-  function updateCodeOutput() {
-    if (!selectedPrompts.length) return;
-    const challengeNumber = clampNumber(elements.challengeNumber.value, 1, 9999, 7);
-    const challengeName = elements.challengeName.value.trim() || "Generated Mix";
-    const releaseDate = elements.releaseDate.value || new Date().toISOString().slice(0, 10);
-    const difficulty = displayDifficulty();
-    const slug = slugify(challengeName) || "generated-mix";
-    const perfectScore = currentPerfect?.possible ? currentPerfect.score : 0;
+  function savePromptToState(prompt) {
+    if (prompt.studioRule) {
+      const serialised = serialisePrompt(prompt);
+      const index = state.customs.findIndex(item => item.id === prompt.id);
+      if (index >= 0) state.customs[index] = serialised;
+      else state.customs.push(serialised);
+      state.deletedIds = state.deletedIds.filter(id => id !== prompt.id);
+    } else {
+      state.overrides[prompt.id] = metadataForStorage(prompt);
+    }
+  }
 
-    const promptsCode = selectedPrompts.map(prompt => {
+  function togglePrompt(prompt, elements, ui, core) {
+    prompt.enabled = prompt.enabled === false;
+    savePromptToState(prompt);
+    persistState();
+    core.refreshLibrary?.({ recalculateDraft: Boolean(core.isPromptSelected?.(prompt.id)) });
+    renderManagerCounts(elements);
+    renderPromptList(elements, ui, core);
+    elements.managerStatus.textContent = `${prompt.label} is now ${prompt.enabled ? "enabled" : "disabled"}.`;
+  }
+
+  function duplicatePrompt(prompt, elements, ui) {
+    const id = uniqueId(`${prompt.id}_copy`);
+    const clone = {
+      ...prompt,
+      id,
+      label: `${prompt.label} (copy)`,
+      enabled: false,
+      studioRule: prompt.studioRule || { kind: "source", source: prompt.test.toString() },
+      test: prompt.test,
+      _studioBuiltIn: false,
+      _studioCustom: true
+    };
+    library.push(clone);
+    savePromptToState(clone);
+    persistState();
+    openExistingEditor(elements, ui, clone);
+    elements.managerStatus.textContent = "A disabled custom copy was created. Review and test it before enabling.";
+  }
+
+  function duplicateEditingPrompt(elements, ui) {
+    const prompt = ui.editingId ? library.find(item => item.id === ui.editingId) : null;
+    if (prompt) duplicatePrompt(prompt, elements, ui);
+  }
+
+  function deleteCustomPrompt(prompt, elements, ui, core) {
+    if (!prompt.studioRule) return;
+    if (core.isPromptSelected?.(prompt.id)) {
+      elements.managerStatus.textContent = "That prompt is in the current draft. Reroll it before deleting it.";
+      return;
+    }
+    if (!window.confirm(`Delete the custom prompt “${prompt.label}” from this browser?`)) return;
+    const index = library.findIndex(item => item.id === prompt.id);
+    if (index >= 0) library.splice(index, 1);
+    state.customs = state.customs.filter(item => item.id !== prompt.id);
+    if (baseIds.has(prompt.id) && !state.deletedIds.includes(prompt.id)) state.deletedIds.push(prompt.id);
+    delete state.overrides[prompt.id];
+    persistState();
+    core.refreshLibrary?.({ recalculateDraft: false });
+    renderManagerCounts(elements);
+    renderPromptList(elements, ui, core);
+    elements.managerStatus.textContent = `${prompt.label} was removed from this browser library.`;
+  }
+
+  function downloadPromptLibrary(elements) {
+    const source = buildLibrarySource();
+    downloadText("prompt-library.js", source, "text/javascript;charset=utf-8");
+    elements.managerStatus.textContent = "prompt-library.js downloaded. Replace only that file in GitHub after keeping a backup.";
+  }
+
+  function buildLibrarySource() {
+    const promptsSource = library.map(prompt => {
       const testSource = prompt.test.toString();
-      return `    {\n      id: ${JSON.stringify(prompt.id)},\n      position: ${JSON.stringify(prompt.position)},\n      label: ${JSON.stringify(prompt.label)},\n      fail: ${JSON.stringify(prompt.fail)},\n      test: ${testSource}\n    }`;
+      const studioRule = prompt.studioRule ? `,
+      studioRule: ${JSON.stringify(prompt.studioRule, null, 6).replace(/\n/g, "\n      ")}` : "";
+      return `    {
+      id: ${JSON.stringify(prompt.id)},
+      position: ${JSON.stringify(prompt.position)},
+      label: ${JSON.stringify(prompt.label)},
+      fail: ${JSON.stringify(prompt.fail)},
+      difficulty: ${JSON.stringify(prompt.difficulty)},
+      tags: ${JSON.stringify(prompt.tags || [])},
+      rating: ${Number(prompt.rating) || 3},
+      cooldown: ${Number(prompt.cooldown) || 0},
+      enabled: ${prompt.enabled !== false}${studioRule},
+      test: ${testSource}
+    }`;
     }).join(",\n");
 
-    elements.codeOutput.value = `/* Generated by FPL Challenge Studio Phase 4.\n   Exact perfect score calculated with eleven unique footballers.\n   Review before manually uploading to GitHub. */\nwindow.FPL_DAILY_CHALLENGE = {\n  id: ${JSON.stringify(`daily-${String(challengeNumber).padStart(3, "0")}-${slug}`)},\n  number: ${challengeNumber},\n  title: ${JSON.stringify(`Challenge #${challengeNumber} · ${challengeName}`)},\n  dateLabel: ${JSON.stringify(`Generated Mix · ${difficulty}`)},\n  difficulty: ${JSON.stringify(difficulty)},\n  releaseDate: ${JSON.stringify(releaseDate)},\n  perfectScore: ${perfectScore},\n  prompts: [\n${promptsCode}\n  ]\n};\n`;
+    return `/* FPL Challenge Studio prompt library — exported by Phase 5.
+   Disabled prompts remain stored but are ignored by the generator. */
+(() => {
+  "use strict";
 
-    elements.downloadBtn.disabled = !currentPerfect?.possible;
+  window.FPL_PROMPT_LIBRARY = [
+${promptsSource}
+  ];
+
+  window.FPL_RECENT_PROMPT_IDS = ${JSON.stringify(Array.isArray(window.FPL_RECENT_PROMPT_IDS) ? window.FPL_RECENT_PROMPT_IDS : [], null, 2)};
+})();
+`;
   }
 
-  function displayDifficulty() {
-    if (!selectedPrompts.length) return "Mixed";
-    const counts = { easy: 0, medium: 0, hard: 0 };
-    selectedPrompts.forEach(prompt => { counts[prompt.difficulty] += 1; });
-    if (counts.hard >= 6) return "Medium / Hard";
-    if (counts.easy >= 6) return "Easy / Medium";
-    return "Mixed";
-  }
-
-  function saveDraft() {
-    if (!selectedPrompts.length) return;
+  function downloadManagerBackup(elements) {
     const payload = {
-      version: 4,
-      savedAt: new Date().toISOString(),
-      promptIds: selectedPrompts.map(prompt => prompt.id),
-      settings: {
-        challengeNumber: elements.challengeNumber.value,
-        challengeName: elements.challengeName.value,
-        difficultyTarget: elements.difficultyTarget.value,
-        releaseDate: elements.releaseDate.value,
-        minAnswers: elements.minAnswers.value,
-        maxAnswers: elements.maxAnswers.value,
-        minAntiMeta: elements.minAntiMeta.value,
-        cooldownChallenges: elements.cooldownChallenges?.value || "7",
-        avoidRecent: elements.avoidRecent.checked
-      }
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      state
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    elements.actionStatus.textContent = "Draft saved in this browser. It has not been published or sent anywhere.";
+    downloadText("fpl-prompt-manager-backup.json", JSON.stringify(payload, null, 2), "application/json;charset=utf-8");
+    elements.managerStatus.textContent = "Prompt Manager browser changes downloaded as a JSON backup.";
   }
 
-  function loadDraft() {
-    const raw = localStorage.getItem(STORAGE_KEY) || LEGACY_STORAGE_KEYS.map(key => localStorage.getItem(key)).find(Boolean);
-    if (!raw) {
-      elements.actionStatus.textContent = "No saved Challenge Studio draft was found in this browser.";
-      return;
-    }
-
+  async function importManagerBackup(event, elements) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
     try {
-      const payload = JSON.parse(raw);
-      const prompts = payload.promptIds.map(id => promptLibrary.find(prompt => prompt.id === id)).filter(Boolean);
-      if (prompts.length !== 11) throw new Error("The saved prompt list is incomplete.");
-
-      const settings = payload.settings || {};
-      for (const [key, value] of Object.entries(settings)) {
-        if (!elements[key]) continue;
-        if (elements[key].type === "checkbox") elements[key].checked = Boolean(value);
-        else elements[key].value = value;
-      }
-
-      selectedPrompts = prompts;
-      elements.draftPanel.classList.remove("hidden");
-      elements.codePanel.classList.remove("hidden");
-      elements.saveDraftBtn.disabled = false;
-      refreshDraft();
-      elements.actionStatus.textContent = `Saved draft loaded${payload.savedAt ? ` from ${new Date(payload.savedAt).toLocaleString()}` : ""}. The perfect score was recalculated.`;
+      const parsed = JSON.parse(await file.text());
+      const incoming = parsed.state || parsed;
+      if (!incoming || !Array.isArray(incoming.customs) || typeof incoming.overrides !== "object") throw new Error("This is not a valid Prompt Manager backup.");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(incoming));
+      elements.managerStatus.textContent = "Backup imported. Reloading the studio to apply it…";
+      window.location.reload();
     } catch (error) {
-      elements.actionStatus.textContent = `The saved draft could not be loaded: ${error.message}`;
+      elements.managerStatus.textContent = `Backup could not be imported: ${error.message}`;
     }
   }
 
-  function downloadChallengeFile() {
-    if (!currentPerfect?.possible || !elements.codeOutput.value) return;
-    const blob = new Blob([elements.codeOutput.value], { type: "text/javascript;charset=utf-8" });
+  function resetManagerChanges(elements) {
+    if (!window.confirm("Reset all browser-only prompt edits, custom prompts and disabled states? Your uploaded prompt-library.js will not be changed.")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    elements.managerStatus.textContent = "Browser-only prompt changes cleared. Reloading…";
+    window.location.reload();
+  }
+
+  function metadataForStorage(prompt) {
+    return {
+      label: prompt.label,
+      fail: prompt.fail,
+      difficulty: prompt.difficulty,
+      tags: [...(prompt.tags || [])],
+      rating: prompt.rating,
+      cooldown: prompt.cooldown,
+      enabled: prompt.enabled !== false
+    };
+  }
+
+  function serialisePrompt(prompt) {
+    return {
+      id: prompt.id,
+      position: prompt.position,
+      label: prompt.label,
+      fail: prompt.fail,
+      difficulty: prompt.difficulty,
+      tags: [...(prompt.tags || [])],
+      rating: prompt.rating,
+      cooldown: prompt.cooldown,
+      enabled: prompt.enabled !== false,
+      studioRule: prompt.studioRule,
+      testSource: prompt.test.toString()
+    };
+  }
+
+  function applyMetadata(prompt, metadata) {
+    if (typeof metadata.label === "string") prompt.label = metadata.label;
+    if (typeof metadata.fail === "string") prompt.fail = metadata.fail;
+    if (["easy", "medium", "hard"].includes(metadata.difficulty)) prompt.difficulty = metadata.difficulty;
+    if (Array.isArray(metadata.tags)) prompt.tags = normaliseTags(metadata.tags);
+    if (metadata.rating != null) prompt.rating = clamp(metadata.rating, 1, 5, prompt.rating || 3);
+    if (metadata.cooldown != null) prompt.cooldown = clamp(metadata.cooldown, 0, 50, prompt.cooldown ?? 7);
+    if (typeof metadata.enabled === "boolean") prompt.enabled = metadata.enabled;
+  }
+
+  function persistState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function compileRuleSource(rule) {
+    const joiner = rule.join === "any" ? " || " : " && ";
+    const usesNameData = rule.conditions.some(condition => isNameField(condition.field));
+    const expressions = rule.conditions.map(conditionToExpression);
+    const result = expressions.length > 1 ? `(${expressions.join(joiner)})` : expressions[0] || "false";
+    if (!usesNameData) return `p => ${result}`;
+
+    return String.raw`p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return ${result};
+    }`;
+  }
+
+  function isNameField(field) {
+    return [
+      "fullName", "firstName", "surname", "firstInitial", "surnameInitial",
+      "fullNameLength", "firstNameLength", "surnameLength", "nameWordCount",
+      "hyphenatedSurname", "sameInitials", "singleWordName"
+    ].includes(field);
+  }
+
+  function conditionToExpression(condition) {
+    const definition = FIELD_DEFS[condition.field];
+    const accessor = numericAccessor(condition.field);
+    if (definition.type === "number") {
+      const value = Number(condition.value);
+      const value2 = Number(condition.value2);
+      const finite = `Number.isFinite(${accessor})`;
+      if (condition.operator === "gte") return `(${finite} && ${accessor} >= ${value})`;
+      if (condition.operator === "lte") return `(${finite} && ${accessor} <= ${value})`;
+      if (condition.operator === "eq") return `(${finite} && ${accessor} === ${value})`;
+      if (condition.operator === "gt") return `(${finite} && ${accessor} > ${value})`;
+      if (condition.operator === "lt") return `(${finite} && ${accessor} < ${value})`;
+      if (condition.operator === "between") {
+        const low = Math.min(value, value2);
+        const high = Math.max(value, value2);
+        return `(${finite} && ${accessor} >= ${low} && ${accessor} <= ${high})`;
+      }
+    }
+
+    if (definition.type === "boolean") {
+      let expression;
+      if (condition.field === "outsideBigSix") expression = `!${JSON.stringify(BIG_SIX)}.includes(p.club)`;
+      else if (condition.field === "assistsMoreThanGoals") expression = `p.assists > p.goals`;
+      else if (condition.field === "hyphenatedSurname") expression = `__surname.includes("-")`;
+      else if (condition.field === "sameInitials") expression = `(__nameTokens.length > 1 && Boolean(__firstInitial) && __firstInitial === __surnameInitial)`;
+      else if (condition.field === "singleWordName") expression = `__nameTokens.length === 1`;
+      else expression = `p.${condition.field} === true`;
+      return condition.operator === "isFalse" ? `!(${expression})` : `(${expression})`;
+    }
+
+    if (definition.type === "nameText") {
+      const value = JSON.stringify(normaliseNameLiteral(condition.value));
+      const nameAccessor = {
+        fullName: "__fullName",
+        firstName: "__firstName",
+        surname: "__surname",
+        firstInitial: "__firstInitial",
+        surnameInitial: "__surnameInitial"
+      }[condition.field] || "__fullName";
+      if (condition.operator === "notEquals") return `${nameAccessor} !== ${value}`;
+      if (condition.operator === "startsWith") return `${nameAccessor}.startsWith(${value})`;
+      if (condition.operator === "endsWith") return `${nameAccessor}.endsWith(${value})`;
+      if (condition.operator === "contains") return `${nameAccessor}.includes(${value})`;
+      return `${nameAccessor} === ${value}`;
+    }
+
+    const value = JSON.stringify(String(condition.value).trim());
+    if (definition.type === "manager") {
+      const equals = `(Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === ${value}.toLowerCase()))`;
+      if (condition.operator === "notEquals") return `!${equals}`;
+      if (condition.operator === "contains") return `(Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase().includes(${value}.toLowerCase())))`;
+      return equals;
+    }
+
+    if (condition.operator === "notEquals") return `String(p.club || "").toLowerCase() !== ${value}.toLowerCase()`;
+    if (condition.operator === "contains") return `String(p.club || "").toLowerCase().includes(${value}.toLowerCase())`;
+    return `String(p.club || "").toLowerCase() === ${value}.toLowerCase()`;
+  }
+
+  function numericAccessor(field) {
+    if (field === "goalInvolvements") return `(p.goals + p.assists)`;
+    if (field === "fullNameLength") return `__letterCount(__fullName)`;
+    if (field === "firstNameLength") return `__letterCount(__firstName)`;
+    if (field === "surnameLength") return `__letterCount(__surname)`;
+    if (field === "nameWordCount") return `__nameTokens.length`;
+    return `p.${field}`;
+  }
+
+  function normaliseNameLiteral(value) {
+    return String(value || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+      .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+      .replace(/’/g, "'")
+      .replace(/[^a-z0-9'\-]+/g, " ")
+      .trim();
+  }
+
+  function functionFromSource(source) {
+    try {
+      const fn = Function(`"use strict"; return (${source});`)();
+      if (typeof fn !== "function") throw new Error("Rule source did not create a function.");
+      return fn;
+    } catch (error) {
+      console.warn("A stored custom prompt rule could not be compiled.", error);
+      return () => false;
+    }
+  }
+
+  function normaliseStudioRule(rule) {
+    if (rule?.kind === "builder" && Array.isArray(rule.conditions)) {
+      return {
+        kind: "builder",
+        join: rule.join === "any" ? "any" : "all",
+        conditions: rule.conditions.map(condition => ({
+          field: FIELD_DEFS[condition.field] ? condition.field : "points",
+          operator: String(condition.operator || "gte"),
+          value: condition.value ?? 0,
+          value2: condition.value2 ?? 0
+        }))
+      };
+    }
+    return { kind: "source", source: String(rule?.source || "p => false") };
+  }
+
+  function normaliseTags(value) {
+    const source = Array.isArray(value) ? value : String(value || "").split(",");
+    return [...new Set(source.map(tag => String(tag).trim().toLowerCase()).filter(Boolean))].slice(0, 12);
+  }
+
+  function validPosition(value) {
+    return ["GK", "DEF", "MID", "FWD"].includes(value) ? value : "GK";
+  }
+
+  function validDifficulty(value) {
+    return ["easy", "medium", "hard"].includes(value) ? value : "medium";
+  }
+
+  function uniqueId(base) {
+    let id = slugify(base) || "custom_prompt";
+    let suffix = 2;
+    while (library.some(prompt => prompt.id === id)) id = `${slugify(base)}_${suffix++}`;
+    return id;
+  }
+
+  function slugify(value) {
+    return String(value || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9_]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 60);
+  }
+
+  function clamp(value, minimum, maximum, fallback) {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.min(maximum, Math.max(minimum, Math.round(number))) : fallback;
+  }
+
+  function capitalise(value) {
+    return String(value).charAt(0).toUpperCase() + String(value).slice(1);
+  }
+
+  function downloadText(filename, content, type) {
+    const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "todays-challenge.js";
+    anchor.download = filename;
     document.body.append(anchor);
     anchor.click();
     anchor.remove();
     URL.revokeObjectURL(url);
-    elements.copyStatus.textContent = "todays-challenge.js downloaded. Review it, then replace only that file in GitHub.";
-  }
-
-  async function copyChallengeCode() {
-    try {
-      await navigator.clipboard.writeText(elements.codeOutput.value);
-      elements.copyStatus.textContent = "Challenge code copied. The live game has not been changed.";
-    } catch (error) {
-      elements.codeOutput.focus();
-      elements.codeOutput.select();
-      elements.copyStatus.textContent = "Automatic copy was blocked. The code is selected so you can press Ctrl+C.";
-    }
-  }
-
-  function formatAnswer(answer) {
-    if (!answer) return "Unavailable";
-    return `${escapeHtml(answer.playerName)} · ${escapeHtml(answer.season)} · ${answer.points} pts`;
-  }
-
-  function isAntiMeta(prompt) {
-    return prompt.tags.includes("anti-meta");
-  }
-
-  function difficultyTargetValue(value) {
-    return ({ easy: 1.45, medium: 2, hard: 2.65, mixed: 2.1 })[value] || 2.1;
-  }
-
-  function seasonSortValue(season) {
-    const start = Number.parseInt(String(season).slice(0, 4), 10);
-    return Number.isFinite(start) ? start : 0;
-  }
-
-  function clampNumber(value, minimum, maximum, fallback) {
-    const number = Number(value);
-    if (!Number.isFinite(number)) return fallback;
-    return Math.min(maximum, Math.max(minimum, Math.round(number)));
-  }
-
-  function slugify(value) {
-    return value
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 50);
-  }
-
-  function capitalise(value) {
-    return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
   function escapeHtml(value) {
@@ -801,30 +1047,7 @@
       .replaceAll("'", "&#039;");
   }
 
-
-  window.FPL_STUDIO_API = Object.freeze({
-    getSelectedPrompts: () => selectedPrompts.slice(),
-    getPerfectResult: () => currentPerfect,
-    getPromptStats,
-    getPromptLibrary: () => promptLibrary,
-    isPromptSelected: promptId => selectedPrompts.some(prompt => prompt.id === promptId),
-    invalidatePromptStats: promptId => {
-      if (promptId) statsCache.delete(promptId);
-      else statsCache.clear();
-    },
-    refreshLibrary: ({ recalculateDraft = true } = {}) => {
-      statsCache.clear();
-      updateLibraryStatus("checked");
-      if (recalculateDraft && selectedPrompts.length) refreshDraft();
-    },
-    getChallengeMeta: () => ({
-      number: clampNumber(elements.challengeNumber.value, 1, 9999, 7),
-      name: elements.challengeName.value.trim() || "Generated Mix",
-      releaseDate: elements.releaseDate.value || new Date().toISOString().slice(0, 10),
-      difficulty: displayDifficulty(),
-      code: elements.codeOutput.value
-    }),
-    refreshDraft: () => selectedPrompts.length && refreshDraft()
-  });
-
+  function escapeAttribute(value) {
+    return escapeHtml(value).replaceAll("`", "&#096;");
+  }
 })();

@@ -1,670 +1,515 @@
 (() => {
   "use strict";
 
-  const HISTORY_KEY = "fplChallengeStudioHistoryV1";
-  const INVALID_PENALTY = 10;
-  const BASELINE_CHALLENGE = {
-    version: 1,
-    id: "daily-006-underdog-xi",
-    number: 6,
-    name: "The Underdog XI",
-    title: "Challenge #6 · The Underdog XI",
-    releaseDate: "2026-07-20",
-    difficulty: "Medium / Hard",
-    perfectScore: 1885,
-    status: "published",
-    locked: true,
-    recordedAt: "2026-07-20T00:00:00.000Z",
-    promptIds: [
-      "gk_survival_saves",
-      "def_moyes_minutes",
-      "def_creator_outside_big_six",
-      "def_midtable_minutes",
-      "def_budget_clean_sheets",
-      "mid_relegated_involvements",
-      "mid_creator_outside_big_six",
-      "mid_midtable_exact_five",
-      "mid_budget_involvements",
-      "fwd_promoted_goals",
-      "fwd_exact_ten_outside_big_six"
-    ],
-    promptLabels: [
-      "Goalkeeper whose club finished 13th–17th with at least 100 saves",
-      "Defender managed by David Moyes who played at least 2,000 minutes",
-      "Defender outside the traditional Big Six with at least five assists",
-      "Defender from a club finishing 7th–12th who played 2,500+ minutes",
-      "Defender who started at £4.5m or less with at least eight clean sheets",
-      "Midfielder from a relegated club with at least 10 goal involvements",
-      "Midfielder outside the traditional Big Six with at least 10 assists",
-      "Midfielder from a club finishing 7th–12th with exactly five goals",
-      "Midfielder who started at £6.0m or less with at least 15 goal involvements",
-      "Forward from a promoted club with at least eight goals",
-      "Forward outside the traditional Big Six who scored exactly 10 goals"
-    ]
-  };
-
-  const core = window.FPL_STUDIO_API;
-  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
-  const promptLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
-  const playerById = new Map(players.map(player => [player.playerId, player]));
-  const recordByKey = new Map();
-  for (const player of players) {
-    for (const season of player.seasons || []) {
-      recordByKey.set(`${player.playerId}::${season.season}`, {
-        ...season,
-        playerId: player.playerId,
-        playerName: player.name
-      });
-    }
-  }
-
+  const REQUIRED_FORMATION = Object.freeze({ GK: 1, DEF: 4, MID: 4, FWD: 2 });
+  const LIVE_FILE = "todays-challenge.js";
   const elements = {
-    historyStatus: document.querySelector("#historyStatus"),
-    cooldownChallenges: document.querySelector("#cooldownChallenges"),
-    cooldownSummary: document.querySelector("#cooldownSummary"),
-    testPanel: document.querySelector("#testPanel"),
-    startTestBtn: document.querySelector("#startTestBtn"),
-    loadPerfectBtn: document.querySelector("#loadPerfectBtn"),
-    autoTestBtn: document.querySelector("#autoTestBtn"),
-    resetTestBtn: document.querySelector("#resetTestBtn"),
-    revealTestBtn: document.querySelector("#revealTestBtn"),
-    testSlots: document.querySelector("#testSlots"),
-    testProgress: document.querySelector("#testProgress"),
-    testTimer: document.querySelector("#testTimer"),
-    testPenalty: document.querySelector("#testPenalty"),
-    testStatus: document.querySelector("#testStatus"),
-    testPassChip: document.querySelector("#testPassChip"),
-    autoTestReport: document.querySelector("#autoTestReport"),
-    testResults: document.querySelector("#testResults"),
-    testPlayerPoints: document.querySelector("#testPlayerPoints"),
-    testPenaltyPoints: document.querySelector("#testPenaltyPoints"),
-    testFinalScore: document.querySelector("#testFinalScore"),
-    testPerfectScore: document.querySelector("#testPerfectScore"),
-    testEfficiency: document.querySelector("#testEfficiency"),
-    testOutcome: document.querySelector("#testOutcome"),
-    recordHistoryBtn: document.querySelector("#recordHistoryBtn"),
-    downloadHistoryBtn: document.querySelector("#downloadHistoryBtn"),
-    downloadHistoryMarkdownBtn: document.querySelector("#downloadHistoryMarkdownBtn"),
-    historyActionStatus: document.querySelector("#historyActionStatus"),
-    historyList: document.querySelector("#historyList")
+    publishingStatus: document.querySelector("#publishingStatus"),
+    readyChip: document.querySelector("#publishReadyChip"),
+    liveTitle: document.querySelector("#liveChallengeTitle"),
+    liveMeta: document.querySelector("#liveChallengeMeta"),
+    candidateTitle: document.querySelector("#candidateChallengeTitle"),
+    candidateMeta: document.querySelector("#candidateChallengeMeta"),
+    finalStatus: document.querySelector("#publishFinalStatus"),
+    finalReason: document.querySelector("#publishFinalReason"),
+    stateCard: document.querySelector(".publish-state-card"),
+    comparison: document.querySelector("#publishComparison"),
+    checklist: document.querySelector("#publishChecklist"),
+    refreshButton: document.querySelector("#refreshPublishChecksBtn"),
+    downloadButton: document.querySelector("#downloadPublishPackBtn"),
+    actionStatus: document.querySelector("#publishActionStatus"),
+    testChip: document.querySelector("#testPassChip"),
+    recordHistoryButton: document.querySelector("#recordHistoryBtn"),
+    challengeNumber: document.querySelector("#challengeNumber"),
+    challengeName: document.querySelector("#challengeName"),
+    releaseDate: document.querySelector("#releaseDate"),
+    minAnswers: document.querySelector("#minAnswers"),
+    maxAnswers: document.querySelector("#maxAnswers")
   };
 
-  let history = loadHistory();
-  let testState = createTestState();
+  let liveChallenge = null;
+  let liveSource = "";
+  let liveLoadError = "";
+  let lastReport = null;
+  let refreshTimer = null;
 
-  ensureBaselineChallenge();
-
-  window.FPL_STUDIO_PHASE3 = Object.freeze({
-    getCooldownPromptIds,
-    isPromptCoolingDown: promptId => getCooldownPromptIds().has(promptId),
-    getHistory: () => history.map(entry => ({ ...entry, promptIds: [...entry.promptIds] }))
-  });
-
-  initialise();
+  window.addEventListener("load", initialise, { once: true });
 
   function initialise() {
+    if (!elements.checklist) return;
     bindEvents();
-    renderHistory();
-    syncDraftAvailability();
-    updateCooldownSummary();
-    startTimerLoop();
+    observeStudioChanges();
+    loadLiveChallenge();
+    scheduleRefresh();
   }
 
   function bindEvents() {
-    elements.startTestBtn.addEventListener("click", startFreshTest);
-    elements.loadPerfectBtn.addEventListener("click", loadOptimalXI);
-    elements.autoTestBtn.addEventListener("click", runAutomaticChecks);
-    elements.resetTestBtn.addEventListener("click", resetTester);
-    elements.revealTestBtn.addEventListener("click", revealTestXI);
-    elements.recordHistoryBtn.addEventListener("click", recordCurrentChallenge);
-    elements.downloadHistoryBtn.addEventListener("click", downloadHistoryBackup);
-    elements.downloadHistoryMarkdownBtn.addEventListener("click", downloadHistoryMarkdown);
-    elements.cooldownChallenges.addEventListener("change", () => {
-      updateCooldownSummary();
-      core?.refreshDraft?.();
+    elements.refreshButton?.addEventListener("click", async () => {
+      elements.actionStatus.textContent = "Refreshing the live challenge and checklist…";
+      await loadLiveChallenge();
+      refreshPublishingCentre();
     });
-    document.addEventListener("fplstudio:draftchange", () => {
-      invalidateTest("The draft changed, so its previous test result was cleared.");
-      syncDraftAvailability();
-    });
+    elements.downloadButton?.addEventListener("click", downloadPublishingPack);
+    [elements.challengeNumber, elements.challengeName, elements.releaseDate, elements.minAnswers, elements.maxAnswers]
+      .filter(Boolean)
+      .forEach(input => input.addEventListener("input", scheduleRefresh));
+    document.addEventListener("fplstudio:draftchange", scheduleRefresh);
     document.addEventListener("click", event => {
-      if (!event.target.closest(".test-search-wrap")) {
-        document.querySelectorAll(".test-suggestions").forEach(box => box.classList.add("hidden"));
+      if (event.target.closest("#autoTestBtn, #recordHistoryBtn, [data-history-action], #generateBtn, [data-reroll], [data-replace]")) {
+        setTimeout(scheduleRefresh, 120);
       }
     });
   }
 
-  function createTestState() {
-    return {
-      signature: "",
-      picks: {},
-      drafts: {},
-      feedback: {},
-      penalties: 0,
-      startedAt: null,
-      completedSeconds: null,
-      activeSuggestion: {},
-      automaticPassed: false,
-      revealed: false
-    };
-  }
-
-  function currentPrompts() {
-    return core?.getSelectedPrompts?.() || [];
-  }
-
-  function draftSignature() {
-    return currentPrompts().map(prompt => prompt.id).join("|");
-  }
-
-  function syncDraftAvailability() {
-    const hasDraft = currentPrompts().length === 11;
-    elements.testPanel.classList.toggle("hidden", !hasDraft);
-    elements.startTestBtn.disabled = !hasDraft;
-    elements.loadPerfectBtn.disabled = !hasDraft || !core?.getPerfectResult?.()?.possible;
-    elements.autoTestBtn.disabled = !hasDraft;
-    updateRecordButton();
-    if (hasDraft && !testState.startedAt) {
-      elements.testStatus.textContent = "Draft ready. Run the automatic checks, or start a manual play-through.";
-    }
-  }
-
-  function startFreshTest() {
-    const prompts = currentPrompts();
-    if (prompts.length !== 11) return;
-    testState = createTestState();
-    testState.signature = draftSignature();
-    testState.startedAt = Date.now();
-    elements.testResults.classList.add("hidden");
-    elements.autoTestReport.innerHTML = "";
-    renderTester();
-    elements.testStatus.textContent = "Test started. Search for players exactly as you would in the live game.";
-    elements.testPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  function resetTester() {
-    if (!currentPrompts().length) return;
-    startFreshTest();
-    elements.testStatus.textContent = "Tester reset. No live-game data was changed.";
-  }
-
-  function invalidateTest(message) {
-    testState = createTestState();
-    elements.testSlots.innerHTML = "";
-    elements.autoTestReport.innerHTML = "";
-    elements.testResults.classList.add("hidden");
-    elements.testPassChip.textContent = "Not tested";
-    elements.testPassChip.classList.remove("test-pass", "test-fail");
-    elements.testStatus.textContent = message;
-    updateTestStatus();
-    updateRecordButton();
-  }
-
-  function renderTester() {
-    const prompts = currentPrompts();
-    if (prompts.length !== 11 || testState.signature !== draftSignature()) return;
-
-    elements.testSlots.innerHTML = prompts.map((prompt, index) => {
-      const saved = testState.picks[prompt.id];
-      const draft = testState.drafts[prompt.id] || saved || null;
-      const player = draft ? playerById.get(draft.playerId) : null;
-      const seasons = player ? eligibleSeasons(player, prompt) : [];
-      const record = draft ? getRecord(draft.playerId, draft.season) : null;
-      const feedback = testState.feedback[prompt.id] || "";
-      const feedbackClass = feedback.startsWith("✅") ? "good" : feedback.startsWith("❌") ? "bad" : "";
-      return `<article class="test-slot ${saved ? "valid" : ""}" id="test-slot-${escapeAttribute(prompt.id)}">
-        <div class="test-slot-head">
-          <span class="position-badge">${escapeHtml(prompt.position)}</span>
-          <h3>${index + 1}. ${escapeHtml(prompt.label)}</h3>
-          ${saved ? '<span class="test-valid-mark" aria-label="Valid">✓</span>' : ""}
-        </div>
-        <div class="test-choice-row">
-          <div class="test-search-wrap">
-            <input class="test-player-search" data-test-search="${escapeAttribute(prompt.id)}" value="${player ? escapeAttribute(player.name) : ""}" placeholder="Search ${escapeAttribute(prompt.position)}…" autocomplete="off">
-            <div class="test-suggestions hidden" id="test-suggestions-${escapeAttribute(prompt.id)}"></div>
-          </div>
-          <select class="test-season-select" data-test-season="${escapeAttribute(prompt.id)}" ${player ? "" : "disabled"}>
-            ${player ? seasons.map(season => `<option value="${escapeAttribute(season.season)}" ${season.season === draft.season ? "selected" : ""}>${escapeHtml(season.season)}</option>`).join("") : "<option>Season</option>"}
-          </select>
-          <button class="test-confirm" data-test-confirm="${escapeAttribute(prompt.id)}" type="button" ${record ? "" : "disabled"}>${saved ? "Confirmed" : "Confirm"}</button>
-        </div>
-        ${record ? `<div class="test-selected-meta">${escapeHtml(record.club)} · ${escapeHtml(record.position)} · £${Number(record.startingPrice || 0).toFixed(1)}m starting price</div>` : ""}
-        <div class="test-feedback ${feedbackClass}">${escapeHtml(feedback)}</div>
-        ${player ? `<button class="test-clear" data-test-clear="${escapeAttribute(prompt.id)}" type="button">Clear selection</button>` : ""}
-      </article>`;
-    }).join("");
-
-    bindTesterControls();
-    updateTestStatus();
-  }
-
-  function bindTesterControls() {
-    document.querySelectorAll("[data-test-search]").forEach(input => {
-      input.addEventListener("input", onTestSearch);
-      input.addEventListener("focus", onTestSearch);
-      input.addEventListener("keydown", onTestSearchKeys);
-    });
-    document.querySelectorAll("[data-test-season]").forEach(select => select.addEventListener("change", event => {
-      const id = event.currentTarget.dataset.testSeason;
-      if (testState.drafts[id]) testState.drafts[id].season = event.currentTarget.value;
-      delete testState.picks[id];
-      testState.revealed = false;
-      elements.testResults.classList.add("hidden");
-      renderTester();
+  function observeStudioChanges() {
+    const targets = [
+      document.querySelector("#testPassChip"),
+      document.querySelector("#historyList"),
+      document.querySelector("#codeOutput"),
+      document.querySelector("#promptSlots")
+    ].filter(Boolean);
+    const observer = new MutationObserver(scheduleRefresh);
+    targets.forEach(target => observer.observe(target, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      characterData: true,
+      attributeFilter: ["class", "disabled"]
     }));
-    document.querySelectorAll("[data-test-confirm]").forEach(button => button.addEventListener("click", () => confirmTestPick(button.dataset.testConfirm)));
-    document.querySelectorAll("[data-test-clear]").forEach(button => button.addEventListener("click", () => clearTestPick(button.dataset.testClear)));
   }
 
-  function onTestSearch(event) {
-    const input = event.currentTarget;
-    const promptId = input.dataset.testSearch;
-    const prompt = currentPrompts().find(item => item.id === promptId);
-    if (!prompt) return;
-    const query = normalise(input.value.trim());
-    const currentDraft = testState.drafts[promptId];
-    if (currentDraft && normalise(playerById.get(currentDraft.playerId)?.name) !== query) {
-      delete testState.drafts[promptId];
-      delete testState.picks[promptId];
-      testState.revealed = false;
-    }
-
-    const box = document.querySelector(`#test-suggestions-${cssEscape(promptId)}`);
-    if (!box) return;
-    if (query.length < 2) {
-      box.classList.add("hidden");
-      return;
-    }
-
-    const used = usedPlayerIds();
-    const matches = players.filter(player =>
-      !used.has(player.playerId) &&
-      eligibleSeasons(player, prompt).length &&
-      normalise(player.name).includes(query)
-    ).slice(0, 10);
-
-    testState.activeSuggestion[promptId] = -1;
-    box.innerHTML = matches.length
-      ? matches.map((player, index) => `<button class="test-suggestion" data-test-option="${escapeAttribute(player.playerId)}" data-test-prompt="${escapeAttribute(promptId)}" data-test-index="${index}" type="button"><strong>${escapeHtml(player.name)}</strong><small>${eligibleSeasons(player, prompt).map(season => escapeHtml(season.season)).join(" · ")}</small></button>`).join("")
-      : '<div class="test-suggestion">No matching unused players</div>';
-    box.classList.remove("hidden");
-    box.querySelectorAll("[data-test-option]").forEach(button => button.addEventListener("click", () => chooseTestPlayer(promptId, button.dataset.testOption)));
+  function scheduleRefresh() {
+    window.clearTimeout(refreshTimer);
+    refreshTimer = window.setTimeout(refreshPublishingCentre, 80);
   }
 
-  function onTestSearchKeys(event) {
-    const promptId = event.currentTarget.dataset.testSearch;
-    const box = document.querySelector(`#test-suggestions-${cssEscape(promptId)}`);
-    const options = box ? [...box.querySelectorAll("[data-test-option]")] : [];
-    if (!box || box.classList.contains("hidden") || !options.length) return;
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      testState.activeSuggestion[promptId] = Math.min((testState.activeSuggestion[promptId] ?? -1) + 1, options.length - 1);
-    } else if (event.key === "ArrowUp") {
-      event.preventDefault();
-      testState.activeSuggestion[promptId] = Math.max((testState.activeSuggestion[promptId] ?? 0) - 1, 0);
-    } else if (event.key === "Enter" && testState.activeSuggestion[promptId] >= 0) {
-      event.preventDefault();
-      options[testState.activeSuggestion[promptId]].click();
-      return;
-    } else if (event.key === "Escape") {
-      box.classList.add("hidden");
-      return;
-    } else {
-      return;
-    }
-    options.forEach((option, index) => option.classList.toggle("active", index === testState.activeSuggestion[promptId]));
-  }
-
-  function chooseTestPlayer(promptId, playerId) {
-    if (usedPlayerIds().has(playerId)) {
-      testState.feedback[promptId] = "That footballer has already been used — no penalty.";
-      renderTester();
-      return;
-    }
-    const prompt = currentPrompts().find(item => item.id === promptId);
-    const player = playerById.get(playerId);
-    const seasons = eligibleSeasons(player, prompt);
-    if (!seasons.length) return;
-    testState.drafts[promptId] = { playerId, season: seasons[0].season };
-    delete testState.picks[promptId];
-    testState.feedback[promptId] = "Choose a season, then confirm.";
-    testState.revealed = false;
-    elements.testResults.classList.add("hidden");
-    renderTester();
-  }
-
-  function confirmTestPick(promptId) {
-    const prompt = currentPrompts().find(item => item.id === promptId);
-    const draft = testState.drafts[promptId];
-    if (!prompt || !draft) return;
-    const duplicate = Object.entries(testState.picks).some(([id, pick]) => id !== promptId && pick.playerId === draft.playerId);
-    if (duplicate) {
-      testState.feedback[promptId] = "That footballer has already been used — no penalty.";
-      renderTester();
-      return;
-    }
-    const record = getRecord(draft.playerId, draft.season);
-    if (!record) return;
-    let valid = false;
-    try { valid = Boolean(prompt.test(record)); } catch (error) { valid = false; }
-    if (!valid) {
-      testState.penalties += INVALID_PENALTY;
-      testState.feedback[promptId] = `❌ ${record.playerName} ${record.season} is invalid. ${prompt.fail} −${INVALID_PENALTY} points.`;
-      delete testState.picks[promptId];
-      renderTester();
-      const slot = document.querySelector(`#test-slot-${cssEscape(promptId)}`);
-      slot?.classList.add("invalid-flash");
-      setTimeout(() => slot?.classList.remove("invalid-flash"), 450);
-      return;
-    }
-    testState.picks[promptId] = { playerId: draft.playerId, season: draft.season };
-    testState.feedback[promptId] = `✅ Valid: ${record.points} points hidden until reveal.`;
-    testState.revealed = false;
-    elements.testResults.classList.add("hidden");
-    renderTester();
-  }
-
-  function clearTestPick(promptId) {
-    delete testState.drafts[promptId];
-    delete testState.picks[promptId];
-    testState.feedback[promptId] = "";
-    testState.revealed = false;
-    elements.testResults.classList.add("hidden");
-    renderTester();
-  }
-
-  function loadOptimalXI() {
-    const perfect = core?.getPerfectResult?.();
-    const prompts = currentPrompts();
-    if (!perfect?.possible || prompts.length !== 11) return;
-    if (!testState.startedAt || testState.signature !== draftSignature()) startFreshTest();
-    testState.picks = {};
-    testState.drafts = {};
-    testState.feedback = {};
-    testState.penalties = 0;
-    perfect.picks.forEach((pick, index) => {
-      const prompt = prompts[index];
-      testState.drafts[prompt.id] = { playerId: pick.record.playerId, season: pick.record.season };
-      testState.feedback[prompt.id] = "Optimal answer loaded. Confirm it to test the slot.";
-    });
-    elements.testResults.classList.add("hidden");
-    renderTester();
-    elements.testStatus.textContent = "The optimal unique-player XI is loaded. Confirm each slot, or run the automatic checks.";
-  }
-
-  function runAutomaticChecks() {
-    const prompts = currentPrompts();
-    const perfect = core?.getPerfectResult?.();
-    const checks = [];
-    let passed = true;
-
-    const addCheck = (condition, success, failure) => {
-      checks.push({ passed: Boolean(condition), message: condition ? success : failure });
-      if (!condition) passed = false;
-    };
-
-    addCheck(prompts.length === 11, "The draft contains exactly 11 prompts.", `The draft contains ${prompts.length} prompts instead of 11.`);
-    addCheck(prompts.map(prompt => prompt.position).join(",") === "GK,DEF,DEF,DEF,DEF,MID,MID,MID,MID,FWD,FWD", "The formation is exactly 1–4–4–2.", "The prompt positions do not form a 1–4–4–2 XI.");
-    addCheck(perfect?.possible, "A unique-player perfect XI exists.", perfect?.reason || "A unique-player perfect XI could not be found.");
-
-    if (perfect?.possible) {
-      const uniqueIds = new Set(perfect.picks.map(pick => pick.record.playerId));
-      addCheck(uniqueIds.size === 11, "All 11 optimal answers use different footballers.", "The optimal XI repeats a footballer.");
-      const allPass = perfect.picks.every((pick, index) => {
-        try { return prompts[index].test(pick.record); } catch (error) { return false; }
-      });
-      addCheck(allPass, "Every optimal player-season passes its prompt test.", "At least one optimal player-season fails its prompt test.");
-      const calculatedScore = perfect.picks.reduce((sum, pick) => sum + pick.record.points, 0);
-      addCheck(calculatedScore === perfect.score, `The exact perfect score recalculates to ${perfect.score.toLocaleString()}.`, `The optimal XI totals ${calculatedScore}, but the studio reports ${perfect.score}.`);
-      const code = core?.getChallengeMeta?.()?.code || "";
-      addCheck(code.includes(`perfectScore: ${perfect.score}`), "The downloaded JavaScript includes the exact perfect score.", "The generated JavaScript does not contain the exact perfect score.");
-      addCheck(prompts.every(prompt => code.includes(`id: ${JSON.stringify(prompt.id)}`)), "All 11 selected prompt IDs are present in the generated file.", "At least one selected prompt is missing from the generated file.");
-    }
-
-    testState.signature = draftSignature();
-    testState.automaticPassed = passed;
-    elements.autoTestReport.innerHTML = checks.map(check => `<div class="${check.passed ? "success-message" : "warning"}">${check.passed ? "✓" : "✕"} ${escapeHtml(check.message)}</div>`).join("");
-    elements.testPassChip.textContent = passed ? "Automatic checks passed" : "Checks failed";
-    elements.testPassChip.classList.toggle("test-pass", passed);
-    elements.testPassChip.classList.toggle("test-fail", !passed);
-    elements.testStatus.textContent = passed
-      ? "Automatic checks passed. You can record this challenge in history, or manually play through it as an extra check."
-      : "One or more automatic checks failed. Do not upload this challenge yet.";
-    updateRecordButton();
-  }
-
-  function revealTestXI() {
-    const prompts = currentPrompts();
-    if (prompts.length !== 11 || prompts.some(prompt => !testState.picks[prompt.id])) return;
-    const rows = prompts.map(prompt => getRecord(testState.picks[prompt.id].playerId, testState.picks[prompt.id].season));
-    const points = rows.reduce((sum, record) => sum + record.points, 0);
-    const finalScore = points - testState.penalties;
-    const perfectScore = core?.getPerfectResult?.()?.score || 0;
-    const efficiency = perfectScore > 0 ? finalScore / perfectScore * 100 : 0;
-    const unique = new Set(rows.map(record => record.playerId)).size === 11;
-    const allValid = rows.every((record, index) => {
-      try { return currentPrompts()[index].test(record); } catch (error) { return false; }
-    });
-    const passed = unique && allValid;
-
-    testState.completedSeconds = elapsedSeconds();
-    testState.revealed = true;
-    elements.testPlayerPoints.textContent = points.toLocaleString();
-    elements.testPenaltyPoints.textContent = testState.penalties ? `−${testState.penalties}` : "0";
-    elements.testFinalScore.textContent = finalScore.toLocaleString();
-    elements.testPerfectScore.textContent = perfectScore.toLocaleString();
-    elements.testEfficiency.textContent = `${efficiency.toFixed(1)}%`;
-    elements.testOutcome.textContent = passed ? "Passed" : "Failed";
-    elements.testOutcome.className = passed ? "test-pass" : "test-fail";
-    elements.testResults.classList.remove("hidden");
-    elements.testStatus.textContent = passed
-      ? "Manual play-through passed: all 11 selections remained valid and scoring completed correctly."
-      : "The manual play-through found a problem. Do not upload this challenge yet.";
-  }
-
-  function updateTestStatus() {
-    const prompts = currentPrompts();
-    const validCount = prompts.filter(prompt => testState.picks[prompt.id]).length;
-    elements.testProgress.textContent = `${validCount} / ${prompts.length || 11} valid`;
-    elements.testPenalty.textContent = `Penalties −${testState.penalties}`;
-    elements.revealTestBtn.disabled = validCount !== 11;
-  }
-
-  function startTimerLoop() {
-    setInterval(() => {
-      const seconds = testState.completedSeconds ?? elapsedSeconds();
-      elements.testTimer.textContent = `Time ${formatTime(seconds)}`;
-    }, 1000);
-  }
-
-  function elapsedSeconds() {
-    return testState.startedAt ? Math.floor((Date.now() - testState.startedAt) / 1000) : 0;
-  }
-
-  function eligibleSeasons(player, prompt) {
-    return (player?.seasons || []).filter(season => season.position === prompt.position);
-  }
-
-  function usedPlayerIds() {
-    return new Set(Object.values(testState.picks).map(pick => pick.playerId));
-  }
-
-  function getRecord(playerId, season) {
-    return recordByKey.get(`${playerId}::${season}`) || null;
-  }
-
-  function loadHistory() {
+  async function loadLiveChallenge() {
+    liveLoadError = "";
+    liveChallenge = null;
+    liveSource = "";
+    setLiveCardLoading();
     try {
-      const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-      return Array.isArray(parsed) ? parsed.filter(entry => entry && Array.isArray(entry.promptIds)) : [];
+      const response = await fetch(`${LIVE_FILE}?studioPhase6=${Date.now()}`, { cache: "no-store" });
+      if (!response.ok) throw new Error(`GitHub returned HTTP ${response.status}`);
+      liveSource = await response.text();
+      const parsed = parseChallengeSource(liveSource);
+      if (!parsed || !Array.isArray(parsed.prompts)) throw new Error("The file did not create a valid FPL_DAILY_CHALLENGE object");
+      liveChallenge = parsed;
     } catch (error) {
-      return [];
+      liveLoadError = error instanceof Error ? error.message : String(error);
     }
+    renderLiveCard();
   }
 
-  function ensureBaselineChallenge() {
-    if (!history.some(entry => Number(entry.number) === 6)) {
-      history.push({ ...BASELINE_CHALLENGE, promptIds: [...BASELINE_CHALLENGE.promptIds], promptLabels: [...BASELINE_CHALLENGE.promptLabels] });
-      saveHistory();
+  function setLiveCardLoading() {
+    if (elements.liveTitle) elements.liveTitle.textContent = "Loading…";
+    if (elements.liveMeta) elements.liveMeta.textContent = `Fetching ${LIVE_FILE}`;
+  }
+
+  function renderLiveCard() {
+    if (!elements.liveTitle || !elements.liveMeta) return;
+    if (!liveChallenge) {
+      elements.liveTitle.textContent = "Live challenge unavailable";
+      elements.liveMeta.textContent = liveLoadError || `Could not read ${LIVE_FILE}`;
+      return;
     }
+    elements.liveTitle.textContent = challengeDisplayTitle(liveChallenge);
+    elements.liveMeta.textContent = `#${Number(liveChallenge.number) || "—"} · ${liveChallenge.releaseDate || "No date"} · ${Number(liveChallenge.perfectScore || 0).toLocaleString()} perfect score`;
   }
 
-  function saveHistory() {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  }
-
-  function sortedHistory() {
-    return [...history].sort((a, b) => {
-      const dateCompare = String(b.releaseDate || "").localeCompare(String(a.releaseDate || ""));
-      if (dateCompare) return dateCompare;
-      return Number(b.number || 0) - Number(a.number || 0);
-    });
-  }
-
-  function getCooldownPromptIds() {
-    const count = clampNumber(elements.cooldownChallenges?.value, 1, 50, 7);
-    const recent = sortedHistory().slice(0, count);
-    return new Set(recent.flatMap(entry => entry.promptIds || []));
-  }
-
-  function updateCooldownSummary() {
-    const challengeCount = clampNumber(elements.cooldownChallenges?.value, 1, 50, 7);
-    const promptCount = getCooldownPromptIds().size;
-    elements.cooldownSummary.textContent = `${promptCount} prompts blocked from the last ${Math.min(challengeCount, history.length)} challenge(s)`;
-  }
-
-  function updateRecordButton() {
-    const validDraft = currentPrompts().length === 11 && core?.getPerfectResult?.()?.possible;
-    const sameDraft = testState.signature === draftSignature();
-    elements.recordHistoryBtn.disabled = !(validDraft && sameDraft && testState.automaticPassed);
-  }
-
-  function recordCurrentChallenge() {
-    if (elements.recordHistoryBtn.disabled) return;
-    const prompts = currentPrompts();
-    const perfect = core.getPerfectResult();
-    const meta = core.getChallengeMeta();
-    const existingIndex = history.findIndex(entry => Number(entry.number) === Number(meta.number));
-    if (existingIndex >= 0 && !history[existingIndex].locked) {
-      const replace = window.confirm(`Challenge #${meta.number} is already in this browser's history. Replace it with the tested version?`);
-      if (!replace) return;
-    } else if (existingIndex >= 0 && history[existingIndex].locked) {
-      elements.historyActionStatus.textContent = `Challenge #${meta.number} is a locked baseline entry and cannot be replaced.`;
+  function refreshPublishingCentre() {
+    const core = window.FPL_STUDIO_API;
+    if (!core) {
+      renderUnavailable("Challenge Studio core is still loading.");
       return;
     }
 
-    const entry = {
-      version: 1,
-      id: `daily-${String(meta.number).padStart(3, "0")}-${slugify(meta.name) || "generated-mix"}`,
-      number: meta.number,
-      name: meta.name,
-      title: `Challenge #${meta.number} · ${meta.name}`,
-      releaseDate: meta.releaseDate,
-      difficulty: meta.difficulty,
-      perfectScore: perfect.score,
-      status: "ready",
-      locked: false,
-      recordedAt: new Date().toISOString(),
-      promptIds: prompts.map(prompt => prompt.id),
-      promptLabels: prompts.map(prompt => prompt.label)
+    const prompts = core.getSelectedPrompts?.() || [];
+    const perfect = core.getPerfectResult?.() || null;
+    const meta = core.getChallengeMeta?.() || null;
+    const candidate = meta?.code ? safeParseChallengeSource(meta.code) : null;
+    const history = window.FPL_STUDIO_PHASE3?.getHistory?.() || [];
+    const report = buildReport({ prompts, perfect, meta, candidate, history });
+    lastReport = report;
+    renderCandidateCard(report);
+    renderComparison(report);
+    renderChecklist(report);
+    renderFinalStatus(report);
+  }
+
+  function renderUnavailable(message) {
+    if (elements.candidateTitle) elements.candidateTitle.textContent = "Studio still loading";
+    if (elements.candidateMeta) elements.candidateMeta.textContent = message;
+    if (elements.checklist) elements.checklist.innerHTML = checklistCard("pending", "Waiting for Studio", message);
+    setFinalState("blocked", "Not ready", message, "Waiting for draft");
+    if (elements.downloadButton) elements.downloadButton.disabled = true;
+  }
+
+  function buildReport({ prompts, perfect, meta, candidate, history }) {
+    const checks = [];
+    const promptIds = prompts.map(prompt => prompt.id);
+    const promptIdSet = new Set(promptIds);
+    const formation = countFormation(prompts);
+    const hasDraft = prompts.length > 0;
+    const minAnswers = clampNumber(elements.minAnswers?.value, 2, 999, 6);
+    const maxAnswers = clampNumber(elements.maxAnswers?.value, minAnswers, 9999, 100);
+    const core = window.FPL_STUDIO_API;
+
+    addCheck(checks, hasDraft ? "pass" : "pending", "Generated draft exists",
+      hasDraft ? `${prompts.length} prompt slots are loaded.` : "Generate or load a draft XI above.", true);
+
+    addCheck(checks, prompts.length === 11 ? "pass" : hasDraft ? "fail" : "pending", "Exactly 11 prompts",
+      prompts.length === 11 ? "The challenge contains eleven prompt slots." : `Found ${prompts.length}; exactly 11 are required.`, true);
+
+    const formationValid = Object.entries(REQUIRED_FORMATION).every(([position, count]) => formation[position] === count);
+    addCheck(checks, formationValid ? "pass" : hasDraft ? "fail" : "pending", "Valid 1–4–4–2 formation",
+      formationValid ? "1 GK · 4 DEF · 4 MID · 2 FWD." : `Current formation: ${formationText(formation)}.`, true);
+
+    const uniquePromptIds = promptIds.length === promptIdSet.size && promptIds.every(Boolean);
+    addCheck(checks, uniquePromptIds ? "pass" : hasDraft ? "fail" : "pending", "Unique prompt IDs",
+      uniquePromptIds ? "No prompt ID is repeated." : "One or more prompt IDs are missing or duplicated.", true);
+
+    const allEnabled = hasDraft && prompts.every(prompt => prompt.enabled !== false);
+    addCheck(checks, allEnabled ? "pass" : hasDraft ? "fail" : "pending", "All selected prompts enabled",
+      allEnabled ? "Every selected prompt is enabled in the library." : "A disabled prompt is present in the draft.", true);
+
+    let rangeProblems = [];
+    if (hasDraft && core?.getPromptStats) {
+      rangeProblems = prompts.map(prompt => ({ prompt, stats: core.getPromptStats(prompt) }))
+        .filter(item => item.stats.playerCount < minAnswers || item.stats.playerCount > maxAnswers);
+    }
+    addCheck(checks, !hasDraft ? "pending" : rangeProblems.length ? "fail" : "pass", "Answer pools within limits",
+      !hasDraft ? "Generate a draft to check answer totals." : rangeProblems.length
+        ? `${rangeProblems.length} prompt(s) fall outside ${minAnswers}–${maxAnswers} valid players.`
+        : `Every prompt has ${minAnswers}–${maxAnswers} valid players.`, true);
+
+    const perfectValid = Boolean(perfect?.possible && Number(perfect.score) > 0 && Array.isArray(perfect.picks) && perfect.picks.length === 11);
+    addCheck(checks, perfectValid ? "pass" : hasDraft ? "fail" : "pending", "Exact perfect score calculated",
+      perfectValid ? `${Number(perfect.score).toLocaleString()} points using eleven unique footballers.` : "The exact unique-player perfect score is unavailable.", true);
+
+    const codeValid = Boolean(candidate && candidate.prompts?.length === 11 && Number(candidate.perfectScore) === Number(perfect?.score));
+    const codePromptIds = candidate?.prompts?.map(prompt => prompt.id) || [];
+    const codeMatchesDraft = codeValid && arraysEqual(codePromptIds, promptIds);
+    addCheck(checks, codeMatchesDraft ? "pass" : hasDraft ? "fail" : "pending", "Downloaded JavaScript matches draft",
+      codeMatchesDraft ? "The generated file contains the same prompt order and perfect score." : "The generated JavaScript is missing, invalid, or out of sync with the draft.", true);
+
+    const automaticPassed = Boolean(elements.testChip?.classList.contains("test-pass"));
+    addCheck(checks, automaticPassed ? "pass" : hasDraft ? "fail" : "pending", "Automatic Test Mode checks passed",
+      automaticPassed ? "The current draft passed the Studio's automatic tests." : "Run automatic checks in Test Mode after the final reroll.", true);
+
+    const metaNumber = Number(meta?.number || candidate?.number || 0);
+    const metaDate = String(meta?.releaseDate || candidate?.releaseDate || "");
+    const liveNumber = Number(liveChallenge?.number || 0);
+    const liveDate = String(liveChallenge?.releaseDate || "");
+    const candidateSignature = signatureFor(candidate || { prompts });
+    const liveSignature = signatureFor(liveChallenge);
+
+    const numberClashLive = Boolean(liveChallenge && metaNumber === liveNumber && candidateSignature !== liveSignature);
+    const numberBehindLive = Boolean(liveChallenge && metaNumber < liveNumber);
+    addCheck(checks,
+      !hasDraft ? "pending" : numberClashLive || numberBehindLive ? "fail" : liveChallenge && metaNumber !== liveNumber + 1 ? "warning" : "pass",
+      "Challenge number checked",
+      !hasDraft ? "Generate a draft to compare its number." : numberClashLive
+        ? `Challenge #${metaNumber} is already live with different prompts.`
+        : numberBehindLive
+          ? `Challenge #${metaNumber} is behind live Challenge #${liveNumber}.`
+          : liveChallenge && metaNumber !== liveNumber + 1
+            ? `Live is #${liveNumber}; the prepared challenge is #${metaNumber}, not the expected next number.`
+            : liveChallenge ? `Prepared challenge is the expected next number: #${metaNumber}.` : `Prepared challenge number is #${metaNumber}.`,
+      numberClashLive || numberBehindLive);
+
+    const dateClashLive = Boolean(liveChallenge && metaDate && metaDate === liveDate && candidateSignature !== liveSignature);
+    const dateBeforeLive = Boolean(liveChallenge && metaDate && liveDate && metaDate < liveDate);
+    addCheck(checks, !hasDraft ? "pending" : !metaDate ? "fail" : dateClashLive || dateBeforeLive ? "fail" : "pass", "Release date checked",
+      !hasDraft ? "Generate a draft to compare dates." : !metaDate ? "No release date is set." : dateClashLive
+        ? `${metaDate} is already used by the current live challenge.`
+        : dateBeforeLive ? `${metaDate} is earlier than the live challenge date ${liveDate}.`
+          : `Release date ${metaDate} is valid.`, true);
+
+    const numberHistoryMatches = history.filter(entry => Number(entry.number) === metaNumber);
+    const dateHistoryMatches = metaDate ? history.filter(entry => entry.releaseDate === metaDate && Number(entry.number) !== metaNumber) : [];
+    const matchingHistory = numberHistoryMatches.find(entry => historySignature(entry) === candidateSignature);
+    const conflictingNumberHistory = numberHistoryMatches.some(entry => historySignature(entry) !== candidateSignature);
+    const historyState = !hasDraft ? "pending" : conflictingNumberHistory || dateHistoryMatches.length ? "fail" : matchingHistory ? "pass" : "fail";
+    const historyDetail = !hasDraft ? "Generate and test a draft first." : conflictingNumberHistory
+      ? `Challenge #${metaNumber} exists in history with different prompts.`
+      : dateHistoryMatches.length ? `${metaDate} is already assigned to another challenge in history.`
+        : matchingHistory ? "The tested draft is recorded in Challenge History." : "Record the tested challenge in history before publishing.";
+    addCheck(checks, historyState, "Challenge History recorded without conflicts", historyDetail, true);
+
+    const liveLoaded = Boolean(liveChallenge);
+    addCheck(checks, liveLoaded ? "pass" : "fail", "Current live challenge loaded",
+      liveLoaded ? `${challengeDisplayTitle(liveChallenge)} was read from ${LIVE_FILE}.` : `Could not read ${LIVE_FILE}: ${liveLoadError || "unknown error"}.`, true);
+
+    const overlapCount = liveChallenge ? promptIds.filter(id => new Set(liveChallenge.prompts?.map(prompt => prompt.id) || []).has(id)).length : 0;
+    addCheck(checks, !liveChallenge || !hasDraft ? "pending" : overlapCount >= 5 ? "warning" : "pass", "Prompt freshness versus live challenge",
+      !liveChallenge || !hasDraft ? "Load both challenges to compare prompt overlap." : overlapCount
+        ? `${overlapCount} of 11 prompt IDs are repeated from the live challenge.`
+        : "No prompt IDs are repeated from the live challenge.", false);
+
+    const failCount = checks.filter(check => check.state === "fail").length;
+    const warningCount = checks.filter(check => check.state === "warning").length;
+    const pendingCount = checks.filter(check => check.state === "pending").length;
+    const ready = hasDraft && failCount === 0 && pendingCount === 0;
+
+    return {
+      prompts,
+      perfect,
+      meta,
+      candidate,
+      history,
+      checks,
+      formation,
+      overlapCount,
+      failCount,
+      warningCount,
+      pendingCount,
+      ready,
+      candidateSignature,
+      liveSignature,
+      matchingHistory
     };
-
-    if (existingIndex >= 0) history[existingIndex] = entry;
-    else history.push(entry);
-    saveHistory();
-    renderHistory();
-    core.refreshDraft();
-    elements.historyActionStatus.textContent = `Challenge #${meta.number} recorded. Its prompts now count towards the cooldown.`;
   }
 
-  function renderHistory() {
-    const ordered = sortedHistory();
-    elements.historyStatus.textContent = `${ordered.length} challenge${ordered.length === 1 ? "" : "s"} recorded`;
-    elements.historyList.innerHTML = ordered.length ? ordered.map(entry => {
-      const status = entry.status === "published" ? "Published" : "Ready to upload";
-      const prompts = (entry.promptLabels?.length ? entry.promptLabels : entry.promptIds).map((label, index) => `<li>${escapeHtml(label || entry.promptIds[index])}</li>`).join("");
-      return `<article class="history-card" data-history-id="${escapeAttribute(entry.id)}">
-        <div class="history-card-head">
-          <div>
-            <h3>${escapeHtml(entry.title || `Challenge #${entry.number} · ${entry.name}`)}</h3>
-            <p class="history-meta">${escapeHtml(entry.releaseDate || "No date")} · ${escapeHtml(entry.difficulty || "Mixed")} · ${Number(entry.perfectScore || 0).toLocaleString()} perfect score</p>
-          </div>
-          <span class="history-status ${entry.status === "published" ? "published" : ""}">${status}</span>
-        </div>
-        <details class="history-prompts"><summary>Show ${entry.promptIds.length} used prompts</summary><ol>${prompts}</ol></details>
-        <div class="history-actions">
-          ${entry.locked ? "" : `<button type="button" data-history-toggle="${escapeAttribute(entry.id)}">Mark ${entry.status === "published" ? "ready" : "published"}</button><button type="button" data-history-delete="${escapeAttribute(entry.id)}">Delete entry</button>`}
-        </div>
-      </article>`;
-    }).join("") : '<div class="history-empty">No challenge history is stored in this browser yet.</div>';
-
-    elements.historyList.querySelectorAll("[data-history-toggle]").forEach(button => button.addEventListener("click", () => toggleHistoryStatus(button.dataset.historyToggle)));
-    elements.historyList.querySelectorAll("[data-history-delete]").forEach(button => button.addEventListener("click", () => deleteHistoryEntry(button.dataset.historyDelete)));
-    updateCooldownSummary();
-    updateRecordButton();
+  function addCheck(checks, state, title, detail, blocking) {
+    checks.push({ state, title, detail, blocking: blocking !== false });
   }
 
-  function toggleHistoryStatus(id) {
-    const entry = history.find(item => item.id === id);
-    if (!entry || entry.locked) return;
-    entry.status = entry.status === "published" ? "ready" : "published";
-    saveHistory();
-    renderHistory();
-    elements.historyActionStatus.textContent = `${entry.title} marked ${entry.status}.`;
+  function renderCandidateCard(report) {
+    if (!elements.candidateTitle || !elements.candidateMeta) return;
+    if (!report.candidate) {
+      elements.candidateTitle.textContent = "No draft generated";
+      elements.candidateMeta.textContent = "Generate, test and record a draft above";
+      return;
+    }
+    elements.candidateTitle.textContent = challengeDisplayTitle(report.candidate);
+    elements.candidateMeta.textContent = `#${Number(report.candidate.number) || "—"} · ${report.candidate.releaseDate || "No date"} · ${Number(report.candidate.perfectScore || 0).toLocaleString()} perfect score`;
   }
 
-  function deleteHistoryEntry(id) {
-    const entry = history.find(item => item.id === id);
-    if (!entry || entry.locked) return;
-    if (!window.confirm(`Delete ${entry.title} from this browser's history?`)) return;
-    history = history.filter(item => item.id !== id);
-    saveHistory();
-    renderHistory();
-    core.refreshDraft();
-    elements.historyActionStatus.textContent = `${entry.title} removed from browser history.`;
+  function renderComparison(report) {
+    if (!elements.comparison) return;
+    const live = liveChallenge;
+    const candidate = report.candidate;
+    const items = [
+      ["Challenge number", live ? `#${live.number}` : "—", candidate ? `#${candidate.number}` : "—"],
+      ["Release date", live?.releaseDate || "—", candidate?.releaseDate || "—"],
+      ["Difficulty", live?.difficulty || "—", candidate?.difficulty || "—"],
+      ["Perfect score", live ? Number(live.perfectScore || 0).toLocaleString() : "—", candidate ? Number(candidate.perfectScore || 0).toLocaleString() : "—"],
+      ["Repeated prompts", live && candidate ? `${report.overlapCount} / 11` : "—", report.overlapCount >= 5 ? "Review" : "Freshness check"]
+    ];
+    elements.comparison.innerHTML = items.map(([label, left, right]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(left)} → ${escapeHtml(right)}</strong></article>`).join("");
   }
 
-  function downloadHistoryBackup() {
-    const content = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), challenges: sortedHistory() }, null, 2) + "\n";
-    downloadText("fpl-challenge-history.json", content, "application/json;charset=utf-8");
-    elements.historyActionStatus.textContent = "Challenge history backup downloaded as JSON.";
+  function renderChecklist(report) {
+    if (!elements.checklist) return;
+    elements.checklist.innerHTML = report.checks.map(check => checklistCard(check.state, check.title, check.detail)).join("");
   }
 
-  function downloadHistoryMarkdown() {
+  function checklistCard(state, title, detail) {
+    const icon = state === "pass" ? "✓" : state === "warning" ? "!" : state === "fail" ? "×" : "…";
+    return `<article class="publish-check ${state}">
+      <span class="publish-check-icon" aria-hidden="true">${icon}</span>
+      <div><strong>${escapeHtml(title)}</strong><p>${escapeHtml(detail)}</p></div>
+    </article>`;
+  }
+
+  function renderFinalStatus(report) {
+    if (elements.downloadButton) elements.downloadButton.disabled = !report.ready;
+    if (!report.prompts.length) {
+      setFinalState("blocked", "Not ready", "Generate a draft XI to begin the final checks.", "Waiting for draft");
+    } else if (!report.ready) {
+      const parts = [];
+      if (report.failCount) parts.push(`${report.failCount} blocking check${report.failCount === 1 ? "" : "s"}`);
+      if (report.pendingCount) parts.push(`${report.pendingCount} pending`);
+      setFinalState("blocked", "Not ready", parts.join(" · ") || "Complete the checklist.", "Checks incomplete");
+    } else if (report.warningCount) {
+      setFinalState("warning", "Ready with warnings", `${report.warningCount} amber warning${report.warningCount === 1 ? "" : "s"} to review before upload.`, "Ready with warnings");
+    } else {
+      setFinalState("ready", "Ready to upload", "All final publishing checks passed.", "Ready to upload");
+    }
+    if (elements.publishingStatus) elements.publishingStatus.textContent = report.ready ? "Pack ready" : "Manual upload";
+  }
+
+  function setFinalState(state, heading, reason, chipText) {
+    if (elements.finalStatus) elements.finalStatus.textContent = heading;
+    if (elements.finalReason) elements.finalReason.textContent = reason;
+    if (elements.readyChip) {
+      elements.readyChip.textContent = chipText;
+      elements.readyChip.classList.remove("publish-ready", "publish-warning", "publish-blocked", "ready-chip");
+      elements.readyChip.classList.add(state === "ready" ? "publish-ready" : state === "warning" ? "publish-warning" : "publish-blocked");
+    }
+    if (elements.stateCard) {
+      elements.stateCard.classList.remove("ready", "warning", "blocked");
+      elements.stateCard.classList.add(state);
+    }
+  }
+
+  async function downloadPublishingPack() {
+    refreshPublishingCentre();
+    const report = lastReport;
+    if (!report?.ready || !report.meta?.code || !report.candidate) {
+      elements.actionStatus.textContent = "The publishing pack is locked until every blocking check passes.";
+      return;
+    }
+
+    try {
+      elements.downloadButton.disabled = true;
+      elements.downloadButton.textContent = "Building pack…";
+      const history = report.history || [];
+      const files = [
+        { name: "UPLOAD/todays-challenge.js", content: ensureTrailingNewline(report.meta.code) },
+        { name: "BACKUPS/challenge-history.json", content: buildHistoryJson(history) },
+        { name: "BACKUPS/challenge-history.md", content: buildHistoryMarkdown(history) },
+        { name: "BACKUPS/prompt-library.js", content: buildPromptLibrarySource() },
+        { name: "BACKUPS/live-challenge-before-publish.js", content: liveSource ? ensureTrailingNewline(liveSource) : "/* Live challenge snapshot unavailable. */\n" },
+        { name: "publish-manifest.json", content: buildManifest(report) },
+        { name: "README-UPLOAD.txt", content: buildReadme(report) }
+      ];
+      const blob = buildZipBlob(files);
+      const number = String(report.candidate.number || "next").padStart(3, "0");
+      const filename = `fpl-challenge-${number}-publishing-pack.zip`;
+      downloadBlob(filename, blob);
+      elements.actionStatus.textContent = `${filename} downloaded. Extract it, then upload only UPLOAD/todays-challenge.js to GitHub.`;
+    } catch (error) {
+      console.error(error);
+      elements.actionStatus.textContent = `The pack could not be created: ${error instanceof Error ? error.message : String(error)}`;
+    } finally {
+      elements.downloadButton.textContent = "Download publishing pack";
+      elements.downloadButton.disabled = !lastReport?.ready;
+    }
+  }
+
+  function buildHistoryJson(history) {
+    return JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), challenges: sortHistory(history) }, null, 2) + "\n";
+  }
+
+  function buildHistoryMarkdown(history) {
     const lines = ["# FPL Daily Challenge History", "", `Exported: ${new Date().toLocaleString()}`, ""];
-    for (const entry of sortedHistory().reverse()) {
-      lines.push(`## Challenge #${entry.number} · ${entry.name}`);
-      lines.push("");
+    for (const entry of sortHistory(history).reverse()) {
+      lines.push(`## Challenge #${entry.number} · ${entry.name || entry.title || "Untitled"}`, "");
       lines.push(`- Release date: ${entry.releaseDate || "—"}`);
       lines.push(`- Difficulty: ${entry.difficulty || "Mixed"}`);
-      lines.push(`- Perfect score: ${entry.perfectScore || 0}`);
-      lines.push(`- Status: ${entry.status || "ready"}`);
-      lines.push("");
-      (entry.promptLabels?.length ? entry.promptLabels : entry.promptIds).forEach((label, index) => lines.push(`${index + 1}. ${label}`));
+      lines.push(`- Perfect score: ${Number(entry.perfectScore || 0)}`);
+      lines.push(`- Status: ${entry.status || "ready"}`, "");
+      const labels = entry.promptLabels?.length ? entry.promptLabels : entry.promptIds || [];
+      labels.forEach((label, index) => lines.push(`${index + 1}. ${label}`));
       lines.push("");
     }
-    downloadText("challenge-history.md", lines.join("\n") + "\n", "text/markdown;charset=utf-8");
-    elements.historyActionStatus.textContent = "Readable challenge-history.md downloaded.";
+    return lines.join("\n") + "\n";
   }
 
-  function downloadText(filename, content, type) {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = filename;
-    document.body.append(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(url);
+  function buildPromptLibrarySource() {
+    const library = window.FPL_STUDIO_API?.getPromptLibrary?.() || window.FPL_PROMPT_LIBRARY || [];
+    const promptsSource = library.map(prompt => {
+      const testSource = typeof prompt.test === "function" ? prompt.test.toString() : "p => false";
+      const studioRule = prompt.studioRule ? `,\n      studioRule: ${JSON.stringify(prompt.studioRule, null, 6).replace(/\n/g, "\n      ")}` : "";
+      return `    {\n      id: ${JSON.stringify(prompt.id)},\n      position: ${JSON.stringify(prompt.position)},\n      label: ${JSON.stringify(prompt.label)},\n      fail: ${JSON.stringify(prompt.fail)},\n      difficulty: ${JSON.stringify(prompt.difficulty)},\n      tags: ${JSON.stringify(prompt.tags || [])},\n      rating: ${Number(prompt.rating) || 3},\n      cooldown: ${Number(prompt.cooldown) || 0},\n      enabled: ${prompt.enabled !== false}${studioRule},\n      test: ${testSource}\n    }`;
+    }).join(",\n");
+    const recent = Array.isArray(window.FPL_RECENT_PROMPT_IDS) ? window.FPL_RECENT_PROMPT_IDS : [];
+    return `/* FPL Challenge Studio prompt library backup — exported by Phase 6. */\n(() => {\n  \"use strict\";\n\n  window.FPL_PROMPT_LIBRARY = [\n${promptsSource}\n  ];\n\n  window.FPL_RECENT_PROMPT_IDS = ${JSON.stringify(recent, null, 2)};\n})();\n`;
   }
 
-  function normalise(value) {
-    return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  function buildManifest(report) {
+    const payload = {
+      version: 1,
+      generatedAt: new Date().toISOString(),
+      ready: report.ready,
+      preparedChallenge: challengeSummary(report.candidate),
+      liveChallengeBeforePublish: challengeSummary(liveChallenge),
+      repeatedPromptIds: report.prompts.map(prompt => prompt.id).filter(id => new Set(liveChallenge?.prompts?.map(prompt => prompt.id) || []).has(id)),
+      checks: report.checks,
+      instructions: "Replace only todays-challenge.js in the root of the GitHub repository. Keep every BACKUPS file locally."
+    };
+    return JSON.stringify(payload, null, 2) + "\n";
   }
 
-  function formatTime(seconds) {
-    return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
+  function buildReadme(report) {
+    return [
+      "FPL DAILY CHALLENGE — PHASE 6 PUBLISHING PACK",
+      "================================================",
+      "",
+      `Prepared: ${challengeDisplayTitle(report.candidate)}`,
+      `Challenge number: ${report.candidate.number}`,
+      `Release date: ${report.candidate.releaseDate}`,
+      `Perfect score: ${report.candidate.perfectScore}`,
+      "",
+      "UPLOAD THIS ONE FILE",
+      "--------------------",
+      "1. Extract this ZIP on your computer.",
+      "2. Open the UPLOAD folder.",
+      "3. Upload todays-challenge.js to the main/root of your GitHub repository.",
+      "4. Replace the existing file and commit the change.",
+      "5. Wait for GitHub Pages to finish, then refresh the live game with Ctrl + F5.",
+      "",
+      "DO NOT upload the ZIP itself. GitHub will not unpack it.",
+      "DO NOT replace index.html, players.js, admin files or prompt-library.js when publishing the daily challenge.",
+      "",
+      "BACKUPS",
+      "-------",
+      "The BACKUPS folder contains the history, prompt library and the live challenge file that was present before this pack was created.",
+      "",
+      `Final Studio result: ${report.warningCount ? `READY WITH ${report.warningCount} WARNING(S)` : "ALL CHECKS PASSED"}`,
+      ""
+    ].join("\n");
+  }
+
+  function challengeSummary(challenge) {
+    if (!challenge) return null;
+    return {
+      id: challenge.id || "",
+      number: Number(challenge.number) || 0,
+      title: challenge.title || "",
+      releaseDate: challenge.releaseDate || "",
+      difficulty: challenge.difficulty || "",
+      perfectScore: Number(challenge.perfectScore) || 0,
+      promptIds: Array.isArray(challenge.prompts) ? challenge.prompts.map(prompt => prompt.id) : []
+    };
+  }
+
+  function parseChallengeSource(source) {
+    const sandbox = Object.create(null);
+    const evaluate = new Function("window", `\"use strict\";\n${source}\nreturn window.FPL_DAILY_CHALLENGE || null;`);
+    return evaluate(sandbox);
+  }
+
+  function safeParseChallengeSource(source) {
+    try { return parseChallengeSource(source); }
+    catch (error) { return null; }
+  }
+
+  function challengeDisplayTitle(challenge) {
+    if (!challenge) return "No challenge";
+    return challenge.title || `Challenge #${challenge.number || "—"}`;
+  }
+
+  function countFormation(prompts) {
+    const formation = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
+    for (const prompt of prompts || []) if (formation[prompt.position] != null) formation[prompt.position] += 1;
+    return formation;
+  }
+
+  function formationText(formation) {
+    return `${formation.GK || 0} GK · ${formation.DEF || 0} DEF · ${formation.MID || 0} MID · ${formation.FWD || 0} FWD`;
+  }
+
+  function signatureFor(challenge) {
+    if (!challenge) return "";
+    const ids = Array.isArray(challenge.prompts) ? challenge.prompts.map(prompt => prompt.id || "") : [];
+    return `${Number(challenge.number) || 0}|${challenge.releaseDate || ""}|${ids.join("|")}`;
+  }
+
+  function historySignature(entry) {
+    if (!entry) return "";
+    const ids = Array.isArray(entry.promptIds) ? entry.promptIds : [];
+    return `${Number(entry.number) || 0}|${entry.releaseDate || ""}|${ids.join("|")}`;
+  }
+
+  function arraysEqual(left, right) {
+    return left.length === right.length && left.every((value, index) => value === right[index]);
+  }
+
+  function sortHistory(history) {
+    return [...history].sort((a, b) => Number(a.number || 0) - Number(b.number || 0));
   }
 
   function clampNumber(value, minimum, maximum, fallback) {
@@ -673,20 +518,116 @@
     return Math.min(maximum, Math.max(minimum, Math.round(number)));
   }
 
-  function slugify(value) {
-    return String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 50);
+  function ensureTrailingNewline(value) {
+    return String(value || "").replace(/\s*$/, "\n");
   }
 
   function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]));
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    })[character]);
   }
 
-  function escapeAttribute(value) {
-    return escapeHtml(value);
+  /* Minimal standards-compliant ZIP writer using stored (uncompressed) entries.
+     This keeps Phase 6 self-contained and avoids external libraries. */
+  function buildZipBlob(files) {
+    const encoder = new TextEncoder();
+    const now = new Date();
+    const dos = toDosDateTime(now);
+    const localParts = [];
+    const centralParts = [];
+    let offset = 0;
+
+    for (const file of files) {
+      const nameBytes = encoder.encode(file.name.replaceAll("\\", "/"));
+      const dataBytes = typeof file.content === "string" ? encoder.encode(file.content) : new Uint8Array(file.content);
+      const crc = crc32(dataBytes);
+      const localHeader = concatBytes(
+        uint32(0x04034b50), uint16(20), uint16(0x0800), uint16(0),
+        uint16(dos.time), uint16(dos.date), uint32(crc), uint32(dataBytes.length), uint32(dataBytes.length),
+        uint16(nameBytes.length), uint16(0), nameBytes, dataBytes
+      );
+      localParts.push(localHeader);
+
+      const centralHeader = concatBytes(
+        uint32(0x02014b50), uint16(20), uint16(20), uint16(0x0800), uint16(0),
+        uint16(dos.time), uint16(dos.date), uint32(crc), uint32(dataBytes.length), uint32(dataBytes.length),
+        uint16(nameBytes.length), uint16(0), uint16(0), uint16(0), uint16(0), uint32(0), uint32(offset), nameBytes
+      );
+      centralParts.push(centralHeader);
+      offset += localHeader.length;
+    }
+
+    const centralDirectory = concatBytes(...centralParts);
+    const endRecord = concatBytes(
+      uint32(0x06054b50), uint16(0), uint16(0), uint16(files.length), uint16(files.length),
+      uint32(centralDirectory.length), uint32(offset), uint16(0)
+    );
+    return new Blob([...localParts, centralDirectory, endRecord], { type: "application/zip" });
   }
 
-  function cssEscape(value) {
-    if (window.CSS?.escape) return window.CSS.escape(value);
-    return String(value).replace(/[^a-zA-Z0-9_-]/g, character => `\\${character}`);
+  function toDosDateTime(date) {
+    const year = Math.max(1980, date.getFullYear());
+    return {
+      time: (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2),
+      date: ((year - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate()
+    };
   }
+
+  function uint16(value) {
+    const bytes = new Uint8Array(2);
+    new DataView(bytes.buffer).setUint16(0, value & 0xffff, true);
+    return bytes;
+  }
+
+  function uint32(value) {
+    const bytes = new Uint8Array(4);
+    new DataView(bytes.buffer).setUint32(0, value >>> 0, true);
+    return bytes;
+  }
+
+  function concatBytes(...parts) {
+    const length = parts.reduce((sum, part) => sum + part.length, 0);
+    const output = new Uint8Array(length);
+    let offset = 0;
+    for (const part of parts) {
+      output.set(part, offset);
+      offset += part.length;
+    }
+    return output;
+  }
+
+  const CRC_TABLE = (() => {
+    const table = new Uint32Array(256);
+    for (let index = 0; index < 256; index += 1) {
+      let value = index;
+      for (let bit = 0; bit < 8; bit += 1) value = (value & 1) ? (0xedb88320 ^ (value >>> 1)) : (value >>> 1);
+      table[index] = value >>> 0;
+    }
+    return table;
+  })();
+
+  function crc32(bytes) {
+    let crc = 0xffffffff;
+    for (const byte of bytes) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function downloadBlob(filename, blob) {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  window.FPL_STUDIO_PHASE6 = Object.freeze({
+    refresh: refreshPublishingCentre,
+    getReport: () => lastReport,
+    reloadLiveChallenge: loadLiveChallenge,
+    buildZipBlob
+  });
 })();

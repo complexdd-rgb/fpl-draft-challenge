@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 5</title>
-  <link rel="stylesheet" href="admin.css?v=5.0.0">
+  <title>FPL Challenge Studio · Phase 6</title>
+  <link rel="stylesheet" href="admin.css?v=6.0.1">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 5</p>
-        <h1>Build, test and expand every challenge</h1>
-        <p class="hero-copy">Generate and review the XI, test it safely, record its history, and expand the reusable prompt library with safe name-based rules without touching the live game.</p>
+        <p class="eyebrow">Challenge Studio · Phase 6</p>
+        <h1>Build, test and publish every challenge safely</h1>
+        <p class="hero-copy">Generate and review the XI, test it safely, record its history, manage the prompt library, and prepare one checked publishing pack without touching the live game.</p>
       </div>
       <a class="back-link" href="./">Open live game</a>
     </header>
@@ -42,7 +42,7 @@
       </article>
       <article class="status-card">
         <span>Publishing</span>
-        <strong class="safe-text">Manual upload</strong>
+        <strong id="publishingStatus" class="safe-text">Checking…</strong>
       </article>
     </section>
 
@@ -336,12 +336,65 @@
       <div id="promptManagerList" class="prompt-manager-list"></div>
     </section>
 
+
+    <section class="panel publish-centre" id="publishingPanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 7</p>
+          <h2>Publishing Centre</h2>
+          <p class="section-copy">Compare the generated draft with the challenge currently served by GitHub Pages, run the final checks, and download one backup pack. Uploading to GitHub remains manual.</p>
+        </div>
+        <span id="publishReadyChip" class="phase-chip">Waiting for draft</span>
+      </div>
+
+      <div class="publish-overview-grid">
+        <article class="publish-summary-card">
+          <span>Current live challenge</span>
+          <strong id="liveChallengeTitle">Loading…</strong>
+          <small id="liveChallengeMeta">Fetching todays-challenge.js</small>
+        </article>
+        <article class="publish-summary-card">
+          <span>Prepared challenge</span>
+          <strong id="candidateChallengeTitle">No draft generated</strong>
+          <small id="candidateChallengeMeta">Generate and test a draft above</small>
+        </article>
+        <article class="publish-summary-card publish-state-card">
+          <span>Final status</span>
+          <strong id="publishFinalStatus">Not ready</strong>
+          <small id="publishFinalReason">Complete the checklist below</small>
+        </article>
+      </div>
+
+      <div class="publish-comparison" id="publishComparison" aria-live="polite"></div>
+
+      <div class="publish-checklist-wrap">
+        <div class="publish-checklist-head">
+          <div>
+            <h3>Pre-publish checklist</h3>
+            <p>Red checks block the publishing pack. Amber checks are warnings for you to review.</p>
+          </div>
+          <button id="refreshPublishChecksBtn" class="button secondary" type="button">Refresh live comparison</button>
+        </div>
+        <div id="publishChecklist" class="publish-checklist"></div>
+      </div>
+
+      <div class="publish-pack-panel">
+        <div>
+          <h3>Safe publishing pack</h3>
+          <p>The ZIP includes the new <code>todays-challenge.js</code>, challenge-history backups, a prompt-library backup, the current live challenge snapshot, a manifest of every check, and upload instructions.</p>
+        </div>
+        <button id="downloadPublishPackBtn" class="button primary" type="button" disabled>Download publishing pack</button>
+      </div>
+      <p id="publishActionStatus" class="action-status" role="status"></p>
+    </section>
+
   </main>
 
   <script src="players.js?v=6.2"></script>
   <script src="prompt-library.js?v=2.0.0"></script>
-  <script src="admin-phase5.js?v=5.0.0"></script>
-  <script src="admin.js?v=5.0.0"></script>
-  <script src="admin-phase3.js?v=3.0.0"></script>
+  <script src="admin-phase5.js?v=6.0.1"></script>
+  <script src="admin.js?v=6.0.1"></script>
+  <script src="admin-phase3.js?v=6.0.1"></script>
+  <script src="admin-phase6.js?v=6.0.1"></script>
 </body>
 </html>
