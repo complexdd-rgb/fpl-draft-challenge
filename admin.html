@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 10</title>
+  <title>FPL Challenge Studio · Phase 11</title>
   <link rel="stylesheet" href="admin.css?v=10.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 10</p>
+        <p class="eyebrow">Challenge Studio · Phase 11</p>
         <h1>Build, test, publish, repair and expand the historical database safely</h1>
         <p class="hero-copy">Generate and review the XI, test it safely, manage prompts, publish checked files, repair the database and import one verified historical season at a time without touching the live game.</p>
       </div>
@@ -762,6 +762,79 @@
     </section>
 
 
+    <section class="panel identity-centre" id="identityConsolidationCentre" aria-labelledby="identityCentreHeading">
+      <div class="panel-heading identity-heading">
+        <div>
+          <p class="eyebrow">Step 12</p>
+          <h2 id="identityCentreHeading">Player Identity Consolidation</h2>
+          <p>Find duplicate footballers stored under nicknames, full names, spelling variants or encoding differences. The live database is never changed until you download and manually upload a replacement <code>players.js</code>.</p>
+        </div>
+        <span id="identityCentreStatus" class="phase-chip">Ready to scan</span>
+      </div>
+
+      <div class="read-only-banner identity-banner">
+        <strong>Conservative matching</strong>
+        <span>Statistics are never added together. Matching season records are deduplicated, while different seasons are placed under one footballer identity.</span>
+      </div>
+
+      <div class="summary-grid identity-summary-grid">
+        <div class="summary-card"><span>Players scanned</span><strong id="identityPlayersScanned">0</strong></div>
+        <div class="summary-card"><span>Safe merges</span><strong id="identitySafeCount">0</strong></div>
+        <div class="summary-card"><span>Needs review</span><strong id="identityReviewCount">0</strong></div>
+        <div class="summary-card"><span>Protected ambiguities</span><strong id="identityBlockedCount">0</strong></div>
+        <div class="summary-card"><span>Projected players</span><strong id="identityProjectedPlayers">0</strong></div>
+        <div class="summary-card"><span>Projected seasons</span><strong id="identityProjectedSeasons">0</strong></div>
+      </div>
+
+      <div class="button-row identity-actions">
+        <button id="runIdentityScanBtn" class="button primary" type="button">Scan for duplicate identities</button>
+        <button id="selectSafeIdentityBtn" class="button secondary" type="button" disabled>Select safe merges</button>
+        <button id="applyIdentityMergesBtn" class="button secondary" type="button" disabled>Build consolidated preview</button>
+        <button id="resetIdentityBtn" class="button secondary" type="button">Reset identity workspace</button>
+      </div>
+      <p id="identityActionStatus" class="action-status" role="status">Run the scan before importing older seasons.</p>
+
+      <div id="identityResultsPanel" class="identity-results hidden">
+        <div class="identity-toolbar">
+          <label>Show
+            <select id="identityConfidenceFilter">
+              <option value="all">All candidates</option>
+              <option value="safe">Safe merges</option>
+              <option value="review">Needs review</option>
+              <option value="blocked">Protected ambiguities</option>
+            </select>
+          </label>
+          <label>Search
+            <input id="identitySearchInput" type="search" placeholder="Player name, ID or club">
+          </label>
+          <span id="identityShownCount" class="phase-chip">0 candidates</span>
+        </div>
+        <div id="identityCandidateList" class="identity-candidate-list"></div>
+      </div>
+
+      <section id="identityRegressionPanel" class="identity-regression-panel hidden" aria-labelledby="identityRegressionHeading">
+        <div class="repair-regression-head">
+          <div>
+            <p class="eyebrow">Safety gate</p>
+            <h3 id="identityRegressionHeading">Identity regression checks</h3>
+            <p>These checks protect the prompt library, daily challenge, season totals and unique-player scoring.</p>
+          </div>
+          <button id="runIdentityChecksBtn" class="button secondary" type="button">Run checks again</button>
+        </div>
+        <div id="identityRegressionList" class="repair-regression-list"></div>
+      </section>
+
+      <div id="identityDownloadPanel" class="import-download-panel hidden">
+        <div>
+          <h3>Protected identity-consolidation package</h3>
+          <p id="identityDownloadExplanation">The package unlocks only after every blocking check passes.</p>
+        </div>
+        <button id="downloadIdentityPackBtn" class="button primary" type="button" disabled>Download review package</button>
+      </div>
+      <p id="identityDownloadStatus" class="action-status" role="status"></p>
+    </section>
+
+
   </main>
 
   <script src="players.js?v=6.2"></script>
@@ -774,5 +847,6 @@
   <script src="admin-phase8.js?v=8.0.0"></script>
   <script src="admin-phase9.js?v=9.0.0"></script>
   <script src="admin-phase10.js?v=10.0.0"></script>
+  <script src="admin-phase11.js?v=11.0.0"></script>
 </body>
 </html>
