@@ -501,7 +501,7 @@ window.FPL_V3_HELPERS = {
 </script>
 
 <!-- The large database stays separate to keep index.html manageable. -->
-<script src="players.js?v=6.2"></script>
+<script src="players.js?v=12.1.0"></script>
 
 <script>
 /* Core FPL Daily Challenge game engine. */
@@ -566,7 +566,7 @@ function render(){
         </select>
         <button class="confirm" data-confirm="${prompt.id}" ${record?"":"disabled"}>${saved?"Confirmed":"Confirm"}</button>
       </div>
-      ${record?`<div class="selected-meta">${esc(record.club)} · ${record.position} · £${record.startingPrice.toFixed(1)}m starting price</div>`:""}
+      ${record?`<div class="selected-meta">${esc(record.club)} · ${record.position} · ${Number.isFinite(record.startingPrice) ? `£${record.startingPrice.toFixed(1)}m starting price` : "Starting price unavailable"}</div>`:""}
       <div class="feedback ${fb.startsWith("✅")?"good":fb.startsWith("❌")?"bad":""}">${esc(fb)}</div>
       ${player?`<button class="clear" data-clear="${prompt.id}">Clear selection</button>`:""}
     </article>`;
@@ -637,7 +637,7 @@ function confirmPick(id){
 }
 function updateStatus(){
   const count=challenge.prompts.filter(p=>picks[p.id]).length;
-  document.getElementById("dbStatus").textContent=`${groupedPlayers.length.toLocaleString()} players · ${flatSeasons.length.toLocaleString()} player-seasons · 2016/17–2025/26`;
+  document.getElementById("dbStatus").textContent=`${groupedPlayers.length.toLocaleString()} players · ${flatSeasons.length.toLocaleString()} player-seasons · 2015/16–2025/26`;
   document.getElementById("progress").textContent=`${count} / ${challenge.prompts.length} valid`;
   document.getElementById("penalty").textContent=`Penalties −${penalties}`;
   document.getElementById("reveal").disabled=count!==challenge.prompts.length;
