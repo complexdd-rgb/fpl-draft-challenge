@@ -2,90 +2,90 @@
    Exact perfect score calculated with eleven unique footballers.
    Review before manually uploading to GitHub. */
 window.FPL_DAILY_CHALLENGE = {
-  id: "daily-008-the-generated-mix",
-  number: 8,
-  title: "Challenge #8 · The Generated Mix",
+  id: "daily-010-the-generated-mix",
+  number: 10,
+  title: "Challenge #10 · The Generated Mix",
   dateLabel: "Generated Mix · Mixed",
   difficulty: "Mixed",
   releaseDate: "2026-07-22",
-  perfectScore: 2150,
+  perfectScore: 2330,
   prompts: [
     {
-      id: "gk_final_45_100",
+      id: "gk_assist_80_points",
       position: "GK",
-      label: "Goalkeeper who finished at £4.5m or less with 100+ points",
-      fail: "That goalkeeper must finish at £4.5m or less and score at least 100 FPL points.",
-      test: p => p.finalPrice <= 4.5 && p.points >= 100
+      label: "Goalkeeper with an assist and at least 80 FPL points",
+      fail: "That goalkeeper season must include at least one assist and 80 FPL points.",
+      test: p => p.assists >= 1 && p.points >= 80
     },
     {
-      id: "def_promoted_80_points",
+      id: "def_10cs_under5",
       position: "DEF",
-      label: "Defender from a promoted club with at least 80 FPL points",
-      fail: "That defender must play for a promoted club and score at least 80 FPL points.",
-      test: p => p.promoted === true && p.points >= 80
+      label: "Defender with 10+ clean sheets who started below £5.0m",
+      fail: "That defender must start below £5.0m and record at least 10 clean sheets.",
+      test: p => p.startingPrice < 5 && p.cleanSheets >= 10
     },
     {
-      id: "def_yellow_8_100points",
+      id: "def_age_u23_2000",
       position: "DEF",
-      label: "Defender with eight or more yellow cards and at least 100 FPL points",
-      fail: "That defender season must include at least eight yellow cards and 100 FPL points.",
-      test: p => p.yellowCards >= 8 && p.points >= 100
+      label: "Defender aged 23 or under who played at least 2,000 minutes",
+      fail: "That defender must be aged 23 or under at the season start and play at least 2,000 minutes.",
+      test: p => Number.isFinite(p.ageAtSeasonStart) && p.ageAtSeasonStart <= 23 && p.minutes >= 2000
     },
     {
-      id: "def_assists_gt_goals_5",
+      id: "def_8_bonus_bottomhalf",
       position: "DEF",
-      label: "Defender with 5+ assists and more assists than goals",
-      fail: "That defender season must record at least five assists and more assists than goals.",
-      test: p => p.assists >= 5 && p.assists > p.goals
+      label: "Defender from a bottom-half club with at least eight bonus points",
+      fail: "That defender's club must finish in the bottom half and the season must include at least eight bonus points.",
+      test: p => p.bottomHalf === true && p.bonus >= 8
     },
     {
-      id: "def_relegated_5cs",
+      id: "def_non_big_six_10_cs",
       position: "DEF",
-      label: "Defender from a relegated club with at least five clean sheets",
-      fail: "That defender must play for a relegated club and record at least five clean sheets.",
-      test: p => p.relegated === true && p.cleanSheets >= 5
+      label: "Defender outside the traditional Big Six with at least 10 clean sheets",
+      fail: "That defender must play outside the traditional Big Six and record at least 10 clean sheets.",
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && p.cleanSheets >= 10
     },
     {
-      id: "mid_champion_10assists",
+      id: "mid_emery_100",
       position: "MID",
-      label: "Midfielder from the champions with at least 10 assists",
-      fail: "That midfielder must play for the champions and record at least 10 assists.",
-      test: p => p.champions === true && p.assists >= 10
+      label: "Midfielder managed by Unai Emery with at least 100 FPL points",
+      fail: "That midfielder season must be managed by Unai Emery and score at least 100 points.",
+      test: p => Array.isArray(p.managers) && p.managers.includes("Unai Emery") && p.points >= 100
     },
     {
-      id: "mid_13_17_8involvements",
+      id: "mid_surname_d_100",
       position: "MID",
-      label: "Midfielder from a club finishing 13th–17th with at least eight goal involvements",
-      fail: "That midfielder's club must finish 13th–17th and the player must record at least eight combined goals and assists.",
-      test: p => Number.isFinite(p.leaguePosition) && p.leaguePosition >= 13 && p.leaguePosition <= 17 && (p.goals + p.assists) >= 8
+      label: "Midfielder whose surname starts with D and scored 100+ points",
+      fail: "That midfielder’s surname must start with D and the season must score at least 100 points.",
+      test: p => { const __raw=String(p.name || p.playerName || "").trim(); const __norm=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"'").trim().toLowerCase(); const __tokens=__raw.split(/\s+/).filter(Boolean); const __particles=new Set(["al","ap","bin","bint","da","das","de","del","della","den","der","di","dos","du","el","la","le","van","von","y"]); let __start=Math.max(0,__tokens.length-1); while(__start>0 && __particles.has(__norm(__tokens[__start-1]))) __start--; const __first=__norm(__tokens[0]||""); const __surname=__norm(__tokens.slice(__start).join(" ")); const __letters=v=>__norm(v).replace(/[^a-z]/g,"").length; return (__surname.startsWith("d") && p.points >= 100); }
     },
     {
-      id: "mid_top4_15gi",
+      id: "mid_2500_minutes_under_5goals",
       position: "MID",
-      label: "Midfielder from a top-four club with 15+ goal involvements",
-      fail: "That midfielder’s club must finish in the top four and the season must include at least 15 goals plus assists.",
-      test: p => p.topFour === true && (p.goals + p.assists) >= 15
+      label: "Midfielder with 2,500+ minutes, fewer than five goals and at least five assists",
+      fail: "That midfielder must play at least 2,500 minutes, score fewer than five goals and record at least five assists.",
+      test: p => p.minutes >= 2500 && p.goals < 5 && p.assists >= 5
     },
     {
-      id: "mid_nuno_100",
+      id: "mid_age30_120",
       position: "MID",
-      label: "Midfielder managed by Nuno Espírito Santo with at least 100 FPL points",
-      fail: "That midfielder season must be managed by Nuno Espírito Santo and score at least 100 points.",
-      test: p => Array.isArray(p.managers) && p.managers.includes("Nuno Espírito Santo") && p.points >= 100
+      label: "Midfielder aged 30 or over with at least 120 FPL points",
+      fail: "That midfielder must be aged 30 or over at the season start and score at least 120 points.",
+      test: p => Number.isFinite(p.ageAtSeasonStart) && p.ageAtSeasonStart >= 30 && p.points >= 120
     },
     {
-      id: "fwd_final6_8goals",
+      id: "fwd_1500_10bonus",
       position: "FWD",
-      label: "Forward who finished at £6.0m or less and scored 8+ goals",
-      fail: "That forward must finish at £6.0m or less and score at least eight goals.",
-      test: p => p.finalPrice <= 6 && p.goals >= 8
+      label: "Forward with 1,500+ minutes and at least 10 bonus points",
+      fail: "That forward season must include at least 1,500 minutes and 10 bonus points.",
+      test: p => p.minutes >= 1500 && p.bonus >= 10
     },
     {
-      id: "fwd_9goals_zero_assists",
+      id: "fwd_nuno_7goals",
       position: "FWD",
-      label: "Forward with 9+ goals and no assists",
-      fail: "That forward season must include at least nine goals and no assists.",
-      test: p => p.goals >= 9 && p.assists === 0
+      label: "Forward managed by Nuno Espírito Santo with at least seven goals",
+      fail: "That forward season must be managed by Nuno Espírito Santo and include at least seven goals.",
+      test: p => Array.isArray(p.managers) && p.managers.includes("Nuno Espírito Santo") && p.goals >= 7
     }
   ]
 };
