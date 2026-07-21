@@ -1,0 +1,46 @@
+FPL CHALLENGE STUDIO — PHASE 6
+================================
+
+WHAT THIS UPDATE DOES
+---------------------
+Adds the Publishing Centre to the separate admin page. It does not edit or publish the live game automatically.
+
+UPLOAD THESE FILES TO THE MAIN/ROOT OF YOUR GITHUB REPOSITORY
+--------------------------------------------------------------
+Replace:
+- admin.html
+- admin.css
+- admin.js
+- admin-phase3.js
+- admin-phase5.js
+
+Add:
+- admin-phase6.js
+
+KEEP THESE LIVE-GAME FILES UNCHANGED
+------------------------------------
+- index.html
+- players.js
+- todays-challenge.js
+- prompt-library.js
+- visuals.css
+
+AFTER UPLOADING
+---------------
+1. Commit the files.
+2. Wait for GitHub Pages to finish deploying.
+3. Open admin.html.
+4. Press Ctrl + F5.
+5. The heading should say Challenge Studio · Phase 6.
+
+PHASE 6 WORKFLOW
+----------------
+1. Generate and review the challenge.
+2. Run the automatic Test Mode checks.
+3. Record the tested challenge in Challenge History.
+4. Scroll to Step 7 — Publishing Centre.
+5. Review the live-versus-prepared comparison and checklist.
+6. Download the publishing pack once it says Ready to upload.
+7. Extract the pack and upload only UPLOAD/todays-challenge.js to GitHub.
+
+The publishing pack also contains local backups of challenge history, the prompt library, and the live challenge file that was present before publishing.
