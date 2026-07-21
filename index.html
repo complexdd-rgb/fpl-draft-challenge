@@ -1,7 +1,7 @@
 <!doctype html>
 
 <html lang="en">
-<head><!-- Daily challenge content now lives in data/todays-challenge.js -->
+<head><!-- Daily challenge content loads from todays-challenge.js in the repository root. -->
 
 
 
@@ -153,9 +153,7 @@ body::before{
   transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
 }
 .slot:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22);z-index:2}
-/* Keep the open player search above every following prompt card. */
-.slot:focus-within,
-.slot:has(.suggestions:not(.hidden)){z-index:500}
+.slot:focus-within,.slot:has(.suggestions:not(.hidden)){z-index:500}
 .slot.valid{
   border-color:rgba(0,255,135,.62);
   box-shadow:0 0 0 1px rgba(0,255,135,.11),0 14px 30px rgba(0,0,0,.22);
@@ -295,6 +293,18 @@ body::before{
   .score-card{grid-template-columns:1fr 1fr}
   .pitch{min-height:535px}
 }
+
+.xi-comparison{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 16px}
+.xi-panel{min-width:0;padding:14px;border:1px solid rgba(255,255,255,.11);border-radius:20px;background:rgba(0,0,0,.14)}
+.xi-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.xi-panel-head h3{margin:0;font-size:1.08rem}.xi-panel-head p{margin:4px 0 0;color:var(--muted);font-size:.78rem;line-height:1.4}
+.xi-panel-badge{flex:0 0 auto;padding:6px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);font-size:.72rem;font-weight:900}
+.xi-panel.perfect-panel{border-color:rgba(4,217,255,.34);background:linear-gradient(150deg,rgba(4,217,255,.08),rgba(0,0,0,.14))}
+.perfect-pitch{border-color:rgba(95,229,255,.92);background:linear-gradient(180deg,#14566a,#0c3d4e)}
+.perfect-pitch .shirt-icon{background:linear-gradient(135deg,#04d9ff,#75f1ff);color:#05222a;box-shadow:0 0 20px rgba(4,217,255,.28)}
+.perfect-pitch .shirt.exact-match .shirt-icon,.user-pitch .shirt.exact-match .shirt-icon{outline:3px solid #ffd166;outline-offset:3px;box-shadow:0 0 24px rgba(255,209,102,.42)}
+.perfect-note{margin:8px 2px 0;color:#9fddea;font-size:.74rem;line-height:1.4}
+@media(max-width:850px){.xi-comparison{grid-template-columns:1fr}.xi-panel .pitch{min-height:535px}}
 @media(prefers-reduced-motion:reduce){
   *{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
@@ -317,8 +327,18 @@ body::before{
 <section class="grid" id="grid"></section>
 <div class="actions"><button class="btn secondary" id="reset">Reset team</button><button class="btn primary" disabled="" id="reveal">Reveal my XI</button></div>
 <section class="results hidden" id="results">
-<h2>Your historical XI</h2>
-<div id="pitch"></div>
+<h2>Your historical XI compared with the perfect XI</h2>
+<div class="xi-comparison">
+  <section class="xi-panel">
+    <div class="xi-panel-head"><div><h3>Your selected XI</h3><p>Your confirmed player-seasons.</p></div><span class="xi-panel-badge">White shirts</span></div>
+    <div id="pitch"></div>
+  </section>
+  <section class="xi-panel perfect-panel">
+    <div class="xi-panel-head"><div><h3>Perfect unique-player XI</h3><p>The highest-scoring valid XI without reusing a footballer.</p></div><span class="xi-panel-badge">Blue shirts</span></div>
+    <div id="perfectPitch"></div>
+    <p class="perfect-note" id="perfectXiNote"></p>
+  </section>
+</div>
 <div class="score-card">
 <div><span>Player points</span><strong id="playerPoints">0</strong></div>
 <div><span>Penalties</span><strong id="penaltyPoints">0</strong></div>
@@ -341,10 +361,14 @@ body::before{
 
 
 
-<!-- Challenge #6 is embedded here so it cannot fail to load separately. -->
+<!-- Load the editable daily challenge first. The timestamp prevents an old cached challenge being reused. -->
 <script>
-/* Edit this file to publish the daily challenge. */
-window.FPL_DAILY_CHALLENGE = {
+document.write('<script src="todays-challenge.js?v=' + Date.now() + '"><\/script>');
+</script>
+
+<!-- Safe fallback: used only if todays-challenge.js is missing or fails to load. -->
+<script>
+window.FPL_DAILY_CHALLENGE = window.FPL_DAILY_CHALLENGE || {
   id: "daily-006-underdog-xi",
   number: 6,
   title: "Daily Challenge #6 · The Underdog XI",
@@ -619,14 +643,34 @@ function updateStatus(){
   document.getElementById("reveal").disabled=count!==challenge.prompts.length;
 }
 function topFive(prompt){return flatSeasons.filter(p=>p.position===prompt.position&&prompt.test(p)).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,5);}
-function shirt(row){return `<div class="shirt"><div class="shirt-icon">${row.position}</div><strong>${esc(row.name)}</strong><span>${row.season} · ${row.points} pts</span></div>`;}
+function shirt(row,perfectMode=false){return `<div class="shirt ${row.exactMatch?"exact-match":""}"><div class="shirt-icon">${row.position}</div><strong>${esc(row.name)}</strong><span>${row.season} · ${row.points} pts</span></div>`;}
+function pitchMarkup(rows,perfectMode=false){const by=pos=>rows.filter(r=>r.position===pos);return `<div class="pitch ${perfectMode?"perfect-pitch":"user-pitch"}"><div class="line">${by("FWD").map(r=>shirt(r,perfectMode)).join("")}</div><div class="line">${by("MID").map(r=>shirt(r,perfectMode)).join("")}</div><div class="line">${by("DEF").map(r=>shirt(r,perfectMode)).join("")}</div><div class="line">${by("GK").map(r=>shirt(r,perfectMode)).join("")}</div></div>`;}
+function calculatePerfectXI(){
+  const bestBySlot=challenge.prompts.map(prompt=>{const map=new Map();for(const record of flatSeasons){if(record.position!==prompt.position)continue;let valid=false;try{valid=prompt.test(record);}catch{}if(!valid)continue;const current=map.get(record.playerId);if(!current||record.points>current.points)map.set(record.playerId,record);}return map;});
+  const playerIds=[...new Set(bestBySlot.flatMap(map=>[...map.keys()]))];if(playerIds.length<challenge.prompts.length)return null;
+  const maximum=Math.max(0,...bestBySlot.flatMap(map=>[...map.values()].map(record=>record.points)));const forbidden=1000000;
+  const costs=bestBySlot.map(map=>playerIds.map(id=>map.has(id)?maximum-map.get(id).points:forbidden));const assignment=hungarianAssignment(costs);if(!assignment)return null;
+  const rows=assignment.map((column,index)=>bestBySlot[index].get(playerIds[column])||null);if(rows.some(row=>!row))return null;return {rows,score:rows.reduce((sum,row)=>sum+row.points,0)};
+}
+function hungarianAssignment(costs){const n=costs.length,m=costs[0]?.length||0;if(!n||m<n)return null;const u=new Float64Array(n+1),v=new Float64Array(m+1),p=new Int32Array(m+1),way=new Int32Array(m+1);for(let i=1;i<=n;i++){p[0]=i;let j0=0;const minv=new Float64Array(m+1);minv.fill(Infinity);const used=new Uint8Array(m+1);do{used[j0]=1;const i0=p[j0];let delta=Infinity,j1=0;for(let j=1;j<=m;j++)if(!used[j]){const cur=costs[i0-1][j-1]-u[i0]-v[j];if(cur<minv[j]){minv[j]=cur;way[j]=j0;}if(minv[j]<delta){delta=minv[j];j1=j;}}if(!Number.isFinite(delta))return null;for(let j=0;j<=m;j++){if(used[j]){u[p[j]]+=delta;v[j]-=delta;}else minv[j]-=delta;}j0=j1;}while(p[j0]!==0);do{const j1=way[j0];p[j0]=p[j1];j0=j1;}while(j0!==0);}const answer=new Int32Array(n);answer.fill(-1);for(let j=1;j<=m;j++)if(p[j])answer[p[j]-1]=j-1;return [...answer];}
 function reveal(){
   const rows=challenge.prompts.map(p=>getRecord(picks[p.id].playerId,picks[p.id].season));
   completedSeconds=Math.floor((Date.now()-startedAt)/1000);clearInterval(timerId);
   const points=rows.reduce((a,b)=>a+b.points,0),score=points-penalties,eff=score/challenge.perfectScore*100;
   const grade=eff>=100?"Perfect":eff>=95?"A+":eff>=90?"A":eff>=82?"B":eff>=72?"C":"D";
-  const by=pos=>rows.filter(r=>r.position===pos);
-  document.getElementById("pitch").innerHTML=`<div class="pitch"><div class="line">${by("FWD").map(shirt).join("")}</div><div class="line">${by("MID").map(shirt).join("")}</div><div class="line">${by("DEF").map(shirt).join("")}</div><div class="line">${by("GK").map(shirt).join("")}</div></div>`;
+  const perfect=calculatePerfectXI();
+  if(perfect){
+    const comparedUser=rows.map((row,index)=>({...row,exactMatch:perfect.rows[index].playerId===row.playerId&&perfect.rows[index].season===row.season}));
+    const comparedPerfect=perfect.rows.map((row,index)=>({...row,exactMatch:rows[index].playerId===row.playerId&&rows[index].season===row.season}));
+    document.getElementById("pitch").innerHTML=pitchMarkup(comparedUser,false);
+    document.getElementById("perfectPitch").innerHTML=pitchMarkup(comparedPerfect,true);
+    const matches=comparedUser.filter(row=>row.exactMatch).length;
+    document.getElementById("perfectXiNote").textContent=`${matches} of your 11 selections exactly match the perfect XI. Calculated total: ${perfect.score.toLocaleString()} points.`;
+  }else{
+    document.getElementById("pitch").innerHTML=pitchMarkup(rows,false);
+    document.getElementById("perfectPitch").innerHTML='<p class="feedback bad">The perfect unique-player XI could not be calculated.</p>';
+    document.getElementById("perfectXiNote").textContent='';
+  }
   document.getElementById("playerPoints").textContent=points;document.getElementById("penaltyPoints").textContent=penalties?`−${penalties}`:"0";document.getElementById("finalScore").textContent=score;document.getElementById("perfectScore").textContent=challenge.perfectScore;document.getElementById("efficiency").textContent=`${eff.toFixed(1)}%`;document.getElementById("grade").textContent=grade;document.getElementById("timeTaken").textContent=formatTime(completedSeconds);
   const best=Math.max(Number(localStorage.getItem(BEST)||0),score);localStorage.setItem(BEST,best);document.getElementById("bestScore").textContent=best;
   document.getElementById("reviews").innerHTML=challenge.prompts.map((p,i)=>`<details class="review"><summary>${i+1}. ${p.position} · ${esc(p.label)}</summary><ol>${topFive(p).map(r=>`<li><strong>${esc(r.name)}</strong> — ${r.season} — ${r.points} pts <small>${esc(r.club)}</small></li>`).join("")}</ol></details>`).join("");
