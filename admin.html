@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 14</title>
-  <link rel="stylesheet" href="admin.css?v=14.0.0">
+  <title>FPL Challenge Studio · Phase 15</title>
+  <link rel="stylesheet" href="admin.css?v=15.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 14</p>
+        <p class="eyebrow">Challenge Studio · Phase 15</p>
         <h1>Build, test, analyse, publish, repair and expand the historical database safely</h1>
-        <p class="hero-copy">Generate and review the XI, test it safely, analyse prompt quality, manage the library, publish checked files, repair the database and import verified historical seasons without touching the live game.</p>
+        <p class="hero-copy">Generate and review the XI, create relational anti-meta prompts, analyse prompt quality, manage the library, publish checked files, repair the database and import verified historical seasons without touching the live game.</p>
       </div>
       <a class="back-link" href="./">Open live game</a>
     </header>
@@ -319,12 +319,33 @@
           <label>Default cooldown
             <input id="factoryCooldown" type="number" min="0" max="50" value="10">
           </label>
+          <label>Relationship rules
+            <select id="factoryRelationshipMode">
+              <option value="mix" selected>Mix in teammate prompts</option>
+              <option value="none">Standard rules only</option>
+              <option value="only">Teammate prompts only</option>
+            </select>
+            <small>“Teammate” means both players had minutes for the same club in the same FPL season.</small>
+          </label>
+          <label>Obvious-answer exclusions
+            <select id="factoryExclusionMode">
+              <option value="mix" selected>Mix in top-answer exclusions</option>
+              <option value="none">Do not exclude answers</option>
+              <option value="top1">Exclude the highest-scoring valid player</option>
+              <option value="top2">Exclude the two highest-scoring valid players</option>
+            </select>
+            <small>Excluded players are named openly in the prompt wording.</small>
+          </label>
         </div>
 
         <div class="prompt-factory-options">
           <label class="check-label"><input id="factoryIncludeNameRules" type="checkbox" checked> Include first-name and surname rules</label>
           <label class="check-label"><input id="factoryAvoidSimilarPools" type="checkbox" checked> Reject prompts with nearly identical answer pools</label>
           <label class="check-label"><input id="factoryEnablePrompts" type="checkbox"> Enable immediately after adding</label>
+        </div>
+        <div class="factory-rule-note">
+          <strong>New in Phase 15</strong>
+          <span>Relationship prompts are based on shared club-seasons, while anti-obvious prompts explicitly remove the prompt’s highest FPL-scoring valid answer or top two.</span>
         </div>
 
         <div class="button-row prompt-factory-actions">
@@ -1061,7 +1082,7 @@
   <script src="admin-phase11.js?v=11.0.0"></script>
   <script src="fpl-history-2015-16.js?v=12.0.0"></script>
   <script src="admin-phase12.js?v=12.1.0"></script>
-  <script src="admin-phase13.js?v=13.0.0"></script>
+  <script src="admin-phase15.js?v=15.0.0"></script>
   <script src="admin-phase14.js?v=14.0.0"></script>
 </body>
 </html>

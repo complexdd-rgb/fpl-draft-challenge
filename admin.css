@@ -1300,3 +1300,22 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
 @media(max-width:1100px){.prompt-quality-summary{grid-template-columns:repeat(4,minmax(0,1fr))}.prompt-quality-filters{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.prompt-quality-head{display:block}.prompt-quality-head .phase-chip{display:inline-flex;margin-top:12px}.quality-run-row{grid-template-columns:1fr}.prompt-quality-summary{grid-template-columns:1fr 1fr}.prompt-quality-filters{grid-template-columns:1fr 1fr}.quality-card-head{align-items:flex-start}.quality-detail-grid{grid-template-columns:1fr}.quality-component-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.prompt-quality-analyser{padding:15px}.prompt-quality-filters{grid-template-columns:1fr}.quality-score{min-width:82px}.quality-score strong{font-size:1.4rem}}
+
+/* Phase 15 — relational and anti-obvious prompt rules */
+.factory-rule-note{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  margin:12px 0 4px;
+  padding:12px 14px;
+  border:1px solid rgba(0,255,135,.22);
+  border-radius:13px;
+  background:rgba(0,255,135,.055);
+  color:#cfe8d8;
+  font-size:.8rem;
+  line-height:1.5;
+}
+.factory-rule-note strong{flex:0 0 auto;color:#79ffb4}
+.factory-prompt-meta .relation{color:#8fe7ff;border-color:rgba(4,217,255,.28);background:rgba(4,217,255,.06)}
+.factory-prompt-meta .exclude{color:#ffd58d;border-color:rgba(255,209,102,.28);background:rgba(255,209,102,.06)}
+@media(max-width:620px){.factory-rule-note{display:block}.factory-rule-note strong{display:block;margin-bottom:4px}}
