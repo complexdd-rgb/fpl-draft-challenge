@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 13</title>
-  <link rel="stylesheet" href="admin.css?v=13.0.0">
+  <title>FPL Challenge Studio · Phase 14</title>
+  <link rel="stylesheet" href="admin.css?v=14.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 13</p>
-        <h1>Build, test, publish, repair and expand the historical database safely</h1>
-        <p class="hero-copy">Generate and review the XI, test it safely, manage prompts, publish checked files, repair the database and import one verified historical season at a time without touching the live game.</p>
+        <p class="eyebrow">Challenge Studio · Phase 14</p>
+        <h1>Build, test, analyse, publish, repair and expand the historical database safely</h1>
+        <p class="hero-copy">Generate and review the XI, test it safely, analyse prompt quality, manage the library, publish checked files, repair the database and import verified historical seasons without touching the live game.</p>
       </div>
       <a class="back-link" href="./">Open live game</a>
     </header>
@@ -337,6 +337,77 @@
 
         <div id="promptFactorySummary" class="prompt-factory-summary hidden"></div>
         <div id="promptFactoryPreview" class="prompt-factory-preview hidden"></div>
+      </section>
+
+      <section id="promptQualityAnalyser" class="prompt-quality-analyser" aria-labelledby="promptQualityTitle">
+        <div class="prompt-quality-head">
+          <div>
+            <p class="eyebrow">Phase 14 quality control</p>
+            <h3 id="promptQualityTitle">Prompt Quality Analyser</h3>
+            <p>Scores every prompt for answer breadth, season and club variety, obvious answers, Big Six reliance, overlap, difficulty accuracy and rule health.</p>
+          </div>
+          <span class="phase-chip">Read-only until approved</span>
+        </div>
+
+        <div class="quality-run-row">
+          <label>Analysis scope
+            <select id="qualityScope">
+              <option value="all" selected>All prompts</option>
+              <option value="enabled">Enabled prompts only</option>
+            </select>
+          </label>
+          <div class="button-row compact-row">
+            <button id="runPromptQualityBtn" class="button primary" type="button">Run full quality analysis</button>
+            <button id="cancelPromptQualityBtn" class="button secondary" type="button" disabled>Cancel analysis</button>
+          </div>
+        </div>
+        <p id="promptQualityStatus" class="action-status" role="status">The analyser is loading.</p>
+        <div id="qualityProgressWrap" class="quality-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div><span id="qualityProgressBar"></span></div>
+          <p id="qualityProgressText">Waiting…</p>
+        </div>
+
+        <div id="promptQualitySummary" class="prompt-quality-summary hidden"></div>
+
+        <div id="promptQualityFilters" class="prompt-quality-filters hidden">
+          <label>Search<input id="qualitySearch" type="search" placeholder="Prompt, ID or issue"></label>
+          <label>Position<select id="qualityPosition"><option value="all">All positions</option><option>GK</option><option>DEF</option><option>MID</option><option>FWD</option></select></label>
+          <label>Quality<select id="qualityBand"><option value="all">All quality bands</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="review">Needs review</option><option value="poor">Poor</option><option value="broken">Broken</option></select></label>
+          <label>Issue<select id="qualityIssue">
+            <option value="all">All issues</option>
+            <option value="broken-rule">Broken rule</option>
+            <option value="no-answers">No answers</option>
+            <option value="too-narrow">Too narrow</option>
+            <option value="too-broad">Too broad</option>
+            <option value="high-overlap">High overlap</option>
+            <option value="similar-wording">Similar wording</option>
+            <option value="too-obvious">Obvious leader</option>
+            <option value="repeated-leader">Repeated leader</option>
+            <option value="club-dominated">Club dominated</option>
+            <option value="big-six-heavy">Big Six heavy</option>
+            <option value="low-season-spread">Low season spread</option>
+            <option value="difficulty-mismatch">Difficulty mismatch</option>
+          </select></label>
+          <label>Sort<select id="qualitySort">
+            <option value="score-asc" selected>Lowest score first</option>
+            <option value="score-desc">Highest score first</option>
+            <option value="quality">Quality band</option>
+            <option value="players-asc">Fewest answers</option>
+            <option value="players-desc">Most answers</option>
+            <option value="overlap-desc">Highest overlap</option>
+            <option value="position">Position and name</option>
+          </select></label>
+        </div>
+
+        <div class="button-row quality-actions">
+          <button id="applyQualityRatingsBtn" class="button secondary" type="button" disabled>Apply suggested ratings</button>
+          <button id="disablePoorPromptsBtn" class="button danger-button" type="button" disabled>Disable poor prompts</button>
+          <button id="downloadQualityJsonBtn" class="button secondary" type="button" disabled>Download JSON report</button>
+          <button id="downloadQualityCsvBtn" class="button secondary" type="button" disabled>Download CSV report</button>
+        </div>
+        <p class="quality-safety-note">Suggested changes stay in the browser workspace. They only become permanent after downloading and uploading a new <code>prompt-library.js</code>.</p>
+        <strong id="promptQualityListSummary" class="quality-list-summary"></strong>
+        <div id="promptQualityList" class="prompt-quality-list"></div>
       </section>
 
       <section id="promptEditor" class="prompt-editor hidden" aria-labelledby="promptEditorTitle">
@@ -991,5 +1062,6 @@
   <script src="fpl-history-2015-16.js?v=12.0.0"></script>
   <script src="admin-phase12.js?v=12.1.0"></script>
   <script src="admin-phase13.js?v=13.0.0"></script>
+  <script src="admin-phase14.js?v=14.0.0"></script>
 </body>
 </html>
