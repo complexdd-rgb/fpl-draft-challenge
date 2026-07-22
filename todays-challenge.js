@@ -2,90 +2,112 @@
    Exact perfect score calculated with eleven unique footballers.
    Review before manually uploading to GitHub. */
 window.FPL_DAILY_CHALLENGE = {
-  id: "daily-012-the-generated-mix",
-  number: 12,
-  title: "Challenge #12 · The Generated Mix",
-  dateLabel: "Generated Mix · Medium / Hard",
-  difficulty: "Medium / Hard",
-  releaseDate: "2026-07-23",
-  perfectScore: 2063,
+  id: "daily-013-the-generated-mix",
+  number: 13,
+  title: "Challenge #13 · The Generated Mix",
+  dateLabel: "Generated Mix · Mixed",
+  difficulty: "Mixed",
+  releaseDate: "2026-07-24",
+  perfectScore: 2132,
   prompts: [
     {
-      id: "gk_surname_son",
+      id: "auto_gk_league_13_17_1800",
       position: "GK",
-      label: "Goalkeeper whose surname ends in “son”",
-      fail: "That goalkeeper’s surname must end in “son”.",
-      test: p => { const __raw=String(p.name || p.playerName || "").trim(); const __norm=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"'").trim().toLowerCase(); const __tokens=__raw.split(/\s+/).filter(Boolean); const __particles=new Set(["al","ap","bin","bint","da","das","de","del","della","den","der","di","dos","du","el","la","le","van","von","y"]); let __start=Math.max(0,__tokens.length-1); while(__start>0 && __particles.has(__norm(__tokens[__start-1]))) __start--; const __first=__norm(__tokens[0]||""); const __surname=__norm(__tokens.slice(__start).join(" ")); const __letters=v=>__norm(v).replace(/[^a-z]/g,"").length; return (__surname.endsWith("son")); }
+      label: "Goalkeeper from a club finishing 13th–17th who played at least 1,800 minutes",
+      fail: "That goalkeeper's club must finish 13th–17th and the season must include at least 1,800 minutes.",
+      test: p => ((Number.isFinite(p.leaguePosition) && p.leaguePosition >= 13 && p.leaguePosition <= 17) && (Number.isFinite(p.minutes) && p.minutes >= 1800))
     },
     {
-      id: "def_top4_5assists",
+      id: "auto_def_teammate_aaron_wan_bissaka_excluding_patrick_van_aanholt",
       position: "DEF",
-      label: "Defender from a top-four club with at least five assists",
-      fail: "That defender’s club must finish in the top four and the season must include at least five assists.",
-      test: p => p.topFour === true && p.assists >= 5
+      label: "Defender who shared a Premier League club-season with Aaron Wan-Bissaka — excluding Patrick van Aanholt",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Aaron Wan-Bissaka. Excluding Patrick van Aanholt.",
+      test: p => ((p => (p.playerId !== "aaron-wan-bissaka" && Number(p.minutes) > 0 && ["2017/18|Crystal Palace","2018/19|Crystal Palace","2019/20|Man Utd","2020/21|Man Utd","2021/22|Man Utd","2022/23|Man Utd","2023/24|Man Utd","2024/25|West Ham","2025/26|West Ham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["patrick-van-aanholt"].includes(p.playerId))
     },
     {
-      id: "def_surname_10letters_2000",
+      id: "auto_def_bottom_assists_5",
       position: "DEF",
-      label: "Defender with a surname of 10+ letters who played 2,000+ minutes",
-      fail: "That defender’s surname must contain at least 10 letters and the season must include 2,000 minutes.",
-      test: p => { const __raw=String(p.name || p.playerName || "").trim(); const __norm=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"'").trim().toLowerCase(); const __tokens=__raw.split(/\s+/).filter(Boolean); const __particles=new Set(["al","ap","bin","bint","da","das","de","del","della","den","der","di","dos","du","el","la","le","van","von","y"]); let __start=Math.max(0,__tokens.length-1); while(__start>0 && __particles.has(__norm(__tokens[__start-1]))) __start--; const __first=__norm(__tokens[0]||""); const __surname=__norm(__tokens.slice(__start).join(" ")); const __letters=v=>__norm(v).replace(/[^a-z]/g,"").length; return (__letters(__surname) >= 10 && p.minutes >= 2000); }
+      label: "Defender from a bottom-half club with 5+ assists",
+      fail: "That defender must play for a bottom-half club and record at least 5 assists.",
+      test: p => ((p.bottomHalf === true) && (Number.isFinite(p.assists) && p.assists >= 5))
     },
     {
-      id: "def_final_45_2700",
+      id: "auto_def_nuno_espirito_santo_minutes_1000",
       position: "DEF",
-      label: "Defender who finished at £4.5m or less and played 2,700+ minutes",
-      fail: "That defender must finish at £4.5m or less and play at least 2,700 minutes.",
-      test: p => p.finalPrice <= 4.5 && p.minutes >= 2700
+      label: "Defender managed by Nuno Espírito Santo who played 1,000+ minutes",
+      fail: "That defender season must have been managed by Nuno Espírito Santo and include at least 1,000 minutes.",
+      test: p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Nuno Espírito Santo".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1000))
     },
     {
-      id: "def_sean_dyche_2500",
+      id: "auto_def_clean_12_price_4_5",
       position: "DEF",
-      label: "Defender managed by Sean Dyche who played at least 2,500 minutes",
-      fail: "That defender season must be managed by Sean Dyche and include at least 2,500 minutes.",
-      test: p => Array.isArray(p.managers) && p.managers.includes("Sean Dyche") && p.minutes >= 2500
+      label: "Defender with 12+ clean sheets who started at £4.5m or less",
+      fail: "That defender must record at least 12 clean sheets and start at £4.5m or less.",
+      test: p => ((Number.isFinite(p.cleanSheets) && p.cleanSheets >= 12) && (Number.isFinite(p.startingPrice) && p.startingPrice <= 4.5))
     },
     {
-      id: "mid_bottomhalf_10_goals",
+      id: "auto_mid_hyphenated_minutes",
       position: "MID",
-      label: "Midfielder from a bottom-half club with at least 10 goals",
-      fail: "That midfielder's club must finish in the bottom half and the player must score at least 10 goals.",
-      test: p => p.bottomHalf === true && p.goals >= 10
+      label: "Midfielder with a hyphenated surname who played 500+ minutes",
+      fail: "That midfielder must have a hyphenated surname and play at least 500 minutes.",
+      test: p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return ((__surname.includes("-")) && (Number.isFinite(p.minutes) && p.minutes >= 500));
+    }
     },
     {
-      id: "mid_non_big_six_10assists",
+      id: "auto_mid_age_28_31_2000",
       position: "MID",
-      label: "Midfielder outside the traditional Big Six with at least 10 assists",
-      fail: "That midfielder must play outside the traditional Big Six and record at least 10 assists.",
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && p.assists >= 10
+      label: "Midfielder aged 28–31 who played at least 2,000 minutes",
+      fail: "That midfielder must be aged 28–31 at the season start and play at least 2,000 minutes.",
+      test: p => ((Number.isFinite(p.ageAtSeasonStart) && p.ageAtSeasonStart >= 28 && p.ageAtSeasonStart <= 31) && (Number.isFinite(p.minutes) && p.minutes >= 2000))
     },
     {
-      id: "mid_age_u21_80",
+      id: "auto_mid_teammate_joshua_king_excluding_ryan_fraser_david_brooks",
       position: "MID",
-      label: "Midfielder aged 20 or under with at least 80 FPL points",
-      fail: "That midfielder must be aged 20 or under at the season start and score at least 80 points.",
-      test: p => Number.isFinite(p.ageAtSeasonStart) && p.ageAtSeasonStart <= 20 && p.points >= 80
+      label: "Midfielder who shared a Premier League club-season with Joshua King — excluding Ryan Fraser and David Brooks",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Joshua King. Excluding Ryan Fraser and David Brooks.",
+      test: p => ((p => (p.playerId !== "joshua-king" && Number(p.minutes) > 0 && ["2015/16|Bournemouth","2016/17|Bournemouth","2017/18|Bournemouth","2018/19|Bournemouth","2019/20|Bournemouth","2020/21|Everton","2021/22|Watford"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["ryan-fraser","david-brooks"].includes(p.playerId))
     },
     {
-      id: "mid_moyes_100points",
+      id: "auto_mid_goals_12_assists_3",
       position: "MID",
-      label: "Midfielder managed by David Moyes with at least 100 FPL points",
-      fail: "That midfielder season must be managed by David Moyes and score at least 100 FPL points.",
-      test: p => Array.isArray(p.managers) && p.managers.includes("David Moyes") && p.points >= 100
+      label: "Midfielder with 12+ goals and 3+ assists",
+      fail: "That midfielder season must include at least 12 goals and 3 assists.",
+      test: p => ((Number.isFinite(p.goals) && p.goals >= 12) && (Number.isFinite(p.assists) && p.assists >= 3))
     },
     {
-      id: "fwd_survival_8goals",
+      id: "auto_fwd_league_7_12_2000",
       position: "FWD",
-      label: "Forward from a club finishing 13th–17th with at least eight goals",
-      fail: "That forward’s club must finish 13th–17th and the player must score at least eight goals.",
-      test: p => Number.isFinite(p.leaguePosition) && p.leaguePosition >= 13 && p.leaguePosition <= 17 && p.goals >= 8
+      label: "Forward from a club finishing 7th–12th who played at least 2,000 minutes",
+      fail: "That forward's club must finish 7th–12th and the season must include at least 2,000 minutes.",
+      test: p => ((Number.isFinite(p.leaguePosition) && p.leaguePosition >= 7 && p.leaguePosition <= 12) && (Number.isFinite(p.minutes) && p.minutes >= 2000))
     },
     {
-      id: "fwd_start6_8goals",
+      id: "auto_fwd_minutes_2000_goals_10",
       position: "FWD",
-      label: "Forward who started at £6.0m or less and scored 8+ goals",
-      fail: "That forward must start at £6.0m or less and score at least eight goals.",
-      test: p => p.startingPrice <= 6 && p.goals >= 8
+      label: "Forward who played at most 2,000 minutes and scored 10+ goals",
+      fail: "That forward must play no more than 2,000 minutes and score at least 10 goals.",
+      test: p => ((Number.isFinite(p.minutes) && p.minutes <= 2000) && (Number.isFinite(p.goals) && p.goals >= 10))
     }
   ]
 };
