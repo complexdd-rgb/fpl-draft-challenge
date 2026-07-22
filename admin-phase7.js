@@ -1,4 +1,10 @@
-/* FPL Challenge Studio Phase 7 — read-only player database auditor. */
+/* FPL Challenge Studio Phase 7 — player database auditor, reviewed 2026-07-22.
+   Updates:
+   - Age 15 is valid without a warning.
+   - Verified age exceptions can use season.ageVerified = true.
+   - Verified mononyms can use player.mononymVerified = true.
+   - Same-name players with unique identityDisambiguator values are treated as separate people.
+*/
 (() => {
   "use strict";
 
@@ -8,16 +14,7 @@
   const PERFORMANCE_FIELDS = ["goals", "assists", "cleanSheets", "bonus", "saves", "goalsConceded"];
   const NUMERIC_FIELDS = ["points", "minutes", "goals", "assists", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice"];
   const SURNAME_PARTICLES = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
-
-  const state = {
-    running: false,
-    groups: [],
-    rows: [],
-    filteredGroups: [],
-    page: 1,
-    report: null
-  };
-
+  const state = { running: false, groups: [], rows: [], filteredGroups: [], page: 1, report: null };
   const elements = {};
 
   window.addEventListener("load", initialise, { once: true });
@@ -30,32 +27,28 @@
       "auditProgressBar", "auditActionStatus", "auditReadinessPanel", "auditReadinessHeading", "auditReadinessCopy",
       "auditPriorityList", "auditCategorySummary", "auditSearch", "auditSeverityFilter", "auditCategoryFilter",
       "auditListSummary", "auditPreviousPageBtn", "auditNextPageBtn", "auditPageLabel", "auditIssueList"
-    ].forEach(id => elements[id] = document.getElementById(id));
+    ].forEach(id => { elements[id] = document.getElementById(id); });
 
     if (!elements.runDatabaseAuditBtn) return;
 
     elements.runDatabaseAuditBtn.addEventListener("click", runAudit);
-    elements.downloadAuditJsonBtn.addEventListener("click", downloadJsonReport);
-    elements.downloadAuditCsvBtn.addEventListener("click", downloadCsvReport);
-    elements.copyAuditSummaryBtn.addEventListener("click", copySummary);
-    elements.auditSearch.addEventListener("input", applyFilters);
-    elements.auditSeverityFilter.addEventListener("change", applyFilters);
-    elements.auditCategoryFilter.addEventListener("change", applyFilters);
-    elements.auditPreviousPageBtn.addEventListener("click", () => changePage(-1));
-    elements.auditNextPageBtn.addEventListener("click", () => changePage(1));
+    elements.downloadAuditJsonBtn?.addEventListener("click", downloadJsonReport);
+    elements.downloadAuditCsvBtn?.addEventListener("click", downloadCsvReport);
+    elements.copyAuditSummaryBtn?.addEventListener("click", copySummary);
+    elements.auditSearch?.addEventListener("input", applyFilters);
+    elements.auditSeverityFilter?.addEventListener("change", applyFilters);
+    elements.auditCategoryFilter?.addEventListener("change", applyFilters);
+    elements.auditPreviousPageBtn?.addEventListener("click", () => changePage(-1));
+    elements.auditNextPageBtn?.addEventListener("click", () => changePage(1));
 
     const seasonCount = players.reduce((total, player) => total + (Array.isArray(player.seasons) ? player.seasons.length : 0), 0);
-    window.FPL_DATABASE_AUDITOR = {
-      getReport: () => state.report,
-      run: runAudit
-    };
-
-    elements.auditPlayerCount.textContent = players.length.toLocaleString();
-    elements.auditSeasonCount.textContent = seasonCount.toLocaleString();
+    window.FPL_DATABASE_AUDITOR = { getReport: () => state.report, run: runAudit };
+    setText("auditPlayerCount", players.length.toLocaleString());
+    setText("auditSeasonCount", seasonCount.toLocaleString());
 
     if (!players.length) {
       setTopStatus("Database unavailable", "blocked");
-      elements.auditActionStatus.textContent = "players.js did not load, so the database cannot be audited.";
+      setText("auditActionStatus", "players.js did not load, so the database cannot be audited.");
       elements.runDatabaseAuditBtn.disabled = true;
       return;
     }
@@ -77,14 +70,14 @@
     setTopStatus("Auditing…", "pending");
     elements.runDatabaseAuditBtn.disabled = true;
     elements.runDatabaseAuditBtn.textContent = "Auditing database…";
-    elements.downloadAuditJsonBtn.disabled = true;
-    elements.downloadAuditCsvBtn.disabled = true;
-    elements.copyAuditSummaryBtn.disabled = true;
-    elements.auditProgressWrap.classList.remove("hidden");
-    elements.auditReadinessPanel.classList.add("hidden");
-    elements.auditCategorySummary.innerHTML = "";
-    elements.auditIssueList.innerHTML = "";
-    elements.auditActionStatus.textContent = "Scanning identities, player-seasons, statistics and metadata…";
+    setDisabled("downloadAuditJsonBtn", true);
+    setDisabled("downloadAuditCsvBtn", true);
+    setDisabled("copyAuditSummaryBtn", true);
+    elements.auditProgressWrap?.classList.remove("hidden");
+    elements.auditReadinessPanel?.classList.add("hidden");
+    if (elements.auditCategorySummary) elements.auditCategorySummary.innerHTML = "";
+    if (elements.auditIssueList) elements.auditIssueList.innerHTML = "";
+    setText("auditActionStatus", "Scanning identities, player-seasons, statistics and metadata…");
 
     const groupMap = new Map();
     const idMap = new Map();
@@ -95,14 +88,13 @@
 
     for (const player of players) {
       for (const season of Array.isArray(player.seasons) ? player.seasons : []) {
-        latestSeasonYear = Math.max(latestSeasonYear, parseSeasonStartYear(season.season) || 0);
+        latestSeasonYear = Math.max(latestSeasonYear, parseSeasonStartYear(season?.season) || 0);
       }
     }
 
     const addFinding = (definition, occurrence = {}) => {
-      const key = definition.code;
-      if (!groupMap.has(key)) {
-        groupMap.set(key, {
+      if (!groupMap.has(definition.code)) {
+        groupMap.set(definition.code, {
           code: definition.code,
           severity: definition.severity,
           category: definition.category,
@@ -113,7 +105,7 @@
           samples: []
         });
       }
-      const group = groupMap.get(key);
+      const group = groupMap.get(definition.code);
       group.count += 1;
       const row = {
         severity: definition.severity,
@@ -150,12 +142,18 @@
       const normalisedName = normaliseName(playerName);
       if (normalisedName) {
         if (!normalisedNameMap.has(normalisedName)) normalisedNameMap.set(normalisedName, []);
-        normalisedNameMap.get(normalisedName).push({ playerId, playerName, seasons: seasons.map(item => item?.season).filter(Boolean) });
+        normalisedNameMap.get(normalisedName).push({
+          playerId,
+          playerName,
+          identityDisambiguator: String(player.identityDisambiguator || "").trim(),
+          seasons: seasons.map(item => item?.season).filter(Boolean)
+        });
       }
 
       const nameParts = deriveNameParts(playerName);
-      if (nameParts.ready) nameReadyCount += 1;
+      if (nameParts.ready || player.mononymVerified === true) nameReadyCount += 1;
       else if (playerName) addFinding(DEFINITIONS.singleWordName, { ...context, currentValue: playerName });
+
       if (/\d/.test(playerName)) addFinding(DEFINITIONS.numericName, { ...context, currentValue: playerName });
 
       const dobRaw = player.bio?.dateOfBirth;
@@ -181,7 +179,9 @@
             expected: "One season record per player identity",
             detail: `${playerName || playerId} has more than one ${seasonLabel} record. This usually means two different footballers were merged under one name.`
           });
-        } else seasonMap.set(seasonLabel, season || {});
+        } else {
+          seasonMap.set(seasonLabel, season || {});
+        }
 
         if (!season?.club) addFinding(DEFINITIONS.missingClub, seasonContext);
         if (!VALID_POSITIONS.has(season?.position)) {
@@ -238,17 +238,12 @@
           if (position < 1 || position > 20) {
             addFinding(DEFINITIONS.invalidLeaguePosition, { ...seasonContext, field: "leaguePosition", currentValue: position, expected: "1–20" });
           } else {
-            const expectedFlags = {
-              champions: position === 1,
-              topFour: position <= 4,
-              bottomHalf: position >= 11,
-              relegated: position >= 18
-            };
-            Object.entries(expectedFlags).forEach(([field, expected]) => {
+            const expectedFlags = { champions: position === 1, topFour: position <= 4, bottomHalf: position >= 11, relegated: position >= 18 };
+            for (const [field, expected] of Object.entries(expectedFlags)) {
               if (Boolean(season?.[field]) !== expected) {
                 addFinding(DEFINITIONS.flagMismatch(field), { ...seasonContext, field, currentValue: season?.[field], expected });
               }
-            });
+            }
           }
         }
 
@@ -256,13 +251,21 @@
         if (!Number.isFinite(age)) {
           addFinding(DEFINITIONS.missingAge, seasonContext);
         } else {
-          if (age < 15 || age > 45) addFinding(DEFINITIONS.impossibleAge, { ...seasonContext, field: "ageAtSeasonStart", currentValue: age, expected: "15–45" });
-          else if (age === 15 || age >= 40) addFinding(DEFINITIONS.ageReview, { ...seasonContext, field: "ageAtSeasonStart", currentValue: age, expected: "Confirm unusually young/old player" });
+          if (age < 15 || age > 45) {
+            addFinding(DEFINITIONS.impossibleAge, { ...seasonContext, field: "ageAtSeasonStart", currentValue: age, expected: "15–45" });
+          } else if (age >= 40 && season?.ageVerified !== true) {
+            addFinding(DEFINITIONS.ageReview, { ...seasonContext, field: "ageAtSeasonStart", currentValue: age, expected: "Confirm unusually old player or set ageVerified: true" });
+          }
 
           if (dob && seasonYear) {
             const expectedAge = ageOnDate(dob, new Date(Date.UTC(seasonYear, 7, 1)));
             if (Number.isFinite(expectedAge) && Math.abs(age - expectedAge) > 1) {
-              addFinding(DEFINITIONS.ageDobMismatch, { ...seasonContext, field: "ageAtSeasonStart", currentValue: age, expected: `${expectedAge} (approximately, from DOB ${dobRaw})` });
+              addFinding(DEFINITIONS.ageDobMismatch, {
+                ...seasonContext,
+                field: "ageAtSeasonStart",
+                currentValue: age,
+                expected: `${expectedAge} (approximately, from DOB ${dobRaw})`
+              });
             }
           }
         }
@@ -280,14 +283,19 @@
       if (entries.length < 2) continue;
       const ids = new Set(entries.map(entry => entry.playerId));
       if (ids.size < 2) continue;
+
+      const labels = entries.map(entry => normaliseName(entry.identityDisambiguator)).filter(Boolean);
+      const verifiedSeparatePeople = labels.length === entries.length && new Set(labels).size === entries.length;
+      if (verifiedSeparatePeople) continue;
+
       const allSeasons = entries.flatMap(entry => entry.seasons);
       addFinding(DEFINITIONS.splitIdentity, {
         playerId: entries.map(entry => entry.playerId).join(" | "),
         playerName: entries[0].playerName,
         season: [...new Set(allSeasons)].sort().join(", "),
         currentValue: entries.map(entry => entry.playerId).join(", "),
-        expected: "One stable playerId per footballer",
-        detail: `${entries[0].playerName} appears under ${entries.length} player IDs. This can let the same footballer be selected twice.`
+        expected: "One stable playerId per footballer, or unique identityDisambiguator values for different people",
+        detail: `${entries[0].playerName} appears under ${entries.length} player IDs without complete identity labels.`
       });
     }
 
@@ -316,56 +324,57 @@
       groupedFindings: state.groups,
       detailedFindings: state.rows
     };
-
     window.FPL_DATABASE_AUDIT_REPORT = state.report;
     document.dispatchEvent(new CustomEvent("fplstudio:databaseauditcomplete", { detail: { report: state.report } }));
 
-    elements.auditPlayerCount.textContent = players.length.toLocaleString();
-    elements.auditSeasonCount.textContent = seasonCount.toLocaleString();
-    elements.auditCriticalCount.textContent = severityCounts.critical.toLocaleString();
-    elements.auditWarningCount.textContent = severityCounts.warning.toLocaleString();
-    elements.auditInfoCount.textContent = severityCounts.info.toLocaleString();
-    elements.auditNameReady.textContent = `${nameReadyPercent.toFixed(1)}%`;
-
+    setText("auditPlayerCount", players.length.toLocaleString());
+    setText("auditSeasonCount", seasonCount.toLocaleString());
+    setText("auditCriticalCount", severityCounts.critical.toLocaleString());
+    setText("auditWarningCount", severityCounts.warning.toLocaleString());
+    setText("auditInfoCount", severityCounts.info.toLocaleString());
+    setText("auditNameReady", `${nameReadyPercent.toFixed(1)}%`);
     updateProgress(100, "Audit complete");
     renderCategorySummary(categoryCounts);
     renderReadiness(severityCounts);
     applyFilters();
 
-    elements.downloadAuditJsonBtn.disabled = false;
-    elements.downloadAuditCsvBtn.disabled = false;
-    elements.copyAuditSummaryBtn.disabled = false;
+    setDisabled("downloadAuditJsonBtn", false);
+    setDisabled("downloadAuditCsvBtn", false);
+    setDisabled("copyAuditSummaryBtn", false);
     elements.runDatabaseAuditBtn.disabled = false;
     elements.runDatabaseAuditBtn.textContent = "Run audit again";
-    elements.auditActionStatus.textContent = `Audit complete: ${severityCounts.critical.toLocaleString()} blocking occurrences, ${severityCounts.warning.toLocaleString()} warnings and ${severityCounts.info.toLocaleString()} metadata gaps across ${state.groups.length} issue types.`;
+    setText("auditActionStatus", `Audit complete: ${severityCounts.critical.toLocaleString()} blocking occurrences, ${severityCounts.warning.toLocaleString()} warnings and ${severityCounts.info.toLocaleString()} metadata gaps across ${state.groups.length} issue types.`);
     state.running = false;
 
     if (severityCounts.critical > 0) setTopStatus(`${severityCounts.critical.toLocaleString()} blockers found`, "blocked");
     else if (severityCounts.warning > 0) setTopStatus("Passed with warnings", "warning");
     else setTopStatus("Database passed", "ready");
 
-    setTimeout(() => elements.auditProgressWrap.classList.add("hidden"), 900);
+    setTimeout(() => elements.auditProgressWrap?.classList.add("hidden"), 900);
   }
 
   function renderReadiness(counts) {
-    elements.auditReadinessPanel.classList.remove("hidden");
+    elements.auditReadinessPanel?.classList.remove("hidden");
     const priorities = state.groups.filter(group => group.severity === "critical").slice(0, 4);
     if (counts.critical > 0) {
-      elements.auditReadinessHeading.textContent = "Fix blockers before expanding the player pool";
-      elements.auditReadinessCopy.textContent = "The current game can continue running, but adding older seasons now would make identity and data-quality problems harder to untangle.";
+      setText("auditReadinessHeading", "Fix blockers before expanding the player pool");
+      setText("auditReadinessCopy", "The current game can continue running, but adding older seasons now would make identity and data-quality problems harder to untangle.");
     } else if (counts.warning > 0) {
-      elements.auditReadinessHeading.textContent = "Safe to expand carefully";
-      elements.auditReadinessCopy.textContent = "No blocking corruption was found. Review the warnings, then add one historical season at a time and rerun this audit after each import.";
+      setText("auditReadinessHeading", "Safe to expand carefully");
+      setText("auditReadinessCopy", "No blocking corruption was found. Review the warnings, then add one historical season at a time and rerun this audit after each import.");
     } else {
-      elements.auditReadinessHeading.textContent = "Ready for controlled expansion";
-      elements.auditReadinessCopy.textContent = "The database passed all blocking and warning checks. Keep a backup and import older seasons one at a time.";
+      setText("auditReadinessHeading", "Ready for controlled expansion");
+      setText("auditReadinessCopy", "The database passed all blocking and warning checks. Metadata gaps are listed separately and are not structural errors.");
     }
-    elements.auditPriorityList.innerHTML = priorities.length
-      ? priorities.map(group => `<div><span>${escapeHtml(group.title)}</span><strong>${group.count.toLocaleString()}</strong></div>`).join("")
-      : `<div><span>Blocking issue types</span><strong>0</strong></div>`;
+    if (elements.auditPriorityList) {
+      elements.auditPriorityList.innerHTML = priorities.length
+        ? priorities.map(group => `<div><span>${escapeHtml(group.title)}</span><strong>${group.count.toLocaleString()}</strong></div>`).join("")
+        : `<div><span>Blocking issue types</span><strong>0</strong></div>`;
+    }
   }
 
   function renderCategorySummary(categoryCounts) {
+    if (!elements.auditCategorySummary) return;
     const labels = {
       identity: "Identity",
       structure: "Structure",
@@ -381,17 +390,17 @@
     }).join("");
     elements.auditCategorySummary.querySelectorAll("[data-audit-category]").forEach(button => {
       button.addEventListener("click", () => {
-        elements.auditCategoryFilter.value = button.dataset.auditCategory;
+        if (elements.auditCategoryFilter) elements.auditCategoryFilter.value = button.dataset.auditCategory;
         applyFilters();
-        elements.auditIssueList.scrollIntoView({ behavior: "smooth", block: "start" });
+        elements.auditIssueList?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     });
   }
 
   function applyFilters() {
-    const query = normaliseName(elements.auditSearch.value);
-    const severity = elements.auditSeverityFilter.value;
-    const category = elements.auditCategoryFilter.value;
+    const query = normaliseName(elements.auditSearch?.value);
+    const severity = elements.auditSeverityFilter?.value || "all";
+    const category = elements.auditCategoryFilter?.value || "all";
     state.filteredGroups = state.groups.filter(group => {
       if (severity !== "all" && group.severity !== severity) return false;
       if (category !== "all" && group.category !== category) return false;
@@ -407,18 +416,17 @@
   }
 
   function renderIssueList() {
+    if (!elements.auditIssueList) return;
     const total = state.filteredGroups.length;
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     state.page = Math.min(state.page, pages);
     const start = (state.page - 1) * PAGE_SIZE;
     const pageItems = state.filteredGroups.slice(start, start + PAGE_SIZE);
 
-    elements.auditListSummary.textContent = state.report
-      ? `${total.toLocaleString()} of ${state.groups.length.toLocaleString()} issue types shown`
-      : "Run the audit to see findings";
-    elements.auditPageLabel.textContent = `Page ${state.page} of ${pages}`;
-    elements.auditPreviousPageBtn.disabled = state.page <= 1;
-    elements.auditNextPageBtn.disabled = state.page >= pages;
+    setText("auditListSummary", state.report ? `${total.toLocaleString()} of ${state.groups.length.toLocaleString()} issue types shown` : "Run the audit to see findings");
+    setText("auditPageLabel", `Page ${state.page} of ${pages}`);
+    setDisabled("auditPreviousPageBtn", state.page <= 1);
+    setDisabled("auditNextPageBtn", state.page >= pages);
 
     if (!state.report) {
       elements.auditIssueList.innerHTML = `<div class="audit-empty-state">The database audit will appear here.</div>`;
@@ -436,6 +444,7 @@
         const values = [sample.field && `${sample.field}: ${sample.currentValue}`, sample.expected && `Expected: ${sample.expected}`].filter(Boolean).join(" · ");
         return `<li><strong>${escapeHtml(heading)}</strong>${values ? `<span>${escapeHtml(values)}</span>` : ""}<small>${escapeHtml(sample.detail || "")}</small></li>`;
       }).join("");
+
       return `<article class="audit-issue-card ${group.severity}">
         <div class="audit-issue-icon">${icon}</div>
         <div class="audit-issue-content">
@@ -452,13 +461,13 @@
     const pages = Math.max(1, Math.ceil(state.filteredGroups.length / PAGE_SIZE));
     state.page = Math.max(1, Math.min(pages, state.page + delta));
     renderIssueList();
-    elements.auditIssueList.scrollIntoView({ behavior: "smooth", block: "start" });
+    elements.auditIssueList?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function downloadJsonReport() {
     if (!state.report) return;
     downloadText(`fpl-player-database-audit-${dateStamp()}.json`, JSON.stringify(state.report, null, 2), "application/json");
-    elements.auditActionStatus.textContent = "JSON audit report downloaded.";
+    setText("auditActionStatus", "JSON audit report downloaded.");
   }
 
   function downloadCsvReport() {
@@ -466,7 +475,7 @@
     const columns = ["severity", "category", "code", "issue", "playerId", "playerName", "season", "club", "field", "currentValue", "expected", "detail"];
     const lines = [columns.join(","), ...state.rows.map(row => columns.map(column => csvCell(row[column])).join(","))];
     downloadText(`fpl-player-database-issues-${dateStamp()}.csv`, lines.join("\n"), "text/csv;charset=utf-8");
-    elements.auditActionStatus.textContent = "Detailed issues CSV downloaded.";
+    setText("auditActionStatus", "Detailed issues CSV downloaded.");
   }
 
   async function copySummary() {
@@ -476,15 +485,24 @@
     const text = `FPL Player Database Audit\n${report.generatedAt}\n\nPlayers: ${report.database.players}\nPlayer-seasons: ${report.database.playerSeasons}\nBlocking occurrences: ${report.summary.blockingOccurrences}\nWarnings: ${report.summary.warningOccurrences}\nMetadata gaps: ${report.summary.metadataOccurrences}\nName-rule ready: ${report.database.nameRuleReadyPercent}%\n\nHighest-priority findings:\n${top}`;
     try {
       await navigator.clipboard.writeText(text);
-      elements.auditActionStatus.textContent = "Audit summary copied.";
+      setText("auditActionStatus", "Audit summary copied.");
     } catch {
-      elements.auditActionStatus.textContent = "Clipboard access was unavailable. Download the JSON report instead.";
+      setText("auditActionStatus", "Clipboard access was unavailable. Download the JSON report instead.");
     }
   }
 
+  function setText(id, text) {
+    if (elements[id]) elements[id].textContent = text;
+  }
+
+  function setDisabled(id, value) {
+    if (elements[id]) elements[id].disabled = value;
+  }
+
   function setTopStatus(text, mode) {
-    elements.auditStatusTop.textContent = text;
-    elements.auditReadyChip.textContent = text;
+    setText("auditStatusTop", text);
+    setText("auditReadyChip", text);
+    if (!elements.auditReadyChip) return;
     elements.auditReadyChip.classList.remove("audit-ready", "audit-warning", "audit-blocked");
     if (mode === "ready") elements.auditReadyChip.classList.add("audit-ready");
     if (mode === "warning") elements.auditReadyChip.classList.add("audit-warning");
@@ -492,9 +510,9 @@
   }
 
   function updateProgress(percent, text) {
-    elements.auditProgressPercent.textContent = `${percent}%`;
-    elements.auditProgressText.textContent = text;
-    elements.auditProgressBar.style.width = `${percent}%`;
+    setText("auditProgressPercent", `${percent}%`);
+    setText("auditProgressText", text);
+    if (elements.auditProgressBar) elements.auditProgressBar.style.width = `${percent}%`;
   }
 
   function countBySeverity(rows) {
@@ -582,7 +600,7 @@
   }
 
   function nextFrame() {
-    return new Promise(resolve => requestAnimationFrame(() => resolve()));
+    return new Promise(resolve => requestAnimationFrame(resolve));
   }
 
   function capitalise(value) {
@@ -600,7 +618,7 @@
     duplicatePlayerId: definition("duplicate-player-id", "critical", "identity", "Duplicate playerId", "Two player records share the same identity key.", "Merge the records if they are the same footballer, otherwise give each footballer a unique ID."),
     missingPlayerName: definition("missing-player-name", "critical", "identity", "Player record has no name", "Search and name-based prompts cannot use a blank player name.", "Restore the player's display name from the source data."),
     emptySeasonList: definition("empty-season-list", "warning", "structure", "Player has no season records", "The player can never be selected in the game.", "Remove the empty record or attach the missing season data."),
-    singleWordName: definition("single-word-name", "info", "names", "Single-word name needs special handling", "Surname prompts cannot reliably split a one-word display name.", "Keep the record, but review surname-based prompt behaviour for this footballer."),
+    singleWordName: definition("single-word-name", "info", "names", "Single-word name needs special handling", "Surname prompts cannot reliably split an unverified one-word display name.", "Verify the mononym and set mononymVerified: true."),
     numericName: definition("numeric-player-name", "warning", "names", "Player name contains a number", "This is unusual and may indicate malformed source text.", "Check the original name and remove accidental numbers."),
     missingDob: definition("missing-date-of-birth", "info", "metadata", "Date of birth is missing", "Age-based checks cannot be independently verified for this player.", "Fill the date of birth when a reliable source becomes available."),
     invalidDob: definition("invalid-date-of-birth", "warning", "age", "Date of birth has an invalid format", "The auditor expects an ISO date so it can verify seasonal ages.", "Convert the value to YYYY-MM-DD or leave it blank until verified."),
@@ -617,9 +635,9 @@
     invalidLeaguePosition: definition("invalid-league-position", "critical", "league", "League position is outside 1–20", "Premier League positions must be between 1 and 20.", "Correct the final position or leave the current unfinished season unset."),
     missingAge: definition("missing-season-age", "info", "metadata", "Age at season start is missing", "Age-based prompts cannot include this player-season.", "Calculate the age from a verified date of birth and the season start."),
     impossibleAge: definition("impossible-player-age", "critical", "age", "Impossible or non-player age", "A footballer age below 15 or above 45 strongly suggests a merged identity or manager record.", "Verify the identity and date of birth, then split or remove the incorrect season."),
-    ageReview: definition("unusual-player-age", "warning", "age", "Unusually young or old player age", "The age may be valid, but it deserves a manual check before age prompts rely on it.", "Confirm the date of birth and season-start calculation."),
+    ageReview: definition("unusual-player-age", "warning", "age", "Unusually old player age", "Players aged 40–45 are valid but should be confirmed before age prompts rely on them.", "Confirm the date of birth and set ageVerified: true on the player-season."),
     ageDobMismatch: definition("age-dob-mismatch", "critical", "age", "Season age conflicts with date of birth", "The stored age differs by more than one year from the player's date of birth.", "Check for a merged same-name player, then recalculate the age after correcting identity."),
-    splitIdentity: definition("split-player-identity", "critical", "identity", "Same footballer appears under multiple player IDs", "Accent or spelling changes have split one footballer into separate identities, allowing duplicate use in an XI.", "Merge the seasons under one canonical playerId and keep a stable display name."),
+    splitIdentity: definition("split-player-identity", "critical", "identity", "Same footballer appears under multiple player IDs", "Accent or spelling changes can split one footballer into separate identities, allowing duplicate use in an XI.", "Merge the seasons, or add unique identityDisambiguator values when they are genuinely different people."),
     invalidNumeric: field => definition(`invalid-number-${field}`, "critical", "statistics", `${field} is not numeric`, "Prompt tests and scoring require finite numeric values.", `Restore a finite numeric ${field} value from the source data.`),
     negativeNumeric: field => definition(`negative-number-${field}`, "critical", "statistics", `${field} is negative`, "This statistic cannot be negative. Total FPL points are excluded because negative season totals can be legitimate.", `Correct the ${field} value after checking the source record.`),
     flagMismatch: field => definition(`league-flag-mismatch-${field}`, "critical", "league", `${field} flag conflicts with league position`, "League flags must agree with the final table or prompts will accept incorrect answers.", `Recalculate ${field} from leaguePosition for completed seasons.`)
