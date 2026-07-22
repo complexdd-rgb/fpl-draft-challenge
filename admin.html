@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
-  <title>FPL Challenge Studio · Phase 12.1.1</title>
-  <link rel="stylesheet" href="admin.css?v=12.0.0">
+  <title>FPL Challenge Studio · Phase 13</title>
+  <link rel="stylesheet" href="admin.css?v=13.0.0">
 </head>
 <body>
   <main class="studio-shell">
     <header class="studio-hero">
       <div>
-        <p class="eyebrow">Challenge Studio · Phase 12.1</p>
+        <p class="eyebrow">Challenge Studio · Phase 13</p>
         <h1>Build, test, publish, repair and expand the historical database safely</h1>
         <p class="hero-copy">Generate and review the XI, test it safely, manage prompts, publish checked files, repair the database and import one verified historical season at a time without touching the live game.</p>
       </div>
@@ -232,7 +232,7 @@
         <div>
           <p class="eyebrow">Step 6</p>
           <h2>Prompt Library Manager</h2>
-          <p class="section-copy">Add safe rule-built prompts, including first-name and surname rules, edit ratings, disable weak prompts, and download a replacement <code>prompt-library.js</code> when you are satisfied.</p>
+          <p class="section-copy">Create prompts manually or in checked automatic batches, edit ratings, disable weak prompts, and download a replacement <code>prompt-library.js</code> when you are satisfied.</p>
         </div>
         <span class="phase-chip ready-chip">Browser workspace</span>
       </div>
@@ -277,6 +277,67 @@
         <button id="resetPromptManagerBtn" class="button danger-button" type="button">Reset browser edits</button>
       </div>
       <p id="managerStatus" class="action-status" role="status"></p>
+
+      <section id="automaticPromptFactory" class="prompt-factory" aria-labelledby="promptFactoryTitle">
+        <div class="prompt-factory-head">
+          <div>
+            <p class="eyebrow">Automatic creator</p>
+            <h3 id="promptFactoryTitle">Generate a checked batch of new prompts</h3>
+            <p>Creates rule-built prompts, tests them against the full database, rejects duplicates and saves nothing until you approve the preview.</p>
+          </div>
+          <span class="phase-chip">20 recommended · 50 maximum</span>
+        </div>
+
+        <div class="prompt-factory-settings">
+          <label>How many prompts
+            <input id="factoryPromptCount" type="number" min="1" max="50" value="20">
+            <small>For the best variety and easiest review, create 10–25 at a time.</small>
+          </label>
+          <label>Position mix
+            <select id="factoryPositionMix">
+              <option value="balanced" selected>Balanced across positions</option>
+              <option value="GK">Goalkeepers only</option>
+              <option value="DEF">Defenders only</option>
+              <option value="MID">Midfielders only</option>
+              <option value="FWD">Forwards only</option>
+            </select>
+          </label>
+          <label>Difficulty mix
+            <select id="factoryDifficultyMix">
+              <option value="balanced" selected>Balanced difficulty</option>
+              <option value="easy">Easy only</option>
+              <option value="medium">Medium only</option>
+              <option value="hard">Hard only</option>
+            </select>
+          </label>
+          <label>Minimum valid players
+            <input id="factoryMinPlayers" type="number" min="3" max="100" value="6">
+          </label>
+          <label>Maximum valid players
+            <input id="factoryMaxPlayers" type="number" min="6" max="250" value="100">
+          </label>
+          <label>Default cooldown
+            <input id="factoryCooldown" type="number" min="0" max="50" value="10">
+          </label>
+        </div>
+
+        <div class="prompt-factory-options">
+          <label class="check-label"><input id="factoryIncludeNameRules" type="checkbox" checked> Include first-name and surname rules</label>
+          <label class="check-label"><input id="factoryAvoidSimilarPools" type="checkbox" checked> Reject prompts with nearly identical answer pools</label>
+          <label class="check-label"><input id="factoryEnablePrompts" type="checkbox"> Enable immediately after adding</label>
+        </div>
+
+        <div class="button-row prompt-factory-actions">
+          <button id="generatePromptBatchBtn" class="button primary" type="button">Generate checked batch</button>
+          <button id="selectPromptBatchBtn" class="button secondary" type="button" disabled>Select all</button>
+          <button id="addPromptBatchBtn" class="button secondary" type="button" disabled>Add selected to browser library</button>
+          <button id="clearPromptBatchBtn" class="button secondary" type="button" disabled>Clear preview</button>
+        </div>
+        <p id="promptFactoryStatus" class="action-status" role="status">Nothing has been generated yet.</p>
+
+        <div id="promptFactorySummary" class="prompt-factory-summary hidden"></div>
+        <div id="promptFactoryPreview" class="prompt-factory-preview hidden"></div>
+      </section>
 
       <section id="promptEditor" class="prompt-editor hidden" aria-labelledby="promptEditorTitle">
         <div class="prompt-editor-head">
@@ -929,5 +990,6 @@
   <script src="admin-phase11.js?v=11.0.0"></script>
   <script src="fpl-history-2015-16.js?v=12.0.0"></script>
   <script src="admin-phase12.js?v=12.1.0"></script>
+  <script src="admin-phase13.js?v=13.0.0"></script>
 </body>
 </html>

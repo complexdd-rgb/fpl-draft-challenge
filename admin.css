@@ -1110,3 +1110,120 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
 @media(max-width:860px){.legacy-source-grid{grid-template-columns:1fr}.legacy-summary-grid{grid-template-columns:1fr 1fr}}
 
 .legacy-source-link{display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;margin-top:4px;padding:9px 12px;border:1px solid rgba(0,255,135,.28);border-radius:10px;background:rgba(0,255,135,.08);color:#8affc5;font-weight:850;text-decoration:none}.legacy-source-link:hover{background:rgba(0,255,135,.14);border-color:rgba(0,255,135,.5)}
+
+/* Phase 13 — automatic prompt factory */
+.prompt-factory{
+  margin:22px 0;
+  padding:20px;
+  border:1px solid rgba(4,217,255,.26);
+  border-radius:20px;
+  background:linear-gradient(145deg,rgba(4,217,255,.055),rgba(0,255,135,.045));
+}
+.prompt-factory-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+}
+.prompt-factory-head h3{margin:.15rem 0 .35rem;font-size:1.35rem}
+.prompt-factory-head p:not(.eyebrow){margin:0;color:var(--muted);max-width:780px;line-height:1.55}
+.prompt-factory-settings{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.prompt-factory-settings label{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  color:#d8ebe0;
+  font-weight:800;
+}
+.prompt-factory-settings input,.prompt-factory-settings select{
+  width:100%;
+  min-height:45px;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:11px;
+  background:#071b12;
+  color:var(--text);
+}
+.prompt-factory-settings small{font-weight:500;color:var(--muted);line-height:1.35}
+.prompt-factory-options{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:14px 0;
+}
+.prompt-factory-options .check-label{
+  flex:1 1 230px;
+  min-height:48px;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  background:rgba(0,0,0,.16);
+}
+.prompt-factory-actions{margin-top:4px}
+.prompt-factory-summary{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+  margin:16px 0;
+}
+.prompt-factory-summary article{
+  padding:12px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:13px;
+  background:rgba(0,0,0,.18);
+}
+.prompt-factory-summary span{display:block;color:var(--muted);font-size:.76rem}
+.prompt-factory-summary strong{display:block;margin-top:4px;color:var(--accent);font-size:1.15rem}
+.prompt-factory-preview{display:grid;gap:10px}
+.factory-prompt-card{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:12px;
+  align-items:start;
+  padding:14px;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:15px;
+  background:#0a2016;
+}
+.factory-prompt-card:has(input:not(:checked)){opacity:.58}
+.factory-prompt-select{margin-top:5px;width:18px;height:18px;accent-color:var(--accent)}
+.factory-prompt-main h4{margin:0 0 5px;font-size:.98rem;line-height:1.4}
+.factory-prompt-main p{margin:0;color:var(--muted);font-size:.78rem;overflow-wrap:anywhere}
+.factory-prompt-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.factory-prompt-meta span{
+  padding:5px 8px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:999px;
+  background:rgba(255,255,255,.035);
+  color:#d8ebe0;
+  font-size:.72rem;
+  font-weight:800;
+}
+.factory-prompt-meta .anti{color:var(--accent)}
+.factory-prompt-examples{min-width:190px;max-width:260px;color:var(--muted);font-size:.74rem;line-height:1.45}
+.factory-prompt-examples strong{display:block;color:#e8fff0;margin-bottom:3px}
+.factory-empty{
+  padding:22px;
+  border:1px dashed rgba(255,255,255,.16);
+  border-radius:14px;
+  color:var(--muted);
+  text-align:center;
+}
+@media(max-width:900px){
+  .prompt-factory-settings{grid-template-columns:1fr 1fr}
+  .prompt-factory-summary{grid-template-columns:1fr 1fr}
+  .factory-prompt-card{grid-template-columns:auto minmax(0,1fr)}
+  .factory-prompt-examples{grid-column:2;max-width:none}
+}
+@media(max-width:620px){
+  .prompt-factory{padding:15px}
+  .prompt-factory-head{display:block}
+  .prompt-factory-head .phase-chip{display:inline-flex;margin-top:12px}
+  .prompt-factory-settings{grid-template-columns:1fr}
+  .prompt-factory-summary{grid-template-columns:1fr 1fr}
+}
