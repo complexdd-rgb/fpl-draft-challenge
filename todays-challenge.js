@@ -8,7 +8,7 @@ window.FPL_DAILY_CHALLENGE = {
   dateLabel: "Generated Mix · Mixed",
   difficulty: "Mixed",
   releaseDate: "2026-07-23",
-  perfectScore: 1815,
+  perfectScore: 1790,
   prompts: [
     {
       id: "auto_gk_teammate_craig_dawson_excluding_jose_malheiro_de_sa",
