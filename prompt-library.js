@@ -10455,6 +10455,1170 @@
             "source": "p => ((p => (p.playerId !== \"joshua-king\" && Number(p.minutes) > 0 && [\"2015/16|Bournemouth\",\"2016/17|Bournemouth\",\"2017/18|Bournemouth\",\"2018/19|Bournemouth\",\"2019/20|Bournemouth\",\"2020/21|Everton\",\"2021/22|Watford\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"ryan-fraser\",\"david-brooks\"].includes(p.playerId))"
       },
       test: p => ((p => (p.playerId !== "joshua-king" && Number(p.minutes) > 0 && ["2015/16|Bournemouth","2016/17|Bournemouth","2017/18|Bournemouth","2018/19|Bournemouth","2019/20|Bournemouth","2020/21|Everton","2021/22|Watford"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["ryan-fraser","david-brooks"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_scott_parker_minutes_1000",
+      position: "MID",
+      label: "Midfielder managed by Scott Parker who played 1,000+ minutes",
+      fail: "That midfielder season must have been managed by Scott Parker and include at least 1,000 minutes.",
+      difficulty: "medium",
+      tags: ["auto-generated","manager","minutes","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "builder",
+            "join": "all",
+            "conditions": [
+                  {
+                        "field": "manager",
+                        "operator": "equals",
+                        "value": "Scott Parker",
+                        "value2": ""
+                  },
+                  {
+                        "field": "minutes",
+                        "operator": "gte",
+                        "value": 1000,
+                        "value2": 0
+                  }
+            ]
+      },
+      test: p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Scott Parker".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1000))
+    },
+    {
+      id: "auto_def_same_initials_points_excluding_virgil_van_dijk_conor_coady",
+      position: "DEF",
+      label: "Defender whose first name and surname share an initial with 50+ FPL points — excluding Virgil van Dijk and Conor Coady",
+      fail: "That defender's first name and surname must share an initial and the season must score at least 50 points. Excluding Virgil van Dijk and Conor Coady.",
+      difficulty: "medium",
+      tags: ["auto-generated","name-rule","initials","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => {\n      const __rawName = String(p.name || p.playerName || \"\").trim();\n      const __normaliseName = value => String(value || \"\")\n        .toLowerCase()\n        .normalize(\"NFD\")\n        .replace(/[\\u0300-\\u036f]/g, \"\")\n        .replace(/ø/g, \"o\").replace(/ł/g, \"l\").replace(/[đð]/g, \"d\")\n        .replace(/þ/g, \"th\").replace(/æ/g, \"ae\").replace(/œ/g, \"oe\")\n        .replace(/’/g, \"'\")\n        .replace(/[^a-z0-9'\\-]+/g, \" \")\n        .trim();\n      const __fullName = __normaliseName(__rawName);\n      const __nameTokens = __fullName.split(/\\s+/).filter(Boolean);\n      const __firstName = __nameTokens[0] || \"\";\n      const __surnameParticles = new Set([\"al\", \"ap\", \"bin\", \"bint\", \"da\", \"das\", \"de\", \"del\", \"della\", \"den\", \"der\", \"di\", \"dos\", \"du\", \"el\", \"la\", \"le\", \"van\", \"von\", \"y\"]);\n      let __surnameStart = Math.max(0, __nameTokens.length - 1);\n      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;\n      const __surname = __nameTokens.slice(__surnameStart).join(\" \");\n      const __firstInitial = __firstName.charAt(0);\n      const __surnameInitial = __surname.charAt(0);\n      const __letterCount = value => String(value || \"\").replace(/[^a-z0-9]/g, \"\").length;\n      return (((__nameTokens.length > 1 && Boolean(__firstInitial) && __firstInitial === __surnameInitial)) && (Number.isFinite(p.points) && p.points >= 50));\n    })(p) && ![\"virgil-van-dijk\",\"conor-coady\"].includes(p.playerId))"
+      },
+      test: p => ((p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return (((__nameTokens.length > 1 && Boolean(__firstInitial) && __firstInitial === __surnameInitial)) && (Number.isFinite(p.points) && p.points >= 50));
+    })(p) && !["virgil-van-dijk","conor-coady"].includes(p.playerId))
+    },
+    {
+      id: "auto_def_teammate_jordan_henderson_excluding_andrew_robertson",
+      position: "DEF",
+      label: "Defender who shared a Premier League club-season with Jordan Henderson — excluding Andrew Robertson",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Jordan Henderson. Excluding Andrew Robertson.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"jordan-henderson\" && Number(p.minutes) > 0 && [\"2014/15|Liverpool\",\"2015/16|Liverpool\",\"2016/17|Liverpool\",\"2017/18|Liverpool\",\"2018/19|Liverpool\",\"2019/20|Liverpool\",\"2020/21|Liverpool\",\"2021/22|Liverpool\",\"2022/23|Liverpool\",\"2025/26|Brentford\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"andrew-robertson\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "jordan-henderson" && Number(p.minutes) > 0 && ["2014/15|Liverpool","2015/16|Liverpool","2016/17|Liverpool","2017/18|Liverpool","2018/19|Liverpool","2019/20|Liverpool","2020/21|Liverpool","2021/22|Liverpool","2022/23|Liverpool","2025/26|Brentford"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["andrew-robertson"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_jean_philippe_mateta",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Jean-Philippe Mateta",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Jean-Philippe Mateta.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"jean-philippe-mateta\" && Number(p.minutes) > 0 && [\"2020/21|Crystal Palace\",\"2021/22|Crystal Palace\",\"2022/23|Crystal Palace\",\"2023/24|Crystal Palace\",\"2024/25|Crystal Palace\",\"2025/26|Crystal Palace\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "jean-philippe-mateta" && Number(p.minutes) > 0 && ["2020/21|Crystal Palace","2021/22|Crystal Palace","2022/23|Crystal Palace","2023/24|Crystal Palace","2024/25|Crystal Palace","2025/26|Crystal Palace"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_mid_teammate_willian_borges_da_silva_excluding_eden_hazard",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Willian Borges da Silva — excluding Eden Hazard",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Willian Borges da Silva. Excluding Eden Hazard.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"willian-borges-da-silva\" && Number(p.minutes) > 0 && [\"2014/15|Chelsea\",\"2015/16|Chelsea\",\"2016/17|Chelsea\",\"2017/18|Chelsea\",\"2018/19|Chelsea\",\"2019/20|Chelsea\",\"2020/21|Arsenal\",\"2022/23|Fulham\",\"2023/24|Fulham\",\"2024/25|Fulham\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"eden-hazard\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "willian-borges-da-silva" && Number(p.minutes) > 0 && ["2014/15|Chelsea","2015/16|Chelsea","2016/17|Chelsea","2017/18|Chelsea","2018/19|Chelsea","2019/20|Chelsea","2020/21|Arsenal","2022/23|Fulham","2023/24|Fulham","2024/25|Fulham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["eden-hazard"].includes(p.playerId))
+    },
+    {
+      id: "auto_def_teammate_john_mcginn_points_70",
+      position: "DEF",
+      label: "Defender who shared a club-season with John McGinn and scored 70+ FPL points",
+      fail: "That defender must share a club-season with John McGinn and score at least 70 FPL points in the qualifying season.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"john-mcginn\" && Number(p.minutes) > 0 && [\"2019/20|Aston Villa\",\"2020/21|Aston Villa\",\"2021/22|Aston Villa\",\"2022/23|Aston Villa\",\"2023/24|Aston Villa\",\"2024/25|Aston Villa\",\"2025/26|Aston Villa\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70)"
+      },
+      test: p => ((p => (p.playerId !== "john-mcginn" && Number(p.minutes) > 0 && ["2019/20|Aston Villa","2020/21|Aston Villa","2021/22|Aston Villa","2022/23|Aston Villa","2023/24|Aston Villa","2024/25|Aston Villa","2025/26|Aston Villa"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70)
+    },
+    {
+      id: "auto_fwd_teammate_richarlison_de_andrade_excluding_harry_kane",
+      position: "FWD",
+      label: "Forward who shared a Premier League club-season with Richarlison de Andrade — excluding Harry Kane",
+      fail: "That forward must have recorded minutes for the same club in the same FPL season as Richarlison de Andrade. Excluding Harry Kane.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"richarlison-de-andrade\" && Number(p.minutes) > 0 && [\"2017/18|Watford\",\"2018/19|Everton\",\"2019/20|Everton\",\"2020/21|Everton\",\"2021/22|Everton\",\"2022/23|Spurs\",\"2023/24|Spurs\",\"2024/25|Spurs\",\"2025/26|Spurs\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"harry-kane\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "richarlison-de-andrade" && Number(p.minutes) > 0 && ["2017/18|Watford","2018/19|Everton","2019/20|Everton","2020/21|Everton","2021/22|Everton","2022/23|Spurs","2023/24|Spurs","2024/25|Spurs","2025/26|Spurs"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["harry-kane"].includes(p.playerId))
+    },
+    {
+      id: "auto_gk_teammate_pedro_lomba_neto",
+      position: "GK",
+      label: "Goalkeeper who shared a Premier League club-season with Pedro Lomba Neto",
+      fail: "That goalkeeper must have recorded minutes for the same club in the same FPL season as Pedro Lomba Neto.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"pedro-lomba-neto\" && Number(p.minutes) > 0 && [\"2019/20|Wolves\",\"2020/21|Wolves\",\"2021/22|Wolves\",\"2022/23|Wolves\",\"2023/24|Wolves\",\"2024/25|Chelsea\",\"2025/26|Chelsea\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "pedro-lomba-neto" && Number(p.minutes) > 0 && ["2019/20|Wolves","2020/21|Wolves","2021/22|Wolves","2022/23|Wolves","2023/24|Wolves","2024/25|Chelsea","2025/26|Chelsea"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_mid_teammate_patrick_van_aanholt",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Patrick van Aanholt",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Patrick van Aanholt.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"patrick-van-aanholt\" && Number(p.minutes) > 0 && [\"2014/15|Sunderland\",\"2015/16|Sunderland\",\"2016/17|Crystal Palace\",\"2017/18|Crystal Palace\",\"2018/19|Crystal Palace\",\"2019/20|Crystal Palace\",\"2020/21|Crystal Palace\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "patrick-van-aanholt" && Number(p.minutes) > 0 && ["2014/15|Sunderland","2015/16|Sunderland","2016/17|Crystal Palace","2017/18|Crystal Palace","2018/19|Crystal Palace","2019/20|Crystal Palace","2020/21|Crystal Palace"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_def_teammate_jose_malheiro_de_sa",
+      position: "DEF",
+      label: "Defender who shared a Premier League club-season with José Malheiro de Sá",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as José Malheiro de Sá.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"jose-malheiro-de-sa\" && Number(p.minutes) > 0 && [\"2021/22|Wolves\",\"2022/23|Wolves\",\"2023/24|Wolves\",\"2024/25|Wolves\",\"2025/26|Wolves\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "jose-malheiro-de-sa" && Number(p.minutes) > 0 && ["2021/22|Wolves","2022/23|Wolves","2023/24|Wolves","2024/25|Wolves","2025/26|Wolves"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_gk_teammate_alex_iwobi_excluding_petr_cech",
+      position: "GK",
+      label: "Goalkeeper who shared a Premier League club-season with Alex Iwobi — excluding Petr Cech",
+      fail: "That goalkeeper must have recorded minutes for the same club in the same FPL season as Alex Iwobi. Excluding Petr Cech.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"alex-iwobi\" && Number(p.minutes) > 0 && [\"2015/16|Arsenal\",\"2016/17|Arsenal\",\"2017/18|Arsenal\",\"2018/19|Arsenal\",\"2019/20|Everton\",\"2020/21|Everton\",\"2021/22|Everton\",\"2022/23|Everton\",\"2023/24|Fulham\",\"2024/25|Fulham\",\"2025/26|Fulham\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"petr-cech\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "alex-iwobi" && Number(p.minutes) > 0 && ["2015/16|Arsenal","2016/17|Arsenal","2017/18|Arsenal","2018/19|Arsenal","2019/20|Everton","2020/21|Everton","2021/22|Everton","2022/23|Everton","2023/24|Fulham","2024/25|Fulham","2025/26|Fulham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["petr-cech"].includes(p.playerId))
+    },
+    {
+      id: "auto_fwd_first_a_points_excluding_alexander_isak_alexandre_lacazette",
+      position: "FWD",
+      label: "Forward whose first name starts with A and who scored at least 60 FPL points — excluding Alexander Isak and Alexandre Lacazette",
+      fail: "That forward's first name must start with A and the season must score at least 60 FPL points. Excluding Alexander Isak and Alexandre Lacazette.",
+      difficulty: "medium",
+      tags: ["auto-generated","name-rule","first-name","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => {\n      const __rawName = String(p.name || p.playerName || \"\").trim();\n      const __normaliseName = value => String(value || \"\")\n        .toLowerCase()\n        .normalize(\"NFD\")\n        .replace(/[\\u0300-\\u036f]/g, \"\")\n        .replace(/ø/g, \"o\").replace(/ł/g, \"l\").replace(/[đð]/g, \"d\")\n        .replace(/þ/g, \"th\").replace(/æ/g, \"ae\").replace(/œ/g, \"oe\")\n        .replace(/’/g, \"'\")\n        .replace(/[^a-z0-9'\\-]+/g, \" \")\n        .trim();\n      const __fullName = __normaliseName(__rawName);\n      const __nameTokens = __fullName.split(/\\s+/).filter(Boolean);\n      const __firstName = __nameTokens[0] || \"\";\n      const __surnameParticles = new Set([\"al\", \"ap\", \"bin\", \"bint\", \"da\", \"das\", \"de\", \"del\", \"della\", \"den\", \"der\", \"di\", \"dos\", \"du\", \"el\", \"la\", \"le\", \"van\", \"von\", \"y\"]);\n      let __surnameStart = Math.max(0, __nameTokens.length - 1);\n      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;\n      const __surname = __nameTokens.slice(__surnameStart).join(\" \");\n      const __firstInitial = __firstName.charAt(0);\n      const __surnameInitial = __surname.charAt(0);\n      const __letterCount = value => String(value || \"\").replace(/[^a-z0-9]/g, \"\").length;\n      return (__firstName.startsWith(\"a\") && (Number.isFinite(p.points) && p.points >= 60));\n    })(p) && ![\"alexander-isak\",\"alexandre-lacazette\"].includes(p.playerId))"
+      },
+      test: p => ((p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return (__firstName.startsWith("a") && (Number.isFinite(p.points) && p.points >= 60));
+    })(p) && !["alexander-isak","alexandre-lacazette"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_martin_dubravka_excluding_anthony_gordon",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Martin Dúbravka — excluding Anthony Gordon",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Martin Dúbravka. Excluding Anthony Gordon.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"martin-dubravka\" && Number(p.minutes) > 0 && [\"2017/18|Newcastle\",\"2018/19|Newcastle\",\"2019/20|Newcastle\",\"2020/21|Newcastle\",\"2021/22|Newcastle\",\"2022/23|Newcastle\",\"2023/24|Newcastle\",\"2024/25|Newcastle\",\"2025/26|Burnley\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"anthony-gordon\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "martin-dubravka" && Number(p.minutes) > 0 && ["2017/18|Newcastle","2018/19|Newcastle","2019/20|Newcastle","2020/21|Newcastle","2021/22|Newcastle","2022/23|Newcastle","2023/24|Newcastle","2024/25|Newcastle","2025/26|Burnley"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["anthony-gordon"].includes(p.playerId))
+    },
+    {
+      id: "auto_gk_teammate_danny_welbeck_points_70",
+      position: "GK",
+      label: "Goalkeeper who shared a club-season with Danny Welbeck and scored 70+ FPL points",
+      fail: "That goalkeeper must share a club-season with Danny Welbeck and score at least 70 FPL points in the qualifying season.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"danny-welbeck\" && Number(p.minutes) > 0 && [\"2014/15|Arsenal\",\"2015/16|Arsenal\",\"2016/17|Arsenal\",\"2017/18|Arsenal\",\"2018/19|Arsenal\",\"2019/20|Watford\",\"2020/21|Brighton\",\"2021/22|Brighton\",\"2022/23|Brighton\",\"2023/24|Brighton\",\"2024/25|Brighton\",\"2025/26|Brighton\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70)"
+      },
+      test: p => ((p => (p.playerId !== "danny-welbeck" && Number(p.minutes) > 0 && ["2014/15|Arsenal","2015/16|Arsenal","2016/17|Arsenal","2017/18|Arsenal","2018/19|Arsenal","2019/20|Watford","2020/21|Brighton","2021/22|Brighton","2022/23|Brighton","2023/24|Brighton","2024/25|Brighton","2025/26|Brighton"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70)
+    },
+    {
+      id: "auto_def_nuno_espirito_santo_minutes_1800_excluding_matt_doherty_nikola_milen",
+      position: "DEF",
+      label: "Defender managed by Nuno Espírito Santo who played 1,800+ minutes — excluding Matt Doherty and Nikola MilenkoviÄ",
+      fail: "That defender season must have been managed by Nuno Espírito Santo and include at least 1,800 minutes. Excluding Matt Doherty and Nikola MilenkoviÄ.",
+      difficulty: "medium",
+      tags: ["auto-generated","manager","minutes","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === \"Nuno Espírito Santo\".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1800)))(p) && ![\"matt-doherty\",\"nikola-milenkovia\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Nuno Espírito Santo".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1800)))(p) && !["matt-doherty","nikola-milenkovia"].includes(p.playerId))
+    },
+    {
+      id: "auto_fwd_surname_w_minutes_excluding_ollie_watkins",
+      position: "FWD",
+      label: "Forward whose surname starts with W and who played at least 1,000 minutes — excluding Ollie Watkins",
+      fail: "That forward's surname must start with W and the season must include at least 1,000 minutes. Excluding Ollie Watkins.",
+      difficulty: "hard",
+      tags: ["auto-generated","name-rule","surname","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => {\n      const __rawName = String(p.name || p.playerName || \"\").trim();\n      const __normaliseName = value => String(value || \"\")\n        .toLowerCase()\n        .normalize(\"NFD\")\n        .replace(/[\\u0300-\\u036f]/g, \"\")\n        .replace(/ø/g, \"o\").replace(/ł/g, \"l\").replace(/[đð]/g, \"d\")\n        .replace(/þ/g, \"th\").replace(/æ/g, \"ae\").replace(/œ/g, \"oe\")\n        .replace(/’/g, \"'\")\n        .replace(/[^a-z0-9'\\-]+/g, \" \")\n        .trim();\n      const __fullName = __normaliseName(__rawName);\n      const __nameTokens = __fullName.split(/\\s+/).filter(Boolean);\n      const __firstName = __nameTokens[0] || \"\";\n      const __surnameParticles = new Set([\"al\", \"ap\", \"bin\", \"bint\", \"da\", \"das\", \"de\", \"del\", \"della\", \"den\", \"der\", \"di\", \"dos\", \"du\", \"el\", \"la\", \"le\", \"van\", \"von\", \"y\"]);\n      let __surnameStart = Math.max(0, __nameTokens.length - 1);\n      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;\n      const __surname = __nameTokens.slice(__surnameStart).join(\" \");\n      const __firstInitial = __firstName.charAt(0);\n      const __surnameInitial = __surname.charAt(0);\n      const __letterCount = value => String(value || \"\").replace(/[^a-z0-9]/g, \"\").length;\n      return (__surname.startsWith(\"w\") && (Number.isFinite(p.minutes) && p.minutes >= 1000));\n    })(p) && ![\"ollie-watkins\"].includes(p.playerId))"
+      },
+      test: p => ((p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return (__surname.startsWith("w") && (Number.isFinite(p.minutes) && p.minutes >= 1000));
+    })(p) && !["ollie-watkins"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_victor_lindelof",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Victor Lindelöf",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Victor Lindelöf.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"victor-lindelof\" && Number(p.minutes) > 0 && [\"2017/18|Man Utd\",\"2018/19|Man Utd\",\"2019/20|Man Utd\",\"2020/21|Man Utd\",\"2021/22|Man Utd\",\"2022/23|Man Utd\",\"2023/24|Man Utd\",\"2024/25|Man Utd\",\"2025/26|Aston Villa\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "victor-lindelof" && Number(p.minutes) > 0 && ["2017/18|Man Utd","2018/19|Man Utd","2019/20|Man Utd","2020/21|Man Utd","2021/22|Man Utd","2022/23|Man Utd","2023/24|Man Utd","2024/25|Man Utd","2025/26|Aston Villa"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_fwd_teammate_dwight_mcneil",
+      position: "FWD",
+      label: "Forward who shared a Premier League club-season with Dwight McNeil",
+      fail: "That forward must have recorded minutes for the same club in the same FPL season as Dwight McNeil.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"dwight-mcneil\" && Number(p.minutes) > 0 && [\"2017/18|Burnley\",\"2018/19|Burnley\",\"2019/20|Burnley\",\"2020/21|Burnley\",\"2021/22|Burnley\",\"2022/23|Everton\",\"2023/24|Everton\",\"2024/25|Everton\",\"2025/26|Everton\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "dwight-mcneil" && Number(p.minutes) > 0 && ["2017/18|Burnley","2018/19|Burnley","2019/20|Burnley","2020/21|Burnley","2021/22|Burnley","2022/23|Everton","2023/24|Everton","2024/25|Everton","2025/26|Everton"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_def_teammate_martin_degaard_points_70_excluding_gabriel_magalhaes",
+      position: "DEF",
+      label: "Defender who shared a club-season with Martin Ødegaard and scored 70+ FPL points — excluding Gabriel Magalhães",
+      fail: "That defender must share a club-season with Martin Ødegaard and score at least 70 FPL points in the qualifying season. Excluding Gabriel Magalhães.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((p => (p.playerId !== \"martin-degaard\" && Number(p.minutes) > 0 && [\"2020/21|Arsenal\",\"2021/22|Arsenal\",\"2022/23|Arsenal\",\"2023/24|Arsenal\",\"2024/25|Arsenal\",\"2025/26|Arsenal\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70))(p) && ![\"gabriel-magalhaes\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((p => (p.playerId !== "martin-degaard" && Number(p.minutes) > 0 && ["2020/21|Arsenal","2021/22|Arsenal","2022/23|Arsenal","2023/24|Arsenal","2024/25|Arsenal","2025/26|Arsenal"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70))(p) && !["gabriel-magalhaes"].includes(p.playerId))
+    },
+    {
+      id: "auto_gk_teammate_chris_wood",
+      position: "GK",
+      label: "Goalkeeper who shared a Premier League club-season with Chris Wood",
+      fail: "That goalkeeper must have recorded minutes for the same club in the same FPL season as Chris Wood.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"chris-wood\" && Number(p.minutes) > 0 && [\"2014/15|Leicester\",\"2017/18|Burnley\",\"2018/19|Burnley\",\"2019/20|Burnley\",\"2020/21|Burnley\",\"2021/22|Newcastle\",\"2022/23|Nott'm Forest\",\"2023/24|Nott'm Forest\",\"2024/25|Nott'm Forest\",\"2025/26|Nott'm Forest\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "chris-wood" && Number(p.minutes) > 0 && ["2014/15|Leicester","2017/18|Burnley","2018/19|Burnley","2019/20|Burnley","2020/21|Burnley","2021/22|Newcastle","2022/23|Nott'm Forest","2023/24|Nott'm Forest","2024/25|Nott'm Forest","2025/26|Nott'm Forest"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_mid_teammate_ollie_watkins",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Ollie Watkins",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Ollie Watkins.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"ollie-watkins\" && Number(p.minutes) > 0 && [\"2020/21|Aston Villa\",\"2021/22|Aston Villa\",\"2022/23|Aston Villa\",\"2023/24|Aston Villa\",\"2024/25|Aston Villa\",\"2025/26|Aston Villa\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "ollie-watkins" && Number(p.minutes) > 0 && ["2020/21|Aston Villa","2021/22|Aston Villa","2022/23|Aston Villa","2023/24|Aston Villa","2024/25|Aston Villa","2025/26|Aston Villa"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_def_first_r_points_excluding_ricardo_barbosa_pereira",
+      position: "DEF",
+      label: "Defender whose first name starts with R and who scored at least 60 FPL points — excluding Ricardo Barbosa Pereira",
+      fail: "That defender's first name must start with R and the season must score at least 60 FPL points. Excluding Ricardo Barbosa Pereira.",
+      difficulty: "medium",
+      tags: ["auto-generated","name-rule","first-name","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => {\n      const __rawName = String(p.name || p.playerName || \"\").trim();\n      const __normaliseName = value => String(value || \"\")\n        .toLowerCase()\n        .normalize(\"NFD\")\n        .replace(/[\\u0300-\\u036f]/g, \"\")\n        .replace(/ø/g, \"o\").replace(/ł/g, \"l\").replace(/[đð]/g, \"d\")\n        .replace(/þ/g, \"th\").replace(/æ/g, \"ae\").replace(/œ/g, \"oe\")\n        .replace(/’/g, \"'\")\n        .replace(/[^a-z0-9'\\-]+/g, \" \")\n        .trim();\n      const __fullName = __normaliseName(__rawName);\n      const __nameTokens = __fullName.split(/\\s+/).filter(Boolean);\n      const __firstName = __nameTokens[0] || \"\";\n      const __surnameParticles = new Set([\"al\", \"ap\", \"bin\", \"bint\", \"da\", \"das\", \"de\", \"del\", \"della\", \"den\", \"der\", \"di\", \"dos\", \"du\", \"el\", \"la\", \"le\", \"van\", \"von\", \"y\"]);\n      let __surnameStart = Math.max(0, __nameTokens.length - 1);\n      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;\n      const __surname = __nameTokens.slice(__surnameStart).join(\" \");\n      const __firstInitial = __firstName.charAt(0);\n      const __surnameInitial = __surname.charAt(0);\n      const __letterCount = value => String(value || \"\").replace(/[^a-z0-9]/g, \"\").length;\n      return (__firstName.startsWith(\"r\") && (Number.isFinite(p.points) && p.points >= 60));\n    })(p) && ![\"ricardo-barbosa-pereira\"].includes(p.playerId))"
+      },
+      test: p => ((p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return (__firstName.startsWith("r") && (Number.isFinite(p.points) && p.points >= 60));
+    })(p) && !["ricardo-barbosa-pereira"].includes(p.playerId))
+    },
+    {
+      id: "auto_def_teammate_kasper_schmeichel_excluding_christian_fuchs",
+      position: "DEF",
+      label: "Defender who shared a Premier League club-season with Kasper Schmeichel — excluding Christian Fuchs",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Kasper Schmeichel. Excluding Christian Fuchs.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"kasper-schmeichel\" && Number(p.minutes) > 0 && [\"2014/15|Leicester\",\"2015/16|Leicester\",\"2016/17|Leicester\",\"2017/18|Leicester\",\"2018/19|Leicester\",\"2019/20|Leicester\",\"2020/21|Leicester\",\"2021/22|Leicester\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"christian-fuchs\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "kasper-schmeichel" && Number(p.minutes) > 0 && ["2014/15|Leicester","2015/16|Leicester","2016/17|Leicester","2017/18|Leicester","2018/19|Leicester","2019/20|Leicester","2020/21|Leicester","2021/22|Leicester"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["christian-fuchs"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_surname_w_minutes_excluding_georginio_wijnaldum_harry_wilson",
+      position: "MID",
+      label: "Midfielder whose surname starts with W and who played at least 1,000 minutes — excluding Georginio Wijnaldum and Harry Wilson",
+      fail: "That midfielder's surname must start with W and the season must include at least 1,000 minutes. Excluding Georginio Wijnaldum and Harry Wilson.",
+      difficulty: "medium",
+      tags: ["auto-generated","name-rule","surname","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => {\n      const __rawName = String(p.name || p.playerName || \"\").trim();\n      const __normaliseName = value => String(value || \"\")\n        .toLowerCase()\n        .normalize(\"NFD\")\n        .replace(/[\\u0300-\\u036f]/g, \"\")\n        .replace(/ø/g, \"o\").replace(/ł/g, \"l\").replace(/[đð]/g, \"d\")\n        .replace(/þ/g, \"th\").replace(/æ/g, \"ae\").replace(/œ/g, \"oe\")\n        .replace(/’/g, \"'\")\n        .replace(/[^a-z0-9'\\-]+/g, \" \")\n        .trim();\n      const __fullName = __normaliseName(__rawName);\n      const __nameTokens = __fullName.split(/\\s+/).filter(Boolean);\n      const __firstName = __nameTokens[0] || \"\";\n      const __surnameParticles = new Set([\"al\", \"ap\", \"bin\", \"bint\", \"da\", \"das\", \"de\", \"del\", \"della\", \"den\", \"der\", \"di\", \"dos\", \"du\", \"el\", \"la\", \"le\", \"van\", \"von\", \"y\"]);\n      let __surnameStart = Math.max(0, __nameTokens.length - 1);\n      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;\n      const __surname = __nameTokens.slice(__surnameStart).join(\" \");\n      const __firstInitial = __firstName.charAt(0);\n      const __surnameInitial = __surname.charAt(0);\n      const __letterCount = value => String(value || \"\").replace(/[^a-z0-9]/g, \"\").length;\n      return (__surname.startsWith(\"w\") && (Number.isFinite(p.minutes) && p.minutes >= 1000));\n    })(p) && ![\"georginio-wijnaldum\",\"harry-wilson\"].includes(p.playerId))"
+      },
+      test: p => ((p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return (__surname.startsWith("w") && (Number.isFinite(p.minutes) && p.minutes >= 1000));
+    })(p) && !["georginio-wijnaldum","harry-wilson"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_raheem_sterling_excluding_kevin_de_bruyne",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Raheem Sterling — excluding Kevin De Bruyne",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Raheem Sterling. Excluding Kevin De Bruyne.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"raheem-sterling\" && Number(p.minutes) > 0 && [\"2014/15|Liverpool\",\"2015/16|Man City\",\"2016/17|Man City\",\"2017/18|Man City\",\"2018/19|Man City\",\"2019/20|Man City\",\"2020/21|Man City\",\"2021/22|Man City\",\"2022/23|Chelsea\",\"2023/24|Chelsea\",\"2024/25|Arsenal\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"kevin-de-bruyne\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "raheem-sterling" && Number(p.minutes) > 0 && ["2014/15|Liverpool","2015/16|Man City","2016/17|Man City","2017/18|Man City","2018/19|Man City","2019/20|Man City","2020/21|Man City","2021/22|Man City","2022/23|Chelsea","2023/24|Chelsea","2024/25|Arsenal"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["kevin-de-bruyne"].includes(p.playerId))
+    },
+    {
+      id: "auto_def_teammate_james_ward_prowse_points_70_excluding_nathaniel_clyne",
+      position: "DEF",
+      label: "Defender who shared a club-season with James Ward-Prowse and scored 70+ FPL points — excluding Nathaniel Clyne",
+      fail: "That defender must share a club-season with James Ward-Prowse and score at least 70 FPL points in the qualifying season. Excluding Nathaniel Clyne.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((p => (p.playerId !== \"james-ward-prowse\" && Number(p.minutes) > 0 && [\"2014/15|Southampton\",\"2015/16|Southampton\",\"2016/17|Southampton\",\"2017/18|Southampton\",\"2018/19|Southampton\",\"2019/20|Southampton\",\"2020/21|Southampton\",\"2021/22|Southampton\",\"2022/23|Southampton\",\"2023/24|West Ham\",\"2024/25|West Ham\",\"2025/26|Burnley\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70))(p) && ![\"nathaniel-clyne\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((p => (p.playerId !== "james-ward-prowse" && Number(p.minutes) > 0 && ["2014/15|Southampton","2015/16|Southampton","2016/17|Southampton","2017/18|Southampton","2018/19|Southampton","2019/20|Southampton","2020/21|Southampton","2021/22|Southampton","2022/23|Southampton","2023/24|West Ham","2024/25|West Ham","2025/26|Burnley"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70))(p) && !["nathaniel-clyne"].includes(p.playerId))
+    },
+    {
+      id: "auto_gk_teammate_kurt_zouma_points_70",
+      position: "GK",
+      label: "Goalkeeper who shared a club-season with Kurt Zouma and scored 70+ FPL points",
+      fail: "That goalkeeper must share a club-season with Kurt Zouma and score at least 70 FPL points in the qualifying season.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"kurt-zouma\" && Number(p.minutes) > 0 && [\"2014/15|Chelsea\",\"2015/16|Chelsea\",\"2016/17|Chelsea\",\"2017/18|Stoke\",\"2018/19|Everton\",\"2019/20|Chelsea\",\"2020/21|Chelsea\",\"2021/22|West Ham\",\"2022/23|West Ham\",\"2023/24|West Ham\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70)"
+      },
+      test: p => ((p => (p.playerId !== "kurt-zouma" && Number(p.minutes) > 0 && ["2014/15|Chelsea","2015/16|Chelsea","2016/17|Chelsea","2017/18|Stoke","2018/19|Everton","2019/20|Chelsea","2020/21|Chelsea","2021/22|West Ham","2022/23|West Ham","2023/24|West Ham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70)
+    },
+    {
+      id: "auto_fwd_teammate_fabian_schar_points_100",
+      position: "FWD",
+      label: "Forward who shared a club-season with Fabian Schär and scored 100+ FPL points",
+      fail: "That forward must share a club-season with Fabian Schär and score at least 100 FPL points in the qualifying season.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"fabian-schar\" && Number(p.minutes) > 0 && [\"2018/19|Newcastle\",\"2019/20|Newcastle\",\"2020/21|Newcastle\",\"2021/22|Newcastle\",\"2022/23|Newcastle\",\"2023/24|Newcastle\",\"2024/25|Newcastle\",\"2025/26|Newcastle\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 100)"
+      },
+      test: p => ((p => (p.playerId !== "fabian-schar" && Number(p.minutes) > 0 && ["2018/19|Newcastle","2019/20|Newcastle","2020/21|Newcastle","2021/22|Newcastle","2022/23|Newcastle","2023/24|Newcastle","2024/25|Newcastle","2025/26|Newcastle"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 100)
+    },
+    {
+      id: "auto_mid_teammate_theo_walcott_excluding_alexis_sanchez",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Theo Walcott — excluding Alexis Sánchez",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Theo Walcott. Excluding Alexis Sánchez.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"theo-walcott\" && Number(p.minutes) > 0 && [\"2014/15|Arsenal\",\"2015/16|Arsenal\",\"2016/17|Arsenal\",\"2017/18|Everton\",\"2018/19|Everton\",\"2019/20|Everton\",\"2020/21|Southampton\",\"2021/22|Southampton\",\"2022/23|Southampton\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"alexis-sanchez\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "theo-walcott" && Number(p.minutes) > 0 && ["2014/15|Arsenal","2015/16|Arsenal","2016/17|Arsenal","2017/18|Everton","2018/19|Everton","2019/20|Everton","2020/21|Southampton","2021/22|Southampton","2022/23|Southampton"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["alexis-sanchez"].includes(p.playerId))
+    },
+    {
+      id: "auto_fwd_teammate_christian_eriksen_excluding_harry_kane",
+      position: "FWD",
+      label: "Forward who shared a Premier League club-season with Christian Eriksen — excluding Harry Kane",
+      fail: "That forward must have recorded minutes for the same club in the same FPL season as Christian Eriksen. Excluding Harry Kane.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"christian-eriksen\" && Number(p.minutes) > 0 && [\"2014/15|Spurs\",\"2015/16|Spurs\",\"2016/17|Spurs\",\"2017/18|Spurs\",\"2018/19|Spurs\",\"2019/20|Spurs\",\"2021/22|Brentford\",\"2022/23|Man Utd\",\"2023/24|Man Utd\",\"2024/25|Man Utd\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"harry-kane\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "christian-eriksen" && Number(p.minutes) > 0 && ["2014/15|Spurs","2015/16|Spurs","2016/17|Spurs","2017/18|Spurs","2018/19|Spurs","2019/20|Spurs","2021/22|Brentford","2022/23|Man Utd","2023/24|Man Utd","2024/25|Man Utd"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["harry-kane"].includes(p.playerId))
+    },
+    {
+      id: "auto_def_teammate_danny_ings_excluding_matty_cash",
+      position: "DEF",
+      label: "Defender who shared a Premier League club-season with Danny Ings — excluding Matty Cash",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Danny Ings. Excluding Matty Cash.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"danny-ings\" && Number(p.minutes) > 0 && [\"2014/15|Burnley\",\"2015/16|Liverpool\",\"2017/18|Liverpool\",\"2018/19|Southampton\",\"2019/20|Southampton\",\"2020/21|Southampton\",\"2021/22|Aston Villa\",\"2022/23|West Ham\",\"2023/24|West Ham\",\"2024/25|West Ham\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"matty-cash\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "danny-ings" && Number(p.minutes) > 0 && ["2014/15|Burnley","2015/16|Liverpool","2017/18|Liverpool","2018/19|Southampton","2019/20|Southampton","2020/21|Southampton","2021/22|Aston Villa","2022/23|West Ham","2023/24|West Ham","2024/25|West Ham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["matty-cash"].includes(p.playerId))
+    },
+    {
+      id: "auto_gk_teammate_cesar_azpilicueta",
+      position: "GK",
+      label: "Goalkeeper who shared a Premier League club-season with César Azpilicueta",
+      fail: "That goalkeeper must have recorded minutes for the same club in the same FPL season as César Azpilicueta.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"cesar-azpilicueta\" && Number(p.minutes) > 0 && [\"2014/15|Chelsea\",\"2015/16|Chelsea\",\"2016/17|Chelsea\",\"2017/18|Chelsea\",\"2018/19|Chelsea\",\"2019/20|Chelsea\",\"2020/21|Chelsea\",\"2021/22|Chelsea\",\"2022/23|Chelsea\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "cesar-azpilicueta" && Number(p.minutes) > 0 && ["2014/15|Chelsea","2015/16|Chelsea","2016/17|Chelsea","2017/18|Chelsea","2018/19|Chelsea","2019/20|Chelsea","2020/21|Chelsea","2021/22|Chelsea","2022/23|Chelsea"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_def_teammate_ben_foster",
+      position: "DEF",
+      label: "Defender who shared a Premier League club-season with Ben Foster",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Ben Foster.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"ben-foster\" && Number(p.minutes) > 0 && [\"2014/15|West Brom\",\"2015/16|West Brom\",\"2016/17|West Brom\",\"2017/18|West Brom\",\"2018/19|Watford\",\"2019/20|Watford\",\"2021/22|Watford\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "ben-foster" && Number(p.minutes) > 0 && ["2014/15|West Brom","2015/16|West Brom","2016/17|West Brom","2017/18|West Brom","2018/19|Watford","2019/20|Watford","2021/22|Watford"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_mid_mikel_arteta_minutes_1800_excluding_bukayo_saka",
+      position: "MID",
+      label: "Midfielder managed by Mikel Arteta who played 1,800+ minutes — excluding Bukayo Saka",
+      fail: "That midfielder season must have been managed by Mikel Arteta and include at least 1,800 minutes. Excluding Bukayo Saka.",
+      difficulty: "hard",
+      tags: ["auto-generated","manager","minutes","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === \"Mikel Arteta\".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1800)))(p) && ![\"bukayo-saka\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Mikel Arteta".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1800)))(p) && !["bukayo-saka"].includes(p.playerId))
+    },
+    {
+      id: "auto_fwd_teammate_mason_mount",
+      position: "FWD",
+      label: "Forward who shared a Premier League club-season with Mason Mount",
+      fail: "That forward must have recorded minutes for the same club in the same FPL season as Mason Mount.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"mason-mount\" && Number(p.minutes) > 0 && [\"2019/20|Chelsea\",\"2020/21|Chelsea\",\"2021/22|Chelsea\",\"2022/23|Chelsea\",\"2023/24|Man Utd\",\"2024/25|Man Utd\",\"2025/26|Man Utd\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "mason-mount" && Number(p.minutes) > 0 && ["2019/20|Chelsea","2020/21|Chelsea","2021/22|Chelsea","2022/23|Chelsea","2023/24|Man Utd","2024/25|Man Utd","2025/26|Man Utd"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_gk_teammate_danny_ings_excluding_tom_heaton_emiliano_martinez",
+      position: "GK",
+      label: "Goalkeeper who shared a Premier League club-season with Danny Ings — excluding Tom Heaton and Emiliano Martínez",
+      fail: "That goalkeeper must have recorded minutes for the same club in the same FPL season as Danny Ings. Excluding Tom Heaton and Emiliano Martínez.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"danny-ings\" && Number(p.minutes) > 0 && [\"2014/15|Burnley\",\"2015/16|Liverpool\",\"2017/18|Liverpool\",\"2018/19|Southampton\",\"2019/20|Southampton\",\"2020/21|Southampton\",\"2021/22|Aston Villa\",\"2022/23|West Ham\",\"2023/24|West Ham\",\"2024/25|West Ham\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"tom-heaton\",\"emiliano-martinez\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "danny-ings" && Number(p.minutes) > 0 && ["2014/15|Burnley","2015/16|Liverpool","2017/18|Liverpool","2018/19|Southampton","2019/20|Southampton","2020/21|Southampton","2021/22|Aston Villa","2022/23|West Ham","2023/24|West Ham","2024/25|West Ham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["tom-heaton","emiliano-martinez"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_mohamed_salah_points_80",
+      position: "MID",
+      label: "Midfielder who shared a club-season with Mohamed Salah and scored 80+ FPL points",
+      fail: "That midfielder must share a club-season with Mohamed Salah and score at least 80 FPL points in the qualifying season.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"mohamed-salah\" && Number(p.minutes) > 0 && [\"2014/15|Chelsea\",\"2017/18|Liverpool\",\"2018/19|Liverpool\",\"2019/20|Liverpool\",\"2020/21|Liverpool\",\"2021/22|Liverpool\",\"2022/23|Liverpool\",\"2023/24|Liverpool\",\"2024/25|Liverpool\",\"2025/26|Liverpool\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 80)"
+      },
+      test: p => ((p => (p.playerId !== "mohamed-salah" && Number(p.minutes) > 0 && ["2014/15|Chelsea","2017/18|Liverpool","2018/19|Liverpool","2019/20|Liverpool","2020/21|Liverpool","2021/22|Liverpool","2022/23|Liverpool","2023/24|Liverpool","2024/25|Liverpool","2025/26|Liverpool"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 80)
+    },
+    {
+      id: "auto_gk_teammate_danny_ings_points_70_excluding_tom_heaton",
+      position: "GK",
+      label: "Goalkeeper who shared a club-season with Danny Ings and scored 70+ FPL points — excluding Tom Heaton",
+      fail: "That goalkeeper must share a club-season with Danny Ings and score at least 70 FPL points in the qualifying season. Excluding Tom Heaton.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((p => (p.playerId !== \"danny-ings\" && Number(p.minutes) > 0 && [\"2014/15|Burnley\",\"2015/16|Liverpool\",\"2017/18|Liverpool\",\"2018/19|Southampton\",\"2019/20|Southampton\",\"2020/21|Southampton\",\"2021/22|Aston Villa\",\"2022/23|West Ham\",\"2023/24|West Ham\",\"2024/25|West Ham\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70))(p) && ![\"tom-heaton\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((p => (p.playerId !== "danny-ings" && Number(p.minutes) > 0 && ["2014/15|Burnley","2015/16|Liverpool","2017/18|Liverpool","2018/19|Southampton","2019/20|Southampton","2020/21|Southampton","2021/22|Aston Villa","2022/23|West Ham","2023/24|West Ham","2024/25|West Ham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70))(p) && !["tom-heaton"].includes(p.playerId))
+    },
+    {
+      id: "auto_def_teammate_bernd_leno_points_70",
+      position: "DEF",
+      label: "Defender who shared a club-season with Bernd Leno and scored 70+ FPL points",
+      fail: "That defender must share a club-season with Bernd Leno and score at least 70 FPL points in the qualifying season.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"bernd-leno\" && Number(p.minutes) > 0 && [\"2018/19|Arsenal\",\"2019/20|Arsenal\",\"2020/21|Arsenal\",\"2021/22|Arsenal\",\"2022/23|Fulham\",\"2023/24|Fulham\",\"2024/25|Fulham\",\"2025/26|Fulham\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70)"
+      },
+      test: p => ((p => (p.playerId !== "bernd-leno" && Number(p.minutes) > 0 && ["2018/19|Arsenal","2019/20|Arsenal","2020/21|Arsenal","2021/22|Arsenal","2022/23|Fulham","2023/24|Fulham","2024/25|Fulham","2025/26|Fulham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70)
+    },
+    {
+      id: "auto_fwd_same_initials_points_excluding_brian_brobbey",
+      position: "FWD",
+      label: "Forward whose first name and surname share an initial with 50+ FPL points — excluding Brian Brobbey",
+      fail: "That forward's first name and surname must share an initial and the season must score at least 50 points. Excluding Brian Brobbey.",
+      difficulty: "hard",
+      tags: ["auto-generated","name-rule","initials","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => {\n      const __rawName = String(p.name || p.playerName || \"\").trim();\n      const __normaliseName = value => String(value || \"\")\n        .toLowerCase()\n        .normalize(\"NFD\")\n        .replace(/[\\u0300-\\u036f]/g, \"\")\n        .replace(/ø/g, \"o\").replace(/ł/g, \"l\").replace(/[đð]/g, \"d\")\n        .replace(/þ/g, \"th\").replace(/æ/g, \"ae\").replace(/œ/g, \"oe\")\n        .replace(/’/g, \"'\")\n        .replace(/[^a-z0-9'\\-]+/g, \" \")\n        .trim();\n      const __fullName = __normaliseName(__rawName);\n      const __nameTokens = __fullName.split(/\\s+/).filter(Boolean);\n      const __firstName = __nameTokens[0] || \"\";\n      const __surnameParticles = new Set([\"al\", \"ap\", \"bin\", \"bint\", \"da\", \"das\", \"de\", \"del\", \"della\", \"den\", \"der\", \"di\", \"dos\", \"du\", \"el\", \"la\", \"le\", \"van\", \"von\", \"y\"]);\n      let __surnameStart = Math.max(0, __nameTokens.length - 1);\n      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;\n      const __surname = __nameTokens.slice(__surnameStart).join(\" \");\n      const __firstInitial = __firstName.charAt(0);\n      const __surnameInitial = __surname.charAt(0);\n      const __letterCount = value => String(value || \"\").replace(/[^a-z0-9]/g, \"\").length;\n      return (((__nameTokens.length > 1 && Boolean(__firstInitial) && __firstInitial === __surnameInitial)) && (Number.isFinite(p.points) && p.points >= 50));\n    })(p) && ![\"brian-brobbey\"].includes(p.playerId))"
+      },
+      test: p => ((p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return (((__nameTokens.length > 1 && Boolean(__firstInitial) && __firstInitial === __surnameInitial)) && (Number.isFinite(p.points) && p.points >= 50));
+    })(p) && !["brian-brobbey"].includes(p.playerId))
+    },
+    {
+      id: "auto_def_teammate_michael_keane_points_70_excluding_james_tarkowski",
+      position: "DEF",
+      label: "Defender who shared a club-season with Michael Keane and scored 70+ FPL points — excluding James Tarkowski",
+      fail: "That defender must share a club-season with Michael Keane and score at least 70 FPL points in the qualifying season. Excluding James Tarkowski.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((p => (p.playerId !== \"michael-keane\" && Number(p.minutes) > 0 && [\"2014/15|Burnley\",\"2016/17|Burnley\",\"2017/18|Everton\",\"2018/19|Everton\",\"2019/20|Everton\",\"2020/21|Everton\",\"2021/22|Everton\",\"2022/23|Everton\",\"2023/24|Everton\",\"2024/25|Everton\",\"2025/26|Everton\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70))(p) && ![\"james-tarkowski\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((p => (p.playerId !== "michael-keane" && Number(p.minutes) > 0 && ["2014/15|Burnley","2016/17|Burnley","2017/18|Everton","2018/19|Everton","2019/20|Everton","2020/21|Everton","2021/22|Everton","2022/23|Everton","2023/24|Everton","2024/25|Everton","2025/26|Everton"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70))(p) && !["james-tarkowski"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_bruno_guimaraes_rodriguez_moura",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Bruno Guimarães Rodriguez Moura",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Bruno Guimarães Rodriguez Moura.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"bruno-guimaraes-rodriguez-moura\" && Number(p.minutes) > 0 && [\"2021/22|Newcastle\",\"2022/23|Newcastle\",\"2023/24|Newcastle\",\"2024/25|Newcastle\",\"2025/26|Newcastle\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "bruno-guimaraes-rodriguez-moura" && Number(p.minutes) > 0 && ["2021/22|Newcastle","2022/23|Newcastle","2023/24|Newcastle","2024/25|Newcastle","2025/26|Newcastle"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_def_teammate_bruno_borges_fernandes",
+      position: "DEF",
+      label: "Defender who shared a Premier League club-season with Bruno Borges Fernandes",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Bruno Borges Fernandes.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"bruno-borges-fernandes\" && Number(p.minutes) > 0 && [\"2019/20|Man Utd\",\"2020/21|Man Utd\",\"2021/22|Man Utd\",\"2022/23|Man Utd\",\"2023/24|Man Utd\",\"2024/25|Man Utd\",\"2025/26|Man Utd\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "bruno-borges-fernandes" && Number(p.minutes) > 0 && ["2019/20|Man Utd","2020/21|Man Utd","2021/22|Man Utd","2022/23|Man Utd","2023/24|Man Utd","2024/25|Man Utd","2025/26|Man Utd"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_mid_nuno_espirito_santo_minutes_1000",
+      position: "MID",
+      label: "Midfielder managed by Nuno Espírito Santo who played 1,000+ minutes",
+      fail: "That midfielder season must have been managed by Nuno Espírito Santo and include at least 1,000 minutes.",
+      difficulty: "medium",
+      tags: ["auto-generated","manager","minutes","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "builder",
+            "join": "all",
+            "conditions": [
+                  {
+                        "field": "manager",
+                        "operator": "equals",
+                        "value": "Nuno Espírito Santo",
+                        "value2": ""
+                  },
+                  {
+                        "field": "minutes",
+                        "operator": "gte",
+                        "value": 1000,
+                        "value2": 0
+                  }
+            ]
+      },
+      test: p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Nuno Espírito Santo".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1000))
+    },
+    {
+      id: "auto_mid_teammate_ryan_bertrand_excluding_james_maddison",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Ryan Bertrand — excluding James Maddison",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Ryan Bertrand. Excluding James Maddison.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"ryan-bertrand\" && Number(p.minutes) > 0 && [\"2014/15|Southampton\",\"2015/16|Southampton\",\"2016/17|Southampton\",\"2017/18|Southampton\",\"2018/19|Southampton\",\"2019/20|Southampton\",\"2020/21|Southampton\",\"2021/22|Leicester\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"james-maddison\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "ryan-bertrand" && Number(p.minutes) > 0 && ["2014/15|Southampton","2015/16|Southampton","2016/17|Southampton","2017/18|Southampton","2018/19|Southampton","2019/20|Southampton","2020/21|Southampton","2021/22|Leicester"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["james-maddison"].includes(p.playerId))
+    },
+    {
+      id: "auto_fwd_teammate_jordan_henderson_points_70_excluding_igor_thiago_nascimento",
+      position: "FWD",
+      label: "Forward who shared a club-season with Jordan Henderson and scored 70+ FPL points — excluding Igor Thiago Nascimento Rodrigues",
+      fail: "That forward must share a club-season with Jordan Henderson and score at least 70 FPL points in the qualifying season. Excluding Igor Thiago Nascimento Rodrigues.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((p => (p.playerId !== \"jordan-henderson\" && Number(p.minutes) > 0 && [\"2014/15|Liverpool\",\"2015/16|Liverpool\",\"2016/17|Liverpool\",\"2017/18|Liverpool\",\"2018/19|Liverpool\",\"2019/20|Liverpool\",\"2020/21|Liverpool\",\"2021/22|Liverpool\",\"2022/23|Liverpool\",\"2025/26|Brentford\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70))(p) && ![\"igor-thiago-nascimento-rodrigues\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((p => (p.playerId !== "jordan-henderson" && Number(p.minutes) > 0 && ["2014/15|Liverpool","2015/16|Liverpool","2016/17|Liverpool","2017/18|Liverpool","2018/19|Liverpool","2019/20|Liverpool","2020/21|Liverpool","2021/22|Liverpool","2022/23|Liverpool","2025/26|Brentford"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70))(p) && !["igor-thiago-nascimento-rodrigues"].includes(p.playerId))
+    },
+    {
+      id: "auto_def_surname_k_minutes_excluding_laurent_koscielny",
+      position: "DEF",
+      label: "Defender whose surname starts with K and who played at least 1,000 minutes — excluding Laurent Koscielny",
+      fail: "That defender's surname must start with K and the season must include at least 1,000 minutes. Excluding Laurent Koscielny.",
+      difficulty: "medium",
+      tags: ["auto-generated","name-rule","surname","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => {\n      const __rawName = String(p.name || p.playerName || \"\").trim();\n      const __normaliseName = value => String(value || \"\")\n        .toLowerCase()\n        .normalize(\"NFD\")\n        .replace(/[\\u0300-\\u036f]/g, \"\")\n        .replace(/ø/g, \"o\").replace(/ł/g, \"l\").replace(/[đð]/g, \"d\")\n        .replace(/þ/g, \"th\").replace(/æ/g, \"ae\").replace(/œ/g, \"oe\")\n        .replace(/’/g, \"'\")\n        .replace(/[^a-z0-9'\\-]+/g, \" \")\n        .trim();\n      const __fullName = __normaliseName(__rawName);\n      const __nameTokens = __fullName.split(/\\s+/).filter(Boolean);\n      const __firstName = __nameTokens[0] || \"\";\n      const __surnameParticles = new Set([\"al\", \"ap\", \"bin\", \"bint\", \"da\", \"das\", \"de\", \"del\", \"della\", \"den\", \"der\", \"di\", \"dos\", \"du\", \"el\", \"la\", \"le\", \"van\", \"von\", \"y\"]);\n      let __surnameStart = Math.max(0, __nameTokens.length - 1);\n      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;\n      const __surname = __nameTokens.slice(__surnameStart).join(\" \");\n      const __firstInitial = __firstName.charAt(0);\n      const __surnameInitial = __surname.charAt(0);\n      const __letterCount = value => String(value || \"\").replace(/[^a-z0-9]/g, \"\").length;\n      return (__surname.startsWith(\"k\") && (Number.isFinite(p.minutes) && p.minutes >= 1000));\n    })(p) && ![\"laurent-koscielny\"].includes(p.playerId))"
+      },
+      test: p => ((p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return (__surname.startsWith("k") && (Number.isFinite(p.minutes) && p.minutes >= 1000));
+    })(p) && !["laurent-koscielny"].includes(p.playerId))
+    },
+    {
+      id: "auto_gk_teammate_christian_benteke",
+      position: "GK",
+      label: "Goalkeeper who shared a Premier League club-season with Christian Benteke",
+      fail: "That goalkeeper must have recorded minutes for the same club in the same FPL season as Christian Benteke.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"christian-benteke\" && Number(p.minutes) > 0 && [\"2014/15|Aston Villa\",\"2015/16|Liverpool\",\"2016/17|Crystal Palace\",\"2017/18|Crystal Palace\",\"2018/19|Crystal Palace\",\"2019/20|Crystal Palace\",\"2020/21|Crystal Palace\",\"2021/22|Crystal Palace\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "christian-benteke" && Number(p.minutes) > 0 && ["2014/15|Aston Villa","2015/16|Liverpool","2016/17|Crystal Palace","2017/18|Crystal Palace","2018/19|Crystal Palace","2019/20|Crystal Palace","2020/21|Crystal Palace","2021/22|Crystal Palace"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_def_teammate_harry_maguire_excluding_ricardo_barbosa_pereira_aaron_wan_b",
+      position: "DEF",
+      label: "Defender who shared a Premier League club-season with Harry Maguire — excluding Ricardo Barbosa Pereira and Aaron Wan-Bissaka",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Harry Maguire. Excluding Ricardo Barbosa Pereira and Aaron Wan-Bissaka.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"harry-maguire\" && Number(p.minutes) > 0 && [\"2014/15|Hull\",\"2016/17|Hull\",\"2017/18|Leicester\",\"2018/19|Leicester\",\"2019/20|Man Utd\",\"2020/21|Man Utd\",\"2021/22|Man Utd\",\"2022/23|Man Utd\",\"2023/24|Man Utd\",\"2024/25|Man Utd\",\"2025/26|Man Utd\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"ricardo-barbosa-pereira\",\"aaron-wan-bissaka\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "harry-maguire" && Number(p.minutes) > 0 && ["2014/15|Hull","2016/17|Hull","2017/18|Leicester","2018/19|Leicester","2019/20|Man Utd","2020/21|Man Utd","2021/22|Man Utd","2022/23|Man Utd","2023/24|Man Utd","2024/25|Man Utd","2025/26|Man Utd"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["ricardo-barbosa-pereira","aaron-wan-bissaka"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_willian_borges_da_silva_points_80_excluding_eden_hazard",
+      position: "MID",
+      label: "Midfielder who shared a club-season with Willian Borges da Silva and scored 80+ FPL points — excluding Eden Hazard",
+      fail: "That midfielder must share a club-season with Willian Borges da Silva and score at least 80 FPL points in the qualifying season. Excluding Eden Hazard.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((p => (p.playerId !== \"willian-borges-da-silva\" && Number(p.minutes) > 0 && [\"2014/15|Chelsea\",\"2015/16|Chelsea\",\"2016/17|Chelsea\",\"2017/18|Chelsea\",\"2018/19|Chelsea\",\"2019/20|Chelsea\",\"2020/21|Arsenal\",\"2022/23|Fulham\",\"2023/24|Fulham\",\"2024/25|Fulham\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 80))(p) && ![\"eden-hazard\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((p => (p.playerId !== "willian-borges-da-silva" && Number(p.minutes) > 0 && ["2014/15|Chelsea","2015/16|Chelsea","2016/17|Chelsea","2017/18|Chelsea","2018/19|Chelsea","2019/20|Chelsea","2020/21|Arsenal","2022/23|Fulham","2023/24|Fulham","2024/25|Fulham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 80))(p) && !["eden-hazard"].includes(p.playerId))
+    },
+    {
+      id: "auto_fwd_teammate_jordan_ayew",
+      position: "FWD",
+      label: "Forward who shared a Premier League club-season with Jordan Ayew",
+      fail: "That forward must have recorded minutes for the same club in the same FPL season as Jordan Ayew.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"jordan-ayew\" && Number(p.minutes) > 0 && [\"2015/16|Aston Villa\",\"2016/17|Swansea\",\"2017/18|Swansea\",\"2018/19|Crystal Palace\",\"2019/20|Crystal Palace\",\"2020/21|Crystal Palace\",\"2021/22|Crystal Palace\",\"2022/23|Crystal Palace\",\"2023/24|Crystal Palace\",\"2024/25|Leicester\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "jordan-ayew" && Number(p.minutes) > 0 && ["2015/16|Aston Villa","2016/17|Swansea","2017/18|Swansea","2018/19|Crystal Palace","2019/20|Crystal Palace","2020/21|Crystal Palace","2021/22|Crystal Palace","2022/23|Crystal Palace","2023/24|Crystal Palace","2024/25|Leicester"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_gk_teammate_nathan_redmond_excluding_fraser_forster_alex_mccarthy",
+      position: "GK",
+      label: "Goalkeeper who shared a Premier League club-season with Nathan Redmond — excluding Fraser Forster and Alex McCarthy",
+      fail: "That goalkeeper must have recorded minutes for the same club in the same FPL season as Nathan Redmond. Excluding Fraser Forster and Alex McCarthy.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"nathan-redmond\" && Number(p.minutes) > 0 && [\"2015/16|Norwich\",\"2016/17|Southampton\",\"2017/18|Southampton\",\"2018/19|Southampton\",\"2019/20|Southampton\",\"2020/21|Southampton\",\"2021/22|Southampton\",\"2022/23|Southampton\",\"2023/24|Burnley\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"fraser-forster\",\"alex-mccarthy\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "nathan-redmond" && Number(p.minutes) > 0 && ["2015/16|Norwich","2016/17|Southampton","2017/18|Southampton","2018/19|Southampton","2019/20|Southampton","2020/21|Southampton","2021/22|Southampton","2022/23|Southampton","2023/24|Burnley"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["fraser-forster","alex-mccarthy"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_lucas_digne",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with Lucas Digne",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Lucas Digne.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => (p.playerId !== \"lucas-digne\" && Number(p.minutes) > 0 && [\"2018/19|Everton\",\"2019/20|Everton\",\"2020/21|Everton\",\"2021/22|Aston Villa\",\"2022/23|Aston Villa\",\"2023/24|Aston Villa\",\"2024/25|Aston Villa\",\"2025/26|Aston Villa\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\")))"
+      },
+      test: p => (p.playerId !== "lucas-digne" && Number(p.minutes) > 0 && ["2018/19|Everton","2019/20|Everton","2020/21|Everton","2021/22|Aston Villa","2022/23|Aston Villa","2023/24|Aston Villa","2024/25|Aston Villa","2025/26|Aston Villa"].includes(String(p.season || "") + "|" + String(p.club || "")))
+    },
+    {
+      id: "auto_def_teammate_craig_dawson_excluding_aaron_cresswell_gareth_mcauley",
+      position: "DEF",
+      label: "Defender who shared a Premier League club-season with Craig Dawson — excluding Aaron Cresswell and Gareth McAuley",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Craig Dawson. Excluding Aaron Cresswell and Gareth McAuley.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"craig-dawson\" && Number(p.minutes) > 0 && [\"2014/15|West Brom\",\"2015/16|West Brom\",\"2016/17|West Brom\",\"2017/18|West Brom\",\"2019/20|Watford\",\"2020/21|West Ham\",\"2021/22|West Ham\",\"2022/23|Wolves\",\"2023/24|Wolves\",\"2024/25|Wolves\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"aaron-cresswell\",\"gareth-mcauley\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "craig-dawson" && Number(p.minutes) > 0 && ["2014/15|West Brom","2015/16|West Brom","2016/17|West Brom","2017/18|West Brom","2019/20|Watford","2020/21|West Ham","2021/22|West Ham","2022/23|Wolves","2023/24|Wolves","2024/25|Wolves"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["aaron-cresswell","gareth-mcauley"].includes(p.playerId))
+    },
+    {
+      id: "auto_fwd_teammate_danny_welbeck_points_100",
+      position: "FWD",
+      label: "Forward who shared a club-season with Danny Welbeck and scored 100+ FPL points",
+      fail: "That forward must share a club-season with Danny Welbeck and score at least 100 FPL points in the qualifying season.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"danny-welbeck\" && Number(p.minutes) > 0 && [\"2014/15|Arsenal\",\"2015/16|Arsenal\",\"2016/17|Arsenal\",\"2017/18|Arsenal\",\"2018/19|Arsenal\",\"2019/20|Watford\",\"2020/21|Brighton\",\"2021/22|Brighton\",\"2022/23|Brighton\",\"2023/24|Brighton\",\"2024/25|Brighton\",\"2025/26|Brighton\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 100)"
+      },
+      test: p => ((p => (p.playerId !== "danny-welbeck" && Number(p.minutes) > 0 && ["2014/15|Arsenal","2015/16|Arsenal","2016/17|Arsenal","2017/18|Arsenal","2018/19|Arsenal","2019/20|Watford","2020/21|Brighton","2021/22|Brighton","2022/23|Brighton","2023/24|Brighton","2024/25|Brighton","2025/26|Brighton"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 100)
+    },
+    {
+      id: "auto_gk_teammate_harry_maguire_points_70_excluding_david_de_gea_quintana",
+      position: "GK",
+      label: "Goalkeeper who shared a club-season with Harry Maguire and scored 70+ FPL points — excluding David De Gea Quintana",
+      fail: "That goalkeeper must share a club-season with Harry Maguire and score at least 70 FPL points in the qualifying season. Excluding David De Gea Quintana.",
+      difficulty: "hard",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((p => (p.playerId !== \"harry-maguire\" && Number(p.minutes) > 0 && [\"2014/15|Hull\",\"2016/17|Hull\",\"2017/18|Leicester\",\"2018/19|Leicester\",\"2019/20|Man Utd\",\"2020/21|Man Utd\",\"2021/22|Man Utd\",\"2022/23|Man Utd\",\"2023/24|Man Utd\",\"2024/25|Man Utd\",\"2025/26|Man Utd\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 70))(p) && ![\"david-de-gea-quintana\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((p => (p.playerId !== "harry-maguire" && Number(p.minutes) > 0 && ["2014/15|Hull","2016/17|Hull","2017/18|Leicester","2018/19|Leicester","2019/20|Man Utd","2020/21|Man Utd","2021/22|Man Utd","2022/23|Man Utd","2023/24|Man Utd","2024/25|Man Utd","2025/26|Man Utd"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70))(p) && !["david-de-gea-quintana"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_jesse_lingard_points_80",
+      position: "MID",
+      label: "Midfielder who shared a club-season with Jesse Lingard and scored 80+ FPL points",
+      fail: "That midfielder must share a club-season with Jesse Lingard and score at least 80 FPL points in the qualifying season.",
+      difficulty: "medium",
+      tags: ["auto-generated","teammate","relationship","club-season","points","anti-meta"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"jesse-lingard\" && Number(p.minutes) > 0 && [\"2014/15|Man Utd\",\"2015/16|Man Utd\",\"2016/17|Man Utd\",\"2017/18|Man Utd\",\"2018/19|Man Utd\",\"2019/20|Man Utd\",\"2020/21|West Ham\",\"2021/22|Man Utd\",\"2022/23|Nott'm Forest\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && Number(p.points) >= 80)"
+      },
+      test: p => ((p => (p.playerId !== "jesse-lingard" && Number(p.minutes) > 0 && ["2014/15|Man Utd","2015/16|Man Utd","2016/17|Man Utd","2017/18|Man Utd","2018/19|Man Utd","2019/20|Man Utd","2020/21|West Ham","2021/22|Man Utd","2022/23|Nott'm Forest"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 80)
+    },
+    {
+      id: "auto_def_unai_emery_minutes_1000_excluding_tyrone_mings_matty_cash",
+      position: "DEF",
+      label: "Defender managed by Unai Emery who played 1,000+ minutes — excluding Tyrone Mings and Matty Cash",
+      fail: "That defender season must have been managed by Unai Emery and include at least 1,000 minutes. Excluding Tyrone Mings and Matty Cash.",
+      difficulty: "medium",
+      tags: ["auto-generated","manager","minutes","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === \"Unai Emery\".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1000)))(p) && ![\"tyrone-mings\",\"matty-cash\"].includes(p.playerId))"
+      },
+      test: p => ((p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Unai Emery".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1000)))(p) && !["tyrone-mings","matty-cash"].includes(p.playerId))
+    },
+    {
+      id: "auto_fwd_surname_length_9_excluding_pierre_emerick_aubameyang_igor_thiago_nas",
+      position: "FWD",
+      label: "Forward whose surname has at least 9 letters and who played 1,500+ minutes — excluding Pierre-Emerick Aubameyang and Igor Thiago Nascimento Rodrigues",
+      fail: "That forward's surname must contain at least 9 letters and the season must include at least 1,500 minutes. Excluding Pierre-Emerick Aubameyang and Igor Thiago Nascimento Rodrigues.",
+      difficulty: "hard",
+      tags: ["auto-generated","name-rule","surname","anti-meta","excludes-top"],
+      rating: 4,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => {\n      const __rawName = String(p.name || p.playerName || \"\").trim();\n      const __normaliseName = value => String(value || \"\")\n        .toLowerCase()\n        .normalize(\"NFD\")\n        .replace(/[\\u0300-\\u036f]/g, \"\")\n        .replace(/ø/g, \"o\").replace(/ł/g, \"l\").replace(/[đð]/g, \"d\")\n        .replace(/þ/g, \"th\").replace(/æ/g, \"ae\").replace(/œ/g, \"oe\")\n        .replace(/’/g, \"'\")\n        .replace(/[^a-z0-9'\\-]+/g, \" \")\n        .trim();\n      const __fullName = __normaliseName(__rawName);\n      const __nameTokens = __fullName.split(/\\s+/).filter(Boolean);\n      const __firstName = __nameTokens[0] || \"\";\n      const __surnameParticles = new Set([\"al\", \"ap\", \"bin\", \"bint\", \"da\", \"das\", \"de\", \"del\", \"della\", \"den\", \"der\", \"di\", \"dos\", \"du\", \"el\", \"la\", \"le\", \"van\", \"von\", \"y\"]);\n      let __surnameStart = Math.max(0, __nameTokens.length - 1);\n      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;\n      const __surname = __nameTokens.slice(__surnameStart).join(\" \");\n      const __firstInitial = __firstName.charAt(0);\n      const __surnameInitial = __surname.charAt(0);\n      const __letterCount = value => String(value || \"\").replace(/[^a-z0-9]/g, \"\").length;\n      return ((Number.isFinite(__letterCount(__surname)) && __letterCount(__surname) >= 9) && (Number.isFinite(p.minutes) && p.minutes >= 1500));\n    })(p) && ![\"pierre-emerick-aubameyang\",\"igor-thiago-nascimento-rodrigues\"].includes(p.playerId))"
+      },
+      test: p => ((p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return ((Number.isFinite(__letterCount(__surname)) && __letterCount(__surname) >= 9) && (Number.isFinite(p.minutes) && p.minutes >= 1500));
+    })(p) && !["pierre-emerick-aubameyang","igor-thiago-nascimento-rodrigues"].includes(p.playerId))
+    },
+    {
+      id: "auto_mid_teammate_cesar_azpilicueta_excluding_eden_hazard",
+      position: "MID",
+      label: "Midfielder who shared a Premier League club-season with César Azpilicueta — excluding Eden Hazard",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as César Azpilicueta. Excluding Eden Hazard.",
+      difficulty: "easy",
+      tags: ["auto-generated","teammate","relationship","club-season","anti-meta","excludes-top"],
+      rating: 3,
+      cooldown: 10,
+      enabled: true,
+      studioRule: {
+            "kind": "source",
+            "source": "p => ((p => (p.playerId !== \"cesar-azpilicueta\" && Number(p.minutes) > 0 && [\"2014/15|Chelsea\",\"2015/16|Chelsea\",\"2016/17|Chelsea\",\"2017/18|Chelsea\",\"2018/19|Chelsea\",\"2019/20|Chelsea\",\"2020/21|Chelsea\",\"2021/22|Chelsea\",\"2022/23|Chelsea\"].includes(String(p.season || \"\") + \"|\" + String(p.club || \"\"))))(p) && ![\"eden-hazard\"].includes(p.playerId))"
+      },
+      test: p => ((p => (p.playerId !== "cesar-azpilicueta" && Number(p.minutes) > 0 && ["2014/15|Chelsea","2015/16|Chelsea","2016/17|Chelsea","2017/18|Chelsea","2018/19|Chelsea","2019/20|Chelsea","2020/21|Chelsea","2021/22|Chelsea","2022/23|Chelsea"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["eden-hazard"].includes(p.playerId))
     }
   ];
 
