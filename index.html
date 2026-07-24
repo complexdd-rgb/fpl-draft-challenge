@@ -1,0 +1,777 @@
+<!doctype html>
+
+<html lang="en">
+<head><!-- Daily challenge content loads from todays-challenge.js in the repository root. -->
+
+
+
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#151a35" name="theme-color"/>
+<title>FPL Daily Challenge 4.0</title>
+
+
+<style>
+/* Core player-facing game styles extracted from index.html. */
+:root{--bg:#0c1024;--panel:#171d3c;--panel2:#20284e;--text:#f7f8ff;--muted:#adb5d6;--accent:#7c5cff;--accent2:#00d9a5;--danger:#ff5a78;--line:#313a68;--shadow:0 18px 50px rgba(0,0,0,.28)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top,#222b5b 0,#0c1024 45%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button,input,select{font:inherit}.app{width:min(1050px,100%);margin:auto;padding:18px 14px 60px}.hero{background:linear-gradient(135deg,rgba(124,92,255,.32),rgba(0,217,165,.12));border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:22px;box-shadow:var(--shadow)}
+.eyebrow{font-weight:800;color:#b8abff;text-transform:uppercase;letter-spacing:.14em;font-size:.75rem}.hero h1{margin:.35rem 0 .4rem;font-size:clamp(1.9rem,6vw,3.5rem);line-height:1}.hero p{color:var(--muted);margin:.5rem 0 1rem;max-width:720px}
+.status{display:flex;flex-wrap:wrap;gap:8px}.pill{background:rgba(10,14,35,.58);border:1px solid rgba(255,255,255,.13);border-radius:999px;padding:8px 12px;font-size:.85rem;font-weight:700}.pill.penalty{color:#ff9cad}
+.grid{display:grid;gap:13px;margin-top:18px}.slot{background:rgba(23,29,60,.94);border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:0 8px 22px rgba(0,0,0,.14);transition:.2s}.slot.valid{border-color:rgba(0,217,165,.65)}.slot.invalid-flash{animation:shake .35s;background:rgba(255,90,120,.18)}
+.slot-head{display:flex;gap:12px;align-items:flex-start}.pos{min-width:46px;text-align:center;background:var(--accent);padding:8px;border-radius:10px;font-weight:900}.prompt{font-weight:800;line-height:1.3}.choice-row{display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:8px;margin-top:12px;align-items:center}
+.search-wrap{position:relative}.player-search,.season-select{width:100%;border:1px solid var(--line);background:#0f1530;color:var(--text);border-radius:12px;padding:12px}.player-search:focus,.season-select:focus{outline:2px solid var(--accent);border-color:transparent}
+.suggestions{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 5px);background:#101630;border:1px solid var(--line);border-radius:12px;max-height:280px;overflow:auto;box-shadow:var(--shadow)}.suggestion{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #242d58;background:transparent;color:var(--text);padding:11px 12px;cursor:pointer}.suggestion:last-child{border-bottom:0}.suggestion:hover,.suggestion.active{background:#293364}.suggestion small{display:block;color:var(--muted);margin-top:2px}
+.confirm{border:0;border-radius:12px;padding:12px 15px;background:var(--accent2);color:#06251d;font-weight:900;cursor:pointer}.confirm:disabled{opacity:.35;cursor:not-allowed}.clear{border:0;background:transparent;color:var(--muted);font-weight:800;padding:6px 0;margin-top:8px;cursor:pointer}
+.feedback{min-height:20px;margin-top:7px;font-size:.86rem;color:var(--muted)}.feedback.good{color:#64f2cd}.feedback.bad{color:#ff91a7}.selected-meta{font-size:.8rem;color:var(--muted);margin-top:7px}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin:18px 0}.btn{border:0;border-radius:13px;padding:13px 18px;font-weight:900;cursor:pointer}.btn.primary{background:linear-gradient(135deg,var(--accent),#aa70ff);color:white}.btn.secondary{background:#232b53;color:white;border:1px solid var(--line)}.btn:disabled{opacity:.35;cursor:not-allowed}
+.results{margin-top:24px}.hidden{display:none!important}.pitch{position:relative;background:linear-gradient(#167a45,#10673a);border:4px solid rgba(255,255,255,.75);border-radius:22px;padding:28px 10px;overflow:hidden;min-height:590px}.pitch:before{content:"";position:absolute;inset:50% 0 auto;border-top:3px solid rgba(255,255,255,.6)}.pitch:after{content:"";position:absolute;width:120px;height:120px;border:3px solid rgba(255,255,255,.6);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+.line{position:relative;z-index:2;display:flex;justify-content:space-around;align-items:center;gap:8px}.line+.line{margin-top:55px}.shirt{width:20%;max-width:150px;text-align:center}.shirt-icon{margin:auto;width:58px;height:64px;background:linear-gradient(135deg,#fff,#d9ddff);color:#151a35;clip-path:polygon(19% 0,35% 10%,65% 10%,81% 0,100% 21%,84% 35%,84% 100%,16% 100%,16% 35%,0 21%);display:grid;place-items:center;font-weight:1000}.shirt strong,.shirt span{display:block;text-shadow:0 2px 4px #000}.shirt strong{font-size:.78rem;margin-top:6px}.shirt span{font-size:.72rem}.score-card{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:14px}.score-card div{background:#101630;border-radius:12px;padding:11px}.score-card span{display:block;color:var(--muted);font-size:.75rem}.score-card strong{font-size:1.25rem}.review{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-top:9px;overflow:hidden}.review summary{padding:13px;cursor:pointer;font-weight:800}.review ol{margin:0;padding:0 34px 15px}.review li{margin:8px 0}.review small{color:var(--muted)}
+@keyframes shake{25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}@media(max-width:700px){.choice-row{grid-template-columns:1fr 112px}.confirm{grid-column:1/-1}.score-card{grid-template-columns:1fr 1fr}.pitch{min-height:520px}.line+.line{margin-top:48px}.shirt strong{font-size:.66rem}.shirt-icon{width:48px;height:55px}}
+
+
+/* Visual theme overrides */
+/* FPL Daily Challenge 4.0 — visual override */
+:root{
+  --bg:#07140f;
+  --panel:#10241c;
+  --panel-2:#153126;
+  --line:rgba(255,255,255,.12);
+  --text:#f7fff9;
+  --muted:#adc4b7;
+  --accent:#00ff87;
+  --accent-2:#04d9ff;
+  --danger:#ff5577;
+  --gold:#ffd166;
+  --shadow:0 18px 50px rgba(0,0,0,.32);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(0,255,135,.12),transparent 28rem),
+    radial-gradient(circle at 100% 15%,rgba(4,217,255,.10),transparent 30rem),
+    linear-gradient(180deg,#07140f 0%,#06100c 100%);
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.20;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.app{max-width:1040px;padding:18px 14px 110px}
+.hero{
+  position:relative;
+  overflow:hidden;
+  padding:24px 20px 20px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:26px;
+  background:
+    linear-gradient(135deg,rgba(0,255,135,.12),transparent 48%),
+    linear-gradient(160deg,#173a2a,#0c2018);
+  box-shadow:var(--shadow);
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  width:210px;height:210px;
+  border:34px solid rgba(255,255,255,.035);
+  border-radius:50%;
+  right:-78px;top:-80px;
+}
+.eyebrow{
+  color:var(--accent);
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.hero h1{
+  max-width:780px;
+  margin:8px 0 9px;
+  font-size:clamp(1.65rem,5vw,3.15rem);
+  line-height:1.02;
+  letter-spacing:-.045em;
+}
+.hero p{max-width:790px;color:#d0e1d7;line-height:1.58}
+.v4-meta{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin:16px 0 4px;
+}
+.v4-badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:34px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.13);
+  color:#eafff2;
+  font-size:.8rem;
+  font-weight:900;
+}
+.v4-badge.difficulty{color:#07140f;background:linear-gradient(135deg,var(--accent),#b6ff4a)}
+.v4-badge.countdown{color:var(--accent-2)}
+.v4-progress-shell{
+  height:10px;
+  margin:12px 0 4px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  background:rgba(0,0,0,.28);
+}
+.v4-progress-bar{
+  width:0;height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  box-shadow:0 0 18px rgba(0,255,135,.45);
+  transition:width .45s cubic-bezier(.2,.8,.2,1);
+}
+.status{position:relative;z-index:1;gap:8px}
+.pill{
+  background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.11);
+  color:#e6f7ec;
+  backdrop-filter:blur(8px);
+}
+.grid{gap:12px;margin-top:16px;position:relative}
+.slot{
+  position:relative;
+  z-index:1;
+  overflow:visible;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(24,55,42,.98),rgba(12,31,23,.98));
+  box-shadow:0 10px 26px rgba(0,0,0,.18);
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.slot:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22);z-index:2}
+.slot:focus-within,.slot:has(.suggestions:not(.hidden)){z-index:500}
+.slot.valid{
+  border-color:rgba(0,255,135,.62);
+  box-shadow:0 0 0 1px rgba(0,255,135,.11),0 14px 30px rgba(0,0,0,.22);
+}
+.slot.valid::after{
+  content:"✓";
+  position:absolute;
+  right:12px;top:12px;
+  display:grid;place-items:center;
+  width:26px;height:26px;
+  border-radius:50%;
+  background:var(--accent);
+  color:#062015;
+  font-weight:1000;
+}
+.slot-head{padding-right:34px}
+.pos{
+  min-width:48px;
+  border-radius:11px;
+  color:white;
+  box-shadow:inset 0 1px rgba(255,255,255,.25);
+}
+.slot[data-position="GK"] .pos{background:linear-gradient(135deg,#14b86d,#087b4b)}
+.slot[data-position="DEF"] .pos{background:linear-gradient(135deg,#2f8cff,#1553b9)}
+.slot[data-position="MID"] .pos{background:linear-gradient(135deg,#a65cff,#6530b7)}
+.slot[data-position="FWD"] .pos{background:linear-gradient(135deg,#ff5d73,#b92744)}
+.prompt{line-height:1.35}
+.player-search,.season-select{
+  background:#081a12;
+  border:1px solid rgba(255,255,255,.14);
+  color:var(--text);
+  min-height:46px;
+}
+.player-search:focus,.season-select:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(0,255,135,.12);
+}
+.suggestions{
+  z-index:1000;
+  max-height:min(280px,45vh);
+  overscroll-behavior:contain;
+  background:#0d2118;
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 18px 44px rgba(0,0,0,.46);
+}
+.suggestion:hover,.suggestion.active{background:#183d2c}
+.confirm,.btn.primary{
+  color:#06170f;
+  background:linear-gradient(135deg,var(--accent),#b4ff4d);
+  box-shadow:0 8px 22px rgba(0,255,135,.18);
+}
+.confirm:disabled,.btn:disabled{opacity:.45;box-shadow:none}
+.btn.secondary{background:#142a20;border-color:rgba(255,255,255,.14)}
+.actions{
+  position:sticky;
+  bottom:0;
+  z-index:50;
+  margin:18px -6px 0;
+  padding:12px 6px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,transparent,rgba(6,16,12,.92) 25%);
+  backdrop-filter:blur(8px);
+}
+.results{
+  margin-top:22px;
+  padding:18px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:24px;
+  background:linear-gradient(160deg,#122b20,#0a1c14);
+  box-shadow:var(--shadow);
+}
+.results h2{letter-spacing:-.025em}
+.pitch{
+  position:relative;
+  overflow:hidden;
+  border:3px solid rgba(255,255,255,.75);
+  border-radius:22px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.035) 50%,transparent 50%) 0 0/25% 100%,
+    linear-gradient(180deg,#16733d,#0e5a31);
+  box-shadow:inset 0 0 55px rgba(0,0,0,.22),0 16px 36px rgba(0,0,0,.24);
+}
+.pitch::before{
+  content:"";
+  position:absolute;
+  left:50%;top:0;bottom:0;
+  width:2px;
+  background:rgba(255,255,255,.66);
+  transform:translateX(-50%);
+}
+.pitch::after{
+  content:"";
+  position:absolute;
+  left:50%;top:50%;
+  width:112px;height:112px;
+  border:2px solid rgba(255,255,255,.7);
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+}
+.pitch .line{position:relative;z-index:2}
+.shirt{animation:v4CardIn .55s both}
+.shirt-icon{
+  filter:drop-shadow(0 8px 8px rgba(0,0,0,.3));
+  transition:transform .2s ease;
+}
+.shirt:hover .shirt-icon{transform:translateY(-4px) scale(1.04)}
+.score-card{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;background:transparent;border:0;padding:0}
+.score-card div{
+  border:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(145deg,#163326,#0b2117);
+  min-height:84px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.score-card strong{color:var(--accent);font-size:1.45rem}
+.review{background:#10261c;border-color:rgba(255,255,255,.1)}
+.review[open]{border-color:rgba(0,255,135,.35)}
+.review summary{list-style:none}
+.review summary::-webkit-details-marker{display:none}
+.review summary::after{content:"＋";float:right;color:var(--accent)}
+.review[open] summary::after{content:"−"}
+@keyframes v4CardIn{
+  from{opacity:0;transform:translateY(16px) scale(.96)}
+  to{opacity:1;transform:none}
+}
+@media(max-width:700px){
+  .app{padding-left:10px;padding-right:10px}
+  .hero{padding:20px 15px 17px;border-radius:21px}
+  .hero p{font-size:.9rem}
+  .status{display:grid;grid-template-columns:1fr 1fr}
+  .pill{text-align:center;justify-content:center}
+  .grid{gap:10px}
+  .slot{border-radius:15px;padding:13px}
+  .choice-row{grid-template-columns:minmax(0,1fr) 104px}
+  .confirm{grid-column:1/-1;min-height:44px}
+  .score-card{grid-template-columns:1fr 1fr}
+  .pitch{min-height:535px}
+}
+
+.xi-comparison{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 16px}
+.xi-panel{min-width:0;padding:14px;border:1px solid rgba(255,255,255,.11);border-radius:20px;background:rgba(0,0,0,.14)}
+.xi-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.xi-panel-head h3{margin:0;font-size:1.08rem}.xi-panel-head p{margin:4px 0 0;color:var(--muted);font-size:.78rem;line-height:1.4}
+.xi-panel-badge{flex:0 0 auto;padding:6px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);font-size:.72rem;font-weight:900}
+.xi-panel.perfect-panel{border-color:rgba(4,217,255,.34);background:linear-gradient(150deg,rgba(4,217,255,.08),rgba(0,0,0,.14))}
+.perfect-pitch{border-color:rgba(95,229,255,.92);background:linear-gradient(180deg,#14566a,#0c3d4e)}
+.perfect-pitch .shirt-icon{background:linear-gradient(135deg,#04d9ff,#75f1ff);color:#05222a;box-shadow:0 0 20px rgba(4,217,255,.28)}
+.perfect-pitch .shirt.exact-match .shirt-icon,.user-pitch .shirt.exact-match .shirt-icon{outline:3px solid #ffd166;outline-offset:3px;box-shadow:0 0 24px rgba(255,209,102,.42)}
+.perfect-note{margin:8px 2px 0;color:#9fddea;font-size:.74rem;line-height:1.4}
+@media(max-width:850px){.xi-comparison{grid-template-columns:1fr}.xi-panel .pitch{min-height:535px}}
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
+
+</style>
+</head>
+<body>
+<main class="app">
+<header class="hero">
+<div class="eyebrow">Version 4.0 · Enriched historical edition</div>
+<h1 id="title">FPL Daily Challenge</h1>
+<p>Search once for a footballer, choose the season beside their name, then confirm. A footballer can only be used once across the whole XI. Invalid confirmed seasons cost 10 points.</p>
+<div class="status">
+<span class="pill" id="dbStatus">Loading database…</span>
+<span class="pill" id="progress">0 / 11 valid</span>
+<span class="pill" id="timer">Time 0:00</span>
+<span class="pill penalty" id="penalty">Penalties −0</span>
+</div>
+</header>
+<section class="grid" id="grid"></section>
+<div class="actions"><button class="btn secondary" id="reset">Reset team</button><button class="btn primary" disabled="" id="reveal">Reveal my XI</button></div>
+<section class="results hidden" id="results">
+<h2>Your historical XI compared with the perfect XI</h2>
+<div class="xi-comparison">
+  <section class="xi-panel">
+    <div class="xi-panel-head"><div><h3>Your selected XI</h3><p>Your confirmed player-seasons.</p></div><span class="xi-panel-badge">White shirts</span></div>
+    <div id="pitch"></div>
+  </section>
+  <section class="xi-panel perfect-panel">
+    <div class="xi-panel-head"><div><h3>Perfect unique-player XI</h3><p>The highest-scoring valid XI without reusing a footballer.</p></div><span class="xi-panel-badge">Blue shirts</span></div>
+    <div id="perfectPitch"></div>
+    <p class="perfect-note" id="perfectXiNote"></p>
+  </section>
+</div>
+<div class="score-card">
+<div><span>Player points</span><strong id="playerPoints">0</strong></div>
+<div><span>Penalties</span><strong id="penaltyPoints">0</strong></div>
+<div><span>Final score</span><strong id="finalScore">0</strong></div>
+<div><span>Perfect score</span><strong id="perfectScore">0</strong></div>
+<div><span>Efficiency</span><strong id="efficiency">0%</strong></div>
+<div><span>Grade</span><strong id="grade">–</strong></div>
+<div><span>Time</span><strong id="timeTaken">0:00</strong></div>
+<div><span>Best score</span><strong id="bestScore">0</strong></div>
+</div>
+<h2>Top five valid player-seasons</h2>
+<div id="reviews"></div>
+<div class="actions"><button class="btn primary" id="copy">Copy share result</button></div>
+<p id="copyStatus"></p>
+</section>
+</main>
+
+
+
+
+
+
+<!-- Load the editable daily challenge first. The timestamp prevents an old cached challenge being reused. -->
+<script>
+document.write('<script src="todays-challenge.js?v=' + Date.now() + '"><\/script>');
+</script>
+
+<!-- Safe fallback: used only if todays-challenge.js is missing or fails to load. -->
+<script>
+window.FPL_DAILY_CHALLENGE = window.FPL_DAILY_CHALLENGE || {
+  id: "daily-006-underdog-xi",
+  number: 6,
+  title: "Daily Challenge #6 · The Underdog XI",
+  dateLabel: "Anti-Meta · Medium / Hard",
+  difficulty: "Medium / Hard",
+  releaseDate: "2026-07-20",
+  perfectScore: 1885,
+  prompts: [
+    {
+      id: "gk_survival_saves",
+      position: "GK",
+      label: "Goalkeeper whose club finished 13th–17th with at least 100 saves",
+      fail: "That goalkeeper's club must have finished 13th–17th and the season must include at least 100 saves.",
+      test: p => Number.isFinite(p.leaguePosition) &&
+                 p.leaguePosition >= 13 &&
+                 p.leaguePosition <= 17 &&
+                 p.saves >= 100
+    },
+    {
+      id: "def_moyes_minutes",
+      position: "DEF",
+      label: "Defender managed by David Moyes who played at least 2,000 minutes",
+      fail: "That defender season must have been managed by David Moyes and include at least 2,000 minutes.",
+      test: p => Array.isArray(p.managers) &&
+                 p.managers.includes("David Moyes") &&
+                 p.minutes >= 2000
+    },
+    {
+      id: "def_creator_outside_big_six",
+      position: "DEF",
+      label: "Defender outside the traditional Big Six with 5+ assists and more assists than goals",
+      fail: "That defender must be outside the traditional Big Six, record at least 5 assists and have more assists than goals.",
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
+                 p.assists >= 5 &&
+                 p.assists > p.goals
+    },
+    {
+      id: "def_midtable_minutes",
+      position: "DEF",
+      label: "Defender from a club that finished 7th–12th who played at least 2,500 minutes",
+      fail: "That defender's club must have finished 7th–12th and the season must include at least 2,500 minutes.",
+      test: p => Number.isFinite(p.leaguePosition) &&
+                 p.leaguePosition >= 7 &&
+                 p.leaguePosition <= 12 &&
+                 p.minutes >= 2500
+    },
+    {
+      id: "def_budget_clean_sheets",
+      position: "DEF",
+      label: "Defender outside the traditional Big Six who started at £4.5m or less and kept 10+ clean sheets",
+      fail: "That defender must be outside the traditional Big Six, start at £4.5m or less and record at least 10 clean sheets.",
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
+                 p.startingPrice <= 4.5 &&
+                 p.cleanSheets >= 10
+    },
+    {
+      id: "mid_relegated_involvements",
+      position: "MID",
+      label: "Midfielder from a relegated club with at least 5 goal involvements",
+      fail: "That midfielder must play for a relegated club and record at least 5 combined goals and assists.",
+      test: p => p.relegated === true &&
+                 (p.goals + p.assists) >= 5
+    },
+    {
+      id: "mid_creator_outside_big_six",
+      position: "MID",
+      label: "Midfielder outside the traditional Big Six with 8+ assists and more assists than goals",
+      fail: "That midfielder must be outside the traditional Big Six, record at least 8 assists and have more assists than goals.",
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
+                 p.assists >= 8 &&
+                 p.assists > p.goals
+    },
+    {
+      id: "mid_midtable_exact_five",
+      position: "MID",
+      label: "Midfielder from a club that finished 8th–12th who scored exactly 5 goals",
+      fail: "That midfielder's club must have finished 8th–12th and the player must have scored exactly 5 goals.",
+      test: p => Number.isFinite(p.leaguePosition) &&
+                 p.leaguePosition >= 8 &&
+                 p.leaguePosition <= 12 &&
+                 p.goals === 5
+    },
+    {
+      id: "mid_budget_involvements",
+      position: "MID",
+      label: "Midfielder outside the traditional Big Six who started below £6.0m and had 8+ goal involvements",
+      fail: "That midfielder must be outside the traditional Big Six, start below £6.0m and record at least 8 combined goals and assists.",
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
+                 p.startingPrice < 6.0 &&
+                 (p.goals + p.assists) >= 8
+    },
+    {
+      id: "fwd_promoted_goals",
+      position: "FWD",
+      label: "Forward from a promoted club who scored at least 10 goals",
+      fail: "That forward must play for a promoted club and score at least 10 goals.",
+      test: p => p.promoted === true &&
+                 p.goals >= 10
+    },
+    {
+      id: "fwd_exact_ten_outside_big_six",
+      position: "FWD",
+      label: "Forward outside the traditional Big Six who scored exactly 10 goals",
+      fail: "That forward must be outside the traditional Big Six and score exactly 10 goals.",
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
+                 p.goals === 10
+    }
+  ]
+};
+
+</script>
+
+<script>
+/* Shared prompt helper functions. */
+window.FPL_V3_HELPERS = {
+  hasManager: (seasonRecord, managerName) =>
+    Array.isArray(seasonRecord?.managers) &&
+    seasonRecord.managers.some(m => m.toLowerCase() === managerName.toLowerCase()),
+  isChampion: seasonRecord => seasonRecord?.champions === true,
+  isTopFour: seasonRecord => seasonRecord?.topFour === true,
+  isBottomHalf: seasonRecord => seasonRecord?.bottomHalf === true,
+  isRelegated: seasonRecord => seasonRecord?.relegated === true,
+  isPromoted: seasonRecord => seasonRecord?.promoted === true,
+  ageBetween: (seasonRecord, minimum, maximum) =>
+    Number.isFinite(seasonRecord?.ageAtSeasonStart) &&
+    seasonRecord.ageAtSeasonStart >= minimum &&
+    seasonRecord.ageAtSeasonStart <= maximum
+};
+
+</script>
+
+<!-- The large database stays separate to keep index.html manageable. -->
+<script src="players.js?v=12.1.0"></script>
+
+<script>
+/* Core FPL Daily Challenge game engine. */
+"use strict";
+const challenge = window.FPL_DAILY_CHALLENGE || null;
+
+if (!challenge) {
+  const status = document.getElementById("dbStatus");
+  if (status) status.textContent = "Challenge failed to load";
+  throw new Error("No FPL daily challenge was loaded.");
+}
+const groupedPlayers = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
+if (!groupedPlayers.length) {
+  const status = document.getElementById("dbStatus");
+  if (status) status.textContent = "Player database failed to load";
+  throw new Error("No FPL player database was loaded.");
+}
+const flatSeasons = groupedPlayers.flatMap(player => player.seasons.map(season => ({...season,playerId:player.playerId,name:player.name})));
+const INVALID_PENALTY = 10;
+const STORE = `fpl-v2-${challenge.id}`;
+const BEST = `fpl-v2-${challenge.id}-best`;
+let picks = {};
+let drafts = {};
+let feedback = {};
+let penalties = 0;
+let startedAt = Date.now();
+let completedSeconds = null;
+let timerId;
+let active = {};
+
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const normalise=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const formatTime=n=>`${Math.floor(n/60)}:${String(Math.floor(n%60)).padStart(2,"0")}`;
+const getPlayer=id=>groupedPlayers.find(p=>p.playerId===id);
+const getRecord=(playerId,season)=>flatSeasons.find(p=>p.playerId===playerId&&p.season===season);
+const usedPlayerIds=()=>new Set(Object.values(picks).map(p=>p.playerId));
+
+function save(){localStorage.setItem(STORE,JSON.stringify({picks,penalties}));}
+function load(){try{const x=JSON.parse(localStorage.getItem(STORE)||"{}");picks=x.picks||{};penalties=Number(x.penalties)||0;}catch{}}
+
+function eligibleSeasons(player,prompt){
+  return player.seasons.filter(s=>s.position===prompt.position);
+}
+function render(){
+  document.getElementById("title").textContent=`FPL Daily Challenge 4.0 · ${challenge.title}`;
+  document.getElementById("grid").innerHTML=challenge.prompts.map((prompt,index)=>{
+    const saved=picks[prompt.id];
+    const draft=drafts[prompt.id] || (saved ? {playerId:saved.playerId,season:saved.season}:null);
+    const player=draft?getPlayer(draft.playerId):null;
+    const seasons=player?eligibleSeasons(player,prompt):[];
+    const record=draft?getRecord(draft.playerId,draft.season):null;
+    const fb=feedback[prompt.id]||"";
+    return `<article class="slot ${saved?"valid":""}" data-position="${prompt.position}" id="slot-${prompt.id}">
+      <div class="slot-head"><span class="pos">${prompt.position}</span><div><div class="prompt">${index+1}. ${esc(prompt.label)}</div></div></div>
+      <div class="choice-row">
+        <div class="search-wrap">
+          <input class="player-search" data-id="${prompt.id}" value="${player?esc(player.name):""}" placeholder="Search ${prompt.position}..." autocomplete="off">
+          <div class="suggestions hidden" id="s-${prompt.id}"></div>
+        </div>
+        <select class="season-select" data-season="${prompt.id}" ${player?"":"disabled"}>
+          ${player?seasons.map(s=>`<option value="${s.season}" ${s.season===draft.season?"selected":""}>${s.season}</option>`).join(""):`<option>Season</option>`}
+        </select>
+        <button class="confirm" data-confirm="${prompt.id}" ${record?"":"disabled"}>${saved?"Confirmed":"Confirm"}</button>
+      </div>
+      ${record?`<div class="selected-meta">${esc(record.club)} · ${record.position} · ${Number.isFinite(record.startingPrice) ? `£${record.startingPrice.toFixed(1)}m starting price` : "Starting price unavailable"}</div>`:""}
+      <div class="feedback ${fb.startsWith("✅")?"good":fb.startsWith("❌")?"bad":""}">${esc(fb)}</div>
+      ${player?`<button class="clear" data-clear="${prompt.id}">Clear selection</button>`:""}
+    </article>`;
+  }).join("");
+  bind();
+  updateStatus();
+}
+function bind(){
+  document.querySelectorAll(".player-search").forEach(input=>{
+    input.addEventListener("input",onSearch);
+    input.addEventListener("keydown",onKeys);
+    input.addEventListener("focus",onSearch);
+  });
+  document.querySelectorAll("[data-season]").forEach(select=>select.addEventListener("change",e=>{
+    const id=e.target.dataset.season;if(drafts[id]) drafts[id].season=e.target.value;render();
+  }));
+  document.querySelectorAll("[data-confirm]").forEach(b=>b.addEventListener("click",()=>confirmPick(b.dataset.confirm)));
+  document.querySelectorAll("[data-clear]").forEach(b=>b.addEventListener("click",()=>{delete drafts[b.dataset.clear];delete picks[b.dataset.clear];feedback[b.dataset.clear]="";save();render();}));
+}
+function onSearch(e){
+  const id=e.target.dataset.id;
+  const prompt=challenge.prompts.find(p=>p.id===id);
+  const q=normalise(e.target.value.trim());
+  if(drafts[id] && normalise(getPlayer(drafts[id].playerId)?.name)!==q){delete drafts[id];delete picks[id];}
+  const box=document.getElementById(`s-${id}`);
+  if(q.length<2){box.classList.add("hidden");return;}
+  const used=usedPlayerIds();
+  const matches=groupedPlayers.filter(player=>
+    !used.has(player.playerId) &&
+    eligibleSeasons(player,prompt).length &&
+    normalise(player.name).includes(q)
+  ).slice(0,10);
+  active[id]=-1;
+  box.innerHTML=matches.length?matches.map((p,i)=>`<button class="suggestion" data-option="${p.playerId}" data-index="${i}" type="button"><strong>${esc(p.name)}</strong><small>${eligibleSeasons(p,prompt).map(s=>s.season).join(" · ")}</small></button>`).join(""):`<div class="suggestion">No matching unused players</div>`;
+  box.classList.remove("hidden");
+  box.querySelectorAll("[data-option]").forEach(b=>b.addEventListener("click",()=>choosePlayer(id,b.dataset.option)));
+}
+function onKeys(e){
+  const id=e.target.dataset.id,box=document.getElementById(`s-${id}`),opts=[...box.querySelectorAll("[data-option]")];
+  if(box.classList.contains("hidden")||!opts.length)return;
+  if(e.key==="ArrowDown"){e.preventDefault();active[id]=Math.min((active[id]??-1)+1,opts.length-1);}
+  else if(e.key==="ArrowUp"){e.preventDefault();active[id]=Math.max((active[id]??0)-1,0);}
+  else if(e.key==="Enter"&&active[id]>=0){e.preventDefault();opts[active[id]].click();return;}
+  else if(e.key==="Escape"){box.classList.add("hidden");return;}else return;
+  opts.forEach((o,i)=>o.classList.toggle("active",i===active[id]));
+}
+function choosePlayer(id,playerId){
+  if(usedPlayerIds().has(playerId)){feedback[id]="That footballer has already been used — no penalty.";render();return;}
+  const prompt=challenge.prompts.find(p=>p.id===id),player=getPlayer(playerId);
+  const seasons=eligibleSeasons(player,prompt);
+  drafts[id]={playerId,season:seasons[0].season};
+  delete picks[id];feedback[id]="Choose a season, then confirm.";render();
+}
+function confirmPick(id){
+  const prompt=challenge.prompts.find(p=>p.id===id),draft=drafts[id];
+  if(!draft)return;
+  const duplicate=Object.entries(picks).some(([key,p])=>key!==id&&p.playerId===draft.playerId);
+  if(duplicate){feedback[id]="That footballer has already been used — no penalty.";render();return;}
+  const record=getRecord(draft.playerId,draft.season);
+  if(!record)return;
+  if(!prompt.test(record)){
+    penalties+=INVALID_PENALTY;feedback[id]=`❌ ${record.name} ${record.season} is invalid. ${prompt.fail} −${INVALID_PENALTY} points.`;
+    delete picks[id];save();render();
+    const slot=document.getElementById(`slot-${id}`);slot?.classList.add("invalid-flash");setTimeout(()=>slot?.classList.remove("invalid-flash"),450);
+    return;
+  }
+  picks[id]={playerId:draft.playerId,season:draft.season};feedback[id]=`✅ Valid: ${record.points} points hidden until reveal.`;save();render();
+}
+function updateStatus(){
+  const count=challenge.prompts.filter(p=>picks[p.id]).length;
+  document.getElementById("dbStatus").textContent=`${groupedPlayers.length.toLocaleString()} players · ${flatSeasons.length.toLocaleString()} player-seasons · 2015/16–2025/26`;
+  document.getElementById("progress").textContent=`${count} / ${challenge.prompts.length} valid`;
+  document.getElementById("penalty").textContent=`Penalties −${penalties}`;
+  document.getElementById("reveal").disabled=count!==challenge.prompts.length;
+}
+function topFive(prompt){return flatSeasons.filter(p=>p.position===prompt.position&&prompt.test(p)).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,5);}
+function shirt(row,perfectMode=false){return `<div class="shirt ${row.exactMatch?"exact-match":""}"><div class="shirt-icon">${row.position}</div><strong>${esc(row.name)}</strong><span>${row.season} · ${row.points} pts</span></div>`;}
+function pitchMarkup(rows,perfectMode=false){const by=pos=>rows.filter(r=>r.position===pos);return `<div class="pitch ${perfectMode?"perfect-pitch":"user-pitch"}"><div class="line">${by("FWD").map(r=>shirt(r,perfectMode)).join("")}</div><div class="line">${by("MID").map(r=>shirt(r,perfectMode)).join("")}</div><div class="line">${by("DEF").map(r=>shirt(r,perfectMode)).join("")}</div><div class="line">${by("GK").map(r=>shirt(r,perfectMode)).join("")}</div></div>`;}
+function calculatePerfectXI(){
+  const bestBySlot=challenge.prompts.map(prompt=>{const map=new Map();for(const record of flatSeasons){if(record.position!==prompt.position)continue;let valid=false;try{valid=prompt.test(record);}catch{}if(!valid)continue;const current=map.get(record.playerId);if(!current||record.points>current.points)map.set(record.playerId,record);}return map;});
+  const playerIds=[...new Set(bestBySlot.flatMap(map=>[...map.keys()]))];if(playerIds.length<challenge.prompts.length)return null;
+  const maximum=Math.max(0,...bestBySlot.flatMap(map=>[...map.values()].map(record=>record.points)));const forbidden=1000000;
+  const costs=bestBySlot.map(map=>playerIds.map(id=>map.has(id)?maximum-map.get(id).points:forbidden));const assignment=hungarianAssignment(costs);if(!assignment)return null;
+  const rows=assignment.map((column,index)=>bestBySlot[index].get(playerIds[column])||null);if(rows.some(row=>!row))return null;return {rows,score:rows.reduce((sum,row)=>sum+row.points,0)};
+}
+function hungarianAssignment(costs){const n=costs.length,m=costs[0]?.length||0;if(!n||m<n)return null;const u=new Float64Array(n+1),v=new Float64Array(m+1),p=new Int32Array(m+1),way=new Int32Array(m+1);for(let i=1;i<=n;i++){p[0]=i;let j0=0;const minv=new Float64Array(m+1);minv.fill(Infinity);const used=new Uint8Array(m+1);do{used[j0]=1;const i0=p[j0];let delta=Infinity,j1=0;for(let j=1;j<=m;j++)if(!used[j]){const cur=costs[i0-1][j-1]-u[i0]-v[j];if(cur<minv[j]){minv[j]=cur;way[j]=j0;}if(minv[j]<delta){delta=minv[j];j1=j;}}if(!Number.isFinite(delta))return null;for(let j=0;j<=m;j++){if(used[j]){u[p[j]]+=delta;v[j]-=delta;}else minv[j]-=delta;}j0=j1;}while(p[j0]!==0);do{const j1=way[j0];p[j0]=p[j1];j0=j1;}while(j0!==0);}const answer=new Int32Array(n);answer.fill(-1);for(let j=1;j<=m;j++)if(p[j])answer[p[j]-1]=j-1;return [...answer];}
+function reveal(){
+  const rows=challenge.prompts.map(p=>getRecord(picks[p.id].playerId,picks[p.id].season));
+  completedSeconds=Math.floor((Date.now()-startedAt)/1000);clearInterval(timerId);
+  const points=rows.reduce((a,b)=>a+b.points,0),score=points-penalties,eff=score/challenge.perfectScore*100;
+  const grade=eff>=100?"Perfect":eff>=95?"A+":eff>=90?"A":eff>=82?"B":eff>=72?"C":"D";
+  const perfect=calculatePerfectXI();
+  if(perfect){
+    const comparedUser=rows.map((row,index)=>({...row,exactMatch:perfect.rows[index].playerId===row.playerId&&perfect.rows[index].season===row.season}));
+    const comparedPerfect=perfect.rows.map((row,index)=>({...row,exactMatch:rows[index].playerId===row.playerId&&rows[index].season===row.season}));
+    document.getElementById("pitch").innerHTML=pitchMarkup(comparedUser,false);
+    document.getElementById("perfectPitch").innerHTML=pitchMarkup(comparedPerfect,true);
+    const matches=comparedUser.filter(row=>row.exactMatch).length;
+    document.getElementById("perfectXiNote").textContent=`${matches} of your 11 selections exactly match the perfect XI. Calculated total: ${perfect.score.toLocaleString()} points.`;
+  }else{
+    document.getElementById("pitch").innerHTML=pitchMarkup(rows,false);
+    document.getElementById("perfectPitch").innerHTML='<p class="feedback bad">The perfect unique-player XI could not be calculated.</p>';
+    document.getElementById("perfectXiNote").textContent='';
+  }
+  document.getElementById("playerPoints").textContent=points;document.getElementById("penaltyPoints").textContent=penalties?`−${penalties}`:"0";document.getElementById("finalScore").textContent=score;document.getElementById("perfectScore").textContent=challenge.perfectScore;document.getElementById("efficiency").textContent=`${eff.toFixed(1)}%`;document.getElementById("grade").textContent=grade;document.getElementById("timeTaken").textContent=formatTime(completedSeconds);
+  const best=Math.max(Number(localStorage.getItem(BEST)||0),score);localStorage.setItem(BEST,best);document.getElementById("bestScore").textContent=best;
+  document.getElementById("reviews").innerHTML=challenge.prompts.map((p,i)=>`<details class="review"><summary>${i+1}. ${p.position} · ${esc(p.label)}</summary><ol>${topFive(p).map(r=>`<li><strong>${esc(r.name)}</strong> — ${r.season} — ${r.points} pts <small>${esc(r.club)}</small></li>`).join("")}</ol></details>`).join("");
+  document.getElementById("results").classList.remove("hidden");document.getElementById("results").scrollIntoView({behavior:"smooth"});
+}
+function tick(){document.getElementById("timer").textContent=`Time ${formatTime(completedSeconds??Math.floor((Date.now()-startedAt)/1000))}`;}
+document.getElementById("reveal").addEventListener("click",reveal);
+document.getElementById("reset").addEventListener("click",()=>{if(confirm("Clear the whole XI and all penalties?")){picks={};drafts={};feedback={};penalties=0;startedAt=Date.now();completedSeconds=null;document.getElementById("results").classList.add("hidden");save();render();}});
+document.getElementById("copy").addEventListener("click",async()=>{const text=`🏆 FPL Daily Challenge 4.0\n${challenge.title}\n\nFinal score: ${document.getElementById("finalScore").textContent} / ${challenge.perfectScore}\nPenalties: ${document.getElementById("penaltyPoints").textContent}\nEfficiency: ${document.getElementById("efficiency").textContent}\nTime: ${document.getElementById("timeTaken").textContent}\n\nCan you beat me?`;try{await navigator.clipboard.writeText(text);document.getElementById("copyStatus").textContent="Result copied.";}catch{document.getElementById("copyStatus").textContent=text;}});
+document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))document.querySelectorAll(".suggestions").forEach(x=>x.classList.add("hidden"));});
+load();
+const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).forEach(id=>{const p=picks[id],prompt=challenge.prompts.find(x=>x.id===id),r=getRecord(p.playerId,p.season);if(!prompt||!validIds.has(p.playerId)||!r||!prompt.test(r))delete picks[id];else drafts[id]={...p};});save();render();tick();timerId=setInterval(tick,1000);
+
+</script>
+
+<script>
+/* FPL Daily Challenge 4.0 — inline visual enhancements */
+(() => {
+  "use strict";
+
+  const currentChallenge = window.FPL_DAILY_CHALLENGE || null;
+
+  if (!currentChallenge) return;
+
+  const hero = document.querySelector(".hero");
+  const status = hero?.querySelector(".status");
+  if (!hero || !status) return;
+
+  const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+
+  const meta = document.createElement("div");
+  meta.className = "v4-meta";
+  meta.innerHTML = `
+    <span class="v4-badge difficulty">${escapeHtml(currentChallenge.difficulty || currentChallenge.dateLabel || "Daily Challenge")}</span>
+    <span class="v4-badge">Challenge #${Number(currentChallenge.number) || "–"}</span>
+    <span class="v4-badge countdown" id="nextChallengeCountdown">Next challenge 00:00:00</span>
+  `;
+  status.before(meta);
+
+  const shell = document.createElement("div");
+  shell.className = "v4-progress-shell";
+  shell.setAttribute("role", "progressbar");
+  shell.setAttribute("aria-label", "Completed prompts");
+  shell.setAttribute("aria-valuemin", "0");
+  shell.setAttribute("aria-valuemax", String(currentChallenge.prompts.length));
+  shell.innerHTML = '<div class="v4-progress-bar" id="v4ProgressBar"></div>';
+  status.after(shell);
+
+  function updateProgressBar() {
+    const count = document.querySelectorAll(".slot.valid").length;
+    const total = currentChallenge.prompts.length || 11;
+    const percentage = Math.max(0, Math.min(100, (count / total) * 100));
+    const bar = document.getElementById("v4ProgressBar");
+    if (bar) bar.style.width = `${percentage}%`;
+    shell.setAttribute("aria-valuenow", String(count));
+  }
+
+  function updateCountdown() {
+    const now = new Date();
+    const next = new Date(now);
+    next.setHours(24, 0, 0, 0);
+    const seconds = Math.max(0, Math.floor((next - now) / 1000));
+    const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+    const remainder = String(seconds % 60).padStart(2, "0");
+    const element = document.getElementById("nextChallengeCountdown");
+    if (element) element.textContent = `Next challenge ${hours}:${minutes}:${remainder}`;
+  }
+
+  function decorateSlots() {
+    document.querySelectorAll(".slot").forEach((slot, index) => {
+      slot.style.animationDelay = `${Math.min(index * 35, 280)}ms`;
+    });
+  }
+
+  const grid = document.getElementById("grid");
+  if (grid) {
+    new MutationObserver(() => {
+      updateProgressBar();
+      decorateSlots();
+    }).observe(grid, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+  }
+
+  updateProgressBar();
+  decorateSlots();
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+})();
+
+</script>
+
+</body>
+</html>

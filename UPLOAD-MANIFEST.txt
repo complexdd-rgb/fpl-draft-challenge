@@ -1,0 +1,15 @@
+Clean browser-reset package.
+Upload every visible file and folder in this extracted directory to the repository root.
+
+Included files:
+index.html
+admin.html
+players.js
+todays-challenge.js
+prompt-library.js
+admin.css
+README.md
+js/admin-core.js
+js/admin-import-tools.js
+data/fpl-history-2014-15.js
+data/fpl-history-2015-16.js
