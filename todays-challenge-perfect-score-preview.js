@@ -2,90 +2,112 @@
    Exact perfect score calculated with eleven unique footballers.
    Review before manually uploading to GitHub. */
 window.FPL_DAILY_CHALLENGE = {
-  id: "daily-010-the-generated-mix",
-  number: 10,
-  title: "Challenge #10 · The Generated Mix",
+  id: "daily-008-the-generated-mix",
+  number: 8,
+  title: "Challenge #8 · The Generated Mix",
   dateLabel: "Generated Mix · Mixed",
   difficulty: "Mixed",
-  releaseDate: "2026-07-22",
-  perfectScore: 2330,
+  releaseDate: "2026-07-23",
+  perfectScore: 2109,
   prompts: [
     {
-      id: "gk_assist_80_points",
+      id: "gk_120_saves_under_5",
       position: "GK",
-      label: "Goalkeeper with an assist and at least 80 FPL points",
-      fail: "That goalkeeper season must include at least one assist and 80 FPL points.",
-      test: p => p.assists >= 1 && p.points >= 80
+      label: "Goalkeeper with 120+ saves who started below £5.0m",
+      fail: "That goalkeeper season must include at least 120 saves and a starting price below £5.0m.",
+      test: p => p.saves >= 120 && p.startingPrice < 5
     },
     {
-      id: "def_10cs_under5",
+      id: "def_arteta_2000",
       position: "DEF",
-      label: "Defender with 10+ clean sheets who started below £5.0m",
-      fail: "That defender must start below £5.0m and record at least 10 clean sheets.",
-      test: p => p.startingPrice < 5 && p.cleanSheets >= 10
+      label: "Defender managed by Mikel Arteta who played 2,000+ minutes",
+      fail: "That defender season must be managed by Mikel Arteta and include at least 2,000 minutes.",
+      test: p => Array.isArray(p.managers) && p.managers.includes("Mikel Arteta") && p.minutes >= 2000
     },
     {
-      id: "def_age_u23_2000",
+      id: "auto_def_teammate_aaron_wan_bissaka_excluding_patrick_van_aanholt",
       position: "DEF",
-      label: "Defender aged 23 or under who played at least 2,000 minutes",
-      fail: "That defender must be aged 23 or under at the season start and play at least 2,000 minutes.",
-      test: p => Number.isFinite(p.ageAtSeasonStart) && p.ageAtSeasonStart <= 23 && p.minutes >= 2000
+      label: "Defender who shared a Premier League club-season with Aaron Wan-Bissaka — excluding Patrick van Aanholt",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Aaron Wan-Bissaka. Excluding Patrick van Aanholt.",
+      test: p => ((p => (p.playerId !== "aaron-wan-bissaka" && Number(p.minutes) > 0 && ["2017/18|Crystal Palace","2018/19|Crystal Palace","2019/20|Man Utd","2020/21|Man Utd","2021/22|Man Utd","2022/23|Man Utd","2023/24|Man Utd","2024/25|West Ham","2025/26|West Ham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["patrick-van-aanholt"].includes(p.playerId))
     },
     {
-      id: "def_8_bonus_bottomhalf",
+      id: "def_surname_t_1000",
       position: "DEF",
-      label: "Defender from a bottom-half club with at least eight bonus points",
-      fail: "That defender's club must finish in the bottom half and the season must include at least eight bonus points.",
-      test: p => p.bottomHalf === true && p.bonus >= 8
+      label: "Defender whose surname starts with T and played 1,000+ minutes",
+      fail: "That defender’s surname must start with T and the season must include at least 1,000 minutes.",
+      test: p => { const __raw=String(p.name || p.playerName || "").trim(); const __norm=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"'").trim().toLowerCase(); const __tokens=__raw.split(/\s+/).filter(Boolean); const __particles=new Set(["al","ap","bin","bint","da","das","de","del","della","den","der","di","dos","du","el","la","le","van","von","y"]); let __start=Math.max(0,__tokens.length-1); while(__start>0 && __particles.has(__norm(__tokens[__start-1]))) __start--; const __first=__norm(__tokens[0]||""); const __surname=__norm(__tokens.slice(__start).join(" ")); const __letters=v=>__norm(v).replace(/[^a-z]/g,"").length; return (__surname.startsWith("t") && p.minutes >= 1000); }
     },
     {
-      id: "def_non_big_six_10_cs",
+      id: "def_zero_goals_5assists",
       position: "DEF",
-      label: "Defender outside the traditional Big Six with at least 10 clean sheets",
-      fail: "That defender must play outside the traditional Big Six and record at least 10 clean sheets.",
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && p.cleanSheets >= 10
+      label: "Defender with no goals and at least five assists",
+      fail: "That defender season must include no goals and at least five assists.",
+      test: p => p.goals === 0 && p.assists >= 5
     },
     {
-      id: "mid_emery_100",
+      id: "auto_mid_teammate_bruno_guimaraes_rodriguez_moura",
       position: "MID",
-      label: "Midfielder managed by Unai Emery with at least 100 FPL points",
-      fail: "That midfielder season must be managed by Unai Emery and score at least 100 points.",
-      test: p => Array.isArray(p.managers) && p.managers.includes("Unai Emery") && p.points >= 100
+      label: "Midfielder who shared a Premier League club-season with Bruno Guimarães Rodriguez Moura",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Bruno Guimarães Rodriguez Moura.",
+      test: p => (p.playerId !== "bruno-guimaraes-rodriguez-moura" && Number(p.minutes) > 0 && ["2021/22|Newcastle","2022/23|Newcastle","2023/24|Newcastle","2024/25|Newcastle","2025/26|Newcastle"].includes(String(p.season || "") + "|" + String(p.club || "")))
     },
     {
-      id: "mid_surname_d_100",
+      id: "auto_mid_teammate_victor_lindelof",
       position: "MID",
-      label: "Midfielder whose surname starts with D and scored 100+ points",
-      fail: "That midfielder’s surname must start with D and the season must score at least 100 points.",
-      test: p => { const __raw=String(p.name || p.playerName || "").trim(); const __norm=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"'").trim().toLowerCase(); const __tokens=__raw.split(/\s+/).filter(Boolean); const __particles=new Set(["al","ap","bin","bint","da","das","de","del","della","den","der","di","dos","du","el","la","le","van","von","y"]); let __start=Math.max(0,__tokens.length-1); while(__start>0 && __particles.has(__norm(__tokens[__start-1]))) __start--; const __first=__norm(__tokens[0]||""); const __surname=__norm(__tokens.slice(__start).join(" ")); const __letters=v=>__norm(v).replace(/[^a-z]/g,"").length; return (__surname.startsWith("d") && p.points >= 100); }
+      label: "Midfielder who shared a Premier League club-season with Victor Lindelöf",
+      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Victor Lindelöf.",
+      test: p => (p.playerId !== "victor-lindelof" && Number(p.minutes) > 0 && ["2017/18|Man Utd","2018/19|Man Utd","2019/20|Man Utd","2020/21|Man Utd","2021/22|Man Utd","2022/23|Man Utd","2023/24|Man Utd","2024/25|Man Utd","2025/26|Aston Villa"].includes(String(p.season || "") + "|" + String(p.club || "")))
     },
     {
-      id: "mid_2500_minutes_under_5goals",
+      id: "auto_mid_relegated_gi_10",
       position: "MID",
-      label: "Midfielder with 2,500+ minutes, fewer than five goals and at least five assists",
-      fail: "That midfielder must play at least 2,500 minutes, score fewer than five goals and record at least five assists.",
-      test: p => p.minutes >= 2500 && p.goals < 5 && p.assists >= 5
+      label: "Midfielder from a relegated club with 10+ goal involvements",
+      fail: "That midfielder must play for a relegated club and record at least 10 combined goals and assists.",
+      test: p => ((p.relegated === true) && (Number.isFinite((p.goals + p.assists)) && (p.goals + p.assists) >= 10))
     },
     {
-      id: "mid_age30_120",
+      id: "auto_mid_first_s_points",
       position: "MID",
-      label: "Midfielder aged 30 or over with at least 120 FPL points",
-      fail: "That midfielder must be aged 30 or over at the season start and score at least 120 points.",
-      test: p => Number.isFinite(p.ageAtSeasonStart) && p.ageAtSeasonStart >= 30 && p.points >= 120
+      label: "Midfielder whose first name starts with S and who scored at least 60 FPL points",
+      fail: "That midfielder's first name must start with S and the season must score at least 60 FPL points.",
+      test: p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return (__firstName.startsWith("s") && (Number.isFinite(p.points) && p.points >= 60));
+    }
     },
     {
-      id: "fwd_1500_10bonus",
+      id: "auto_fwd_bottomhalf_goals_10",
       position: "FWD",
-      label: "Forward with 1,500+ minutes and at least 10 bonus points",
-      fail: "That forward season must include at least 1,500 minutes and 10 bonus points.",
-      test: p => p.minutes >= 1500 && p.bonus >= 10
+      label: "Forward from a bottom-half club with 10+ goals",
+      fail: "That forward must play for a bottom-half club and score at least 10 goals.",
+      test: p => ((p.bottomHalf === true) && (Number.isFinite(p.goals) && p.goals >= 10))
     },
     {
-      id: "fwd_nuno_7goals",
+      id: "auto_fwd_teammate_mason_mount",
       position: "FWD",
-      label: "Forward managed by Nuno Espírito Santo with at least seven goals",
-      fail: "That forward season must be managed by Nuno Espírito Santo and include at least seven goals.",
-      test: p => Array.isArray(p.managers) && p.managers.includes("Nuno Espírito Santo") && p.goals >= 7
+      label: "Forward who shared a Premier League club-season with Mason Mount",
+      fail: "That forward must have recorded minutes for the same club in the same FPL season as Mason Mount.",
+      test: p => (p.playerId !== "mason-mount" && Number(p.minutes) > 0 && ["2019/20|Chelsea","2020/21|Chelsea","2021/22|Chelsea","2022/23|Chelsea","2023/24|Man Utd","2024/25|Man Utd","2025/26|Man Utd"].includes(String(p.season || "") + "|" + String(p.club || "")))
     }
   ]
 };
