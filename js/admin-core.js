@@ -3223,12 +3223,13 @@ ${promptsSource}
 /* ===== END admin-phase6.js ===== */
 
 /* ===== BEGIN admin-phase7.js ===== */
-/* FPL Challenge Studio Phase 7 — player database auditor, reviewed 2026-07-22.
+/* FPL Challenge Studio Phase 7 — player database auditor, reviewed 2026-07-28.
    Updates:
    - Age 15 is valid without a warning.
    - Verified age exceptions can use season.ageVerified = true.
    - Verified mononyms can use player.mononymVerified = true.
    - Same-name players with unique identityDisambiguator values are treated as separate people.
+   - Optional historical statistics no longer block database expansion when source data is unavailable.
 */
 (() => {
   "use strict";
@@ -3237,7 +3238,10 @@ ${promptsSource}
   const PAGE_SIZE = 12;
   const VALID_POSITIONS = new Set(["GK", "DEF", "MID", "FWD"]);
   const PERFORMANCE_FIELDS = ["goals", "assists", "cleanSheets", "bonus", "saves", "goalsConceded"];
-  const NUMERIC_FIELDS = ["points", "minutes", "goals", "assists", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice"];
+  const REQUIRED_NUMERIC_FIELDS = ["points", "minutes", "goals", "assists", "cleanSheets", "bonus", "startingPrice"];
+  const PROMPT_OPTIONAL_NUMERIC_FIELDS = ["saves"];
+  const OPTIONAL_METADATA_NUMERIC_FIELDS = ["goalsConceded", "yellowCards", "redCards", "finalPrice"];
+  const ALL_NUMERIC_FIELDS = [...REQUIRED_NUMERIC_FIELDS, ...PROMPT_OPTIONAL_NUMERIC_FIELDS, ...OPTIONAL_METADATA_NUMERIC_FIELDS];
   const SURNAME_PARTICLES = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
   const state = { running: false, groups: [], rows: [], filteredGroups: [], page: 1, report: null };
   const elements = {};
@@ -3427,11 +3431,32 @@ ${promptsSource}
           });
         }
 
-        for (const field of NUMERIC_FIELDS) {
+        for (const field of REQUIRED_NUMERIC_FIELDS) {
           const value = season?.[field];
           if (!Number.isFinite(value)) {
             addFinding(DEFINITIONS.invalidNumeric(field), { ...seasonContext, field, currentValue: value, expected: "Finite number" });
           } else if (field !== "points" && value < 0) {
+            addFinding(DEFINITIONS.negativeNumeric(field), { ...seasonContext, field, currentValue: value, expected: "0 or more" });
+          }
+        }
+
+        for (const field of PROMPT_OPTIONAL_NUMERIC_FIELDS) {
+          const value = season?.[field];
+          if (value == null || value === "") {
+            addFinding(DEFINITIONS.missingPromptStatistic(field), { ...seasonContext, field, currentValue: value, expected: "Finite number when source data is available" });
+          } else if (!Number.isFinite(value)) {
+            addFinding(DEFINITIONS.invalidOptionalNumeric(field), { ...seasonContext, field, currentValue: value, expected: "Finite number or blank" });
+          } else if (value < 0) {
+            addFinding(DEFINITIONS.negativeNumeric(field), { ...seasonContext, field, currentValue: value, expected: "0 or more" });
+          }
+        }
+
+        for (const field of OPTIONAL_METADATA_NUMERIC_FIELDS) {
+          const value = season?.[field];
+          if (value == null || value === "") continue;
+          if (!Number.isFinite(value)) {
+            addFinding(DEFINITIONS.invalidOptionalNumeric(field), { ...seasonContext, field, currentValue: value, expected: "Finite number or blank" });
+          } else if (value < 0) {
             addFinding(DEFINITIONS.negativeNumeric(field), { ...seasonContext, field, currentValue: value, expected: "0 or more" });
           }
         }
@@ -3863,7 +3888,9 @@ ${promptsSource}
     ageReview: definition("unusual-player-age", "warning", "age", "Unusually old player age", "Players aged 40–45 are valid but should be confirmed before age prompts rely on them.", "Confirm the date of birth and set ageVerified: true on the player-season."),
     ageDobMismatch: definition("age-dob-mismatch", "critical", "age", "Season age conflicts with date of birth", "The stored age differs by more than one year from the player's date of birth.", "Check for a merged same-name player, then recalculate the age after correcting identity."),
     splitIdentity: definition("split-player-identity", "critical", "identity", "Same footballer appears under multiple player IDs", "Accent or spelling changes can split one footballer into separate identities, allowing duplicate use in an XI.", "Merge the seasons, or add unique identityDisambiguator values when they are genuinely different people."),
-    invalidNumeric: field => definition(`invalid-number-${field}`, "critical", "statistics", `${field} is not numeric`, "Prompt tests and scoring require finite numeric values.", `Restore a finite numeric ${field} value from the source data.`),
+    invalidNumeric: field => definition(`invalid-number-${field}`, "critical", "statistics", `${field} is not numeric`, "This field is required by scoring or active prompt rules.", `Restore a finite numeric ${field} value from the source data.`),
+    missingPromptStatistic: field => definition(`missing-prompt-stat-${field}`, "warning", "statistics", `${field} is unavailable`, "Some prompt types use this statistic, but missing values safely fail those prompts and do not corrupt scoring.", `Restore ${field} when a reliable historical source becomes available.`),
+    invalidOptionalNumeric: field => definition(`invalid-optional-number-${field}`, "warning", "statistics", `${field} is malformed`, "This historical field is optional, but a supplied value should still be numeric.", `Correct the value or leave ${field} blank until it can be verified.`),
     negativeNumeric: field => definition(`negative-number-${field}`, "critical", "statistics", `${field} is negative`, "This statistic cannot be negative. Total FPL points are excluded because negative season totals can be legitimate.", `Correct the ${field} value after checking the source record.`),
     flagMismatch: field => definition(`league-flag-mismatch-${field}`, "critical", "league", `${field} flag conflicts with league position`, "League flags must agree with the final table or prompts will accept incorrect answers.", `Recalculate ${field} from leaguePosition for completed seasons.`)
   };
@@ -3884,10 +3911,9 @@ ${promptsSource}
   const promptLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
   const PAGE_SIZE = 12;
   const VALID_POSITIONS = new Set(["GK", "DEF", "MID", "FWD"]);
-  const NUMERIC_FIELDS = [
-    "points", "minutes", "goals", "assists", "cleanSheets", "bonus", "saves",
-    "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice"
-  ];
+  const REQUIRED_NUMERIC_FIELDS = ["points", "minutes", "goals", "assists", "cleanSheets", "bonus", "startingPrice"];
+  const OPTIONAL_NUMERIC_FIELDS = ["saves", "goalsConceded", "yellowCards", "redCards", "finalPrice"];
+  const ALL_NUMERIC_FIELDS = [...REQUIRED_NUMERIC_FIELDS, ...OPTIONAL_NUMERIC_FIELDS];
   const FORBIDDEN_COST = 1_000_000;
 
   const state = {
@@ -4075,7 +4101,7 @@ ${promptsSource}
         }
 
         const numericChanges = {};
-        for (const field of NUMERIC_FIELDS) {
+        for (const field of ALL_NUMERIC_FIELDS) {
           const value = season[field];
           if (typeof value === "string" && value.trim() !== "" && Number.isFinite(Number(value))) numericChanges[field] = Number(value);
         }
@@ -4138,11 +4164,19 @@ ${promptsSource}
         if (!season.club) add(blocked("structure", "Missing club", "Club-based and league-position prompts cannot validate this season without a club.", seasonTarget, "blank", "Restore from a reliable season source."));
         if (invalidPosition && !playerMatchesManager) add(blocked("structure", "Invalid player position", "Only GK, DEF, MID and FWD are supported.", seasonTarget, season.position, "Verify the footballer's position or remove a non-player record."));
 
-        for (const field of NUMERIC_FIELDS) {
+        for (const field of REQUIRED_NUMERIC_FIELDS) {
           const value = season[field];
           if (!Number.isFinite(value) && !(typeof value === "string" && Number.isFinite(Number(value)))) {
-            add(blocked("statistics", `${field} is not numeric`, "Prompt tests and scoring require a finite numeric value.", `${seasonTarget} · ${field}`, value, "Restore from the source data."));
+            add(blocked("statistics", `${field} is not numeric`, "This field is required by scoring or active prompt rules.", `${seasonTarget} · ${field}`, value, "Restore from the source data."));
           } else if (field !== "points" && Number(value) < 0) {
+            add(blocked("statistics", `${field} is negative`, "This statistic cannot be negative.", `${seasonTarget} · ${field}`, value, "Correct after checking the source record."));
+          }
+        }
+
+        for (const field of OPTIONAL_NUMERIC_FIELDS) {
+          const value = season[field];
+          if (value == null || value === "") continue;
+          if (Number.isFinite(value) && Number(value) < 0) {
             add(blocked("statistics", `${field} is negative`, "This statistic cannot be negative.", `${seasonTarget} · ${field}`, value, "Correct after checking the source record."));
           }
         }
@@ -4863,9 +4897,15 @@ ${promptsSource}
         seenSeasons.add(label);
         if (!season?.club) add("missing-club");
         if (!VALID_POSITIONS.has(season?.position)) add("invalid-position");
-        for (const field of NUMERIC_FIELDS) {
+        for (const field of REQUIRED_NUMERIC_FIELDS) {
           if (!Number.isFinite(season?.[field])) add(`invalid-${field}`);
           else if (field !== "points" && season[field] < 0) add(`negative-${field}`);
+        }
+        for (const field of OPTIONAL_NUMERIC_FIELDS) {
+          const value = season?.[field];
+          if (value == null || value === "") continue;
+          if (!Number.isFinite(value)) add(`invalid-optional-${field}`);
+          else if (value < 0) add(`negative-${field}`);
         }
         for (const field of ["startingPrice", "finalPrice"]) {
           const value = season?.[field];
@@ -5154,10 +5194,9 @@ ${promptsSource}
   const originalPlayers = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
   const promptLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
   const VALID_POSITIONS = new Set(["GK", "DEF", "MID", "FWD"]);
-  const NUMERIC_FIELDS = [
-    "points", "minutes", "goals", "assists", "cleanSheets", "bonus", "saves",
-    "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice"
-  ];
+  const REQUIRED_NUMERIC_FIELDS = ["points", "minutes", "goals", "assists", "cleanSheets", "bonus", "startingPrice"];
+  const OPTIONAL_NUMERIC_FIELDS = ["saves", "goalsConceded", "yellowCards", "redCards", "finalPrice"];
+  const ALL_NUMERIC_FIELDS = [...REQUIRED_NUMERIC_FIELDS, ...OPTIONAL_NUMERIC_FIELDS];
   const FORBIDDEN_COST = 1_000_000;
 
   const SPLIT_CATALOGUE = Object.freeze({
@@ -5356,7 +5395,7 @@ ${promptsSource}
       for (const season of player.seasons) {
         for (const field of ["season", "club", "position"]) if (typeof season[field] === "string") season[field] = cleanWhitespace(season[field]);
         if (Array.isArray(season.managers)) season.managers = [...new Set(season.managers.map(cleanWhitespace).filter(Boolean))];
-        for (const field of NUMERIC_FIELDS) {
+        for (const field of ALL_NUMERIC_FIELDS) {
           if (typeof season[field] === "string" && season[field].trim() !== "" && Number.isFinite(Number(season[field]))) {
             state.changes.push(change("convert-number", player, season, `${field}: ${season[field]} → ${Number(season[field])}`));
             season[field] = Number(season[field]);
@@ -5598,9 +5637,15 @@ ${promptsSource}
     const reasons = [];
     if (!season.club) reasons.push("missing club");
     if (!VALID_POSITIONS.has(season.position)) reasons.push("invalid position");
-    for (const field of NUMERIC_FIELDS) {
+    for (const field of REQUIRED_NUMERIC_FIELDS) {
       if (!Number.isFinite(season[field])) reasons.push(`invalid ${field}`);
       else if (field !== "points" && season[field] < 0) reasons.push(`negative ${field}`);
+    }
+    for (const field of OPTIONAL_NUMERIC_FIELDS) {
+      const value = season[field];
+      if (value == null || value === "") continue;
+      if (!Number.isFinite(value)) reasons.push(`invalid optional ${field}`);
+      else if (value < 0) reasons.push(`negative ${field}`);
     }
     for (const field of ["startingPrice", "finalPrice"]) {
       if (Number.isFinite(season[field]) && (season[field] < 3.5 || season[field] > 15.5)) reasons.push(`invalid ${field}`);
@@ -5989,7 +6034,8 @@ ${promptsSource}
   const promptLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
   const VALID_POSITIONS = new Set(["GK", "DEF", "MID", "FWD"]);
   const POSITION_BY_TYPE = Object.freeze({ 1: "GK", 2: "DEF", 3: "MID", 4: "FWD" });
-  const REQUIRED_NUMERIC = ["points", "minutes", "goals", "assists", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice"];
+  const REQUIRED_NUMERIC = ["points", "minutes", "goals", "assists", "cleanSheets", "bonus"];
+  const OPTIONAL_NUMERIC = ["saves", "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice"];
 
   const state = {
     datasetRows: [],
@@ -6223,7 +6269,6 @@ ${promptsSource}
     const explicitStarting = first(row, ["startingprice", "starting_price", "start_price", "startprice"]);
     let startingPrice = explicitStarting != null && explicitStarting !== "" ? priceValue(explicitStarting) : null;
     if (startingPrice == null && finalPrice != null && numeric(costChangeRaw) != null) startingPrice = roundOne(finalPrice - numeric(costChangeRaw) / 10);
-    if (startingPrice == null) startingPrice = finalPrice;
 
     const birthDate = String(first(row, ["dateofbirth", "date_of_birth", "birth_date", "birthdate"]) || row.bio?.dateOfBirth || "").trim() || null;
     const regionId = integer(first(row, ["regionid", "region_id", "region"])) ?? integer(row.bio?.regionId);
@@ -6436,6 +6481,11 @@ ${promptsSource}
     for (const field of REQUIRED_NUMERIC) {
       if (!Number.isFinite(row[field]) || row[field] < 0) errors.push(`Invalid ${field}`);
     }
+    for (const field of OPTIONAL_NUMERIC) {
+      const value = row[field];
+      if (value == null || value === "") continue;
+      if (!Number.isFinite(value) || value < 0) errors.push(`Invalid optional ${field}`);
+    }
     if (Number.isFinite(row.minutes) && row.minutes > 4500) errors.push("Minutes exceed a plausible Premier League season");
     if (Number.isFinite(row.startingPrice) && !between(row.startingPrice, 3.5, 16)) errors.push("Starting price outside £3.5m–£16.0m");
     if (Number.isFinite(row.finalPrice) && !between(row.finalPrice, 3.5, 16)) errors.push("Final price outside £3.5m–£16.0m");
@@ -6454,12 +6504,12 @@ ${promptsSource}
       assists: row.assists,
       cleanSheets: row.cleanSheets,
       bonus: row.bonus,
-      saves: row.saves,
-      goalsConceded: row.goalsConceded,
-      yellowCards: row.yellowCards,
-      redCards: row.redCards,
-      startingPrice: roundOne(row.startingPrice),
-      finalPrice: roundOne(row.finalPrice),
+      ...(Number.isFinite(row.saves) ? { saves: row.saves } : {}),
+      ...(Number.isFinite(row.goalsConceded) ? { goalsConceded: row.goalsConceded } : {}),
+      ...(Number.isFinite(row.yellowCards) ? { yellowCards: row.yellowCards } : {}),
+      ...(Number.isFinite(row.redCards) ? { redCards: row.redCards } : {}),
+      ...(Number.isFinite(row.startingPrice) ? { startingPrice: roundOne(row.startingPrice) } : {}),
+      ...(Number.isFinite(row.finalPrice) ? { finalPrice: roundOne(row.finalPrice) } : {}),
       managers: [...meta.managers],
       leaguePosition: position,
       champions: position === 1,
@@ -6657,6 +6707,11 @@ ${promptsSource}
         if (!VALID_POSITIONS.has(record.position)) issues.push(`${player.name}: invalid position`);
         if (!record.club) issues.push(`${player.name}: missing club`);
         for (const field of REQUIRED_NUMERIC) if (!Number.isFinite(record[field]) || record[field] < 0) issues.push(`${player.name}: invalid ${field}`);
+        for (const field of OPTIONAL_NUMERIC) {
+          const value = record[field];
+          if (value == null || value === "") continue;
+          if (!Number.isFinite(value) || value < 0) issues.push(`${player.name}: invalid optional ${field}`);
+        }
       }
     }
     return issues;

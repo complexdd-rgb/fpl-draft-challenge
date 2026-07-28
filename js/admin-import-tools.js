@@ -249,7 +249,7 @@
       const change = numeric(first(snapshot, ["cost_change_start"]));
       if (now != null && change != null) startingPrice = roundOne((now - change) / (Math.abs(now) > 30 ? 10 : 1));
     }
-    if (!validPrice(finalPrice)) return fail("A trustworthy final FPL price is unavailable.");
+    const finalPriceKnown = validPrice(finalPrice);
     const startingPriceKnown = validPrice(startingPrice);
 
     const stats = history ? {
@@ -257,7 +257,10 @@
       cleanSheets: history.cleanSheets, bonus: history.bonus, saves: history.saves,
       goalsConceded: history.goalsConceded, yellowCards: history.yellowCards, redCards: history.redCards
     } : sourceStats;
-    if (!Object.values(stats).every(Number.isFinite)) return fail("One or more required FPL statistics are invalid.");
+    const requiredStats = ["points", "minutes", "goals", "assists", "cleanSheets", "bonus"];
+    if (!requiredStats.every(key => Number.isFinite(stats[key]) && stats[key] >= 0)) return fail("One or more required FPL statistics are invalid.");
+    const optionalStats = ["saves", "goalsConceded", "yellowCards", "redCards"];
+    if (!optionalStats.every(key => stats[key] == null || (Number.isFinite(stats[key]) && stats[key] >= 0))) return fail("One or more optional FPL statistics are malformed.");
 
     const dateOfBirth = dateValue(first(snapshot, ["birth_date", "date_of_birth", "dateOfBirth"]));
     const record = {
@@ -270,12 +273,12 @@
       assists: stats.assists,
       cleanSheets: stats.cleanSheets,
       bonus: stats.bonus,
-      saves: stats.saves,
-      goalsConceded: stats.goalsConceded,
-      yellowCards: stats.yellowCards,
-      redCards: stats.redCards,
+      ...(Number.isFinite(stats.saves) ? { saves: stats.saves } : {}),
+      ...(Number.isFinite(stats.goalsConceded) ? { goalsConceded: stats.goalsConceded } : {}),
+      ...(Number.isFinite(stats.yellowCards) ? { yellowCards: stats.yellowCards } : {}),
+      ...(Number.isFinite(stats.redCards) ? { redCards: stats.redCards } : {}),
       ...(startingPriceKnown ? { startingPrice: roundOne(startingPrice) } : {}),
-      finalPrice: roundOne(finalPrice),
+      ...(finalPriceKnown ? { finalPrice: roundOne(finalPrice) } : {}),
       managers: [...clubMeta.managers],
       leaguePosition: clubMeta.position,
       champions: clubMeta.position === 1,
@@ -290,7 +293,7 @@
         sourcePlayerId: first(snapshot, ["id"]) ?? null,
         sourceCode: code || null,
         startingPriceConfidence: startingPriceKnown ? "verified" : "unavailable",
-        confidence: history ? "verified-cross-source" : startingPriceKnown ? "verified-official-snapshot" : "verified-official-stats-final-price-only"
+        confidence: history ? "verified-cross-source" : startingPriceKnown ? "verified-official-snapshot" : finalPriceKnown ? "verified-official-stats-final-price-only" : "verified-official-core-stats"
       }
     };
 
@@ -396,7 +399,7 @@
     addCheck(results, existingDataUnchanged(database), "Existing database preserved", "All pre-existing player identities and season records remain unchanged.");
 
     const invalidImported = preview.imported.filter(item => !validImportedRecord(item.record));
-    addCheck(results, invalidImported.length === 0, "Imported schema and metadata", invalidImported.length ? `${invalidImported.length} imported records are invalid.` : "All imported records have valid clubs, positions, statistics, final prices and 2015/16 flags.");
+    addCheck(results, invalidImported.length === 0, "Imported schema and metadata", invalidImported.length ? `${invalidImported.length} imported records are invalid.` : "All imported records have valid clubs, positions, required statistics and 2015/16 flags.");
     results.push({
       state: preview.partialStartingPrice ? "warn" : "pass",
       title: "Historical starting-price coverage",
@@ -734,7 +737,10 @@
     const startingPriceValid = record.startingPrice == null
       ? record.source?.startingPriceConfidence === "unavailable"
       : validPrice(record.startingPrice);
-    return record.season === SEASON && club && VALID_POSITIONS.has(record.position) && startingPriceValid && validPrice(record.finalPrice) && Number.isInteger(record.leaguePosition) && record.leaguePosition >= 1 && record.leaguePosition <= 20 && Array.isArray(record.managers) && record.managers.length && ["points", "minutes", "goals", "assists", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards"].every(key => Number.isFinite(record[key]) && record[key] >= 0);
+    const finalPriceValid = record.finalPrice == null || validPrice(record.finalPrice);
+    const requiredStatsValid = ["points", "minutes", "goals", "assists", "cleanSheets", "bonus"].every(key => Number.isFinite(record[key]) && record[key] >= 0);
+    const optionalStatsValid = ["saves", "goalsConceded", "yellowCards", "redCards"].every(key => record[key] == null || (Number.isFinite(record[key]) && record[key] >= 0));
+    return record.season === SEASON && club && VALID_POSITIONS.has(record.position) && startingPriceValid && finalPriceValid && Number.isInteger(record.leaguePosition) && record.leaguePosition >= 1 && record.leaguePosition <= 20 && Array.isArray(record.managers) && record.managers.length && requiredStatsValid && optionalStatsValid;
   }
   function existingDataUnchanged(database) {
     const map = new Map(database.map(player => [player.playerId, player]));
