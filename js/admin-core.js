@@ -1192,6 +1192,7 @@ ${promptsSource}
     const matches = [];
     for (const record of records) {
       if (record.position !== prompt.position) continue;
+          if (Number(record?.minutes) <= 0) continue;
       try {
         if (prompt.test(record)) matches.push(record);
       } catch (error) {
@@ -2374,7 +2375,7 @@ ${promptsSource}
   }
 
   function eligibleSeasons(player, prompt) {
-    return (player?.seasons || []).filter(season => season.position === prompt.position);
+    return (player?.seasons || []).filter(season => season.position === prompt.position && Number(season?.minutes) > 0);
   }
 
   function usedPlayerIds() {
@@ -3432,6 +3433,8 @@ ${promptsSource}
         }
 
         for (const field of REQUIRED_NUMERIC_FIELDS) {
+          /* Zero-minute starting-price exemption. */
+          if (field === "startingPrice" && Number(season?.minutes) === 0) continue;
           const value = season?.[field];
           if (!Number.isFinite(value)) {
             addFinding(DEFINITIONS.invalidNumeric(field), { ...seasonContext, field, currentValue: value, expected: "Finite number" });
@@ -4165,6 +4168,8 @@ ${promptsSource}
         if (invalidPosition && !playerMatchesManager) add(blocked("structure", "Invalid player position", "Only GK, DEF, MID and FWD are supported.", seasonTarget, season.position, "Verify the footballer's position or remove a non-player record."));
 
         for (const field of REQUIRED_NUMERIC_FIELDS) {
+          /* Zero-minute starting-price exemption. */
+          if (field === "startingPrice" && Number(season?.minutes) === 0) continue;
           const value = season[field];
           if (!Number.isFinite(value) && !(typeof value === "string" && Number.isFinite(Number(value)))) {
             add(blocked("statistics", `${field} is not numeric`, "This field is required by scoring or active prompt rules.", `${seasonTarget} · ${field}`, value, "Restore from the source data."));
@@ -4766,6 +4771,7 @@ ${promptsSource}
       try {
         for (const record of records) {
           if (record.position !== prompt.position) continue;
+          if (Number(record?.minutes) <= 0) continue;
           if (prompt.test(record)) players.add(record.playerId);
         }
       } catch (error) {
@@ -4800,6 +4806,7 @@ ${promptsSource}
       const map = new Map();
       for (const record of records) {
         if (record.position !== prompt.position) continue;
+          if (Number(record?.minutes) <= 0) continue;
         let valid = false;
         try { valid = Boolean(prompt.test(record)); } catch { return null; }
         if (!valid) continue;
@@ -4898,6 +4905,8 @@ ${promptsSource}
         if (!season?.club) add("missing-club");
         if (!VALID_POSITIONS.has(season?.position)) add("invalid-position");
         for (const field of REQUIRED_NUMERIC_FIELDS) {
+          /* Zero-minute starting-price exemption. */
+          if (field === "startingPrice" && Number(season?.minutes) === 0) continue;
           if (!Number.isFinite(season?.[field])) add(`invalid-${field}`);
           else if (field !== "points" && season[field] < 0) add(`negative-${field}`);
         }
@@ -5638,6 +5647,8 @@ ${promptsSource}
     if (!season.club) reasons.push("missing club");
     if (!VALID_POSITIONS.has(season.position)) reasons.push("invalid position");
     for (const field of REQUIRED_NUMERIC_FIELDS) {
+      /* Zero-minute starting-price exemption. */
+      if (field === "startingPrice" && Number(season?.minutes) === 0) continue;
       if (!Number.isFinite(season[field])) reasons.push(`invalid ${field}`);
       else if (field !== "points" && season[field] < 0) reasons.push(`negative ${field}`);
     }
@@ -5662,7 +5673,7 @@ ${promptsSource}
       const playerIds = new Set();
       try {
         for (const record of flat) {
-          if (record.position === prompt.position && prompt.test(record)) playerIds.add(record.playerId);
+          if (Number(record?.minutes) > 0 && record.position === prompt.position && prompt.test(record)) playerIds.add(record.playerId);
         }
       } catch (error) {
         result.errors.push({ id: prompt.id, error: error.message || String(error) });
@@ -5698,6 +5709,7 @@ ${promptsSource}
       const best = new Map();
       for (const record of flat) {
         if (record.position !== prompt.position) continue;
+          if (Number(record?.minutes) <= 0) continue;
         let valid = false;
         try { valid = prompt.test(record); } catch { valid = false; }
         if (!valid) continue;
@@ -6723,7 +6735,7 @@ ${promptsSource}
     const failed = [];
     for (const prompt of enabled) {
       try {
-        const validPlayers = new Set(flat.filter(record => record.position === prompt.position && prompt.test(record)).map(record => record.playerId));
+        const validPlayers = new Set(flat.filter(record => Number(record?.minutes) > 0 && record.position === prompt.position && prompt.test(record)).map(record => record.playerId));
         if (!validPlayers.size) failed.push(prompt.id);
       } catch { failed.push(prompt.id); }
     }
@@ -6753,6 +6765,7 @@ ${promptsSource}
       const map = new Map();
       for (const record of flat) {
         if (record.position !== prompt.position) continue;
+          if (Number(record?.minutes) <= 0) continue;
         let valid = false;
         try { valid = prompt.test(record); } catch {}
         if (!valid) continue;
@@ -7467,7 +7480,7 @@ ${promptsSource}
     return promptLibrary.filter(prompt => prompt.enabled !== false).map(prompt => {
       const players = new Set();
       for (const record of flat) {
-        try { if (record.position === prompt.position && prompt.test(record)) players.add(record.playerId); } catch { /* handled as failure */ }
+        try { if (Number(record?.minutes) > 0 && record.position === prompt.position && prompt.test(record)) players.add(record.playerId); } catch { /* handled as failure */ }
       }
       return { id: prompt.id, players: players.size };
     }).filter(result => result.players < 6);
@@ -7480,6 +7493,7 @@ ${promptsSource}
       const map = new Map();
       for (const record of flat) {
         if (record.position !== prompt.position) continue;
+          if (Number(record?.minutes) <= 0) continue;
         let valid = false;
         try { valid = prompt.test(record); } catch { valid = false; }
         if (!valid) continue;
