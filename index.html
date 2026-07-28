@@ -501,7 +501,7 @@ window.FPL_V3_HELPERS = {
 </script>
 
 <!-- The large database stays separate to keep index.html manageable. -->
-<script src="players.js?v=12.1.0"></script>
+<script src="players.js?v=12.2.0"></script>
 
 <script>
 /* Core FPL Daily Challenge game engine. */
@@ -538,12 +538,14 @@ const formatTime=n=>`${Math.floor(n/60)}:${String(Math.floor(n%60)).padStart(2,"
 const getPlayer=id=>groupedPlayers.find(p=>p.playerId===id);
 const getRecord=(playerId,season)=>flatSeasons.find(p=>p.playerId===playerId&&p.season===season);
 const usedPlayerIds=()=>new Set(Object.values(picks).map(p=>p.playerId));
+/* Zero-minute answer eligibility rule. */
+const qualifiesForAnswer=record=>Number.isFinite(Number(record?.minutes))&&Number(record.minutes)>0;
 
 function save(){localStorage.setItem(STORE,JSON.stringify({picks,penalties}));}
 function load(){try{const x=JSON.parse(localStorage.getItem(STORE)||"{}");picks=x.picks||{};penalties=Number(x.penalties)||0;}catch{}}
 
 function eligibleSeasons(player,prompt){
-  return player.seasons.filter(s=>s.position===prompt.position);
+  return player.seasons.filter(s=>s.position===prompt.position&&qualifiesForAnswer(s));
 }
 function render(){
   document.getElementById("title").textContent=`FPL Daily Challenge 4.0 · ${challenge.title}`;
@@ -627,6 +629,7 @@ function confirmPick(id){
   if(duplicate){feedback[id]="That footballer has already been used — no penalty.";render();return;}
   const record=getRecord(draft.playerId,draft.season);
   if(!record)return;
+  if(!qualifiesForAnswer(record)){feedback[id]="This player-season recorded 0 minutes and cannot be used — no penalty.";delete picks[id];save();render();return;}
   if(!prompt.test(record)){
     penalties+=INVALID_PENALTY;feedback[id]=`❌ ${record.name} ${record.season} is invalid. ${prompt.fail} −${INVALID_PENALTY} points.`;
     delete picks[id];save();render();
@@ -642,11 +645,11 @@ function updateStatus(){
   document.getElementById("penalty").textContent=`Penalties −${penalties}`;
   document.getElementById("reveal").disabled=count!==challenge.prompts.length;
 }
-function topFive(prompt){return flatSeasons.filter(p=>p.position===prompt.position&&prompt.test(p)).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,5);}
+function topFive(prompt){return flatSeasons.filter(p=>qualifiesForAnswer(p)&&p.position===prompt.position&&prompt.test(p)).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name)).slice(0,5);}
 function shirt(row,perfectMode=false){return `<div class="shirt ${row.exactMatch?"exact-match":""}"><div class="shirt-icon">${row.position}</div><strong>${esc(row.name)}</strong><span>${row.season} · ${row.points} pts</span></div>`;}
 function pitchMarkup(rows,perfectMode=false){const by=pos=>rows.filter(r=>r.position===pos);return `<div class="pitch ${perfectMode?"perfect-pitch":"user-pitch"}"><div class="line">${by("FWD").map(r=>shirt(r,perfectMode)).join("")}</div><div class="line">${by("MID").map(r=>shirt(r,perfectMode)).join("")}</div><div class="line">${by("DEF").map(r=>shirt(r,perfectMode)).join("")}</div><div class="line">${by("GK").map(r=>shirt(r,perfectMode)).join("")}</div></div>`;}
 function calculatePerfectXI(){
-  const bestBySlot=challenge.prompts.map(prompt=>{const map=new Map();for(const record of flatSeasons){if(record.position!==prompt.position)continue;let valid=false;try{valid=prompt.test(record);}catch{}if(!valid)continue;const current=map.get(record.playerId);if(!current||record.points>current.points)map.set(record.playerId,record);}return map;});
+  const bestBySlot=challenge.prompts.map(prompt=>{const map=new Map();for(const record of flatSeasons){if(record.position!==prompt.position||!qualifiesForAnswer(record))continue;let valid=false;try{valid=prompt.test(record);}catch{}if(!valid)continue;const current=map.get(record.playerId);if(!current||record.points>current.points)map.set(record.playerId,record);}return map;});
   const playerIds=[...new Set(bestBySlot.flatMap(map=>[...map.keys()]))];if(playerIds.length<challenge.prompts.length)return null;
   const maximum=Math.max(0,...bestBySlot.flatMap(map=>[...map.values()].map(record=>record.points)));const forbidden=1000000;
   const costs=bestBySlot.map(map=>playerIds.map(id=>map.has(id)?maximum-map.get(id).points:forbidden));const assignment=hungarianAssignment(costs);if(!assignment)return null;
@@ -682,7 +685,7 @@ document.getElementById("reset").addEventListener("click",()=>{if(confirm("Clear
 document.getElementById("copy").addEventListener("click",async()=>{const text=`🏆 FPL Daily Challenge 4.0\n${challenge.title}\n\nFinal score: ${document.getElementById("finalScore").textContent} / ${challenge.perfectScore}\nPenalties: ${document.getElementById("penaltyPoints").textContent}\nEfficiency: ${document.getElementById("efficiency").textContent}\nTime: ${document.getElementById("timeTaken").textContent}\n\nCan you beat me?`;try{await navigator.clipboard.writeText(text);document.getElementById("copyStatus").textContent="Result copied.";}catch{document.getElementById("copyStatus").textContent=text;}});
 document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))document.querySelectorAll(".suggestions").forEach(x=>x.classList.add("hidden"));});
 load();
-const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).forEach(id=>{const p=picks[id],prompt=challenge.prompts.find(x=>x.id===id),r=getRecord(p.playerId,p.season);if(!prompt||!validIds.has(p.playerId)||!r||!prompt.test(r))delete picks[id];else drafts[id]={...p};});save();render();tick();timerId=setInterval(tick,1000);
+const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).forEach(id=>{const p=picks[id],prompt=challenge.prompts.find(x=>x.id===id),r=getRecord(p.playerId,p.season);if(!prompt||!validIds.has(p.playerId)||!r||!qualifiesForAnswer(r)||!prompt.test(r))delete picks[id];else drafts[id]={...p};});save();render();tick();timerId=setInterval(tick,1000);
 
 </script>
 
