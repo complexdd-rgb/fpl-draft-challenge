@@ -24,6 +24,8 @@
     leaguePosition: { label: "League position", type: "number" },
     ageAtSeasonStart: { label: "Age at season start", type: "number" },
     season: { label: "Season played", type: "season" },
+    careerSeasonCount: { label: "Recorded Premier League seasons", type: "number", career: true },
+    careerClubCount: { label: "Recorded Premier League clubs", type: "number", career: true },
     champions: { label: "League champions", type: "boolean" },
     topFour: { label: "Top-four club", type: "boolean" },
     bottomHalf: { label: "Bottom-half club", type: "boolean" },
@@ -996,6 +998,8 @@ ${promptsSource}
     if (field === "firstNameLength") return `__letterCount(__firstName)`;
     if (field === "surnameLength") return `__letterCount(__surname)`;
     if (field === "nameWordCount") return `__nameTokens.length`;
+    if (field === "careerSeasonCount") return `Number(p._career?.seasonCount)`;
+    if (field === "careerClubCount") return `Number(p._career?.clubCount)`;
     return `p.${field}`;
   }
 

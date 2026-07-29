@@ -235,6 +235,12 @@
       ["FPL points", result.stats.points], ["Minutes", result.stats.minutes], ["Goals", result.stats.goals], ["Assists", result.stats.assists],
       ["Clean sheets", result.stats.cleanSheets], ["Bonus", result.stats.bonus], ["Saves", result.stats.saves], ["Goals conceded", result.stats.goalsConceded]
     ];
+    const career = [
+      ["Recorded PL seasons", result.career?.seasonCount ?? "Missing"],
+      ["Recorded PL clubs", result.career?.clubCount ?? "Missing"],
+      ["Seasons", (result.career?.seasons || []).join(", ") || "None"],
+      ["Clubs", (result.career?.clubs || []).join(", ") || "None"]
+    ];
     const database = [
       ["Starting price", engine.formatValue("startingPrice", result.database.startingPrice)],
       ["Final price", engine.formatValue("finalPrice", result.database.finalPrice)],
@@ -254,6 +260,7 @@
       <div class="validation-detail-grid">
         ${detailGroup("Identity", identity)}
         ${detailGroup("Season stats", stats)}
+        ${detailGroup("Career totals", career)}
         ${detailGroup("Database metadata", database)}
       </div>
       <div class="validation-check-list">

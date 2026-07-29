@@ -1246,6 +1246,14 @@ body.stage-one-enabled .audit-status-chip {
             </select>
             <small>Creates exact-season, before-season, after-season and between-season prompts.</small>
           </label>
+          <label>Career total rules
+            <select id="factoryCareerMode">
+              <option value="mix" selected>Mix in career-total prompts</option>
+              <option value="none">Do not use career totals</option>
+              <option value="only">Career totals only</option>
+            </select>
+            <small>Counts unique positive-minute seasons and clubs currently recorded in the database.</small>
+          </label>
           <label>Relationship rules
             <select id="factoryRelationshipMode">
               <option value="mix" selected>Mix in teammate prompts</option>
@@ -1272,7 +1280,7 @@ body.stage-one-enabled .audit-status-chip {
         </div>
         <div class="factory-rule-note">
           <strong>Prompt Engine 2</strong>
-          <span>The Auto Prompt Generator can now mix in exact-season, before-season, after-season and between-season rules alongside relationship and anti-obvious prompts.</span>
+          <span>The Auto Prompt Generator can now mix in season rules and career totals alongside relationship and anti-obvious prompts. Career totals only count seasons and clubs with recorded minutes in the current database.</span>
         </div>
 
         <div class="button-row prompt-factory-actions">
@@ -1384,7 +1392,7 @@ body.stage-one-enabled .audit-status-chip {
           <div class="rule-builder-head">
             <div>
               <h4>Safe rule builder</h4>
-              <p>Conditions are converted into the same JavaScript tests used by the game. Phase B season rules now support exact, before, after and between seasons.</p>
+              <p>Conditions are converted into the same JavaScript tests used by the game. Phase B supports exact, before, after and between-season rules plus recorded career season and club totals.</p>
             </div>
             <label>Match<select id="promptRuleJoin"><option value="all">All conditions</option><option value="any">Any condition</option></select></label>
           </div>
@@ -2086,11 +2094,12 @@ body.stage-one-enabled .audit-status-chip {
   </main>
 
   <script src="players.js?v=12.3.0"></script>
+  <script src="js/career-context.js?v=1.0.0"></script>
   <script src="prompt-library.js?v=2.0.1"></script>
-  <script src="js/validation-engine.js?v=1.2.0"></script>
-  <script src="js/admin-core.js?v=19.0.0"></script>
+  <script src="js/validation-engine.js?v=1.3.0"></script>
+  <script src="js/admin-core.js?v=20.0.0"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
-  <script src="js/admin-import-tools.js?v=17.0.0"></script>
+  <script src="js/admin-import-tools.js?v=18.0.0"></script>
 
   <!-- FPL STUDIO STAGE ONE JS START -->
   <script id="fpl-studio-stage-one-js">
@@ -2654,6 +2663,6 @@ body.stage-one-enabled .audit-status-chip {
 
   </script>
   <!-- FPL STUDIO STAGE ONE JS END -->
-  <script src="js/validation-lab.js?v=1.1.0"></script>
+  <script src="js/validation-lab.js?v=1.2.0"></script>
 </body>
 </html>

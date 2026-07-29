@@ -893,6 +893,7 @@ Backups and detailed reports are included.
       maximum: document.querySelector("#factoryMaxPlayers"),
       cooldown: document.querySelector("#factoryCooldown"),
       seasonMode: document.querySelector("#factorySeasonMode"),
+      careerMode: document.querySelector("#factoryCareerMode"),
       relationship: document.querySelector("#factoryRelationshipMode"),
       exclusion: document.querySelector("#factoryExclusionMode"),
       includeNames: document.querySelector("#factoryIncludeNameRules"),
@@ -916,11 +917,17 @@ Backups and detailed reports are included.
     const positionMode = POSITIONS.includes(elements.position.value) ? elements.position.value : "balanced";
     const difficultyMode = ["easy", "medium", "hard"].includes(elements.difficulty.value) ? elements.difficulty.value : "balanced";
     const seasonMode = ["none", "mix", "only"].includes(elements.seasonMode?.value) ? elements.seasonMode.value : "mix";
+    const careerMode = ["none", "mix", "only"].includes(elements.careerMode?.value) ? elements.careerMode.value : "mix";
     const relationshipMode = ["none", "mix", "only"].includes(elements.relationship?.value) ? elements.relationship.value : "mix";
     const exclusionMode = ["none", "mix", "top1", "top2"].includes(elements.exclusion?.value) ? elements.exclusion.value : "mix";
 
-    if (seasonMode === "only" && relationshipMode === "only") {
-      elements.status.textContent = "Choose either Season prompts only or Teammate prompts only, not both at the same time.";
+    const onlyModes = [
+      ["season", seasonMode],
+      ["career totals", careerMode],
+      ["teammate", relationshipMode]
+    ].filter(([, mode]) => mode === "only");
+    if (onlyModes.length > 1) {
+      elements.status.textContent = `Choose only one “only” mode at a time: ${onlyModes.map(([label]) => label).join(", ")}.`;
       return;
     }
 
@@ -941,6 +948,7 @@ Backups and detailed reports are included.
           positionMode,
           cooldown,
           seasonMode,
+          careerMode,
           relationshipMode
         });
         shuffle(variants);
@@ -1032,15 +1040,16 @@ Backups and detailed reports are included.
     }
   }
 
-  function buildCandidateVariants({ includeNameRules, positionMode, cooldown, seasonMode = "mix", relationshipMode = "mix" }) {
+  function buildCandidateVariants({ includeNameRules, positionMode, cooldown, seasonMode = "mix", careerMode = "mix", relationshipMode = "mix" }) {
     const positions = positionMode === "balanced" ? POSITIONS : [positionMode];
     const variants = [];
     const add = (position, family, idBase, label, fail, tags, conditions, join = "all") => {
       variants.push({ position, family, idBase, label, fail, tags, cooldown, studioRule: { kind: "builder", join, conditions } });
     };
-    const includeStandard = relationshipMode !== "only" && seasonMode !== "only";
-    const includeSeason = relationshipMode !== "only" && seasonMode !== "none";
-    const includeTeammates = relationshipMode !== "none" && seasonMode !== "only";
+    const includeStandard = relationshipMode !== "only" && seasonMode !== "only" && careerMode !== "only";
+    const includeSeason = relationshipMode !== "only" && careerMode !== "only" && seasonMode !== "none";
+    const includeCareerTotals = relationshipMode !== "only" && seasonMode !== "only" && careerMode !== "none";
+    const includeTeammates = relationshipMode !== "none" && seasonMode !== "only" && careerMode !== "only";
 
     if (includeStandard) for (const position of positions) {
       const noun = POSITION_LABELS[position];
@@ -1080,6 +1089,7 @@ Backups and detailed reports are included.
       addManagerVariants(variants, positions, cooldown, add);
     }
     if (includeSeason) addSeasonPlayedVariants(positions, add);
+    if (includeCareerTotals) addCareerTotalVariants(positions, add);
     if (includeTeammates) addTeammateVariants(variants, positions, cooldown);
     return variants;
   }
@@ -1179,6 +1189,87 @@ Backups and detailed reports are included.
           `That ${lower} must play at least ${formatNumber(minutes)} minutes between the ${from} and ${to} seasons.`,
           ["auto-generated", "season-rule", "season-between", "minutes", "anti-meta"],
           [seasonCondition("between", from, to), num("minutes", "gte", minutes)]
+        );
+      }
+    }
+  }
+
+  function addCareerTotalVariants(positions, add) {
+    const careerContext = window.FPL_CAREER_CONTEXT;
+    if (!careerContext?.players?.length) return;
+
+    const pointThresholds = { GK: [50, 80], DEF: [60, 90], MID: [70, 100], FWD: [60, 90] };
+    const minuteThresholds = { GK: 1800, DEF: 2000, MID: 2000, FWD: 1800 };
+    const seasonCounts = [2, 3, 4, 5, 6, 8, 10, 12];
+    const exactSeasonCounts = [2, 3, 4, 5, 6, 8, 10];
+    const clubCounts = [2, 3, 4, 5, 6];
+    const exactClubCounts = [1, 2, 3, 4, 5];
+
+    for (const position of positions) {
+      const noun = POSITION_LABELS[position];
+      const lower = noun.toLowerCase();
+
+      for (const count of seasonCounts) {
+        for (const points of pointThresholds[position]) {
+          add(
+            position,
+            "career-seasons-minimum",
+            `${position.toLowerCase()}_career_seasons_${count}_points_${points}`,
+            `${noun} with at least ${count} recorded Premier League seasons and ${points}+ FPL points`,
+            `That ${lower} must have recorded minutes in at least ${count} Premier League seasons and score at least ${points} FPL points in the selected season.`,
+            ["auto-generated", "career-total", "career-seasons", "points", "anti-meta"],
+            [num("careerSeasonCount", "gte", count), num("points", "gte", points), num("minutes", "gt", 0)]
+          );
+        }
+      }
+
+      for (const count of exactSeasonCounts) {
+        add(
+          position,
+          "career-seasons-exact",
+          `${position.toLowerCase()}_career_seasons_exact_${count}_minutes_${minuteThresholds[position]}`,
+          `${noun} with exactly ${count} recorded Premier League seasons who played ${formatNumber(minuteThresholds[position])}+ minutes`,
+          `That ${lower} must have exactly ${count} positive-minute Premier League seasons in the database and play at least ${formatNumber(minuteThresholds[position])} minutes in the selected season.`,
+          ["auto-generated", "career-total", "career-seasons", "exact-stat", "minutes", "anti-meta"],
+          [num("careerSeasonCount", "eq", count), num("minutes", "gte", minuteThresholds[position])]
+        );
+      }
+
+      for (const count of clubCounts) {
+        for (const points of pointThresholds[position]) {
+          add(
+            position,
+            "career-clubs-minimum",
+            `${position.toLowerCase()}_career_clubs_${count}_points_${points}`,
+            `${noun} who represented at least ${count} recorded Premier League clubs and scored ${points}+ FPL points`,
+            `That ${lower} must have recorded minutes for at least ${count} Premier League clubs and score at least ${points} FPL points in the selected season.`,
+            ["auto-generated", "career-total", "career-clubs", "points", "anti-meta"],
+            [num("careerClubCount", "gte", count), num("points", "gte", points), num("minutes", "gt", 0)]
+          );
+        }
+      }
+
+      for (const count of exactClubCounts) {
+        add(
+          position,
+          "career-clubs-exact",
+          `${position.toLowerCase()}_career_clubs_exact_${count}_minutes_${minuteThresholds[position]}`,
+          `${noun} who represented exactly ${count} recorded Premier League club${count === 1 ? "" : "s"} and played ${formatNumber(minuteThresholds[position])}+ minutes`,
+          `That ${lower} must have recorded minutes for exactly ${count} Premier League club${count === 1 ? "" : "s"} and play at least ${formatNumber(minuteThresholds[position])} minutes in the selected season.`,
+          ["auto-generated", "career-total", "career-clubs", "exact-stat", "minutes", "anti-meta"],
+          [num("careerClubCount", "eq", count), num("minutes", "gte", minuteThresholds[position])]
+        );
+      }
+
+      for (const [low, high] of [[2, 4], [5, 7], [8, 10]]) {
+        add(
+          position,
+          "career-seasons-range",
+          `${position.toLowerCase()}_career_seasons_${low}_${high}_points_60`,
+          `${noun} with between ${low} and ${high} recorded Premier League seasons and 60+ FPL points`,
+          `That ${lower} must have between ${low} and ${high} positive-minute Premier League seasons in the database and score at least 60 FPL points in the selected season.`,
+          ["auto-generated", "career-total", "career-seasons", "range", "points", "anti-meta"],
+          [num("careerSeasonCount", "between", low, high), num("points", "gte", 60), num("minutes", "gt", 0)]
         );
       }
     }
@@ -1553,6 +1644,7 @@ Backups and detailed reports are included.
       <article><span>Forwards</span><strong>${counts.FWD || 0}</strong></article>
       <article><span>Easy / medium / hard</span><strong>${difficulties.easy || 0} / ${difficulties.medium || 0} / ${difficulties.hard || 0}</strong></article>
       <article><span>Season rules</span><strong>${currentBatch.filter(item => item.tags.includes("season-rule")).length}</strong></article>
+      <article><span>Career totals</span><strong>${currentBatch.filter(item => item.tags.includes("career-total")).length}</strong></article>
       <article><span>Teammate rules</span><strong>${currentBatch.filter(item => item.tags.includes("teammate")).length}</strong></article>
       <article><span>Top-answer exclusions</span><strong>${currentBatch.filter(item => item.tags.includes("excludes-top")).length}</strong></article>`;
     elements.summary.classList.remove("hidden");
@@ -1571,6 +1663,7 @@ Backups and detailed reports are included.
             <span>Cooldown ${prompt.cooldown}</span>
             ${prompt.tags.includes("anti-meta") ? '<span class="anti">Anti-meta</span>' : ""}
             ${prompt.tags.includes("season-rule") ? '<span class="relation">Season rule</span>' : ""}
+            ${prompt.tags.includes("career-total") ? '<span class="relation">Career total</span>' : ""}
             ${prompt.tags.includes("teammate") ? '<span class="relation">Teammate rule</span>' : ""}
             ${prompt.tags.includes("excludes-top") ? '<span class="exclude">Top answer excluded</span>' : ""}
           </div>
@@ -1806,7 +1899,7 @@ Backups and detailed reports are included.
       }
       return "false";
     }
-    if (["points", "minutes", "goals", "assists", "goalInvolvements", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice", "leaguePosition", "ageAtSeasonStart", "fullNameLength", "firstNameLength", "surnameLength", "nameWordCount"].includes(field)) {
+    if (["points", "minutes", "goals", "assists", "goalInvolvements", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice", "leaguePosition", "ageAtSeasonStart", "fullNameLength", "firstNameLength", "surnameLength", "nameWordCount", "careerSeasonCount", "careerClubCount"].includes(field)) {
       const value = Number(condition.value);
       const value2 = Number(condition.value2);
       const finite = `Number.isFinite(${accessor})`;
@@ -1861,6 +1954,8 @@ Backups and detailed reports are included.
     if (field === "firstNameLength") return `__letterCount(__firstName)`;
     if (field === "surnameLength") return `__letterCount(__surname)`;
     if (field === "nameWordCount") return `__nameTokens.length`;
+    if (field === "careerSeasonCount") return `Number(p._career?.seasonCount)`;
+    if (field === "careerClubCount") return `Number(p._career?.clubCount)`;
     return `p.${field}`;
   }
 

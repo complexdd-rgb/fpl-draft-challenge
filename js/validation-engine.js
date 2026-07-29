@@ -21,6 +21,8 @@
     leaguePosition: "League finish",
     ageAtSeasonStart: "Age at season start",
     season: "Season played",
+    careerSeasonCount: "Recorded Premier League seasons",
+    careerClubCount: "Recorded Premier League clubs",
     champions: "League champions",
     topFour: "Top-four club",
     bottomHalf: "Bottom-half club",
@@ -172,6 +174,8 @@
     if (field === "outsideBigSix") return !BIG_SIX.includes(record.club);
     if (field === "assistsMoreThanGoals") return Number(record.assists) > Number(record.goals);
     if (field === "manager") return Array.isArray(record.managers) ? record.managers : [];
+    if (field === "careerSeasonCount") return Number(record._career?.seasonCount);
+    if (field === "careerClubCount") return Number(record._career?.clubCount);
     return record[field];
   }
 
@@ -191,7 +195,8 @@
       check("League finish", hasValidLeaguePosition(record.leaguePosition), formatValue("leaguePosition", record.leaguePosition), "A final league position from 1 to 20 is required. Missing finishes never satisfy league-position rules."),
       check("Age", hasNumericValue(record.ageAtSeasonStart), formatValue("ageAtSeasonStart", record.ageAtSeasonStart), "Age-based prompts cannot use a missing seasonal age."),
       check("Date of birth", /^\d{4}-\d{2}-\d{2}$/.test(record.dateOfBirth || ""), record.dateOfBirth || "Missing", "A verified ISO date supports independent age checks."),
-      check("Managers", Array.isArray(record.managers) && record.managers.length > 0, formatValue("manager", record.managers), "Manager prompts need at least one stored manager.")
+      check("Managers", Array.isArray(record.managers) && record.managers.length > 0, formatValue("manager", record.managers), "Manager prompts need at least one stored manager."),
+      check("Career totals", Number.isInteger(record._career?.seasonCount) && Number.isInteger(record._career?.clubCount), record._career ? `${record._career.seasonCount} seasons · ${record._career.clubCount} clubs` : "Missing", "Career-total rules need runtime career context derived from positive-minute player-seasons.")
     ];
     return checks;
   }
@@ -228,6 +233,12 @@
         goalsConceded: record.goalsConceded,
         yellowCards: record.yellowCards,
         redCards: record.redCards
+      },
+      career: {
+        seasonCount: record._career?.seasonCount ?? null,
+        clubCount: record._career?.clubCount ?? null,
+        seasons: Array.isArray(record._career?.seasons) ? record._career.seasons.slice() : [],
+        clubs: Array.isArray(record._career?.clubs) ? record._career.clubs.slice() : []
       },
       database: {
         startingPrice: record.startingPrice,
@@ -314,6 +325,29 @@
     else if (seasonBefore) addRule(rules, { field: "season", operator: "before", value: seasonBefore[1], label: FIELD_LABELS.season, source: seasonBefore[0] });
     else if (seasonAfter) addRule(rules, { field: "season", operator: "after", value: seasonAfter[1], label: FIELD_LABELS.season, source: seasonAfter[0] });
     else if (seasonExact) addRule(rules, { field: "season", operator: "equals", value: seasonExact[1] || seasonExact[2], label: FIELD_LABELS.season, source: seasonExact[0] });
+
+    const careerToken = "(?:\\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)";
+    const careerDefinitions = [
+      { field: "careerSeasonCount", noun: "(?:recorded\\s+)?(?:premier league\\s+)?seasons?", label: FIELD_LABELS.careerSeasonCount },
+      { field: "careerClubCount", noun: "(?:recorded\\s+)?(?:premier league\\s+)?clubs?", label: FIELD_LABELS.careerClubCount }
+    ];
+    for (const definition of careerDefinitions) {
+      const patterns = [
+        { operator: "between", regex: new RegExp(`between\\s+(${careerToken})\\s+(?:and|to|-)\\s+(${careerToken})\\s+${definition.noun}`, "i") },
+        { operator: "eq", regex: new RegExp(`exactly\\s+(${careerToken})\\s+${definition.noun}`, "i") },
+        { operator: "gte", regex: new RegExp(`at least\\s+(${careerToken})\\s+${definition.noun}`, "i") },
+        { operator: "gte", regex: new RegExp(`(${careerToken})\\+\\s+${definition.noun}`, "i") },
+        { operator: "lte", regex: new RegExp(`(?:at most|no more than|up to)\\s+(${careerToken})\\s+${definition.noun}`, "i") }
+      ];
+      for (const { operator, regex } of patterns) {
+        const match = value.match(regex);
+        if (!match) continue;
+        const first = numberFromToken(match[1]);
+        const second = numberFromToken(match[2]);
+        if (Number.isFinite(first)) addRule(rules, { field: definition.field, operator, value: first, value2: Number.isFinite(second) ? second : undefined, label: definition.label, source: match[0] });
+        break;
+      }
+    }
 
     const managerMatch = value.match(/managed by\s+([a-z][a-z .'-]{2,40}?)(?=\s+(?:who|with|and|from|for|at|under|over|scor|play)|$)/i);
     if (managerMatch) addRule(rules, { field: "manager", operator: "contains", value: managerMatch[1].trim(), label: FIELD_LABELS.manager, source: managerMatch[0] });
@@ -765,6 +799,37 @@
       `${seasonRuleErrors.length} exact/before/after/between failures`,
       "0 failures",
       seasonRuleErrors
+    ));
+
+    const careerErrors = [];
+    const careerContext = window.FPL_CAREER_CONTEXT;
+    if (!careerContext?.players?.length) {
+      careerErrors.push("Career context did not load.");
+    } else {
+      for (const player of getPlayers()) {
+        const positive = (player.seasons || []).filter(record => Number(record.minutes) > 0);
+        const expectedSeasons = new Set(positive.map(record => record.season).filter(Boolean)).size;
+        const expectedClubs = new Set(positive.map(record => normalise(record.club)).filter(Boolean)).size;
+        const summary = careerContext.getPlayer?.(player.playerId);
+        if (!summary) {
+          if (careerErrors.length < 25) careerErrors.push(`${player.name}: no career summary`);
+          continue;
+        }
+        if (summary.seasonCount !== expectedSeasons || summary.clubCount !== expectedClubs) {
+          if (careerErrors.length < 25) careerErrors.push(`${player.name}: ${summary.seasonCount}/${summary.clubCount}, expected ${expectedSeasons}/${expectedClubs}`);
+        }
+        for (const record of player.seasons || []) {
+          if (record._career !== summary && careerErrors.length < 25) careerErrors.push(`${player.name} ${record.season}: career context not attached`);
+        }
+      }
+    }
+    tests.push(certificationTest(
+      "career-totals",
+      "Career season and club totals",
+      careerErrors.length === 0,
+      `${careerErrors.length} context or count failures`,
+      "0 failures",
+      careerErrors
     ));
 
     const duplicatePromptIds = [];
