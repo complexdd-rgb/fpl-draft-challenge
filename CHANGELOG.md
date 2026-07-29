@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-07-29 — Phase B career relationships and quality controls
+
+- Added **Played for both clubs** to the Safe Rule Builder.
+- Added positive-minute career-club checks to the live prompt engine, Rule Tester and Prompt Explorer.
+- Added played-for-both-clubs prompt creation to the Auto Prompt Generator.
+- Added a twelfth season-certification test for career club relationships.
+- Expanded the Prompt Quality Analyser with configurable bulk-disable thresholds: broken, poor, needs review, fair, analyser recommendations or the current filtered list.
+- Kept every bulk change browser-only until a replacement `prompt-library.js` is downloaded and uploaded.
+- Applied the global positive-minute eligibility rule during prompt-quality analysis.
+
 ## Phase 16 — Validation Lab Phase 1
 
 - Added a Validation Lab workspace to the existing Challenge Studio.
@@ -25,12 +35,3 @@
 - Fixed goal-involvement parsing being mistaken for goals.
 - Fixed “outside the top four” diagnosis.
 - Corrected the veteran-defender 2,700-minute prompt test.
-
-## 2026-07-29 — Phase B: Prompt Engine 2 season rules
-
-- Added an editable **Season played** field to the Prompt Studio safe rule builder.
-- Added exact-season, before-season, after-season and between-season operators.
-- Added matching Rule Tester and Prompt Explorer diagnostics for all four season relationships.
-- Added an automated season-rule regression check to Season Certification.
-- Kept season comparisons based on the season start year so labels such as `2020/21` sort correctly.
-- Invalid or missing season labels fail safely rather than qualifying as answers.

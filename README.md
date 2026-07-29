@@ -1,30 +1,19 @@
 # FPL Draft Challenge
 
-This package contains the live FPL Draft Challenge, the historical player database and the browser-based Challenge Studio.
+This repository contains the live FPL Draft Challenge, its historical player database and the browser-based Challenge Studio.
 
-## Validation Lab Phase 1
+## Current Studio tools
 
-Open `admin.html` and choose **Validation Lab** from the Studio sidebar.
+- Daily Challenge generator and publisher
+- Prompt Library Manager and Safe Rule Builder
+- Auto Prompt Generator
+- Prompt Quality Analyser
+- Validation Lab with Player Inspector, Rule Tester, Prompt Explorer and Season Health
+- Automated season certification
+- Historical import and database repair tools
 
-The first release includes:
+## Prompt Engine 2
 
-- Player Inspector
-- Rule Tester
-- Prompt Explorer
-- Season Health
-- Copyable validation debug reports
+The current Phase B rules include season relationships, recorded career totals and career relationships such as **played for both clubs**. Career rules only use player-seasons with recorded positive minutes.
 
-The tools are read-only: they do not modify `players.js` or publish changes to the live game.
-
-See `VALIDATION-LAB-README.txt` for the test steps and upload instructions.
-
-## Prompt Engine 2 — Season relationship rules
-
-In **Prompt Studio → Safe rule builder**, choose **Season played** and use one of:
-
-- is exactly
-- is before
-- is after
-- is between
-
-These rules work in the live prompt test, Rule Tester, Prompt Explorer and Season Certification.
+Open `admin.html` through the GitHub Pages site to use the Studio. Browser-only edits become permanent only after downloading the relevant replacement file and uploading it to the repository.

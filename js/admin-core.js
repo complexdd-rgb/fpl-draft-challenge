@@ -26,6 +26,7 @@
     season: { label: "Season played", type: "season" },
     careerSeasonCount: { label: "Recorded Premier League seasons", type: "number", career: true },
     careerClubCount: { label: "Recorded Premier League clubs", type: "number", career: true },
+    playedForBothClubs: { label: "Played for both clubs", type: "clubPair", career: true },
     champions: { label: "League champions", type: "boolean" },
     topFour: { label: "Top-four club", type: "boolean" },
     bottomHalf: { label: "Bottom-half club", type: "boolean" },
@@ -61,6 +62,7 @@
   const NAME_TEXT_OPERATORS = Object.freeze({ equals: "is", notEquals: "is not", startsWith: "starts with", endsWith: "ends with", contains: "contains" });
   const BOOLEAN_OPERATORS = Object.freeze({ isTrue: "is true", isFalse: "is false" });
   const SEASON_OPERATORS = Object.freeze({ equals: "is exactly", before: "is before", after: "is after", between: "is between" });
+  const CLUB_PAIR_OPERATORS = Object.freeze({ both: "includes both" });
 
   let state = loadState();
   applyStoredState();
@@ -505,6 +507,35 @@
     return labels.map(label => `<option value="${escapeAttribute(label)}" ${label === selected ? "selected" : ""}>${escapeHtml(label)}</option>`).join("");
   }
 
+  function availableCareerClubs() {
+    const contextClubs = Array.isArray(window.FPL_CAREER_CONTEXT?.players)
+      ? window.FPL_CAREER_CONTEXT.players.flatMap(player => Array.isArray(player.clubs) ? player.clubs : [])
+      : [];
+    const recordClubs = (Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [])
+      .flatMap(player => (Array.isArray(player?.seasons) ? player.seasons : []))
+      .filter(season => Number(season?.minutes) > 0)
+      .map(season => String(season?.club || "").trim());
+    return [...new Set([...contextClubs, ...recordClubs].filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  }
+
+  function clubOptions(selectedValue, excludedValue = "") {
+    const clubs = availableCareerClubs();
+    const selected = clubs.includes(String(selectedValue || "")) ? String(selectedValue) : (clubs.find(club => club !== excludedValue) || clubs[0] || "");
+    return clubs.map(club => `<option value="${escapeAttribute(club)}" ${club === selected ? "selected" : ""}>${escapeHtml(club)}</option>`).join("");
+  }
+
+  function normaliseCareerClub(value) {
+    return String(value || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+      .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+      .replace(/’/g, "'")
+      .replace(/[^a-z0-9'\-]+/g, " ")
+      .trim();
+  }
+
   function addRuleRow(elements, condition) {
     const row = document.createElement("div");
     row.className = "rule-row";
@@ -536,14 +567,25 @@
         ? BOOLEAN_OPERATORS
         : definition.type === "season"
           ? SEASON_OPERATORS
-          : definition.type === "nameText"
-            ? NAME_TEXT_OPERATORS
-            : TEXT_OPERATORS;
+          : definition.type === "clubPair"
+            ? CLUB_PAIR_OPERATORS
+            : definition.type === "nameText"
+              ? NAME_TEXT_OPERATORS
+              : TEXT_OPERATORS;
     const operator = operatorSet[previousOperator] ? previousOperator : Object.keys(operatorSet)[0];
     operatorWrap.innerHTML = `<select data-rule-operator aria-label="Rule operator">${Object.entries(operatorSet).map(([key, label]) => `<option value="${key}" ${key === operator ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select>`;
 
     if (definition.type === "boolean") {
       valueWrap.innerHTML = '<span class="rule-no-value">No value needed</span>';
+    } else if (definition.type === "clubPair") {
+      const clubs = availableCareerClubs();
+      const firstValue = clubs.includes(String(previousValue || "")) ? String(previousValue) : (clubs[0] || "");
+      const secondValue = clubs.includes(String(previousValue2 || "")) && String(previousValue2) !== firstValue
+        ? String(previousValue2)
+        : (clubs.find(club => club !== firstValue) || firstValue);
+      valueWrap.innerHTML = `<select data-rule-value aria-label="First career club">${clubOptions(firstValue)}</select>
+        <span class="rule-pair-and">and</span>
+        <select data-rule-value2 aria-label="Second career club">${clubOptions(secondValue, firstValue)}</select>`;
     } else if (definition.type === "season") {
       const firstValue = previousValue || availableSeasonLabels()[0] || "2025/26";
       const secondValue = previousValue2 || availableSeasonLabels().at(-1) || firstValue;
@@ -629,6 +671,12 @@
       const valid = value => /^\d{4}\/\d{2}$/.test(String(value || ""));
       if (!valid(condition.value)) throw new Error(`${definition.label} needs a valid season such as 2020/21.`);
       if (condition.operator === "between" && !valid(condition.value2)) throw new Error("A between-season rule needs two valid seasons.");
+    }
+    if (definition.type === "clubPair") {
+      const first = String(condition.value || "").trim();
+      const second = String(condition.value2 || "").trim();
+      if (!first || !second) throw new Error(`${definition.label} needs two clubs.`);
+      if (normaliseCareerClub(first) === normaliseCareerClub(second)) throw new Error("Choose two different clubs for a played-for-both rule.");
     }
     if ((definition.type === "text" || definition.type === "manager" || definition.type === "nameText") && !String(condition.value).trim()) throw new Error(`${definition.label} needs text.`);
   }
@@ -935,6 +983,11 @@ ${promptsSource}
         return `(Number.isFinite(${current}) && ${current} >= ${low} && ${current} <= ${high})`;
       }
       return "false";
+    }
+    if (definition.type === "clubPair") {
+      const first = JSON.stringify(normaliseCareerClub(condition.value));
+      const second = JSON.stringify(normaliseCareerClub(condition.value2));
+      return `(Array.isArray(p._career?.normalisedClubs) && p._career.normalisedClubs.includes(${first}) && p._career.normalisedClubs.includes(${second}))`;
     }
     if (definition.type === "number") {
       const value = Number(condition.value);

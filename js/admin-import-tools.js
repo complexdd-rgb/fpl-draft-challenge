@@ -924,7 +924,7 @@ Backups and detailed reports are included.
     const onlyModes = [
       ["season", seasonMode],
       ["career totals", careerMode],
-      ["teammate", relationshipMode]
+      ["relationships", relationshipMode]
     ].filter(([, mode]) => mode === "only");
     if (onlyModes.length > 1) {
       elements.status.textContent = `Choose only one “only” mode at a time: ${onlyModes.map(([label]) => label).join(", ")}.`;
@@ -1049,7 +1049,7 @@ Backups and detailed reports are included.
     const includeStandard = relationshipMode !== "only" && seasonMode !== "only" && careerMode !== "only";
     const includeSeason = relationshipMode !== "only" && careerMode !== "only" && seasonMode !== "none";
     const includeCareerTotals = relationshipMode !== "only" && seasonMode !== "only" && careerMode !== "none";
-    const includeTeammates = relationshipMode !== "none" && seasonMode !== "only" && careerMode !== "only";
+    const includeRelationships = relationshipMode !== "none" && seasonMode !== "only" && careerMode !== "only";
 
     if (includeStandard) for (const position of positions) {
       const noun = POSITION_LABELS[position];
@@ -1090,7 +1090,10 @@ Backups and detailed reports are included.
     }
     if (includeSeason) addSeasonPlayedVariants(positions, add);
     if (includeCareerTotals) addCareerTotalVariants(positions, add);
-    if (includeTeammates) addTeammateVariants(variants, positions, cooldown);
+    if (includeRelationships) {
+      addPlayedForBothClubVariants(positions, add);
+      addTeammateVariants(variants, positions, cooldown);
+    }
     return variants;
   }
 
@@ -1434,6 +1437,70 @@ Backups and detailed reports are included.
   }
 
 
+  function addPlayedForBothClubVariants(positions, add) {
+    const careerContext = window.FPL_CAREER_CONTEXT;
+    if (!careerContext?.players?.length) return;
+
+    const playersById = new Map((Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : []).map(player => [player.playerId, player]));
+    const pairPositionPlayers = new Map();
+    for (const summary of careerContext.players) {
+      const clubs = Array.isArray(summary.clubs) ? [...new Set(summary.clubs)] : [];
+      if (clubs.length < 2) continue;
+      const player = playersById.get(summary.playerId);
+      const playerPositions = [...new Set((player?.seasons || []).filter(record => Number(record.minutes) > 0).map(record => record.position).filter(position => POSITIONS.includes(position)))];
+      for (let left = 0; left < clubs.length; left += 1) {
+        for (let right = left + 1; right < clubs.length; right += 1) {
+          const ordered = [clubs[left], clubs[right]].sort((a, b) => a.localeCompare(b));
+          const pairKey = `${ordered[0]}|||${ordered[1]}`;
+          for (const position of playerPositions) {
+            const key = `${position}|${pairKey}`;
+            if (!pairPositionPlayers.has(key)) pairPositionPlayers.set(key, new Set());
+            pairPositionPlayers.get(key).add(summary.playerId);
+          }
+        }
+      }
+    }
+
+    const pointThresholds = { GK: [60, 90], DEF: [70, 100], MID: [80, 110], FWD: [70, 100] };
+    for (const position of positions) {
+      const noun = POSITION_LABELS[position];
+      const lower = noun.toLowerCase();
+      const candidates = [...pairPositionPlayers.entries()]
+        .filter(([key, playerIds]) => key.startsWith(`${position}|`) && playerIds.size >= 3 && playerIds.size <= 100)
+        .map(([key, playerIds]) => ({ clubs: key.slice(position.length + 1).split("|||"), playerCount: playerIds.size }))
+        .sort((a, b) => Math.abs(a.playerCount - 16) - Math.abs(b.playerCount - 16) || b.playerCount - a.playerCount)
+        .slice(0, 140);
+
+      for (const candidate of candidates) {
+        const [firstClub, secondClub] = candidate.clubs;
+        const baseConditions = [clubPair(firstClub, secondClub), num("minutes", "gt", 0)];
+        add(
+          position,
+          "career-both-clubs",
+          `${position.toLowerCase()}_both_${slugify(firstClub)}_${slugify(secondClub)}`,
+          `${noun} who played for both ${firstClub} and ${secondClub}`,
+          `That ${lower} must have recorded Premier League minutes for both ${firstClub} and ${secondClub}.`,
+          ["auto-generated", "relationship", "played-for-both", "career-clubs", "anti-meta"],
+          baseConditions
+        );
+
+        if (candidate.playerCount >= 7) {
+          for (const points of pointThresholds[position]) {
+            add(
+              position,
+              "career-both-clubs-points",
+              `${position.toLowerCase()}_both_${slugify(firstClub)}_${slugify(secondClub)}_points_${points}`,
+              `${noun} who played for both ${firstClub} and ${secondClub} and scored ${points}+ FPL points`,
+              `That ${lower} must have recorded minutes for both ${firstClub} and ${secondClub}, then score at least ${points} FPL points in the qualifying season.`,
+              ["auto-generated", "relationship", "played-for-both", "career-clubs", "points", "anti-meta"],
+              [clubPair(firstClub, secondClub), num("points", "gte", points), num("minutes", "gt", 0)]
+            );
+          }
+        }
+      }
+    }
+  }
+
   function addTeammateVariants(variants, positions, cooldown) {
     const playerRows = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
     const playerById = new Map(playerRows.map(player => [player.playerId, player]));
@@ -1645,6 +1712,7 @@ Backups and detailed reports are included.
       <article><span>Easy / medium / hard</span><strong>${difficulties.easy || 0} / ${difficulties.medium || 0} / ${difficulties.hard || 0}</strong></article>
       <article><span>Season rules</span><strong>${currentBatch.filter(item => item.tags.includes("season-rule")).length}</strong></article>
       <article><span>Career totals</span><strong>${currentBatch.filter(item => item.tags.includes("career-total")).length}</strong></article>
+      <article><span>Both-club rules</span><strong>${currentBatch.filter(item => item.tags.includes("played-for-both")).length}</strong></article>
       <article><span>Teammate rules</span><strong>${currentBatch.filter(item => item.tags.includes("teammate")).length}</strong></article>
       <article><span>Top-answer exclusions</span><strong>${currentBatch.filter(item => item.tags.includes("excludes-top")).length}</strong></article>`;
     elements.summary.classList.remove("hidden");
@@ -1664,6 +1732,7 @@ Backups and detailed reports are included.
             ${prompt.tags.includes("anti-meta") ? '<span class="anti">Anti-meta</span>' : ""}
             ${prompt.tags.includes("season-rule") ? '<span class="relation">Season rule</span>' : ""}
             ${prompt.tags.includes("career-total") ? '<span class="relation">Career total</span>' : ""}
+            ${prompt.tags.includes("played-for-both") ? '<span class="relation">Played for both</span>' : ""}
             ${prompt.tags.includes("teammate") ? '<span class="relation">Teammate rule</span>' : ""}
             ${prompt.tags.includes("excludes-top") ? '<span class="exclude">Top answer excluded</span>' : ""}
           </div>
@@ -1848,6 +1917,10 @@ Backups and detailed reports are included.
     return { field: "season", operator, value, value2 };
   }
 
+  function clubPair(value, value2) {
+    return { field: "playedForBothClubs", operator: "both", value, value2 };
+  }
+
   function compileRuleSource(rule) {
     const joiner = rule.join === "any" ? " || " : " && ";
     const usesNameData = rule.conditions.some(condition => isNameField(condition.field));
@@ -1898,6 +1971,11 @@ Backups and detailed reports are included.
         return `(Number.isFinite(${current}) && ${current} >= ${low} && ${current} <= ${high})`;
       }
       return "false";
+    }
+    if (field === "playedForBothClubs") {
+      const first = JSON.stringify(normaliseCareerClub(condition.value));
+      const second = JSON.stringify(normaliseCareerClub(condition.value2));
+      return `(Array.isArray(p._career?.normalisedClubs) && p._career.normalisedClubs.includes(${first}) && p._career.normalisedClubs.includes(${second}))`;
     }
     if (["points", "minutes", "goals", "assists", "goalInvolvements", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice", "leaguePosition", "ageAtSeasonStart", "fullNameLength", "firstNameLength", "surnameLength", "nameWordCount", "careerSeasonCount", "careerClubCount"].includes(field)) {
       const value = Number(condition.value);
@@ -1961,6 +2039,10 @@ Backups and detailed reports are included.
 
   function isNameField(field) {
     return ["fullName", "firstName", "surname", "firstInitial", "surnameInitial", "fullNameLength", "firstNameLength", "surnameLength", "nameWordCount", "hyphenatedSurname", "sameInitials", "singleWordName"].includes(field);
+  }
+
+  function normaliseCareerClub(value) {
+    return String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d").replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe").replace(/’/g, "'").replace(/[^a-z0-9'\-]+/g, " ").trim();
   }
 
   function normaliseNameLiteral(value) {
@@ -2073,7 +2155,8 @@ Backups and detailed reports are included.
       runBtn: document.querySelector("#runPromptQualityBtn"),
       cancelBtn: document.querySelector("#cancelPromptQualityBtn"),
       ratingsBtn: document.querySelector("#applyQualityRatingsBtn"),
-      disableBtn: document.querySelector("#disablePoorPromptsBtn"),
+      disableMode: document.querySelector("#qualityDisableMode"),
+      disableBtn: document.querySelector("#disableQualityPromptsBtn"),
       jsonBtn: document.querySelector("#downloadQualityJsonBtn"),
       csvBtn: document.querySelector("#downloadQualityCsvBtn"),
       status: document.querySelector("#promptQualityStatus"),
@@ -2095,8 +2178,9 @@ Backups and detailed reports are included.
   function bindEvents(elements, core) {
     elements.runBtn.addEventListener("click", () => runAnalysis(elements, core));
     elements.cancelBtn.addEventListener("click", () => { cancelled = true; });
-    elements.ratingsBtn.addEventListener("click", () => applyRecommendations(elements, core, { ratings: true, disable: false }));
-    elements.disableBtn.addEventListener("click", () => applyRecommendations(elements, core, { ratings: false, disable: true }));
+    elements.ratingsBtn.addEventListener("click", () => applyRecommendations(elements, core, { ratings: true }));
+    elements.disableBtn.addEventListener("click", () => applyRecommendations(elements, core, { disableMode: elements.disableMode?.value || "review" }));
+    elements.disableMode?.addEventListener("change", () => updateDisableAction(elements));
     elements.jsonBtn.addEventListener("click", downloadJsonReport);
     elements.csvBtn.addEventListener("click", downloadCsvReport);
 
@@ -2236,7 +2320,7 @@ Backups and detailed reports are included.
     const errors = [];
 
     for (const record of records) {
-      if (record.position !== prompt.position) continue;
+      if (record.position !== prompt.position || Number(record.minutes) <= 0) continue;
       try {
         if (prompt.test(record)) matches.push(record);
       } catch (error) {
@@ -2438,8 +2522,7 @@ Backups and detailed reports are included.
     `;
   }
 
-  function renderResults(elements) {
-    if (!analysisResults.length) return;
+  function filteredQualityResults(elements) {
     const query = normaliseLabel(elements.search.value);
     const position = elements.position.value;
     const quality = elements.quality.value;
@@ -2463,9 +2546,43 @@ Backups and detailed reports are included.
       if (sort === "quality") return QUALITY_ORDER[right.quality] - QUALITY_ORDER[left.quality] || right.score - left.score;
       return comparePrompt(left, right);
     });
+    return filtered;
+  }
 
+  function resultsForDisableMode(elements, mode) {
+    const enabledResults = analysisResults.filter(result => result.enabled);
+    if (mode === "filtered") return filteredQualityResults(elements).filter(result => result.enabled);
+    if (mode === "recommended") return enabledResults.filter(result => !result.suggestedEnabled);
+    const maximumOrder = ({ broken: 0, poor: 1, review: 2, fair: 3 })[mode];
+    if (!Number.isInteger(maximumOrder)) return [];
+    return enabledResults.filter(result => (QUALITY_ORDER[result.quality] ?? 99) <= maximumOrder);
+  }
+
+  function disableModeLabel(mode) {
+    return ({
+      recommended: "analyser recommendations",
+      broken: "broken prompts",
+      poor: "poor or broken prompts",
+      review: "needs-review, poor or broken prompts",
+      fair: "fair or worse prompts",
+      filtered: "enabled prompts currently shown"
+    })[mode] || "matching prompts";
+  }
+
+  function updateDisableAction(elements) {
+    if (!elements.disableBtn) return;
+    const mode = elements.disableMode?.value || "review";
+    const count = analysisResults.length ? resultsForDisableMode(elements, mode).length : 0;
+    elements.disableBtn.disabled = running || count === 0;
+    elements.disableBtn.textContent = count ? `Disable ${count} matching prompt${count === 1 ? "" : "s"}` : "No matching prompts to disable";
+  }
+
+  function renderResults(elements) {
+    if (!analysisResults.length) return;
+    const filtered = filteredQualityResults(elements);
     elements.listSummary.textContent = `${filtered.length.toLocaleString()} of ${analysisResults.length.toLocaleString()} analysed prompts shown`;
     elements.list.innerHTML = filtered.length ? filtered.map(renderQualityCard).join("") : '<div class="quality-empty">No prompts match these filters.</div>';
+    updateDisableAction(elements);
   }
 
   function renderQualityCard(result) {
@@ -2515,30 +2632,40 @@ Backups and detailed reports are included.
 
   function applyRecommendations(elements, core, options) {
     if (!analysisResults.length) return;
-    const targets = analysisResults.filter(result => options.ratings || (!result.suggestedEnabled && result.enabled));
+    const ratingMode = options.ratings === true;
+    const disableMode = options.disableMode || "";
+    const targets = ratingMode
+      ? analysisResults.filter(result => result.suggestedRating !== result.currentRating)
+      : resultsForDisableMode(elements, disableMode);
+
     if (!targets.length) {
-      elements.status.textContent = options.disable ? "No enabled prompts are recommended for disabling." : "There are no rating suggestions to apply.";
+      elements.status.textContent = ratingMode
+        ? "There are no rating suggestions to apply."
+        : "No enabled prompts match that bulk-disable rule.";
+      updateDisableAction(elements);
       return;
     }
 
-    const message = options.disable
-      ? `Disable ${targets.filter(result => !result.suggestedEnabled && result.enabled).length} low-quality prompt(s) in this browser workspace? You can still reset the browser edits later.`
-      : `Apply the suggested quality rating to ${targets.length} analysed prompt(s) in this browser workspace?`;
+    const message = ratingMode
+      ? `Apply suggested quality ratings to ${targets.length} analysed prompt(s) in this browser workspace?`
+      : `Disable ${targets.length} ${disableModeLabel(disableMode)} in this browser workspace? This does not change GitHub until you download and upload prompt-library.js.`;
     if (!window.confirm(message)) return;
 
+    const targetIds = new Set(targets.map(result => result.id));
     const library = core.getPromptLibrary?.() || [];
     const state = loadManagerState();
     let changed = 0;
 
     for (const result of analysisResults) {
+      if (!targetIds.has(result.id)) continue;
       const prompt = library.find(item => item.id === result.id);
       if (!prompt) continue;
       let shouldPersist = false;
-      if (options.ratings && prompt.rating !== result.suggestedRating) {
+      if (ratingMode && prompt.rating !== result.suggestedRating) {
         prompt.rating = result.suggestedRating;
         shouldPersist = true;
       }
-      if (options.disable && !result.suggestedEnabled && prompt.enabled !== false) {
+      if (!ratingMode && prompt.enabled !== false) {
         prompt.enabled = false;
         shouldPersist = true;
       }
@@ -2548,7 +2675,9 @@ Backups and detailed reports are included.
     }
 
     if (!changed) {
-      elements.status.textContent = "The analysed prompts already match those recommendations.";
+      elements.status.textContent = ratingMode
+        ? "The analysed prompts already use those suggested ratings."
+        : "Those prompts are already disabled.";
       return;
     }
 
@@ -2656,7 +2785,11 @@ Backups and detailed reports are included.
     elements.runBtn.disabled = isRunning;
     elements.cancelBtn.disabled = !isRunning;
     elements.scope.disabled = isRunning;
-    if (!isRunning) elements.cancelBtn.textContent = "Cancel analysis";
+    if (elements.disableMode) elements.disableMode.disabled = isRunning || !analysisResults.length;
+    if (!isRunning) {
+      elements.cancelBtn.textContent = "Cancel analysis";
+      if (analysisResults.length) updateDisableAction(elements);
+    }
   }
 
   function clearOutput(elements) {
@@ -2671,9 +2804,15 @@ Backups and detailed reports are included.
 
   function enableReportActions(elements, enabled) {
     elements.ratingsBtn.disabled = !enabled;
-    elements.disableBtn.disabled = !enabled;
     elements.jsonBtn.disabled = !enabled;
     elements.csvBtn.disabled = !enabled;
+    if (elements.disableMode) elements.disableMode.disabled = !enabled;
+    if (!enabled) {
+      elements.disableBtn.disabled = true;
+      elements.disableBtn.textContent = "Disable matching prompts";
+    } else {
+      updateDisableAction(elements);
+    }
   }
 
   function updateProgress(elements, current, total, label) {

@@ -23,6 +23,7 @@
     season: "Season played",
     careerSeasonCount: "Recorded Premier League seasons",
     careerClubCount: "Recorded Premier League clubs",
+    playedForBothClubs: "Played for both clubs",
     champions: "League champions",
     topFour: "Top-four club",
     bottomHalf: "Bottom-half club",
@@ -176,6 +177,7 @@
     if (field === "manager") return Array.isArray(record.managers) ? record.managers : [];
     if (field === "careerSeasonCount") return Number(record._career?.seasonCount);
     if (field === "careerClubCount") return Number(record._career?.clubCount);
+    if (field === "playedForBothClubs") return Array.isArray(record._career?.clubs) ? record._career.clubs : [];
     return record[field];
   }
 
@@ -196,7 +198,8 @@
       check("Age", hasNumericValue(record.ageAtSeasonStart), formatValue("ageAtSeasonStart", record.ageAtSeasonStart), "Age-based prompts cannot use a missing seasonal age."),
       check("Date of birth", /^\d{4}-\d{2}-\d{2}$/.test(record.dateOfBirth || ""), record.dateOfBirth || "Missing", "A verified ISO date supports independent age checks."),
       check("Managers", Array.isArray(record.managers) && record.managers.length > 0, formatValue("manager", record.managers), "Manager prompts need at least one stored manager."),
-      check("Career totals", Number.isInteger(record._career?.seasonCount) && Number.isInteger(record._career?.clubCount), record._career ? `${record._career.seasonCount} seasons · ${record._career.clubCount} clubs` : "Missing", "Career-total rules need runtime career context derived from positive-minute player-seasons.")
+      check("Career totals", Number.isInteger(record._career?.seasonCount) && Number.isInteger(record._career?.clubCount), record._career ? `${record._career.seasonCount} seasons · ${record._career.clubCount} clubs` : "Missing", "Career-total rules need runtime career context derived from positive-minute player-seasons."),
+      check("Career club history", Array.isArray(record._career?.clubs) && Array.isArray(record._career?.normalisedClubs), record._career?.clubs?.join(", ") || "Missing", "Career relationship rules need a positive-minute club history.")
     ];
     return checks;
   }
@@ -349,15 +352,40 @@
       }
     }
 
+    if (!clubNameCache) {
+      clubNameCache = [...new Set(getPlayers().flatMap(player => (player.seasons || []).filter(season => Number(season.minutes) > 0).map(season => season.club)).filter(Boolean))]
+        .sort((a, b) => b.length - a.length);
+    }
+    const bothMarker = "played for both ";
+    const bothIndex = value.indexOf(bothMarker);
+    if (bothIndex >= 0) {
+      const tail = value.slice(bothIndex + bothMarker.length);
+      let firstClub = null;
+      let secondClub = null;
+      for (const club of clubNameCache) {
+        const clubKey = normalise(club);
+        if (!tail.startsWith(`${clubKey} and `)) continue;
+        const remainder = tail.slice(clubKey.length + 5);
+        const match = clubNameCache.find(candidate => {
+          const candidateKey = normalise(candidate);
+          return remainder === candidateKey || remainder.startsWith(`${candidateKey} `);
+        });
+        if (match) {
+          firstClub = club;
+          secondClub = match;
+          break;
+        }
+      }
+      if (firstClub && secondClub && normalise(firstClub) !== normalise(secondClub)) {
+        addRule(rules, { field: "playedForBothClubs", operator: "both", value: firstClub, value2: secondClub, label: FIELD_LABELS.playedForBothClubs, source: `played for both ${firstClub} and ${secondClub}` });
+      }
+    }
+
     const managerMatch = value.match(/managed by\s+([a-z][a-z .'-]{2,40}?)(?=\s+(?:who|with|and|from|for|at|under|over|scor|play)|$)/i);
     if (managerMatch) addRule(rules, { field: "manager", operator: "contains", value: managerMatch[1].trim(), label: FIELD_LABELS.manager, source: managerMatch[0] });
 
-    if (!clubNameCache) {
-      clubNameCache = [...new Set(getPlayers().flatMap(player => (player.seasons || []).map(season => season.club)).filter(Boolean))]
-        .sort((a, b) => b.length - a.length);
-    }
     const matchedClub = clubNameCache.find(club => value.includes(normalise(club)));
-    if (matchedClub && !/outside (?:the )?(?:traditional )?big six/.test(value)) {
+    if (matchedClub && !rules.some(rule => rule.field === "playedForBothClubs") && !/outside (?:the )?(?:traditional )?big six/.test(value)) {
       addRule(rules, { field: "club", operator: "equals", value: matchedClub, label: FIELD_LABELS.club, source: matchedClub });
     }
 
@@ -439,6 +467,22 @@
         expected = `${low === firstYear ? firstLabel : secondLabel}–${high === secondYear ? secondLabel : firstLabel}`;
       }
       return check(rule.label || FIELD_LABELS.season, passed, actualLabel, `Stored: ${actualLabel}. Expected: ${expected}.`, expected);
+    }
+
+    if (rule.field === "playedForBothClubs") {
+      const clubs = Array.isArray(record._career?.clubs) ? record._career.clubs : [];
+      const normalisedClubs = Array.isArray(record._career?.normalisedClubs) ? record._career.normalisedClubs : [];
+      const first = normalise(rule.value);
+      const second = normalise(rule.value2);
+      const passed = Boolean(first && second && first !== second && normalisedClubs.includes(first) && normalisedClubs.includes(second));
+      const expected = `${rule.value} and ${rule.value2}`;
+      return check(
+        rule.label || FIELD_LABELS.playedForBothClubs,
+        passed,
+        clubs.length ? clubs.join(", ") : "Missing",
+        `Recorded positive-minute clubs: ${clubs.join(", ") || "none"}. Expected both ${expected}.`,
+        expected
+      );
     }
 
     const leagueDependentFields = new Set(["leaguePosition", "champions", "topFour", "bottomHalf", "relegated"]);
@@ -830,6 +874,41 @@
       `${careerErrors.length} context or count failures`,
       "0 failures",
       careerErrors
+    ));
+
+    const bothClubErrors = [];
+    if (!careerContext?.players?.length) {
+      bothClubErrors.push("Career context did not load.");
+    } else {
+      const allClubs = [...new Set(careerContext.players.flatMap(summary => summary.clubs || []))];
+      for (const player of getPlayers()) {
+        const summary = careerContext.getPlayer?.(player.playerId);
+        const positiveRecord = (player.seasons || []).find(record => Number(record.minutes) > 0);
+        if (!summary || !positiveRecord) continue;
+        const positionLabel = POSITION_LABELS[positiveRecord.position] || positiveRecord.position;
+        if (summary.clubs.length >= 2) {
+          const [first, second] = summary.clubs;
+          const result = evaluatePrompt(player, positiveRecord.season, `${positionLabel} who played for both ${first} and ${second}`);
+          if (!result.ok || !result.passed) {
+            if (bothClubErrors.length < 25) bothClubErrors.push(`${player.name}: expected PASS for ${first} / ${second}`);
+          }
+        }
+        const missingClub = allClubs.find(club => !summary.normalisedClubs.includes(normalise(club)));
+        if (summary.clubs.length && missingClub) {
+          const result = evaluatePrompt(player, positiveRecord.season, `${positionLabel} who played for both ${summary.clubs[0]} and ${missingClub}`);
+          if (!result.ok || result.passed) {
+            if (bothClubErrors.length < 25) bothClubErrors.push(`${player.name}: expected FAIL for ${summary.clubs[0]} / ${missingClub}`);
+          }
+        }
+      }
+    }
+    tests.push(certificationTest(
+      "career-both-clubs",
+      "Played-for-both-clubs rules",
+      bothClubErrors.length === 0,
+      `${bothClubErrors.length} relationship failures`,
+      "0 failures",
+      bothClubErrors
     ));
 
     const duplicatePromptIds = [];

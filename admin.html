@@ -1256,11 +1256,11 @@ body.stage-one-enabled .audit-status-chip {
           </label>
           <label>Relationship rules
             <select id="factoryRelationshipMode">
-              <option value="mix" selected>Mix in teammate prompts</option>
-              <option value="none">Standard rules only</option>
-              <option value="only">Teammate prompts only</option>
+              <option value="mix" selected>Mix in relationship prompts</option>
+              <option value="none">Do not use relationship rules</option>
+              <option value="only">Relationship prompts only</option>
             </select>
-            <small>“Teammate” means both players had minutes for the same club in the same FPL season.</small>
+            <small>Creates played-for-both-clubs and teammate prompts from positive-minute career records.</small>
           </label>
           <label>Obvious-answer exclusions
             <select id="factoryExclusionMode">
@@ -1280,7 +1280,7 @@ body.stage-one-enabled .audit-status-chip {
         </div>
         <div class="factory-rule-note">
           <strong>Prompt Engine 2</strong>
-          <span>The Auto Prompt Generator can now mix in season rules and career totals alongside relationship and anti-obvious prompts. Career totals only count seasons and clubs with recorded minutes in the current database.</span>
+          <span>The Auto Prompt Generator can mix season rules, career totals and career relationships alongside standard and anti-obvious prompts. Career rules only use seasons and clubs with recorded minutes.</span>
         </div>
 
         <div class="button-row prompt-factory-actions">
@@ -1355,9 +1355,22 @@ body.stage-one-enabled .audit-status-chip {
           </select></label>
         </div>
 
+        <div class="quality-bulk-disable">
+          <label>Bulk-disable rule
+            <select id="qualityDisableMode" disabled>
+              <option value="recommended">Analyser recommendations</option>
+              <option value="broken">Broken only</option>
+              <option value="poor">Poor or worse</option>
+              <option value="review" selected>Needs review or worse</option>
+              <option value="fair">Fair or worse</option>
+              <option value="filtered">Every enabled prompt currently shown</option>
+            </select>
+            <small>Use the current filters first when choosing “currently shown”. Every change remains browser-only until you download the library.</small>
+          </label>
+          <button id="disableQualityPromptsBtn" class="button danger-button" type="button" disabled>Disable matching prompts</button>
+        </div>
         <div class="button-row quality-actions">
           <button id="applyQualityRatingsBtn" class="button secondary" type="button" disabled>Apply suggested ratings</button>
-          <button id="disablePoorPromptsBtn" class="button danger-button" type="button" disabled>Disable poor prompts</button>
           <button id="downloadQualityJsonBtn" class="button secondary" type="button" disabled>Download JSON report</button>
           <button id="downloadQualityCsvBtn" class="button secondary" type="button" disabled>Download CSV report</button>
         </div>
@@ -2094,12 +2107,12 @@ body.stage-one-enabled .audit-status-chip {
   </main>
 
   <script src="players.js?v=12.3.0"></script>
-  <script src="js/career-context.js?v=1.0.0"></script>
+  <script src="js/career-context.js?v=1.1.0"></script>
   <script src="prompt-library.js?v=2.0.1"></script>
-  <script src="js/validation-engine.js?v=1.3.0"></script>
-  <script src="js/admin-core.js?v=20.0.0"></script>
+  <script src="js/validation-engine.js?v=1.4.0"></script>
+  <script src="js/admin-core.js?v=21.0.0"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
-  <script src="js/admin-import-tools.js?v=18.0.0"></script>
+  <script src="js/admin-import-tools.js?v=19.0.0"></script>
 
   <!-- FPL STUDIO STAGE ONE JS START -->
   <script id="fpl-studio-stage-one-js">
@@ -2663,6 +2676,6 @@ body.stage-one-enabled .audit-status-chip {
 
   </script>
   <!-- FPL STUDIO STAGE ONE JS END -->
-  <script src="js/validation-lab.js?v=1.2.0"></script>
+  <script src="js/validation-lab.js?v=1.3.0"></script>
 </body>
 </html>

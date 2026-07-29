@@ -260,7 +260,7 @@
       <div class="validation-detail-grid">
         ${detailGroup("Identity", identity)}
         ${detailGroup("Season stats", stats)}
-        ${detailGroup("Career totals", career)}
+        ${detailGroup("Career history", career)}
         ${detailGroup("Database metadata", database)}
       </div>
       <div class="validation-check-list">
