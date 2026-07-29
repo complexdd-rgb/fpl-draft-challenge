@@ -84,6 +84,14 @@
     return Number.isFinite(year) ? year : 0;
   }
 
+  function hasNumericValue(value) {
+    return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+  }
+
+  function hasValidLeaguePosition(value) {
+    return hasNumericValue(value) && Number.isInteger(Number(value)) && Number(value) >= 1 && Number(value) <= 20;
+  }
+
   function formatValue(field, value) {
     if (value === null || value === undefined || value === "") return "Missing";
     if (field === "startingPrice" || field === "finalPrice") return Number.isFinite(Number(value)) ? `£${Number(value).toFixed(1)}m` : String(value);
@@ -163,20 +171,19 @@
   }
 
   function dataChecks(record) {
-    const completedSeason = record.season !== getAllSeasonLabels()[0];
     const checks = [
       check("Player name", Boolean(record.playerName), record.playerName || "Missing", "A player name is required for search and prompt reports."),
       check("Club", Boolean(record.club), record.club || "Missing", "Club-based rules need a stored club."),
       check("Position", ["GK", "DEF", "MID", "FWD"].includes(record.position), record.position || "Missing", "The position must be GK, DEF, MID or FWD."),
-      check("Minutes", Number.isFinite(Number(record.minutes)), formatValue("minutes", record.minutes), "Minutes must be numeric."),
+      check("Minutes", hasNumericValue(record.minutes), formatValue("minutes", record.minutes), "Minutes must be numeric."),
       check("Answer eligibility", Number(record.minutes) > 0, `${formatValue("minutes", record.minutes)} minutes`, "A player-season needs at least one recorded minute to qualify as an answer."),
-      check("Goals", Number.isFinite(Number(record.goals)), formatValue("goals", record.goals), "Goals must be numeric."),
-      check("Assists", Number.isFinite(Number(record.assists)), formatValue("assists", record.assists), "Assists must be numeric."),
-      check("FPL points", Number.isFinite(Number(record.points)), formatValue("points", record.points), "FPL points must be numeric."),
-      check("Starting price", Number.isFinite(Number(record.startingPrice)), formatValue("startingPrice", record.startingPrice), "Starting-price rules cannot use a missing price."),
-      check("Final price", Number.isFinite(Number(record.finalPrice)), formatValue("finalPrice", record.finalPrice), "Final-price rules cannot use a missing price."),
-      check("League finish", !completedSeason || Number.isFinite(Number(record.leaguePosition)), formatValue("leaguePosition", record.leaguePosition), completedSeason ? "Completed seasons need a final league position." : "The current season can remain unfinished."),
-      check("Age", Number.isFinite(Number(record.ageAtSeasonStart)), formatValue("ageAtSeasonStart", record.ageAtSeasonStart), "Age-based prompts cannot use a missing seasonal age."),
+      check("Goals", hasNumericValue(record.goals), formatValue("goals", record.goals), "Goals must be numeric."),
+      check("Assists", hasNumericValue(record.assists), formatValue("assists", record.assists), "Assists must be numeric."),
+      check("FPL points", hasNumericValue(record.points), formatValue("points", record.points), "FPL points must be numeric."),
+      check("Starting price", hasNumericValue(record.startingPrice), formatValue("startingPrice", record.startingPrice), "Starting-price rules cannot use a missing price."),
+      check("Final price", hasNumericValue(record.finalPrice), formatValue("finalPrice", record.finalPrice), "Final-price rules cannot use a missing price."),
+      check("League finish", hasValidLeaguePosition(record.leaguePosition), formatValue("leaguePosition", record.leaguePosition), "A final league position from 1 to 20 is required. Missing finishes never satisfy league-position rules."),
+      check("Age", hasNumericValue(record.ageAtSeasonStart), formatValue("ageAtSeasonStart", record.ageAtSeasonStart), "Age-based prompts cannot use a missing seasonal age."),
       check("Date of birth", /^\d{4}-\d{2}-\d{2}$/.test(record.dateOfBirth || ""), record.dateOfBirth || "Missing", "A verified ISO date supports independent age checks."),
       check("Managers", Array.isArray(record.managers) && record.managers.length > 0, formatValue("manager", record.managers), "Manager prompts need at least one stored manager.")
     ];
@@ -354,28 +361,39 @@
       return check(rule.label, passed, POSITION_LABELS[record.position] || record.position || "Missing", `Expected ${POSITION_LABELS[rule.value] || rule.value}.`, POSITION_LABELS[rule.value] || rule.value);
     }
 
+    const leagueDependentFields = new Set(["leaguePosition", "champions", "topFour", "bottomHalf", "relegated"]);
+    if (leagueDependentFields.has(rule.field) && !hasValidLeaguePosition(record.leaguePosition)) {
+      return check(
+        rule.label || FIELD_LABELS[rule.field] || rule.field,
+        false,
+        "Missing",
+        "This rule needs a final league position from 1 to 20. Missing league finishes are never valid answers.",
+        rule.operator === "between" ? `${rule.value}–${rule.value2}` : formatValue(rule.field, rule.value)
+      );
+    }
+
     const actual = fieldValue(record, rule.field);
     let passed = false;
     let expected = "";
 
     if (rule.operator === "between") {
-      passed = Number.isFinite(Number(actual)) && Number(actual) >= Number(rule.value) && Number(actual) <= Number(rule.value2);
+      passed = hasNumericValue(actual) && Number(actual) >= Number(rule.value) && Number(actual) <= Number(rule.value2);
       expected = `${formatValue(rule.field, rule.value)}–${formatValue(rule.field, rule.value2)}`;
     } else if (rule.operator === "eq" || rule.operator === "equals") {
       if (typeof actual === "string") passed = normalise(actual) === normalise(rule.value);
-      else passed = Number.isFinite(Number(actual)) ? Number(actual) === Number(rule.value) : actual === rule.value;
+      else passed = hasNumericValue(actual) ? Number(actual) === Number(rule.value) : actual === rule.value;
       expected = formatValue(rule.field, rule.value);
     } else if (rule.operator === "gte") {
-      passed = Number.isFinite(Number(actual)) && Number(actual) >= Number(rule.value);
+      passed = hasNumericValue(actual) && Number(actual) >= Number(rule.value);
       expected = `At least ${formatValue(rule.field, rule.value)}`;
     } else if (rule.operator === "lte") {
-      passed = Number.isFinite(Number(actual)) && Number(actual) <= Number(rule.value);
+      passed = hasNumericValue(actual) && Number(actual) <= Number(rule.value);
       expected = `At most ${formatValue(rule.field, rule.value)}`;
     } else if (rule.operator === "gt") {
-      passed = Number.isFinite(Number(actual)) && Number(actual) > Number(rule.value);
+      passed = hasNumericValue(actual) && Number(actual) > Number(rule.value);
       expected = `More than ${formatValue(rule.field, rule.value)}`;
     } else if (rule.operator === "lt") {
-      passed = Number.isFinite(Number(actual)) && Number(actual) < Number(rule.value);
+      passed = hasNumericValue(actual) && Number(actual) < Number(rule.value);
       expected = `Less than ${formatValue(rule.field, rule.value)}`;
     } else if (rule.operator === "isTrue") {
       passed = actual === true;
@@ -432,7 +450,10 @@
     }
 
     const failed = checks.filter(item => !item.passed);
-    const overallPassed = prompt ? nativePassed === true : parsed.recognised && failed.length === 0;
+    const diagnosticPassed = checks
+      .filter(item => item.label !== "Original prompt logic")
+      .every(item => item.passed);
+    const overallPassed = prompt ? nativePassed === true && diagnosticPassed : parsed.recognised && failed.length === 0;
     return {
       ok: true,
       player: { playerId: player.playerId, name: player.name },
@@ -500,13 +521,13 @@
       eligible: rows.filter(record => Number(record.minutes) > 0).length,
       zeroMinutes: rows.filter(record => Number(record.minutes) <= 0).length,
       missingDob: missing(record => !/^\d{4}-\d{2}-\d{2}$/.test(record.dateOfBirth || "")),
-      missingAge: missing(record => !Number.isFinite(Number(record.ageAtSeasonStart))),
-      missingStartingPrice: missing(record => !Number.isFinite(Number(record.startingPrice))),
-      missingFinalPrice: missing(record => !Number.isFinite(Number(record.finalPrice))),
-      missingLeaguePosition: missing(record => !Number.isFinite(Number(record.leaguePosition))),
+      missingAge: missing(record => !hasNumericValue(record.ageAtSeasonStart)),
+      missingStartingPrice: missing(record => !hasNumericValue(record.startingPrice)),
+      missingFinalPrice: missing(record => !hasNumericValue(record.finalPrice)),
+      missingLeaguePosition: missing(record => !hasValidLeaguePosition(record.leaguePosition)),
       missingManagers: missing(record => !Array.isArray(record.managers) || record.managers.length === 0),
       invalidPosition: missing(record => !["GK", "DEF", "MID", "FWD"].includes(record.position)),
-      invalidCoreStats: missing(record => ["points", "minutes", "goals", "assists"].some(field => !Number.isFinite(Number(record[field]))))
+      invalidCoreStats: missing(record => ["points", "minutes", "goals", "assists"].some(field => !hasNumericValue(record[field])))
     };
     const blocking = summary.invalidPosition + summary.invalidCoreStats;
     const metadataGaps = summary.missingDob + summary.missingAge + summary.missingStartingPrice + summary.missingFinalPrice + summary.missingLeaguePosition + summary.missingManagers;
