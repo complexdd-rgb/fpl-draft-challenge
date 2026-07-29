@@ -1238,6 +1238,14 @@ body.stage-one-enabled .audit-status-chip {
           <label>Default cooldown
             <input id="factoryCooldown" type="number" min="0" max="50" value="10">
           </label>
+          <label>Season played rules
+            <select id="factorySeasonMode">
+              <option value="mix" selected>Mix in season prompts</option>
+              <option value="none">Do not use season rules</option>
+              <option value="only">Season prompts only</option>
+            </select>
+            <small>Creates exact-season, before-season, after-season and between-season prompts.</small>
+          </label>
           <label>Relationship rules
             <select id="factoryRelationshipMode">
               <option value="mix" selected>Mix in teammate prompts</option>
@@ -1263,8 +1271,8 @@ body.stage-one-enabled .audit-status-chip {
           <label class="check-label"><input id="factoryEnablePrompts" type="checkbox"> Enable immediately after adding</label>
         </div>
         <div class="factory-rule-note">
-          <strong>New in Phase 15</strong>
-          <span>Relationship prompts are based on shared club-seasons, while anti-obvious prompts explicitly remove the prompt’s highest FPL-scoring valid answer or top two.</span>
+          <strong>Prompt Engine 2</strong>
+          <span>The Auto Prompt Generator can now mix in exact-season, before-season, after-season and between-season rules alongside relationship and anti-obvious prompts.</span>
         </div>
 
         <div class="button-row prompt-factory-actions">
@@ -2080,9 +2088,9 @@ body.stage-one-enabled .audit-status-chip {
   <script src="players.js?v=12.3.0"></script>
   <script src="prompt-library.js?v=2.0.1"></script>
   <script src="js/validation-engine.js?v=1.2.0"></script>
-  <script src="js/admin-core.js?v=18.0.0"></script>
+  <script src="js/admin-core.js?v=19.0.0"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
-  <script src="js/admin-import-tools.js?v=16.0.1"></script>
+  <script src="js/admin-import-tools.js?v=17.0.0"></script>
 
   <!-- FPL STUDIO STAGE ONE JS START -->
   <script id="fpl-studio-stage-one-js">

@@ -892,6 +892,7 @@ Backups and detailed reports are included.
       minimum: document.querySelector("#factoryMinPlayers"),
       maximum: document.querySelector("#factoryMaxPlayers"),
       cooldown: document.querySelector("#factoryCooldown"),
+      seasonMode: document.querySelector("#factorySeasonMode"),
       relationship: document.querySelector("#factoryRelationshipMode"),
       exclusion: document.querySelector("#factoryExclusionMode"),
       includeNames: document.querySelector("#factoryIncludeNameRules"),
@@ -914,8 +915,14 @@ Backups and detailed reports are included.
     const cooldown = clampInteger(elements.cooldown.value, 0, 50, 10);
     const positionMode = POSITIONS.includes(elements.position.value) ? elements.position.value : "balanced";
     const difficultyMode = ["easy", "medium", "hard"].includes(elements.difficulty.value) ? elements.difficulty.value : "balanced";
+    const seasonMode = ["none", "mix", "only"].includes(elements.seasonMode?.value) ? elements.seasonMode.value : "mix";
     const relationshipMode = ["none", "mix", "only"].includes(elements.relationship?.value) ? elements.relationship.value : "mix";
     const exclusionMode = ["none", "mix", "top1", "top2"].includes(elements.exclusion?.value) ? elements.exclusion.value : "mix";
+
+    if (seasonMode === "only" && relationshipMode === "only") {
+      elements.status.textContent = "Choose either Season prompts only or Teammate prompts only, not both at the same time.";
+      return;
+    }
 
     elements.count.value = requested;
     elements.minimum.value = minimum;
@@ -933,6 +940,7 @@ Backups and detailed reports are included.
           includeNameRules: elements.includeNames.checked,
           positionMode,
           cooldown,
+          seasonMode,
           relationshipMode
         });
         shuffle(variants);
@@ -1024,14 +1032,17 @@ Backups and detailed reports are included.
     }
   }
 
-  function buildCandidateVariants({ includeNameRules, positionMode, cooldown, relationshipMode = "mix" }) {
+  function buildCandidateVariants({ includeNameRules, positionMode, cooldown, seasonMode = "mix", relationshipMode = "mix" }) {
     const positions = positionMode === "balanced" ? POSITIONS : [positionMode];
     const variants = [];
     const add = (position, family, idBase, label, fail, tags, conditions, join = "all") => {
       variants.push({ position, family, idBase, label, fail, tags, cooldown, studioRule: { kind: "builder", join, conditions } });
     };
+    const includeStandard = relationshipMode !== "only" && seasonMode !== "only";
+    const includeSeason = relationshipMode !== "only" && seasonMode !== "none";
+    const includeTeammates = relationshipMode !== "none" && seasonMode !== "only";
 
-    if (relationshipMode !== "only") for (const position of positions) {
+    if (includeStandard) for (const position of positions) {
       const noun = POSITION_LABELS[position];
       const lower = noun.toLowerCase();
 
@@ -1064,12 +1075,144 @@ Backups and detailed reports are included.
       }
     }
 
-    if (relationshipMode !== "only") {
+    if (includeStandard) {
       addPositionSpecificVariants(variants, positions, cooldown, add);
       addManagerVariants(variants, positions, cooldown, add);
     }
-    if (relationshipMode !== "none") addTeammateVariants(variants, positions, cooldown);
+    if (includeSeason) addSeasonPlayedVariants(positions, add);
+    if (includeTeammates) addTeammateVariants(variants, positions, cooldown);
     return variants;
+  }
+
+  function addSeasonPlayedVariants(positions, add) {
+    const seasons = [...new Set(flatRecords
+      .map(record => String(record.season || "").trim())
+      .filter(season => /^\d{4}\/\d{2}$/.test(season)))]
+      .sort((a, b) => seasonStartYear(a) - seasonStartYear(b));
+    if (!seasons.length) return;
+
+    const exactPointThresholds = {
+      GK: [40, 70, 100],
+      DEF: [50, 80, 110],
+      MID: [50, 90, 130],
+      FWD: [40, 70, 100]
+    };
+    const boundaryPointThresholds = { GK: 80, DEF: 90, MID: 100, FWD: 85 };
+    const boundaryMinuteThresholds = { GK: 1800, DEF: 2000, MID: 2000, FWD: 1800 };
+
+    for (const position of positions) {
+      const noun = POSITION_LABELS[position];
+      const lower = noun.toLowerCase();
+
+      for (const label of seasons) {
+        for (const points of exactPointThresholds[position]) {
+          add(
+            position,
+            "season-exact",
+            `${position.toLowerCase()}_season_${seasonId(label)}_points_${points}`,
+            `${noun} with ${points}+ FPL points in the ${label} season`,
+            `That ${lower} must score at least ${points} FPL points in the ${label} season.`,
+            ["auto-generated", "season-rule", "season-exact", "points", "anti-meta"],
+            [seasonCondition("equals", label), num("points", "gte", points), num("minutes", "gt", 0)]
+          );
+        }
+      }
+
+      for (const label of seasonBoundaryLabels(seasons)) {
+        const points = boundaryPointThresholds[position];
+        const minutes = boundaryMinuteThresholds[position];
+        add(
+          position,
+          "season-before-points",
+          `${position.toLowerCase()}_before_${seasonId(label)}_points_${points}`,
+          `${noun} with ${points}+ FPL points before the ${label} season`,
+          `That ${lower} must score at least ${points} FPL points in a season before ${label}.`,
+          ["auto-generated", "season-rule", "season-before", "points", "anti-meta"],
+          [seasonCondition("before", label), num("points", "gte", points), num("minutes", "gt", 0)]
+        );
+        add(
+          position,
+          "season-after-points",
+          `${position.toLowerCase()}_after_${seasonId(label)}_points_${points}`,
+          `${noun} with ${points}+ FPL points after the ${label} season`,
+          `That ${lower} must score at least ${points} FPL points in a season after ${label}.`,
+          ["auto-generated", "season-rule", "season-after", "points", "anti-meta"],
+          [seasonCondition("after", label), num("points", "gte", points), num("minutes", "gt", 0)]
+        );
+        add(
+          position,
+          "season-before-minutes",
+          `${position.toLowerCase()}_before_${seasonId(label)}_minutes_${minutes}`,
+          `${noun} who played ${formatNumber(minutes)}+ minutes before the ${label} season`,
+          `That ${lower} must play at least ${formatNumber(minutes)} minutes in a season before ${label}.`,
+          ["auto-generated", "season-rule", "season-before", "minutes", "anti-meta"],
+          [seasonCondition("before", label), num("minutes", "gte", minutes)]
+        );
+        add(
+          position,
+          "season-after-minutes",
+          `${position.toLowerCase()}_after_${seasonId(label)}_minutes_${minutes}`,
+          `${noun} who played ${formatNumber(minutes)}+ minutes after the ${label} season`,
+          `That ${lower} must play at least ${formatNumber(minutes)} minutes in a season after ${label}.`,
+          ["auto-generated", "season-rule", "season-after", "minutes", "anti-meta"],
+          [seasonCondition("after", label), num("minutes", "gte", minutes)]
+        );
+      }
+
+      for (const [from, to] of seasonWindows(seasons)) {
+        const points = boundaryPointThresholds[position];
+        const minutes = boundaryMinuteThresholds[position];
+        add(
+          position,
+          "season-between-points",
+          `${position.toLowerCase()}_between_${seasonId(from)}_${seasonId(to)}_points_${points}`,
+          `${noun} with ${points}+ FPL points between the ${from} and ${to} seasons`,
+          `That ${lower} must score at least ${points} FPL points between the ${from} and ${to} seasons.`,
+          ["auto-generated", "season-rule", "season-between", "points", "anti-meta"],
+          [seasonCondition("between", from, to), num("points", "gte", points), num("minutes", "gt", 0)]
+        );
+        add(
+          position,
+          "season-between-minutes",
+          `${position.toLowerCase()}_between_${seasonId(from)}_${seasonId(to)}_minutes_${minutes}`,
+          `${noun} who played ${formatNumber(minutes)}+ minutes between the ${from} and ${to} seasons`,
+          `That ${lower} must play at least ${formatNumber(minutes)} minutes between the ${from} and ${to} seasons.`,
+          ["auto-generated", "season-rule", "season-between", "minutes", "anti-meta"],
+          [seasonCondition("between", from, to), num("minutes", "gte", minutes)]
+        );
+      }
+    }
+  }
+
+  function seasonBoundaryLabels(seasons) {
+    if (seasons.length < 3) return [];
+    const last = seasons.length - 1;
+    return [...new Set([0.25, 0.5, 0.75]
+      .map(fraction => seasons[Math.round(last * fraction)])
+      .filter(Boolean))];
+  }
+
+  function seasonWindows(seasons) {
+    if (seasons.length < 2) return [];
+    const last = seasons.length - 1;
+    const indexes = [
+      [0, Math.max(1, Math.floor(last / 3))],
+      [Math.max(0, Math.floor(last / 3)), Math.max(1, Math.floor((last * 2) / 3))],
+      [Math.max(0, Math.floor((last * 2) / 3)), last]
+    ];
+    return indexes
+      .map(([from, to]) => [seasons[from], seasons[to]])
+      .filter(([from, to]) => from && to && from !== to)
+      .filter((pair, index, all) => all.findIndex(other => other[0] === pair[0] && other[1] === pair[1]) === index);
+  }
+
+  function seasonStartYear(label) {
+    const year = Number.parseInt(String(label || "").slice(0, 4), 10);
+    return Number.isFinite(year) ? year : Number.MAX_SAFE_INTEGER;
+  }
+
+  function seasonId(label) {
+    return String(label || "").replace(/[^0-9a-z]+/gi, "_").replace(/^_+|_+$/g, "").toLowerCase();
   }
 
   function addPositionSpecificVariants(variants, positions, cooldown, add) {
@@ -1409,6 +1552,7 @@ Backups and detailed reports are included.
       <article><span>Defenders / midfielders</span><strong>${counts.DEF || 0} / ${counts.MID || 0}</strong></article>
       <article><span>Forwards</span><strong>${counts.FWD || 0}</strong></article>
       <article><span>Easy / medium / hard</span><strong>${difficulties.easy || 0} / ${difficulties.medium || 0} / ${difficulties.hard || 0}</strong></article>
+      <article><span>Season rules</span><strong>${currentBatch.filter(item => item.tags.includes("season-rule")).length}</strong></article>
       <article><span>Teammate rules</span><strong>${currentBatch.filter(item => item.tags.includes("teammate")).length}</strong></article>
       <article><span>Top-answer exclusions</span><strong>${currentBatch.filter(item => item.tags.includes("excludes-top")).length}</strong></article>`;
     elements.summary.classList.remove("hidden");
@@ -1426,6 +1570,7 @@ Backups and detailed reports are included.
             <span>${prompt.stats.seasonCount} seasons</span>
             <span>Cooldown ${prompt.cooldown}</span>
             ${prompt.tags.includes("anti-meta") ? '<span class="anti">Anti-meta</span>' : ""}
+            ${prompt.tags.includes("season-rule") ? '<span class="relation">Season rule</span>' : ""}
             ${prompt.tags.includes("teammate") ? '<span class="relation">Teammate rule</span>' : ""}
             ${prompt.tags.includes("excludes-top") ? '<span class="exclude">Top answer excluded</span>' : ""}
           </div>
@@ -1606,6 +1751,10 @@ Backups and detailed reports are included.
     return { field, operator, value: "", value2: "" };
   }
 
+  function seasonCondition(operator, value, value2 = "") {
+    return { field: "season", operator, value, value2 };
+  }
+
   function compileRuleSource(rule) {
     const joiner = rule.join === "any" ? " || " : " && ";
     const usesNameData = rule.conditions.some(condition => isNameField(condition.field));
@@ -1641,6 +1790,22 @@ Backups and detailed reports are included.
   function conditionToExpression(condition) {
     const field = condition.field;
     const accessor = numericAccessor(field);
+    if (field === "season") {
+      const current = `Number.parseInt(String(p.season || "").slice(0, 4), 10)`;
+      const firstLabel = String(condition.value || "");
+      const secondLabel = String(condition.value2 || "");
+      const first = Number.parseInt(firstLabel.slice(0, 4), 10);
+      const second = Number.parseInt(secondLabel.slice(0, 4), 10);
+      if (condition.operator === "equals") return `String(p.season || "") === ${JSON.stringify(firstLabel)}`;
+      if (condition.operator === "before") return `(Number.isFinite(${current}) && ${current} < ${first})`;
+      if (condition.operator === "after") return `(Number.isFinite(${current}) && ${current} > ${first})`;
+      if (condition.operator === "between") {
+        const low = Math.min(first, second);
+        const high = Math.max(first, second);
+        return `(Number.isFinite(${current}) && ${current} >= ${low} && ${current} <= ${high})`;
+      }
+      return "false";
+    }
     if (["points", "minutes", "goals", "assists", "goalInvolvements", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice", "leaguePosition", "ageAtSeasonStart", "fullNameLength", "firstNameLength", "surnameLength", "nameWordCount"].includes(field)) {
       const value = Number(condition.value);
       const value2 = Number(condition.value2);

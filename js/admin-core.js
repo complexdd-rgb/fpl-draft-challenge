@@ -1113,8 +1113,7 @@ ${promptsSource}
   const DIFFICULTY_VALUE = { easy: 1, medium: 2, hard: 3 };
   const DIVERSITY_TAGS = new Set([
     "relegated", "promoted", "bottom-half", "mid-table", "survival",
-    "outside-big-six", "outside-top-four", "manager", "budget", "young", "exact-stat", "name-rule", "surname", "first-name",
-    "season-rule"
+    "outside-big-six", "outside-top-four", "manager", "budget", "young", "exact-stat", "name-rule", "surname", "first-name"
   ]);
   const STORAGE_KEY = "fplChallengeStudioPhase5Draft";
   const LEGACY_STORAGE_KEYS = ["fplChallengeStudioPhase4Draft", "fplChallengeStudioPhase3Draft", "fplChallengeStudioPhase2Draft", "fplChallengeStudioPhase1Draft"];
@@ -1151,7 +1150,7 @@ ${promptsSource}
   };
 
   const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
-  const basePromptLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
+  const promptLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
   const recentPromptIds = new Set(Array.isArray(window.FPL_RECENT_PROMPT_IDS) ? window.FPL_RECENT_PROMPT_IDS : []);
   const records = [];
   const statsCache = new Map();
@@ -1168,180 +1167,7 @@ ${promptsSource}
     }
   }
 
-  const generatedSeasonPrompts = buildSeasonPlayedPromptVariants(basePromptLibrary, records);
-  const promptLibrary = [...basePromptLibrary, ...generatedSeasonPrompts];
-
   initialise();
-
-  function buildSeasonPlayedPromptVariants(basePrompts, allRecords) {
-    if (!basePrompts.length || !allRecords.length) return [];
-
-    const seasons = [...new Set(allRecords
-      .map(record => String(record.season || "").trim())
-      .filter(Boolean))]
-      .sort((a, b) => seasonStartYear(a) - seasonStartYear(b));
-    if (seasons.length < 2) return [];
-
-    const rules = buildSeasonRuleDefinitions(seasons);
-    const variants = [];
-    const seenIds = new Set(basePrompts.map(prompt => prompt.id));
-
-    for (const position of ["GK", "DEF", "MID", "FWD"]) {
-      const sources = chooseSeasonVariantSources(basePrompts, allRecords, position);
-      for (const rule of rules) {
-        const candidates = [];
-        for (const source of sources) {
-          const variant = createSeasonPromptVariant(source, rule);
-          if (!variant || seenIds.has(variant.id)) continue;
-          const playerCount = countDistinctPromptPlayers(variant, allRecords);
-          if (playerCount < 4 || playerCount > 140) continue;
-          candidates.push({ variant, playerCount });
-        }
-
-        candidates.sort((a, b) => {
-          const aDistance = Math.abs(Math.log(Math.max(a.playerCount, 1)) - Math.log(25));
-          const bDistance = Math.abs(Math.log(Math.max(b.playerCount, 1)) - Math.log(25));
-          return aDistance - bDistance ||
-            (Number(b.variant.rating) || 0) - (Number(a.variant.rating) || 0) ||
-            a.variant.id.localeCompare(b.variant.id);
-        });
-
-        for (const item of candidates.slice(0, 2)) {
-          seenIds.add(item.variant.id);
-          variants.push(item.variant);
-        }
-      }
-    }
-
-    return variants;
-  }
-
-  function buildSeasonRuleDefinitions(seasons) {
-    const rules = seasons.map(season => ({ kind: "exact", from: season, to: season }));
-    const lastIndex = seasons.length - 1;
-    const pivotIndexes = [...new Set([.25, .5, .75]
-      .map(fraction => Math.round(lastIndex * fraction))
-      .filter(index => index > 0 && index < lastIndex))];
-
-    for (const index of pivotIndexes) {
-      rules.push({ kind: "before", from: seasons[index], to: seasons[index] });
-      rules.push({ kind: "after", from: seasons[index], to: seasons[index] });
-    }
-
-    const chunkCount = Math.min(3, Math.max(1, Math.floor(seasons.length / 3)));
-    for (let chunk = 0; chunk < chunkCount; chunk += 1) {
-      const fromIndex = Math.floor((chunk * seasons.length) / chunkCount);
-      const toIndex = chunk === chunkCount - 1
-        ? lastIndex
-        : Math.max(fromIndex + 1, Math.floor(((chunk + 1) * seasons.length) / chunkCount) - 1);
-      if (toIndex > fromIndex) rules.push({ kind: "between", from: seasons[fromIndex], to: seasons[toIndex] });
-    }
-
-    return rules;
-  }
-
-  function chooseSeasonVariantSources(basePrompts, allRecords, position) {
-    const forbiddenTags = new Set(["season-rule", "career-rule", "teammate", "name-rule"]);
-    return basePrompts
-      .filter(prompt => prompt.enabled !== false && prompt.position === position && typeof prompt.test === "function")
-      .filter(prompt => !(prompt.tags || []).some(tag => forbiddenTags.has(String(tag).toLowerCase())))
-      .filter(prompt => !/\bplayerId\b/.test(prompt.test.toString()))
-      .map(prompt => ({ prompt, playerCount: countDistinctPromptPlayers(prompt, allRecords) }))
-      .filter(item => item.playerCount >= 30 && item.playerCount <= 260)
-      .sort((a, b) => {
-        const aDistance = Math.abs(Math.log(a.playerCount) - Math.log(85));
-        const bDistance = Math.abs(Math.log(b.playerCount) - Math.log(85));
-        return aDistance - bDistance ||
-          (Number(b.prompt.rating) || 0) - (Number(a.prompt.rating) || 0) ||
-          a.prompt.id.localeCompare(b.prompt.id);
-      })
-      .slice(0, 12)
-      .map(item => item.prompt);
-  }
-
-  function createSeasonPromptVariant(source, rule) {
-    const baseSource = source.test.toString();
-    const seasonExpression = seasonRuleExpression(rule);
-    if (!seasonExpression) return null;
-
-    let test;
-    try {
-      test = Function(`"use strict"; return (p => { const __baseTest = (${baseSource}); return Number(p?.minutes) > 0 && __baseTest(p) && (${seasonExpression}); });`)();
-    } catch (error) {
-      console.warn(`Could not build season-rule variant for ${source.id}.`, error);
-      return null;
-    }
-
-    return {
-      id: `${source.id}__season_${seasonRuleId(rule)}`,
-      position: source.position,
-      label: `${source.label} ${seasonRuleLabelSuffix(rule)}`,
-      fail: `${source.fail || "That player does not match the base rule."} ${seasonRuleFailSentence(rule)}`,
-      difficulty: bumpDifficulty(source.difficulty),
-      tags: [...new Set([...(source.tags || []), "season-rule", `season-${rule.kind}`, "anti-meta"])],
-      rating: Math.max(1, Number(source.rating) || 3),
-      cooldown: Math.max(1, Number(source.cooldown) || 7),
-      enabled: true,
-      generatedSeasonRule: { ...rule, sourcePromptId: source.id },
-      test
-    };
-  }
-
-  function seasonRuleExpression(rule) {
-    const start = `Number.parseInt(String(p.season || "").slice(0, 4), 10)`;
-    const fromYear = seasonStartYear(rule.from);
-    const toYear = seasonStartYear(rule.to);
-    if (!Number.isFinite(fromYear) || !Number.isFinite(toYear)) return "";
-    if (rule.kind === "exact") return `String(p.season || "") === ${JSON.stringify(rule.from)}`;
-    if (rule.kind === "before") return `(Number.isFinite(${start}) && ${start} < ${fromYear})`;
-    if (rule.kind === "after") return `(Number.isFinite(${start}) && ${start} > ${fromYear})`;
-    if (rule.kind === "between") return `(Number.isFinite(${start}) && ${start} >= ${Math.min(fromYear, toYear)} && ${start} <= ${Math.max(fromYear, toYear)})`;
-    return "";
-  }
-
-  function seasonRuleLabelSuffix(rule) {
-    if (rule.kind === "exact") return `in the ${rule.from} season`;
-    if (rule.kind === "before") return `before the ${rule.from} season`;
-    if (rule.kind === "after") return `after the ${rule.from} season`;
-    return `between the ${rule.from} and ${rule.to} seasons`;
-  }
-
-  function seasonRuleFailSentence(rule) {
-    if (rule.kind === "exact") return `The qualifying record must be from the ${rule.from} season.`;
-    if (rule.kind === "before") return `The qualifying record must be before the ${rule.from} season.`;
-    if (rule.kind === "after") return `The qualifying record must be after the ${rule.from} season.`;
-    return `The qualifying record must be between the ${rule.from} and ${rule.to} seasons.`;
-  }
-
-  function seasonRuleId(rule) {
-    const clean = value => String(value || "").replace(/[^0-9a-z]+/gi, "_").replace(/^_+|_+$/g, "").toLowerCase();
-    return rule.kind === "between"
-      ? `between_${clean(rule.from)}_${clean(rule.to)}`
-      : `${rule.kind}_${clean(rule.from)}`;
-  }
-
-  function seasonStartYear(label) {
-    const year = Number.parseInt(String(label || "").slice(0, 4), 10);
-    return Number.isFinite(year) ? year : Number.NaN;
-  }
-
-  function countDistinctPromptPlayers(prompt, allRecords) {
-    const playerIds = new Set();
-    for (const record of allRecords) {
-      if (record.position !== prompt.position || Number(record.minutes) <= 0) continue;
-      try {
-        if (prompt.test(record)) playerIds.add(record.playerId);
-      } catch (error) {
-        return 0;
-      }
-    }
-    return playerIds.size;
-  }
-
-  function bumpDifficulty(value) {
-    if (value === "easy") return "medium";
-    return "hard";
-  }
 
   function initialise() {
     setDefaultReleaseDate();
@@ -1358,9 +1184,7 @@ ${promptsSource}
 
     for (const prompt of promptLibrary) getPromptStats(prompt);
     updateLibraryStatus("checked");
-    elements.actionStatus.textContent = generatedSeasonPrompts.length
-      ? `Ready. ${generatedSeasonPrompts.length} checked season-played prompt variants are available to the automatic generator.`
-      : "Ready. Generate a draft; the live game will not be changed.";
+    elements.actionStatus.textContent = "Ready. Generate a draft; the live game will not be changed.";
   }
 
   function bindEvents() {
@@ -1399,7 +1223,7 @@ ${promptsSource}
       ? `${players.length.toLocaleString()} players · ${records.length.toLocaleString()} seasons`
       : "Not found";
     elements.libraryStatus.textContent = promptLibrary.length
-      ? `${promptLibrary.filter(prompt => prompt.enabled !== false).length} enabled · ${promptLibrary.length} total · ${generatedSeasonPrompts.length} season-rule loading…`
+      ? `${promptLibrary.filter(prompt => prompt.enabled !== false).length} enabled · ${promptLibrary.length} total loading…`
       : "Not found";
   }
 
@@ -1407,7 +1231,6 @@ ${promptsSource}
     const enabledCount = promptLibrary.filter(prompt => prompt.enabled !== false).length;
     const customCount = promptLibrary.filter(prompt => prompt.studioRule).length;
     const pieces = [`${enabledCount} enabled`, `${promptLibrary.length} total`];
-    if (generatedSeasonPrompts.length) pieces.push(`${generatedSeasonPrompts.length} season-rule`);
     if (customCount) pieces.push(`${customCount} custom`);
     if (suffix) pieces.push(suffix);
     elements.libraryStatus.textContent = pieces.join(" · ");
