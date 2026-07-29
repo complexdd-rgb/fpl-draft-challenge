@@ -2,112 +2,90 @@
    Exact perfect score calculated with eleven unique footballers.
    Review before manually uploading to GitHub. */
 window.FPL_DAILY_CHALLENGE = {
-  id: "daily-010-the-generated-mix",
-  number: 10,
-  title: "Challenge #10 · The Generated Mix",
+  id: "daily-011-the-generated-mix",
+  number: 11,
+  title: "Challenge #11 · The Generated Mix",
   dateLabel: "Generated Mix · Mixed",
   difficulty: "Mixed",
   releaseDate: "2026-07-29",
   perfectScore: 2044,
   prompts: [
     {
-      id: "auto_gk_teammate_adama_traore_excluding_rui_pedro_dos_santos_patricio_jose_ma",
+      id: "auto_gk_saves_90_league_10_15",
       position: "GK",
-      label: "Goalkeeper who shared a Premier League club-season with Adama Traoré — excluding Rui Pedro dos Santos Patrício and José Malheiro de Sá",
-      fail: "That goalkeeper must have recorded minutes for the same club in the same FPL season as Adama Traoré. Excluding Rui Pedro dos Santos Patrício and José Malheiro de Sá.",
-      test: p => ((p => (p.playerId !== "adama-traore" && Number(p.minutes) > 0 && ["2015/16|Aston Villa","2016/17|Middlesbrough","2018/19|Wolves","2019/20|Wolves","2020/21|Wolves","2021/22|Wolves","2022/23|Wolves","2023/24|Fulham","2024/25|Fulham","2025/26|West Ham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["rui-pedro-dos-santos-patricio","jose-malheiro-de-sa"].includes(p.playerId))
+      label: "Goalkeeper with 90+ saves from a club finishing 10th–15th",
+      fail: "That goalkeeper season must include at least 90 saves for a club finishing 10th–15th.",
+      test: p => ((Number.isFinite(p.saves) && p.saves >= 90) && (Number.isFinite(p.leaguePosition) && p.leaguePosition >= 10 && p.leaguePosition <= 15))
     },
     {
-      id: "def_start_40_1500",
+      id: "auto_def_teammate_theo_walcott_points_70",
       position: "DEF",
-      label: "Defender who started at £4.0m or less and played 1,500+ minutes",
-      fail: "That defender must start at £4.0m or less and play at least 1,500 minutes.",
-      test: p => p.startingPrice <= 4 && p.minutes >= 1500
+      label: "Defender who shared a club-season with Theo Walcott and scored 70+ FPL points",
+      fail: "That defender must share a club-season with Theo Walcott and score at least 70 FPL points in the qualifying season.",
+      test: p => ((p => (p.playerId !== "theo-walcott" && Number(p.minutes) > 0 && ["2014/15|Arsenal","2015/16|Arsenal","2016/17|Arsenal","2017/18|Everton","2018/19|Everton","2019/20|Everton","2020/21|Southampton","2021/22|Southampton","2022/23|Southampton"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 70)
     },
     {
-      id: "auto_def_bottom_assists_5",
+      id: "auto_def_goals_4_minutes_1500",
       position: "DEF",
-      label: "Defender from a bottom-half club with 5+ assists",
-      fail: "That defender must play for a bottom-half club and record at least 5 assists.",
-      test: p => ((p.bottomHalf === true) && (Number.isFinite(p.assists) && p.assists >= 5))
+      label: "Defender who scored exactly 4 goals and played 1,500+ minutes",
+      fail: "That defender must score exactly 4 goals and play at least 1,500 minutes.",
+      test: p => ((Number.isFinite(p.goals) && p.goals === 4) && (Number.isFinite(p.minutes) && p.minutes >= 1500))
     },
     {
-      id: "auto_def_first_c_points_excluding_cesar_azpilicueta",
+      id: "auto_def_teammate_bernardo_veiga_de_carvalho_e_silva_excluding_joao_cancelo",
       position: "DEF",
-      label: "Defender whose first name starts with C and who scored at least 60 FPL points — excluding César Azpilicueta",
-      fail: "That defender's first name must start with C and the season must score at least 60 FPL points. Excluding César Azpilicueta.",
-      test: p => ((p => {
-      const __rawName = String(p.name || p.playerName || "").trim();
-      const __normaliseName = value => String(value || "")
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
-        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
-        .replace(/’/g, "'")
-        .replace(/[^a-z0-9'\-]+/g, " ")
-        .trim();
-      const __fullName = __normaliseName(__rawName);
-      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
-      const __firstName = __nameTokens[0] || "";
-      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
-      let __surnameStart = Math.max(0, __nameTokens.length - 1);
-      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
-      const __surname = __nameTokens.slice(__surnameStart).join(" ");
-      const __firstInitial = __firstName.charAt(0);
-      const __surnameInitial = __surname.charAt(0);
-      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
-      return (__firstName.startsWith("c") && (Number.isFinite(p.points) && p.points >= 60));
-    })(p) && !["cesar-azpilicueta"].includes(p.playerId))
+      label: "Defender who shared a Premier League club-season with Bernardo Veiga de Carvalho e Silva — excluding João Cancelo",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Bernardo Veiga de Carvalho e Silva. Excluding João Cancelo.",
+      test: p => ((p => (p.playerId !== "bernardo-veiga-de-carvalho-e-silva" && Number(p.minutes) > 0 && ["2017/18|Man City","2018/19|Man City","2019/20|Man City","2020/21|Man City","2021/22|Man City","2022/23|Man City","2023/24|Man City","2024/25|Man City","2025/26|Man City"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["joao-cancelo"].includes(p.playerId))
     },
     {
-      id: "auto_def_dean_smith_minutes_1000_excluding_matty_cash",
+      id: "auto_def_teammate_leighton_baines_excluding_seamus_coleman",
       position: "DEF",
-      label: "Defender managed by Dean Smith who played 1,000+ minutes — excluding Matty Cash",
-      fail: "That defender season must have been managed by Dean Smith and include at least 1,000 minutes. Excluding Matty Cash.",
-      test: p => ((p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Dean Smith".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1000)))(p) && !["matty-cash"].includes(p.playerId))
+      label: "Defender who shared a Premier League club-season with Leighton Baines — excluding Séamus Coleman",
+      fail: "That defender must have recorded minutes for the same club in the same FPL season as Leighton Baines. Excluding Séamus Coleman.",
+      test: p => ((p => (p.playerId !== "leighton-baines" && Number(p.minutes) > 0 && ["2013/14|Everton","2014/15|Everton","2015/16|Everton","2016/17|Everton","2017/18|Everton","2018/19|Everton","2019/20|Everton"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["seamus-coleman"].includes(p.playerId))
     },
     {
-      id: "auto_mid_teammate_mesut_ozil",
+      id: "auto_mid_frank_lampard_minutes_1000",
       position: "MID",
-      label: "Midfielder who shared a Premier League club-season with Mesut Özil",
-      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Mesut Özil.",
-      test: p => (p.playerId !== "mesut-ozil" && Number(p.minutes) > 0 && ["2014/15|Arsenal","2015/16|Arsenal","2016/17|Arsenal","2017/18|Arsenal","2018/19|Arsenal","2019/20|Arsenal"].includes(String(p.season || "") + "|" + String(p.club || "")))
+      label: "Midfielder managed by Frank Lampard who played 1,000+ minutes",
+      fail: "That midfielder season must have been managed by Frank Lampard and include at least 1,000 minutes.",
+      test: p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Frank Lampard".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1000))
     },
     {
-      id: "auto_mid_goals_5_league_7_12",
+      id: "auto_mid_rafael_benitez_minutes_1000_excluding_georginio_wijnaldum",
       position: "MID",
-      label: "Midfielder from a club finishing 7th–12th who scored exactly 5 goals",
-      fail: "That midfielder's club must finish 7th–12th and the player must score exactly 5 goals.",
-      test: p => ((Number.isFinite(p.leaguePosition) && p.leaguePosition >= 7 && p.leaguePosition <= 12) && (Number.isFinite(p.goals) && p.goals === 5))
+      label: "Midfielder managed by Rafael Benítez who played 1,000+ minutes — excluding Georginio Wijnaldum",
+      fail: "That midfielder season must have been managed by Rafael Benítez and include at least 1,000 minutes. Excluding Georginio Wijnaldum.",
+      test: p => ((p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Rafael Benítez".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1000)))(p) && !["georginio-wijnaldum"].includes(p.playerId))
     },
     {
-      id: "auto_mid_teammate_gabriel_fernando_de_jesus_points_80_excluding_kevin_de_bruy",
+      id: "auto_mid_goals_12_assists_3",
       position: "MID",
-      label: "Midfielder who shared a club-season with Gabriel Fernando de Jesus and scored 80+ FPL points — excluding Kevin De Bruyne",
-      fail: "That midfielder must share a club-season with Gabriel Fernando de Jesus and score at least 80 FPL points in the qualifying season. Excluding Kevin De Bruyne.",
-      test: p => ((p => ((p => (p.playerId !== "gabriel-fernando-de-jesus" && Number(p.minutes) > 0 && ["2016/17|Man City","2017/18|Man City","2018/19|Man City","2019/20|Man City","2020/21|Man City","2021/22|Man City","2022/23|Arsenal","2023/24|Arsenal","2024/25|Arsenal","2025/26|Arsenal"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 80))(p) && !["kevin-de-bruyne"].includes(p.playerId))
+      label: "Midfielder with 12+ goals and 3+ assists",
+      fail: "That midfielder season must include at least 12 goals and 3 assists.",
+      test: p => ((Number.isFinite(p.goals) && p.goals >= 12) && (Number.isFinite(p.assists) && p.assists >= 3))
     },
     {
-      id: "mid_surname_10letters_100",
+      id: "mid_topfour_under6_100points",
       position: "MID",
-      label: "Midfielder with a surname of 10+ letters and 100+ points",
-      fail: "That midfielder’s surname must contain at least 10 letters and the season must score 100 points.",
-      test: p => { const __raw=String(p.name || p.playerName || "").trim(); const __norm=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"'").trim().toLowerCase(); const __tokens=__raw.split(/\s+/).filter(Boolean); const __particles=new Set(["al","ap","bin","bint","da","das","de","del","della","den","der","di","dos","du","el","la","le","van","von","y"]); let __start=Math.max(0,__tokens.length-1); while(__start>0 && __particles.has(__norm(__tokens[__start-1]))) __start--; const __first=__norm(__tokens[0]||""); const __surname=__norm(__tokens.slice(__start).join(" ")); const __letters=v=>__norm(v).replace(/[^a-z]/g,"").length; return (__letters(__surname) >= 10 && p.points >= 100); }
+      label: "Midfielder from a top-four club who started below £6.0m and scored 100+ points",
+      fail: "That midfielder's club must finish in the top four, the starting price must be below £6.0m and the season must score at least 100 points.",
+      test: p => p.topFour === true && p.startingPrice < 6 && p.points >= 100
     },
     {
-      id: "fwd_age_u23_10goals",
+      id: "auto_fwd_teammate_kurt_zouma_excluding_diego_da_silva_costa_tammy_abraham",
       position: "FWD",
-      label: "Forward aged 23 or under who scored at least 10 goals",
-      fail: "That forward must be aged 23 or under at the season start and score at least 10 goals.",
-      test: p => Number.isFinite(p.ageAtSeasonStart) && p.ageAtSeasonStart <= 23 && p.goals >= 10
+      label: "Forward who shared a Premier League club-season with Kurt Zouma — excluding Diego Da Silva Costa and Tammy Abraham",
+      fail: "That forward must have recorded minutes for the same club in the same FPL season as Kurt Zouma. Excluding Diego Da Silva Costa and Tammy Abraham.",
+      test: p => ((p => (p.playerId !== "kurt-zouma" && Number(p.minutes) > 0 && ["2014/15|Chelsea","2015/16|Chelsea","2016/17|Chelsea","2017/18|Stoke","2018/19|Everton","2019/20|Chelsea","2020/21|Chelsea","2021/22|West Ham","2022/23|West Ham","2023/24|West Ham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["diego-da-silva-costa","tammy-abraham"].includes(p.playerId))
     },
     {
-      id: "fwd_non_big_six_150points",
+      id: "auto_fwd_teammate_theo_walcott_excluding_olivier_giroud_che_adams",
       position: "FWD",
-      label: "Forward outside the traditional Big Six with at least 150 FPL points",
-      fail: "That forward must play outside the traditional Big Six and score at least 150 FPL points.",
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && p.points >= 150
+      label: "Forward who shared a Premier League club-season with Theo Walcott — excluding Olivier Giroud and Che Adams",
+      fail: "That forward must have recorded minutes for the same club in the same FPL season as Theo Walcott. Excluding Olivier Giroud and Che Adams.",
+      test: p => ((p => (p.playerId !== "theo-walcott" && Number(p.minutes) > 0 && ["2015/16|Arsenal","2016/17|Arsenal","2017/18|Everton","2018/19|Everton","2019/20|Everton","2020/21|Southampton","2021/22|Southampton","2022/23|Southampton"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["olivier-giroud","che-adams"].includes(p.playerId))
     }
   ]
 };
