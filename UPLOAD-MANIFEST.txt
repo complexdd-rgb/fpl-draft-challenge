@@ -1,14 +1,16 @@
-VALIDATION LAB v1.1 — UPLOAD CONTENTS
+PROMPT ENGINE 2 — PHASE B SEASON RULES
 
 Upload everything inside this folder to the root of the GitHub repository.
 
-Changed files for this update:
+Changed application files:
 - admin.html
-- admin.css
-- prompt-library.js
+- js/admin-core.js
 - js/validation-engine.js
-- js/validation-lab.js
+
+Documentation:
 - CHANGELOG.md
-- VALIDATION-LAB-README.txt
+- README.md
+- PHASE-B-SEASON-RULES-README.txt
+- PHASE-B-TEST-REPORT.txt
 
 After GitHub Pages deploys, open admin.html and press Ctrl + F5.

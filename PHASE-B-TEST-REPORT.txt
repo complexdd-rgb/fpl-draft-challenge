@@ -1,0 +1,34 @@
+FPL DRAFT CHALLENGE — PHASE B SEASON RULES TEST REPORT
+
+Syntax
+PASS — js/admin-core.js
+PASS — js/validation-engine.js
+
+Rule Tester parsing and evaluation
+PASS — Exact season
+PASS — Before season
+PASS — After season
+PASS — Between seasons
+PASS — Incorrect exact season rejected
+PASS — Same-season before rule rejected
+PASS — Same-season after rule rejected
+
+Prompt Studio safe-rule compilation
+PASS — Exact season expression
+PASS — Before season expression
+PASS — After season expression
+PASS — Between seasons expression
+PASS — Reversed between-season values normalised
+PASS — Invalid season label rejected
+
+2025/26 certification regression
+Status: Certified
+Critical tests: 10/10 passed
+Player records: 841
+Eligible records: 537
+Enabled prompts: 536
+Prompt evaluations: 450,776
+Season relationship failures: 0
+Critical failures: 0
+
+Note: advisory no-answer prompts remain warnings only and do not block certification.

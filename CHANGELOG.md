@@ -25,3 +25,12 @@
 - Fixed goal-involvement parsing being mistaken for goals.
 - Fixed “outside the top four” diagnosis.
 - Corrected the veteran-defender 2,700-minute prompt test.
+
+## 2026-07-29 — Phase B: Prompt Engine 2 season rules
+
+- Added an editable **Season played** field to the Prompt Studio safe rule builder.
+- Added exact-season, before-season, after-season and between-season operators.
+- Added matching Rule Tester and Prompt Explorer diagnostics for all four season relationships.
+- Added an automated season-rule regression check to Season Certification.
+- Kept season comparisons based on the season start year so labels such as `2020/21` sort correctly.
+- Invalid or missing season labels fail safely rather than qualifying as answers.

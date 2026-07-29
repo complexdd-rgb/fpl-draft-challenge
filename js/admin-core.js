@@ -23,6 +23,7 @@
     finalPrice: { label: "Final price (£m)", type: "number" },
     leaguePosition: { label: "League position", type: "number" },
     ageAtSeasonStart: { label: "Age at season start", type: "number" },
+    season: { label: "Season played", type: "season" },
     champions: { label: "League champions", type: "boolean" },
     topFour: { label: "Top-four club", type: "boolean" },
     bottomHalf: { label: "Bottom-half club", type: "boolean" },
@@ -57,6 +58,7 @@
   const TEXT_OPERATORS = Object.freeze({ equals: "is", notEquals: "is not", contains: "contains" });
   const NAME_TEXT_OPERATORS = Object.freeze({ equals: "is", notEquals: "is not", startsWith: "starts with", endsWith: "ends with", contains: "contains" });
   const BOOLEAN_OPERATORS = Object.freeze({ isTrue: "is true", isFalse: "is false" });
+  const SEASON_OPERATORS = Object.freeze({ equals: "is exactly", before: "is before", after: "is after", between: "is between" });
 
   let state = loadState();
   applyStoredState();
@@ -484,6 +486,23 @@
     elements.testResults.innerHTML = "";
   }
 
+  function availableSeasonLabels() {
+    const labels = [...new Set((Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [])
+      .flatMap(player => (Array.isArray(player?.seasons) ? player.seasons : []).map(season => String(season?.season || "").trim()))
+      .filter(Boolean))];
+    return labels.sort((a, b) => {
+      const left = Number.parseInt(a.slice(0, 4), 10);
+      const right = Number.parseInt(b.slice(0, 4), 10);
+      return right - left || b.localeCompare(a);
+    });
+  }
+
+  function seasonOptions(selectedValue) {
+    const labels = availableSeasonLabels();
+    const selected = labels.includes(String(selectedValue || "")) ? String(selectedValue) : (labels[0] || "2025/26");
+    return labels.map(label => `<option value="${escapeAttribute(label)}" ${label === selected ? "selected" : ""}>${escapeHtml(label)}</option>`).join("");
+  }
+
   function addRuleRow(elements, condition) {
     const row = document.createElement("div");
     row.className = "rule-row";
@@ -513,14 +532,24 @@
       ? NUMBER_OPERATORS
       : definition.type === "boolean"
         ? BOOLEAN_OPERATORS
-        : definition.type === "nameText"
-          ? NAME_TEXT_OPERATORS
-          : TEXT_OPERATORS;
+        : definition.type === "season"
+          ? SEASON_OPERATORS
+          : definition.type === "nameText"
+            ? NAME_TEXT_OPERATORS
+            : TEXT_OPERATORS;
     const operator = operatorSet[previousOperator] ? previousOperator : Object.keys(operatorSet)[0];
     operatorWrap.innerHTML = `<select data-rule-operator aria-label="Rule operator">${Object.entries(operatorSet).map(([key, label]) => `<option value="${key}" ${key === operator ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select>`;
 
     if (definition.type === "boolean") {
       valueWrap.innerHTML = '<span class="rule-no-value">No value needed</span>';
+    } else if (definition.type === "season") {
+      const firstValue = previousValue || availableSeasonLabels()[0] || "2025/26";
+      const secondValue = previousValue2 || availableSeasonLabels().at(-1) || firstValue;
+      valueWrap.innerHTML = `<select data-rule-value aria-label="Season value">${seasonOptions(firstValue)}</select>
+        <select data-rule-value2 class="${operator === "between" ? "" : "hidden"}" aria-label="Second season value">${seasonOptions(secondValue)}</select>`;
+      operatorWrap.querySelector("select").addEventListener("change", event => {
+        valueWrap.querySelector("[data-rule-value2]").classList.toggle("hidden", event.target.value !== "between");
+      });
     } else if (definition.type === "number") {
       valueWrap.innerHTML = `<input data-rule-value type="number" step="any" value="${escapeAttribute(previousValue === "" ? 0 : previousValue)}" aria-label="Rule value">
         <input data-rule-value2 class="${operator === "between" ? "" : "hidden"}" type="number" step="any" value="${escapeAttribute(previousValue2 === "" ? 0 : previousValue2)}" aria-label="Second rule value">`;
@@ -593,6 +622,11 @@
     if (definition.type === "number") {
       if (!Number.isFinite(Number(condition.value))) throw new Error(`${definition.label} needs a number.`);
       if (condition.operator === "between" && !Number.isFinite(Number(condition.value2))) throw new Error(`${definition.label} needs two numbers for a between rule.`);
+    }
+    if (definition.type === "season") {
+      const valid = value => /^\d{4}\/\d{2}$/.test(String(value || ""));
+      if (!valid(condition.value)) throw new Error(`${definition.label} needs a valid season such as 2020/21.`);
+      if (condition.operator === "between" && !valid(condition.value2)) throw new Error("A between-season rule needs two valid seasons.");
     }
     if ((definition.type === "text" || definition.type === "manager" || definition.type === "nameText") && !String(condition.value).trim()) throw new Error(`${definition.label} needs text.`);
   }
@@ -884,6 +918,22 @@ ${promptsSource}
   function conditionToExpression(condition) {
     const definition = FIELD_DEFS[condition.field];
     const accessor = numericAccessor(condition.field);
+    if (definition.type === "season") {
+      const current = `Number.parseInt(String(p.season || "").slice(0, 4), 10)`;
+      const firstLabel = String(condition.value || "");
+      const secondLabel = String(condition.value2 || "");
+      const first = Number.parseInt(firstLabel.slice(0, 4), 10);
+      const second = Number.parseInt(secondLabel.slice(0, 4), 10);
+      if (condition.operator === "equals") return `String(p.season || "") === ${JSON.stringify(firstLabel)}`;
+      if (condition.operator === "before") return `(Number.isFinite(${current}) && ${current} < ${first})`;
+      if (condition.operator === "after") return `(Number.isFinite(${current}) && ${current} > ${first})`;
+      if (condition.operator === "between") {
+        const low = Math.min(first, second);
+        const high = Math.max(first, second);
+        return `(Number.isFinite(${current}) && ${current} >= ${low} && ${current} <= ${high})`;
+      }
+      return "false";
+    }
     if (definition.type === "number") {
       const value = Number(condition.value);
       const value2 = Number(condition.value2);

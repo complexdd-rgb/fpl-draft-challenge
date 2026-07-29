@@ -20,6 +20,7 @@
     finalPrice: "Final price",
     leaguePosition: "League finish",
     ageAtSeasonStart: "Age at season start",
+    season: "Season played",
     champions: "League champions",
     topFour: "Top-four club",
     bottomHalf: "Bottom-half club",
@@ -90,6 +91,10 @@
 
   function hasValidLeaguePosition(value) {
     return hasNumericValue(value) && Number.isInteger(Number(value)) && Number(value) >= 1 && Number(value) <= 20;
+  }
+
+  function hasValidSeasonLabel(value) {
+    return /^\d{4}\/\d{2}$/.test(String(value || ""));
   }
 
   function formatValue(field, value) {
@@ -174,6 +179,7 @@
     const checks = [
       check("Player name", Boolean(record.playerName), record.playerName || "Missing", "A player name is required for search and prompt reports."),
       check("Club", Boolean(record.club), record.club || "Missing", "Club-based rules need a stored club."),
+      check("Season", hasValidSeasonLabel(record.season), record.season || "Missing", "Season relationship rules need a valid YYYY/YY season label."),
       check("Position", ["GK", "DEF", "MID", "FWD"].includes(record.position), record.position || "Missing", "The position must be GK, DEF, MID or FWD."),
       check("Minutes", hasNumericValue(record.minutes), formatValue("minutes", record.minutes), "Minutes must be numeric."),
       check("Answer eligibility", Number(record.minutes) > 0, `${formatValue("minutes", record.minutes)} minutes`, "A player-season needs at least one recorded minute to qualify as an answer."),
@@ -298,6 +304,17 @@
     if (/\brelegated\b/.test(value)) addRule(rules, { field: "relegated", operator: "isTrue", value: true, label: FIELD_LABELS.relegated, source: "relegated club" });
     if (/\bpromoted\b/.test(value)) addRule(rules, { field: "promoted", operator: "isTrue", value: true, label: FIELD_LABELS.promoted, source: "promoted club" });
 
+    const seasonRange = value.match(/\b(?:between|from)\s+(?:the\s+)?(\d{4}\/\d{2})(?:\s+season)?\s+(?:and|to|-)\s+(?:the\s+)?(\d{4}\/\d{2})(?:\s+seasons?)?\b/);
+    const seasonBefore = value.match(/\b(?:before|prior to|earlier than)\s+(?:the\s+)?(\d{4}\/\d{2})(?:\s+season)?\b/);
+    const seasonAfter = value.match(/\b(?:after|later than|since)\s+(?:the\s+)?(\d{4}\/\d{2})(?:\s+season)?\b/);
+    const seasonExact = !seasonRange && !seasonBefore && !seasonAfter
+      ? value.match(/\b(?:in|during|from)\s+(?:the\s+)?(\d{4}\/\d{2})(?:\s+season)?\b|\b(\d{4}\/\d{2})\s+season\b/)
+      : null;
+    if (seasonRange) addRule(rules, { field: "season", operator: "between", value: seasonRange[1], value2: seasonRange[2], label: FIELD_LABELS.season, source: seasonRange[0] });
+    else if (seasonBefore) addRule(rules, { field: "season", operator: "before", value: seasonBefore[1], label: FIELD_LABELS.season, source: seasonBefore[0] });
+    else if (seasonAfter) addRule(rules, { field: "season", operator: "after", value: seasonAfter[1], label: FIELD_LABELS.season, source: seasonAfter[0] });
+    else if (seasonExact) addRule(rules, { field: "season", operator: "equals", value: seasonExact[1] || seasonExact[2], label: FIELD_LABELS.season, source: seasonExact[0] });
+
     const managerMatch = value.match(/managed by\s+([a-z][a-z .'-]{2,40}?)(?=\s+(?:who|with|and|from|for|at|under|over|scor|play)|$)/i);
     if (managerMatch) addRule(rules, { field: "manager", operator: "contains", value: managerMatch[1].trim(), label: FIELD_LABELS.manager, source: managerMatch[0] });
 
@@ -363,6 +380,31 @@
     if (rule.field === "position") {
       const passed = record.position === rule.value;
       return check(rule.label, passed, POSITION_LABELS[record.position] || record.position || "Missing", `Expected ${POSITION_LABELS[rule.value] || rule.value}.`, POSITION_LABELS[rule.value] || rule.value);
+    }
+
+    if (rule.field === "season") {
+      const actualLabel = String(record.season || "");
+      const actualYear = seasonSortValue(actualLabel);
+      const firstLabel = String(rule.value || "");
+      const secondLabel = String(rule.value2 || "");
+      const firstYear = seasonSortValue(firstLabel);
+      const secondYear = seasonSortValue(secondLabel);
+      let passed = false;
+      let expected = firstLabel || "Missing";
+      if (!hasValidSeasonLabel(actualLabel) || !hasValidSeasonLabel(firstLabel)) {
+        return check(rule.label || FIELD_LABELS.season, false, actualLabel || "Missing", "This rule needs valid season labels in YYYY/YY format.", expected);
+      }
+      if (rule.operator === "equals" || rule.operator === "eq") passed = actualLabel === firstLabel;
+      else if (rule.operator === "before") { passed = actualYear < firstYear; expected = `Before ${firstLabel}`; }
+      else if (rule.operator === "after") { passed = actualYear > firstYear; expected = `After ${firstLabel}`; }
+      else if (rule.operator === "between") {
+        if (!hasValidSeasonLabel(secondLabel)) return check(rule.label || FIELD_LABELS.season, false, actualLabel, "A between-season rule needs two valid season labels.", `${firstLabel}–${secondLabel || "Missing"}`);
+        const low = Math.min(firstYear, secondYear);
+        const high = Math.max(firstYear, secondYear);
+        passed = actualYear >= low && actualYear <= high;
+        expected = `${low === firstYear ? firstLabel : secondLabel}–${high === secondYear ? secondLabel : firstLabel}`;
+      }
+      return check(rule.label || FIELD_LABELS.season, passed, actualLabel, `Stored: ${actualLabel}. Expected: ${expected}.`, expected);
     }
 
     const leagueDependentFields = new Set(["leaguePosition", "champions", "topFour", "bottomHalf", "relegated"]);
@@ -691,6 +733,38 @@
       `${eligibilityErrors.length} inconsistencies`,
       "0 inconsistencies",
       eligibilityErrors
+    ));
+
+    const seasonRuleErrors = [];
+    const orderedSeasons = getAllSeasonLabels().slice().sort((a, b) => seasonSortValue(a) - seasonSortValue(b));
+    const seasonIndex = orderedSeasons.indexOf(seasonLabel);
+    const previousSeason = seasonIndex > 0 ? orderedSeasons[seasonIndex - 1] : null;
+    const nextSeason = seasonIndex >= 0 && seasonIndex < orderedSeasons.length - 1 ? orderedSeasons[seasonIndex + 1] : null;
+    const oldestSeason = orderedSeasons[0] || seasonLabel;
+    const newestSeason = orderedSeasons.at(-1) || seasonLabel;
+    for (const { player, record } of entries) {
+      if (Number(record.minutes) <= 0) continue;
+      const positionLabel = POSITION_LABELS[record.position] || record.position;
+      const scenarios = [
+        { label: `${positionLabel} from the ${seasonLabel} season`, expected: true }
+      ];
+      if (previousSeason) scenarios.push({ label: `${positionLabel} after the ${previousSeason} season`, expected: true });
+      if (nextSeason) scenarios.push({ label: `${positionLabel} before the ${nextSeason} season`, expected: true });
+      scenarios.push({ label: `${positionLabel} between ${oldestSeason} and ${newestSeason} seasons`, expected: true });
+      for (const scenario of scenarios) {
+        const result = evaluatePrompt(player, seasonLabel, scenario.label);
+        if (!result.ok || result.passed !== scenario.expected) {
+          if (seasonRuleErrors.length < 25) seasonRuleErrors.push(`${player.name} · ${scenario.label} · ${result.ok ? "did not pass" : result.error}`);
+        }
+      }
+    }
+    tests.push(certificationTest(
+      "season-relationship-rules",
+      "Season relationship rules",
+      seasonRuleErrors.length === 0,
+      `${seasonRuleErrors.length} exact/before/after/between failures`,
+      "0 failures",
+      seasonRuleErrors
     ));
 
     const duplicatePromptIds = [];
