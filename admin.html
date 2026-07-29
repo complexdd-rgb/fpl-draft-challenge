@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
   <title>FPL Challenge Studio</title>
-  <link rel="stylesheet" href="admin.css?v=15.0.0">
+  <link rel="stylesheet" href="admin.css?v=16.0.0">
 
   <!-- FPL STUDIO STAGE ONE CSS START -->
   <style id="fpl-studio-stage-one-css">
@@ -1986,10 +1986,96 @@ body.stage-one-enabled .audit-status-chip {
     </section>
 
 
+    <section class="panel validation-lab-panel" id="validationLabPanel" aria-labelledby="validationLabHeading">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Developer workspace</p>
+          <h2 id="validationLabHeading">Validation Lab</h2>
+          <p class="section-copy">Inspect player records, trace prompt rules, find valid answers and measure season readiness without changing the live game or database.</p>
+        </div>
+        <span class="phase-chip ready-chip">Phase 1 · Ready</span>
+      </div>
+
+      <div class="validation-overview" aria-label="Validation Lab overview">
+        <div><span>Players</span><strong id="validationOverviewPlayers">Loading…</strong></div>
+        <div><span>Player-seasons</span><strong id="validationOverviewSeasons">Loading…</strong></div>
+        <div><span>Enabled prompts</span><strong id="validationOverviewPrompts">Loading…</strong></div>
+        <div><span>Answer rule</span><strong id="validationOverviewEligibility">1+ minute</strong></div>
+      </div>
+
+      <div class="validation-lab-grid">
+        <section class="validation-tool-card validation-inspector-card" aria-labelledby="validationInspectorHeading">
+          <div class="validation-tool-heading">
+            <span class="validation-tool-icon" aria-hidden="true">P</span>
+            <div><p class="eyebrow">Player record</p><h3 id="validationInspectorHeading">Player Inspector</h3><p>Search a footballer, choose a season and inspect every stored field.</p></div>
+          </div>
+          <div class="validation-form-grid">
+            <label class="validation-field validation-player-picker">
+              <span>Player</span>
+              <input id="validationPlayerSearch" type="search" placeholder="Search player…" autocomplete="off" aria-controls="validationPlayerSuggestions">
+              <div id="validationPlayerSuggestions" class="validation-suggestions" hidden></div>
+            </label>
+            <label class="validation-field">
+              <span>Season</span>
+              <select id="validationSeasonSelect"><option value="">Choose a player first</option></select>
+            </label>
+            <button id="validationInspectBtn" class="button primary" type="button">Inspect player</button>
+          </div>
+          <p id="validationInspectorStatus" class="validation-action-status" role="status">Choose a player to begin.</p>
+          <div id="validationInspectorResult" class="validation-result-host"></div>
+        </section>
+
+        <section class="validation-tool-card validation-rule-card" aria-labelledby="validationRuleHeading">
+          <div class="validation-tool-heading">
+            <span class="validation-tool-icon" aria-hidden="true">✓</span>
+            <div><p class="eyebrow">Prompt diagnosis</p><h3 id="validationRuleHeading">Rule Tester</h3><p>Use the selected Player Inspector record and see every pass or failure.</p></div>
+          </div>
+          <div class="validation-form-stack">
+            <label class="validation-field"><span>Saved prompt</span><select id="validationPromptSelect"><option>Loading prompts…</option></select></label>
+            <label class="validation-field"><span>Prompt text</span><textarea id="validationPromptText" rows="4" placeholder="Midfielder&#10;Exactly 5 goals&#10;Club finished 7th–12th"></textarea></label>
+            <div class="validation-button-row">
+              <button id="validationEvaluateBtn" class="button primary" type="button">Evaluate rules</button>
+              <button id="validationCopyReportBtn" class="button secondary" type="button" disabled>Copy debug report</button>
+            </div>
+          </div>
+          <p id="validationRuleStatus" class="validation-action-status" role="status">Select a saved prompt or enter a manual prompt.</p>
+          <div id="validationRuleResult" class="validation-result-host"></div>
+        </section>
+
+        <section class="validation-tool-card" aria-labelledby="validationExplorerHeading">
+          <div class="validation-tool-heading">
+            <span class="validation-tool-icon" aria-hidden="true">XI</span>
+            <div><p class="eyebrow">Database search</p><h3 id="validationExplorerHeading">Prompt Explorer</h3><p>Find qualifying players and single-rule near misses across the database.</p></div>
+          </div>
+          <div class="validation-form-grid compact">
+            <label class="validation-field"><span>Prompt</span><select id="validationExplorerPromptSelect"><option>Loading prompts…</option></select></label>
+            <label class="validation-field"><span>Season filter</span><select id="validationExplorerSeason"><option value="">All seasons</option></select></label>
+            <button id="validationExploreBtn" class="button primary" type="button">Analyse prompt</button>
+          </div>
+          <p id="validationExplorerStatus" class="validation-action-status" role="status">Choose a prompt to explore.</p>
+          <div id="validationExplorerResult" class="validation-result-host"></div>
+        </section>
+
+        <section class="validation-tool-card" aria-labelledby="validationHealthHeading">
+          <div class="validation-tool-heading">
+            <span class="validation-tool-icon" aria-hidden="true">%</span>
+            <div><p class="eyebrow">Season certification</p><h3 id="validationHealthHeading">Season Health</h3><p>Measure eligibility, missing metadata and blocking structural errors.</p></div>
+          </div>
+          <div class="validation-form-grid compact">
+            <label class="validation-field"><span>Season</span><select id="validationHealthSeason"><option>Loading seasons…</option></select></label>
+            <button id="validationHealthBtn" class="button primary" type="button">Scan season</button>
+          </div>
+          <p id="validationHealthStatus" class="validation-action-status" role="status">Loading the latest season…</p>
+          <div id="validationHealthResult" class="validation-result-host"></div>
+        </section>
+      </div>
+    </section>
+
   </main>
 
   <script src="players.js?v=12.1.0"></script>
   <script src="prompt-library.js?v=2.0.0"></script>
+  <script src="js/validation-engine.js?v=1.0.0"></script>
   <script src="js/admin-core.js?v=16.0.1"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
   <script src="js/admin-import-tools.js?v=16.0.1"></script>
@@ -2023,6 +2109,13 @@ body.stage-one-enabled .audit-status-chip {
       title: "Prompt Studio",
       icon: "P",
       description: "Manage, create and quality-check the prompt library."
+    },
+    {
+      id: "validation",
+      label: "Validation Lab",
+      title: "Validation Lab",
+      icon: "V",
+      description: "Inspect players, trace prompt rules and certify historical seasons."
     },
     {
       id: "database",
@@ -2063,6 +2156,7 @@ body.stage-one-enabled .audit-status-chip {
 
     const title = normaliseText(getToolTitle(element));
 
+    if (/validation lab|player inspector|rule tester|prompt explorer|season health/.test(title)) return "validation";
     if (/prompt library|prompt quality|prompt studio/.test(title)) return "prompts";
     if (/historical database import|official fpl archive import|archive import/.test(title)) return "imports";
     if (/player database auditor|database repair|automatic repair|identity consolidation|database health/.test(title)) return "database";
@@ -2116,14 +2210,14 @@ body.stage-one-enabled .audit-status-chip {
         <div class="studio-mark" aria-hidden="true">FPL</div>
         <div>
           <strong>Challenge Studio</strong>
-          <span>Phase 15</span>
+          <span>Phase 16</span>
         </div>
         <button class="studio-sidebar-close" type="button" aria-label="Close navigation">×</button>
       </div>
       <nav class="studio-navigation">${navItems}</nav>
       <div class="studio-sidebar-footer">
-        <span>Stage-one visual cleanup</span>
-        <strong>Existing game logic unchanged</strong>
+        <span>Validation Lab Phase 1</span>
+        <strong>Read-only inspection and prompt diagnosis</strong>
         <a href="./">Open live game</a>
       </div>
     `;
@@ -2185,6 +2279,12 @@ body.stage-one-enabled .audit-status-chip {
             <small>Create prompt batches and review library quality.</small>
             <em id="dashboardPromptStatus">Loading prompt library…</em>
           </button>
+          <button class="dashboard-action-card" type="button" data-open-workspace="validation" data-target-title="Validation Lab">
+            <span class="dashboard-action-icon">V</span>
+            <strong>Validate players and prompts</strong>
+            <small>Trace rule failures and check season completeness.</small>
+            <em id="dashboardValidationStatus">Player Inspector ready</em>
+          </button>
           <button class="dashboard-action-card" type="button" data-open-workspace="database" data-target-title="Player Database Auditor">
             <span class="dashboard-action-icon">DB</span>
             <strong>Check database health</strong>
@@ -2213,6 +2313,7 @@ body.stage-one-enabled .audit-status-chip {
       const labels = {
         challenge: "Challenge workflow",
         prompts: "Prompt workspace",
+        validation: "Validation lab",
         database: "Database health",
         imports: "Historical imports"
       };
@@ -2290,7 +2391,7 @@ body.stage-one-enabled .audit-status-chip {
     if (!hero.querySelector(".studio-version-badge")) {
       const badge = document.createElement("span");
       badge.className = "studio-version-badge";
-      badge.textContent = "Phase 15";
+      badge.textContent = "Phase 16";
       hero.querySelector(":scope > div")?.prepend(badge);
     }
   }
@@ -2335,6 +2436,7 @@ body.stage-one-enabled .audit-status-chip {
       dashboard: effectiveBlockers > 0 ? String(effectiveBlockers) : "",
       challenge: /ready|passed|safe/i.test(publishingText) ? "✓" : "",
       prompts: parseNumber(libraryText) > 0 ? String(parseNumber(libraryText)) : "",
+      validation: "✓",
       database: effectiveBlockers > 0 ? String(effectiveBlockers) : auditHasRun ? "✓" : "!",
       imports: /waiting/i.test(importText) ? "" : "•"
     };
@@ -2540,5 +2642,6 @@ body.stage-one-enabled .audit-status-chip {
 
   </script>
   <!-- FPL STUDIO STAGE ONE JS END -->
+  <script src="js/validation-lab.js?v=1.0.0"></script>
 </body>
 </html>

@@ -1,0 +1,561 @@
+/* FPL Challenge Studio — Validation Lab shared engine. */
+(() => {
+  "use strict";
+
+  const BIG_SIX = Object.freeze(["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"]);
+  const POSITION_LABELS = Object.freeze({ GK: "Goalkeeper", DEF: "Defender", MID: "Midfielder", FWD: "Forward" });
+  const FIELD_LABELS = Object.freeze({
+    points: "FPL points",
+    minutes: "Minutes",
+    goals: "Goals",
+    assists: "Assists",
+    goalInvolvements: "Goal involvements",
+    cleanSheets: "Clean sheets",
+    bonus: "Bonus points",
+    saves: "Saves",
+    goalsConceded: "Goals conceded",
+    yellowCards: "Yellow cards",
+    redCards: "Red cards",
+    startingPrice: "Starting price",
+    finalPrice: "Final price",
+    leaguePosition: "League finish",
+    ageAtSeasonStart: "Age at season start",
+    champions: "League champions",
+    topFour: "Top-four club",
+    bottomHalf: "Bottom-half club",
+    relegated: "Relegated club",
+    promoted: "Promoted club",
+    outsideBigSix: "Outside traditional Big Six",
+    assistsMoreThanGoals: "More assists than goals",
+    club: "Club",
+    manager: "Manager"
+  });
+
+  const promptParseCache = new Map();
+  let clubNameCache = null;
+
+  const STAT_ALIASES = Object.freeze([
+    { field: "goalInvolvements", pattern: "goal involvements?|goals?\\s*\\+\\s*assists?" },
+    { field: "goalsConceded", pattern: "goals? conceded" },
+    { field: "cleanSheets", pattern: "clean sheets?" },
+    { field: "yellowCards", pattern: "yellow cards?" },
+    { field: "redCards", pattern: "red cards?" },
+    { field: "startingPrice", pattern: "starting price|start(?:ed|ing)? at" },
+    { field: "finalPrice", pattern: "final price|finished at" },
+    { field: "leaguePosition", pattern: "league (?:position|finish)|club (?:finished|finishing|finish)" },
+    { field: "ageAtSeasonStart", pattern: "age(?: at season start)?|aged" },
+    { field: "points", pattern: "fpl points?|points?" },
+    { field: "minutes", pattern: "minutes?" },
+    { field: "goals", pattern: "goals?" },
+    { field: "assists", pattern: "assists?" },
+    { field: "bonus", pattern: "bonus(?: points?)?" },
+    { field: "saves", pattern: "saves?" }
+  ]);
+
+  function getPlayers() {
+    return Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
+  }
+
+  function getPromptLibrary() {
+    const studioLibrary = window.FPL_STUDIO_API?.getPromptLibrary?.();
+    if (Array.isArray(studioLibrary)) return studioLibrary;
+    return Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
+  }
+
+  function normalise(value) {
+    return String(value || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/ø/g, "o")
+      .replace(/ł/g, "l")
+      .replace(/[đð]/g, "d")
+      .replace(/þ/g, "th")
+      .replace(/æ/g, "ae")
+      .replace(/œ/g, "oe")
+      .replace(/[–—−]/g, "-")
+      .replace(/’/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function seasonSortValue(value) {
+    const year = Number.parseInt(String(value || "").slice(0, 4), 10);
+    return Number.isFinite(year) ? year : 0;
+  }
+
+  function formatValue(field, value) {
+    if (value === null || value === undefined || value === "") return "Missing";
+    if (field === "startingPrice" || field === "finalPrice") return Number.isFinite(Number(value)) ? `£${Number(value).toFixed(1)}m` : String(value);
+    if (typeof value === "boolean") return value ? "Yes" : "No";
+    if (Array.isArray(value)) return value.join(", ") || "Missing";
+    if (typeof value === "number") return value.toLocaleString("en-GB");
+    return String(value);
+  }
+
+  function recordFor(player, season) {
+    if (!player) return null;
+    const seasonRecord = (player.seasons || []).find(item => item.season === season);
+    if (!seasonRecord) return null;
+    return {
+      ...seasonRecord,
+      playerId: player.playerId,
+      playerName: player.name,
+      dateOfBirth: player.bio?.dateOfBirth || "",
+      regionId: player.bio?.regionId ?? null,
+      aliases: Array.isArray(player.aliases) ? player.aliases.slice() : []
+    };
+  }
+
+  function resolvePlayer(reference) {
+    if (!reference) return null;
+    if (typeof reference === "object" && reference.playerId) return reference;
+    const wanted = normalise(reference);
+    const wantedTokens = wanted.split(" ").filter(Boolean);
+    const players = getPlayers();
+    return players.find(player => player.playerId === reference)
+      || players.find(player => normalise(player.name) === wanted)
+      || players.find(player => (player.aliases || []).some(alias => normalise(alias) === wanted))
+      || players.find(player => wantedTokens.length > 1 && wantedTokens.every(token => normalise(player.name).includes(token)))
+      || null;
+  }
+
+  function searchPlayers(query, limit = 12) {
+    const wanted = normalise(query);
+    if (!wanted) return [];
+    const wantedTokens = wanted.split(" ").filter(Boolean);
+    return getPlayers()
+      .map(player => {
+        const name = normalise(player.name);
+        const aliases = (player.aliases || []).map(normalise);
+        let score = 99;
+        if (name === wanted) score = 0;
+        else if (name.startsWith(wanted)) score = 1;
+        else if (wantedTokens.length > 1 && wantedTokens.every(token => name.includes(token))) score = 2;
+        else if (name.split(" ").some(token => token.startsWith(wanted))) score = 3;
+        else if (name.includes(wanted)) score = 4;
+        else if (aliases.some(alias => alias.startsWith(wanted))) score = 5;
+        return { player, score };
+      })
+      .filter(item => item.score < 99)
+      .sort((a, b) => a.score - b.score || a.player.name.localeCompare(b.player.name))
+      .slice(0, Math.max(1, limit))
+      .map(item => item.player);
+  }
+
+  function getPlayerSeasons(reference) {
+    const player = resolvePlayer(reference);
+    if (!player) return [];
+    return (player.seasons || []).slice().sort((a, b) => seasonSortValue(b.season) - seasonSortValue(a.season));
+  }
+
+  function getAllSeasonLabels() {
+    return [...new Set(getPlayers().flatMap(player => (player.seasons || []).map(season => season.season)))]
+      .sort((a, b) => seasonSortValue(b) - seasonSortValue(a));
+  }
+
+  function fieldValue(record, field) {
+    if (field === "goalInvolvements") return Number(record.goals) + Number(record.assists);
+    if (field === "outsideBigSix") return !BIG_SIX.includes(record.club);
+    if (field === "assistsMoreThanGoals") return Number(record.assists) > Number(record.goals);
+    if (field === "manager") return Array.isArray(record.managers) ? record.managers : [];
+    return record[field];
+  }
+
+  function dataChecks(record) {
+    const completedSeason = record.season !== getAllSeasonLabels()[0];
+    const checks = [
+      check("Player name", Boolean(record.playerName), record.playerName || "Missing", "A player name is required for search and prompt reports."),
+      check("Club", Boolean(record.club), record.club || "Missing", "Club-based rules need a stored club."),
+      check("Position", ["GK", "DEF", "MID", "FWD"].includes(record.position), record.position || "Missing", "The position must be GK, DEF, MID or FWD."),
+      check("Minutes", Number.isFinite(Number(record.minutes)), formatValue("minutes", record.minutes), "Minutes must be numeric."),
+      check("Answer eligibility", Number(record.minutes) > 0, `${formatValue("minutes", record.minutes)} minutes`, "A player-season needs at least one recorded minute to qualify as an answer."),
+      check("Goals", Number.isFinite(Number(record.goals)), formatValue("goals", record.goals), "Goals must be numeric."),
+      check("Assists", Number.isFinite(Number(record.assists)), formatValue("assists", record.assists), "Assists must be numeric."),
+      check("FPL points", Number.isFinite(Number(record.points)), formatValue("points", record.points), "FPL points must be numeric."),
+      check("Starting price", Number.isFinite(Number(record.startingPrice)), formatValue("startingPrice", record.startingPrice), "Starting-price rules cannot use a missing price."),
+      check("Final price", Number.isFinite(Number(record.finalPrice)), formatValue("finalPrice", record.finalPrice), "Final-price rules cannot use a missing price."),
+      check("League finish", !completedSeason || Number.isFinite(Number(record.leaguePosition)), formatValue("leaguePosition", record.leaguePosition), completedSeason ? "Completed seasons need a final league position." : "The current season can remain unfinished."),
+      check("Age", Number.isFinite(Number(record.ageAtSeasonStart)), formatValue("ageAtSeasonStart", record.ageAtSeasonStart), "Age-based prompts cannot use a missing seasonal age."),
+      check("Date of birth", /^\d{4}-\d{2}-\d{2}$/.test(record.dateOfBirth || ""), record.dateOfBirth || "Missing", "A verified ISO date supports independent age checks."),
+      check("Managers", Array.isArray(record.managers) && record.managers.length > 0, formatValue("manager", record.managers), "Manager prompts need at least one stored manager.")
+    ];
+    return checks;
+  }
+
+  function inspectPlayer(reference, seasonLabel) {
+    const player = resolvePlayer(reference);
+    if (!player) return { ok: false, error: "Player not found." };
+    const selectedSeason = seasonLabel || getPlayerSeasons(player)[0]?.season;
+    const record = recordFor(player, selectedSeason);
+    if (!record) return { ok: false, error: `${player.name} has no ${selectedSeason} record.` };
+    const checks = dataChecks(record);
+    const passed = checks.filter(item => item.passed).length;
+    return {
+      ok: true,
+      player: { playerId: player.playerId, name: player.name, aliases: player.aliases || [], dateOfBirth: player.bio?.dateOfBirth || "", regionId: player.bio?.regionId ?? null },
+      record,
+      identity: {
+        name: player.name,
+        club: record.club,
+        position: record.position,
+        season: record.season,
+        dateOfBirth: player.bio?.dateOfBirth || null,
+        ageAtSeasonStart: record.ageAtSeasonStart,
+        managers: record.managers || []
+      },
+      stats: {
+        points: record.points,
+        minutes: record.minutes,
+        goals: record.goals,
+        assists: record.assists,
+        cleanSheets: record.cleanSheets,
+        bonus: record.bonus,
+        saves: record.saves,
+        goalsConceded: record.goalsConceded,
+        yellowCards: record.yellowCards,
+        redCards: record.redCards
+      },
+      database: {
+        startingPrice: record.startingPrice,
+        finalPrice: record.finalPrice,
+        leaguePosition: record.leaguePosition,
+        champions: record.champions,
+        topFour: record.topFour,
+        bottomHalf: record.bottomHalf,
+        relegated: record.relegated,
+        promoted: record.promoted
+      },
+      checks,
+      health: {
+        passed,
+        total: checks.length,
+        percentage: Math.round((passed / checks.length) * 100),
+        eligible: Number(record.minutes) > 0
+      }
+    };
+  }
+
+  function check(label, passed, actual, explanation, expected = "") {
+    return { label, passed: Boolean(passed), actual: String(actual ?? "Missing"), expected: String(expected || ""), explanation: String(explanation || "") };
+  }
+
+  function addRule(rules, rule) {
+    const key = `${rule.field}:${rule.operator}:${String(rule.value)}:${String(rule.value2 ?? "")}`;
+    if (!rules.some(existing => existing.key === key)) rules.push({ ...rule, key });
+  }
+
+  function numberFromToken(token) {
+    const cleaned = String(token || "").replace(/,/g, "").trim().toLowerCase();
+    if (cleaned !== "" && Number.isFinite(Number(cleaned))) return Number(cleaned);
+    const words = {
+      zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+      eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18,
+      nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90,
+      hundred: 100
+    };
+    if (Object.hasOwn(words, cleaned)) return words[cleaned];
+    return NaN;
+  }
+
+  function positionFromText(text) {
+    if (/\b(goalkeeper|gk)\b/.test(text)) return "GK";
+    if (/\b(defender|def)\b/.test(text)) return "DEF";
+    if (/\b(midfielder|mid)\b/.test(text)) return "MID";
+    if (/\b(forward|striker|fwd)\b/.test(text)) return "FWD";
+    return "";
+  }
+
+  function parsePromptText(text, positionHint = "") {
+    const source = String(text || "").trim();
+    const cacheKey = `${positionHint}::${source}`;
+    if (promptParseCache.has(cacheKey)) return promptParseCache.get(cacheKey);
+    const value = normalise(source);
+    const rules = [];
+    const position = positionHint || positionFromText(value);
+    if (position) addRule(rules, { field: "position", operator: "equals", value: position, label: "Position", source: POSITION_LABELS[position] });
+
+    if (/outside (?:the )?(?:traditional )?big six|non[- ]big six/.test(value)) {
+      addRule(rules, { field: "outsideBigSix", operator: "isTrue", value: true, label: FIELD_LABELS.outsideBigSix, source: "outside the traditional Big Six" });
+    }
+    if (/more assists than goals|assists? (?:greater|higher) than goals?/.test(value)) {
+      addRule(rules, { field: "assistsMoreThanGoals", operator: "isTrue", value: true, label: FIELD_LABELS.assistsMoreThanGoals, source: "more assists than goals" });
+    }
+    if (/\bchampions?\b|won the (?:premier )?league/.test(value)) addRule(rules, { field: "champions", operator: "isTrue", value: true, label: FIELD_LABELS.champions, source: "league champions" });
+    if (/top[- ]?four/.test(value)) addRule(rules, { field: "topFour", operator: "isTrue", value: true, label: FIELD_LABELS.topFour, source: "top-four club" });
+    if (/bottom[- ]?half/.test(value)) addRule(rules, { field: "bottomHalf", operator: "isTrue", value: true, label: FIELD_LABELS.bottomHalf, source: "bottom-half club" });
+    if (/\brelegated\b/.test(value)) addRule(rules, { field: "relegated", operator: "isTrue", value: true, label: FIELD_LABELS.relegated, source: "relegated club" });
+    if (/\bpromoted\b/.test(value)) addRule(rules, { field: "promoted", operator: "isTrue", value: true, label: FIELD_LABELS.promoted, source: "promoted club" });
+
+    const managerMatch = value.match(/managed by\s+([a-z][a-z .'-]{2,40}?)(?=\s+(?:who|with|and|from|for|at|under|over|scor|play)|$)/i);
+    if (managerMatch) addRule(rules, { field: "manager", operator: "contains", value: managerMatch[1].trim(), label: FIELD_LABELS.manager, source: managerMatch[0] });
+
+    if (!clubNameCache) {
+      clubNameCache = [...new Set(getPlayers().flatMap(player => (player.seasons || []).map(season => season.club)).filter(Boolean))]
+        .sort((a, b) => b.length - a.length);
+    }
+    const matchedClub = clubNameCache.find(club => value.includes(normalise(club)));
+    if (matchedClub && !/outside (?:the )?(?:traditional )?big six/.test(value)) {
+      addRule(rules, { field: "club", operator: "equals", value: matchedClub, label: FIELD_LABELS.club, source: matchedClub });
+    }
+
+    const rangePatterns = [
+      /(?:club (?:finished|finishing|finish)|league (?:position|finish))(?:ed|ing)?(?: from| between| in)?\s*(\d{1,2})(?:st|nd|rd|th)?\s*(?:-|to|and)\s*(\d{1,2})(?:st|nd|rd|th)?/g,
+      /(?:finishing|finished|finish)(?:ed|ing)?\s*(\d{1,2})(?:st|nd|rd|th)?\s*(?:-|to|and)\s*(\d{1,2})(?:st|nd|rd|th)?/g
+    ];
+    for (const pattern of rangePatterns) {
+      for (const match of value.matchAll(pattern)) {
+        addRule(rules, { field: "leaguePosition", operator: "between", value: Number(match[1]), value2: Number(match[2]), label: FIELD_LABELS.leaguePosition, source: match[0] });
+      }
+    }
+
+    const token = "(?:\\d+(?:,\\d{3})*(?:\\.\\d+)?|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred)";
+    for (const definition of STAT_ALIASES) {
+      const patterns = [
+        { operator: "between", regex: new RegExp(`(?:${definition.pattern})\\s+(?:between\\s+)?(${token})\\s*(?:-|to|and)\\s*(${token})`, "gi") },
+        { operator: "between", regex: new RegExp(`between\\s+(${token})\\s*(?:-|to|and)\\s*(${token})\\s+(?:${definition.pattern})`, "gi") },
+        { operator: "eq", regex: new RegExp(`exactly\\s+(${token})\\s+(?:${definition.pattern})`, "gi") },
+        { operator: "gte", regex: new RegExp(`at least\\s+(${token})\\s+(?:${definition.pattern})`, "gi") },
+        { operator: "gte", regex: new RegExp(`(${token})\\+\\s*(?:${definition.pattern})`, "gi") },
+        { operator: "lte", regex: new RegExp(`(?:at most|no more than|up to|under)\\s+£?(${token})m?\\s+(?:${definition.pattern})`, "gi") },
+        { operator: "lte", regex: new RegExp(`(?:${definition.pattern})\\s+(?:of|at)?\\s*£?(${token})m?\\s+or less`, "gi") },
+        { operator: "gte", regex: new RegExp(`(?:more than|over)\\s+(${token})\\s+(?:${definition.pattern})`, "gi") },
+        { operator: "lte", regex: new RegExp(`(?:less than|fewer than)\\s+(${token})\\s+(?:${definition.pattern})`, "gi") }
+      ];
+
+      for (const { operator, regex } of patterns) {
+        for (const match of value.matchAll(regex)) {
+          const first = numberFromToken(match[1]);
+          const second = numberFromToken(match[2]);
+          if (!Number.isFinite(first)) continue;
+          addRule(rules, {
+            field: definition.field,
+            operator,
+            value: first,
+            value2: Number.isFinite(second) ? second : undefined,
+            label: FIELD_LABELS[definition.field],
+            source: match[0]
+          });
+        }
+      }
+    }
+
+    const directPrice = value.match(/start(?:ed|ing)? at\s*£?([\d.]+)m?\s+or less/);
+    if (directPrice) addRule(rules, { field: "startingPrice", operator: "lte", value: Number(directPrice[1]), label: FIELD_LABELS.startingPrice, source: directPrice[0] });
+
+    const parsed = { source, position, rules, recognised: rules.length > 0 };
+    promptParseCache.set(cacheKey, parsed);
+    return parsed;
+  }
+
+  function evaluateRule(record, rule) {
+    if (rule.field === "position") {
+      const passed = record.position === rule.value;
+      return check(rule.label, passed, POSITION_LABELS[record.position] || record.position || "Missing", `Expected ${POSITION_LABELS[rule.value] || rule.value}.`, POSITION_LABELS[rule.value] || rule.value);
+    }
+
+    const actual = fieldValue(record, rule.field);
+    let passed = false;
+    let expected = "";
+
+    if (rule.operator === "between") {
+      passed = Number.isFinite(Number(actual)) && Number(actual) >= Number(rule.value) && Number(actual) <= Number(rule.value2);
+      expected = `${formatValue(rule.field, rule.value)}–${formatValue(rule.field, rule.value2)}`;
+    } else if (rule.operator === "eq" || rule.operator === "equals") {
+      if (typeof actual === "string") passed = normalise(actual) === normalise(rule.value);
+      else passed = Number.isFinite(Number(actual)) ? Number(actual) === Number(rule.value) : actual === rule.value;
+      expected = formatValue(rule.field, rule.value);
+    } else if (rule.operator === "gte") {
+      passed = Number.isFinite(Number(actual)) && Number(actual) >= Number(rule.value);
+      expected = `At least ${formatValue(rule.field, rule.value)}`;
+    } else if (rule.operator === "lte") {
+      passed = Number.isFinite(Number(actual)) && Number(actual) <= Number(rule.value);
+      expected = `At most ${formatValue(rule.field, rule.value)}`;
+    } else if (rule.operator === "gt") {
+      passed = Number.isFinite(Number(actual)) && Number(actual) > Number(rule.value);
+      expected = `More than ${formatValue(rule.field, rule.value)}`;
+    } else if (rule.operator === "lt") {
+      passed = Number.isFinite(Number(actual)) && Number(actual) < Number(rule.value);
+      expected = `Less than ${formatValue(rule.field, rule.value)}`;
+    } else if (rule.operator === "isTrue") {
+      passed = actual === true;
+      expected = "Yes";
+    } else if (rule.operator === "isFalse") {
+      passed = actual === false;
+      expected = "No";
+    } else if (rule.operator === "contains") {
+      passed = Array.isArray(actual)
+        ? actual.some(item => normalise(item).includes(normalise(rule.value)))
+        : normalise(actual).includes(normalise(rule.value));
+      expected = String(rule.value);
+    }
+
+    const actualText = formatValue(rule.field, actual);
+    return check(rule.label || FIELD_LABELS[rule.field] || rule.field, passed, actualText, `Stored: ${actualText}. Expected: ${expected}.`, expected);
+  }
+
+  function promptObject(input) {
+    if (!input) return null;
+    if (typeof input === "object" && typeof input.test === "function") return input;
+    const text = String(input);
+    return getPromptLibrary().find(prompt => prompt.id === text) || null;
+  }
+
+  function evaluatePrompt(reference, seasonLabel, input) {
+    const player = resolvePlayer(reference);
+    if (!player) return { ok: false, error: "Player not found." };
+    const record = recordFor(player, seasonLabel);
+    if (!record) return { ok: false, error: `${player.name} has no ${seasonLabel} record.` };
+
+    const prompt = promptObject(input);
+    const sourceText = prompt?.label || String(input || "");
+    const parsed = parsePromptText(sourceText, prompt?.position || "");
+    const checks = [];
+
+    checks.push(check("Answer eligibility", Number(record.minutes) > 0, `${formatValue("minutes", record.minutes)} minutes`, "A player-season must have at least one recorded minute.", "At least 1 minute"));
+    for (const rule of parsed.rules) checks.push(evaluateRule(record, rule));
+
+    let nativePassed = null;
+    if (prompt) {
+      try {
+        nativePassed = Number(record.minutes) > 0 && record.position === prompt.position && Boolean(prompt.test(record));
+      } catch (error) {
+        nativePassed = false;
+        checks.push(check("Original prompt logic", false, "Error", error.message || "The stored prompt function threw an error.", "No error"));
+      }
+      if (!checks.some(item => item.label === "Position")) {
+        checks.splice(1, 0, check("Position", record.position === prompt.position, POSITION_LABELS[record.position] || record.position, `Expected ${POSITION_LABELS[prompt.position] || prompt.position}.`, POSITION_LABELS[prompt.position] || prompt.position));
+      }
+      if (!checks.some(item => item.label === "Original prompt logic")) {
+        checks.push(check("Original prompt logic", nativePassed, nativePassed ? "Matched" : "Did not match", prompt.fail || "The stored prompt test returned false.", "Matched"));
+      }
+    }
+
+    const failed = checks.filter(item => !item.passed);
+    const overallPassed = prompt ? nativePassed === true : parsed.recognised && failed.length === 0;
+    return {
+      ok: true,
+      player: { playerId: player.playerId, name: player.name },
+      record,
+      prompt: prompt ? { id: prompt.id, label: prompt.label, position: prompt.position, fail: prompt.fail } : { id: "manual", label: sourceText, position: parsed.position || "" },
+      parsed,
+      checks,
+      passed: overallPassed,
+      failed,
+      warning: !prompt && !parsed.recognised ? "No supported rules were recognised in the manual prompt." : ""
+    };
+  }
+
+  function explorePrompt(input, options = {}) {
+    const prompt = promptObject(input);
+    const source = prompt || String(input || "");
+    const limit = Math.max(1, Math.min(100, Number(options.limit) || 20));
+    const seasonFilter = options.season || "";
+    const validByPlayer = new Map();
+    const nearMisses = [];
+    let checked = 0;
+
+    for (const player of getPlayers()) {
+      for (const season of player.seasons || []) {
+        if (seasonFilter && season.season !== seasonFilter) continue;
+        checked += 1;
+        const result = evaluatePrompt(player, season.season, source);
+        if (!result.ok) continue;
+        if (result.passed) {
+          const existing = validByPlayer.get(player.playerId);
+          if (!existing || Number(result.record.points) > Number(existing.record.points)) validByPlayer.set(player.playerId, result);
+        } else {
+          const diagnosticFailures = result.checks.filter(item => !item.passed && item.label !== "Original prompt logic");
+          if (diagnosticFailures.length === 1 && Number(result.record.minutes) > 0) nearMisses.push({ result, failedRule: diagnosticFailures[0] });
+        }
+      }
+    }
+
+    const valid = [...validByPlayer.values()]
+      .sort((a, b) => Number(b.record.points) - Number(a.record.points) || a.player.name.localeCompare(b.player.name));
+    nearMisses.sort((a, b) => Number(b.result.record.points) - Number(a.result.record.points));
+
+    return {
+      ok: true,
+      prompt: prompt ? { id: prompt.id, label: prompt.label, position: prompt.position } : { id: "manual", label: String(input || "") },
+      checked,
+      validPlayerCount: valid.length,
+      validSeasonCount: valid.reduce((count, item) => count + 1, 0),
+      valid: valid.slice(0, limit),
+      nearMisses: nearMisses.slice(0, limit)
+    };
+  }
+
+  function seasonHealth(seasonLabel) {
+    const rows = [];
+    for (const player of getPlayers()) {
+      const record = recordFor(player, seasonLabel);
+      if (record) rows.push(record);
+    }
+    if (!rows.length) return { ok: false, error: `No ${seasonLabel} records were found.` };
+
+    const missing = predicate => rows.filter(predicate).length;
+    const summary = {
+      players: rows.length,
+      eligible: rows.filter(record => Number(record.minutes) > 0).length,
+      zeroMinutes: rows.filter(record => Number(record.minutes) <= 0).length,
+      missingDob: missing(record => !/^\d{4}-\d{2}-\d{2}$/.test(record.dateOfBirth || "")),
+      missingAge: missing(record => !Number.isFinite(Number(record.ageAtSeasonStart))),
+      missingStartingPrice: missing(record => !Number.isFinite(Number(record.startingPrice))),
+      missingFinalPrice: missing(record => !Number.isFinite(Number(record.finalPrice))),
+      missingLeaguePosition: missing(record => !Number.isFinite(Number(record.leaguePosition))),
+      missingManagers: missing(record => !Array.isArray(record.managers) || record.managers.length === 0),
+      invalidPosition: missing(record => !["GK", "DEF", "MID", "FWD"].includes(record.position)),
+      invalidCoreStats: missing(record => ["points", "minutes", "goals", "assists"].some(field => !Number.isFinite(Number(record[field]))))
+    };
+    const blocking = summary.invalidPosition + summary.invalidCoreStats;
+    const metadataGaps = summary.missingDob + summary.missingAge + summary.missingStartingPrice + summary.missingFinalPrice + summary.missingLeaguePosition + summary.missingManagers;
+    const possibleMetadata = rows.length * 6;
+    const completeness = Math.max(0, Math.round(((possibleMetadata - metadataGaps) / possibleMetadata) * 100));
+    const status = blocking > 0 ? "Blocked" : completeness === 100 ? "Certified" : completeness >= 95 ? "Review" : "Incomplete";
+
+    return { ok: true, season: seasonLabel, rows, summary, blocking, metadataGaps, completeness, status };
+  }
+
+  function makeDebugReport(result) {
+    if (!result?.ok) return `Validation Lab\n\nERROR\n${result?.error || "Unknown error"}`;
+    const lines = [
+      "FPL CHALLENGE STUDIO — VALIDATION LAB",
+      "",
+      `Prompt: ${result.prompt?.label || "Manual prompt"}`,
+      `Player: ${result.player?.name || result.record?.playerName || "Unknown"}`,
+      `Season: ${result.record?.season || "Unknown"}`,
+      `Club: ${result.record?.club || "Unknown"}`,
+      `Result: ${result.passed ? "PASS" : "FAIL"}`,
+      ""
+    ];
+    for (const item of result.checks || []) {
+      lines.push(`${item.passed ? "PASS" : "FAIL"} — ${item.label}`);
+      lines.push(`Stored: ${item.actual}`);
+      if (item.expected) lines.push(`Expected: ${item.expected}`);
+      if (item.explanation) lines.push(item.explanation);
+      lines.push("");
+    }
+    if (result.warning) lines.push(`Warning: ${result.warning}`);
+    return lines.join("\n").trim() + "\n";
+  }
+
+  window.ValidationEngine = Object.freeze({
+    BIG_SIX,
+    POSITION_LABELS,
+    FIELD_LABELS,
+    getPlayers,
+    getPromptLibrary,
+    getAllSeasonLabels,
+    searchPlayers,
+    resolvePlayer,
+    getPlayerSeasons,
+    inspectPlayer,
+    parsePromptText,
+    evaluatePrompt,
+    explorePrompt,
+    seasonHealth,
+    makeDebugReport,
+    formatValue
+  });
+})();

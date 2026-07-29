@@ -1,15 +1,19 @@
-# FPL Daily Challenge Project Documents
+# FPL Draft Challenge
 
-Recommended repository structure:
+This package contains the live FPL Draft Challenge, the historical player database and the browser-based Challenge Studio.
 
-```text
-index.html
-visuals.css
-README.md
-docs/
-  prompt-library.md
-  challenge-history.md
-  ideas.md
-```
+## Validation Lab Phase 1
 
-Use `prompt-library.md` when building each day's challenge, record the finished challenge in `challenge-history.md`, and keep unfinished feature ideas in `ideas.md`.
+Open `admin.html` and choose **Validation Lab** from the Studio sidebar.
+
+The first release includes:
+
+- Player Inspector
+- Rule Tester
+- Prompt Explorer
+- Season Health
+- Copyable validation debug reports
+
+The tools are read-only: they do not modify `players.js` or publish changes to the live game.
+
+See `VALIDATION-LAB-README.txt` for the test steps and upload instructions.

@@ -1319,3 +1319,565 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
 .factory-prompt-meta .relation{color:#8fe7ff;border-color:rgba(4,217,255,.28);background:rgba(4,217,255,.06)}
 .factory-prompt-meta .exclude{color:#ffd58d;border-color:rgba(255,209,102,.28);background:rgba(255,209,102,.06)}
 @media(max-width:620px){.factory-rule-note{display:block}.factory-rule-note strong{display:block;margin-bottom:4px}}
+
+/* ===== Validation Lab Phase 1 ===== */
+.validation-lab-panel {
+  overflow: visible;
+}
+
+.validation-overview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 22px;
+}
+
+.validation-overview > div {
+  display: grid;
+  gap: 5px;
+  min-height: 84px;
+  padding: 15px 16px;
+  border: 1px solid rgba(174, 226, 199, .13);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .025);
+}
+
+.validation-overview span,
+.validation-health-grid span,
+.validation-detail-group span {
+  color: #9bb7a8;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.validation-overview strong {
+  align-self: end;
+  color: #f4fff8;
+  font-size: 1.25rem;
+}
+
+.validation-lab-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.validation-tool-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid rgba(174, 226, 199, .14);
+  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(16, 39, 29, .94), rgba(8, 24, 17, .92));
+  box-shadow: 0 16px 38px rgba(0, 0, 0, .13);
+}
+
+.validation-tool-heading {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.validation-tool-heading h3,
+.validation-detail-group h4,
+.validation-check-list h4,
+.validation-two-column-lists h4 {
+  margin: 0;
+  color: #f4fff8;
+}
+
+.validation-tool-heading p:not(.eyebrow) {
+  margin: 5px 0 0;
+  color: #9bb7a8;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+.validation-tool-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(57, 232, 143, .24);
+  border-radius: 13px;
+  background: rgba(57, 232, 143, .09);
+  color: #39e88f;
+  font-size: .78rem;
+  font-weight: 1000;
+}
+
+.validation-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(150px, .8fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.validation-form-grid.compact {
+  grid-template-columns: minmax(0, 1.5fr) minmax(145px, .75fr) auto;
+}
+
+.validation-form-stack {
+  display: grid;
+  gap: 11px;
+}
+
+.validation-field {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.validation-field > span {
+  color: #b9cec2;
+  font-size: .74rem;
+  font-weight: 850;
+}
+
+.validation-field input,
+.validation-field select,
+.validation-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(174, 226, 199, .18);
+  border-radius: 11px;
+  outline: none;
+  background: rgba(4, 16, 11, .78);
+  color: #f4fff8;
+  font: inherit;
+}
+
+.validation-field textarea {
+  min-height: 104px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.validation-field input:focus,
+.validation-field select:focus,
+.validation-field textarea:focus {
+  border-color: rgba(57, 232, 143, .6);
+  box-shadow: 0 0 0 3px rgba(57, 232, 143, .08);
+}
+
+.validation-field textarea[readonly] {
+  color: #c8dfd2;
+  cursor: default;
+}
+
+.validation-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  display: grid;
+  width: min(430px, 92vw);
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid rgba(174, 226, 199, .2);
+  border-radius: 13px;
+  background: #071810;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .42);
+}
+
+.validation-suggestions[hidden] {
+  display: none;
+}
+
+.validation-suggestions button {
+  display: grid;
+  gap: 3px;
+  padding: 11px 13px;
+  border: 0;
+  border-bottom: 1px solid rgba(174, 226, 199, .08);
+  background: transparent;
+  color: #f4fff8;
+  text-align: left;
+  cursor: pointer;
+}
+
+.validation-suggestions button:hover,
+.validation-suggestions button:focus {
+  background: rgba(57, 232, 143, .09);
+}
+
+.validation-suggestions strong {
+  font-size: .83rem;
+}
+
+.validation-suggestions small {
+  color: #9bb7a8;
+  font-size: .68rem;
+}
+
+.validation-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.validation-action-status {
+  min-height: 21px;
+  margin: 12px 0 0;
+  color: #9bb7a8;
+  font-size: .76rem;
+  font-weight: 750;
+}
+
+.validation-action-status[data-tone="pass"] { color: #67efad; }
+.validation-action-status[data-tone="fail"] { color: #ff9aae; }
+.validation-action-status[data-tone="warn"] { color: #ffd477; }
+.validation-action-status[data-tone="working"] { color: #62c9ff; }
+
+.validation-result-host {
+  margin-top: 14px;
+}
+
+.validation-player-heading,
+.validation-result-banner,
+.validation-health-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 15px 16px;
+  border: 1px solid rgba(174, 226, 199, .14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .025);
+}
+
+.validation-player-heading span,
+.validation-health-hero span {
+  color: #39e88f;
+  font-size: .7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.validation-player-heading h4 {
+  margin: 3px 0 2px;
+  color: #f4fff8;
+  font-size: 1.15rem;
+}
+
+.validation-player-heading p {
+  margin: 0;
+  color: #9bb7a8;
+  font-size: .76rem;
+}
+
+.validation-health-score {
+  display: grid;
+  min-width: 94px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  text-align: right;
+}
+
+.validation-health-score.pass { background: rgba(57, 232, 143, .09); }
+.validation-health-score.warn { background: rgba(255, 212, 119, .09); }
+
+.validation-health-score strong {
+  color: #f4fff8;
+  font-size: 1.25rem;
+}
+
+.validation-health-score small {
+  margin-top: 2px;
+  color: #9bb7a8;
+  font-size: .64rem;
+  font-weight: 800;
+}
+
+.validation-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.validation-detail-group {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(174, 226, 199, .1);
+  border-radius: 13px;
+  background: rgba(3, 13, 9, .34);
+}
+
+.validation-detail-group h4 {
+  margin-bottom: 9px;
+  font-size: .82rem;
+}
+
+.validation-detail-group > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: start;
+  padding: 7px 0;
+  border-top: 1px solid rgba(174, 226, 199, .07);
+}
+
+.validation-detail-group > div:first-of-type {
+  border-top: 0;
+}
+
+.validation-detail-group span {
+  line-height: 1.35;
+}
+
+.validation-detail-group strong {
+  max-width: 170px;
+  overflow-wrap: anywhere;
+  color: #e6f7ed;
+  font-size: .76rem;
+  text-align: right;
+}
+
+.validation-check-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.validation-check-list > h4 {
+  margin: 2px 0 3px;
+  font-size: .84rem;
+}
+
+.validation-check {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  padding: 10px 11px;
+  border: 1px solid rgba(174, 226, 199, .1);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .018);
+}
+
+.validation-check.pass { border-color: rgba(57, 232, 143, .16); }
+.validation-check.fail { border-color: rgba(255, 127, 153, .2); background: rgba(255, 127, 153, .035); }
+
+.validation-check-icon {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 9px;
+  background: rgba(57, 232, 143, .1);
+  color: #67efad;
+  font-weight: 1000;
+}
+
+.validation-check.fail .validation-check-icon {
+  background: rgba(255, 127, 153, .12);
+  color: #ff9aae;
+}
+
+.validation-check strong {
+  display: block;
+  color: #eefaf3;
+  font-size: .78rem;
+}
+
+.validation-check p,
+.validation-check small {
+  display: block;
+  margin: 2px 0 0;
+  color: #9bb7a8;
+  font-size: .68rem;
+  line-height: 1.4;
+}
+
+.validation-check small {
+  color: #ffb1c0;
+}
+
+.validation-check em {
+  color: #67efad;
+  font-size: .65rem;
+  font-style: normal;
+  font-weight: 1000;
+}
+
+.validation-check.fail em {
+  color: #ff9aae;
+}
+
+.validation-result-banner.pass { border-color: rgba(57, 232, 143, .25); background: rgba(57, 232, 143, .07); }
+.validation-result-banner.fail { border-color: rgba(255, 127, 153, .25); background: rgba(255, 127, 153, .06); }
+
+.validation-result-banner strong {
+  color: #f4fff8;
+  font-size: 1.05rem;
+}
+
+.validation-result-banner span {
+  color: #b8cec2;
+  font-size: .75rem;
+  text-align: right;
+}
+
+.validation-warning {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 212, 119, .2);
+  border-radius: 10px;
+  background: rgba(255, 212, 119, .05);
+  color: #ffd477;
+  font-size: .72rem;
+}
+
+.validation-explorer-summary {
+  display: flex;
+  gap: 9px;
+  align-items: baseline;
+  padding: 13px 15px;
+  border: 1px solid rgba(98, 201, 255, .17);
+  border-radius: 12px;
+  background: rgba(98, 201, 255, .05);
+}
+
+.validation-explorer-summary strong {
+  color: #62c9ff;
+  font-size: 1.5rem;
+}
+
+.validation-explorer-summary span {
+  color: #b8cec2;
+  font-size: .74rem;
+  font-weight: 800;
+}
+
+.validation-two-column-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.validation-two-column-lists section {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(174, 226, 199, .1);
+  border-radius: 12px;
+  background: rgba(3, 13, 9, .3);
+}
+
+.validation-two-column-lists h4 {
+  margin-bottom: 8px;
+  font-size: .8rem;
+}
+
+.validation-two-column-lists ol {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.validation-two-column-lists li {
+  display: grid;
+  gap: 2px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(174, 226, 199, .07);
+}
+
+.validation-two-column-lists li:first-child { border-top: 0; padding-top: 0; }
+.validation-two-column-lists strong { color: #eaf8f0; font-size: .74rem; }
+.validation-two-column-lists span { color: #8da99a; font-size: .66rem; line-height: 1.35; }
+
+.validation-health-hero.certified,
+.validation-health-hero.review { border-color: rgba(57, 232, 143, .2); }
+.validation-health-hero.blocked { border-color: rgba(255, 127, 153, .24); }
+.validation-health-hero.incomplete { border-color: rgba(255, 212, 119, .22); }
+
+.validation-health-hero > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.validation-health-hero > div:last-child {
+  display: grid;
+  text-align: right;
+}
+
+.validation-health-hero strong {
+  color: #f4fff8;
+  font-size: 1.03rem;
+}
+
+.validation-health-hero > div:last-child strong {
+  font-size: 1.5rem;
+}
+
+.validation-health-hero small {
+  color: #9bb7a8;
+  font-size: .68rem;
+}
+
+.validation-health-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.validation-health-grid > div {
+  display: grid;
+  gap: 4px;
+  padding: 11px;
+  border: 1px solid rgba(174, 226, 199, .09);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .018);
+}
+
+.validation-health-grid > div.has-gap {
+  border-color: rgba(255, 212, 119, .19);
+  background: rgba(255, 212, 119, .035);
+}
+
+.validation-health-grid strong {
+  color: #eefaf3;
+  font-size: 1rem;
+}
+
+@media (max-width: 1180px) {
+  .validation-detail-grid { grid-template-columns: 1fr 1fr; }
+  .validation-detail-group:last-child { grid-column: 1 / -1; }
+  .validation-form-grid,
+  .validation-form-grid.compact { grid-template-columns: 1fr 1fr; }
+  .validation-form-grid > .button { grid-column: 1 / -1; }
+}
+
+@media (max-width: 900px) {
+  .validation-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .validation-lab-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .validation-overview,
+  .validation-form-grid,
+  .validation-form-grid.compact,
+  .validation-detail-grid,
+  .validation-two-column-lists,
+  .validation-health-grid { grid-template-columns: 1fr; }
+  .validation-detail-group:last-child,
+  .validation-form-grid > .button { grid-column: auto; }
+  .validation-player-heading,
+  .validation-result-banner,
+  .validation-health-hero { align-items: flex-start; flex-direction: column; }
+  .validation-health-score,
+  .validation-result-banner span,
+  .validation-health-hero > div:last-child { text-align: left; }
+  .validation-check { grid-template-columns: 28px minmax(0, 1fr); }
+  .validation-check em { grid-column: 2; }
+}

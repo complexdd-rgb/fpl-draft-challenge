@@ -1,4 +1,4 @@
-Clean browser-reset package.
+Validation Lab Phase 1 upload package.
 Upload every visible file and folder in this extracted directory to the repository root.
 
 Included files:
@@ -9,7 +9,12 @@ todays-challenge.js
 prompt-library.js
 admin.css
 README.md
+CHANGELOG.md
+VALIDATION-LAB-README.txt
+VALIDATION-TEST-REPORT.txt
 js/admin-core.js
 js/admin-import-tools.js
+js/validation-engine.js
+js/validation-lab.js
 data/fpl-history-2014-15.js
 data/fpl-history-2015-16.js
