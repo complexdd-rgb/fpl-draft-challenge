@@ -1,0 +1,76 @@
+FPL CHALLENGE STUDIO — SEASON CERTIFICATION
+
+Season: 2025/26
+Status: Certified
+Certified at: 2026-07-29T08:53:44.349Z
+Fingerprint: 2025/26-0482df5e
+
+Player records: 841
+Eligible answers: 537
+Zero-minute records: 304
+Enabled prompts: 536
+Prompt evaluations: 450776
+
+CERTIFICATION TESTS
+PASS — Core player data
+Actual: 0 blocking records
+Expected: 0 blocking records
+
+PASS — Required prompt metadata
+Actual: 0 missing values
+Expected: 0 missing values
+
+PASS — Complete 20-club league table
+Actual: 20 clubs · positions 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+Expected: 20 clubs with one unique finish each from 1 to 20
+
+PASS — League-finish flags
+Actual: 0 inconsistencies
+Expected: 0 inconsistencies
+
+PASS — Answer-eligibility rule
+Actual: 0 inconsistencies
+Expected: 0 inconsistencies
+
+PASS — Prompt definitions
+Actual: 0 invalid · 0 duplicate IDs
+Expected: 0 invalid prompts and 0 duplicate IDs
+
+PASS — Prompt runtime
+Actual: 0 errors across 450,776 evaluations
+Expected: 0 runtime errors
+
+PASS — Rule Tester and prompt-engine agreement
+Actual: 0 disagreements
+Expected: 0 disagreements
+
+PASS — Zero-minute answer exclusion
+Actual: 0 accepted zero-minute answers
+Expected: 0 accepted zero-minute answers
+
+WARNING — Prompts with no qualifying answer in this season: 99
+  - gk_5_clean_120_saves · Goalkeeper with 5+ clean sheets and at least 120 saves
+  - def_top_four_zero_goals_10cs · Defender from a top-four club with 10+ clean sheets and no goals
+  - mid_non_big_six_10assists · Midfielder outside the traditional Big Six with at least 10 assists
+  - fwd_exact_ten_outside_big_six · Forward outside the traditional Big Six who scored exactly 10 goals
+  - fwd_5assists_10goals_outside · Forward outside the traditional Big Six with 10+ goals and five assists
+  - fwd_sean_dyche_8goals · Forward managed by Sean Dyche who scored at least eight goals
+  - fwd_exact15_outside_big_six · Forward outside the traditional Big Six who scored exactly 15 goals
+  - gk_final_45_100 · Goalkeeper who finished at £4.5m or less with 100+ points
+  - gk_zero_yellows_100_saves · Goalkeeper with no yellow cards and at least 100 saves
+  - gk_hodgson_40_saves · Goalkeeper managed by Roy Hodgson with at least 40 saves
+  - gk_exact5cs_80saves · Goalkeeper with exactly five clean sheets and 80+ saves
+  - def_klopp_2000 · Defender managed by Jürgen Klopp who played 2,000+ minutes
+  - def_hodgson_2000 · Defender managed by Roy Hodgson who played 2,000+ minutes
+  - def_pochettino_1500 · Defender managed by Mauricio Pochettino who played 1,500+ minutes
+  - def_champion_zero_goal_1500 · Defender from the champions with no goals and 1,500+ minutes
+  - mid_hodgson_80 · Midfielder managed by Roy Hodgson with at least 80 FPL points
+  - mid_pochettino_100 · Midfielder managed by Mauricio Pochettino with at least 100 FPL points
+  - mid_wenger_100 · Midfielder managed by Arsène Wenger with at least 100 FPL points
+  - fwd_firstname_a_80 · Forward whose first name starts with A and scored 80+ points
+  - fwd_exact10g5a · Forward with exactly 10 goals and at least five assists
+  - fwd_hodgson_5goals · Forward managed by Roy Hodgson with at least five goals
+  - auto_def_bottom_assists_7 · Defender from a bottom-half club with 7+ assists
+  - auto_gk_saves_130_league_10_15 · Goalkeeper with 130+ saves from a club finishing 10th–15th
+  - auto_mid_steve_cooper_minutes_1800 · Midfielder managed by Steve Cooper who played 1,800+ minutes
+  - auto_fwd_minutes_1600_goals_10 · Forward who played at most 1,600 minutes and scored 10+ goals

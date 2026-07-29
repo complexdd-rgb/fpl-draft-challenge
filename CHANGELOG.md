@@ -15,3 +15,13 @@
 - Changed Validation Lab numeric checks so `null`, blank and missing values are not treated as zero.
 - Missing league finishes now always fail league-position and league-status rules.
 - Updated asset versions to prevent an older cached `players.js` or validation engine loading.
+
+## 2026-07-29 — Validation Lab v1.1
+
+- Added automated season certification to Season Health.
+- Added full prompt-runtime, diagnostic-agreement and zero-minute exclusion scans.
+- Added 20-club league-table and derived-flag checks.
+- Added saved certificate status and copyable certification reports.
+- Fixed goal-involvement parsing being mistaken for goals.
+- Fixed “outside the top four” diagnosis.
+- Corrected the veteran-defender 2,700-minute prompt test.

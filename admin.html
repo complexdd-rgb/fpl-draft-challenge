@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
   <title>FPL Challenge Studio</title>
-  <link rel="stylesheet" href="admin.css?v=16.0.0">
+  <link rel="stylesheet" href="admin.css?v=16.1.0">
 
   <!-- FPL STUDIO STAGE ONE CSS START -->
   <style id="fpl-studio-stage-one-css">
@@ -2061,9 +2061,13 @@ body.stage-one-enabled .audit-status-chip {
             <span class="validation-tool-icon" aria-hidden="true">%</span>
             <div><p class="eyebrow">Season certification</p><h3 id="validationHealthHeading">Season Health</h3><p>Measure eligibility, missing metadata and blocking structural errors.</p></div>
           </div>
-          <div class="validation-form-grid compact">
+          <div class="validation-form-grid compact validation-health-controls">
             <label class="validation-field"><span>Season</span><select id="validationHealthSeason"><option>Loading seasons…</option></select></label>
-            <button id="validationHealthBtn" class="button primary" type="button">Scan season</button>
+            <div class="validation-button-row validation-certification-actions">
+              <button id="validationHealthBtn" class="button secondary" type="button">Quick scan</button>
+              <button id="validationCertifyBtn" class="button primary" type="button">Run certification</button>
+              <button id="validationCopyCertificateBtn" class="button secondary" type="button" disabled>Copy report</button>
+            </div>
           </div>
           <p id="validationHealthStatus" class="validation-action-status" role="status">Loading the latest season…</p>
           <div id="validationHealthResult" class="validation-result-host"></div>
@@ -2074,8 +2078,8 @@ body.stage-one-enabled .audit-status-chip {
   </main>
 
   <script src="players.js?v=12.3.0"></script>
-  <script src="prompt-library.js?v=2.0.0"></script>
-  <script src="js/validation-engine.js?v=1.0.1"></script>
+  <script src="prompt-library.js?v=2.0.1"></script>
+  <script src="js/validation-engine.js?v=1.1.0"></script>
   <script src="js/admin-core.js?v=16.0.1"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
   <script src="js/admin-import-tools.js?v=16.0.1"></script>
@@ -2642,6 +2646,6 @@ body.stage-one-enabled .audit-status-chip {
 
   </script>
   <!-- FPL STUDIO STAGE ONE JS END -->
-  <script src="js/validation-lab.js?v=1.0.0"></script>
+  <script src="js/validation-lab.js?v=1.1.0"></script>
 </body>
 </html>

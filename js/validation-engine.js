@@ -46,7 +46,7 @@
     { field: "ageAtSeasonStart", pattern: "age(?: at season start)?|aged" },
     { field: "points", pattern: "fpl points?|points?" },
     { field: "minutes", pattern: "minutes?" },
-    { field: "goals", pattern: "goals?" },
+    { field: "goals", pattern: "goals?(?!\\s*(?:involvements?|\\+\\s*assists?))" },
     { field: "assists", pattern: "assists?" },
     { field: "bonus", pattern: "bonus(?: points?)?" },
     { field: "saves", pattern: "saves?" }
@@ -289,7 +289,11 @@
       addRule(rules, { field: "assistsMoreThanGoals", operator: "isTrue", value: true, label: FIELD_LABELS.assistsMoreThanGoals, source: "more assists than goals" });
     }
     if (/\bchampions?\b|won the (?:premier )?league/.test(value)) addRule(rules, { field: "champions", operator: "isTrue", value: true, label: FIELD_LABELS.champions, source: "league champions" });
-    if (/top[- ]?four/.test(value)) addRule(rules, { field: "topFour", operator: "isTrue", value: true, label: FIELD_LABELS.topFour, source: "top-four club" });
+    if (/outside (?:the )?top[- ]?four|non[- ]top[- ]?four/.test(value)) {
+      addRule(rules, { field: "topFour", operator: "isFalse", value: false, label: FIELD_LABELS.topFour, source: "outside the top four" });
+    } else if (/top[- ]?four/.test(value)) {
+      addRule(rules, { field: "topFour", operator: "isTrue", value: true, label: FIELD_LABELS.topFour, source: "top-four club" });
+    }
     if (/bottom[- ]?half/.test(value)) addRule(rules, { field: "bottomHalf", operator: "isTrue", value: true, label: FIELD_LABELS.bottomHalf, source: "bottom-half club" });
     if (/\brelegated\b/.test(value)) addRule(rules, { field: "relegated", operator: "isTrue", value: true, label: FIELD_LABELS.relegated, source: "relegated club" });
     if (/\bpromoted\b/.test(value)) addRule(rules, { field: "promoted", operator: "isTrue", value: true, label: FIELD_LABELS.promoted, source: "promoted club" });
@@ -533,9 +537,315 @@
     const metadataGaps = summary.missingDob + summary.missingAge + summary.missingStartingPrice + summary.missingFinalPrice + summary.missingLeaguePosition + summary.missingManagers;
     const possibleMetadata = rows.length * 6;
     const completeness = Math.max(0, Math.round(((possibleMetadata - metadataGaps) / possibleMetadata) * 100));
-    const status = blocking > 0 ? "Blocked" : completeness === 100 ? "Certified" : completeness >= 95 ? "Review" : "Incomplete";
+    const status = blocking > 0 ? "Blocked" : completeness === 100 ? "Ready" : completeness >= 95 ? "Review" : "Incomplete";
 
     return { ok: true, season: seasonLabel, rows, summary, blocking, metadataGaps, completeness, status };
+  }
+
+  function hashText(value) {
+    let hash = 2166136261;
+    const text = String(value || "");
+    for (let index = 0; index < text.length; index += 1) {
+      hash ^= text.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16).padStart(8, "0");
+  }
+
+  function seasonFingerprint(seasonLabel, entries, prompts) {
+    const recordSignature = entries
+      .slice()
+      .sort((a, b) => a.player.playerId.localeCompare(b.player.playerId))
+      .map(({ player, record }) => [
+        player.playerId,
+        record.club,
+        record.position,
+        record.points,
+        record.minutes,
+        record.goals,
+        record.assists,
+        record.startingPrice,
+        record.finalPrice,
+        record.leaguePosition,
+        record.ageAtSeasonStart,
+        (record.managers || []).join("/"),
+        record.champions,
+        record.topFour,
+        record.bottomHalf,
+        record.relegated,
+        record.promoted
+      ].join("~"))
+      .join("|");
+    const promptSignature = prompts
+      .map(prompt => `${prompt.id}~${prompt.position}~${prompt.label}~${String(prompt.test)}`)
+      .join("|");
+    return `${seasonLabel}-${hashText(`${recordSignature}::${promptSignature}`)}`;
+  }
+
+  function getSeasonFingerprint(seasonLabel) {
+    const entries = [];
+    for (const player of getPlayers()) {
+      const record = recordFor(player, seasonLabel);
+      if (record) entries.push({ player, record });
+    }
+    const prompts = getPromptLibrary().filter(prompt => prompt?.enabled !== false);
+    return entries.length ? seasonFingerprint(seasonLabel, entries, prompts) : "";
+  }
+
+  function certificationTest(id, label, passed, actual, expected, details = [], severity = "critical") {
+    return {
+      id,
+      label,
+      passed: Boolean(passed),
+      actual: String(actual ?? ""),
+      expected: String(expected ?? ""),
+      details: Array.isArray(details) ? details.slice(0, 25) : [],
+      severity
+    };
+  }
+
+  function certifySeason(seasonLabel) {
+    const health = seasonHealth(seasonLabel);
+    if (!health.ok) return health;
+
+    const entries = [];
+    for (const player of getPlayers()) {
+      const record = recordFor(player, seasonLabel);
+      if (record) entries.push({ player, record });
+    }
+
+    const prompts = getPromptLibrary().filter(prompt => prompt?.enabled !== false);
+    const tests = [];
+    const warnings = [];
+
+    tests.push(certificationTest(
+      "core-data",
+      "Core player data",
+      health.blocking === 0,
+      `${health.blocking} blocking records`,
+      "0 blocking records"
+    ));
+    tests.push(certificationTest(
+      "metadata",
+      "Required prompt metadata",
+      health.metadataGaps === 0,
+      `${health.metadataGaps} missing values`,
+      "0 missing values"
+    ));
+
+    const clubPositions = new Map();
+    for (const { record } of entries) {
+      if (!clubPositions.has(record.club)) clubPositions.set(record.club, new Set());
+      clubPositions.get(record.club).add(Number(record.leaguePosition));
+    }
+    const inconsistentClubs = [...clubPositions.entries()]
+      .filter(([, positions]) => positions.size !== 1)
+      .map(([club, positions]) => `${club}: ${[...positions].join(", ")}`);
+    const uniqueLeaguePositions = [...new Set([...clubPositions.values()].flatMap(positions => [...positions]))]
+      .filter(Number.isFinite)
+      .sort((a, b) => a - b);
+    const expectedLeaguePositions = Array.from({ length: 20 }, (_, index) => index + 1);
+    const completeLeagueTable = clubPositions.size === 20
+      && inconsistentClubs.length === 0
+      && uniqueLeaguePositions.length === 20
+      && uniqueLeaguePositions.every((value, index) => value === expectedLeaguePositions[index]);
+    tests.push(certificationTest(
+      "league-table",
+      "Complete 20-club league table",
+      completeLeagueTable,
+      `${clubPositions.size} clubs · positions ${uniqueLeaguePositions.join(", ") || "none"}`,
+      "20 clubs with one unique finish each from 1 to 20",
+      inconsistentClubs
+    ));
+
+    const flagErrors = [];
+    for (const { player, record } of entries) {
+      const position = Number(record.leaguePosition);
+      const expected = {
+        champions: position === 1,
+        topFour: position >= 1 && position <= 4,
+        bottomHalf: position >= 11 && position <= 20,
+        relegated: position >= 18 && position <= 20
+      };
+      for (const [field, wanted] of Object.entries(expected)) {
+        if (record[field] !== wanted) flagErrors.push(`${player.name}: ${field}=${record[field]} (expected ${wanted})`);
+      }
+    }
+    tests.push(certificationTest(
+      "league-flags",
+      "League-finish flags",
+      flagErrors.length === 0,
+      `${flagErrors.length} inconsistencies`,
+      "0 inconsistencies",
+      flagErrors
+    ));
+
+    const eligibility = window.FPL_ANSWER_ELIGIBILITY?.qualifies || (record => Number(record?.minutes) > 0);
+    const eligibilityErrors = entries
+      .filter(({ record }) => Boolean(eligibility(record)) !== (Number(record.minutes) > 0))
+      .map(({ player, record }) => `${player.name}: ${record.minutes} minutes`);
+    tests.push(certificationTest(
+      "eligibility-api",
+      "Answer-eligibility rule",
+      eligibilityErrors.length === 0,
+      `${eligibilityErrors.length} inconsistencies`,
+      "0 inconsistencies",
+      eligibilityErrors
+    ));
+
+    const duplicatePromptIds = [];
+    const seenPromptIds = new Set();
+    const invalidPrompts = [];
+    for (const prompt of prompts) {
+      if (seenPromptIds.has(prompt?.id)) duplicatePromptIds.push(prompt.id);
+      seenPromptIds.add(prompt?.id);
+      if (!prompt?.id || !prompt?.label || !["GK", "DEF", "MID", "FWD"].includes(prompt?.position) || typeof prompt?.test !== "function") {
+        invalidPrompts.push(prompt?.id || prompt?.label || "Unnamed prompt");
+      }
+    }
+    tests.push(certificationTest(
+      "prompt-definitions",
+      "Prompt definitions",
+      duplicatePromptIds.length === 0 && invalidPrompts.length === 0,
+      `${invalidPrompts.length} invalid · ${duplicatePromptIds.length} duplicate IDs`,
+      "0 invalid prompts and 0 duplicate IDs",
+      [...invalidPrompts.map(value => `Invalid: ${value}`), ...duplicatePromptIds.map(value => `Duplicate: ${value}`)]
+    ));
+
+    let evaluations = 0;
+    let runtimeErrors = 0;
+    let diagnosticMismatches = 0;
+    let zeroMinuteAccepted = 0;
+    const runtimeExamples = [];
+    const mismatchExamples = [];
+    const zeroMinuteExamples = [];
+    const answerCounts = new Map(prompts.map(prompt => [prompt.id, 0]));
+
+    for (const { player, record } of entries) {
+      for (const prompt of prompts) {
+        evaluations += 1;
+        const result = evaluatePrompt(player, seasonLabel, prompt.id);
+        if (!result.ok) {
+          runtimeErrors += 1;
+          if (runtimeExamples.length < 25) runtimeExamples.push(`${prompt.id} · ${player.name}: ${result.error}`);
+          continue;
+        }
+        const originalCheck = result.checks.find(item => item.label === "Original prompt logic");
+        if (originalCheck?.actual === "Error") {
+          runtimeErrors += 1;
+          if (runtimeExamples.length < 25) runtimeExamples.push(`${prompt.id} · ${player.name}: ${originalCheck.explanation}`);
+        }
+        const originalPassed = originalCheck?.passed === true;
+        if (originalPassed !== result.passed) {
+          diagnosticMismatches += 1;
+          if (mismatchExamples.length < 25) {
+            const failedRules = result.checks.filter(item => !item.passed && item.label !== "Original prompt logic").map(item => item.label).join(", ");
+            mismatchExamples.push(`${prompt.id} · ${player.name}${failedRules ? ` · ${failedRules}` : ""}`);
+          }
+        }
+        if (Number(record.minutes) <= 0 && result.passed) {
+          zeroMinuteAccepted += 1;
+          if (zeroMinuteExamples.length < 25) zeroMinuteExamples.push(`${prompt.id} · ${player.name}`);
+        }
+        if (result.passed) answerCounts.set(prompt.id, (answerCounts.get(prompt.id) || 0) + 1);
+      }
+    }
+
+    tests.push(certificationTest(
+      "prompt-runtime",
+      "Prompt runtime",
+      runtimeErrors === 0,
+      `${runtimeErrors} errors across ${evaluations.toLocaleString("en-GB")} evaluations`,
+      "0 runtime errors",
+      runtimeExamples
+    ));
+    tests.push(certificationTest(
+      "diagnostic-agreement",
+      "Rule Tester and prompt-engine agreement",
+      diagnosticMismatches === 0,
+      `${diagnosticMismatches} disagreements`,
+      "0 disagreements",
+      mismatchExamples
+    ));
+    tests.push(certificationTest(
+      "zero-minute-prompts",
+      "Zero-minute answer exclusion",
+      zeroMinuteAccepted === 0,
+      `${zeroMinuteAccepted} accepted zero-minute answers`,
+      "0 accepted zero-minute answers",
+      zeroMinuteExamples
+    ));
+
+    const noAnswerPrompts = prompts
+      .filter(prompt => (answerCounts.get(prompt.id) || 0) === 0)
+      .map(prompt => `${prompt.id} · ${prompt.label}`);
+    if (noAnswerPrompts.length) {
+      warnings.push({
+        id: "no-answer-prompts",
+        label: "Prompts with no qualifying answer in this season",
+        count: noAnswerPrompts.length,
+        details: noAnswerPrompts.slice(0, 25)
+      });
+    }
+
+    const criticalFailures = tests.filter(test => test.severity === "critical" && !test.passed);
+    const status = criticalFailures.length === 0 ? "Certified" : "Failed";
+    const certifiedAt = new Date().toISOString();
+    const fingerprint = seasonFingerprint(seasonLabel, entries, prompts);
+
+    return {
+      ok: true,
+      season: seasonLabel,
+      status,
+      certified: status === "Certified",
+      certifiedAt,
+      fingerprint,
+      health,
+      tests,
+      warnings,
+      criticalFailures: criticalFailures.length,
+      promptSummary: {
+        prompts: prompts.length,
+        evaluations,
+        runtimeErrors,
+        diagnosticMismatches,
+        zeroMinuteAccepted,
+        noAnswerPrompts: noAnswerPrompts.length
+      }
+    };
+  }
+
+  function makeCertificationReport(result) {
+    if (!result?.ok) return `FPL CHALLENGE STUDIO — SEASON CERTIFICATION\n\nERROR\n${result?.error || "Unknown error"}\n`;
+    const lines = [
+      "FPL CHALLENGE STUDIO — SEASON CERTIFICATION",
+      "",
+      `Season: ${result.season}`,
+      `Status: ${result.status}`,
+      `Certified at: ${result.certifiedAt}`,
+      `Fingerprint: ${result.fingerprint}`,
+      "",
+      `Player records: ${result.health.summary.players}`,
+      `Eligible answers: ${result.health.summary.eligible}`,
+      `Zero-minute records: ${result.health.summary.zeroMinutes}`,
+      `Enabled prompts: ${result.promptSummary.prompts}`,
+      `Prompt evaluations: ${result.promptSummary.evaluations}`,
+      "",
+      "CERTIFICATION TESTS"
+    ];
+    for (const test of result.tests || []) {
+      lines.push(`${test.passed ? "PASS" : "FAIL"} — ${test.label}`);
+      lines.push(`Actual: ${test.actual}`);
+      lines.push(`Expected: ${test.expected}`);
+      for (const detail of test.details || []) lines.push(`  - ${detail}`);
+      lines.push("");
+    }
+    for (const warning of result.warnings || []) {
+      lines.push(`WARNING — ${warning.label}: ${warning.count}`);
+      for (const detail of warning.details || []) lines.push(`  - ${detail}`);
+      lines.push("");
+    }
+    return lines.join("\n").trim() + "\n";
   }
 
   function makeDebugReport(result) {
@@ -576,6 +886,9 @@
     evaluatePrompt,
     explorePrompt,
     seasonHealth,
+    getSeasonFingerprint,
+    certifySeason,
+    makeCertificationReport,
     makeDebugReport,
     formatValue
   });

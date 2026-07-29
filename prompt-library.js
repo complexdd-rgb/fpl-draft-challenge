@@ -1130,7 +1130,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => Number.isFinite(p.ageAtSeasonStart) && p.ageAtSeasonStart >= 30 && p.minutes >= 2500
+      test: p => Number.isFinite(p.ageAtSeasonStart) && p.ageAtSeasonStart >= 30 && p.minutes >= 2700
     },
     {
       id: "def_age_u21_1000",

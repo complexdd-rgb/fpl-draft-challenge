@@ -2,10 +2,13 @@
 (() => {
   "use strict";
 
+  const CERTIFICATE_STORAGE_KEY = "fpl-validation-certificates-v1";
+
   let state = {
     playerId: "",
     season: "",
-    lastValidation: null
+    lastValidation: null,
+    lastCertification: null
   };
 
   function escapeHtml(value) {
@@ -69,6 +72,8 @@
       explorerResult: document.getElementById("validationExplorerResult"),
       healthSeason: document.getElementById("validationHealthSeason"),
       healthBtn: document.getElementById("validationHealthBtn"),
+      certifyBtn: document.getElementById("validationCertifyBtn"),
+      copyCertificateBtn: document.getElementById("validationCopyCertificateBtn"),
       healthStatus: document.getElementById("validationHealthStatus"),
       healthResult: document.getElementById("validationHealthResult")
     };
@@ -183,6 +188,9 @@
     populateSeasonSelect(elements.explorerSeason, engine.getAllSeasonLabels(), true);
     elements.explorerBtn?.addEventListener("click", () => explorePrompt(elements, engine));
     elements.healthBtn?.addEventListener("click", () => scanSeason(elements, engine));
+    elements.certifyBtn?.addEventListener("click", () => runCertification(elements, engine));
+    elements.copyCertificateBtn?.addEventListener("click", () => copyCertificationReport(elements, engine));
+    elements.healthSeason?.addEventListener("change", () => scanSeason(elements, engine));
   }
 
   function syncPromptText(elements, engine) {
@@ -338,20 +346,53 @@
       <div class="validation-two-column-lists"><section><h4>Best valid answers</h4><ol>${validRows}</ol></section><section><h4>Near misses</h4><ol>${nearRows}</ol></section></div>`;
   }
 
+  function loadSavedCertificates() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(CERTIFICATE_STORAGE_KEY) || "{}");
+      return saved && typeof saved === "object" ? saved : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveCertificate(result) {
+    if (!result?.certified) return;
+    try {
+      const saved = loadSavedCertificates();
+      saved[result.season] = {
+        season: result.season,
+        status: result.status,
+        certifiedAt: result.certifiedAt,
+        fingerprint: result.fingerprint,
+        prompts: result.promptSummary.prompts,
+        evaluations: result.promptSummary.evaluations
+      };
+      localStorage.setItem(CERTIFICATE_STORAGE_KEY, JSON.stringify(saved));
+    } catch (_) {
+      // Certification still works when local storage is unavailable.
+    }
+  }
+
   function scanSeason(elements, engine) {
     const season = elements.healthSeason.value || engine.getAllSeasonLabels()[0];
     elements.healthSeason.value = season;
+    state.lastCertification = null;
+    if (elements.copyCertificateBtn) elements.copyCertificateBtn.disabled = true;
     const result = engine.seasonHealth(season);
     if (!result.ok) {
       setStatus(elements.healthStatus, result.error, "fail");
       return;
     }
-    const tone = result.status === "Certified" ? "pass" : result.status === "Blocked" ? "fail" : "warn";
-    setStatus(elements.healthStatus, `${result.season} · ${result.status} · ${result.completeness}% metadata completeness`, tone);
-    elements.healthResult.innerHTML = renderSeasonHealth(result);
+    const stored = loadSavedCertificates()[season];
+    const currentFingerprint = engine.getSeasonFingerprint(season);
+    const saved = stored?.status === "Certified" && stored.fingerprint === currentFingerprint ? stored : null;
+    const tone = result.status === "Blocked" ? "fail" : result.status === "Incomplete" ? "warn" : "pass";
+    const savedText = saved ? ` · Last certified ${formatCertificateDate(saved.certifiedAt)}` : stored ? " · Previous certificate is out of date" : "";
+    setStatus(elements.healthStatus, `${result.season} · ${result.status} · ${result.completeness}% metadata completeness${savedText}`, saved ? "pass" : tone);
+    elements.healthResult.innerHTML = renderSeasonHealth(result, saved);
   }
 
-  function renderSeasonHealth(result) {
+  function renderSeasonHealth(result, saved = null) {
     const rows = [
       ["Player records", result.summary.players],
       ["Eligible answers", result.summary.eligible],
@@ -365,8 +406,95 @@
       ["Invalid positions", result.summary.invalidPosition],
       ["Invalid core stats", result.summary.invalidCoreStats]
     ];
-    return `<div class="validation-health-hero ${result.status.toLowerCase()}"><div><span>${escapeHtml(result.season)}</span><strong>${escapeHtml(result.status)}</strong><small>${result.blocking.toLocaleString("en-GB")} blockers · ${result.metadataGaps.toLocaleString("en-GB")} metadata gaps</small></div><div><strong>${result.completeness}%</strong><small>complete</small></div></div>
-      <div class="validation-health-grid">${rows.map(([label, value]) => `<div class="${Number(value) > 0 && /missing|invalid/i.test(label) ? "has-gap" : ""}"><span>${escapeHtml(label)}</span><strong>${Number(value).toLocaleString("en-GB")}</strong></div>`).join("")}</div>`;
+    const displayStatus = saved?.status === "Certified" ? "Certified" : result.status;
+    const detail = saved?.status === "Certified"
+      ? `Certificate saved ${formatCertificateDate(saved.certifiedAt)} · run again after database or prompt changes`
+      : `${result.blocking.toLocaleString("en-GB")} blockers · ${result.metadataGaps.toLocaleString("en-GB")} metadata gaps`;
+    return `<div class="validation-health-hero ${displayStatus.toLowerCase()}"><div><span>${escapeHtml(result.season)}</span><strong>${escapeHtml(displayStatus)}</strong><small>${escapeHtml(detail)}</small></div><div><strong>${result.completeness}%</strong><small>complete</small></div></div>
+      <div class="validation-health-grid">${rows.map(([label, value]) => `<div class="${Number(value) > 0 && /missing|invalid/i.test(label) ? "has-gap" : ""}"><span>${escapeHtml(label)}</span><strong>${Number(value).toLocaleString("en-GB")}</strong></div>`).join("")}</div>
+      <p class="validation-certification-note">Quick scan checks stored fields. Run certification to test the league table, derived flags, all enabled prompts, Rule Tester agreement and zero-minute exclusion.</p>`;
+  }
+
+  function runCertification(elements, engine) {
+    const season = elements.healthSeason.value || engine.getAllSeasonLabels()[0];
+    elements.healthSeason.value = season;
+    const health = engine.seasonHealth(season);
+    if (!health.ok) {
+      setStatus(elements.healthStatus, health.error, "fail");
+      return;
+    }
+    const promptCount = engine.getPromptLibrary().filter(prompt => prompt.enabled !== false).length;
+    const expectedEvaluations = health.summary.players * promptCount;
+    elements.certifyBtn.disabled = true;
+    elements.healthBtn.disabled = true;
+    if (elements.copyCertificateBtn) elements.copyCertificateBtn.disabled = true;
+    setStatus(elements.healthStatus, `Running ${season} certification · checking ${expectedEvaluations.toLocaleString("en-GB")} player-prompt combinations…`, "working");
+    elements.healthResult.innerHTML = `<div class="validation-certification-running"><span class="validation-certification-spinner" aria-hidden="true"></span><strong>Certification in progress</strong><p>Do not close the Studio while the complete season and prompt library are checked.</p></div>`;
+
+    window.setTimeout(() => {
+      const result = engine.certifySeason(season);
+      state.lastCertification = result;
+      elements.certifyBtn.disabled = false;
+      elements.healthBtn.disabled = false;
+      if (!result.ok) {
+        setStatus(elements.healthStatus, result.error, "fail");
+        elements.healthResult.innerHTML = "";
+        return;
+      }
+      if (elements.copyCertificateBtn) elements.copyCertificateBtn.disabled = false;
+      if (result.certified) saveCertificate(result);
+      const tone = result.certified ? "pass" : "fail";
+      setStatus(elements.healthStatus, `${result.season} · ${result.status} · ${result.tests.filter(test => test.passed).length}/${result.tests.length} critical tests passed`, tone);
+      elements.healthResult.innerHTML = renderCertification(result);
+    }, 40);
+  }
+
+  function renderCertification(result) {
+    const passedTests = result.tests.filter(test => test.passed).length;
+    const warningCount = result.warnings.reduce((total, warning) => total + Number(warning.count || 0), 0);
+    const tests = result.tests.map(test => `<article class="validation-certification-test ${test.passed ? "pass" : "fail"}">
+      <span class="validation-check-icon" aria-hidden="true">${test.passed ? "✓" : "×"}</span>
+      <div><strong>${escapeHtml(test.label)}</strong><p>${escapeHtml(test.actual)} · Expected: ${escapeHtml(test.expected)}</p>${test.details.length ? `<details><summary>Show examples</summary><ul>${test.details.map(detail => `<li>${escapeHtml(detail)}</li>`).join("")}</ul></details>` : ""}</div>
+      <em>${test.passed ? "PASS" : "FAIL"}</em>
+    </article>`).join("");
+    const warnings = result.warnings.length
+      ? `<div class="validation-certification-warnings"><h4>Advisory warnings</h4>${result.warnings.map(warning => `<details><summary>${escapeHtml(warning.label)} · ${Number(warning.count).toLocaleString("en-GB")}</summary><ul>${warning.details.map(detail => `<li>${escapeHtml(detail)}</li>`).join("")}</ul></details>`).join("")}</div>`
+      : `<p class="validation-certification-clear">No advisory warnings were found.</p>`;
+    return `<div class="validation-certificate ${result.certified ? "certified" : "failed"}">
+        <div><span>Season certification</span><strong>${escapeHtml(result.season)} · ${escapeHtml(result.status)}</strong><small>${escapeHtml(formatCertificateDate(result.certifiedAt))} · Fingerprint ${escapeHtml(result.fingerprint)}</small></div>
+        <div><strong>${passedTests}/${result.tests.length}</strong><small>tests passed</small></div>
+      </div>
+      <div class="validation-certification-metrics">
+        <div><span>Player records</span><strong>${result.health.summary.players.toLocaleString("en-GB")}</strong></div>
+        <div><span>Enabled prompts</span><strong>${result.promptSummary.prompts.toLocaleString("en-GB")}</strong></div>
+        <div><span>Prompt evaluations</span><strong>${result.promptSummary.evaluations.toLocaleString("en-GB")}</strong></div>
+        <div><span>Critical failures</span><strong>${result.criticalFailures.toLocaleString("en-GB")}</strong></div>
+        <div><span>Warnings</span><strong>${warningCount.toLocaleString("en-GB")}</strong></div>
+      </div>
+      <div class="validation-certification-tests"><h4>Certification checks</h4>${tests}</div>
+      ${warnings}`;
+  }
+
+  function formatCertificateDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Unknown date";
+    return date.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+  }
+
+  async function copyCertificationReport(elements, engine) {
+    if (!state.lastCertification?.ok) return;
+    const report = engine.makeCertificationReport(state.lastCertification);
+    try {
+      await navigator.clipboard.writeText(report);
+    } catch (_) {
+      const textarea = document.createElement("textarea");
+      textarea.value = report;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+    setStatus(elements.healthStatus, "Certification report copied to the clipboard.", "pass");
   }
 
   function setStatus(element, message, tone = "") {

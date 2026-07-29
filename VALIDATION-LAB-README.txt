@@ -30,3 +30,8 @@ Upload every file and folder in this extracted project to the repository root, r
 The two new required files are:
 - js/validation-engine.js
 - js/validation-lab.js
+
+
+AUTOMATED SEASON CERTIFICATION
+------------------------------
+Open Season Health, select a season and press Run certification. The Studio checks all critical player metadata, the full 20-club table, derived league flags, every enabled prompt, Rule Tester agreement and zero-minute exclusion. A green Certified result is only awarded when every critical check passes. Use Copy report to save the complete result.
