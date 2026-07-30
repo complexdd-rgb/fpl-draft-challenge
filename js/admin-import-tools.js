@@ -1092,6 +1092,7 @@ Backups and detailed reports are included.
     if (includeCareerTotals) addCareerTotalVariants(positions, add);
     if (includeRelationships) {
       addPlayedForBothClubVariants(positions, add);
+      addReturnedToFormerClubVariants(positions, add);
       addTeammateVariants(variants, positions, cooldown);
     }
     return variants;
@@ -1501,6 +1502,65 @@ Backups and detailed reports are included.
     }
   }
 
+  function addReturnedToFormerClubVariants(positions, add) {
+    const careerContext = window.FPL_CAREER_CONTEXT;
+    if (!careerContext?.players?.length) return;
+
+    const playersById = new Map((Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : []).map(player => [player.playerId, player]));
+    const eligibleByPosition = new Map(POSITIONS.map(position => [position, new Set()]));
+    for (const summary of careerContext.players) {
+      if (summary.returnedToFormerClub !== true) continue;
+      const player = playersById.get(summary.playerId);
+      for (const record of player?.seasons || []) {
+        if (Number(record.minutes) > 0 && eligibleByPosition.has(record.position)) eligibleByPosition.get(record.position).add(summary.playerId);
+      }
+    }
+
+    const pointThresholds = { DEF: [70, 100], MID: [70, 100], FWD: [60, 90] };
+    const minuteThresholds = { DEF: [1200, 2000], MID: [1200, 2000], FWD: [900, 1600] };
+    for (const position of positions) {
+      const playerCount = eligibleByPosition.get(position)?.size || 0;
+      if (playerCount < 3) continue;
+      const noun = POSITION_LABELS[position];
+      const lower = noun.toLowerCase();
+      const returnedRule = bool("returnedToFormerClub");
+
+      add(
+        position,
+        "career-returned-club",
+        `${position.toLowerCase()}_returned_to_former_club`,
+        `${noun} who returned to a former Premier League club`,
+        `That ${lower} must have recorded Premier League minutes for a club, left it, and later recorded minutes for that club again.`,
+        ["auto-generated", "relationship", "returned-club", "career-clubs", "anti-meta"],
+        [returnedRule, num("minutes", "gt", 0)]
+      );
+
+      for (const points of pointThresholds[position] || []) {
+        add(
+          position,
+          "career-returned-club-points",
+          `${position.toLowerCase()}_returned_to_former_club_points_${points}`,
+          `${noun} who returned to a former Premier League club and scored ${points}+ FPL points`,
+          `That ${lower} must have returned to a former Premier League club and score at least ${points} FPL points in the qualifying season.`,
+          ["auto-generated", "relationship", "returned-club", "career-clubs", "points", "anti-meta"],
+          [bool("returnedToFormerClub"), num("points", "gte", points), num("minutes", "gt", 0)]
+        );
+      }
+
+      for (const minutes of minuteThresholds[position] || []) {
+        add(
+          position,
+          "career-returned-club-minutes",
+          `${position.toLowerCase()}_returned_to_former_club_minutes_${minutes}`,
+          `${noun} who returned to a former Premier League club and played ${formatNumber(minutes)}+ minutes`,
+          `That ${lower} must have returned to a former Premier League club and play at least ${formatNumber(minutes)} minutes in the qualifying season.`,
+          ["auto-generated", "relationship", "returned-club", "career-clubs", "minutes", "anti-meta"],
+          [bool("returnedToFormerClub"), num("minutes", "gte", minutes)]
+        );
+      }
+    }
+  }
+
   function addTeammateVariants(variants, positions, cooldown) {
     const playerRows = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
     const playerById = new Map(playerRows.map(player => [player.playerId, player]));
@@ -1713,6 +1773,7 @@ Backups and detailed reports are included.
       <article><span>Season rules</span><strong>${currentBatch.filter(item => item.tags.includes("season-rule")).length}</strong></article>
       <article><span>Career totals</span><strong>${currentBatch.filter(item => item.tags.includes("career-total")).length}</strong></article>
       <article><span>Both-club rules</span><strong>${currentBatch.filter(item => item.tags.includes("played-for-both")).length}</strong></article>
+      <article><span>Returned-club rules</span><strong>${currentBatch.filter(item => item.tags.includes("returned-club")).length}</strong></article>
       <article><span>Teammate rules</span><strong>${currentBatch.filter(item => item.tags.includes("teammate")).length}</strong></article>
       <article><span>Top-answer exclusions</span><strong>${currentBatch.filter(item => item.tags.includes("excludes-top")).length}</strong></article>`;
     elements.summary.classList.remove("hidden");
@@ -1733,6 +1794,7 @@ Backups and detailed reports are included.
             ${prompt.tags.includes("season-rule") ? '<span class="relation">Season rule</span>' : ""}
             ${prompt.tags.includes("career-total") ? '<span class="relation">Career total</span>' : ""}
             ${prompt.tags.includes("played-for-both") ? '<span class="relation">Played for both</span>' : ""}
+            ${prompt.tags.includes("returned-club") ? '<span class="relation">Returned club</span>' : ""}
             ${prompt.tags.includes("teammate") ? '<span class="relation">Teammate rule</span>' : ""}
             ${prompt.tags.includes("excludes-top") ? '<span class="exclude">Top answer excluded</span>' : ""}
           </div>
@@ -1993,10 +2055,11 @@ Backups and detailed reports are included.
       }
     }
 
-    if (["champions", "topFour", "bottomHalf", "relegated", "promoted", "outsideBigSix", "assistsMoreThanGoals", "hyphenatedSurname", "sameInitials", "singleWordName"].includes(field)) {
+    if (["champions", "topFour", "bottomHalf", "relegated", "promoted", "outsideBigSix", "assistsMoreThanGoals", "returnedToFormerClub", "hyphenatedSurname", "sameInitials", "singleWordName"].includes(field)) {
       let expression;
       if (field === "outsideBigSix") expression = `!${JSON.stringify(BIG_SIX)}.includes(p.club)`;
       else if (field === "assistsMoreThanGoals") expression = `p.assists > p.goals`;
+      else if (field === "returnedToFormerClub") expression = `p._career?.returnedToFormerClub === true`;
       else if (field === "hyphenatedSurname") expression = `__surname.includes("-")`;
       else if (field === "sameInitials") expression = `(__nameTokens.length > 1 && Boolean(__firstInitial) && __firstInitial === __surnameInitial)`;
       else if (field === "singleWordName") expression = `__nameTokens.length === 1`;

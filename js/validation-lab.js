@@ -239,7 +239,10 @@
       ["Recorded PL seasons", result.career?.seasonCount ?? "Missing"],
       ["Recorded PL clubs", result.career?.clubCount ?? "Missing"],
       ["Seasons", (result.career?.seasons || []).join(", ") || "None"],
-      ["Clubs", (result.career?.clubs || []).join(", ") || "None"]
+      ["Clubs", (result.career?.clubs || []).join(", ") || "None"],
+      ["Returned to former club", result.career?.returnedToFormerClub ? "Yes" : "No"],
+      ["Returned clubs", (result.career?.returnedClubs || []).join(", ") || "None"],
+      ["Club timeline", (result.career?.clubTimeline || []).join(" · ") || "None"]
     ];
     const database = [
       ["Starting price", engine.formatValue("startingPrice", result.database.startingPrice)],

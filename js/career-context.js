@@ -1,4 +1,4 @@
-/* FPL career relationship context · v1.1.0
+/* FPL career relationship context · v1.2.0
    Derived at runtime from verified player-season rows. Seasons with zero minutes
    do not contribute to any career or relationship rule. */
 (() => {
@@ -91,30 +91,50 @@
     const byYear = new Map();
     for (const row of rows) {
       if (!row.clubKey) continue;
-      if (!byYear.has(row.year)) byYear.set(row.year, row.clubKey);
+      if (!byYear.has(row.year)) {
+        byYear.set(row.year, {
+          year: row.year,
+          seasonLabel: row.seasonLabel,
+          club: row.club,
+          clubKey: row.clubKey
+        });
+      }
     }
-    const sequence = [...byYear.entries()].sort((a, b) => a[0] - b[0]);
+    const sequence = [...byYear.values()].sort((a, b) => a.year - b.year);
     let changedClubConsecutively = false;
     let returnedToFormerClub = false;
     let maxConsecutiveSameClub = sequence.length ? 1 : 0;
     let currentRun = sequence.length ? 1 : 0;
     const previouslyLeft = new Set();
+    const returnedClubKeys = new Set();
 
     for (let index = 1; index < sequence.length; index += 1) {
-      const [previousYear, previousClub] = sequence[index - 1];
-      const [year, club] = sequence[index];
-      const consecutiveYear = year === previousYear + 1;
-      if (club === previousClub && consecutiveYear) {
+      const previous = sequence[index - 1];
+      const current = sequence[index];
+      const consecutiveYear = current.year === previous.year + 1;
+      if (current.clubKey === previous.clubKey && consecutiveYear) {
         currentRun += 1;
         maxConsecutiveSameClub = Math.max(maxConsecutiveSameClub, currentRun);
       } else {
-        if (consecutiveYear && club !== previousClub) changedClubConsecutively = true;
-        if (club !== previousClub) previouslyLeft.add(previousClub);
-        if (previouslyLeft.has(club)) returnedToFormerClub = true;
+        if (consecutiveYear && current.clubKey !== previous.clubKey) changedClubConsecutively = true;
+        if (current.clubKey !== previous.clubKey) previouslyLeft.add(previous.clubKey);
+        if (previouslyLeft.has(current.clubKey)) {
+          returnedToFormerClub = true;
+          returnedClubKeys.add(current.clubKey);
+        }
         currentRun = 1;
       }
     }
-    return { changedClubConsecutively, returnedToFormerClub, maxConsecutiveSameClub };
+
+    const clubNamesByKey = new Map(sequence.map(row => [row.clubKey, row.club]));
+    return {
+      changedClubConsecutively,
+      returnedToFormerClub,
+      returnedClubs: [...returnedClubKeys].map(key => clubNamesByKey.get(key) || key),
+      returnCount: returnedClubKeys.size,
+      clubTimeline: sequence.map(row => `${row.seasonLabel} — ${row.club}`),
+      maxConsecutiveSameClub
+    };
   }
 
   const publicSummaries = [];
@@ -158,6 +178,9 @@
       lastYear: seasonYears.length ? seasonYears.at(-1) : null,
       changedClubConsecutively: sequenceFacts.changedClubConsecutively,
       returnedToFormerClub: sequenceFacts.returnedToFormerClub,
+      returnedClubs: freezeArray(sequenceFacts.returnedClubs),
+      returnCount: sequenceFacts.returnCount,
+      clubTimeline: freezeArray(sequenceFacts.clubTimeline),
       everPromotedClub: summary.rows.some(row => row.season?.promoted === true),
       everRelegatedClub: summary.rows.some(row => row.season?.relegated === true),
       everChampion: summary.rows.some(row => row.season?.champions === true),
@@ -210,7 +233,7 @@
   });
 
   window.FPL_CAREER_CONTEXT = Object.freeze({
-    version: "1.1.0",
+    version: "1.2.0",
     coverage,
     normalise,
     seasonStart,

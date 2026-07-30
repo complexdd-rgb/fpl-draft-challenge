@@ -27,6 +27,7 @@
     careerSeasonCount: { label: "Recorded Premier League seasons", type: "number", career: true },
     careerClubCount: { label: "Recorded Premier League clubs", type: "number", career: true },
     playedForBothClubs: { label: "Played for both clubs", type: "clubPair", career: true },
+    returnedToFormerClub: { label: "Returned to a former club", type: "boolean", career: true },
     champions: { label: "League champions", type: "boolean" },
     topFour: { label: "Top-four club", type: "boolean" },
     bottomHalf: { label: "Bottom-half club", type: "boolean" },
@@ -1009,6 +1010,7 @@ ${promptsSource}
       let expression;
       if (condition.field === "outsideBigSix") expression = `!${JSON.stringify(BIG_SIX)}.includes(p.club)`;
       else if (condition.field === "assistsMoreThanGoals") expression = `p.assists > p.goals`;
+      else if (condition.field === "returnedToFormerClub") expression = `p._career?.returnedToFormerClub === true`;
       else if (condition.field === "hyphenatedSurname") expression = `__surname.includes("-")`;
       else if (condition.field === "sameInitials") expression = `(__nameTokens.length > 1 && Boolean(__firstInitial) && __firstInitial === __surnameInitial)`;
       else if (condition.field === "singleWordName") expression = `__nameTokens.length === 1`;

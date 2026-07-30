@@ -24,6 +24,7 @@
     careerSeasonCount: "Recorded Premier League seasons",
     careerClubCount: "Recorded Premier League clubs",
     playedForBothClubs: "Played for both clubs",
+    returnedToFormerClub: "Returned to a former club",
     champions: "League champions",
     topFour: "Top-four club",
     bottomHalf: "Bottom-half club",
@@ -178,6 +179,7 @@
     if (field === "careerSeasonCount") return Number(record._career?.seasonCount);
     if (field === "careerClubCount") return Number(record._career?.clubCount);
     if (field === "playedForBothClubs") return Array.isArray(record._career?.clubs) ? record._career.clubs : [];
+    if (field === "returnedToFormerClub") return record._career?.returnedToFormerClub === true;
     return record[field];
   }
 
@@ -199,7 +201,8 @@
       check("Date of birth", /^\d{4}-\d{2}-\d{2}$/.test(record.dateOfBirth || ""), record.dateOfBirth || "Missing", "A verified ISO date supports independent age checks."),
       check("Managers", Array.isArray(record.managers) && record.managers.length > 0, formatValue("manager", record.managers), "Manager prompts need at least one stored manager."),
       check("Career totals", Number.isInteger(record._career?.seasonCount) && Number.isInteger(record._career?.clubCount), record._career ? `${record._career.seasonCount} seasons · ${record._career.clubCount} clubs` : "Missing", "Career-total rules need runtime career context derived from positive-minute player-seasons."),
-      check("Career club history", Array.isArray(record._career?.clubs) && Array.isArray(record._career?.normalisedClubs), record._career?.clubs?.join(", ") || "Missing", "Career relationship rules need a positive-minute club history.")
+      check("Career club history", Array.isArray(record._career?.clubs) && Array.isArray(record._career?.normalisedClubs), record._career?.clubs?.join(", ") || "Missing", "Career relationship rules need a positive-minute club history."),
+      check("Returned-club history", typeof record._career?.returnedToFormerClub === "boolean", record._career?.returnedToFormerClub ? `Yes · ${(record._career?.returnedClubs || []).join(", ") || "former club"}` : "No", "Returned-club rules need a complete chronological positive-minute club history.")
     ];
     return checks;
   }
@@ -379,6 +382,10 @@
       if (firstClub && secondClub && normalise(firstClub) !== normalise(secondClub)) {
         addRule(rules, { field: "playedForBothClubs", operator: "both", value: firstClub, value2: secondClub, label: FIELD_LABELS.playedForBothClubs, source: `played for both ${firstClub} and ${secondClub}` });
       }
+    }
+
+    if (/\breturn(?:ed|ing)? to (?:a |his |their )?(?:former|previous) (?:premier league )?club\b|\bsecond spell at (?:a |his |their )?(?:former|previous) (?:premier league )?club\b/i.test(value)) {
+      addRule(rules, { field: "returnedToFormerClub", operator: "isTrue", value: true, label: FIELD_LABELS.returnedToFormerClub, source: "returned to a former club" });
     }
 
     const managerMatch = value.match(/managed by\s+([a-z][a-z .'-]{2,40}?)(?=\s+(?:who|with|and|from|for|at|under|over|scor|play)|$)/i);
@@ -909,6 +916,49 @@
       `${bothClubErrors.length} relationship failures`,
       "0 failures",
       bothClubErrors
+    ));
+
+    const returnedClubErrors = [];
+    if (!careerContext?.players?.length) {
+      returnedClubErrors.push("Career context did not load.");
+    } else {
+      for (const player of getPlayers()) {
+        const positive = (player.seasons || [])
+          .filter(record => Number(record.minutes) > 0 && /^\d{4}\/\d{2}$/.test(String(record.season || "")))
+          .slice()
+          .sort((a, b) => seasonSortValue(a.season) - seasonSortValue(b.season));
+        if (!positive.length) continue;
+
+        const leftClubs = new Set();
+        let expectedReturn = false;
+        for (let index = 1; index < positive.length; index += 1) {
+          const previousClub = normalise(positive[index - 1].club);
+          const currentClub = normalise(positive[index].club);
+          if (currentClub !== previousClub) leftClubs.add(previousClub);
+          if (leftClubs.has(currentClub)) expectedReturn = true;
+        }
+
+        const summary = careerContext.getPlayer?.(player.playerId);
+        if (!summary || summary.returnedToFormerClub !== expectedReturn) {
+          if (returnedClubErrors.length < 25) returnedClubErrors.push(`${player.name}: stored ${summary?.returnedToFormerClub ?? "missing"}, expected ${expectedReturn}`);
+          continue;
+        }
+
+        const record = positive.at(-1);
+        const positionLabel = POSITION_LABELS[record.position] || record.position;
+        const result = evaluatePrompt(player, record.season, `${positionLabel} who returned to a former Premier League club`);
+        if (!result.ok || result.passed !== expectedReturn) {
+          if (returnedClubErrors.length < 25) returnedClubErrors.push(`${player.name}: Rule Tester ${result.ok ? result.passed : result.error}, expected ${expectedReturn}`);
+        }
+      }
+    }
+    tests.push(certificationTest(
+      "career-returned-club",
+      "Returned-to-former-club rules",
+      returnedClubErrors.length === 0,
+      `${returnedClubErrors.length} timeline or rule failures`,
+      "0 failures",
+      returnedClubErrors
     ));
 
     const duplicatePromptIds = [];
