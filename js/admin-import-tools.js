@@ -1093,6 +1093,7 @@ Backups and detailed reports are included.
     if (includeRelationships) {
       addPlayedForBothClubVariants(positions, add);
       addReturnedToFormerClubVariants(positions, add);
+      addCareerOverlapVariants(positions, add);
       addTeammateVariants(variants, positions, cooldown);
     }
     return variants;
@@ -1561,6 +1562,38 @@ Backups and detailed reports are included.
     }
   }
 
+  function addCareerOverlapVariants(positions, add) {
+    const careerContext = window.FPL_CAREER_CONTEXT;
+    const playerRows = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
+    if (!careerContext?.players?.length || !playerRows.length) return;
+    const playerById = new Map(playerRows.map(player => [player.playerId, player]));
+    const positionPlayers = new Map(POSITIONS.map(position => [position, new Map()]));
+    for (const player of playerRows) for (const record of player.seasons || []) {
+      if (Number(record.minutes) > 0 && positionPlayers.has(record.position)) positionPlayers.get(record.position).set(player.playerId, careerContext.getPlayer?.(player.playerId));
+    }
+    const anchors = careerContext.players
+      .filter(summary => summary.seasonCount >= 3 && careerContext.resolvePlayer?.(summary.playerName)?.ok)
+      .map(summary => ({ summary, points: (playerById.get(summary.playerId)?.seasons || []).reduce((total, record) => total + (Number(record.points) || 0), 0) }))
+      .sort((a, b) => b.points - a.points || b.summary.seasonCount - a.summary.seasonCount)
+      .slice(0, 140);
+    const thresholds = { GK: [70], DEF: [70, 100], MID: [80, 110], FWD: [70, 100] };
+    for (const position of positions) {
+      const noun = POSITION_LABELS[position];
+      const lower = noun.toLowerCase();
+      const candidates = positionPlayers.get(position) || new Map();
+      for (const { summary: anchor } of anchors) {
+        const anchorYears = new Set(anchor.seasonYears || []);
+        let overlapCount = 0;
+        for (const [playerId, summary] of candidates) if (summary && playerId !== anchor.playerId && (summary.seasonYears || []).some(year => anchorYears.has(year))) overlapCount += 1;
+        if (overlapCount < 4 || overlapCount > 600) continue;
+        add(position, "career-overlap", `${position.toLowerCase()}_career_overlap_${slugify(anchor.playerName)}`, `${noun} whose recorded Premier League career overlapped with ${anchor.playerName}`, `That ${lower} must have recorded Premier League minutes in at least one of the same seasons as ${anchor.playerName}.`, ["auto-generated", "relationship", "career-overlap", "career-seasons", "anti-meta"], [playerReference(anchor.playerName), num("minutes", "gt", 0)]);
+        if (overlapCount >= 8) for (const points of thresholds[position] || []) {
+          add(position, "career-overlap-points", `${position.toLowerCase()}_career_overlap_${slugify(anchor.playerName)}_points_${points}`, `${noun} whose career overlapped with ${anchor.playerName} and who scored ${points}+ FPL points`, `That ${lower} must overlap with ${anchor.playerName} and score at least ${points} FPL points in the qualifying season.`, ["auto-generated", "relationship", "career-overlap", "career-seasons", "points", "anti-meta"], [playerReference(anchor.playerName), num("points", "gte", points), num("minutes", "gt", 0)]);
+        }
+      }
+    }
+  }
+
   function addTeammateVariants(variants, positions, cooldown) {
     const playerRows = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
     const playerById = new Map(playerRows.map(player => [player.playerId, player]));
@@ -1983,6 +2016,10 @@ Backups and detailed reports are included.
     return { field: "playedForBothClubs", operator: "both", value, value2 };
   }
 
+  function playerReference(value) {
+    return { field: "careerOverlapWithPlayer", operator: "overlaps", value, value2: "" };
+  }
+
   function compileRuleSource(rule) {
     const joiner = rule.join === "any" ? " || " : " && ";
     const usesNameData = rule.conditions.some(condition => isNameField(condition.field));
@@ -2038,6 +2075,12 @@ Backups and detailed reports are included.
       const first = JSON.stringify(normaliseCareerClub(condition.value));
       const second = JSON.stringify(normaliseCareerClub(condition.value2));
       return `(Array.isArray(p._career?.normalisedClubs) && p._career.normalisedClubs.includes(${first}) && p._career.normalisedClubs.includes(${second}))`;
+    }
+    if (field === "careerOverlapWithPlayer") {
+      const reference = window.FPL_CAREER_CONTEXT?.resolvePlayer?.(condition.value);
+      if (!reference?.ok) return "false";
+      const anchorId = JSON.stringify(reference.player.playerId);
+      return `(() => { const __anchor = window.FPL_CAREER_CONTEXT?.getPlayer?.(${anchorId}); return p.playerId !== ${anchorId} && Array.isArray(p._career?.seasonYears) && Array.isArray(__anchor?.seasonYears) && p._career.seasonYears.some(year => __anchor.seasonYears.includes(year)); })()`;
     }
     if (["points", "minutes", "goals", "assists", "goalInvolvements", "cleanSheets", "bonus", "saves", "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice", "leaguePosition", "ageAtSeasonStart", "fullNameLength", "firstNameLength", "surnameLength", "nameWordCount", "careerSeasonCount", "careerClubCount"].includes(field)) {
       const value = Number(condition.value);
@@ -2220,6 +2263,8 @@ Backups and detailed reports are included.
       ratingsBtn: document.querySelector("#applyQualityRatingsBtn"),
       disableMode: document.querySelector("#qualityDisableMode"),
       disableBtn: document.querySelector("#disableQualityPromptsBtn"),
+      deleteMode: document.querySelector("#qualityDeleteMode"),
+      deleteBtn: document.querySelector("#deleteQualityPromptsBtn"),
       jsonBtn: document.querySelector("#downloadQualityJsonBtn"),
       csvBtn: document.querySelector("#downloadQualityCsvBtn"),
       status: document.querySelector("#promptQualityStatus"),
@@ -2244,6 +2289,12 @@ Backups and detailed reports are included.
     elements.ratingsBtn.addEventListener("click", () => applyRecommendations(elements, core, { ratings: true }));
     elements.disableBtn.addEventListener("click", () => applyRecommendations(elements, core, { disableMode: elements.disableMode?.value || "review" }));
     elements.disableMode?.addEventListener("change", () => updateDisableAction(elements));
+    elements.deleteBtn?.addEventListener("click", () => deleteQualityPrompts(elements, core, elements.deleteMode?.value || "poor"));
+    elements.deleteMode?.addEventListener("change", () => updateDeleteAction(elements));
+    elements.list?.addEventListener("click", event => {
+      const button = event.target.closest("button[data-delete-quality-prompt]");
+      if (button) deleteQualityPromptById(elements, core, button.dataset.deleteQualityPrompt);
+    });
     elements.jsonBtn.addEventListener("click", downloadJsonReport);
     elements.csvBtn.addEventListener("click", downloadCsvReport);
 
@@ -2640,12 +2691,29 @@ Backups and detailed reports are included.
     elements.disableBtn.textContent = count ? `Disable ${count} matching prompt${count === 1 ? "" : "s"}` : "No matching prompts to disable";
   }
 
+  function resultsForDeleteMode(elements, mode) {
+    if (mode === "filtered") return filteredQualityResults(elements);
+    if (mode === "recommended") return analysisResults.filter(result => !result.suggestedEnabled);
+    const maximumOrder = ({ broken: 0, poor: 1, review: 2, fair: 3 })[mode];
+    if (!Number.isInteger(maximumOrder)) return [];
+    return analysisResults.filter(result => (QUALITY_ORDER[result.quality] ?? 99) <= maximumOrder);
+  }
+
+  function updateDeleteAction(elements) {
+    if (!elements.deleteBtn) return;
+    const mode = elements.deleteMode?.value || "poor";
+    const count = analysisResults.length ? resultsForDeleteMode(elements, mode).length : 0;
+    elements.deleteBtn.disabled = running || count === 0;
+    elements.deleteBtn.textContent = count ? `Delete ${count} matching prompt${count === 1 ? "" : "s"}` : "No matching prompts to delete";
+  }
+
   function renderResults(elements) {
     if (!analysisResults.length) return;
     const filtered = filteredQualityResults(elements);
     elements.listSummary.textContent = `${filtered.length.toLocaleString()} of ${analysisResults.length.toLocaleString()} analysed prompts shown`;
     elements.list.innerHTML = filtered.length ? filtered.map(renderQualityCard).join("") : '<div class="quality-empty">No prompts match these filters.</div>';
     updateDisableAction(elements);
+    updateDeleteAction(elements);
   }
 
   function renderQualityCard(result) {
@@ -2690,7 +2758,29 @@ Backups and detailed reports are included.
         </div>
         <ul>${recommendations}</ul>
       </details>
+      <div class="quality-card-actions"><button type="button" data-delete-quality-prompt="${escapeAttribute(result.id)}">Delete this prompt</button></div>
     </article>`;
+  }
+
+  function deleteQualityPromptById(elements, core, promptId) {
+    const result = analysisById.get(promptId);
+    if (!result || !window.confirm(`Delete “${result.label}” from the browser prompt collection?`)) return;
+    const outcome = window.FPL_PROMPT_MANAGER_API?.deletePrompts?.([promptId]);
+    if (!outcome) { elements.status.textContent = "Prompt deletion is unavailable until the Prompt Library Manager has loaded."; return; }
+    if (outcome.protected) { elements.status.textContent = "That prompt is in the current XI. Reroll it before deleting it."; return; }
+    elements.status.textContent = "Prompt deleted from the browser collection. Reloading the Studio…";
+    window.setTimeout(() => window.location.reload(), 450);
+  }
+
+  function deleteQualityPrompts(elements, core, mode) {
+    const targets = resultsForDeleteMode(elements, mode);
+    if (!targets.length) { elements.status.textContent = "No analysed prompts match that delete rule."; updateDeleteAction(elements); return; }
+    if (!window.confirm(`Delete ${targets.length} matching prompt${targets.length === 1 ? "" : "s"} from the browser collection? Prompts in the current XI will be protected.`)) return;
+    if (window.prompt(`Type DELETE to confirm removing ${targets.length} prompt${targets.length === 1 ? "" : "s"}.`) !== "DELETE") { elements.status.textContent = "Deletion cancelled — confirmation text did not match."; return; }
+    const outcome = window.FPL_PROMPT_MANAGER_API?.deletePrompts?.(targets.map(result => result.id));
+    if (!outcome) { elements.status.textContent = "Prompt deletion is unavailable until the Prompt Library Manager has loaded."; return; }
+    elements.status.textContent = `${outcome.deleted} prompt${outcome.deleted === 1 ? "" : "s"} deleted${outcome.protected ? `; ${outcome.protected} current-XI prompt${outcome.protected === 1 ? " was" : "s were"} protected` : ""}. Reloading the Studio…`;
+    window.setTimeout(() => window.location.reload(), 600);
   }
 
   function applyRecommendations(elements, core, options) {
@@ -2849,9 +2939,11 @@ Backups and detailed reports are included.
     elements.cancelBtn.disabled = !isRunning;
     elements.scope.disabled = isRunning;
     if (elements.disableMode) elements.disableMode.disabled = isRunning || !analysisResults.length;
+    if (elements.deleteMode) elements.deleteMode.disabled = isRunning || !analysisResults.length;
+    if (elements.deleteBtn) elements.deleteBtn.disabled = isRunning || !analysisResults.length;
     if (!isRunning) {
       elements.cancelBtn.textContent = "Cancel analysis";
-      if (analysisResults.length) updateDisableAction(elements);
+      if (analysisResults.length) { updateDisableAction(elements); updateDeleteAction(elements); }
     }
   }
 
@@ -2870,11 +2962,14 @@ Backups and detailed reports are included.
     elements.jsonBtn.disabled = !enabled;
     elements.csvBtn.disabled = !enabled;
     if (elements.disableMode) elements.disableMode.disabled = !enabled;
+    if (elements.deleteMode) elements.deleteMode.disabled = !enabled;
     if (!enabled) {
       elements.disableBtn.disabled = true;
       elements.disableBtn.textContent = "Disable matching prompts";
+      if (elements.deleteBtn) { elements.deleteBtn.disabled = true; elements.deleteBtn.textContent = "Delete matching prompts"; }
     } else {
       updateDisableAction(elements);
+      updateDeleteAction(elements);
     }
   }
 

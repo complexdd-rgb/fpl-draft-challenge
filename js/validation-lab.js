@@ -239,6 +239,7 @@
       ["Recorded PL seasons", result.career?.seasonCount ?? "Missing"],
       ["Recorded PL clubs", result.career?.clubCount ?? "Missing"],
       ["Seasons", (result.career?.seasons || []).join(", ") || "None"],
+      ["Career span", result.career?.firstYear != null ? `${result.career.firstYear}/${String(result.career.firstYear + 1).slice(-2)}–${result.career.lastYear}/${String(result.career.lastYear + 1).slice(-2)}` : "None"],
       ["Clubs", (result.career?.clubs || []).join(", ") || "None"],
       ["Returned to former club", result.career?.returnedToFormerClub ? "Yes" : "No"],
       ["Returned clubs", (result.career?.returnedClubs || []).join(", ") || "None"],

@@ -28,6 +28,7 @@
     careerClubCount: { label: "Recorded Premier League clubs", type: "number", career: true },
     playedForBothClubs: { label: "Played for both clubs", type: "clubPair", career: true },
     returnedToFormerClub: { label: "Returned to a former club", type: "boolean", career: true },
+    careerOverlapWithPlayer: { label: "Career overlapped with player", type: "playerReference", career: true },
     champions: { label: "League champions", type: "boolean" },
     topFour: { label: "Top-four club", type: "boolean" },
     bottomHalf: { label: "Bottom-half club", type: "boolean" },
@@ -64,6 +65,7 @@
   const BOOLEAN_OPERATORS = Object.freeze({ isTrue: "is true", isFalse: "is false" });
   const SEASON_OPERATORS = Object.freeze({ equals: "is exactly", before: "is before", after: "is after", between: "is between" });
   const CLUB_PAIR_OPERATORS = Object.freeze({ both: "includes both" });
+  const PLAYER_REFERENCE_OPERATORS = Object.freeze({ overlaps: "overlaps with" });
 
   let state = loadState();
   applyStoredState();
@@ -100,7 +102,7 @@
 
     const deleted = new Set(state.deletedIds);
     for (let index = library.length - 1; index >= 0; index -= 1) {
-      if (deleted.has(library[index].id) && library[index].studioRule) library.splice(index, 1);
+      if (deleted.has(library[index].id)) library.splice(index, 1);
     }
 
     for (const saved of state.customs) {
@@ -234,7 +236,7 @@
       if (action === "test") renderPromptTest(elements, prompt, core);
       if (action === "toggle") togglePrompt(prompt, elements, ui, core);
       if (action === "duplicate") duplicatePrompt(prompt, elements, ui);
-      if (action === "delete") deleteCustomPrompt(prompt, elements, ui, core);
+      if (action === "delete") deletePrompt(prompt, elements, ui, core);
     });
 
     elements.rules.addEventListener("click", event => {
@@ -332,7 +334,7 @@
           <button type="button" data-action="test" data-id="${escapeAttribute(prompt.id)}">Test</button>
           <button type="button" data-action="toggle" data-id="${escapeAttribute(prompt.id)}">${prompt.enabled === false ? "Enable" : "Disable"}</button>
           <button type="button" data-action="duplicate" data-id="${escapeAttribute(prompt.id)}">Duplicate</button>
-          ${prompt.studioRule ? `<button class="danger-action" type="button" data-action="delete" data-id="${escapeAttribute(prompt.id)}">Delete</button>` : ""}
+          <button class="danger-action" type="button" data-action="delete" data-id="${escapeAttribute(prompt.id)}">Delete</button>
         </div>
       </article>`;
     }).join("") : '<div class="history-empty">No prompts match those filters.</div>';
@@ -537,6 +539,22 @@
       .trim();
   }
 
+  function ensureCareerPlayerDatalist() {
+    let datalist = document.querySelector("#careerPlayerOptions");
+    if (datalist) return datalist;
+    datalist = document.createElement("datalist");
+    datalist.id = "careerPlayerOptions";
+    const names = [...new Set((window.FPL_CAREER_CONTEXT?.players || []).map(player => player.playerName).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    datalist.innerHTML = names.map(name => `<option value="${escapeAttribute(name)}"></option>`).join("");
+    document.body.append(datalist);
+    return datalist;
+  }
+
+  function resolveCareerReference(value) {
+    const result = window.FPL_CAREER_CONTEXT?.resolvePlayer?.(String(value || "").trim());
+    return result?.ok ? result.player : null;
+  }
+
   function addRuleRow(elements, condition) {
     const row = document.createElement("div");
     row.className = "rule-row";
@@ -570,7 +588,9 @@
           ? SEASON_OPERATORS
           : definition.type === "clubPair"
             ? CLUB_PAIR_OPERATORS
-            : definition.type === "nameText"
+            : definition.type === "playerReference"
+              ? PLAYER_REFERENCE_OPERATORS
+              : definition.type === "nameText"
               ? NAME_TEXT_OPERATORS
               : TEXT_OPERATORS;
     const operator = operatorSet[previousOperator] ? previousOperator : Object.keys(operatorSet)[0];
@@ -587,6 +607,9 @@
       valueWrap.innerHTML = `<select data-rule-value aria-label="First career club">${clubOptions(firstValue)}</select>
         <span class="rule-pair-and">and</span>
         <select data-rule-value2 aria-label="Second career club">${clubOptions(secondValue, firstValue)}</select>`;
+    } else if (definition.type === "playerReference") {
+      ensureCareerPlayerDatalist();
+      valueWrap.innerHTML = `<input data-rule-value type="text" list="careerPlayerOptions" value="${escapeAttribute(previousValue)}" placeholder="e.g. Mohamed Salah" aria-label="Reference player">`;
     } else if (definition.type === "season") {
       const firstValue = previousValue || availableSeasonLabels()[0] || "2025/26";
       const secondValue = previousValue2 || availableSeasonLabels().at(-1) || firstValue;
@@ -679,6 +702,7 @@
       if (!first || !second) throw new Error(`${definition.label} needs two clubs.`);
       if (normaliseCareerClub(first) === normaliseCareerClub(second)) throw new Error("Choose two different clubs for a played-for-both rule.");
     }
+    if (definition.type === "playerReference" && !resolveCareerReference(condition.value)) throw new Error(`${definition.label} needs one unique stored player name.`);
     if ((definition.type === "text" || definition.type === "manager" || definition.type === "nameText") && !String(condition.value).trim()) throw new Error(`${definition.label} needs text.`);
   }
 
@@ -793,23 +817,44 @@
     if (prompt) duplicatePrompt(prompt, elements, ui);
   }
 
-  function deleteCustomPrompt(prompt, elements, ui, core) {
-    if (!prompt.studioRule) return;
+  function removePromptIds(promptIds, { confirmDelete = false } = {}) {
+    const requested = [...new Set((promptIds || []).map(String))];
+    const core = window.FPL_STUDIO_API;
+    const protectedIds = requested.filter(id => core?.isPromptSelected?.(id));
+    const protectedSet = new Set(protectedIds);
+    const deletableIds = requested.filter(id => !protectedSet.has(id));
+    if (confirmDelete && deletableIds.length) {
+      const wording = deletableIds.length === 1 ? "this prompt" : `${deletableIds.length} prompts`;
+      if (!window.confirm(`Delete ${wording} from the browser collection? They will also be absent from the next downloaded prompt-library.js.`)) return { deleted: 0, protected: protectedIds.length, cancelled: true };
+    }
+    let deleted = 0;
+    for (const id of deletableIds) {
+      const index = library.findIndex(item => String(item.id) === id);
+      if (index < 0) continue;
+      const prompt = library[index];
+      library.splice(index, 1);
+      state.customs = state.customs.filter(item => String(item.id) !== id);
+      if (baseIds.has(prompt.id) && !state.deletedIds.includes(prompt.id)) state.deletedIds.push(prompt.id);
+      delete state.overrides[prompt.id];
+      deleted += 1;
+    }
+    if (deleted) {
+      persistState();
+      core?.refreshLibrary?.({ recalculateDraft: false });
+    }
+    return { deleted, protected: protectedIds.length, cancelled: false };
+  }
+
+  function deletePrompt(prompt, elements, ui, core) {
     if (core.isPromptSelected?.(prompt.id)) {
       elements.managerStatus.textContent = "That prompt is in the current draft. Reroll it before deleting it.";
       return;
     }
-    if (!window.confirm(`Delete the custom prompt “${prompt.label}” from this browser?`)) return;
-    const index = library.findIndex(item => item.id === prompt.id);
-    if (index >= 0) library.splice(index, 1);
-    state.customs = state.customs.filter(item => item.id !== prompt.id);
-    if (baseIds.has(prompt.id) && !state.deletedIds.includes(prompt.id)) state.deletedIds.push(prompt.id);
-    delete state.overrides[prompt.id];
-    persistState();
-    core.refreshLibrary?.({ recalculateDraft: false });
+    const result = removePromptIds([prompt.id], { confirmDelete: true });
+    if (!result.deleted) return;
     renderManagerCounts(elements);
     renderPromptList(elements, ui, core);
-    elements.managerStatus.textContent = `${prompt.label} was removed from this browser library.`;
+    elements.managerStatus.textContent = `${prompt.label} was deleted from this browser collection. Download prompt-library.js when you are ready to make it permanent.`;
   }
 
   function downloadPromptLibrary(elements) {
@@ -990,6 +1035,12 @@ ${promptsSource}
       const second = JSON.stringify(normaliseCareerClub(condition.value2));
       return `(Array.isArray(p._career?.normalisedClubs) && p._career.normalisedClubs.includes(${first}) && p._career.normalisedClubs.includes(${second}))`;
     }
+    if (definition.type === "playerReference") {
+      const reference = resolveCareerReference(condition.value);
+      if (!reference) return "false";
+      const anchorId = JSON.stringify(reference.playerId);
+      return `(() => { const __anchor = window.FPL_CAREER_CONTEXT?.getPlayer?.(${anchorId}); return p.playerId !== ${anchorId} && Array.isArray(p._career?.seasonYears) && Array.isArray(__anchor?.seasonYears) && p._career.seasonYears.some(year => __anchor.seasonYears.includes(year)); })()`;
+    }
     if (definition.type === "number") {
       const value = Number(condition.value);
       const value2 = Number(condition.value2);
@@ -1160,6 +1211,11 @@ ${promptsSource}
   function escapeAttribute(value) {
     return escapeHtml(value).replaceAll("`", "&#096;");
   }
+
+  window.FPL_PROMPT_MANAGER_API = Object.freeze({
+    deletePrompts: promptIds => removePromptIds(promptIds, { confirmDelete: false }),
+    getDeletedIds: () => state.deletedIds.slice()
+  });
 })();
 
 /* ===== END admin-phase5.js ===== */

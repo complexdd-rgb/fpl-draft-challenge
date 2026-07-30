@@ -2142,3 +2142,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-2); 
     grid-template-columns: 1fr;
   }
 }
+
+/* Prompt deletion controls */
+.quality-bulk-delete{display:grid;grid-template-columns:minmax(260px,1fr) auto;gap:16px;align-items:end;margin-top:12px;padding:16px;border:1px solid rgba(239,68,68,.25);border-radius:14px;background:rgba(127,29,29,.08)}
+.quality-bulk-delete label{display:grid;gap:7px;font-weight:700}.quality-bulk-delete small{font-weight:400;color:var(--muted,#94a3b8)}
+.quality-card-actions{display:flex;justify-content:flex-end;margin-top:12px}.quality-card-actions button{border:1px solid rgba(239,68,68,.35);background:rgba(127,29,29,.14);color:#fecaca;border-radius:9px;padding:8px 12px;font-weight:700;cursor:pointer}.quality-card-actions button:hover{background:rgba(127,29,29,.26)}
+@media (max-width:720px){.quality-bulk-delete{grid-template-columns:1fr}.quality-bulk-delete button{width:100%}}

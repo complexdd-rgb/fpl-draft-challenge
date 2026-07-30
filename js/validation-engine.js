@@ -25,6 +25,7 @@
     careerClubCount: "Recorded Premier League clubs",
     playedForBothClubs: "Played for both clubs",
     returnedToFormerClub: "Returned to a former club",
+    careerOverlapWithPlayer: "Career overlap",
     champions: "League champions",
     topFour: "Top-four club",
     bottomHalf: "Bottom-half club",
@@ -202,7 +203,8 @@
       check("Managers", Array.isArray(record.managers) && record.managers.length > 0, formatValue("manager", record.managers), "Manager prompts need at least one stored manager."),
       check("Career totals", Number.isInteger(record._career?.seasonCount) && Number.isInteger(record._career?.clubCount), record._career ? `${record._career.seasonCount} seasons · ${record._career.clubCount} clubs` : "Missing", "Career-total rules need runtime career context derived from positive-minute player-seasons."),
       check("Career club history", Array.isArray(record._career?.clubs) && Array.isArray(record._career?.normalisedClubs), record._career?.clubs?.join(", ") || "Missing", "Career relationship rules need a positive-minute club history."),
-      check("Returned-club history", typeof record._career?.returnedToFormerClub === "boolean", record._career?.returnedToFormerClub ? `Yes · ${(record._career?.returnedClubs || []).join(", ") || "former club"}` : "No", "Returned-club rules need a complete chronological positive-minute club history.")
+      check("Returned-club history", typeof record._career?.returnedToFormerClub === "boolean", record._career?.returnedToFormerClub ? `Yes · ${(record._career?.returnedClubs || []).join(", ") || "former club"}` : "No", "Returned-club rules need a complete chronological positive-minute club history."),
+      check("Career season history", Array.isArray(record._career?.seasonYears), (record._career?.seasons || []).join(", ") || "Missing", "Career-overlap rules need positive-minute season history.")
     ];
     return checks;
   }
@@ -388,6 +390,12 @@
       addRule(rules, { field: "returnedToFormerClub", operator: "isTrue", value: true, label: FIELD_LABELS.returnedToFormerClub, source: "returned to a former club" });
     }
 
+    const overlapMarker = value.match(/(?:recorded\s+)?(?:premier league\s+)?career overlapped with\s+(.+?)(?=\s+(?:and who|and scored|and played|with \d|who scored|who played)|$)/i);
+    if (overlapMarker) {
+      const reference = window.FPL_CAREER_CONTEXT?.resolvePlayer?.(overlapMarker[1].trim());
+      if (reference?.ok) addRule(rules, { field: "careerOverlapWithPlayer", operator: "overlaps", value: reference.player.playerName, value2: reference.player.playerId, label: FIELD_LABELS.careerOverlapWithPlayer, source: overlapMarker[0] });
+    }
+
     const managerMatch = value.match(/managed by\s+([a-z][a-z .'-]{2,40}?)(?=\s+(?:who|with|and|from|for|at|under|over|scor|play)|$)/i);
     if (managerMatch) addRule(rules, { field: "manager", operator: "contains", value: managerMatch[1].trim(), label: FIELD_LABELS.manager, source: managerMatch[0] });
 
@@ -490,6 +498,17 @@
         `Recorded positive-minute clubs: ${clubs.join(", ") || "none"}. Expected both ${expected}.`,
         expected
       );
+    }
+
+    if (rule.field === "careerOverlapWithPlayer") {
+      const careerContext = window.FPL_CAREER_CONTEXT;
+      const reference = rule.value2 != null ? careerContext?.getPlayer?.(rule.value2) : careerContext?.resolvePlayer?.(rule.value)?.player;
+      const years = Array.isArray(record._career?.seasonYears) ? record._career.seasonYears : [];
+      const referenceYears = Array.isArray(reference?.seasonYears) ? reference.seasonYears : [];
+      const overlaps = years.filter(year => referenceYears.includes(year));
+      const passed = Boolean(reference && record.playerId !== reference.playerId && overlaps.length);
+      const labels = overlaps.map(year => `${year}/${String(year + 1).slice(-2)}`);
+      return check(rule.label || FIELD_LABELS.careerOverlapWithPlayer, passed, labels.length ? labels.join(", ") : "No shared recorded seasons", reference ? `Expected at least one positive-minute Premier League season shared with ${reference.playerName}.` : "The reference player could not be resolved.", reference?.playerName || String(rule.value || "Reference player"));
     }
 
     const leagueDependentFields = new Set(["leaguePosition", "champions", "topFour", "bottomHalf", "relegated"]);
@@ -960,6 +979,26 @@
       "0 failures",
       returnedClubErrors
     ));
+
+    const overlapErrors = [];
+    if (!careerContext?.players?.length) overlapErrors.push("Career context did not load.");
+    else {
+      const anchors = careerContext.players.filter(summary => summary.seasonCount >= 3 && careerContext.resolvePlayer?.(summary.playerName)?.ok).slice(0, 80);
+      const players = getPlayers();
+      for (const anchor of anchors) {
+        const anchorYears = new Set(anchor.seasonYears || []);
+        const positiveCase = players.find(player => player.playerId !== anchor.playerId && (careerContext.getPlayer?.(player.playerId)?.seasonYears || []).some(year => anchorYears.has(year)));
+        const negativeCase = players.find(player => player.playerId !== anchor.playerId && !(careerContext.getPlayer?.(player.playerId)?.seasonYears || []).some(year => anchorYears.has(year)) && (player.seasons || []).some(record => Number(record.minutes) > 0));
+        for (const [player, expected] of [[positiveCase, true], [negativeCase, false]]) {
+          if (!player) continue;
+          const record = (player.seasons || []).find(item => Number(item.minutes) > 0);
+          if (!record) continue;
+          const result = evaluatePrompt(player, record.season, `${POSITION_LABELS[record.position] || record.position} whose recorded Premier League career overlapped with ${anchor.playerName}`);
+          if (!result.ok || result.passed !== expected) if (overlapErrors.length < 25) overlapErrors.push(`${player.name} / ${anchor.playerName}: expected ${expected ? "PASS" : "FAIL"}, got ${result.ok ? result.passed : result.error}`);
+        }
+      }
+    }
+    tests.push(certificationTest("career-overlap", "Career-overlap rules", overlapErrors.length === 0, `${overlapErrors.length} overlap rule failures`, "0 failures", overlapErrors));
 
     const duplicatePromptIds = [];
     const seenPromptIds = new Set();

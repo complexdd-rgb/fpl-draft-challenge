@@ -1,4 +1,4 @@
-/* FPL career relationship context · v1.2.0
+/* FPL career relationship context · v1.3.0
    Derived at runtime from verified player-season rows. Seasons with zero minutes
    do not contribute to any career or relationship rule. */
 (() => {
@@ -233,7 +233,7 @@
   });
 
   window.FPL_CAREER_CONTEXT = Object.freeze({
-    version: "1.2.0",
+    version: "1.3.0",
     coverage,
     normalise,
     seasonStart,

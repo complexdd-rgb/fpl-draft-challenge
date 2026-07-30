@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
   <title>FPL Challenge Studio</title>
-  <link rel="stylesheet" href="admin.css?v=16.1.0">
+  <link rel="stylesheet" href="admin.css?v=16.2.0">
 
   <!-- FPL STUDIO STAGE ONE CSS START -->
   <style id="fpl-studio-stage-one-css">
@@ -1151,7 +1151,7 @@ body.stage-one-enabled .audit-status-chip {
         <div>
           <p class="eyebrow">Step 6</p>
           <h2>Prompt Library Manager</h2>
-          <p class="section-copy">Create prompts manually or in checked automatic batches, edit ratings, disable weak prompts, and download a replacement <code>prompt-library.js</code> when you are satisfied.</p>
+          <p class="section-copy">Create prompts manually or in checked automatic batches, edit ratings, disable weak prompts, delete unwanted prompts, and download a replacement <code>prompt-library.js</code> when you are satisfied.</p>
         </div>
         <span class="phase-chip ready-chip">Browser workspace</span>
       </div>
@@ -1260,7 +1260,7 @@ body.stage-one-enabled .audit-status-chip {
               <option value="none">Do not use relationship rules</option>
               <option value="only">Relationship prompts only</option>
             </select>
-            <small>Creates played-for-both-clubs, returned-to-former-club and teammate prompts from positive-minute career records.</small>
+            <small>Creates played-for-both-clubs, returned-to-former-club, career-overlap and teammate prompts from positive-minute career records.</small>
           </label>
           <label>Obvious-answer exclusions
             <select id="factoryExclusionMode">
@@ -1368,6 +1368,20 @@ body.stage-one-enabled .audit-status-chip {
             <small>Use the current filters first when choosing “currently shown”. Every change remains browser-only until you download the library.</small>
           </label>
           <button id="disableQualityPromptsBtn" class="button danger-button" type="button" disabled>Disable matching prompts</button>
+        </div>
+        <div class="quality-bulk-delete">
+          <label>Bulk-delete rule
+            <select id="qualityDeleteMode" disabled>
+              <option value="recommended">Analyser recommendations</option>
+              <option value="broken">Broken only</option>
+              <option value="poor" selected>Poor or worse</option>
+              <option value="review">Needs review or worse</option>
+              <option value="fair">Fair or worse</option>
+              <option value="filtered">Every prompt currently shown</option>
+            </select>
+            <small>Deletion removes prompts from the browser collection and from the next downloaded <code>prompt-library.js</code>. Prompts in the current XI are protected.</small>
+          </label>
+          <button id="deleteQualityPromptsBtn" class="button danger-button" type="button" disabled>Delete matching prompts</button>
         </div>
         <div class="button-row quality-actions">
           <button id="applyQualityRatingsBtn" class="button secondary" type="button" disabled>Apply suggested ratings</button>
@@ -2107,12 +2121,12 @@ body.stage-one-enabled .audit-status-chip {
   </main>
 
   <script src="players.js?v=12.3.0"></script>
-  <script src="js/career-context.js?v=1.2.0"></script>
+  <script src="js/career-context.js?v=1.3.0"></script>
   <script src="prompt-library.js?v=2.0.1"></script>
-  <script src="js/validation-engine.js?v=1.5.0"></script>
-  <script src="js/admin-core.js?v=22.0.0"></script>
+  <script src="js/validation-engine.js?v=1.6.0"></script>
+  <script src="js/admin-core.js?v=23.0.0"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
-  <script src="js/admin-import-tools.js?v=20.0.0"></script>
+  <script src="js/admin-import-tools.js?v=21.0.0"></script>
 
   <!-- FPL STUDIO STAGE ONE JS START -->
   <script id="fpl-studio-stage-one-js">
@@ -2676,6 +2690,6 @@ body.stage-one-enabled .audit-status-chip {
 
   </script>
   <!-- FPL STUDIO STAGE ONE JS END -->
-  <script src="js/validation-lab.js?v=1.3.0"></script>
+  <script src="js/validation-lab.js?v=1.4.0"></script>
 </body>
 </html>
