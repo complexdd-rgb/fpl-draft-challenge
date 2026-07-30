@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026-07-30 — Same club-season teammate rule
+
+- Added the rule “Same Premier League club-season as player” to the Safe Rule Builder.
+- Added requested prompt wording: “A defender who played in the same Premier League season as a teammate of Mohamed Salah.”
+- Added the rule to automatic prompt generation, live prompt tests, Rule Tester, Prompt Explorer and Player Inspector.
+- Added club-season teammate coverage to season certification; a clean run now reports 15/15 critical checks.
+- Positive minutes, the same club and the same season are all required; the reference player cannot answer their own prompt.
+
+## Phase B — Career overlap and prompt deletion
+
+- Added career-overlap rules using shared positive-minute Premier League seasons.
+- Added searchable reference-player support to the Safe Rule Builder.
+- Added career-overlap variants to the Auto Prompt Generator, Rule Tester, Prompt Explorer and certification.
+- Added per-prompt deletion for built-in and custom prompts.
+- Added filtered bulk deletion to the Prompt Quality Analyser with current-XI protection and typed confirmation.
+
+# Changelog
+
+## Phase B — Returned to a former club
+
+- Added the **Returned to a former club** career relationship rule.
+- Added the rule to the Safe Rule Builder, Auto Prompt Generator, live prompt logic, Rule Tester, Prompt Explorer and certification scan.
+- Career context now stores a chronological positive-minute club timeline and the clubs a player returned to.
+- Player Inspector now displays the returned-club result and club timeline.
+- Season certification now checks returned-club timelines and Rule Tester agreement.
+
 ## 2026-07-29 — Phase B career relationships and quality controls
 
 - Added **Played for both clubs** to the Safe Rule Builder.

@@ -29,6 +29,7 @@
     playedForBothClubs: { label: "Played for both clubs", type: "clubPair", career: true },
     returnedToFormerClub: { label: "Returned to a former club", type: "boolean", career: true },
     careerOverlapWithPlayer: { label: "Career overlapped with player", type: "playerReference", career: true },
+    sameClubSeasonAsPlayer: { label: "Same Premier League club-season as player", type: "teammateReference", career: true },
     champions: { label: "League champions", type: "boolean" },
     topFour: { label: "Top-four club", type: "boolean" },
     bottomHalf: { label: "Bottom-half club", type: "boolean" },
@@ -66,6 +67,7 @@
   const SEASON_OPERATORS = Object.freeze({ equals: "is exactly", before: "is before", after: "is after", between: "is between" });
   const CLUB_PAIR_OPERATORS = Object.freeze({ both: "includes both" });
   const PLAYER_REFERENCE_OPERATORS = Object.freeze({ overlaps: "overlaps with" });
+  const TEAMMATE_REFERENCE_OPERATORS = Object.freeze({ sameClubSeason: "same club and season as" });
 
   let state = loadState();
   applyStoredState();
@@ -590,6 +592,8 @@
             ? CLUB_PAIR_OPERATORS
             : definition.type === "playerReference"
               ? PLAYER_REFERENCE_OPERATORS
+              : definition.type === "teammateReference"
+                ? TEAMMATE_REFERENCE_OPERATORS
               : definition.type === "nameText"
               ? NAME_TEXT_OPERATORS
               : TEXT_OPERATORS;
@@ -607,7 +611,7 @@
       valueWrap.innerHTML = `<select data-rule-value aria-label="First career club">${clubOptions(firstValue)}</select>
         <span class="rule-pair-and">and</span>
         <select data-rule-value2 aria-label="Second career club">${clubOptions(secondValue, firstValue)}</select>`;
-    } else if (definition.type === "playerReference") {
+    } else if (definition.type === "playerReference" || definition.type === "teammateReference") {
       ensureCareerPlayerDatalist();
       valueWrap.innerHTML = `<input data-rule-value type="text" list="careerPlayerOptions" value="${escapeAttribute(previousValue)}" placeholder="e.g. Mohamed Salah" aria-label="Reference player">`;
     } else if (definition.type === "season") {
@@ -702,7 +706,7 @@
       if (!first || !second) throw new Error(`${definition.label} needs two clubs.`);
       if (normaliseCareerClub(first) === normaliseCareerClub(second)) throw new Error("Choose two different clubs for a played-for-both rule.");
     }
-    if (definition.type === "playerReference" && !resolveCareerReference(condition.value)) throw new Error(`${definition.label} needs one unique stored player name.`);
+    if ((definition.type === "playerReference" || definition.type === "teammateReference") && !resolveCareerReference(condition.value)) throw new Error(`${definition.label} needs one unique stored player name.`);
     if ((definition.type === "text" || definition.type === "manager" || definition.type === "nameText") && !String(condition.value).trim()) throw new Error(`${definition.label} needs text.`);
   }
 
@@ -1040,6 +1044,12 @@ ${promptsSource}
       if (!reference) return "false";
       const anchorId = JSON.stringify(reference.playerId);
       return `(() => { const __anchor = window.FPL_CAREER_CONTEXT?.getPlayer?.(${anchorId}); return p.playerId !== ${anchorId} && Array.isArray(p._career?.seasonYears) && Array.isArray(__anchor?.seasonYears) && p._career.seasonYears.some(year => __anchor.seasonYears.includes(year)); })()`;
+    }
+    if (definition.type === "teammateReference") {
+      const reference = resolveCareerReference(condition.value);
+      if (!reference) return "false";
+      const anchorId = JSON.stringify(reference.playerId);
+      return `(() => { const __anchor = window.FPL_CAREER_CONTEXT?.getPlayer?.(${anchorId}); const __clubKey = window.FPL_CAREER_CONTEXT?.normalise?.(p.club) || ""; const __key = String(p.season || "") + "|" + __clubKey; return p.playerId !== ${anchorId} && Number(p.minutes) > 0 && Array.isArray(__anchor?.clubSeasonKeys) && __anchor.clubSeasonKeys.includes(__key); })()`;
     }
     if (definition.type === "number") {
       const value = Number(condition.value);

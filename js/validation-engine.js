@@ -26,6 +26,7 @@
     playedForBothClubs: "Played for both clubs",
     returnedToFormerClub: "Returned to a former club",
     careerOverlapWithPlayer: "Career overlap",
+    sameClubSeasonAsPlayer: "Same club and Premier League season",
     champions: "League champions",
     topFour: "Top-four club",
     bottomHalf: "Bottom-half club",
@@ -204,7 +205,8 @@
       check("Career totals", Number.isInteger(record._career?.seasonCount) && Number.isInteger(record._career?.clubCount), record._career ? `${record._career.seasonCount} seasons · ${record._career.clubCount} clubs` : "Missing", "Career-total rules need runtime career context derived from positive-minute player-seasons."),
       check("Career club history", Array.isArray(record._career?.clubs) && Array.isArray(record._career?.normalisedClubs), record._career?.clubs?.join(", ") || "Missing", "Career relationship rules need a positive-minute club history."),
       check("Returned-club history", typeof record._career?.returnedToFormerClub === "boolean", record._career?.returnedToFormerClub ? `Yes · ${(record._career?.returnedClubs || []).join(", ") || "former club"}` : "No", "Returned-club rules need a complete chronological positive-minute club history."),
-      check("Career season history", Array.isArray(record._career?.seasonYears), (record._career?.seasons || []).join(", ") || "Missing", "Career-overlap rules need positive-minute season history.")
+      check("Career season history", Array.isArray(record._career?.seasonYears), (record._career?.seasons || []).join(", ") || "Missing", "Career-overlap rules need positive-minute season history."),
+      check("Club-season teammate history", Array.isArray(record._career?.clubSeasonKeys), `${record._career?.clubSeasonKeys?.length || 0} recorded club-seasons`, "Teammate rules need positive-minute club-season history.")
     ];
     return checks;
   }
@@ -390,6 +392,12 @@
       addRule(rules, { field: "returnedToFormerClub", operator: "isTrue", value: true, label: FIELD_LABELS.returnedToFormerClub, source: "returned to a former club" });
     }
 
+    const teammateMarker = value.match(/played in the same premier league season as a teammate of\s+(.+?)(?=\s+(?:and who|and scored|and played|with \d|who scored|who played)|$)/i);
+    if (teammateMarker) {
+      const reference = window.FPL_CAREER_CONTEXT?.resolvePlayer?.(teammateMarker[1].trim());
+      if (reference?.ok) addRule(rules, { field: "sameClubSeasonAsPlayer", operator: "sameClubSeason", value: reference.player.playerName, value2: reference.player.playerId, label: FIELD_LABELS.sameClubSeasonAsPlayer, source: teammateMarker[0] });
+    }
+
     const overlapMarker = value.match(/(?:recorded\s+)?(?:premier league\s+)?career overlapped with\s+(.+?)(?=\s+(?:and who|and scored|and played|with \d|who scored|who played)|$)/i);
     if (overlapMarker) {
       const reference = window.FPL_CAREER_CONTEXT?.resolvePlayer?.(overlapMarker[1].trim());
@@ -509,6 +517,23 @@
       const passed = Boolean(reference && record.playerId !== reference.playerId && overlaps.length);
       const labels = overlaps.map(year => `${year}/${String(year + 1).slice(-2)}`);
       return check(rule.label || FIELD_LABELS.careerOverlapWithPlayer, passed, labels.length ? labels.join(", ") : "No shared recorded seasons", reference ? `Expected at least one positive-minute Premier League season shared with ${reference.playerName}.` : "The reference player could not be resolved.", reference?.playerName || String(rule.value || "Reference player"));
+    }
+
+    if (rule.field === "sameClubSeasonAsPlayer") {
+      const careerContext = window.FPL_CAREER_CONTEXT;
+      const reference = rule.value2 != null ? careerContext?.getPlayer?.(rule.value2) : careerContext?.resolvePlayer?.(rule.value)?.player;
+      const clubKey = careerContext?.normalise?.(record.club) || normalise(record.club);
+      const actualKey = `${String(record.season || "")}|${clubKey}`;
+      const referenceKeys = Array.isArray(reference?.clubSeasonKeys) ? reference.clubSeasonKeys : [];
+      const passed = Boolean(reference && record.playerId !== reference.playerId && Number(record.minutes) > 0 && referenceKeys.includes(actualKey));
+      const actual = `${record.season || "Missing"} · ${record.club || "Missing"}`;
+      return check(
+        rule.label || FIELD_LABELS.sameClubSeasonAsPlayer,
+        passed,
+        actual,
+        reference ? `Expected positive minutes for the same Premier League club in the same season as ${reference.playerName}.` : "The reference player could not be resolved.",
+        reference?.playerName || String(rule.value || "Reference player")
+      );
     }
 
     const leagueDependentFields = new Set(["leaguePosition", "champions", "topFour", "bottomHalf", "relegated"]);
@@ -999,6 +1024,40 @@
       }
     }
     tests.push(certificationTest("career-overlap", "Career-overlap rules", overlapErrors.length === 0, `${overlapErrors.length} overlap rule failures`, "0 failures", overlapErrors));
+
+    const teammateErrors = [];
+    if (!careerContext?.players?.length) teammateErrors.push("Career context did not load.");
+    else {
+      const allPlayers = getPlayers();
+      const anchors = careerContext.players
+        .filter(summary => Array.isArray(summary.clubSeasonKeys) && summary.clubSeasonKeys.length >= 2 && careerContext.resolvePlayer?.(summary.playerName)?.ok)
+        .slice(0, 100);
+      for (const anchor of anchors) {
+        const anchorKeys = new Set(anchor.clubSeasonKeys || []);
+        let positiveCase = null;
+        let negativeCase = null;
+        for (const player of allPlayers) {
+          if (player.playerId === anchor.playerId) continue;
+          for (const record of player.seasons || []) {
+            if (!(Number(record.minutes) > 0)) continue;
+            const key = `${String(record.season || "")}|${careerContext.normalise(record.club)}`;
+            if (!positiveCase && anchorKeys.has(key)) positiveCase = { player, record };
+            if (!negativeCase && !anchorKeys.has(key)) negativeCase = { player, record };
+            if (positiveCase && negativeCase) break;
+          }
+          if (positiveCase && negativeCase) break;
+        }
+        for (const [entry, expected] of [[positiveCase, true], [negativeCase, false]]) {
+          if (!entry) continue;
+          const wording = `${POSITION_LABELS[entry.record.position] || entry.record.position} who played in the same Premier League season as a teammate of ${anchor.playerName}`;
+          const result = evaluatePrompt(entry.player, entry.record.season, wording);
+          if (!result.ok || result.passed !== expected) {
+            if (teammateErrors.length < 25) teammateErrors.push(`${entry.player.name} / ${anchor.playerName}: expected ${expected ? "PASS" : "FAIL"}, got ${result.ok ? result.passed : result.error}`);
+          }
+        }
+      }
+    }
+    tests.push(certificationTest("club-season-teammate", "Same-club-and-season teammate rules", teammateErrors.length === 0, `${teammateErrors.length} teammate rule failures`, "0 failures", teammateErrors));
 
     const duplicatePromptIds = [];
     const seenPromptIds = new Set();

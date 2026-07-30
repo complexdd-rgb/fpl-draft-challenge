@@ -1,4 +1,4 @@
-/* FPL career relationship context · v1.3.0
+/* FPL career relationship context · v1.4.0
    Derived at runtime from verified player-season rows. Seasons with zero minutes
    do not contribute to any career or relationship rule. */
 (() => {
@@ -167,6 +167,7 @@
       clubCount: clubsByKey.size,
       seasons: freezeArray(seasonLabels),
       seasonYears: freezeArray(seasonYears),
+      clubSeasonKeys: freezeArray(unique(summary.rows.filter(row => row.clubKey).map(row => `${row.seasonLabel}|${row.clubKey}`))),
       clubs: freezeArray(clubsByKey.values()),
       normalisedClubs: freezeArray(clubsByKey.keys()),
       managers: freezeArray(managersByKey.values()),
@@ -224,6 +225,17 @@
     return summary ? { ok: true, player: summary } : { ok: false, reason: `No career data is available for “${query}”.` };
   }
 
+  function getClubSeasonTeammates(playerId, seasonLabel, club) {
+    const clubKey = normalise(club);
+    const key = `${String(seasonLabel || "").trim()}|${clubKey}`;
+    if (!clubKey || !clubSeasonIndex.has(key)) return [];
+    return [...clubSeasonIndex.get(key)]
+      .filter(playerKey => playerKey !== String(playerId))
+      .map(playerKey => summariesByKey.get(playerKey)?.publicSummary)
+      .filter(Boolean)
+      .sort((a, b) => a.playerName.localeCompare(b.playerName));
+  }
+
   const coverage = Object.freeze({
     players: players.length,
     playersWithPositiveMinutes: publicSummaries.filter(summary => summary.seasonCount > 0).length,
@@ -233,12 +245,13 @@
   });
 
   window.FPL_CAREER_CONTEXT = Object.freeze({
-    version: "1.3.0",
+    version: "1.4.0",
     coverage,
     normalise,
     seasonStart,
     resolvePlayer,
     getPlayer: playerId => summariesByKey.get(String(playerId))?.publicSummary || null,
+    getClubSeasonTeammates,
     players: freezeArray(publicSummaries)
   });
 })();

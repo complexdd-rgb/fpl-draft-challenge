@@ -1656,8 +1656,8 @@ Backups and detailed reports are included.
           position,
           family: `${position.toLowerCase()}-club-season-teammate`,
           idBase: `${position.toLowerCase()}_teammate_${slugify(anchor.name)}`,
-          label: `${noun} who shared a Premier League club-season with ${anchor.name}`,
-          fail: `That ${lower} must have recorded minutes for the same club in the same FPL season as ${anchor.name}.`,
+          label: `${noun} who played in the same Premier League season as a teammate of ${anchor.name}`,
+          fail: `That ${lower} must have recorded Premier League minutes for the same club in the same season as ${anchor.name}.`,
           tags: ["auto-generated", "teammate", "relationship", "club-season", "anti-meta"],
           cooldown,
           studioRule: { kind: "source", source: baseSource }
@@ -1670,8 +1670,8 @@ Backups and detailed reports are included.
               position,
               family: `${position.toLowerCase()}-club-season-teammate-points`,
               idBase: `${position.toLowerCase()}_teammate_${slugify(anchor.name)}_points_${threshold}`,
-              label: `${noun} who shared a club-season with ${anchor.name} and scored ${threshold}+ FPL points`,
-              fail: `That ${lower} must share a club-season with ${anchor.name} and score at least ${threshold} FPL points in the qualifying season.`,
+              label: `${noun} who played in the same Premier League season as a teammate of ${anchor.name} and scored ${threshold}+ FPL points`,
+              fail: `That ${lower} must play for the same club in the same Premier League season as ${anchor.name} and score at least ${threshold} FPL points in that season.`,
               tags: ["auto-generated", "teammate", "relationship", "club-season", "points", "anti-meta"],
               cooldown,
               studioRule: { kind: "source", source }

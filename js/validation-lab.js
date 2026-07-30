@@ -235,12 +235,20 @@
       ["FPL points", result.stats.points], ["Minutes", result.stats.minutes], ["Goals", result.stats.goals], ["Assists", result.stats.assists],
       ["Clean sheets", result.stats.cleanSheets], ["Bonus", result.stats.bonus], ["Saves", result.stats.saves], ["Goals conceded", result.stats.goalsConceded]
     ];
+    const clubSeasonTeammates = window.FPL_CAREER_CONTEXT?.getClubSeasonTeammates?.(
+      result.player.playerId,
+      result.record.season,
+      result.record.club
+    ) || [];
+    const teammateNames = clubSeasonTeammates.map(player => player.playerName);
     const career = [
       ["Recorded PL seasons", result.career?.seasonCount ?? "Missing"],
       ["Recorded PL clubs", result.career?.clubCount ?? "Missing"],
       ["Seasons", (result.career?.seasons || []).join(", ") || "None"],
       ["Career span", result.career?.firstYear != null ? `${result.career.firstYear}/${String(result.career.firstYear + 1).slice(-2)}–${result.career.lastYear}/${String(result.career.lastYear + 1).slice(-2)}` : "None"],
       ["Clubs", (result.career?.clubs || []).join(", ") || "None"],
+      ["Recorded PL teammates", (result.career?.teammateIds || []).length],
+      ["Teammates in this club-season", teammateNames.length ? `${teammateNames.slice(0, 12).join(", ")}${teammateNames.length > 12 ? ` +${teammateNames.length - 12} more` : ""}` : "None"],
       ["Returned to former club", result.career?.returnedToFormerClub ? "Yes" : "No"],
       ["Returned clubs", (result.career?.returnedClubs || []).join(", ") || "None"],
       ["Club timeline", (result.career?.clubTimeline || []).join(" · ") || "None"]
