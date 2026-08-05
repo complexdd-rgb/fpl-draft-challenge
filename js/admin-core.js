@@ -1253,6 +1253,7 @@ ${promptsSource}
     releaseDate: document.querySelector("#releaseDate"),
     minAnswers: document.querySelector("#minAnswers"),
     maxAnswers: document.querySelector("#maxAnswers"),
+    maxPerfectScore: document.querySelector("#maxPerfectScore"),
     minAntiMeta: document.querySelector("#minAntiMeta"),
     avoidRecent: document.querySelector("#avoidRecent"),
     cooldownChallenges: document.querySelector("#cooldownChallenges"),
@@ -1326,6 +1327,7 @@ ${promptsSource}
       elements.releaseDate,
       elements.minAnswers,
       elements.maxAnswers,
+      elements.maxPerfectScore,
       elements.minAntiMeta,
       elements.cooldownChallenges,
       elements.avoidRecent
@@ -1405,16 +1407,17 @@ ${promptsSource}
     const minAnswers = clampNumber(elements.minAnswers.value, 2, 300, 6);
     const maxAnswers = clampNumber(elements.maxAnswers.value, minAnswers, 500, 100);
     const minAntiMeta = clampNumber(elements.minAntiMeta.value, 0, 11, 5);
+    const maxPerfectScore = clampNumber(elements.maxPerfectScore?.value, 0, 5000, 0);
     return {
       minAnswers,
       maxAnswers,
       minAntiMeta,
+      maxPerfectScore,
       avoidRecent: elements.avoidRecent.checked,
       difficultyTarget: elements.difficultyTarget.value,
       cooldownChallenges: clampNumber(elements.cooldownChallenges?.value, 1, 50, 7)
     };
   }
-
   function eligiblePrompts(position, settings, excludedIds = new Set()) {
     return promptLibrary.filter(prompt => {
       if (prompt.enabled === false) return false;
@@ -1430,58 +1433,95 @@ ${promptsSource}
     });
   }
 
-  function generateDraft() {
+  async function generateDraft() {
     const settings = currentSettings();
-    elements.actionStatus.textContent = "Generating and checking prompt balance…";
+    const capEnabled = settings.maxPerfectScore > 0;
+    elements.generateBtn.disabled = true;
+    elements.actionStatus.textContent = capEnabled
+      ? `Generating candidates and checking exact perfect scores against ${settings.maxPerfectScore.toLocaleString()}…`
+      : "Generating and checking prompt balance…";
 
-    const positionAvailability = Object.fromEntries(
-      ["GK", "DEF", "MID", "FWD"].map(position => [position, eligiblePrompts(position, settings).length])
-    );
-    const required = { GK: 1, DEF: 4, MID: 4, FWD: 2 };
-    const missing = Object.keys(required).filter(position => positionAvailability[position] < required[position]);
-
-    if (missing.length) {
-      elements.actionStatus.textContent = `Not enough eligible ${missing.join(", ")} prompts. Increase the maximum answers, lower the minimum, or allow Challenge #6 prompts.`;
-      return;
-    }
-
-    let best = null;
-    let bestScore = Number.POSITIVE_INFINITY;
-
-    for (let attempt = 0; attempt < 900; attempt += 1) {
-      const used = new Set();
-      const candidate = [];
-
-      for (const position of FORMATION) {
-        const options = eligiblePrompts(position, settings, used);
-        const choice = weightedPick(options, candidate, settings);
-        if (!choice) break;
-        candidate.push(choice);
-        used.add(choice.id);
+    try {
+      const positionAvailability = Object.fromEntries(
+        ["GK", "DEF", "MID", "FWD"].map(position => [position, eligiblePrompts(position, settings).length])
+      );
+      const required = { GK: 1, DEF: 4, MID: 4, FWD: 2 };
+      const missing = Object.keys(required).filter(position => positionAvailability[position] < required[position]);
+      if (missing.length) {
+        elements.actionStatus.textContent = `Not enough eligible ${missing.join(", ")} prompts. Increase the maximum answers, lower the minimum, or allow recent prompts.`;
+        return;
       }
 
-      if (candidate.length !== 11) continue;
-      const score = scoreDraft(candidate, settings);
-      if (score < bestScore) {
-        best = candidate;
-        bestScore = score;
+      const candidates = [];
+      const signatures = new Set();
+      for (let attempt = 0; attempt < 1400; attempt += 1) {
+        const used = new Set();
+        const candidate = [];
+        for (const position of FORMATION) {
+          const options = eligiblePrompts(position, settings, used);
+          const choice = weightedPick(options, candidate, settings);
+          if (!choice) break;
+          candidate.push(choice);
+          used.add(choice.id);
+        }
+        if (candidate.length !== 11) continue;
+        const signature = candidate.map(prompt => prompt.id).join("|");
+        if (signatures.has(signature)) continue;
+        signatures.add(signature);
+        candidates.push({ prompts: candidate, balance: scoreDraft(candidate, settings) });
       }
-    }
+      candidates.sort((a, b) => a.balance - b.balance);
+      if (!candidates.length) {
+        elements.actionStatus.textContent = "A complete XI could not be generated with those restrictions.";
+        return;
+      }
 
-    if (!best) {
-      elements.actionStatus.textContent = "A complete XI could not be generated with those restrictions.";
-      return;
-    }
+      let chosen = candidates[0];
+      let chosenPerfect = null;
+      let lowestChecked = Number.POSITIVE_INFINITY;
+      if (capEnabled) {
+        chosen = null;
+        const checks = candidates.slice(0, Math.min(180, candidates.length));
+        for (let index = 0; index < checks.length; index += 1) {
+          const item = checks[index];
+          const perfect = calculatePerfectXI(item.prompts);
+          if (perfect?.possible) {
+            lowestChecked = Math.min(lowestChecked, perfect.score);
+            if (perfect.score <= settings.maxPerfectScore) {
+              chosen = item;
+              chosenPerfect = perfect;
+              break;
+            }
+          }
+          if (index % 8 === 7) {
+            elements.actionStatus.textContent = `Checking exact scores ${index + 1}/${checks.length} · lowest so far ${Number.isFinite(lowestChecked) ? lowestChecked.toLocaleString() : "—"}`;
+            await new Promise(resolve => setTimeout(resolve, 0));
+          }
+        }
+        if (!chosen) {
+          elements.actionStatus.textContent = `No checked draft met the ${settings.maxPerfectScore.toLocaleString()} ceiling. The lowest exact score found was ${Number.isFinite(lowestChecked) ? lowestChecked.toLocaleString() : "unavailable"}. Raise the ceiling or adjust the prompt limits.`;
+          return;
+        }
+      }
 
-    selectedPrompts = best;
-    elements.draftPanel.classList.remove("hidden");
-    elements.codePanel.classList.remove("hidden");
-    elements.saveDraftBtn.disabled = false;
-    refreshDraft();
-    elements.actionStatus.textContent = "Draft generated. The exact unique-player perfect score has been calculated.";
-    elements.draftPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      selectedPrompts = chosen.prompts;
+      currentPerfect = chosenPerfect || calculatePerfectXI(selectedPrompts);
+      elements.draftPanel.classList.remove("hidden");
+      elements.codePanel.classList.remove("hidden");
+      elements.saveDraftBtn.disabled = false;
+      renderDraft();
+      updateCodeOutput();
+      document.dispatchEvent(new CustomEvent("fplstudio:draftchange", {
+        detail: { promptIds: selectedPrompts.map(prompt => prompt.id), perfectScore: currentPerfect?.possible ? currentPerfect.score : 0 }
+      }));
+      elements.actionStatus.textContent = capEnabled
+        ? `Draft generated at ${currentPerfect.score.toLocaleString()} — within the ${settings.maxPerfectScore.toLocaleString()} maximum.`
+        : "Draft generated. The exact unique-player perfect score has been calculated.";
+      elements.draftPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    } finally {
+      elements.generateBtn.disabled = false;
+    }
   }
-
   function weightedPick(options, currentDraft, settings) {
     if (!options.length) return null;
     const target = difficultyTargetValue(settings.difficultyTarget);
@@ -1808,11 +1848,13 @@ ${promptsSource}
       <span>${difficultyLabel} average</span>
       <span>${Math.min(...answerRange)}–${Math.max(...answerRange)} valid players</span>
       <span>${currentPerfect?.possible ? `${currentPerfect.score.toLocaleString()} perfect score` : "Score unavailable"}</span>
+      <span>${currentSettings().maxPerfectScore > 0 ? `${currentSettings().maxPerfectScore.toLocaleString()} score ceiling` : "No score ceiling"}</span>
     `;
 
     const warnings = [];
     const settings = currentSettings();
     const disabledSelected = selectedPrompts.filter(prompt => prompt.enabled === false);
+    if (settings.maxPerfectScore > 0 && currentPerfect?.possible && currentPerfect.score > settings.maxPerfectScore) warnings.push(`Perfect score ${currentPerfect.score.toLocaleString()} exceeds the configured maximum of ${settings.maxPerfectScore.toLocaleString()}. Reroll or generate again before publishing.`);
     if (disabledSelected.length) warnings.push(`${disabledSelected.length} selected prompt(s) are disabled in the Prompt Library Manager. Reroll them before publishing.`);
     if (antiCount < settings.minAntiMeta) warnings.push(`Only ${antiCount} anti-meta prompts are selected; your target is ${settings.minAntiMeta}.`);
 
@@ -1899,7 +1941,8 @@ ${promptsSource}
 
     elements.codeOutput.value = `/* Generated by FPL Challenge Studio Phase 4.\n   Exact perfect score calculated with eleven unique footballers.\n   Review before manually uploading to GitHub. */\nwindow.FPL_DAILY_CHALLENGE = {\n  id: ${JSON.stringify(`daily-${String(challengeNumber).padStart(3, "0")}-${slug}`)},\n  number: ${challengeNumber},\n  title: ${JSON.stringify(`Challenge #${challengeNumber} · ${challengeName}`)},\n  dateLabel: ${JSON.stringify(`Generated Mix · ${difficulty}`)},\n  difficulty: ${JSON.stringify(difficulty)},\n  releaseDate: ${JSON.stringify(releaseDate)},\n  perfectScore: ${perfectScore},\n  prompts: [\n${promptsCode}\n  ]\n};\n`;
 
-    elements.downloadBtn.disabled = !currentPerfect?.possible;
+    const scoreCapPassed = currentSettings().maxPerfectScore <= 0 || (currentPerfect?.possible && currentPerfect.score <= currentSettings().maxPerfectScore);
+    elements.downloadBtn.disabled = !currentPerfect?.possible || !scoreCapPassed;
   }
 
   function displayDifficulty() {
@@ -1924,6 +1967,7 @@ ${promptsSource}
         releaseDate: elements.releaseDate.value,
         minAnswers: elements.minAnswers.value,
         maxAnswers: elements.maxAnswers.value,
+        maxPerfectScore: elements.maxPerfectScore?.value || "0",
         minAntiMeta: elements.minAntiMeta.value,
         cooldownChallenges: elements.cooldownChallenges?.value || "7",
         avoidRecent: elements.avoidRecent.checked
@@ -1964,7 +2008,9 @@ ${promptsSource}
   }
 
   function downloadChallengeFile() {
+    const settings = currentSettings();
     if (!currentPerfect?.possible || !elements.codeOutput.value) return;
+    if (settings.maxPerfectScore > 0 && currentPerfect.score > settings.maxPerfectScore) { elements.copyStatus.textContent = `Download blocked: perfect score ${currentPerfect.score.toLocaleString()} exceeds the ${settings.maxPerfectScore.toLocaleString()} ceiling.`; return; }
     const blob = new Blob([elements.codeOutput.value], { type: "text/javascript;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
@@ -2268,6 +2314,14 @@ ${promptsSource}
     updateRecordButton();
   }
 
+  function testPickEfficiencyMarkup(record, prompt) {
+    const best = Number(core?.getPromptStats?.(prompt)?.bestAnswer?.points);
+    const picked = Number(record?.points) || 0;
+    const percentage = best > 0 ? Math.max(0, Math.min(100, (picked / best) * 100)) : picked === best ? 100 : 0;
+    const rounded = Math.round(percentage);
+    const label = rounded === 100 ? "Perfect pick" : rounded >= 90 ? "Elite selection" : rounded >= 75 ? "Strong selection" : rounded >= 50 ? "Competitive selection" : "Points left available";
+    return `<div class="test-pick-efficiency"><div class="test-pick-efficiency-head"><span>${escapeHtml(label)}</span><strong>${rounded}%</strong></div><div class="test-efficiency-track"><div class="test-efficiency-fill" style="width:${percentage.toFixed(1)}%"></div></div></div>`;
+  }
   function renderTester() {
     const prompts = currentPrompts();
     if (prompts.length !== 11 || testState.signature !== draftSignature()) return;
@@ -2297,6 +2351,7 @@ ${promptsSource}
           <button class="test-confirm" data-test-confirm="${escapeAttribute(prompt.id)}" type="button" ${record ? "" : "disabled"}>${saved ? "Confirmed" : "Confirm"}</button>
         </div>
         ${record ? `<div class="test-selected-meta">${escapeHtml(record.club)} · ${escapeHtml(record.position)} · £${Number(record.startingPrice || 0).toFixed(1)}m starting price</div>` : ""}
+        ${saved && record ? testPickEfficiencyMarkup(record, prompt) : ""}
         <div class="test-feedback ${feedbackClass}">${escapeHtml(feedback)}</div>
         ${player ? `<button class="test-clear" data-test-clear="${escapeAttribute(prompt.id)}" type="button">Clear selection</button>` : ""}
       </article>`;
@@ -2788,7 +2843,8 @@ ${promptsSource}
     challengeName: document.querySelector("#challengeName"),
     releaseDate: document.querySelector("#releaseDate"),
     minAnswers: document.querySelector("#minAnswers"),
-    maxAnswers: document.querySelector("#maxAnswers")
+    maxAnswers: document.querySelector("#maxAnswers"),
+    maxPerfectScore: document.querySelector("#maxPerfectScore")
   };
 
   let liveChallenge = null;
@@ -2814,7 +2870,7 @@ ${promptsSource}
       refreshPublishingCentre();
     });
     elements.downloadButton?.addEventListener("click", downloadPublishingPack);
-    [elements.challengeNumber, elements.challengeName, elements.releaseDate, elements.minAnswers, elements.maxAnswers]
+    [elements.challengeNumber, elements.challengeName, elements.releaseDate, elements.minAnswers, elements.maxAnswers, elements.maxPerfectScore]
       .filter(Boolean)
       .forEach(input => input.addEventListener("input", scheduleRefresh));
     document.addEventListener("fplstudio:draftchange", scheduleRefresh);
@@ -2917,6 +2973,7 @@ ${promptsSource}
     const hasDraft = prompts.length > 0;
     const minAnswers = clampNumber(elements.minAnswers?.value, 2, 999, 6);
     const maxAnswers = clampNumber(elements.maxAnswers?.value, minAnswers, 9999, 100);
+    const maxPerfectScore = clampNumber(elements.maxPerfectScore?.value, 0, 5000, 0);
     const core = window.FPL_STUDIO_API;
 
     addCheck(checks, hasDraft ? "pass" : "pending", "Generated draft exists",
@@ -2950,6 +3007,9 @@ ${promptsSource}
     const perfectValid = Boolean(perfect?.possible && Number(perfect.score) > 0 && Array.isArray(perfect.picks) && perfect.picks.length === 11);
     addCheck(checks, perfectValid ? "pass" : hasDraft ? "fail" : "pending", "Exact perfect score calculated",
       perfectValid ? `${Number(perfect.score).toLocaleString()} points using eleven unique footballers.` : "The exact unique-player perfect score is unavailable.", true);
+    const scoreCeilingPassed = maxPerfectScore <= 0 || (perfectValid && Number(perfect.score) <= maxPerfectScore);
+    addCheck(checks, !hasDraft ? "pending" : scoreCeilingPassed ? "pass" : "fail", "Maximum perfect score respected",
+      maxPerfectScore <= 0 ? "No perfect-score ceiling is configured." : scoreCeilingPassed ? `${Number(perfect.score).toLocaleString()} is within the ${maxPerfectScore.toLocaleString()} maximum.` : `${Number(perfect?.score || 0).toLocaleString()} exceeds the ${maxPerfectScore.toLocaleString()} maximum.`, true);
 
     const codeValid = Boolean(candidate && candidate.prompts?.length === 11 && Number(candidate.perfectScore) === Number(perfect?.score));
     const codePromptIds = candidate?.prompts?.map(prompt => prompt.id) || [];
