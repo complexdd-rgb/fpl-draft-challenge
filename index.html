@@ -8,7 +8,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#151a35" name="theme-color"/>
-<title>FPL Daily Challenge 4.0</title>
+<title>FPL Daily Challenge 4.1</title>
 
 
 <style>
@@ -31,7 +31,7 @@ button,input,select{font:inherit}.app{width:min(1050px,100%);margin:auto;padding
 
 
 /* Visual theme overrides */
-/* FPL Daily Challenge 4.0 — visual override */
+/* FPL Daily Challenge 4.1 — visual override */
 :root{
   --bg:#07140f;
   --panel:#10241c;
@@ -309,12 +309,20 @@ body::before{
   *{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
 
+/* FPL MAIN VISUAL + PICK EFFICIENCY UPGRADE v1 */
+.challenge-overview{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(270px,.65fr);gap:18px;align-items:center;margin:18px 0 14px;padding:22px;border:1px solid rgba(0,255,135,.24);border-radius:24px;background:linear-gradient(135deg,rgba(0,255,135,.105),rgba(4,217,255,.055) 52%,rgba(0,0,0,.16));box-shadow:0 18px 45px rgba(0,0,0,.18)}
+.overview-kicker{display:block;color:var(--accent);font-size:.69rem;font-weight:950;letter-spacing:.13em;text-transform:uppercase}.overview-copy h2,.section-heading h2{margin:5px 0 6px;font-size:clamp(1.3rem,3vw,1.85rem)}.overview-copy p,.section-heading p{margin:0;color:var(--muted);font-size:.86rem;line-height:1.55}.overview-rules{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.overview-rules div{min-width:0;padding:13px 8px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(2,15,9,.34);text-align:center}.overview-rules strong,.overview-rules span{display:block}.overview-rules strong{color:var(--accent);font-size:1.22rem}.overview-rules span{margin-top:3px;color:var(--muted);font-size:.67rem;line-height:1.25}
+.section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:22px 2px 11px}.section-heading p{max-width:370px;text-align:right}.slot{position:relative;overflow:hidden}.slot::after{content:"";position:absolute;inset:auto -40px -70px auto;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,135,.08),transparent 68%);pointer-events:none}.slot.valid{border-color:rgba(0,255,135,.58);box-shadow:0 12px 32px rgba(0,255,135,.09)}.slot.valid .pos{box-shadow:0 0 0 4px rgba(0,255,135,.09)}
+.pick-efficiency{margin-top:10px;padding:11px 12px;border:1px solid rgba(0,255,135,.24);border-radius:14px;background:linear-gradient(120deg,rgba(0,255,135,.09),rgba(4,217,255,.045))}.pick-efficiency-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.pick-efficiency-head span{color:#c8e2d3;font-size:.72rem;font-weight:850}.pick-efficiency-head strong{color:var(--accent);font-size:1rem}.efficiency-track{height:7px;margin-top:8px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.09)}.efficiency-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),#5fe5ff);box-shadow:0 0 14px rgba(0,255,135,.25)}.pick-efficiency small{display:block;margin-top:6px;color:var(--muted);font-size:.66rem;line-height:1.35}.pick-efficiency[data-tier="perfect"]{border-color:rgba(255,209,102,.52);background:linear-gradient(120deg,rgba(255,209,102,.10),rgba(0,255,135,.08))}.pick-efficiency[data-tier="perfect"] .pick-efficiency-head strong{color:#ffd166}
+.results{border-radius:26px}.score-card div{position:relative;overflow:hidden}.score-card div::after{content:"";position:absolute;width:74px;height:74px;right:-28px;bottom:-35px;border-radius:50%;background:rgba(0,255,135,.06)}
+@media(max-width:800px){.challenge-overview{grid-template-columns:1fr;padding:18px}.section-heading{align-items:flex-start;flex-direction:column}.section-heading p{text-align:left}.overview-rules{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:430px){.overview-rules{gap:6px}.overview-rules div{padding:10px 5px}.challenge-overview{border-radius:19px}}
 </style>
 </head>
 <body>
 <main class="app">
 <header class="hero">
-<div class="eyebrow">Version 4.0 · Enriched historical edition</div>
+<div class="eyebrow">Version 4.1 · Enriched historical edition</div>
 <h1 id="title">FPL Daily Challenge</h1>
 <p>Search once for a footballer, choose the season beside their name, then confirm. A footballer can only be used once across the whole XI. Invalid confirmed seasons cost 10 points.</p>
 <div class="status">
@@ -324,6 +332,22 @@ body::before{
 <span class="pill penalty" id="penalty">Penalties −0</span>
 </div>
 </header>
+<section class="challenge-overview" aria-label="How this challenge works">
+  <div class="overview-copy">
+    <span class="overview-kicker">Today’s selection challenge</span>
+    <h2>Build the strongest valid 1–4–4–2</h2>
+    <p>Every prompt has its own answer pool. Confirm a player-season to lock it in and see how close that pick is to the prompt’s highest-scoring valid answer.</p>
+  </div>
+  <div class="overview-rules">
+    <div><strong>11</strong><span>prompt slots</span></div>
+    <div><strong>1×</strong><span>each footballer</span></div>
+    <div><strong>100%</strong><span>best prompt pick</span></div>
+  </div>
+</section>
+<div class="section-heading">
+  <div><span class="overview-kicker">Your draft board</span><h2>Build your historical XI</h2></div>
+  <p>Pick carefully: a valid answer can still leave points on the table.</p>
+</div>
 <section class="grid" id="grid"></section>
 <div class="actions"><button class="btn secondary" id="reset">Reset team</button><button class="btn primary" disabled="" id="reveal">Reveal my XI</button></div>
 <section class="results hidden" id="results">
@@ -541,6 +565,28 @@ const getRecord=(playerId,season)=>flatSeasons.find(p=>p.playerId===playerId&&p.
 const usedPlayerIds=()=>new Set(Object.values(picks).map(p=>p.playerId));
 /* Zero-minute answer eligibility rule. */
 const qualifiesForAnswer=record=>Number.isFinite(Number(record?.minutes))&&Number(record.minutes)>0;
+const promptBestPointsCache=new Map();
+function promptBestPoints(prompt){
+  if(promptBestPointsCache.has(prompt.id))return promptBestPointsCache.get(prompt.id);
+  let best=Number.NEGATIVE_INFINITY;
+  for(const candidate of flatSeasons){
+    if(!qualifiesForAnswer(candidate)||candidate.position!==prompt.position||!prompt.test(candidate))continue;
+    const points=Number(candidate.points);
+    if(Number.isFinite(points)&&points>best)best=points;
+  }
+  const resolved=Number.isFinite(best)?best:0;
+  promptBestPointsCache.set(prompt.id,resolved);
+  return resolved;
+}
+function pickEfficiencyMarkup(record,prompt){
+  const picked=Number(record?.points)||0;
+  const best=promptBestPoints(prompt);
+  const percentage=best>0?Math.max(0,Math.min(100,(picked/best)*100)):(picked===best?100:0);
+  const rounded=Math.round(percentage);
+  const tier=rounded===100?"perfect":rounded>=90?"elite":rounded>=75?"strong":rounded>=50?"competitive":"developing";
+  const label=rounded===100?"Perfect pick":rounded>=90?"Elite selection":rounded>=75?"Strong selection":rounded>=50?"Competitive selection":"Points left available";
+  return `<div class="pick-efficiency" data-tier="${tier}" aria-label="Pick efficiency ${rounded} percent"><div class="pick-efficiency-head"><span>${label}</span><strong>${rounded}%</strong></div><div class="efficiency-track"><div class="efficiency-fill" style="width:${percentage.toFixed(1)}%"></div></div><small>Compared with the highest-scoring valid player-season for this prompt.</small></div>`;
+}
 
 function save(){localStorage.setItem(STORE,JSON.stringify({picks,penalties}));}
 function load(){try{const x=JSON.parse(localStorage.getItem(STORE)||"{}");picks=x.picks||{};penalties=Number(x.penalties)||0;}catch{}}
@@ -549,7 +595,7 @@ function eligibleSeasons(player,prompt){
   return player.seasons.filter(s=>s.position===prompt.position&&qualifiesForAnswer(s));
 }
 function render(){
-  document.getElementById("title").textContent=`FPL Daily Challenge 4.0 · ${challenge.title}`;
+  document.getElementById("title").textContent=`FPL Daily Challenge 4.1 · ${challenge.title}`;
   document.getElementById("grid").innerHTML=challenge.prompts.map((prompt,index)=>{
     const saved=picks[prompt.id];
     const draft=drafts[prompt.id] || (saved ? {playerId:saved.playerId,season:saved.season}:null);
@@ -570,6 +616,7 @@ function render(){
         <button class="confirm" data-confirm="${prompt.id}" ${record?"":"disabled"}>${saved?"Confirmed":"Confirm"}</button>
       </div>
       ${record?`<div class="selected-meta">${esc(record.club)} · ${record.position} · ${Number.isFinite(record.startingPrice) ? `£${record.startingPrice.toFixed(1)}m starting price` : "Starting price unavailable"}</div>`:""}
+      ${saved&&record?pickEfficiencyMarkup(record,prompt):""}
       <div class="feedback ${fb.startsWith("✅")?"good":fb.startsWith("❌")?"bad":""}">${esc(fb)}</div>
       ${player?`<button class="clear" data-clear="${prompt.id}">Clear selection</button>`:""}
     </article>`;
@@ -683,7 +730,7 @@ function reveal(){
 function tick(){document.getElementById("timer").textContent=`Time ${formatTime(completedSeconds??Math.floor((Date.now()-startedAt)/1000))}`;}
 document.getElementById("reveal").addEventListener("click",reveal);
 document.getElementById("reset").addEventListener("click",()=>{if(confirm("Clear the whole XI and all penalties?")){picks={};drafts={};feedback={};penalties=0;startedAt=Date.now();completedSeconds=null;document.getElementById("results").classList.add("hidden");save();render();}});
-document.getElementById("copy").addEventListener("click",async()=>{const text=`🏆 FPL Daily Challenge 4.0\n${challenge.title}\n\nFinal score: ${document.getElementById("finalScore").textContent} / ${challenge.perfectScore}\nPenalties: ${document.getElementById("penaltyPoints").textContent}\nEfficiency: ${document.getElementById("efficiency").textContent}\nTime: ${document.getElementById("timeTaken").textContent}\n\nCan you beat me?`;try{await navigator.clipboard.writeText(text);document.getElementById("copyStatus").textContent="Result copied.";}catch{document.getElementById("copyStatus").textContent=text;}});
+document.getElementById("copy").addEventListener("click",async()=>{const text=`🏆 FPL Daily Challenge 4.1\n${challenge.title}\n\nFinal score: ${document.getElementById("finalScore").textContent} / ${challenge.perfectScore}\nPenalties: ${document.getElementById("penaltyPoints").textContent}\nEfficiency: ${document.getElementById("efficiency").textContent}\nTime: ${document.getElementById("timeTaken").textContent}\n\nCan you beat me?`;try{await navigator.clipboard.writeText(text);document.getElementById("copyStatus").textContent="Result copied.";}catch{document.getElementById("copyStatus").textContent=text;}});
 document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))document.querySelectorAll(".suggestions").forEach(x=>x.classList.add("hidden"));});
 load();
 const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).forEach(id=>{const p=picks[id],prompt=challenge.prompts.find(x=>x.id===id),r=getRecord(p.playerId,p.season);if(!prompt||!validIds.has(p.playerId)||!r||!qualifiesForAnswer(r)||!prompt.test(r))delete picks[id];else drafts[id]={...p};});save();render();tick();timerId=setInterval(tick,1000);
@@ -691,7 +738,7 @@ const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).for
 </script>
 
 <script>
-/* FPL Daily Challenge 4.0 — inline visual enhancements */
+/* FPL Daily Challenge 4.1 — inline visual enhancements */
 (() => {
   "use strict";
 

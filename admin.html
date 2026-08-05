@@ -925,6 +925,12 @@ body.stage-one-enabled .audit-status-chip {
 
   </style>
   <!-- FPL STUDIO STAGE ONE CSS END -->
+  <style id="fpl-score-visual-upgrade-css">
+/* FPL STUDIO PERFECT-SCORE LIMIT + PICK EFFICIENCY v1 */
+.perfect-score-limit{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,250px);gap:18px;align-items:center;margin:16px 0;padding:17px 18px;border:1px solid rgba(4,217,255,.28);border-radius:18px;background:linear-gradient(130deg,rgba(4,217,255,.08),rgba(0,255,135,.055),rgba(0,0,0,.1))}.perfect-score-limit-copy strong,.perfect-score-limit-copy small{display:block}.perfect-score-limit-copy strong{margin:3px 0 5px;font-size:1.03rem}.perfect-score-limit-copy small{color:var(--muted);line-height:1.45}.limit-kicker{color:#5fe5ff;font-size:.68rem;font-weight:950;letter-spacing:.13em;text-transform:uppercase}.perfect-score-limit label{margin:0}.perfect-score-limit input{font-size:1.08rem;font-weight:900;border-color:rgba(4,217,255,.35)}
+.test-pick-efficiency{margin-top:9px;padding:10px 11px;border:1px solid rgba(0,255,135,.24);border-radius:12px;background:rgba(0,255,135,.065)}.test-pick-efficiency-head{display:flex;justify-content:space-between;gap:12px}.test-pick-efficiency span{color:var(--muted);font-size:.72rem;font-weight:800}.test-pick-efficiency strong{color:var(--accent);font-size:.92rem}.test-efficiency-track{height:6px;margin-top:7px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08)}.test-efficiency-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),#5fe5ff)}
+@media(max-width:700px){.perfect-score-limit{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
   <main class="studio-shell">
@@ -1032,6 +1038,17 @@ body.stage-one-enabled .audit-status-chip {
         </label>
       </div>
 
+<div class="perfect-score-limit" id="perfectScoreLimitPanel">
+  <div class="perfect-score-limit-copy">
+    <span class="limit-kicker">Score control</span>
+    <strong>Maximum perfect score</strong>
+    <small>Set the highest exact unique-player perfect total this generated challenge may have. Enter 0 for no limit.</small>
+  </div>
+  <label>
+    Score ceiling
+    <input id="maxPerfectScore" type="number" min="0" max="5000" step="10" value="0" inputmode="numeric">
+  </label>
+</div>
       <div class="button-row">
         <button id="generateBtn" class="button primary" type="button">Generate draft XI</button>
         <button id="saveDraftBtn" class="button secondary" type="button" disabled>Save draft in this browser</button>
@@ -2124,7 +2141,7 @@ body.stage-one-enabled .audit-status-chip {
   <script src="js/career-context.js?v=1.4.0"></script>
   <script src="prompt-library.js?v=2.0.1"></script>
   <script src="js/validation-engine.js?v=1.7.0"></script>
-  <script src="js/admin-core.js?v=24.0.0"></script>
+  <script src="js/admin-core.js?v=18.0.0"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
   <script src="js/admin-import-tools.js?v=22.0.0"></script>
 
