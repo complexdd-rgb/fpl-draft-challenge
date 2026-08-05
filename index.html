@@ -317,6 +317,53 @@ body::before{
 .results{border-radius:26px}.score-card div{position:relative;overflow:hidden}.score-card div::after{content:"";position:absolute;width:74px;height:74px;right:-28px;bottom:-35px;border-radius:50%;background:rgba(0,255,135,.06)}
 @media(max-width:800px){.challenge-overview{grid-template-columns:1fr;padding:18px}.section-heading{align-items:flex-start;flex-direction:column}.section-heading p{text-align:left}.overview-rules{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:430px){.overview-rules{gap:6px}.overview-rules div{padding:10px 5px}.challenge-overview{border-radius:19px}}
+
+
+/* Input visibility hotfix — 2026-08-05 */
+.player-search,
+.season-select{
+  background:#effff5 !important;
+  color:#071b12 !important;
+  border:2px solid #55d99a !important;
+  box-shadow:0 2px 0 rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.9) !important;
+  caret-color:#071b12;
+  color-scheme:light;
+}
+.player-search::placeholder{
+  color:#4d6b5c !important;
+  opacity:1 !important;
+}
+.player-search:hover,
+.season-select:hover{
+  border-color:#00ff87 !important;
+  background:#f8fffb !important;
+}
+.player-search:focus,
+.season-select:focus{
+  outline:none !important;
+  background:#ffffff !important;
+  color:#06170f !important;
+  border-color:#00ff87 !important;
+  box-shadow:0 0 0 4px rgba(0,255,135,.22),0 3px 10px rgba(0,0,0,.22) !important;
+}
+.season-select:disabled{
+  opacity:.78;
+  background:#dcefe4 !important;
+  color:#486255 !important;
+  border-color:#89bda2 !important;
+}
+.season-select option{
+  background:#ffffff;
+  color:#071b12;
+}
+.player-search:-webkit-autofill,
+.player-search:-webkit-autofill:hover,
+.player-search:-webkit-autofill:focus{
+  -webkit-text-fill-color:#071b12 !important;
+  -webkit-box-shadow:0 0 0 1000px #ffffff inset !important;
+  transition:background-color 9999s ease-out 0s;
+}
+
 </style>
 </head>
 <body>
