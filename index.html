@@ -580,6 +580,11 @@ if (!groupedPlayers.length) {
   throw new Error("No FPL player database was loaded.");
 }
 const flatSeasons = groupedPlayers.flatMap(player => player.seasons.map(season => ({...season,playerId:player.playerId,name:player.name})));
+const availableSeasonLabels = [...new Set(flatSeasons.map(record => record.season).filter(season => /^\d{4}\/\d{2}$/.test(String(season))))]
+  .sort((a,b) => Number(a.slice(0,4)) - Number(b.slice(0,4)));
+const databaseSeasonRange = availableSeasonLabels.length
+  ? `${availableSeasonLabels[0]}–${availableSeasonLabels[availableSeasonLabels.length-1]}`
+  : "Historical seasons";
 const INVALID_PENALTY = 10;
 const STORE = `fpl-v2-${challenge.id}`;
 const BEST = `fpl-v2-${challenge.id}-best`;
@@ -723,7 +728,7 @@ function confirmPick(id){
 }
 function updateStatus(){
   const count=challenge.prompts.filter(p=>picks[p.id]).length;
-  document.getElementById("dbStatus").textContent=`${groupedPlayers.length.toLocaleString()} players · ${flatSeasons.length.toLocaleString()} player-seasons · 2015/16–2025/26`;
+  document.getElementById("dbStatus").textContent=`${groupedPlayers.length.toLocaleString()} players · ${flatSeasons.length.toLocaleString()} player-seasons · ${databaseSeasonRange}`;
   document.getElementById("progress").textContent=`${count} / ${challenge.prompts.length} valid`;
   document.getElementById("penalty").textContent=`Penalties −${penalties}`;
   document.getElementById("reveal").disabled=count!==challenge.prompts.length;
