@@ -930,6 +930,13 @@ body.stage-one-enabled .audit-status-chip {
 .perfect-score-limit{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,250px);gap:18px;align-items:center;margin:16px 0;padding:17px 18px;border:1px solid rgba(4,217,255,.28);border-radius:18px;background:linear-gradient(130deg,rgba(4,217,255,.08),rgba(0,255,135,.055),rgba(0,0,0,.1))}.perfect-score-limit-copy strong,.perfect-score-limit-copy small{display:block}.perfect-score-limit-copy strong{margin:3px 0 5px;font-size:1.03rem}.perfect-score-limit-copy small{color:var(--muted);line-height:1.45}.limit-kicker{color:#5fe5ff;font-size:.68rem;font-weight:950;letter-spacing:.13em;text-transform:uppercase}.perfect-score-limit label{margin:0}.perfect-score-limit input{font-size:1.08rem;font-weight:900;border-color:rgba(4,217,255,.35)}
 .test-pick-efficiency{margin-top:9px;padding:10px 11px;border:1px solid rgba(0,255,135,.24);border-radius:12px;background:rgba(0,255,135,.065)}.test-pick-efficiency-head{display:flex;justify-content:space-between;gap:12px}.test-pick-efficiency span{color:var(--muted);font-size:.72rem;font-weight:800}.test-pick-efficiency strong{color:var(--accent);font-size:.92rem}.test-efficiency-track{height:6px;margin-top:7px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08)}.test-efficiency-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),#5fe5ff)}
 @media(max-width:700px){.perfect-score-limit{grid-template-columns:1fr}}
+
+/* Phase 2 — seven-day calendar generator */
+.batch-planner{margin-top:22px;padding:20px;border:1px solid rgba(0,255,135,.24);border-radius:20px;background:linear-gradient(135deg,rgba(0,255,135,.075),rgba(4,217,255,.045),rgba(0,0,0,.12))}
+.batch-planner-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:16px}.batch-planner-head h3{margin:3px 0 6px;font-size:1.16rem}.batch-planner-head p{margin:0;color:var(--muted);line-height:1.5}.batch-planner-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:14px;align-items:end}.batch-settings-note{grid-column:1/-1}.batch-planner-grid label{margin:0}.batch-settings-note{min-height:48px;display:flex;align-items:center;padding:11px 13px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(0,0,0,.16);color:var(--muted);font-size:.84rem;line-height:1.42}.batch-actions{margin-top:15px}.batch-status-line{margin:13px 0 0}.batch-status-line[data-state="pass"]{color:#72f6b3}.batch-status-line[data-state="fail"]{color:#ff9caa}.batch-status-line[data-state="working"]{color:#78e8ff}.batch-review{margin-top:16px}.batch-empty{display:grid;gap:4px;padding:16px;border:1px dashed rgba(255,255,255,.13);border-radius:15px;color:var(--muted)}.batch-empty strong{color:var(--text)}.batch-table-wrap{overflow-x:auto;border:1px solid rgba(255,255,255,.09);border-radius:15px;background:rgba(0,0,0,.15)}.batch-table{width:100%;min-width:780px;border-collapse:collapse}.batch-table th,.batch-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;vertical-align:top}.batch-table th{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:rgba(255,255,255,.025)}.batch-table tbody tr:last-child td{border-bottom:0}.batch-table td strong,.batch-table td span{display:block}.batch-table td>span:not(.batch-status){margin-top:2px;color:var(--muted);font-size:.78rem}.batch-status{display:inline-flex!important;width:max-content;padding:4px 8px;border-radius:999px;font-size:.68rem;font-weight:950;letter-spacing:.06em}.batch-status.batch-pass{background:rgba(0,255,135,.13);color:#78f6b7;border:1px solid rgba(0,255,135,.24)}.batch-status.batch-fail{background:rgba(255,73,104,.13);color:#ff9aac;border:1px solid rgba(255,73,104,.25)}.batch-table small{display:block;margin-top:5px;max-width:250px;color:var(--muted);line-height:1.35}.batch-manifest-chip{white-space:nowrap}
+@media(max-width:980px){.batch-planner-head{display:grid}.batch-planner-grid{grid-template-columns:1fr 1fr}.batch-settings-note{grid-column:1/-1}.batch-manifest-chip{width:max-content}}
+@media(max-width:560px){.batch-planner{padding:16px}.batch-planner-grid{grid-template-columns:1fr}.batch-settings-note{grid-column:auto}.batch-actions .button{width:100%}}
+
   </style>
 </head>
 <body>
@@ -1055,6 +1062,63 @@ body.stage-one-enabled .audit-status-chip {
         <button id="loadDraftBtn" class="button secondary" type="button">Load saved draft</button>
       </div>
       <p id="actionStatus" class="action-status" role="status"></p>
+
+      <section class="batch-planner" id="batchPlanner" aria-labelledby="batchPlannerHeading">
+        <div class="batch-planner-head">
+          <div>
+            <span class="limit-kicker">Phase 2 · Challenge Calendar</span>
+            <h3 id="batchPlannerHeading">Generate the next 7 days</h3>
+            <p>Build seven dated challenges in one run. Every day is checked against the settings above, the exact unique-player perfect XI and the configured prompt cooldown before the calendar ZIP unlocks.</p>
+          </div>
+          <span id="batchManifestChip" class="phase-chip batch-manifest-chip">Loading calendar…</span>
+        </div>
+
+        <div class="batch-planner-grid">
+          <label>
+            First challenge date
+            <input id="batchStartDate" type="date">
+          </label>
+          <label>
+            First challenge number
+            <input id="batchFirstNumber" type="number" min="1" max="9999" value="0" inputmode="numeric">
+          </label>
+          <label>
+            <strong>Theme preset</strong>
+            <select id="batchThemePreset">
+              <option value="generated-mix">Generated Mix</option>
+              <option value="conte-style">Conte Style</option>
+              <option value="classic-442">Classic 4-4-2</option>
+              <option value="all-out-attack">All-Out Attack</option>
+              <option value="park-the-bus">Park the Bus</option>
+              <option value="possession-433">Possession 4-3-3</option>
+              <option value="wingback-352">Wing-back 3-5-2</option>
+              <option value="gegenpress-4231">Gegenpress 4-2-3-1</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+          <label>
+            <strong>Formation</strong>
+            <select id="batchFormation">
+              <option value="4-4-2">4-4-2</option>
+              <option value="4-3-3">4-3-3</option>
+              <option value="3-4-3">3-4-3</option>
+              <option value="3-5-2">3-5-2</option>
+              <option value="5-3-2">5-3-2</option>
+              <option value="5-4-1">5-4-1</option>
+              <option value="4-2-3-1">4-2-3-1 (FPL 4-5-1)</option>
+            </select>
+          </label>
+          <div class="batch-settings-note"><strong style="color:var(--text);margin-right:6px">Formation-aware generation:</strong> Studio now builds the exact GK/DEF/MID/FWD prompt mix required by the selected shape. Theme presets can choose a formation automatically; Custom lets you change formation without renaming the challenge. Difficulty, answer-pool limits, anti-meta target, cooldown and Maximum Perfect Score still apply.</div>
+        </div>
+
+        <div class="button-row batch-actions">
+          <button id="generateWeekBtn" class="button primary" type="button">Generate next 7 days</button>
+          <button id="downloadWeekBtn" class="button secondary" type="button" disabled>Download 7-day calendar ZIP</button>
+          <button id="clearWeekBtn" class="button secondary" type="button">Clear batch</button>
+        </div>
+        <p id="batchStatus" class="action-status batch-status-line" data-state="neutral" role="status">Ready to generate seven future challenges. Nothing is published automatically.</p>
+        <div id="batchReview" class="batch-review" aria-live="polite"></div>
+      </section>
     </section>
 
     <section class="panel hidden" id="draftPanel">
@@ -1135,7 +1199,7 @@ body.stage-one-enabled .audit-status-chip {
         <span class="phase-chip ready-chip">Manual upload</span>
       </div>
 
-      <p class="code-note">The exact perfect score is included. Run the automatic Test Mode checks before recording it in history, then download and replace only <code>todays-challenge.js</code> in GitHub.</p>
+      <p class="code-note">The exact perfect score is included. This single-file download remains available for manual testing/emergency publishing. For the automated midnight calendar, use <strong>Generate next 7 days</strong> above and upload its dated challenge files plus manifest.</p>
       <textarea id="codeOutput" spellcheck="false" aria-label="Generated challenge code"></textarea>
       <div class="button-row">
         <button id="downloadBtn" class="button primary" type="button" disabled>Download todays-challenge.js</button>
@@ -2046,6 +2110,15 @@ body.stage-one-enabled .audit-status-chip {
     </section>
 
 
+
+    <section class="panel" id="leaderboardBackendPanel" aria-labelledby="leaderboardBackendHeading">
+      <div class="panel-heading">
+        <div><p class="eyebrow">Phase 5A.5 · Deployment prep</p><h2 id="leaderboardBackendHeading">Leaderboard backend health</h2><p class="section-copy">Check whether the browser configuration and four Supabase Edge Functions are ready before the live leaderboard is enabled.</p></div>
+        <span class="phase-chip" id="leaderboardBackendChip">Not configured</span>
+      </div>
+      <div id="leaderboardBackendStatus"></div>
+    </section>
+
     <section class="panel validation-lab-panel" id="validationLabPanel" aria-labelledby="validationLabHeading">
       <div class="panel-heading">
         <div>
@@ -2141,7 +2214,9 @@ body.stage-one-enabled .audit-status-chip {
   <script src="js/career-context.js?v=1.4.0"></script>
   <script src="prompt-library.js?v=2.0.1"></script>
   <script src="js/validation-engine.js?v=1.7.0"></script>
+  <script src="challenges/manifest.js?v=2.0.0"></script>
   <script src="js/admin-core.js?v=18.0.0"></script>
+  <script src="js/admin-batch-calendar.js?v=2.0.0"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
   <script src="js/admin-import-tools.js?v=22.0.0"></script>
 
@@ -2190,6 +2265,13 @@ body.stage-one-enabled .audit-status-chip {
       description: "Audit, repair and consolidate the historical player database."
     },
     {
+      id: "leaderboard",
+      label: "Leaderboard",
+      title: "Leaderboard",
+      icon: "#",
+      description: "Check Supabase configuration, deployment readiness and backend health."
+    },
+    {
       id: "imports",
       label: "Historical Imports",
       title: "Historical Imports",
@@ -2223,6 +2305,7 @@ body.stage-one-enabled .audit-status-chip {
 
     if (/validation lab|player inspector|rule tester|prompt explorer|season health/.test(title)) return "validation";
     if (/prompt library|prompt quality|prompt studio/.test(title)) return "prompts";
+    if (/leaderboard backend|leaderboard health|supabase/.test(title)) return "leaderboard";
     if (/historical database import|official fpl archive import|archive import/.test(title)) return "imports";
     if (/player database auditor|database repair|automatic repair|identity consolidation|database health/.test(title)) return "database";
     if (/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|publishing centre|daily challenge/.test(title)) return "challenge";
@@ -2380,7 +2463,8 @@ body.stage-one-enabled .audit-status-chip {
         prompts: "Prompt workspace",
         validation: "Validation lab",
         database: "Database health",
-        imports: "Historical imports"
+        imports: "Historical imports",
+        leaderboard: "Leaderboard backend"
       };
       eyebrow.textContent = labels[workspaceId] || "Studio tool";
     }
@@ -2707,6 +2791,8 @@ body.stage-one-enabled .audit-status-chip {
 
   </script>
   <!-- FPL STUDIO STAGE ONE JS END -->
+  <script src="js/leaderboard-config.js?v=5.0.5"></script>
+  <script src="js/leaderboard-admin-status.js?v=5.0.5"></script>
   <script src="js/validation-lab.js?v=1.5.0"></script>
 </body>
 </html>

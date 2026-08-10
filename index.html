@@ -1,7 +1,7 @@
 <!doctype html>
 
 <html lang="en">
-<head><!-- Daily challenge content loads from todays-challenge.js in the repository root. -->
+<head><!-- Daily challenge content loads from the dated UK challenge calendar. -->
 
 
 
@@ -437,12 +437,90 @@ body::before{
 }
 @media(max-width:430px){.dock-stat span{display:none}.draft-progress-dock{grid-template-columns:auto auto auto minmax(45px,1fr)}.slot.compact-confirmed .prompt{font-size:.72rem}.confirmed-player strong{font-size:.9rem}.result-hero{grid-template-columns:1fr;text-align:center}.result-ring{margin:auto}.result-copy p{font-size:.78rem}}
 
+
+/* Phase 3 — persistent attempt + local history */
+.local-history{margin:14px 0 22px;padding:16px 17px;border:1px solid rgba(255,255,255,.11);border-radius:19px;background:linear-gradient(135deg,rgba(8,31,22,.94),rgba(7,23,31,.86));box-shadow:0 12px 34px rgba(0,0,0,.16)}
+.local-history-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:12px}.local-history-head h2{margin:3px 0 0;font-size:1.12rem}.local-history-head p{margin:0;color:var(--muted);font-size:.7rem;text-align:right}
+.local-history-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}.history-stat{padding:10px 8px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(0,0,0,.16);text-align:center}.history-stat strong,.history-stat span{display:block}.history-stat strong{color:var(--accent);font-size:1.03rem}.history-stat span{margin-top:2px;color:var(--muted);font-size:.61rem;font-weight:800;line-height:1.2}
+.timer-waiting{opacity:.78}.attempt-locked{opacity:.78;cursor:not-allowed!important}.completed-local-note{margin:10px 0 0;color:#9fddea;font-size:.72rem;line-height:1.4}
+@media(max-width:760px){.local-history-grid{grid-template-columns:repeat(3,1fr)}.local-history-head{align-items:flex-start;flex-direction:column}.local-history-head p{text-align:left}}
+@media(max-width:420px){.local-history-grid{grid-template-columns:repeat(2,1fr)}}
+
+
+/* PHASE 4.5 — visual shell, live XI pitch, stats, achievements, mobile nav */
+.phase45-shell{display:grid;gap:18px;margin-top:16px}
+.phase45-hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.95fr);gap:18px;align-items:stretch}
+.phase45-dashboard,.phase45-sidecard,.phase45-panel{padding:18px;border-radius:24px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(10,31,22,.98),rgba(7,23,17,.98));box-shadow:0 12px 28px rgba(0,0,0,.18)}
+.phase45-dashboard{position:relative;overflow:hidden}
+.phase45-dashboard::after{content:"";position:absolute;width:220px;height:220px;right:-70px;top:-80px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,135,.18),rgba(0,255,135,0))}
+.phase45-kicker{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:rgba(0,255,135,.1);color:var(--accent);font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.phase45-dashboard h2{margin:10px 0 8px;font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.02;letter-spacing:-.035em}
+.phase45-dashboard p{margin:0;color:var(--muted);max-width:760px;font-size:.9rem;line-height:1.55}
+.phase45-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:16px}
+.phase45-metric{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.phase45-metric strong,.phase45-metric span{display:block}.phase45-metric span{color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;font-weight:900}.phase45-metric strong{margin-top:4px;font-size:1.15rem;color:#fff}
+.phase45-sidecard{display:grid;gap:14px}
+.phase45-sidecard h3{margin:0;font-size:1rem}.phase45-sidecard p{margin:0;color:var(--muted);font-size:.8rem;line-height:1.45}
+.phase45-mini-progress{display:grid;gap:10px}.phase45-mini-track{height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}.phase45-mini-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),#5fe5ff)}
+.phase45-mini-row{display:flex;justify-content:space-between;gap:10px;font-size:.82rem}.phase45-mini-row strong{color:#fff}.phase45-mini-row span{color:var(--muted)}
+.live-xi-panel{display:grid;grid-template-columns:minmax(260px,.95fr) minmax(0,1fr);gap:18px;align-items:start}
+.live-xi-pitch-card{padding:16px;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(9,27,20,.98),rgba(6,18,14,.98))}
+.live-xi-head,.phase45-section-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-end;margin-bottom:14px}.live-xi-head h3,.phase45-section-head h3{margin:0;font-size:1rem}.live-xi-head p,.phase45-section-head p{margin:4px 0 0;color:var(--muted);font-size:.76rem;line-height:1.45}
+.live-xi-badge{padding:8px 10px;border-radius:999px;background:rgba(0,255,135,.08);border:1px solid rgba(0,255,135,.18);color:var(--accent);font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.live-mini-pitch{position:relative;min-height:430px;padding:20px 10px;border-radius:22px;background:linear-gradient(#167a45,#116d3e);border:3px solid rgba(255,255,255,.68);overflow:hidden}
+.live-mini-pitch::before{content:"";position:absolute;inset:50% 0 auto;border-top:2px solid rgba(255,255,255,.58)}
+.live-mini-pitch::after{content:"";position:absolute;left:50%;top:50%;width:92px;height:92px;border-radius:50%;border:2px solid rgba(255,255,255,.56);transform:translate(-50%,-50%)}
+.live-pitch-col{position:relative;z-index:1;display:flex;justify-content:center;gap:10px;margin:18px 0}.live-pitch-col.def,.live-pitch-col.mid{margin:34px 0}
+.live-shirt{width:80px;min-height:70px;padding:10px 8px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(232,245,237,.93));color:#0a1f16;border:1px solid rgba(0,0,0,.08);display:grid;align-content:center;justify-items:center;text-align:center;box-shadow:0 8px 18px rgba(0,0,0,.18)}
+.live-shirt.empty{background:rgba(0,0,0,.13);color:rgba(255,255,255,.65);border:1px dashed rgba(255,255,255,.26);box-shadow:none}
+.live-shirt strong{display:block;font-size:.7rem;line-height:1.05}.live-shirt span{display:block;margin-top:3px;font-size:.57rem;line-height:1.15;color:inherit;opacity:.85}.live-shirt em{display:block;margin-top:5px;font-style:normal;font-size:.58rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#2f5f4a}.live-shirt.empty em{color:rgba(255,255,255,.7)}
+.phase45-side-stack{display:grid;gap:16px}
+.history-grid-extended,.achievements-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.history-chip,.achievement-card{padding:13px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.history-chip strong,.history-chip span,.achievement-card strong,.achievement-card span{display:block}.history-chip span,.achievement-card span{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:900}.history-chip strong,.achievement-card strong{margin-top:4px;color:#fff;font-size:1rem}
+.achievement-card{display:flex;gap:12px;align-items:center}.achievement-icon{width:42px;height:42px;border-radius:14px;background:rgba(0,255,135,.08);display:grid;place-items:center;font-size:1.1rem;border:1px solid rgba(0,255,135,.18)}
+.achievement-card.locked .achievement-icon{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);filter:grayscale(1);opacity:.75}.achievement-card.locked strong{color:#d2dfd7}.achievement-card.locked small{color:var(--muted)}
+.achievement-copy{min-width:0}.achievement-copy strong{font-size:.86rem}.achievement-copy small{display:block;margin-top:2px;color:var(--muted);line-height:1.35;font-size:.67rem}
+.archive-entry{border-radius:18px;background:linear-gradient(180deg,rgba(17,45,32,.95),rgba(10,27,20,.98));border:1px solid rgba(255,255,255,.08)}
+.archive-entry h3{font-size:.88rem}.archive-entry p{font-size:.7rem}.archive-action{border-radius:12px;background:rgba(0,255,135,.08);border-color:rgba(0,255,135,.22)}
+.phase45-bottom-nav{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(94vw,680px);display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:10px;border-radius:18px;background:rgba(9,23,18,.94);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.09);box-shadow:0 16px 28px rgba(0,0,0,.28);z-index:80}
+.phase45-bottom-nav button{appearance:none;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;border-radius:12px;padding:10px 8px;font:inherit;font-size:.7rem;font-weight:900;display:grid;justify-items:center;gap:4px}.phase45-bottom-nav button span{font-size:1.05rem;line-height:1}.phase45-bottom-nav button:hover,.phase45-bottom-nav button:focus-visible{border-color:rgba(0,255,135,.35)}
+.share-button-group{display:flex;gap:10px;flex-wrap:wrap}.share-button-group .btn{flex:0 0 auto}
+.phase45-celebration{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.celebration-pill{padding:8px 10px;border-radius:999px;background:rgba(0,255,135,.08);border:1px solid rgba(0,255,135,.20);font-size:.68rem;font-weight:900;color:#def8e7;letter-spacing:.04em;text-transform:uppercase}
+@media(max-width:980px){.phase45-hero,.live-xi-panel{grid-template-columns:1fr}.phase45-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.history-grid-extended,.achievements-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.phase45-bottom-nav{display:grid}.live-mini-pitch{min-height:380px}.live-shirt{width:66px;min-height:62px}.live-shirt strong{font-size:.64rem}.live-shirt span{font-size:.53rem}body{padding-bottom:86px}}
+@media(max-width:540px){.history-grid-extended,.achievements-grid,.phase45-metrics{grid-template-columns:1fr}.phase45-dashboard h2{font-size:1.65rem}.phase45-dashboard p{font-size:.82rem}.live-pitch-col{gap:8px}.live-shirt{width:58px;padding:9px 6px}.live-shirt strong{font-size:.58rem}.live-shirt span{font-size:.48rem}.phase45-bottom-nav{gap:8px;padding:8px}}
+
+
+/* PHASE 4.5 second pass — state clarity, archive polish, share preview, result celebration */
+.slot{transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease}
+.slot.phase45-unanswered{border-color:rgba(255,255,255,.075)}
+.slot.phase45-active{border-color:rgba(95,229,255,.45);box-shadow:0 0 0 2px rgba(95,229,255,.08),0 14px 30px rgba(0,0,0,.16);transform:translateY(-1px)}
+.slot.phase45-locked{border-color:rgba(0,255,135,.25);animation:phase45LockIn .3s ease both}
+@keyframes phase45LockIn{from{transform:scale(.992);opacity:.82}to{transform:scale(1);opacity:1}}
+.compact-track{height:6px!important;margin-top:9px!important;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06)}
+.compact-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),#5fe5ff);transition:width .35s ease}
+.result-hero.phase45-fresh-result{animation:phase45ResultRise .55s cubic-bezier(.2,.78,.25,1) both}
+@keyframes phase45ResultRise{from{opacity:.35;transform:translateY(14px) scale(.992)}to{opacity:1;transform:none}}
+.phase45-record-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.phase45-record-pill{padding:7px 10px;border-radius:999px;border:1px solid rgba(255,209,102,.28);background:rgba(255,209,102,.08);color:#ffe5a1;font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.055em}
+.phase45-share-preview{margin-top:14px;padding:14px;border:1px solid rgba(255,255,255,.09);border-radius:18px;background:linear-gradient(145deg,rgba(14,43,30,.9),rgba(7,23,17,.94))}.share-preview-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}.share-preview-head h3{margin:3px 0 0;font-size:.95rem}.share-preview-badge{padding:7px 9px;border-radius:999px;border:1px solid rgba(0,255,135,.18);background:rgba(0,255,135,.07);color:var(--accent);font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.share-card{position:relative;overflow:hidden;padding:18px;border-radius:20px;border:1px solid rgba(255,255,255,.11);background:radial-gradient(circle at 100% 0,rgba(0,255,135,.18),transparent 34%),linear-gradient(145deg,#10291e,#091a13);box-shadow:0 14px 28px rgba(0,0,0,.18)}.share-card::after{content:"XI";position:absolute;right:12px;bottom:-18px;color:rgba(255,255,255,.035);font-size:6rem;font-weight:1000;letter-spacing:-.07em;pointer-events:none}.share-card-top{display:flex;justify-content:space-between;gap:14px;align-items:start}.share-card-title strong,.share-card-title span{display:block}.share-card-title span{font-size:.65rem;color:var(--accent);font-weight:900;text-transform:uppercase;letter-spacing:.08em}.share-card-title strong{margin-top:3px;font-size:1.15rem}.share-card-grade{min-width:54px;height:54px;border-radius:16px;background:rgba(255,209,102,.09);border:1px solid rgba(255,209,102,.22);display:grid;place-items:center;color:#ffd166;font-size:1.25rem;font-weight:1000}.share-grid{display:grid;grid-template-columns:repeat(4,22px);gap:6px;margin:18px 0}.share-grid span{width:22px;height:22px;border-radius:6px;display:block;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}.share-grid .perfect{background:#ffd166}.share-grid .elite{background:#00ff87}.share-grid .strong{background:#5fe5ff}.share-grid .risky{background:#ff5577}.share-card-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;position:relative;z-index:1}.share-card-stat{padding:9px;border-radius:12px;background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.07)}.share-card-stat span,.share-card-stat strong{display:block}.share-card-stat span{font-size:.56rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:900}.share-card-stat strong{margin-top:2px;font-size:.9rem}
+.archive-entry{position:relative;overflow:hidden;padding:14px 14px!important}.archive-entry::after{content:"";position:absolute;width:76px;height:76px;border-radius:50%;right:-30px;top:-34px;background:rgba(0,255,135,.035)}.archive-entry-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}.archive-number,.archive-difficulty,.archive-state-chip{display:inline-flex;padding:5px 7px;border-radius:999px;font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.055em}.archive-number{background:rgba(0,255,135,.08);color:var(--accent);border:1px solid rgba(0,255,135,.16)}.archive-difficulty{background:rgba(95,229,255,.07);color:#aeefff;border:1px solid rgba(95,229,255,.16)}.archive-state-chip{background:rgba(255,255,255,.05);color:#dcebe2;border:1px solid rgba(255,255,255,.08)}.archive-state-chip.completed{background:rgba(0,255,135,.08);color:var(--accent);border-color:rgba(0,255,135,.18)}.archive-state-chip.practice{background:rgba(95,229,255,.07);color:#aeefff;border-color:rgba(95,229,255,.18)}.archive-meta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;color:var(--muted);font-size:.64rem}.archive-action{position:relative;z-index:1;min-width:92px}
+@media(max-width:540px){.share-card-stats{grid-template-columns:1fr 1fr}.share-card-stat:last-child{grid-column:1/-1}.share-preview-head{align-items:flex-start;flex-direction:column}.archive-entry-top{padding-right:18px}}
+
 </style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b2017">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FPL Challenge">
+
 </head>
 <body>
 <main class="app">
 <header class="hero">
-<div class="eyebrow">Version 4.1 · Enriched historical edition</div>
+<div class="eyebrow">Version 4.5 · Polish & retention edition</div>
 <h1 id="title">FPL Daily Challenge</h1>
 <p>Search once for a footballer, choose the season beside their name, then confirm. A footballer can only be used once across the whole XI. Invalid confirmed seasons cost 10 points.</p>
 <div class="status">
@@ -463,6 +541,41 @@ body::before{
     <div><strong>1×</strong><span>each footballer</span></div>
     <div><strong>100%</strong><span>best prompt pick</span></div>
   </div>
+</section>
+<section class="local-history" id="localHistory" aria-label="Your local challenge history">
+  <div class="local-history-head">
+    <div><span class="overview-kicker">Your history</span><h2>Daily record on this device</h2></div>
+    <p>Stored only in this browser for now. It will become the foundation for the live leaderboard later.</p>
+  </div>
+  <div class="local-history-grid">
+    <div class="history-stat"><strong id="historyGames">0</strong><span>games played</span></div>
+    <div class="history-stat"><strong id="historyStreak">0</strong><span>current streak</span></div>
+    <div class="history-stat"><strong id="historyBestScore">0</strong><span>best score</span></div>
+    <div class="history-stat"><strong id="historyBestEfficiency">0%</strong><span>best efficiency</span></div>
+    <div class="history-stat"><strong id="historyAverageEfficiency">0%</strong><span>average efficiency</span></div>
+    <div class="history-stat"><strong id="historyPerfectPicks">0</strong><span>perfect prompt picks</span></div>
+  </div>
+  <p class="completed-local-note hidden" id="completedLocalNote">Today’s challenge is already completed on this device. Your saved result has been restored.</p>
+</section>
+
+<section class="phase45-shell" id="phase45Shell">
+  <section class="phase45-hero" id="phase45Hero"></section>
+  <section class="live-xi-panel" id="liveXiPanel">
+    <div class="live-xi-pitch-card">
+      <div class="live-xi-head"><div><span class="overview-kicker">Visual XI</span><h3>Live pitch view</h3><p>Your XI fills the pitch as each answer is locked in. This is a live visual layer only and does not change scoring.</p></div><span class="live-xi-badge" id="liveXiFormation">Formation</span></div>
+      <div class="live-mini-pitch" id="liveMiniPitch"></div>
+    </div>
+    <div class="phase45-side-stack">
+      <section class="phase45-panel" id="phase45ExtendedStats">
+        <div class="phase45-section-head"><div><span class="overview-kicker">Profile</span><h3>Your local record</h3></div><p>Stored on this device until accounts and the live leaderboard arrive.</p></div>
+        <div class="history-grid-extended" id="historyGridExtended"></div>
+      </section>
+      <section class="phase45-panel" id="phase45Achievements">
+        <div class="phase45-section-head"><div><span class="overview-kicker">Achievements</span><h3>Daily milestones</h3></div><p>These run locally for now and can move straight onto accounts later.</p></div>
+        <div class="achievements-grid" id="achievementGrid"></div>
+      </section>
+    </div>
+  </section>
 </section>
 <div class="section-heading">
   <div><span class="overview-kicker">Your draft board</span><h2>Build your historical XI</h2></div>
@@ -511,7 +624,11 @@ body::before{
 </div>
 <h2>Top five valid player-seasons</h2>
 <div id="reviews"></div>
-<div class="actions"><button class="btn primary" id="copy">Copy share result</button></div>
+<div class="actions share-button-group"><button class="btn primary" id="shareResult">Share result</button><button class="btn" id="copy">Copy share text</button></div>
+<div class="phase45-share-preview" id="phase45SharePreview" aria-label="Spoiler-free share preview">
+  <div class="share-preview-head"><div><span class="overview-kicker">Share card</span><h3>Spoiler-free result</h3></div><span class="share-preview-badge">No player names</span></div>
+  <div id="phase45ShareCard"></div>
+</div>
 <p id="copyStatus"></p>
 </section>
 </main>
@@ -521,125 +638,18 @@ body::before{
 
 
 
-<!-- Load the editable daily challenge first. The timestamp prevents an old cached challenge being reused. -->
+<!-- Phase 1: load the challenge calendar, then synchronously load the challenge selected for the current UK date. -->
 <script>
-document.write('<script src="todays-challenge.js?v=' + Date.now() + '"><\/script>');
+document.write('<script src="challenges/manifest.js?v=' + Date.now() + '"><\/script>');
 </script>
-
-<!-- Safe fallback: used only if todays-challenge.js is missing or fails to load. -->
+<script src="js/daily-challenge-loader.js?v=1.0.0"></script>
+<!-- Emergency compatibility fallback: the legacy file remains usable if the calendar or dated file is unavailable. -->
 <script>
-window.FPL_DAILY_CHALLENGE = window.FPL_DAILY_CHALLENGE || {
-  id: "daily-006-underdog-xi",
-  number: 6,
-  title: "Daily Challenge #6 · The Underdog XI",
-  dateLabel: "Anti-Meta · Medium / Hard",
-  difficulty: "Medium / Hard",
-  releaseDate: "2026-07-20",
-  perfectScore: 1885,
-  prompts: [
-    {
-      id: "gk_survival_saves",
-      position: "GK",
-      label: "Goalkeeper whose club finished 13th–17th with at least 100 saves",
-      fail: "That goalkeeper's club must have finished 13th–17th and the season must include at least 100 saves.",
-      test: p => Number.isFinite(p.leaguePosition) &&
-                 p.leaguePosition >= 13 &&
-                 p.leaguePosition <= 17 &&
-                 p.saves >= 100
-    },
-    {
-      id: "def_moyes_minutes",
-      position: "DEF",
-      label: "Defender managed by David Moyes who played at least 2,000 minutes",
-      fail: "That defender season must have been managed by David Moyes and include at least 2,000 minutes.",
-      test: p => Array.isArray(p.managers) &&
-                 p.managers.includes("David Moyes") &&
-                 p.minutes >= 2000
-    },
-    {
-      id: "def_creator_outside_big_six",
-      position: "DEF",
-      label: "Defender outside the traditional Big Six with 5+ assists and more assists than goals",
-      fail: "That defender must be outside the traditional Big Six, record at least 5 assists and have more assists than goals.",
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
-                 p.assists >= 5 &&
-                 p.assists > p.goals
-    },
-    {
-      id: "def_midtable_minutes",
-      position: "DEF",
-      label: "Defender from a club that finished 7th–12th who played at least 2,500 minutes",
-      fail: "That defender's club must have finished 7th–12th and the season must include at least 2,500 minutes.",
-      test: p => Number.isFinite(p.leaguePosition) &&
-                 p.leaguePosition >= 7 &&
-                 p.leaguePosition <= 12 &&
-                 p.minutes >= 2500
-    },
-    {
-      id: "def_budget_clean_sheets",
-      position: "DEF",
-      label: "Defender outside the traditional Big Six who started at £4.5m or less and kept 10+ clean sheets",
-      fail: "That defender must be outside the traditional Big Six, start at £4.5m or less and record at least 10 clean sheets.",
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
-                 p.startingPrice <= 4.5 &&
-                 p.cleanSheets >= 10
-    },
-    {
-      id: "mid_relegated_involvements",
-      position: "MID",
-      label: "Midfielder from a relegated club with at least 5 goal involvements",
-      fail: "That midfielder must play for a relegated club and record at least 5 combined goals and assists.",
-      test: p => p.relegated === true &&
-                 (p.goals + p.assists) >= 5
-    },
-    {
-      id: "mid_creator_outside_big_six",
-      position: "MID",
-      label: "Midfielder outside the traditional Big Six with 8+ assists and more assists than goals",
-      fail: "That midfielder must be outside the traditional Big Six, record at least 8 assists and have more assists than goals.",
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
-                 p.assists >= 8 &&
-                 p.assists > p.goals
-    },
-    {
-      id: "mid_midtable_exact_five",
-      position: "MID",
-      label: "Midfielder from a club that finished 8th–12th who scored exactly 5 goals",
-      fail: "That midfielder's club must have finished 8th–12th and the player must have scored exactly 5 goals.",
-      test: p => Number.isFinite(p.leaguePosition) &&
-                 p.leaguePosition >= 8 &&
-                 p.leaguePosition <= 12 &&
-                 p.goals === 5
-    },
-    {
-      id: "mid_budget_involvements",
-      position: "MID",
-      label: "Midfielder outside the traditional Big Six who started below £6.0m and had 8+ goal involvements",
-      fail: "That midfielder must be outside the traditional Big Six, start below £6.0m and record at least 8 combined goals and assists.",
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
-                 p.startingPrice < 6.0 &&
-                 (p.goals + p.assists) >= 8
-    },
-    {
-      id: "fwd_promoted_goals",
-      position: "FWD",
-      label: "Forward from a promoted club who scored at least 10 goals",
-      fail: "That forward must play for a promoted club and score at least 10 goals.",
-      test: p => p.promoted === true &&
-                 p.goals >= 10
-    },
-    {
-      id: "fwd_exact_ten_outside_big_six",
-      position: "FWD",
-      label: "Forward outside the traditional Big Six who scored exactly 10 goals",
-      fail: "That forward must be outside the traditional Big Six and score exactly 10 goals.",
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) &&
-                 p.goals === 10
-    }
-  ]
-};
-
+if (!window.FPL_DAILY_CHALLENGE) {
+  document.write('<script src="todays-challenge.js?v=' + Date.now() + '"><\/script>');
+}
 </script>
+<script src="js/challenge-archive.js?v=1.0.0"></script>
 
 <script>
 /* Shared prompt helper functions. */
@@ -687,14 +697,18 @@ const databaseSeasonRange = availableSeasonLabels.length
   ? `${availableSeasonLabels[0]}–${availableSeasonLabels[availableSeasonLabels.length-1]}`
   : "Historical seasons";
 const INVALID_PENALTY = 10;
-const STORE = `fpl-v2-${challenge.id}`;
-const BEST = `fpl-v2-${challenge.id}-best`;
+const ARCHIVE_MODE = window.FPL_CHALLENGE_RUNTIME?.archiveMode === true;
+const ATTEMPT_MODE = ARCHIVE_MODE ? "archive-practice" : "official";
+const STORE = ARCHIVE_MODE ? `fpl-v2-practice-${challenge.id}` : `fpl-v2-${challenge.id}`;
+const BEST = ARCHIVE_MODE ? `fpl-v2-practice-${challenge.id}-best` : `fpl-v2-${challenge.id}-best`;
+const HISTORY_STORE = "fpl-v4-local-history";
 let picks = {};
 let drafts = {};
 let feedback = {};
 let penalties = 0;
-let startedAt = Date.now();
+let startedAt = null;
 let completedSeconds = null;
+let completedRecord = null;
 let timerId;
 let active = {};
 
@@ -733,14 +747,101 @@ function pickEfficiencyMarkup(record,prompt){
   return `<div class="pick-efficiency" data-tier="${detail.tier}" aria-label="Pick efficiency ${detail.rounded} percent"><div class="pick-efficiency-head"><span>${detail.label} selection</span><strong>${detail.rounded}%</strong></div><div class="efficiency-track"><div class="efficiency-fill" style="width:${detail.percentage.toFixed(1)}%"></div></div><small>Compared with the highest-scoring valid player-season for this prompt.</small></div>`;
 }
 
-function save(){localStorage.setItem(STORE,JSON.stringify({picks,penalties}));}
-function load(){try{const x=JSON.parse(localStorage.getItem(STORE)||"{}");picks=x.picks||{};penalties=Number(x.penalties)||0;}catch{}}
+function save(){
+  const payload={version:3,challengeId:challenge.id,releaseDate:challenge.releaseDate||null,picks,penalties,startedAt,completedSeconds,completedRecord};
+  localStorage.setItem(STORE,JSON.stringify(payload));
+}
+function load(){
+  try{
+    if(ARCHIVE_MODE){
+      const official=loadHistory().find(item=>item&&item.completed===true&&item.challengeId===challenge.id);
+      if(official){
+        completedRecord=official;
+        picks=official.picks||{};
+        penalties=Number(official.penalties)||0;
+        startedAt=Number(official.startedAt)||null;
+        completedSeconds=Number(official.elapsedSeconds)||0;
+        return;
+      }
+    }
+    const x=JSON.parse(localStorage.getItem(STORE)||"{}");
+    picks=x.picks||{};
+    penalties=Number(x.penalties)||0;
+    startedAt=Number.isFinite(Number(x.startedAt))&&Number(x.startedAt)>0?Number(x.startedAt):null;
+    completedSeconds=Number.isFinite(Number(x.completedSeconds))?Number(x.completedSeconds):null;
+    completedRecord=x.completedRecord&&x.completedRecord.challengeId===challenge.id?x.completedRecord:null;
+    if(completedRecord){
+      picks=completedRecord.picks||picks;
+      penalties=Number(completedRecord.penalties)||penalties;
+      startedAt=Number(completedRecord.startedAt)||startedAt;
+      completedSeconds=Number(completedRecord.elapsedSeconds)||completedSeconds||0;
+    }else if(Object.keys(picks).length&&startedAt===null){
+      startedAt=Date.now();
+    }
+  }catch{}
+}
+function ensureStarted(){
+  if(completedRecord||startedAt!==null)return;
+  startedAt=Date.now();
+  save();
+  tick();
+  window.dispatchEvent(new CustomEvent("fpl:attempt-started",{detail:{challengeId:challenge.id,challengeDate:challengeDate(),startedAt}}));
+}
+function isGameCompleted(){return !!completedRecord;}
+function loadHistory(){
+  try{
+    const value=JSON.parse(localStorage.getItem(HISTORY_STORE)||"[]");
+    return Array.isArray(value)?value:[];
+  }catch{return [];}
+}
+function saveHistory(history){
+  localStorage.setItem(HISTORY_STORE,JSON.stringify(history));
+}
+function upsertHistory(record){
+  const history=loadHistory().filter(item=>item&&item.challengeId!==record.challengeId);
+  history.push(record);
+  history.sort((a,b)=>String(a.challengeDate||"").localeCompare(String(b.challengeDate||"")));
+  saveHistory(history.slice(-400));
+  renderLocalHistory();
+}
+function dateDayNumber(value){
+  const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value||""));
+  if(!match)return null;
+  return Math.floor(Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3]))/86400000);
+}
+function currentStreak(history){
+  const days=[...new Set(history.map(item=>dateDayNumber(item.challengeDate)).filter(Number.isFinite))].sort((a,b)=>a-b);
+  if(!days.length)return 0;
+  let streak=1;
+  for(let i=days.length-1;i>0;i--){if(days[i]-days[i-1]===1)streak++;else break;}
+  return streak;
+}
+function renderLocalHistory(){
+  const history=loadHistory().filter(item=>item&&item.completed===true&&item.official!==false);
+  const games=history.length;
+  const scores=history.map(item=>Number(item.finalScore)).filter(Number.isFinite);
+  const efficiencies=history.map(item=>Number(item.efficiency)).filter(Number.isFinite);
+  const perfectPicks=history.reduce((sum,item)=>sum+(Number(item.perfectPromptPicks)||0),0);
+  const set=(id,value)=>{const element=document.getElementById(id);if(element)element.textContent=value;};
+  set("historyGames",games.toLocaleString());
+  set("historyStreak",currentStreak(history).toLocaleString());
+  set("historyBestScore",scores.length?Math.max(...scores).toLocaleString():"0");
+  set("historyBestEfficiency",efficiencies.length?`${Math.max(...efficiencies).toFixed(1)}%`:"0%");
+  set("historyAverageEfficiency",efficiencies.length?`${(efficiencies.reduce((a,b)=>a+b,0)/efficiencies.length).toFixed(1)}%`:"0%");
+  set("historyPerfectPicks",perfectPicks.toLocaleString());
+  const note=document.getElementById("completedLocalNote");
+  if(note){
+    note.classList.toggle("hidden",!completedRecord);
+    if(completedRecord)note.textContent=ARCHIVE_MODE&&completedRecord.official===false?"This archive practice is already completed on this device. Your saved practice result has been restored.":ARCHIVE_MODE?"You completed this challenge on its original day. Your locked daily result has been restored.":"Today’s challenge is already completed on this device. Your saved result has been restored.";
+  }
+}
+function challengeDate(){return challenge.releaseDate||window.FPL_CHALLENGE_RUNTIME?.selectedDate||new Date().toISOString().slice(0,10);}
 
 function eligibleSeasons(player,prompt){
   return player.seasons.filter(s=>s.position===prompt.position&&qualifiesForAnswer(s));
 }
 function render(){
-  document.getElementById("title").textContent=`FPL Daily Challenge 4.1 · ${challenge.title}`;
+  document.getElementById("title").textContent=`FPL Daily Challenge 4.5 · ${challenge.title}`;
   document.getElementById("grid").innerHTML=challenge.prompts.map((prompt,index)=>{
     const saved=picks[prompt.id];
     const draft=drafts[prompt.id] || (saved ? {playerId:saved.playerId,season:saved.season}:null);
@@ -756,7 +857,7 @@ function render(){
         <div class="confirmed-summary">
           <div class="confirmed-player"><strong>${esc(record.name)}</strong><span>${record.season} · ${esc(record.club)} · ${price} · points hidden</span></div>
           <div class="compact-efficiency" data-tier="${detail.tier}" title="Compared with the best valid answer for this prompt"><span>${detail.label}</span><strong>${detail.rounded}%</strong></div>
-          <button class="compact-change clear" data-clear="${prompt.id}" type="button">Change pick</button>
+          ${completedRecord?'<button class="compact-change attempt-locked" type="button" disabled>Completed</button>':`<button class="compact-change clear" data-clear="${prompt.id}" type="button">Change pick</button>`}
         </div>
         <div class="compact-track" aria-hidden="true"><span style="width:${detail.percentage.toFixed(1)}%"></span></div>
       </article>`;
@@ -783,15 +884,15 @@ function render(){
 }
 function bind(){
   document.querySelectorAll(".player-search").forEach(input=>{
-    input.addEventListener("input",onSearch);
-    input.addEventListener("keydown",onKeys);
-    input.addEventListener("focus",onSearch);
+    input.addEventListener("input",e=>{ensureStarted();onSearch(e);});
+    input.addEventListener("keydown",e=>{ensureStarted();onKeys(e);});
+    input.addEventListener("focus",e=>{ensureStarted();onSearch(e);});
   });
   document.querySelectorAll("[data-season]").forEach(select=>select.addEventListener("change",e=>{
-    const id=e.target.dataset.season;if(drafts[id]) drafts[id].season=e.target.value;render();
+    ensureStarted();const id=e.target.dataset.season;if(drafts[id]) drafts[id].season=e.target.value;save();render();
   }));
-  document.querySelectorAll("[data-confirm]").forEach(b=>b.addEventListener("click",()=>confirmPick(b.dataset.confirm)));
-  document.querySelectorAll("[data-clear]").forEach(b=>b.addEventListener("click",()=>{delete drafts[b.dataset.clear];delete picks[b.dataset.clear];feedback[b.dataset.clear]="";save();render();}));
+  document.querySelectorAll("[data-confirm]").forEach(b=>b.addEventListener("click",()=>{ensureStarted();confirmPick(b.dataset.confirm);}));
+  document.querySelectorAll("[data-clear]").forEach(b=>b.addEventListener("click",()=>{if(completedRecord)return;ensureStarted();delete drafts[b.dataset.clear];delete picks[b.dataset.clear];feedback[b.dataset.clear]="";save();render();}));
 }
 function onSearch(e){
   const id=e.target.dataset.id;
@@ -821,6 +922,7 @@ function onKeys(e){
   opts.forEach((o,i)=>o.classList.toggle("active",i===active[id]));
 }
 function choosePlayer(id,playerId){
+  ensureStarted();
   if(usedPlayerIds().has(playerId)){feedback[id]="That footballer has already been used — no penalty.";render();return;}
   const prompt=challenge.prompts.find(p=>p.id===id),player=getPlayer(playerId);
   const seasons=eligibleSeasons(player,prompt);
@@ -828,6 +930,8 @@ function choosePlayer(id,playerId){
   delete picks[id];feedback[id]="Choose a season, then confirm.";render();
 }
 function confirmPick(id){
+  if(completedRecord)return;
+  ensureStarted();
   const prompt=challenge.prompts.find(p=>p.id===id),draft=drafts[id];
   if(!draft)return;
   const duplicate=Object.entries(picks).some(([key,p])=>key!==id&&p.playerId===draft.playerId);
@@ -835,6 +939,7 @@ function confirmPick(id){
   const record=getRecord(draft.playerId,draft.season);
   if(!record)return;
   if(!qualifiesForAnswer(record)){feedback[id]="This player-season recorded 0 minutes and cannot be used — no penalty.";delete picks[id];save();render();return;}
+  window.dispatchEvent(new CustomEvent("fpl:pick-attempt",{detail:{challengeId:challenge.id,challengeDate:challengeDate(),promptId:id,playerId:draft.playerId,season:draft.season}}));
   if(!prompt.test(record)){
     penalties+=INVALID_PENALTY;feedback[id]=`❌ ${record.name} ${record.season} is invalid. ${prompt.fail} −${INVALID_PENALTY} points.`;
     delete picks[id];save();render();
@@ -847,10 +952,14 @@ function updateStatus(){
   const count=challenge.prompts.filter(p=>picks[p.id]).length;
   const total=challenge.prompts.length;
   const percent=total?Math.max(0,Math.min(100,(count/total)*100)):0;
-  document.getElementById("dbStatus").textContent=`${groupedPlayers.length.toLocaleString()} players · ${flatSeasons.length.toLocaleString()} player-seasons · ${databaseSeasonRange}`;
+  document.getElementById("dbStatus").textContent=`${groupedPlayers.length.toLocaleString()} players · ${flatSeasons.length.toLocaleString()} player-seasons · ${databaseSeasonRange}${ARCHIVE_MODE?" · PRACTICE":""}`;
   document.getElementById("progress").textContent=`${count} / ${total} valid`;
   document.getElementById("penalty").textContent=`Penalties −${penalties}`;
-  document.getElementById("reveal").disabled=count!==total;
+  const revealButton=document.getElementById("reveal");
+  revealButton.disabled=count!==total||!!completedRecord;
+  revealButton.textContent=completedRecord?"Challenge completed":"Reveal my XI";
+  const resetButton=document.getElementById("reset");
+  if(resetButton){resetButton.disabled=!!completedRecord;resetButton.classList.toggle("attempt-locked",!!completedRecord);resetButton.textContent=completedRecord?"Result locked":"Reset team";}
   const dockProgress=document.getElementById("dockProgress");
   const dockPenalty=document.getElementById("dockPenalty");
   const dockBar=document.getElementById("dockProgressBar");
@@ -871,10 +980,16 @@ function calculatePerfectXI(){
   const rows=assignment.map((column,index)=>bestBySlot[index].get(playerIds[column])||null);if(rows.some(row=>!row))return null;return {rows,score:rows.reduce((sum,row)=>sum+row.points,0)};
 }
 function hungarianAssignment(costs){const n=costs.length,m=costs[0]?.length||0;if(!n||m<n)return null;const u=new Float64Array(n+1),v=new Float64Array(m+1),p=new Int32Array(m+1),way=new Int32Array(m+1);for(let i=1;i<=n;i++){p[0]=i;let j0=0;const minv=new Float64Array(m+1);minv.fill(Infinity);const used=new Uint8Array(m+1);do{used[j0]=1;const i0=p[j0];let delta=Infinity,j1=0;for(let j=1;j<=m;j++)if(!used[j]){const cur=costs[i0-1][j-1]-u[i0]-v[j];if(cur<minv[j]){minv[j]=cur;way[j]=j0;}if(minv[j]<delta){delta=minv[j];j1=j;}}if(!Number.isFinite(delta))return null;for(let j=0;j<=m;j++){if(used[j]){u[p[j]]+=delta;v[j]-=delta;}else minv[j]-=delta;}j0=j1;}while(p[j0]!==0);do{const j1=way[j0];p[j0]=p[j1];j0=j1;}while(j0!==0);}const answer=new Int32Array(n);answer.fill(-1);for(let j=1;j<=m;j++)if(p[j])answer[p[j]-1]=j-1;return [...answer];}
-function reveal(){
+function reveal(restoring=false){
+  if(!restoring&&completedRecord){renderCompletedResult(completedRecord,true);return;}
+  if(!challenge.prompts.every(prompt=>picks[prompt.id]))return;
+  ensureStarted();
   const rows=challenge.prompts.map(p=>getRecord(picks[p.id].playerId,picks[p.id].season));
-  completedSeconds=Math.floor((Date.now()-startedAt)/1000);clearInterval(timerId);
-  const points=rows.reduce((a,b)=>a+b.points,0),score=points-penalties,eff=score/challenge.perfectScore*100;
+  if(rows.some(row=>!row))return;
+  const now=Date.now();
+  completedSeconds=restoring&&completedRecord?Number(completedRecord.elapsedSeconds)||0:Math.max(0,Math.floor((now-startedAt)/1000));
+  clearInterval(timerId);
+  const points=rows.reduce((a,b)=>a+(Number(b.points)||0),0),score=points-penalties,eff=challenge.perfectScore>0?score/challenge.perfectScore*100:0;
   const grade=eff>=100?"Perfect":eff>=95?"A+":eff>=90?"A":eff>=82?"B":eff>=72?"C":"D";
   const boundedEfficiency=Math.max(0,Math.min(100,eff));
   const headline=eff>=100?"A perfect historical XI":eff>=95?"An elite draft-board performance":eff>=85?"A strong historical XI":eff>=70?"A competitive XI with room to climb":"A brave XI with points left available";
@@ -884,15 +999,16 @@ function reveal(){
   document.getElementById("resultGradeHero").textContent=grade;
   document.getElementById("resultHeadline").textContent=headline;
   document.getElementById("resultSummary").textContent=`${points.toLocaleString()} player points, ${penalties?`${penalties} penalty points`:"no penalties"}, completed in ${formatTime(completedSeconds)}.`;
-  showCompletionMoment(grade,eff,score);
+  if(!restoring)showCompletionMoment(grade,eff,score);
   const perfect=calculatePerfectXI();
+  let exactMatches=0;
   if(perfect){
     const comparedUser=rows.map((row,index)=>({...row,exactMatch:perfect.rows[index].playerId===row.playerId&&perfect.rows[index].season===row.season}));
     const comparedPerfect=perfect.rows.map((row,index)=>({...row,exactMatch:rows[index].playerId===row.playerId&&rows[index].season===row.season}));
+    exactMatches=comparedUser.filter(row=>row.exactMatch).length;
     document.getElementById("pitch").innerHTML=pitchMarkup(comparedUser,false);
     document.getElementById("perfectPitch").innerHTML=pitchMarkup(comparedPerfect,true);
-    const matches=comparedUser.filter(row=>row.exactMatch).length;
-    document.getElementById("perfectXiNote").textContent=`${matches} of your 11 selections exactly match the perfect XI. Calculated total: ${perfect.score.toLocaleString()} points.`;
+    document.getElementById("perfectXiNote").textContent=`${exactMatches} of your 11 selections exactly match the perfect XI. Calculated total: ${perfect.score.toLocaleString()} points.`;
   }else{
     document.getElementById("pitch").innerHTML=pitchMarkup(rows,false);
     document.getElementById("perfectPitch").innerHTML='<p class="feedback bad">The perfect unique-player XI could not be calculated.</p>';
@@ -901,7 +1017,31 @@ function reveal(){
   document.getElementById("playerPoints").textContent=points;document.getElementById("penaltyPoints").textContent=penalties?`−${penalties}`:"0";document.getElementById("finalScore").textContent=score;document.getElementById("perfectScore").textContent=challenge.perfectScore;document.getElementById("efficiency").textContent=`${eff.toFixed(1)}%`;document.getElementById("grade").textContent=grade;document.getElementById("timeTaken").textContent=formatTime(completedSeconds);
   const best=Math.max(Number(localStorage.getItem(BEST)||0),score);localStorage.setItem(BEST,best);document.getElementById("bestScore").textContent=best;
   document.getElementById("reviews").innerHTML=challenge.prompts.map((p,i)=>`<details class="review"><summary>${i+1}. ${p.position} · ${esc(p.label)}</summary><ol>${topFive(p).map(r=>`<li><strong>${esc(r.name)}</strong> — ${r.season} — ${r.points} pts <small>${esc(r.club)}</small></li>`).join("")}</ol></details>`).join("");
-  document.getElementById("results").classList.remove("hidden");document.getElementById("results").scrollIntoView({behavior:"smooth"});
+  if(!restoring){
+    const promptEfficiencies=rows.map((row,index)=>pickEfficiencyDetails(row,challenge.prompts[index]));
+    completedRecord={
+      version:2,completed:true,official:!ARCHIVE_MODE,mode:ATTEMPT_MODE,challengeId:challenge.id,challengeNumber:Number(challenge.number)||null,challengeDate:challengeDate(),challengeTitle:challenge.title||"FPL Daily Challenge",
+      startedAt,completedAt:now,elapsedSeconds:completedSeconds,penalties,playerPoints:points,finalScore:score,perfectScore:Number(challenge.perfectScore)||0,
+      calculatedPerfectScore:perfect?.score??null,perfectScoreVerified:perfect?perfect.score===Number(challenge.perfectScore):null,efficiency:Number(eff.toFixed(4)),grade,perfectPromptPicks:promptEfficiencies.filter(item=>item.picked===item.best).length,exactPerfectXiMatches:exactMatches,
+      picks:{...picks},selections:rows.map((row,index)=>({promptId:challenge.prompts[index].id,position:row.position,playerId:row.playerId,name:row.name,season:row.season,club:row.club,points:Number(row.points)||0,pickEfficiency:Number(promptEfficiencies[index].percentage.toFixed(4))}))
+    };
+    save();
+    if(!ARCHIVE_MODE)upsertHistory(completedRecord);
+    else renderLocalHistory();
+    window.dispatchEvent(new CustomEvent("fpl:challenge-completed",{detail:{record:completedRecord}}));
+  }
+  document.getElementById("results").classList.remove("hidden");
+  render();
+  tick();
+  if(!restoring)document.getElementById("results").scrollIntoView({behavior:"smooth"});
+}
+function renderCompletedResult(record,quiet=true){
+  if(!record)return;
+  completedRecord=record;
+  completedSeconds=Number(record.elapsedSeconds)||0;
+  reveal(true);
+  renderLocalHistory();
+  if(!quiet)document.getElementById("results")?.scrollIntoView({behavior:"smooth"});
 }
 function showCompletionMoment(grade,eff,score){
   const moment=document.getElementById("completionMoment");
@@ -918,12 +1058,14 @@ function showCompletionMoment(grade,eff,score){
   },1700);
 }
 function tick(){
-  const elapsed=completedSeconds??Math.floor((Date.now()-startedAt)/1000);
-  document.getElementById("timer").textContent=`Time ${formatTime(elapsed)}`;
+  const runningElapsed=startedAt===null?0:Math.max(0,Math.floor((Date.now()-startedAt)/1000));
+  const elapsed=completedSeconds??runningElapsed;
+  const timer=document.getElementById("timer");
+  if(timer){timer.textContent=startedAt===null&&!completedRecord?"Time 0:00 · starts on first interaction":`Time ${formatTime(elapsed)}`;timer.classList.toggle("timer-waiting",startedAt===null&&!completedRecord);}
   const dockTimer=document.getElementById("dockTimer");
   if(dockTimer)dockTimer.textContent=formatTime(elapsed);
 }
-document.getElementById("reveal").addEventListener("click",reveal);
+document.getElementById("reveal").addEventListener("click",()=>reveal(false));
 document.getElementById("jumpToNext").addEventListener("click",()=>{
   const openPrompt=challenge.prompts.find(prompt=>!picks[prompt.id]);
   if(!openPrompt){
@@ -935,16 +1077,23 @@ document.getElementById("jumpToNext").addEventListener("click",()=>{
   slot?.scrollIntoView({behavior:"smooth",block:"center"});
   setTimeout(()=>slot?.querySelector(".player-search")?.focus(),350);
 });
-document.getElementById("reset").addEventListener("click",()=>{if(confirm("Clear the whole XI and all penalties?")){picks={};drafts={};feedback={};penalties=0;startedAt=Date.now();completedSeconds=null;document.getElementById("results").classList.add("hidden");save();render();}});
-document.getElementById("copy").addEventListener("click",async()=>{const text=`🏆 FPL Daily Challenge 4.1\n${challenge.title}\n\nFinal score: ${document.getElementById("finalScore").textContent} / ${challenge.perfectScore}\nPenalties: ${document.getElementById("penaltyPoints").textContent}\nEfficiency: ${document.getElementById("efficiency").textContent}\nTime: ${document.getElementById("timeTaken").textContent}\n\nCan you beat me?`;try{await navigator.clipboard.writeText(text);document.getElementById("copyStatus").textContent="Result copied.";}catch{document.getElementById("copyStatus").textContent=text;}});
+document.getElementById("reset").addEventListener("click",()=>{if(completedRecord)return;if(confirm(ARCHIVE_MODE?"Clear your practice XI? Your practice timer and any penalties will stay with this attempt.":"Clear your selected XI? Your official timer and any penalties will stay with this attempt.")){picks={};drafts={};feedback={};completedSeconds=null;document.getElementById("results").classList.add("hidden");save();render();tick();}});
+document.getElementById("copy").addEventListener("click",async()=>{const text=`🏆 FPL Daily Challenge 4.5${ARCHIVE_MODE?" · Archive practice":""}\n${challenge.title}\n\nFinal score: ${document.getElementById("finalScore").textContent} / ${challenge.perfectScore}\nPenalties: ${document.getElementById("penaltyPoints").textContent}\nEfficiency: ${document.getElementById("efficiency").textContent}\nTime: ${document.getElementById("timeTaken").textContent}\n\nSpoiler-free result shared from FPL Draft Challenge.`;try{await navigator.clipboard.writeText(text);document.getElementById("copyStatus").textContent="Result copied.";}catch{document.getElementById("copyStatus").textContent=text;}});
 document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))document.querySelectorAll(".suggestions").forEach(x=>x.classList.add("hidden"));});
 load();
-const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).forEach(id=>{const p=picks[id],prompt=challenge.prompts.find(x=>x.id===id),r=getRecord(p.playerId,p.season);if(!prompt||!validIds.has(p.playerId)||!r||!qualifiesForAnswer(r)||!prompt.test(r))delete picks[id];else drafts[id]={...p};});save();render();tick();timerId=setInterval(tick,1000);
+if(ARCHIVE_MODE){
+  const kicker=document.querySelector(".challenge-overview .overview-kicker");
+  if(kicker)kicker.textContent="Archive practice challenge";
+  const overview=document.querySelector(".challenge-overview .overview-copy p");
+  if(overview)overview.textContent="This is a previous daily challenge. Practice attempts are saved on this device but do not change your official games played or streak.";
+}
+const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).forEach(id=>{const p=picks[id],prompt=challenge.prompts.find(x=>x.id===id),r=getRecord(p.playerId,p.season);if(!prompt||!validIds.has(p.playerId)||!r||!qualifiesForAnswer(r)||!prompt.test(r))delete picks[id];else drafts[id]={...p};});if(!(ARCHIVE_MODE&&completedRecord&&completedRecord.official!==false))save();render();renderLocalHistory();tick();
+if(completedRecord){renderCompletedResult(completedRecord,true);}else{timerId=setInterval(tick,1000);}
 
 </script>
 
 <script>
-/* FPL Daily Challenge 4.1 — inline visual enhancements */
+/* FPL Daily Challenge 4.3 — inline visual enhancements */
 (() => {
   "use strict";
 
@@ -992,15 +1141,22 @@ const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).for
   }
 
   function updateCountdown() {
-    const now = new Date();
-    const next = new Date(now);
-    next.setHours(24, 0, 0, 0);
-    const seconds = Math.max(0, Math.floor((next - now) / 1000));
-    const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
-    const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
-    const remainder = String(seconds % 60).padStart(2, "0");
     const element = document.getElementById("nextChallengeCountdown");
-    if (element) element.textContent = `Next challenge ${hours}:${minutes}:${remainder}`;
+    if (!element) return;
+    const runtime = window.FPL_CHALLENGE_RUNTIME || {};
+    const dailyTime = window.FPL_DAILY_TIME || {};
+    if (runtime.archiveMode) {
+      element.textContent = "Archive practice";
+      return;
+    }
+    if (runtime.nextScheduledDate && typeof dailyTime.millisecondsUntilUkDate === "function" && typeof dailyTime.formatCountdown === "function") {
+      const remaining = dailyTime.millisecondsUntilUkDate(runtime.nextScheduledDate);
+      element.textContent = remaining <= 0
+        ? "New challenge ready"
+        : `Next challenge ${dailyTime.formatCountdown(remaining)}`;
+      return;
+    }
+    element.textContent = "Next challenge not scheduled";
   }
 
   function decorateSlots() {
@@ -1031,6 +1187,13 @@ const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).for
 </script>
 
 
+
+<div class="phase45-bottom-nav" id="phase45BottomNav" aria-label="Quick navigation">
+  <button type="button" data-jump="top"><span>🏠</span>Today</button>
+  <button type="button" data-jump="archive"><span>🗂️</span>Archive</button>
+  <button type="button" data-jump="stats"><span>📈</span>Stats</button>
+  <button type="button" data-jump="results"><span>🏆</span>Results</button>
+</div>
 <div class="completion-moment hidden" id="completionMoment" role="status" aria-live="polite">
   <div class="completion-card">
     <i class="completion-spark"></i><i class="completion-spark"></i><i class="completion-spark"></i><i class="completion-spark"></i>
@@ -1041,5 +1204,76 @@ const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).for
   </div>
 </div>
 
+
+<script>
+(() => {
+  "use strict";
+  const challenge = window.FPL_DAILY_CHALLENGE || null;
+  if (!challenge) return;
+  const runtime = window.FPL_CHALLENGE_RUNTIME || {};
+  const dailyTime = window.FPL_DAILY_TIME || {};
+  const historyStore = "fpl-v4-local-history";
+  const qa = sel => [...document.querySelectorAll(sel)];
+  const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const loadHistory = () => { try { const value = JSON.parse(localStorage.getItem(historyStore) || "[]"); return Array.isArray(value) ? value : []; } catch { return []; } };
+  const officialHistory = () => loadHistory().filter(item => item && item.completed === true && item.official !== false);
+  const latestCompleted = () => { const all = loadHistory().filter(item => item && item.completed === true); if (!all.length) return null; return all.sort((a,b)=>String(b.challengeDate||"").localeCompare(String(a.challengeDate||"")))[0]; };
+  const dayNumber = value => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value||"")); return m ? Math.floor(Date.UTC(Number(m[1]), Number(m[2])-1, Number(m[3])) / 86400000) : null; };
+  const streak = items => { const days = [...new Set(items.map(item => dayNumber(item.challengeDate)).filter(Number.isFinite))].sort((a,b)=>a-b); if (!days.length) return 0; let run = 1; for (let i = days.length - 1; i > 0; i--) { if (days[i] - days[i-1] === 1) run++; else break; } return run; };
+  const best = arr => arr.length ? Math.max(...arr) : 0;
+  const average = arr => arr.length ? arr.reduce((sum, value) => sum + value, 0) / arr.length : 0;
+  const formatTime = value => { const total = Math.max(0, Number(value) || 0); return `${Math.floor(total/60)}:${String(total%60).padStart(2, "0")}`; };
+
+  function renderHero() {
+    const mount = document.getElementById("phase45Hero");
+    if (!mount) return;
+    const history = officialHistory();
+    const completed = latestCompleted();
+    const scores = history.map(item => Number(item.finalScore)).filter(Number.isFinite);
+    const efficiencies = history.map(item => Number(item.efficiency)).filter(Number.isFinite);
+    const times = history.map(item => Number(item.elapsedSeconds)).filter(n => Number.isFinite(n) && n >= 0);
+    const progressCount = qa(".slot.valid").length;
+    const total = challenge.prompts.length || 11;
+    const progressPercent = total ? (progressCount/total)*100 : 0;
+    const countdown = runtime.nextScheduledDate && typeof dailyTime.millisecondsUntilUkDate === "function" && typeof dailyTime.formatCountdown === "function" ? (()=>{ const remain = dailyTime.millisecondsUntilUkDate(runtime.nextScheduledDate); return remain > 0 ? dailyTime.formatCountdown(remain) : "Ready"; })() : "Not scheduled";
+    mount.innerHTML = `<article class="phase45-dashboard"><span class="phase45-kicker">${esc(runtime.archiveMode ? "Archive practice" : "Today’s challenge")} · ${esc(challenge.difficulty || challenge.dateLabel || "Daily game")}</span><h2>${esc(challenge.title || `Challenge #${Number(challenge.number) || "–"}`)}</h2><p>Build your historical XI by finding one valid player-season for each prompt. Scores stay hidden until the reveal, while pick efficiency compares each selection with the best answer for that exact clue.</p><div class="phase45-metrics"><div class="phase45-metric"><span>Challenge</span><strong>#${Number(challenge.number) || "–"}</strong></div><div class="phase45-metric"><span>Formation</span><strong>${esc(challenge.formation || "4-4-2")}</strong></div><div class="phase45-metric"><span>Progress</span><strong>${progressCount}/${total}</strong></div><div class="phase45-metric"><span>Current streak</span><strong>${streak(history)} day${streak(history) === 1 ? "" : "s"}</strong></div><div class="phase45-metric"><span>Best score</span><strong>${best(scores).toLocaleString()}</strong></div></div></article><aside class="phase45-sidecard"><div><span class="overview-kicker">Daily dashboard</span><h3>Challenge control room</h3><p>Keep an eye on completion pace, next rollover, your latest efficiency and where your saved streak is heading.</p></div><div class="phase45-mini-progress"><div class="phase45-mini-track"><span style="width:${progressPercent.toFixed(1)}%"></span></div><div class="phase45-mini-row"><span>Next challenge</span><strong id="phase45HeroCountdown">${esc(countdown)}</strong></div><div class="phase45-mini-row"><span>Latest efficiency</span><strong>${completed ? `${Number(completed.efficiency || 0).toFixed(1)}%` : "—"}</strong></div><div class="phase45-mini-row"><span>Average score</span><strong>${history.length ? Math.round(average(scores)).toLocaleString() : "—"}</strong></div><div class="phase45-mini-row"><span>Average time</span><strong>${history.length && times.length ? formatTime(Math.round(average(times))) : "—"}</strong></div></div></aside>`;
+  }
+
+  function renderLivePitch() {
+    const mount = document.getElementById("liveMiniPitch");
+    const badge = document.getElementById("liveXiFormation");
+    if (!mount) return;
+    const selections = qa(".slot.valid.compact-confirmed").map(slot => ({ position: slot.dataset.position || "MID", name: slot.querySelector(".confirmed-player strong")?.textContent?.trim() || "", meta: slot.querySelector(".confirmed-player span")?.textContent?.trim() || "Locked in", tier: slot.querySelector(".compact-efficiency span")?.textContent?.trim() || "Selected" }));
+    const byPos = { GK: selections.filter(item => item.position === "GK"), DEF: selections.filter(item => item.position === "DEF"), MID: selections.filter(item => item.position === "MID"), FWD: selections.filter(item => item.position === "FWD") };
+    const inferredCounts = challenge.prompts.reduce((counts, prompt) => { if (counts[prompt.position] != null) counts[prompt.position] += 1; return counts; }, { GK:0, DEF:0, MID:0, FWD:0 });
+    const target = challenge.formationCounts || inferredCounts;
+    if (badge) badge.textContent = `${challenge.formation || `${target.DEF}-${target.MID}-${target.FWD}`} formation`;
+    const renderLine = (position, rows, targetCount) => `<div class="live-pitch-col ${position.toLowerCase()}">${Array.from({length: Math.max(rows.length, Number(targetCount)||0)}, (_, i) => { const item = rows[i]; return item ? `<div class="live-shirt filled"><strong>${esc(item.name)}</strong><span>${esc(item.meta.split("·").slice(0,2).join("·").trim())}</span><em>${esc(item.tier)}</em></div>` : `<div class="live-shirt empty"><strong>${esc(position)}</strong><span>Awaiting pick</span><em>Open slot</em></div>`; }).join("")}</div>`;
+    mount.innerHTML = [renderLine("FWD", byPos.FWD, target.FWD), renderLine("MID", byPos.MID, target.MID), renderLine("DEF", byPos.DEF, target.DEF), renderLine("GK", byPos.GK, target.GK || 1)].join("");
+  }
+
+  function renderExtendedStats() {
+    const mount = document.getElementById("historyGridExtended"); if (!mount) return; const history = officialHistory(); const scores = history.map(item => Number(item.finalScore)).filter(Number.isFinite); const efficiencies = history.map(item => Number(item.efficiency)).filter(Number.isFinite); const penalties = history.map(item => Number(item.penalties)).filter(Number.isFinite); const exactMatches = history.map(item => Number(item.exactPerfectXiMatches)).filter(Number.isFinite); const perfectPickRate = history.length ? history.reduce((sum, item) => sum + (Number(item.perfectPromptPicks) || 0), 0) / (history.length * 11) * 100 : 0; mount.innerHTML = `<div class="history-chip"><span>Games played</span><strong>${history.length.toLocaleString()}</strong></div><div class="history-chip"><span>Current streak</span><strong>${streak(history)} day${streak(history) === 1 ? "" : "s"}</strong></div><div class="history-chip"><span>Best score</span><strong>${best(scores).toLocaleString()}</strong></div><div class="history-chip"><span>Best efficiency</span><strong>${efficiencies.length ? `${best(efficiencies).toFixed(1)}%` : "0%"}</strong></div><div class="history-chip"><span>Average efficiency</span><strong>${history.length ? `${average(efficiencies).toFixed(1)}%` : "0%"}</strong></div><div class="history-chip"><span>Average penalties</span><strong>${history.length ? average(penalties).toFixed(1) : "0.0"}</strong></div><div class="history-chip"><span>Perfect-pick rate</span><strong>${history.length ? `${perfectPickRate.toFixed(1)}%` : "0%"}</strong></div><div class="history-chip"><span>Exact XI matches</span><strong>${best(exactMatches).toLocaleString()}</strong></div>`; }
+
+  function renderAchievements() {
+    const mount = document.getElementById("achievementGrid"); if (!mount) return; const history = officialHistory(); const scores = history.map(item => Number(item.finalScore)).filter(Number.isFinite); const efficiencies = history.map(item => Number(item.efficiency)).filter(Number.isFinite); const cards = [["🏁","First XI","Complete your first daily challenge.",history.length>=1],["🔥","7-day streak","Finish seven official daily challenges in a row.",streak(history)>=7],["📈","90% club","Record at least 90% efficiency.",efficiencies.some(v=>v>=90)],["👑","Perfect game","Hit 100% efficiency in a daily challenge.",efficiencies.some(v=>v>=100)],["🧼","Clean hands","Finish a daily challenge with zero penalties.",history.some(item=>Number(item.penalties)===0)],["💯","1,800 points","Reach a final score of 1,800 or more.",scores.some(v=>v>=1800)],["🎯","Exact read","Match at least three spots in the exact perfect XI.",history.some(item=>Number(item.exactPerfectXiMatches)>=3)],["🧠","Prompt hunter","Accumulate 25 perfect prompt picks.",history.reduce((sum,item)=>sum+(Number(item.perfectPromptPicks)||0),0)>=25]]; mount.innerHTML = cards.map(([icon,title,desc,state])=>`<article class="achievement-card ${state ? "" : "locked"}"><div class="achievement-icon">${icon}</div><div class="achievement-copy"><strong>${esc(title)}</strong><small>${esc(desc)}</small></div></article>`).join(""); }
+
+  function buildShareText() { const score = document.getElementById("finalScore")?.textContent || "0"; const efficiency = document.getElementById("efficiency")?.textContent || "0%"; const time = document.getElementById("timeTaken")?.textContent || "0:00"; const penalties = document.getElementById("penaltyPoints")?.textContent || "0"; const grade = document.getElementById("grade")?.textContent || "–"; const grid = qa(".slot.valid.compact-confirmed").map(slot => { const percent = Number((slot.querySelector(".compact-efficiency strong")?.textContent || "0").replace(/[^\d.]/g, "")); if (percent >= 99.95) return "🟨"; if (percent >= 90) return "🟩"; if (percent >= 75) return "🟦"; return "🟥"; }); const rows=[]; for (let i=0;i<grid.length;i+=4) rows.push(grid.slice(i,i+4).join("")); return `FPL Draft Challenge #${Number(challenge.number)||"–"}\n${challenge.title}\n${runtime.archiveMode ? "Archive practice\n" : ""}${rows.join("\n")}\n\nScore: ${score} / ${challenge.perfectScore}\nEfficiency: ${efficiency} · Grade ${grade}\nTime: ${time} · Penalties: ${penalties}\n\nCan you beat my historical XI?`; }
+
+  const shareBtn = document.getElementById("shareResult"); const copyStatus = document.getElementById("copyStatus"); if (shareBtn) shareBtn.addEventListener("click", async () => { const text = buildShareText(); try { if (navigator.share) { await navigator.share({ title: challenge.title || "FPL Draft Challenge", text, url: location.href }); if (copyStatus) copyStatus.textContent = "Result shared."; } else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(text); if (copyStatus) copyStatus.textContent = "Share text copied."; } else if (copyStatus) { copyStatus.textContent = text; } } catch (error) { if (!(error && error.name === "AbortError") && copyStatus) copyStatus.textContent = "Sharing was not available."; } });
+
+  qa("#phase45BottomNav [data-jump]").forEach(button => button.addEventListener("click", () => { const target = button.dataset.jump; const map = { top: document.querySelector("main") || document.body, archive: document.querySelector(".challenge-calendar-nav") || document.getElementById("phase45Shell"), stats: document.getElementById("phase45ExtendedStats") || document.querySelector(".history"), results: document.getElementById("results") || document.getElementById("reveal") }; map[target]?.scrollIntoView({ behavior: "smooth", block: "start" }); }));
+
+  const refresh = () => { renderHero(); renderLivePitch(); renderExtendedStats(); renderAchievements(); const countdown = document.getElementById("phase45HeroCountdown"); if (countdown && runtime.nextScheduledDate && typeof dailyTime.millisecondsUntilUkDate === "function" && typeof dailyTime.formatCountdown === "function" && !runtime.archiveMode) { const remain = dailyTime.millisecondsUntilUkDate(runtime.nextScheduledDate); countdown.textContent = remain > 0 ? dailyTime.formatCountdown(remain) : "Ready"; } };
+  const grid = document.getElementById("grid"); const results = document.getElementById("results"); if (grid) { const observer = new MutationObserver(refresh); observer.observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]}); if (results) observer.observe(results,{childList:true,subtree:true,attributes:true,attributeFilter:["class","style"]}); }
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=formation-1").catch(() => {});
+  refresh(); setInterval(refresh, 1000);
+})();
+</script>
+
+<!-- Phase 5A leaderboard foundation. Disabled until Supabase project details are added to leaderboard-config.js. -->
+<script src="js/leaderboard-config.js?v=5.0.0"></script>
+<script src="js/leaderboard-client.js?v=5.0.0"></script>
+<script src="js/phase45-polish.js"></script>
 </body>
 </html>
