@@ -1,0 +1,13 @@
+project_id = "fpl-draft-challenge"
+
+[functions.leaderboard-start]
+verify_jwt = false
+
+[functions.leaderboard-pick]
+verify_jwt = false
+
+[functions.leaderboard-finish]
+verify_jwt = false
+
+[functions.leaderboard-list]
+verify_jwt = false

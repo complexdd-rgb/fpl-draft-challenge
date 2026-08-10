@@ -1,10 +1,10 @@
 /* FPL Draft Challenge — Phase 5A.5 leaderboard configuration.
-   Keep enabled:false until the Supabase project and Edge Functions are deployed.
-   Only the browser-safe publishable key belongs here. */
+   Supabase browser connection configured for production.
+   Only the browser-safe publishable key belongs here; never add secret/service-role keys. */
 window.FPL_LEADERBOARD_CONFIG = Object.freeze({
-  enabled: false,
-  supabaseUrl: "https://YOUR_PROJECT_REF.supabase.co",
-  publishableKey: "sb_publishable_REPLACE_ME",
+  enabled: true,
+  supabaseUrl: "https://sacfscnhvmfvbazbfgji.supabase.co",
+  publishableKey: "sb_publishable_5ULcqgRQoeWai65gFKm-jA_ORhrSysW",
   functions: Object.freeze({
     start: "leaderboard-start",
     pick: "leaderboard-pick",
