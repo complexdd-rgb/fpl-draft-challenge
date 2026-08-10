@@ -609,6 +609,10 @@ body.stage-one-enabled .stage-one-tool-panel {
   box-shadow: 0 14px 40px rgba(0, 0, 0, .15);
 }
 
+.studio-retired-tool {
+  display: none !important;
+}
+
 body.stage-one-enabled .stage-one-tool-panel + .stage-one-tool-panel {
   margin-top: 14px;
 }
@@ -964,7 +968,7 @@ body.stage-one-enabled .audit-status-chip {
         <span>Database audit</span>
         <strong id="auditStatusTop">Not run</strong>
       </article>
-      <article class="status-card">
+      <article class="status-card studio-retired-tool" aria-hidden="true">
         <span>Repair workspace</span>
         <strong id="repairStatusTop">Waiting for audit</strong>
       </article>
@@ -980,7 +984,7 @@ body.stage-one-enabled .audit-status-chip {
         <span>Challenge history</span>
         <strong id="historyStatus">Loading…</strong>
       </article>
-      <article class="status-card">
+      <article class="status-card studio-retired-tool" aria-hidden="true">
         <span>Publishing</span>
         <strong id="publishingStatus" class="safe-text">Checking…</strong>
       </article>
@@ -1066,7 +1070,7 @@ body.stage-one-enabled .audit-status-chip {
       <section class="batch-planner" id="batchPlanner" aria-labelledby="batchPlannerHeading">
         <div class="batch-planner-head">
           <div>
-            <span class="limit-kicker">Phase 2 · Challenge Calendar</span>
+            <span class="limit-kicker">Seven-day challenge calendar</span>
             <h3 id="batchPlannerHeading">Generate the next 7 days</h3>
             <p>Build seven dated challenges in one run. Every day is checked against the settings above, the exact unique-player perfect XI and the configured prompt cooldown before the calendar ZIP unlocks.</p>
           </div>
@@ -1379,7 +1383,7 @@ body.stage-one-enabled .audit-status-chip {
       <section id="promptQualityAnalyser" class="prompt-quality-analyser" aria-labelledby="promptQualityTitle">
         <div class="prompt-quality-head">
           <div>
-            <p class="eyebrow">Phase 14 quality control</p>
+            <p class="eyebrow">Quality control</p>
             <h3 id="promptQualityTitle">Prompt Quality Analyser</h3>
             <p>Scores every prompt for answer breadth, season and club variety, obvious answers, Big Six reliance, overlap, difficulty accuracy and rule health.</p>
           </div>
@@ -1500,7 +1504,7 @@ body.stage-one-enabled .audit-status-chip {
           <div class="rule-builder-head">
             <div>
               <h4>Safe rule builder</h4>
-              <p>Conditions are converted into the same JavaScript tests used by the game. Phase B supports exact, before, after and between-season rules plus recorded career season and club totals.</p>
+              <p>Conditions are converted into the same JavaScript tests used by the game. Supports exact, before, after and between-season rules plus recorded career season and club totals.</p>
             </div>
             <label>Match<select id="promptRuleJoin"><option value="all">All conditions</option><option value="any">Any condition</option></select></label>
           </div>
@@ -1541,7 +1545,7 @@ body.stage-one-enabled .audit-status-chip {
     </section>
 
 
-    <section class="panel publish-centre" id="publishingPanel">
+    <section class="panel publish-centre studio-retired-tool" id="publishingPanel" data-studio-retired="true" aria-hidden="true">
       <div class="panel-heading">
         <div>
           <p class="eyebrow">Step 7</p>
@@ -1666,7 +1670,7 @@ body.stage-one-enabled .audit-status-chip {
       <div id="auditIssueList" class="audit-issue-list"></div>
     </section>
 
-    <section class="panel database-repair-centre" id="databaseRepairPanel">
+    <section class="panel database-repair-centre studio-retired-tool" id="databaseRepairPanel" data-studio-retired="true" aria-hidden="true">
       <div class="panel-heading">
         <div>
           <p class="eyebrow">Step 9</p>
@@ -1757,7 +1761,7 @@ body.stage-one-enabled .audit-status-chip {
     </section>
 
 
-    <section class="studio-section auto-repair-section" aria-labelledby="autoRepairHeading">
+    <section class="studio-section auto-repair-section studio-retired-tool" data-studio-retired="true" aria-hidden="true" aria-labelledby="autoRepairHeading">
       <div class="section-heading-row">
         <div>
           <p class="eyebrow">Step 10</p>
@@ -1844,12 +1848,11 @@ body.stage-one-enabled .audit-status-chip {
           Base database
           <select id="importBaseDatabase">
             <option value="current">Current loaded players.js</option>
-            <option value="auto-repaired">Phase 9 repaired workspace (when available)</option>
           </select>
         </label>
         <label>
           Season being imported
-          <input id="importSeasonLabel" type="text" inputmode="numeric" placeholder="e.g. 2015/16" maxlength="7">
+          <input id="importSeasonLabel" type="text" inputmode="numeric" placeholder="e.g. 2011/12" maxlength="7">
         </label>
         <label>
           Source name
@@ -2031,7 +2034,7 @@ body.stage-one-enabled .audit-status-chip {
     </section>
 
 
-    <section class="panel legacy-import-centre" id="legacyImportCentre" aria-labelledby="legacyImportHeading">
+    <section class="panel legacy-import-centre studio-retired-tool" id="legacyImportCentre" data-studio-retired="true" aria-hidden="true" aria-labelledby="legacyImportHeading">
       <div class="panel-heading legacy-heading">
         <div>
           <p class="eyebrow">Step 13</p>
@@ -2113,7 +2116,7 @@ body.stage-one-enabled .audit-status-chip {
 
     <section class="panel" id="leaderboardBackendPanel" aria-labelledby="leaderboardBackendHeading">
       <div class="panel-heading">
-        <div><p class="eyebrow">Phase 5A.5 · Deployment prep</p><h2 id="leaderboardBackendHeading">Leaderboard backend health</h2><p class="section-copy">Check whether the browser configuration and four Supabase Edge Functions are ready before the live leaderboard is enabled.</p></div>
+        <div><p class="eyebrow">Backend status</p><h2 id="leaderboardBackendHeading">Leaderboard backend health</h2><p class="section-copy">Check whether the browser configuration and four Supabase Edge Functions are ready before the live leaderboard is enabled.</p></div>
         <span class="phase-chip" id="leaderboardBackendChip">Not configured</span>
       </div>
       <div id="leaderboardBackendStatus"></div>
@@ -2126,7 +2129,7 @@ body.stage-one-enabled .audit-status-chip {
           <h2 id="validationLabHeading">Validation Lab</h2>
           <p class="section-copy">Inspect player records, trace prompt rules, find valid answers and measure season readiness without changing the live game or database.</p>
         </div>
-        <span class="phase-chip ready-chip">Phase 1 · Ready</span>
+        <span class="phase-chip ready-chip">Ready</span>
       </div>
 
       <div class="validation-overview" aria-label="Validation Lab overview">
@@ -2241,7 +2244,7 @@ body.stage-one-enabled .audit-status-chip {
       label: "Daily Challenge",
       title: "Daily Challenge",
       icon: "XI",
-      description: "Create, review, test and publish the next FPL challenge."
+      description: "Create, review, test and download the next seven-day FPL challenge calendar."
     },
     {
       id: "prompts",
@@ -2262,7 +2265,7 @@ body.stage-one-enabled .audit-status-chip {
       label: "Database Health",
       title: "Database Health",
       icon: "DB",
-      description: "Audit, repair and consolidate the historical player database."
+      description: "Run the read-only database audit and review anything that still needs research."
     },
     {
       id: "leaderboard",
@@ -2276,7 +2279,7 @@ body.stage-one-enabled .audit-status-chip {
       label: "Historical Imports",
       title: "Historical Imports",
       icon: "↥",
-      description: "Import verified seasons without changing the live database automatically."
+      description: "Import verified historical seasons and review identity matches safely."
     }
   ];
 
@@ -2299,6 +2302,7 @@ body.stage-one-enabled .audit-status-chip {
   }
 
   function classifyElement(element) {
+    if (element.dataset.studioRetired === "true") return "retired";
     if (element.matches(".studio-hero, .safety-banner, .status-grid")) return "dashboard";
 
     const title = normaliseText(getToolTitle(element));
@@ -2306,8 +2310,8 @@ body.stage-one-enabled .audit-status-chip {
     if (/validation lab|player inspector|rule tester|prompt explorer|season health/.test(title)) return "validation";
     if (/prompt library|prompt quality|prompt studio/.test(title)) return "prompts";
     if (/leaderboard backend|leaderboard health|supabase/.test(title)) return "leaderboard";
-    if (/historical database import|official fpl archive import|archive import/.test(title)) return "imports";
-    if (/player database auditor|database repair|automatic repair|identity consolidation|database health/.test(title)) return "database";
+    if (/historical database import|official fpl archive import|archive import|identity consolidation/.test(title)) return "imports";
+    if (/player database auditor|database repair|automatic repair|database health/.test(title)) return "database";
     if (/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|publishing centre|daily challenge/.test(title)) return "challenge";
 
     return "challenge";
@@ -2358,13 +2362,13 @@ body.stage-one-enabled .audit-status-chip {
         <div class="studio-mark" aria-hidden="true">FPL</div>
         <div>
           <strong>Challenge Studio</strong>
-          <span>Phase 16</span>
+          <span>Admin tools</span>
         </div>
         <button class="studio-sidebar-close" type="button" aria-label="Close navigation">×</button>
       </div>
       <nav class="studio-navigation">${navItems}</nav>
       <div class="studio-sidebar-footer">
-        <span>Validation Lab Phase 1</span>
+        <span>Safety-first tools</span>
         <strong>Read-only inspection and prompt diagnosis</strong>
         <a href="./">Open live game</a>
       </div>
@@ -2418,7 +2422,7 @@ body.stage-one-enabled .audit-status-chip {
           <button class="dashboard-action-card" type="button" data-open-workspace="challenge" data-target-title="Challenge settings">
             <span class="dashboard-action-icon">XI</span>
             <strong>Create today's challenge</strong>
-            <small>Generate, test and prepare the publishing pack.</small>
+            <small>Generate, test and download the seven-day calendar.</small>
             <em id="dashboardChallengeStatus">Ready to create</em>
           </button>
           <button class="dashboard-action-card" type="button" data-open-workspace="prompts" data-target-title="Prompt Library Manager">
@@ -2436,13 +2440,13 @@ body.stage-one-enabled .audit-status-chip {
           <button class="dashboard-action-card" type="button" data-open-workspace="database" data-target-title="Player Database Auditor">
             <span class="dashboard-action-icon">DB</span>
             <strong>Check database health</strong>
-            <small>Audit blockers, metadata gaps and repair options.</small>
+            <small>Audit blockers, statistics and metadata gaps.</small>
             <em id="dashboardDatabaseStatus">Audit not run</em>
           </button>
           <button class="dashboard-action-card" type="button" data-open-workspace="imports" data-target-title="Historical Database Import Centre">
             <span class="dashboard-action-icon">↥</span>
             <strong>Import a historical season</strong>
-            <small>Map clubs, review identities and run regressions.</small>
+            <small>Map clubs, review identities and certify the imported season.</small>
             <em id="dashboardImportStatus">Waiting for a source file</em>
           </button>
         </div>
@@ -2504,12 +2508,16 @@ body.stage-one-enabled .audit-status-chip {
 
   function restoreCollapsedPanels() {
     let values = [];
+    let hasSavedPreference = false;
     try {
-      values = JSON.parse(localStorage.getItem(COLLAPSE_KEY) || "[]");
+      const raw = localStorage.getItem(COLLAPSE_KEY);
+      hasSavedPreference = raw !== null;
+      values = JSON.parse(raw || "[]");
     } catch (_) {
       values = [];
     }
-    if (!Array.isArray(values)) return;
+    if (!Array.isArray(values)) values = [];
+    if (!hasSavedPreference) values.push("historyPanel", "identityConsolidationCentre");
 
     document.querySelectorAll(".stage-one-tool-panel").forEach(panel => {
       if (!values.includes(getPanelKey(panel))) return;
@@ -2534,13 +2542,13 @@ body.stage-one-enabled .audit-status-chip {
 
     if (eyebrow) eyebrow.textContent = "FPL Challenge Studio";
     if (title) title.textContent = "Build, test and maintain your FPL game";
-    if (copy) copy.textContent = "Create the daily challenge, manage prompts, repair the player database and import historical seasons from one focused workspace.";
+    if (copy) copy.textContent = "Create the daily challenge, manage prompts, audit the player database and import historical seasons from one focused workspace.";
     if (backLink) backLink.textContent = "Open live game";
 
     if (!hero.querySelector(".studio-version-badge")) {
       const badge = document.createElement("span");
       badge.className = "studio-version-badge";
-      badge.textContent = "Phase 16";
+      badge.textContent = "Admin";
       hero.querySelector(":scope > div")?.prepend(badge);
     }
   }
@@ -2557,7 +2565,7 @@ body.stage-one-enabled .audit-status-chip {
     const metadata = parseNumber(document.getElementById("auditInfoCount")?.textContent);
     const repairBlocked = parseNumber(document.getElementById("repairBlockedCount")?.textContent);
     const libraryText = document.getElementById("libraryStatus")?.textContent?.trim() || "Loading…";
-    const publishingText = document.getElementById("publishingStatus")?.textContent?.trim() || "Checking…";
+    const challengeText = document.getElementById("batchStatus")?.textContent?.trim() || "Ready to generate";
     const importText = document.getElementById("importCentreStatus")?.textContent?.trim() || "Waiting for files";
 
     const auditHasRun = !/not run|loading|waiting/i.test(auditText) || parseNumber(document.getElementById("auditPlayerCount")?.textContent) > 0;
@@ -2583,7 +2591,7 @@ body.stage-one-enabled .audit-status-chip {
 
     const badges = {
       dashboard: effectiveBlockers > 0 ? String(effectiveBlockers) : "",
-      challenge: /ready|passed|safe/i.test(publishingText) ? "✓" : "",
+      challenge: /ready|passed|calendar zip is ready/i.test(challengeText) ? "✓" : "",
       prompts: parseNumber(libraryText) > 0 ? String(parseNumber(libraryText)) : "",
       validation: "✓",
       database: effectiveBlockers > 0 ? String(effectiveBlockers) : auditHasRun ? "✓" : "!",
@@ -2602,7 +2610,7 @@ body.stage-one-enabled .audit-status-chip {
     const promptStatus = document.getElementById("dashboardPromptStatus");
     const databaseStatus = document.getElementById("dashboardDatabaseStatus");
     const importStatus = document.getElementById("dashboardImportStatus");
-    if (challengeStatus) challengeStatus.textContent = publishingText;
+    if (challengeStatus) challengeStatus.textContent = challengeText;
     if (promptStatus) promptStatus.textContent = libraryText;
     if (databaseStatus) databaseStatus.textContent = !auditHasRun
       ? "Audit not run"
@@ -2618,25 +2626,19 @@ body.stage-one-enabled .audit-status-chip {
       nextButton.dataset.openWorkspace = "database";
       nextButton.dataset.targetTitle = "Player Database Auditor";
     } else if (effectiveBlockers > 0) {
-      nextTitle.textContent = `Resolve ${effectiveBlockers.toLocaleString()} database blocker${effectiveBlockers === 1 ? "" : "s"}`;
+      nextTitle.textContent = `Review ${effectiveBlockers.toLocaleString()} database blocker${effectiveBlockers === 1 ? "" : "s"}`;
       nextCopy.textContent = metadata > 0
-        ? `${metadata.toLocaleString()} metadata gaps are also recorded, but the blocking issues should be handled first.`
-        : "Review the repair plan and only approve changes supported by the audit.";
-      nextButton.textContent = "Open Repair Centre";
+        ? `${metadata.toLocaleString()} metadata gaps are also recorded. Keep unresolved historical values visible until a reliable source is found.`
+        : "Use the audit findings to decide the next evidence-backed database fix.";
+      nextButton.textContent = "Open Database Audit";
       nextButton.dataset.openWorkspace = "database";
-      nextButton.dataset.targetTitle = "Database Repair Centre";
-    } else if (!/ready|passed|safe/i.test(publishingText)) {
-      nextTitle.textContent = "Create and test the next challenge";
-      nextCopy.textContent = "The database has no blocking errors, so the next safe step is preparing the daily XI.";
+      nextButton.dataset.targetTitle = "Player Database Auditor";
+    } else {
+      nextTitle.textContent = "Generate the next seven-day calendar";
+      nextCopy.textContent = "The database has no blocking errors. Build and test the next dated challenge batch when you are ready.";
       nextButton.textContent = "Open Daily Challenge";
       nextButton.dataset.openWorkspace = "challenge";
       nextButton.dataset.targetTitle = "Challenge settings";
-    } else {
-      nextTitle.textContent = "Review the publishing pack";
-      nextCopy.textContent = "The main checks are clear. Review the final comparison before uploading the prepared files to GitHub.";
-      nextButton.textContent = "Open Publishing Centre";
-      nextButton.dataset.openWorkspace = "challenge";
-      nextButton.dataset.targetTitle = "Publishing Centre";
     }
   }
 
@@ -2672,6 +2674,11 @@ body.stage-one-enabled .audit-status-chip {
 
     originalChildren.forEach(element => {
       const workspaceId = classifyElement(element);
+      if (workspaceId === "retired") {
+        element.classList.add("studio-retired-tool");
+        element.setAttribute("aria-hidden", "true");
+        return;
+      }
       workspaces.get(workspaceId)?.appendChild(element);
       if (!element.matches(".studio-hero, .safety-banner, .status-grid")) labelToolPanel(element, workspaceId);
     });
@@ -2771,7 +2778,7 @@ body.stage-one-enabled .audit-status-chip {
 
     const watchedIds = [
       "auditStatusTop", "auditCriticalCount", "auditInfoCount", "repairBlockedCount",
-      "libraryStatus", "publishingStatus", "importCentreStatus", "auditPlayerCount"
+      "libraryStatus", "batchStatus", "importCentreStatus", "auditPlayerCount"
     ];
     const observer = new MutationObserver(updateDynamicStatus);
     watchedIds.forEach(id => {
