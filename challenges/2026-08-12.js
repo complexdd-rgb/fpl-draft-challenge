@@ -2,8 +2,8 @@
    Release date: 2026-08-12 (Europe/London)
    Exact perfect score calculated with eleven unique footballers. */
 window.FPL_DAILY_CHALLENGE = {
-  id: "daily-032-the-generated-mix",
-  number: 32,
+  id: "daily-2026-08-12-the-generated-mix",
+  number: 38,
   title: "12 August 2026 · The Generated Mix",
   dateLabel: "Generated Mix · 4-4-2 · Mixed",
   difficulty: "Mixed",
@@ -11,84 +11,117 @@ window.FPL_DAILY_CHALLENGE = {
   formation: "4-4-2",
   formationCounts: {"GK":1,"DEF":4,"MID":4,"FWD":2},
   theme: "Generated Mix",
-  perfectScore: 1936,
+  perfectScore: 2066,
   prompts: [
     {
-      id: "auto_gk_clean_12_price_5",
+      id: "auto_gk_saves_70_league_10_15_excluding_emiliano_martinez_nick_pope",
+      family: "GK:league-position+saves",
       position: "GK",
-      label: "Goalkeeper with 12+ clean sheets who started at £5.0m or less",
-      fail: "That goalkeeper must record at least 12 clean sheets and start at £5.0m or less.",
-      test: p => ((Number.isFinite(p.cleanSheets) && p.cleanSheets >= 12) && (Number.isFinite(p.startingPrice) && p.startingPrice <= 5))
+      label: "Goalkeeper with 70+ saves from a club finishing 10th–15th — excluding Emiliano Martínez and Nick Pope",
+      fail: "That goalkeeper season must include at least 70 saves for a club finishing 10th–15th. Excluding Emiliano Martínez and Nick Pope.",
+      test: p => ((p => ((Number.isFinite(p.saves) && p.saves >= 70) && (Number.isFinite(p.leaguePosition) && p.leaguePosition >= 10 && p.leaguePosition <= 15)))(p) && !["emiliano-martinez","nick-pope"].includes(p.playerId))
     },
     {
-      id: "auto_def_teammate_michael_keane_excluding_james_tarkowski",
+      id: "auto_def_surname_r_minutes_excluding_andrew_robertson_antonio_rudiger",
+      family: "DEF:name:surname",
       position: "DEF",
-      label: "Defender who shared a Premier League club-season with Michael Keane — excluding James Tarkowski",
-      fail: "That defender must have recorded minutes for the same club in the same FPL season as Michael Keane. Excluding James Tarkowski.",
-      test: p => ((p => (p.playerId !== "michael-keane" && Number(p.minutes) > 0 && ["2014/15|Burnley","2016/17|Burnley","2017/18|Everton","2018/19|Everton","2019/20|Everton","2020/21|Everton","2021/22|Everton","2022/23|Everton","2023/24|Everton","2024/25|Everton","2025/26|Everton"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["james-tarkowski"].includes(p.playerId))
+      label: "Defender whose surname starts with R and who played at least 1,000 minutes — excluding Andrew Robertson and Antonio Rüdiger",
+      fail: "That defender's surname must start with R and the season must include at least 1,000 minutes. Excluding Andrew Robertson and Antonio Rüdiger.",
+      test: p => ((p => {
+      const __rawName = String(p.name || p.playerName || "").trim();
+      const __normaliseName = value => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/ø/g, "o").replace(/ł/g, "l").replace(/[đð]/g, "d")
+        .replace(/þ/g, "th").replace(/æ/g, "ae").replace(/œ/g, "oe")
+        .replace(/’/g, "'")
+        .replace(/[^a-z0-9'\-]+/g, " ")
+        .trim();
+      const __fullName = __normaliseName(__rawName);
+      const __nameTokens = __fullName.split(/\s+/).filter(Boolean);
+      const __firstName = __nameTokens[0] || "";
+      const __surnameParticles = new Set(["al", "ap", "bin", "bint", "da", "das", "de", "del", "della", "den", "der", "di", "dos", "du", "el", "la", "le", "van", "von", "y"]);
+      let __surnameStart = Math.max(0, __nameTokens.length - 1);
+      while (__surnameStart > 0 && __surnameParticles.has(__nameTokens[__surnameStart - 1])) __surnameStart -= 1;
+      const __surname = __nameTokens.slice(__surnameStart).join(" ");
+      const __firstInitial = __firstName.charAt(0);
+      const __surnameInitial = __surname.charAt(0);
+      const __letterCount = value => String(value || "").replace(/[^a-z0-9]/g, "").length;
+      return (__surname.startsWith("r") && (Number.isFinite(p.minutes) && p.minutes >= 1000));
+    })(p) && !["andrew-robertson","antonio-rudiger"].includes(p.playerId))
     },
     {
-      id: "auto_def_nuno_espirito_santo_minutes_1800_excluding_matt_doherty_nikola_milen",
+      id: "def_13_17_2500",
+      family: "DEF:minutes+survival",
       position: "DEF",
-      label: "Defender managed by Nuno Espírito Santo who played 1,800+ minutes — excluding Matt Doherty and Nikola MilenkoviÄ",
-      fail: "That defender season must have been managed by Nuno Espírito Santo and include at least 1,800 minutes. Excluding Matt Doherty and Nikola MilenkoviÄ.",
-      test: p => ((p => ((Array.isArray(p.managers) && p.managers.some(manager => String(manager).toLowerCase() === "Nuno Espírito Santo".toLowerCase())) && (Number.isFinite(p.minutes) && p.minutes >= 1800)))(p) && !["matt-doherty","nikola-milenkovia"].includes(p.playerId))
+      label: "Defender from a club finishing 13th–17th who played at least 2,500 minutes",
+      fail: "That defender's club must finish 13th–17th and the season must include at least 2,500 minutes.",
+      test: p => Number.isFinite(p.leaguePosition) && p.leaguePosition >= 13 && p.leaguePosition <= 17 && p.minutes >= 2500
     },
     {
-      id: "auto_def_teammate_kyle_walker_excluding_joao_cancelo",
+      id: "auto_def_season_2017_18_points_110",
+      family: "DEF:season:season-exact",
       position: "DEF",
-      label: "Defender who shared a Premier League club-season with Kyle Walker — excluding João Cancelo",
-      fail: "That defender must have recorded minutes for the same club in the same FPL season as Kyle Walker. Excluding João Cancelo.",
-      test: p => ((p => (p.playerId !== "kyle-walker" && Number(p.minutes) > 0 && ["2014/15|Spurs","2015/16|Spurs","2016/17|Spurs","2017/18|Man City","2018/19|Man City","2019/20|Man City","2020/21|Man City","2021/22|Man City","2022/23|Man City","2023/24|Man City","2024/25|Man City","2025/26|Burnley"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["joao-cancelo"].includes(p.playerId))
+      label: "Defender with 110+ FPL points in the 2017/18 season",
+      fail: "That defender must score at least 110 FPL points in the 2017/18 season.",
+      test: p => (String(p.season || "") === "2017/18" && (Number.isFinite(p.points) && p.points >= 110) && (Number.isFinite(p.minutes) && p.minutes > 0))
     },
     {
-      id: "auto_def_career_clubs_exact_3_minutes_2000",
+      id: "auto_def_points_150_210",
+      family: "DEF:points",
       position: "DEF",
-      label: "Defender who represented exactly 3 recorded Premier League clubs and played 2,000+ minutes",
-      fail: "That defender must have recorded minutes for exactly 3 Premier League clubs and play at least 2,000 minutes in the selected season.",
-      test: p => ((Number.isFinite(Number(p._career?.clubCount)) && Number(p._career?.clubCount) === 3) && (Number.isFinite(p.minutes) && p.minutes >= 2000))
+      label: "Defender with between 150 and 210 FPL points",
+      fail: "That defender season must score between 150 and 210 FPL points.",
+      test: p => (Number.isFinite(p.points) && p.points >= 150 && p.points <= 210)
     },
     {
-      id: "auto_mid_teammate_kieran_trippier_points_80",
+      id: "auto_mid_assists_over_goals_12",
+      family: "MID:assists",
       position: "MID",
-      label: "Midfielder who shared a club-season with Kieran Trippier and scored 80+ FPL points",
-      fail: "That midfielder must share a club-season with Kieran Trippier and score at least 80 FPL points in the qualifying season.",
-      test: p => ((p => (p.playerId !== "kieran-trippier" && Number(p.minutes) > 0 && ["2014/15|Burnley","2015/16|Spurs","2016/17|Spurs","2017/18|Spurs","2018/19|Spurs","2021/22|Newcastle","2022/23|Newcastle","2023/24|Newcastle","2024/25|Newcastle","2025/26|Newcastle"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 80)
+      label: "Midfielder with more assists than goals and 12+ assists",
+      fail: "That midfielder must record more assists than goals and at least 12 assists.",
+      test: p => ((p.assists > p.goals) && (Number.isFinite(p.assists) && p.assists >= 12))
     },
     {
-      id: "auto_mid_teammate_mark_noble_points_80_excluding_jarrod_bowen",
+      id: "mid_budget_involvements",
+      family: "MID:budget+goal-involvements",
       position: "MID",
-      label: "Midfielder who shared a club-season with Mark Noble and scored 80+ FPL points — excluding Jarrod Bowen",
-      fail: "That midfielder must share a club-season with Mark Noble and score at least 80 FPL points in the qualifying season. Excluding Jarrod Bowen.",
-      test: p => ((p => ((p => (p.playerId !== "mark-noble" && Number(p.minutes) > 0 && ["2013/14|West Ham","2014/15|West Ham","2015/16|West Ham","2016/17|West Ham","2017/18|West Ham","2018/19|West Ham","2019/20|West Ham","2020/21|West Ham","2021/22|West Ham"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 80))(p) && !["jarrod-bowen"].includes(p.playerId))
+      label: "Midfielder outside the traditional Big Six who started below £6.0m and had 10+ goal involvements",
+      fail: "That midfielder must be outside the traditional Big Six, start below £6.0m and record at least 10 combined goals and assists.",
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && p.startingPrice < 6 && (p.goals + p.assists) >= 10
     },
     {
-      id: "auto_mid_teammate_nick_pope_excluding_anthony_gordon_jacob_murphy",
+      id: "mid_promoted_5assists",
+      family: "MID:assists+promoted",
       position: "MID",
-      label: "Midfielder who shared a Premier League club-season with Nick Pope — excluding Anthony Gordon and Jacob Murphy",
-      fail: "That midfielder must have recorded minutes for the same club in the same FPL season as Nick Pope. Excluding Anthony Gordon and Jacob Murphy.",
-      test: p => ((p => (p.playerId !== "nick-pope" && Number(p.minutes) > 0 && ["2017/18|Burnley","2019/20|Burnley","2020/21|Burnley","2021/22|Burnley","2022/23|Newcastle","2023/24|Newcastle","2024/25|Newcastle","2025/26|Newcastle"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && !["anthony-gordon","jacob-murphy"].includes(p.playerId))
+      label: "Midfielder from a promoted club with at least five assists",
+      fail: "That midfielder must play for a promoted club and record at least five assists.",
+      test: p => p.promoted === true && p.assists >= 5
     },
     {
-      id: "auto_mid_teammate_jack_cork_points_80_excluding_gylfi_sigurdsson_adam_lallana",
+      id: "auto_mid_returned_to_former_club",
+      family: "MID:career:career-clubs",
       position: "MID",
-      label: "Midfielder who shared a club-season with Jack Cork and scored 80+ FPL points — excluding Gylfi Sigurdsson and Adam Lallana",
-      fail: "That midfielder must share a club-season with Jack Cork and score at least 80 FPL points in the qualifying season. Excluding Gylfi Sigurdsson and Adam Lallana.",
-      test: p => ((p => ((p => (p.playerId !== "jack-cork" && Number(p.minutes) > 0 && ["2013/14|Southampton","2014/15|Swansea","2015/16|Swansea","2016/17|Swansea","2017/18|Burnley","2018/19|Burnley","2019/20|Burnley","2020/21|Burnley","2021/22|Burnley","2023/24|Burnley"].includes(String(p.season || "") + "|" + String(p.club || ""))))(p) && Number(p.points) >= 80))(p) && !["gylfi-sigurdsson","adam-lallana"].includes(p.playerId))
+      label: "Midfielder who returned to a former Premier League club",
+      fail: "That midfielder must have recorded Premier League minutes for a club, left it, and later recorded minutes for that club again.",
+      test: p => ((p._career?.returnedToFormerClub === true) && (Number.isFinite(p.minutes) && p.minutes > 0))
     },
     {
-      id: "auto_fwd_teammate_joshua_king",
+      id: "auto_fwd_season_2018_19_points_70",
+      family: "FWD:season:season-exact",
       position: "FWD",
-      label: "Forward who shared a Premier League club-season with Joshua King",
-      fail: "That forward must have recorded minutes for the same club in the same FPL season as Joshua King.",
-      test: p => (p.playerId !== "joshua-king" && Number(p.minutes) > 0 && ["2015/16|Bournemouth","2016/17|Bournemouth","2017/18|Bournemouth","2018/19|Bournemouth","2019/20|Bournemouth","2020/21|Everton","2021/22|Watford"].includes(String(p.season || "") + "|" + String(p.club || "")))
+      label: "Forward with 70+ FPL points in the 2018/19 season",
+      fail: "That forward must score at least 70 FPL points in the 2018/19 season.",
+      test: p => (String(p.season || "") === "2018/19" && (Number.isFinite(p.points) && p.points >= 70) && (Number.isFinite(p.minutes) && p.minutes > 0))
     },
     {
-      id: "auto_fwd_teammate_jay_rodriguez",
+      id: "auto_fwd_relegated_goals_6",
+      family: "FWD:goals+relegated",
       position: "FWD",
-      label: "Forward who shared a Premier League club-season with Jay Rodriguez",
-      fail: "That forward must have recorded minutes for the same club in the same FPL season as Jay Rodriguez.",
-      test: p => (p.playerId !== "jay-rodriguez" && Number(p.minutes) > 0 && ["2013/14|Southampton","2015/16|Southampton","2016/17|Southampton","2017/18|West Brom","2019/20|Burnley","2020/21|Burnley","2021/22|Burnley","2023/24|Burnley"].includes(String(p.season || "") + "|" + String(p.club || "")))
+      label: "Forward from a relegated club with 6+ goals",
+      fail: "That forward must play for a relegated club and score at least 6 goals.",
+      test: p => ((p.relegated === true) && (Number.isFinite(p.goals) && p.goals >= 6))
     }
   ]
 };
