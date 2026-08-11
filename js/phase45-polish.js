@@ -69,6 +69,12 @@
     return 'risky';
   }
 
+  function challengeDateText(value){
+    const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value||""));
+    if(!match)return String(value||"Daily Challenge");
+    return new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3]),12)));
+  }
+
   function renderShareCard(){
     const mount=document.getElementById('phase45ShareCard');
     const results=document.getElementById('results');
@@ -83,7 +89,7 @@
     if(!efficiencies.length){
       document.querySelectorAll('.compact-efficiency strong').forEach(el=>efficiencies.push(Number(String(el.textContent).replace(/[^\d.]/g,''))||0));
     }
-    mount.innerHTML=`<article class="share-card"><div class="share-card-top"><div class="share-card-title"><span>FPL Draft Challenge #${Number(challenge.number)||'–'}${challenge.formation?` · ${esc(challenge.formation)}`:''}${runtime.archiveMode?' · practice':''}</span><strong>${esc(challenge.title||'Daily Challenge')}</strong></div><div class="share-card-grade">${esc(grade)}</div></div><div class="share-grid">${efficiencies.map(value=>`<span class="${tierClass(value)}" title="${value.toFixed(1)}%"></span>`).join('')}</div><div class="share-card-stats"><div class="share-card-stat"><span>Score</span><strong>${esc(score)} / ${Number(challenge.perfectScore||0).toLocaleString()}</strong></div><div class="share-card-stat"><span>Efficiency</span><strong>${esc(efficiency)}</strong></div><div class="share-card-stat"><span>Time · penalties</span><strong>${esc(time)} · ${esc(penalty)}</strong></div></div></article>`;
+    mount.innerHTML=`<article class="share-card"><div class="share-card-top"><div class="share-card-title"><span>FPL Draft Challenge · ${esc(challengeDateText(challenge.releaseDate))}${challenge.formation?` · ${esc(challenge.formation)}`:''}${runtime.archiveMode?' · practice':''}</span><strong>${esc(challenge.title||'Daily Challenge')}</strong></div><div class="share-card-grade">${esc(grade)}</div></div><div class="share-grid">${efficiencies.map(value=>`<span class="${tierClass(value)}" title="${value.toFixed(1)}%"></span>`).join('')}</div><div class="share-card-stats"><div class="share-card-stat"><span>Score</span><strong>${esc(score)} / ${Number(challenge.perfectScore||0).toLocaleString()}</strong></div><div class="share-card-stat"><span>Efficiency</span><strong>${esc(efficiency)}</strong></div><div class="share-card-stat"><span>Time · penalties</span><strong>${esc(time)} · ${esc(penalty)}</strong></div></div></article>`;
   }
 
   function animateFreshResult(){
@@ -119,7 +125,7 @@
       const state=resultText.startsWith('Completed')?'completed':resultText.startsWith('Practice')?'practice':'open';
       const stateLabel=state==='completed'?'Completed':state==='practice'?'Practice saved':'Not played';
       const top=document.createElement('div');top.className='archive-entry-top';
-      top.innerHTML=`<span class="archive-number">#${Number(entry.number)||'–'}</span><span class="archive-difficulty">${esc(entry.difficulty||'Daily')}</span><span class="archive-state-chip ${state==='open'?'':state}">${stateLabel}</span>`;
+      top.innerHTML=`<span class="archive-number">${esc(challengeDateText(entry.date))}</span><span class="archive-difficulty">${esc(entry.difficulty||'Daily')}</span><span class="archive-state-chip ${state==='open'?'':state}">${stateLabel}</span>`;
       title.before(top);
       const meta=document.createElement('div');meta.className='archive-meta-row';
       const score=Number(entry.perfectScore);meta.innerHTML=`<span>${esc(dateText)}</span>${Number.isFinite(score)&&score>0?`<span>Perfect XI ${score.toLocaleString()} pts</span>`:''}`;

@@ -62,7 +62,7 @@
       let result="Not played", action="Practice";
       if(official){result=`Completed · ${Number(official.finalScore||0).toLocaleString()} pts · ${Number(official.efficiency||0).toFixed(1)}%`; action="View result";}
       else if(practice){result=`Practice complete · ${Number(practice.finalScore||0).toLocaleString()} pts · ${Number(practice.efficiency||0).toFixed(1)}%`; action="View practice";}
-      return `<article class="archive-entry"><div><h3>${esc(entry.title||`Challenge #${entry.number||"–"}`)}</h3><p>${esc(fmtDate(entry.date))} · ${esc(entry.formation || "4-4-2")}${entry.theme ? ` · ${esc(entry.theme)}` : ""}</p><p class="${official?"archive-result":practice?"archive-practice-label":""}">${esc(result)}</p></div><a class="archive-action" href="${esc(linkFor(entry.date))}">${esc(action)}</a></article>`;
+      return `<article class="archive-entry"><div><h3>${esc(entry.title||`${fmtDate(entry.date)} · Daily Challenge`)}</h3><p>${esc(fmtDate(entry.date))} · ${esc(entry.formation || "4-4-2")}${entry.theme ? ` · ${esc(entry.theme)}` : ""}</p><p class="${official?"archive-result":practice?"archive-practice-label":""}">${esc(result)}</p></div><a class="archive-action" href="${esc(linkFor(entry.date))}">${esc(action)}</a></article>`;
     }).join("") : '<div class="archive-empty">No previous dated challenges are in the calendar yet. Once Phase 2 publishes a week, they will appear here automatically.</div>';
   }
 

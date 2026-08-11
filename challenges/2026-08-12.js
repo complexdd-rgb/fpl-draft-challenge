@@ -4,7 +4,7 @@
 window.FPL_DAILY_CHALLENGE = {
   id: "daily-032-the-generated-mix",
   number: 32,
-  title: "Challenge #32 · The Generated Mix",
+  title: "12 August 2026 · The Generated Mix",
   dateLabel: "Generated Mix · 4-4-2 · Mixed",
   difficulty: "Mixed",
   releaseDate: "2026-08-12",

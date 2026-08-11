@@ -1000,10 +1000,7 @@ body.stage-one-enabled .audit-status-chip {
       </div>
 
       <div class="settings-grid">
-        <label>
-          Challenge number
-          <input id="challengeNumber" type="number" min="1" value="7">
-        </label>
+        <input id="challengeNumber" type="hidden" value="7">
         <label>
           Challenge name
           <input id="challengeName" type="text" value="The Generated Mix" maxlength="55">
@@ -1082,10 +1079,7 @@ body.stage-one-enabled .audit-status-chip {
             First challenge date
             <input id="batchStartDate" type="date">
           </label>
-          <label>
-            First challenge number
-            <input id="batchFirstNumber" type="number" min="1" max="9999" value="0" inputmode="numeric">
-          </label>
+          <input id="batchFirstNumber" type="hidden" value="0">
           <label>
             <strong>Theme preset</strong>
             <select id="batchThemePreset">
@@ -1217,7 +1211,7 @@ body.stage-one-enabled .audit-status-chip {
         <div>
           <p class="eyebrow">Step 5</p>
           <h2>Challenge history and cooldown</h2>
-          <p class="section-copy">History is stored only in this browser. Its most recent entries tell the generator which prompts to avoid.</p>
+          <p class="section-copy">History is stored in this browser. Seven-day batches are recorded here automatically with all 11 prompts, so the cooldown can reuse the same history later.</p>
         </div>
         <span id="cooldownSummary" class="phase-chip">Loading cooldown…</span>
       </div>
@@ -2218,8 +2212,8 @@ body.stage-one-enabled .audit-status-chip {
   <script src="prompt-library.js?v=2.0.1"></script>
   <script src="js/validation-engine.js?v=1.7.0"></script>
   <script src="challenges/manifest.js?v=2.0.0"></script>
-  <script src="js/admin-core.js?v=18.0.0"></script>
-  <script src="js/admin-batch-calendar.js?v=2.1.0"></script>
+  <script src="js/admin-core.js?v=19.0.0"></script>
+  <script src="js/admin-batch-calendar.js?v=3.0.0"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
   <script src="js/admin-import-tools.js?v=22.0.0"></script>
 

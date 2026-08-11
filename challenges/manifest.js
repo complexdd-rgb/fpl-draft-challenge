@@ -11,7 +11,7 @@ window.FPL_CHALLENGE_MANIFEST = {
       "path": "challenges/2026-08-06.js",
       "id": "daily-008-the-generated-mix",
       "number": 8,
-      "title": "Challenge #8 · The Generated Mix",
+      "title": "6 August 2026 · The Generated Mix",
       "difficulty": "Mixed",
       "formation": "4-4-2",
       "formationCounts": {
@@ -29,7 +29,7 @@ window.FPL_CHALLENGE_MANIFEST = {
       "path": "challenges/2026-08-10.js",
       "id": "daily-030-the-generated-mix",
       "number": 30,
-      "title": "Challenge #30 · The Generated Mix",
+      "title": "10 August 2026 · The Generated Mix",
       "difficulty": "Mixed",
       "formation": "4-4-2",
       "formationCounts": {
@@ -59,7 +59,7 @@ window.FPL_CHALLENGE_MANIFEST = {
       "path": "challenges/2026-08-11.js",
       "id": "daily-031-the-generated-mix",
       "number": 31,
-      "title": "Challenge #31 · The Generated Mix",
+      "title": "11 August 2026 · The Generated Mix",
       "difficulty": "Mixed",
       "formation": "4-4-2",
       "formationCounts": {
@@ -89,7 +89,7 @@ window.FPL_CHALLENGE_MANIFEST = {
       "path": "challenges/2026-08-12.js",
       "id": "daily-032-the-generated-mix",
       "number": 32,
-      "title": "Challenge #32 · The Generated Mix",
+      "title": "12 August 2026 · The Generated Mix",
       "difficulty": "Mixed",
       "formation": "4-4-2",
       "formationCounts": {
@@ -119,7 +119,7 @@ window.FPL_CHALLENGE_MANIFEST = {
       "path": "challenges/2026-08-13.js",
       "id": "daily-033-the-generated-mix",
       "number": 33,
-      "title": "Challenge #33 · The Generated Mix",
+      "title": "13 August 2026 · The Generated Mix",
       "difficulty": "Mixed",
       "formation": "4-4-2",
       "formationCounts": {
@@ -149,7 +149,7 @@ window.FPL_CHALLENGE_MANIFEST = {
       "path": "challenges/2026-08-14.js",
       "id": "daily-034-the-generated-mix",
       "number": 34,
-      "title": "Challenge #34 · The Generated Mix",
+      "title": "14 August 2026 · The Generated Mix",
       "difficulty": "Mixed",
       "formation": "4-4-2",
       "formationCounts": {
@@ -179,7 +179,7 @@ window.FPL_CHALLENGE_MANIFEST = {
       "path": "challenges/2026-08-15.js",
       "id": "daily-035-the-generated-mix",
       "number": 35,
-      "title": "Challenge #35 · The Generated Mix",
+      "title": "15 August 2026 · The Generated Mix",
       "difficulty": "Mixed",
       "formation": "4-4-2",
       "formationCounts": {
@@ -209,7 +209,7 @@ window.FPL_CHALLENGE_MANIFEST = {
       "path": "challenges/2026-08-16.js",
       "id": "daily-036-the-generated-mix",
       "number": 36,
-      "title": "Challenge #36 · The Generated Mix",
+      "title": "16 August 2026 · The Generated Mix",
       "difficulty": "Mixed",
       "formation": "4-4-2",
       "formationCounts": {
@@ -239,7 +239,7 @@ window.FPL_CHALLENGE_MANIFEST = {
       "path": "challenges/2026-08-17.js",
       "id": "daily-022-the-generated-mix",
       "number": 22,
-      "title": "Challenge #22 · The Generated Mix",
+      "title": "17 August 2026 · The Generated Mix",
       "difficulty": "Mixed",
       "formation": "4-4-2",
       "formationCounts": {

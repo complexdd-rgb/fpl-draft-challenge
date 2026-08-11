@@ -187,7 +187,7 @@
       .find(number => reservedNumbers.has(number));
     if (numberCollision) {
       const entry = reservedNumbers.get(numberCollision);
-      setStatus(`Challenge #${numberCollision} is already reserved for ${entry.date || "another calendar date"}. Choose a different first challenge number.`, "fail");
+      setStatus(`An internal challenge ID is already reserved for ${entry.date || "another calendar date"}. The generator will choose the next available internal ID.`, "fail");
       return;
     }
 
@@ -228,6 +228,21 @@
         promptIds: Array.isArray(entry.promptIds) ? [...entry.promptIds] : [],
         promptFamilies: Array.isArray(entry.promptFamilies) ? [...entry.promptFamilies] : []
       }));
+    const scheduledDates = new Set(virtualSchedule.map(entry => entry.date));
+    const browserHistory = window.FPL_STUDIO_PHASE3?.getHistory?.() || [];
+    for (const entry of browserHistory) {
+      const date = entry?.releaseDate;
+      if (!date || datesBeingReplaced.has(date) || scheduledDates.has(date) || !Array.isArray(entry.promptIds) || !entry.promptIds.length) continue;
+      virtualSchedule.push({
+        date,
+        id: entry.id || "",
+        number: Number(entry.number) || 0,
+        title: entry.title || "",
+        promptIds: [...entry.promptIds],
+        promptFamilies: Array.isArray(entry.promptFamilies) ? [...entry.promptFamilies] : []
+      });
+      scheduledDates.add(date);
+    }
     const rotationState = buildExactRotationState(virtualSchedule, startDate, basePools, promptById);
 
     try {
@@ -273,7 +288,7 @@
           batchResults.push({
             date,
             number,
-            title: `Challenge #${number} · ${baseName}`,
+            title: `${longChallengeDate(date)} · ${baseName}`,
             difficulty: "—",
             formation: formation.label,
             formationCounts: { ...requiredFormation },
@@ -293,9 +308,9 @@
         const perfect = generated.perfect;
         const difficulty = displayDifficultyFor(prompts);
         const challenge = {
-          id: `daily-${String(number).padStart(3, "0")}-${slugify(baseName) || "generated-mix"}`,
+          id: `daily-${date}-${slugify(baseName) || "generated-mix"}`,
           number,
-          title: `Challenge #${number} · ${baseName}`,
+          title: `${longChallengeDate(date)} · ${baseName}`,
           dateLabel: `${settings.theme || baseName} · ${formation.label} · ${difficulty}`,
           difficulty,
           releaseDate: date,
@@ -334,6 +349,11 @@
       }
 
       batchManifest = buildMergedManifest(existingEntries, batchResults, settings);
+      window.FPL_STUDIO_PHASE3?.recordBatchChallenges?.(batchResults.map(result => ({
+        ...result,
+        name: baseName,
+        promptLabels: (result.prompts || []).map(prompt => prompt.label)
+      })));
       if (elements.downloadButton) elements.downloadButton.disabled = false;
       setStatus(`All ${DAYS_IN_BATCH} challenges passed. The calendar ZIP is ready for ${friendlyDate(batchDates[0])}–${friendlyDate(batchDates[batchDates.length - 1])}.`, "pass");
     } catch (error) {
@@ -973,7 +993,7 @@
       const issueText = result.issues?.length ? escapeHtml(result.issues.join(" · ")) : "Validated";
       return `<tr>
         <td><strong>${escapeHtml(shortDay(result.releaseDate || result.date))}</strong><span>${escapeHtml(result.releaseDate || result.date)}</span></td>
-        <td><strong>#${Number(result.number) || "—"}</strong><span>${escapeHtml((result.title || "").replace(/^Challenge #\d+\s*·\s*/, ""))}</span></td>
+        <td><strong>${escapeHtml(longChallengeDate(result.releaseDate || result.date))}</strong><span>${escapeHtml(result.theme || "Generated Mix")}</span></td>
         <td>${escapeHtml(result.difficulty || "—")}</td>
         <td><strong>${escapeHtml(result.formation || "4-4-2")}</strong><span>${escapeHtml(result.theme || "Generated Mix")}</span></td>
         <td>${result.perfectScore ? Number(result.perfectScore).toLocaleString() : "—"}</td>
@@ -1090,7 +1110,7 @@
       "",
       `Schedule: ${first.releaseDate} to ${last.releaseDate}`,
       `Timezone: ${LONDON_TIMEZONE}`,
-      `Challenges: #${first.number} to #${last.number}`,
+      `Challenges: ${longChallengeDate(first.releaseDate)} to ${longChallengeDate(last.releaseDate)}`,
       `Formation: ${first.formation || "4-4-2"}`,
       `Theme: ${first.theme || "Generated Mix"}`,
       "",
@@ -1156,6 +1176,13 @@
     if (!isIsoDate(isoDate)) return isoDate || "—";
     const [year, month, day] = isoDate.split("-").map(Number);
     return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short" })
+      .format(new Date(Date.UTC(year, month - 1, day, 12)));
+  }
+
+  function longChallengeDate(isoDate) {
+    if (!isIsoDate(isoDate)) return isoDate || "—";
+    const [year, month, day] = isoDate.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
       .format(new Date(Date.UTC(year, month - 1, day, 12)));
   }
 
