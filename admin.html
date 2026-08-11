@@ -1034,18 +1034,18 @@ body.stage-one-enabled .audit-status-chip {
           <input id="minAntiMeta" type="number" min="0" max="11" value="5">
         </label>
         <label>
-          Prompt cooldown
+          Prompt-family cooldown
           <select id="cooldownChallenges">
-            <option value="3">Last 3 challenges</option>
-            <option value="5">Last 5 challenges</option>
-            <option value="7" selected>Last 7 challenges</option>
-            <option value="10">Last 10 challenges</option>
-            <option value="14">Last 14 challenges</option>
+            <option value="3">3 days</option>
+            <option value="5">5 days</option>
+            <option value="7" selected>7 days</option>
+            <option value="10">10 days</option>
+            <option value="14">14 days</option>
           </select>
         </label>
         <label class="check-label">
           <input id="avoidRecent" type="checkbox" checked>
-          Avoid prompts currently on cooldown
+          Include browser/live recent history
         </label>
       </div>
 
@@ -1072,7 +1072,7 @@ body.stage-one-enabled .audit-status-chip {
           <div>
             <span class="limit-kicker">Seven-day challenge calendar</span>
             <h3 id="batchPlannerHeading">Generate the next 7 days</h3>
-            <p>Build seven dated challenges in one run. Every day is checked against the settings above, the exact unique-player perfect XI and the configured prompt cooldown before the calendar ZIP unlocks.</p>
+            <p>Build seven dated challenges in one run. Exact prompts now rotate through their full compatible position pool before reuse, while similar prompt families use the configured day cooldown. Scheduled challenges already in the manifest count too.</p>
           </div>
           <span id="batchManifestChip" class="phase-chip batch-manifest-chip">Loading calendar…</span>
         </div>
@@ -1112,7 +1112,7 @@ body.stage-one-enabled .audit-status-chip {
               <option value="4-2-3-1">4-2-3-1 (FPL 4-5-1)</option>
             </select>
           </label>
-          <div class="batch-settings-note"><strong style="color:var(--text);margin-right:6px">Formation-aware generation:</strong> Studio now builds the exact GK/DEF/MID/FWD prompt mix required by the selected shape. Theme presets can choose a formation automatically; Custom lets you change formation without renaming the challenge. Difficulty, answer-pool limits, anti-meta target, cooldown and Maximum Perfect Score still apply.</div>
+          <div class="batch-settings-note"><strong style="color:var(--text);margin-right:6px">Rotation-aware generation:</strong> Studio builds the exact GK/DEF/MID/FWD mix, does not reuse an exact compatible prompt until its position pool cycles, and gives each prompt family a 7-day cooldown by default. If a family rule would make a valid XI impossible, only the family cooldown relaxes; exact-prompt rotation remains enforced.</div>
         </div>
 
         <div class="button-row batch-actions">
@@ -2219,7 +2219,7 @@ body.stage-one-enabled .audit-status-chip {
   <script src="js/validation-engine.js?v=1.7.0"></script>
   <script src="challenges/manifest.js?v=2.0.0"></script>
   <script src="js/admin-core.js?v=18.0.0"></script>
-  <script src="js/admin-batch-calendar.js?v=2.0.0"></script>
+  <script src="js/admin-batch-calendar.js?v=2.1.0"></script>
   <script src="data/fpl-history-2015-16.js?v=12.0.0"></script>
   <script src="js/admin-import-tools.js?v=22.0.0"></script>
 

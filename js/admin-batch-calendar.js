@@ -32,6 +32,17 @@
     "outside-big-six", "outside-top-four", "manager", "budget", "young",
     "exact-stat", "name-rule", "surname", "first-name"
   ]);
+  const FAMILY_GENERIC_TAGS = new Set(["anti-meta", "auto-generated", "relationship", "club-season", "excludes-top"]);
+  const FAMILY_NAME_TAGS = new Set(["surname", "first-name", "name-length", "same-initials", "initials", "hyphenated", "name-rule"]);
+  const FAMILY_SEASON_TAGS = new Set(["season-rule", "season-exact", "season-before", "season-after", "season-between"]);
+  const FAMILY_CAREER_TAGS = new Set(["career-total", "career-seasons", "career-clubs", "career-overlap", "returned-club", "played-for-both"]);
+  const FAMILY_STAT_PRIORITY = Object.freeze([
+    "points", "goals", "assists", "goal-involvements", "minutes", "clean-sheets", "saves",
+    "bonus", "cards", "discipline", "budget", "final-price", "age", "young", "veteran",
+    "promoted", "relegated", "bottom-half", "bottomhalf", "mid-table", "league-position",
+    "top-four", "survival"
+  ]);
+  const ROTATION_POLICY_VERSION = 1;
   const FORBIDDEN_COST = 1_000_000;
   const LONDON_TIMEZONE = "Europe/London";
   const MAX_CANDIDATES_PER_DAY = 650;
@@ -190,34 +201,59 @@
     if (elements.downloadButton) elements.downloadButton.disabled = true;
     elements.review.innerHTML = "";
 
-    const historyBlocked = settings.avoidRecent
+    // Exact-prompt rotation is always enforced by the seven-day generator. The optional
+    // browser/live history below is an extra freshness guard for challenges that may not yet
+    // be represented in the calendar manifest.
+    const extraBlockedIds = settings.avoidRecent
       ? new Set(window.FPL_STUDIO_PHASE3?.getCooldownPromptIds?.() || [])
       : new Set();
     if (settings.avoidRecent) {
       const livePromptIds = await loadLivePromptIds();
-      livePromptIds.forEach(id => historyBlocked.add(id));
+      livePromptIds.forEach(id => extraBlockedIds.add(id));
     }
 
-    const basePools = buildBasePools(promptLibrary, settings, historyBlocked);
+    const basePools = buildBasePools(promptLibrary, settings, new Set());
     const missingBase = Object.keys(requiredFormation).filter(position => basePools[position].length < requiredFormation[position]);
     if (missingBase.length) {
-      setStatus(`Not enough eligible ${missingBase.join(", ")} prompts for a seven-day batch. Adjust the answer limits or cooldown settings.`, "fail");
+      setStatus(`Not enough eligible ${missingBase.join(", ")} prompts for a seven-day batch. Adjust the answer limits.`, "fail");
       elements.generateButton.disabled = false;
       return;
     }
 
+    const promptById = new Map(promptLibrary.map(prompt => [prompt.id, prompt]));
     const virtualSchedule = existingEntries
       .filter(entry => entry.date && !datesBeingReplaced.has(entry.date))
-      .map(entry => ({ ...entry, promptIds: Array.isArray(entry.promptIds) ? [...entry.promptIds] : [] }));
+      .map(entry => ({
+        ...entry,
+        promptIds: Array.isArray(entry.promptIds) ? [...entry.promptIds] : [],
+        promptFamilies: Array.isArray(entry.promptFamilies) ? [...entry.promptFamilies] : []
+      }));
+    const rotationState = buildExactRotationState(virtualSchedule, startDate, basePools, promptById);
 
     try {
       for (let dayIndex = 0; dayIndex < DAYS_IN_BATCH; dayIndex += 1) {
         if (token !== generationToken) return;
         const date = batchDates[dayIndex];
         const number = firstNumber + dayIndex;
-        const scheduleBlocked = getScheduledCooldownPromptIds(virtualSchedule, date, settings.cooldownChallenges);
+        const futureReservedIds = getFutureReservedPromptIds(virtualSchedule, date);
+        const exactPlan = buildExactRotationPlan({
+          rotationState,
+          basePools,
+          requiredFormation,
+          extraBlockedIds,
+          futureReservedIds
+        });
+        const familyPlan = buildFamilyCooldownPlan({
+          schedule: virtualSchedule,
+          date,
+          cooldownDays: settings.cooldownChallenges,
+          promptById,
+          basePools,
+          exactPlan,
+          requiredFormation
+        });
 
-        setStatus(`Generating ${dayIndex + 1}/${DAYS_IN_BATCH} · ${friendlyDate(date)} · building balanced candidates…`, "working");
+        setStatus(`Generating ${dayIndex + 1}/${DAYS_IN_BATCH} · ${friendlyDate(date)} · exact rotation + ${settings.cooldownChallenges}-day family cooldown…`, "working");
         await yieldToBrowser();
 
         const generated = await generateCandidateForDay({
@@ -225,7 +261,8 @@
           settings,
           requiredFormation,
           formationSlots,
-          blockedIds: scheduleBlocked,
+          exactPlan,
+          familyPlan,
           dayIndex,
           date,
           token
@@ -268,19 +305,22 @@
           perfectScore: perfect.score,
           prompts
         };
-        const validation = validateChallenge(challenge, perfect, settings, scheduleBlocked);
+        const validation = validateChallenge(challenge, perfect, settings, exactPlan, familyPlan);
         const source = buildChallengeSource(challenge);
 
         const result = {
           ...challenge,
           promptIds: prompts.map(prompt => prompt.id),
+          promptFamilies: prompts.map(promptFamily),
           antiMetaCount: prompts.filter(isAntiMeta).length,
+          familyCooldownRelaxedPositions: [...familyPlan.relaxedPositions],
           perfect,
           source,
           status: validation.length ? "FAIL" : "PASS",
           issues: validation
         };
         batchResults.push(result);
+        if (!validation.length) commitExactRotationSelection(rotationState, exactPlan, prompts, basePools);
         virtualSchedule.push(manifestEntryForResult(result));
         renderBatchReview();
 
@@ -293,7 +333,7 @@
         await yieldToBrowser();
       }
 
-      batchManifest = buildMergedManifest(existingEntries, batchResults);
+      batchManifest = buildMergedManifest(existingEntries, batchResults, settings);
       if (elements.downloadButton) elements.downloadButton.disabled = false;
       setStatus(`All ${DAYS_IN_BATCH} challenges passed. The calendar ZIP is ready for ${friendlyDate(batchDates[0])}–${friendlyDate(batchDates[batchDates.length - 1])}.`, "pass");
     } catch (error) {
@@ -332,16 +372,184 @@
     return pools;
   }
 
-  async function generateCandidateForDay({ basePools, settings, requiredFormation, formationSlots, blockedIds, dayIndex, date, token }) {
+  function promptFamily(prompt) {
+    if (!prompt) return "UNKNOWN:other";
+    if (prompt.family) return `${prompt.position || "ANY"}:${String(prompt.family)}`;
+
+    const tags = (Array.isArray(prompt.tags) ? prompt.tags : []).filter(tag => !FAMILY_GENERIC_TAGS.has(tag));
+    const statTag = () => FAMILY_STAT_PRIORITY.find(tag => tags.includes(tag));
+
+    let family = "";
+    if (tags.includes("teammate")) {
+      const secondary = statTag();
+      family = `teammate${secondary ? `+${secondary}` : ""}`;
+    } else if (tags.includes("manager")) {
+      const secondary = statTag();
+      family = `manager${secondary ? `+${secondary}` : ""}`;
+    } else {
+      const nameTags = tags.filter(tag => FAMILY_NAME_TAGS.has(tag) && tag !== "name-rule").sort();
+      const seasonTags = tags.filter(tag => FAMILY_SEASON_TAGS.has(tag) && tag !== "season-rule").sort();
+      const careerTags = tags.filter(tag => FAMILY_CAREER_TAGS.has(tag)).sort();
+      if (nameTags.length) family = `name:${nameTags[0]}`;
+      else if (seasonTags.length) family = `season:${seasonTags[0]}`;
+      else if (tags.includes("season-rule")) family = "season";
+      else if (careerTags.length) family = `career:${careerTags[0]}`;
+      else {
+        const statTags = FAMILY_STAT_PRIORITY.filter(tag => tags.includes(tag));
+        if (statTags.length >= 2) family = statTags.slice(0, 2).sort().join("+");
+        else if (statTags.length) family = statTags[0];
+      }
+    }
+
+    if (!family) family = tags[0] || String(prompt.id || "other").split("_").slice(0, 3).join("_") || "other";
+    return `${prompt.position || "ANY"}:${family}`;
+  }
+
+  function buildExactRotationState(schedule, beforeDate, basePools, promptById) {
+    const state = Object.fromEntries(Object.keys(basePools).map(position => [position, { cycle: 1, usedIds: new Set() }]));
+    const poolIds = Object.fromEntries(Object.entries(basePools).map(([position, prompts]) => [position, new Set(prompts.map(prompt => prompt.id))]));
+    const entries = schedule
+      .filter(entry => entry.date && entry.date < beforeDate)
+      .sort((left, right) => String(left.date).localeCompare(String(right.date)));
+
+    for (const entry of entries) {
+      for (const promptId of entry.promptIds || []) {
+        const prompt = promptById.get(promptId);
+        const position = prompt?.position;
+        if (!position || !state[position] || !poolIds[position].has(promptId)) continue;
+        const positionState = state[position];
+        if (positionState.usedIds.size >= poolIds[position].size) {
+          positionState.cycle += 1;
+          positionState.usedIds.clear();
+        }
+        positionState.usedIds.add(promptId);
+        if (positionState.usedIds.size >= poolIds[position].size) {
+          positionState.cycle += 1;
+          positionState.usedIds.clear();
+        }
+      }
+    }
+    return state;
+  }
+
+  function getFutureReservedPromptIds(schedule, date) {
+    return new Set(schedule
+      .filter(entry => entry.date && entry.date > date)
+      .flatMap(entry => Array.isArray(entry.promptIds) ? entry.promptIds : []));
+  }
+
+  function buildExactRotationPlan({ rotationState, basePools, requiredFormation, extraBlockedIds, futureReservedIds }) {
+    const plan = {};
+    for (const [position, required] of Object.entries(requiredFormation)) {
+      const positionState = rotationState[position] || { cycle: 1, usedIds: new Set() };
+      const available = basePools[position].filter(prompt => !extraBlockedIds.has(prompt.id) && !futureReservedIds.has(prompt.id));
+      const unused = available.filter(prompt => !positionState.usedIds.has(prompt.id));
+
+      if (unused.length >= required) {
+        plan[position] = {
+          cycle: positionState.cycle,
+          bridgeCycle: false,
+          allowedIds: new Set(unused.map(prompt => prompt.id)),
+          mustUseIds: new Set(),
+          unavailableCount: basePools[position].length - available.length
+        };
+      } else {
+        // The current cycle has fewer prompts left than today's formation needs. Force every
+        // remaining unused prompt into today's XI, then fill the remaining slots from the new cycle.
+        plan[position] = {
+          cycle: positionState.cycle,
+          bridgeCycle: true,
+          allowedIds: new Set(available.map(prompt => prompt.id)),
+          mustUseIds: new Set(unused.map(prompt => prompt.id)),
+          unavailableCount: basePools[position].length - available.length
+        };
+      }
+    }
+    return plan;
+  }
+
+  function commitExactRotationSelection(rotationState, exactPlan, prompts, basePools) {
+    for (const position of Object.keys(rotationState)) {
+      const selected = prompts.filter(prompt => prompt.position === position).map(prompt => prompt.id);
+      if (!selected.length) continue;
+      const positionState = rotationState[position];
+      const plan = exactPlan[position];
+      if (plan?.bridgeCycle) {
+        const oldCycleIds = plan.mustUseIds || new Set();
+        positionState.cycle += 1;
+        positionState.usedIds = new Set(selected.filter(id => !oldCycleIds.has(id)));
+      } else {
+        selected.forEach(id => positionState.usedIds.add(id));
+        if (positionState.usedIds.size >= basePools[position].length) {
+          positionState.cycle += 1;
+          positionState.usedIds.clear();
+        }
+      }
+    }
+  }
+
+  function familiesForEntry(entry, promptById) {
+    if (Array.isArray(entry.promptFamilies) && entry.promptFamilies.length) return entry.promptFamilies;
+    return (entry.promptIds || []).map(id => promptFamily(promptById.get(id))).filter(Boolean);
+  }
+
+  function buildFamilyCooldownPlan({ schedule, date, cooldownDays, promptById, basePools, exactPlan, requiredFormation }) {
+    const cutoffBefore = addDaysIso(date, -cooldownDays);
+    const cutoffAfter = addDaysIso(date, cooldownDays);
+    const nearbyEntries = schedule.filter(entry => entry.date && entry.date !== date && entry.date >= cutoffBefore && entry.date <= cutoffAfter);
+    const recentFamilies = new Set(nearbyEntries.flatMap(entry => familiesForEntry(entry, promptById)));
+    const relaxedPositions = new Set();
+    const allowedFamiliesByPosition = {};
+
+    for (const [position, required] of Object.entries(requiredFormation)) {
+      const exactAllowed = exactPlan[position]?.allowedIds || new Set();
+      const candidates = basePools[position].filter(prompt => exactAllowed.has(prompt.id));
+      const fresh = candidates.filter(prompt => !recentFamilies.has(promptFamily(prompt)));
+      const freshFamilies = new Set(fresh.map(promptFamily));
+      if (fresh.length >= required && freshFamilies.size >= required) {
+        allowedFamiliesByPosition[position] = freshFamilies;
+      } else {
+        // Family cooldown is the only rule we relax automatically. Exact-prompt rotation stays hard.
+        relaxedPositions.add(position);
+        allowedFamiliesByPosition[position] = null;
+      }
+    }
+
+    return {
+      cooldownDays,
+      recentFamilies,
+      relaxedPositions,
+      allowedFamiliesByPosition
+    };
+  }
+
+  function exactPlanAllows(prompt, exactPlan) {
+    return Boolean(exactPlan[prompt.position]?.allowedIds?.has(prompt.id));
+  }
+
+  function familyPlanAllows(prompt, familyPlan) {
+    const allowed = familyPlan.allowedFamiliesByPosition[prompt.position];
+    return allowed == null || allowed.has(promptFamily(prompt));
+  }
+
+  function satisfiesExactRotationRequirements(draft, exactPlan) {
+    const selectedIds = new Set(draft.map(prompt => prompt.id));
+    for (const positionPlan of Object.values(exactPlan)) {
+      for (const requiredId of positionPlan.mustUseIds || []) if (!selectedIds.has(requiredId)) return false;
+    }
+    return true;
+  }
+
+  async function generateCandidateForDay({ basePools, settings, requiredFormation, formationSlots, exactPlan, familyPlan, dayIndex, date, token }) {
     const availability = Object.fromEntries(
       Object.keys(requiredFormation).map(position => [
         position,
-        basePools[position].filter(prompt => !blockedIds.has(prompt.id)).length
+        basePools[position].filter(prompt => exactPlanAllows(prompt, exactPlan) && familyPlanAllows(prompt, familyPlan)).length
       ])
     );
     const missing = Object.keys(requiredFormation).filter(position => availability[position] < requiredFormation[position]);
     if (missing.length) {
-      return { ok: false, reason: `Cooldown leaves too few ${missing.join(", ")} prompts. Reduce the cooldown or relax the prompt limits.` };
+      return { ok: false, reason: `Exact prompt rotation leaves too few ${missing.join(", ")} prompts. The family cooldown has already been relaxed where necessary.` };
     }
 
     const candidates = [];
@@ -352,13 +560,16 @@
       const draft = [];
 
       for (const position of formationSlots) {
-        const options = basePools[position].filter(prompt => !blockedIds.has(prompt.id) && !used.has(prompt.id));
-        const choice = weightedPick(options, draft, settings);
+        const options = basePools[position].filter(prompt =>
+          exactPlanAllows(prompt, exactPlan) && familyPlanAllows(prompt, familyPlan) && !used.has(prompt.id)
+        );
+        const choice = weightedPick(options, draft, settings, familyPlan);
         if (!choice) break;
         draft.push(choice);
         used.add(choice.id);
       }
       if (draft.length !== 11) continue;
+      if (!satisfiesExactRotationRequirements(draft, exactPlan)) continue;
       if (draft.filter(isAntiMeta).length < settings.minAntiMeta) continue;
 
       const signature = draft.map(prompt => prompt.id).join("|");
@@ -421,8 +632,12 @@
     };
   }
 
-  function weightedPick(options, currentDraft, settings) {
+  function weightedPick(options, currentDraft, settings, familyPlan) {
     if (!options.length) return null;
+    const usedFamilies = new Set(currentDraft.map(promptFamily));
+    const familyFreshOptions = options.filter(prompt => !usedFamilies.has(promptFamily(prompt)));
+    if (familyFreshOptions.length) options = familyFreshOptions;
+
     const target = difficultyTargetValue(settings.difficultyTarget);
     const currentAnti = currentDraft.filter(isAntiMeta).length;
     const antiNeeded = Math.max(0, settings.minAntiMeta - currentAnti);
@@ -438,6 +653,7 @@
       else if (antiNeeded > 0 && isAntiMeta(prompt)) weight *= 2;
       const repeatedThemeCount = (prompt.tags || []).filter(tag => DIVERSITY_TAGS.has(tag) && tagsAlreadyUsed.has(tag)).length;
       weight /= 1 + repeatedThemeCount * 1.6;
+      if (familyPlan?.recentFamilies?.has(promptFamily(prompt))) weight /= 12;
       return { prompt, weight };
     });
 
@@ -579,7 +795,7 @@
     return [...assignment];
   }
 
-  function validateChallenge(challenge, perfect, settings, blockedIds) {
+  function validateChallenge(challenge, perfect, settings, exactPlan, familyPlan) {
     const issues = [];
     const prompts = challenge.prompts || [];
     if (prompts.length !== 11) issues.push("Challenge does not contain 11 prompts.");
@@ -593,8 +809,13 @@
       if (formation[position] !== required) issues.push(`${challenge.formation || "Selected formation"} requires ${required} ${position} prompt${required === 1 ? "" : "s"}.`);
     }
 
-    const cooldownConflicts = prompts.filter(prompt => blockedIds.has(prompt.id));
-    if (cooldownConflicts.length) issues.push(`${cooldownConflicts.length} prompt(s) break the scheduled cooldown.`);
+    const exactRotationConflicts = prompts.filter(prompt => !exactPlanAllows(prompt, exactPlan));
+    if (exactRotationConflicts.length) issues.push(`${exactRotationConflicts.length} prompt(s) break the exact-prompt rotation.`);
+    if (!satisfiesExactRotationRequirements(prompts, exactPlan)) issues.push("The XI skipped a prompt that had to finish the current exact-prompt cycle.");
+    const familyConflicts = prompts.filter(prompt =>
+      !familyPlan.relaxedPositions.has(prompt.position) && familyPlan.recentFamilies.has(promptFamily(prompt))
+    );
+    if (familyConflicts.length) issues.push(`${familyConflicts.length} prompt(s) break the ${familyPlan.cooldownDays}-day prompt-family cooldown.`);
     if (prompts.filter(isAntiMeta).length < settings.minAntiMeta) issues.push("Minimum anti-meta prompt target was not met.");
 
     for (const prompt of prompts) {
@@ -615,7 +836,7 @@
   function buildChallengeSource(challenge) {
     const promptsCode = challenge.prompts.map(prompt => {
       const testSource = typeof prompt.test === "function" ? prompt.test.toString() : "p => false";
-      return `    {\n      id: ${JSON.stringify(prompt.id)},\n      position: ${JSON.stringify(prompt.position)},\n      label: ${JSON.stringify(prompt.label)},\n      fail: ${JSON.stringify(prompt.fail)},\n      test: ${testSource}\n    }`;
+      return `    {\n      id: ${JSON.stringify(prompt.id)},\n      family: ${JSON.stringify(promptFamily(prompt))},\n      position: ${JSON.stringify(prompt.position)},\n      label: ${JSON.stringify(prompt.label)},\n      fail: ${JSON.stringify(prompt.fail)},\n      test: ${testSource}\n    }`;
     }).join(",\n");
 
     return `/* Generated by FPL Challenge Studio — Seven-Day Calendar.\n   Release date: ${challenge.releaseDate} (Europe/London)\n   Exact perfect score calculated with eleven unique footballers. */\nwindow.FPL_DAILY_CHALLENGE = {\n  id: ${JSON.stringify(challenge.id)},\n  number: ${challenge.number},\n  title: ${JSON.stringify(challenge.title)},\n  dateLabel: ${JSON.stringify(challenge.dateLabel)},\n  difficulty: ${JSON.stringify(challenge.difficulty)},\n  releaseDate: ${JSON.stringify(challenge.releaseDate)},\n  formation: ${JSON.stringify(challenge.formation || "4-4-2")},\n  formationCounts: ${JSON.stringify(challenge.formationCounts || FORMATIONS["4-4-2"].counts)},\n  theme: ${JSON.stringify(challenge.theme || "Generated Mix")},\n  perfectScore: ${challenge.perfectScore},\n  prompts: [\n${promptsCode}\n  ]\n};\n`;
@@ -682,7 +903,7 @@
     return JSON.stringify(buildLeaderboardVerifier(result), null, 2) + "\n";
   }
 
-  function buildMergedManifest(existingEntries, results) {
+  function buildMergedManifest(existingEntries, results, settings) {
     const replacementDates = new Set(results.map(result => result.releaseDate));
     const merged = existingEntries
       .filter(entry => entry.date && !replacementDates.has(entry.date))
@@ -693,6 +914,13 @@
       version: Math.max(2, Number(window.FPL_CHALLENGE_MANIFEST?.version || 1) + 1),
       timezone: LONDON_TIMEZONE,
       fallbackPath: window.FPL_CHALLENGE_MANIFEST?.fallbackPath || "todays-challenge.js",
+      rotationPolicy: {
+        version: ROTATION_POLICY_VERSION,
+        exactPromptRotation: "full-compatible-position-cycle",
+        familyCooldownDays: Number(settings?.cooldownChallenges) || 7,
+        familyScope: "position-scoped-template-family",
+        familyFallback: "relax-family-only-when-required"
+      },
       challenges: merged
     };
   }
@@ -709,7 +937,13 @@
       formationCounts: result.formationCounts || FORMATIONS["4-4-2"].counts,
       theme: result.theme || "Generated Mix",
       perfectScore: Number(result.perfectScore) || 0,
-      promptIds: Array.isArray(result.promptIds) ? [...result.promptIds] : []
+      promptIds: Array.isArray(result.promptIds) ? [...result.promptIds] : [],
+      promptFamilies: Array.isArray(result.promptFamilies)
+        ? [...result.promptFamilies]
+        : Array.isArray(result.prompts) ? result.prompts.map(promptFamily) : [],
+      familyCooldownRelaxedPositions: Array.isArray(result.familyCooldownRelaxedPositions)
+        ? [...result.familyCooldownRelaxedPositions]
+        : []
     };
   }
 
@@ -719,16 +953,13 @@
 
   function getManifestEntries() {
     return Array.isArray(window.FPL_CHALLENGE_MANIFEST?.challenges)
-      ? window.FPL_CHALLENGE_MANIFEST.challenges.map(entry => ({ ...entry, promptIds: Array.isArray(entry.promptIds) ? [...entry.promptIds] : [] }))
+      ? window.FPL_CHALLENGE_MANIFEST.challenges.map(entry => ({
+          ...entry,
+          promptIds: Array.isArray(entry.promptIds) ? [...entry.promptIds] : [],
+          promptFamilies: Array.isArray(entry.promptFamilies) ? [...entry.promptFamilies] : [],
+          familyCooldownRelaxedPositions: Array.isArray(entry.familyCooldownRelaxedPositions) ? [...entry.familyCooldownRelaxedPositions] : []
+        }))
       : [];
-  }
-
-  function getScheduledCooldownPromptIds(schedule, date, cooldownCount) {
-    const previous = schedule
-      .filter(entry => entry.date && entry.date < date)
-      .sort((left, right) => String(left.date).localeCompare(String(right.date)))
-      .slice(-cooldownCount);
-    return new Set(previous.flatMap(entry => Array.isArray(entry.promptIds) ? entry.promptIds : []));
   }
 
   function renderBatchReview() {
@@ -1000,7 +1231,9 @@
       theme: result.theme,
       perfectScore: result.perfectScore,
       status: result.status,
-      promptIds: [...(result.promptIds || [])]
+      promptIds: [...(result.promptIds || [])],
+      promptFamilies: [...(result.promptFamilies || [])],
+      familyCooldownRelaxedPositions: [...(result.familyCooldownRelaxedPositions || [])]
     })),
     getManifest: () => batchManifest ? JSON.parse(JSON.stringify(batchManifest)) : null,
     getSources: () => batchResults.filter(result => result.source).map(result => ({ date: result.releaseDate, source: result.source })),
@@ -1008,6 +1241,7 @@
     londonDateKey,
     formations: FORMATIONS,
     themePresets: THEME_PRESETS,
-    formationSequence
+    formationSequence,
+    promptFamily
   });
 })();
