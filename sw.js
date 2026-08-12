@@ -11,7 +11,7 @@ self.addEventListener("activate", event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
 function isDynamic(url, request){
-  return request.mode === "navigate" || /\/(index|admin)\.html$/.test(url.pathname) || /\/challenges\//.test(url.pathname) || /\/js\/(daily-challenge-loader|challenge-archive|phase45-polish|leaderboard-config|leaderboard-client|leaderboard-admin-status|admin-batch-calendar)\.js$/.test(url.pathname);
+  return request.mode === "navigate" || /\/(index|admin)\.html$/.test(url.pathname) || /\/challenges\//.test(url.pathname) || /\/js\/(daily-challenge-loader|challenge-archive|phase45-polish|leaderboard-config|leaderboard-client|leaderboard-team-view|leaderboard-admin-status|admin-batch-calendar)\.js$/.test(url.pathname);
 }
 self.addEventListener("fetch", event => {
   if(event.request.method !== "GET") return;
