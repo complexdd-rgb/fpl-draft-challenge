@@ -1,4 +1,4 @@
-import { adminClient, bodyJson, errorResponse, httpError, json, loadVerifier, preflight, requireBrowserKey, text } from "../_shared/backend.ts";
+import { adminClient, bodyJson, errorResponse, httpError, json, loadVerifier, preflight, requireBrowserKey, resolveIdentity, text } from "../_shared/backend.ts";
 
 Deno.serve(async (req) => {
   const options = preflight(req); if (options) return options;
@@ -10,13 +10,17 @@ Deno.serve(async (req) => {
     if (!attemptId || !challengeId || !clientId || !promptId || !playerId || !season) throw httpError(400, "Incomplete pick attempt.");
 
     const supabase = adminClient();
+    const identity = await resolveIdentity(req, supabase, clientId);
     const verifier = await loadVerifier(supabase, challengeId);
     const { data: attempt, error } = await supabase
       .from("leaderboard_attempts")
       .select("id, penalty_points, completed")
-      .eq("id", attemptId).eq("challenge_id", challengeId).eq("client_id", clientId).maybeSingle();
+      .eq("id", attemptId)
+      .eq("challenge_id", challengeId)
+      .in("client_id", identity.memberClientIds)
+      .maybeSingle();
     if (error) throw error;
-    if (!attempt) throw httpError(404, "Leaderboard attempt was not found.");
+    if (!attempt) throw httpError(404, "Leaderboard attempt was not found for this device/account.");
     if (attempt.completed) throw httpError(409, "Leaderboard attempt is already completed.");
 
     const prompt = verifier.prompts.find(p => p.promptId === promptId);
@@ -25,7 +29,10 @@ Deno.serve(async (req) => {
     let penaltyPoints = Number(attempt.penalty_points) || 0;
     if (!valid) penaltyPoints += 10;
 
-    const { error: updateError } = await supabase.from("leaderboard_attempts").update({ penalty_points: penaltyPoints, last_activity_at: new Date().toISOString() }).eq("id", attemptId);
+    const { error: updateError } = await supabase
+      .from("leaderboard_attempts")
+      .update({ penalty_points: penaltyPoints, last_activity_at: new Date().toISOString() })
+      .eq("id", attemptId);
     if (updateError) throw updateError;
     return json({ valid, penaltyPoints });
   } catch (error) { return errorResponse(error); }
