@@ -21,6 +21,7 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
   teamSheets: true,
   rankingRules: true,
   allTimeLeaderboard: true,
+  resultsV2: true,
   accounts: Object.freeze({
     enabled: true,
     provider: "email-magic-link",
@@ -81,6 +82,16 @@ if (!document.querySelector('script[data-ui-cleanup]')) {
   cleanup.async = true;
   cleanup.dataset.uiCleanup = "1";
   document.head.appendChild(cleanup);
+}
+
+// Daily Challenge Results v2 is a modular presentation layer. It reads the already-loaded
+// challenge/player data and local completed record but never changes scoring or validation.
+if (window.FPL_LEADERBOARD_CONFIG.resultsV2 && document.getElementById("results") && !document.querySelector('script[data-results-v2]')) {
+  const resultsV2 = document.createElement("script");
+  resultsV2.src = new URL("js/results-v2.js", document.baseURI).toString();
+  resultsV2.async = true;
+  resultsV2.dataset.resultsV2 = "1";
+  document.head.appendChild(resultsV2);
 }
 
 // Keep the team-sheet UI separate from the core leaderboard bridge so the verified
