@@ -26,6 +26,10 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
     provider: "email-magic-link",
     redirectUrl: "https://complexdd-rgb.github.io/fpl-draft-challenge/"
   }),
+  dailyPublishing: Object.freeze({
+    enabled: true,
+    function: "daily-challenge-publish"
+  }),
   mockMode: false
 });
 
@@ -108,6 +112,17 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.allTi
   allTime.async = true;
   allTime.dataset.leaderboardAllTime = "1";
   document.head.appendChild(allTime);
+}
+
+// Studio-only publishing enhancement. It reuses the validated seven-day ZIP package,
+// sends the public challenge source plus private verifiers to Supabase, and never exposes
+// service-role credentials in the browser.
+if (window.FPL_LEADERBOARD_CONFIG.dailyPublishing?.enabled && document.getElementById("downloadWeekBtn") && !document.querySelector('script[data-admin-daily-publish]')) {
+  const publisher = document.createElement("script");
+  publisher.src = new URL("js/admin-daily-publish.js", document.baseURI).toString();
+  publisher.async = true;
+  publisher.dataset.adminDailyPublish = "1";
+  document.head.appendChild(publisher);
 }
 
 // Keep the All-Time helper copy aligned with the optional account launch without

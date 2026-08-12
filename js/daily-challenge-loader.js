@@ -1,8 +1,9 @@
-/* FPL Daily Challenge — UK challenge calendar loader (Phase 4 archive-aware). */
+/* FPL Daily Challenge — UK challenge calendar loader with Supabase schedule priority. */
 (() => {
   "use strict";
 
   const DEFAULT_TIMEZONE = "Europe/London";
+  const SUPABASE_CHALLENGE_ENDPOINT = "https://sacfscnhvmfvbazbfgji.supabase.co/functions/v1/daily-challenge-public";
   const manifest = window.FPL_CHALLENGE_MANIFEST || null;
   const timezone = manifest?.timezone || DEFAULT_TIMEZONE;
 
@@ -62,7 +63,7 @@
   let archiveRequest = null;
   try {
     const candidate = new URLSearchParams(window.location.search).get("challenge");
-    if (/^\d{4}-\d{2}-\d{2}$/.test(String(candidate||"")) && candidate <= officialDate && entries.some(entry=>entry.date===candidate)) archiveRequest = candidate;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(candidate||"")) && candidate <= officialDate) archiveRequest = candidate;
   } catch {}
 
   const requestedDate = archiveRequest || officialDate;
@@ -70,7 +71,7 @@
   const past = entries.filter(entry => entry.date <= requestedDate);
   const selected = exact || past[past.length-1] || null;
   const future = archiveRequest ? null : (selected ? entries.find(entry => entry.date > selected.date) || null : entries.find(entry => entry.date >= officialDate) || null);
-  const archiveMode = Boolean(archiveRequest && selected && selected.date < officialDate);
+  const archiveMode = Boolean(archiveRequest && exact && exact.date < officialDate);
 
   const selectedPath = selected?.path || manifest?.fallbackPath || "todays-challenge.js";
   window.FPL_CHALLENGE_RUNTIME = {
@@ -86,13 +87,26 @@
     selectionMode: archiveMode ? "archive-date" : exact ? "exact-date" : selected ? "latest-published" : "legacy-fallback",
     nextScheduledDate: future?.date || null,
     nextScheduledPath: future?.path || null,
-    manifestVersion: manifest?.version ?? null
+    manifestVersion: manifest?.version ?? null,
+    scheduleSource: "github-fallback"
   };
 
   const cacheToken = `${requestedDate}-${manifest?.version ?? 0}-${Date.now()}`;
-  document.write(`<script src="${selectedPath}?v=${encodeURIComponent(cacheToken)}"><\/script>`);
+  window.FPL_SUPABASE_CHALLENGE_LOADED = false;
+  window.FPL_CHALLENGE_FALLBACK = { selectedPath, cacheToken };
 
-  if (!archiveMode) {
+  // Supabase-published dates take priority. The second script runs only after the remote
+  // lookup finishes and loads the existing GitHub calendar when no server schedule exists
+  // or the network is unavailable.
+  const remoteUrl = new URL(SUPABASE_CHALLENGE_ENDPOINT);
+  remoteUrl.searchParams.set("date", requestedDate);
+  remoteUrl.searchParams.set("officialDate", officialDate);
+  remoteUrl.searchParams.set("archive", archiveRequest ? "1" : "0");
+  remoteUrl.searchParams.set("v", cacheToken);
+  document.write(`<script src="${remoteUrl.toString().replace(/&/g,"&amp;")}"><\/script>`);
+  document.write(`<script src="js/daily-challenge-fallback.js?v=${encodeURIComponent(cacheToken)}"><\/script>`);
+
+  if (!archiveRequest) {
     const dateAtLoad = officialDate;
     window.addEventListener("load", () => {
       const rolloverTimer = window.setInterval(() => {
