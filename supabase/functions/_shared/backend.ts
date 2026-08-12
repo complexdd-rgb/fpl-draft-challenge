@@ -71,6 +71,119 @@ export function validDisplayName(value: unknown) {
   return name.length >= 2 && name.length <= 20 && /^[\p{L}\p{N} _.-]+$/u.test(name) ? name : "";
 }
 
+export type ResolvedIdentity = {
+  requestClientId: string;
+  storageClientId: string;
+  allTimeClientId: string;
+  memberClientIds: string[];
+  authenticated: boolean;
+  userId: string;
+};
+
+function bearerToken(req: Request) {
+  const value = req.headers.get("authorization") || "";
+  const match = /^Bearer\s+(.+)$/i.exec(value.trim());
+  return match?.[1]?.trim() || "";
+}
+
+// Guest requests keep their existing browser client id. If a valid Supabase Auth token
+// is present, the server maps the user to a private stable leaderboard id and links the
+// current browser id to that account. The private account id is never returned publicly.
+export async function resolveIdentity(
+  req: Request,
+  supabase: ReturnType<typeof adminClient>,
+  rawClientId: unknown,
+  options: { allowEmpty?: boolean } = {}
+): Promise<ResolvedIdentity> {
+  const requestClientId = text(rawClientId, 120);
+  if (!requestClientId && options.allowEmpty) {
+    return { requestClientId: "", storageClientId: "", allTimeClientId: "", memberClientIds: [], authenticated: false, userId: "" };
+  }
+  if (requestClientId.length < 8) throw httpError(400, "A valid browser client id is required.");
+
+  const token = bearerToken(req);
+  if (!token) {
+    return {
+      requestClientId,
+      storageClientId: requestClientId,
+      allTimeClientId: requestClientId,
+      memberClientIds: [requestClientId],
+      authenticated: false,
+      userId: ""
+    };
+  }
+
+  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+  const user = userData?.user;
+  if (userError || !user) throw httpError(401, "Your account session is no longer valid. Please sign in again.");
+
+  let { data: identityRow, error: identityError } = await supabase
+    .from("leaderboard_account_identities")
+    .select("identity_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (identityError) throw identityError;
+
+  if (!identityRow) {
+    const { error: insertIdentityError } = await supabase
+      .from("leaderboard_account_identities")
+      .insert({ user_id: user.id });
+    if (insertIdentityError && String((insertIdentityError as { code?: string })?.code || "") !== "23505") throw insertIdentityError;
+    const recovered = await supabase
+      .from("leaderboard_account_identities")
+      .select("identity_id")
+      .eq("user_id", user.id)
+      .single();
+    if (recovered.error) throw recovered.error;
+    identityRow = recovered.data;
+  }
+
+  const { data: existingDevice, error: deviceLookupError } = await supabase
+    .from("leaderboard_account_devices")
+    .select("user_id")
+    .eq("client_id", requestClientId)
+    .maybeSingle();
+  if (deviceLookupError) throw deviceLookupError;
+  if (existingDevice && String(existingDevice.user_id) !== user.id) {
+    throw httpError(409, "This browser profile is already linked to a different FPL Draft account.");
+  }
+  if (!existingDevice) {
+    const { error: linkError } = await supabase
+      .from("leaderboard_account_devices")
+      .insert({ client_id: requestClientId, user_id: user.id });
+    if (linkError && String((linkError as { code?: string })?.code || "") !== "23505") throw linkError;
+    if (linkError) {
+      const { data: racedDevice, error: racedError } = await supabase
+        .from("leaderboard_account_devices")
+        .select("user_id")
+        .eq("client_id", requestClientId)
+        .single();
+      if (racedError) throw racedError;
+      if (String(racedDevice.user_id) !== user.id) throw httpError(409, "This browser profile is already linked to a different FPL Draft account.");
+    }
+  }
+
+  const { data: devices, error: devicesError } = await supabase
+    .from("leaderboard_account_devices")
+    .select("client_id")
+    .eq("user_id", user.id);
+  if (devicesError) throw devicesError;
+
+  const identityId = String(identityRow.identity_id || "");
+  if (!identityId) throw new Error("Account leaderboard identity could not be resolved.");
+  const storageClientId = `acct:${identityId}`;
+  const memberClientIds = [...new Set([storageClientId, ...(devices || []).map(row => text(row.client_id, 120)).filter(Boolean)])];
+
+  return {
+    requestClientId,
+    storageClientId,
+    allTimeClientId: identityId,
+    memberClientIds,
+    authenticated: true,
+    userId: user.id
+  };
+}
+
 export type AllowedPick = { playerId: string; season: string; points: number };
 export type VerifierPrompt = { promptId: string; position: string; allowedCount: number; bestPoints: number; allowed: AllowedPick[] };
 export type Verifier = {
@@ -147,7 +260,8 @@ export function publicTeam(value: unknown): PublicTeamPick[] {
   }).filter(row => row.promptId && row.playerId && row.season);
 }
 
-export function publicRow(row: Record<string, unknown>, rank: number, currentClientId = "", includeTeam = false) {
+export function publicRow(row: Record<string, unknown>, rank: number, currentClientIds: string | string[] = "", includeTeam = false) {
+  const ids = new Set(Array.isArray(currentClientIds) ? currentClientIds : currentClientIds ? [currentClientIds] : []);
   return {
     challengeId: String(row.challenge_id || ""),
     displayName: String(row.display_name || "Player"),
@@ -159,7 +273,7 @@ export function publicRow(row: Record<string, unknown>, rank: number, currentCli
     perfectScore: Number(row.perfect_score) || 0,
     perfectPromptPicks: Number(row.perfect_prompt_picks) || 0,
     rank,
-    isCurrentDevice: Boolean(currentClientId && String(row.client_id) === currentClientId),
+    isCurrentDevice: ids.has(String(row.client_id || "")),
     ...(includeTeam ? { team: publicTeam(row.selections) } : {})
   };
 }
