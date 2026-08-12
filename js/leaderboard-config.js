@@ -21,8 +21,55 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
   teamSheets: true,
   rankingRules: true,
   allTimeLeaderboard: true,
+  // Keep accounts off until the GitHub Pages URL has been added to Supabase Auth's
+  // allowed Site/Redirect URLs. Guest leaderboard behaviour remains unchanged.
+  accounts: Object.freeze({
+    enabled: false,
+    provider: "email-magic-link",
+    redirectUrl: "https://complexdd-rgb.github.io/fpl-draft-challenge/"
+  }),
   mockMode: false
 });
+
+// When accounts are enabled, install this tiny bridge synchronously before the static
+// leaderboard client runs. It adds the user's Supabase access token only to our own
+// leaderboard Edge Function calls; Auth/CDN/other fetches are untouched.
+if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled && !window.FPL_ACCOUNT_AUTH) {
+  let ready = false;
+  let session = null;
+  let resolveReady;
+  const readyPromise = new Promise(resolve => { resolveReady = resolve; });
+  window.FPL_ACCOUNT_AUTH = {
+    client: null,
+    _setSession(nextSession) { session = nextSession || null; },
+    _markReady() { if (!ready) { ready = true; resolveReady?.(); } },
+    async getAccessToken() {
+      if (!ready) await Promise.race([readyPromise, new Promise(resolve => setTimeout(resolve, 1500))]);
+      return session?.access_token || "";
+    }
+  };
+
+  const nativeFetch = window.fetch.bind(window);
+  window.fetch = async (input, init = undefined) => {
+    let url = "";
+    try { url = input instanceof Request ? input.url : String(input); } catch {}
+    const functionPrefix = `${String(window.FPL_LEADERBOARD_CONFIG.supabaseUrl).replace(/\/$/, "")}/functions/v1/leaderboard-`;
+    if (!url.startsWith(functionPrefix)) return nativeFetch(input, init);
+
+    const token = await window.FPL_ACCOUNT_AUTH.getAccessToken();
+    if (!token) return nativeFetch(input, init);
+    const headers = new Headers(init?.headers || (input instanceof Request ? input.headers : undefined));
+    headers.set("Authorization", `Bearer ${token}`);
+    return nativeFetch(input, { ...(init || {}), headers });
+  };
+
+  const account = document.createElement("script");
+  account.src = new URL("js/leaderboard-account.js", document.baseURI).toString();
+  account.async = true;
+  account.dataset.leaderboardAccount = "1";
+  account.onerror = () => window.FPL_ACCOUNT_AUTH?._markReady?.();
+  document.head.appendChild(account);
+}
 
 // Small compatibility cleanup while the large index.html shell is still bundled inline.
 // This removes retired Phase 4.5 panels without disturbing the game engine.
