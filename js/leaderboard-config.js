@@ -16,5 +16,17 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
   displayNameMax: 20,
   refreshSeconds: 60,
   realtimeReady: true,
+  teamSheets: true,
   mockMode: false
 });
+
+// Keep the team-sheet UI separate from the core leaderboard bridge so the verified
+// submission path stays small and easy to audit. Dynamic loading also avoids touching
+// the large index.html bundle just to add this enhancement.
+if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.teamSheets && !document.querySelector('script[data-leaderboard-team-view]')) {
+  const teamView = document.createElement("script");
+  teamView.src = new URL("js/leaderboard-team-view.js", document.baseURI).toString();
+  teamView.async = true;
+  teamView.dataset.leaderboardTeamView = "1";
+  document.head.appendChild(teamView);
+}
