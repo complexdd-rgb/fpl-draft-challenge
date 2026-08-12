@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
     if (existingError) throw existingError;
     if (existingEntry) {
       const ranked = await getRankedRows(supabase, challengeId);
-      const rank = ranked.findIndex(row => identity.memberClientIds.includes(String(row.client_id))) + 1;
+      const rank = ranked.findIndex(row => String(row.client_id) === String(existingEntry.client_id)) + 1;
       return json({ ...publicRow(existingEntry, rank || 1, identity.memberClientIds, true), alreadySubmitted: true });
     }
 
@@ -87,6 +87,7 @@ Deno.serve(async (req) => {
       perfect_prompt_picks: perfectPromptPicks,
       selections: verifiedSelections
     };
+    let recoveredExisting = false;
     let { data: inserted, error: insertError } = await supabase
       .from("leaderboard_entries")
       .insert(insertPayload)
@@ -106,7 +107,7 @@ Deno.serve(async (req) => {
       if (recovered.error) throw recovered.error;
       if (!recovered.data) throw insertError;
       inserted = recovered.data;
-      insertError = null;
+      recoveredExisting = true;
     }
 
     const completedAt = new Date().toISOString();
@@ -117,8 +118,7 @@ Deno.serve(async (req) => {
     if (updateError) throw updateError;
 
     const ranked = await getRankedRows(supabase, challengeId);
-    const rank = ranked.findIndex(row => identity.memberClientIds.includes(String(row.client_id))) + 1;
-    const submittedHere = String(inserted.client_id) === identity.storageClientId;
-    return json({ ...publicRow(inserted, rank || ranked.length, identity.memberClientIds, true), alreadySubmitted: !submittedHere });
+    const rank = ranked.findIndex(row => String(row.client_id) === String(inserted.client_id)) + 1;
+    return json({ ...publicRow(inserted, rank || ranked.length, identity.memberClientIds, true), alreadySubmitted: recoveredExisting });
   } catch (error) { return errorResponse(error); }
 });
