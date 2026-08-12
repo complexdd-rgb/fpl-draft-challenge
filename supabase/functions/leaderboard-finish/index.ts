@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
     if (existingEntry) {
       const ranked = await getRankedRows(supabase, challengeId);
       const rank = ranked.findIndex(row => String(row.client_id) === clientId) + 1;
-      return json({ ...publicRow(existingEntry, rank || 1, clientId), alreadySubmitted: true });
+      return json({ ...publicRow(existingEntry, rank || 1, clientId, true), alreadySubmitted: true });
     }
 
     const { data: attempt, error: attemptError } = await supabase
@@ -35,6 +35,7 @@ Deno.serve(async (req) => {
       byPrompt.set(item.promptId, item);
     }
     const usedPlayers = new Set<string>();
+    const verifiedSelections: Array<{ promptId: string; playerId: string; season: string; points: number; position: string }> = [];
     let playerPoints = 0, perfectPromptPicks = 0;
     for (const prompt of verifier.prompts) {
       const selection = byPrompt.get(prompt.promptId);
@@ -46,6 +47,13 @@ Deno.serve(async (req) => {
       const points = Number(allowed.points) || 0;
       playerPoints += points;
       if (points === Number(prompt.bestPoints || 0)) perfectPromptPicks += 1;
+      verifiedSelections.push({
+        promptId: prompt.promptId,
+        playerId: selection.playerId,
+        season: selection.season,
+        points,
+        position: text(prompt.position, 20)
+      });
     }
 
     const penaltyPoints = Number(attempt.penalty_points) || 0;
@@ -58,7 +66,7 @@ Deno.serve(async (req) => {
       challenge_id: challengeId, client_id: clientId, display_name: displayName,
       final_score: finalScore, efficiency, elapsed_seconds: elapsedSeconds,
       penalty_points: penaltyPoints, player_points: playerPoints, perfect_score: perfectScore,
-      perfect_prompt_picks: perfectPromptPicks
+      perfect_prompt_picks: perfectPromptPicks, selections: verifiedSelections
     }).select("*").single();
     if (insertError) throw insertError;
 
@@ -68,6 +76,6 @@ Deno.serve(async (req) => {
 
     const ranked = await getRankedRows(supabase, challengeId);
     const rank = ranked.findIndex(row => String(row.client_id) === clientId) + 1;
-    return json({ ...publicRow(inserted, rank || ranked.length, clientId), alreadySubmitted: false });
+    return json({ ...publicRow(inserted, rank || ranked.length, clientId, true), alreadySubmitted: false });
   } catch (error) { return errorResponse(error); }
 });
