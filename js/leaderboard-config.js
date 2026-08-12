@@ -9,15 +9,18 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
     start: "leaderboard-start",
     pick: "leaderboard-pick",
     finish: "leaderboard-finish",
-    list: "leaderboard-list"
+    list: "leaderboard-list",
+    allTime: "leaderboard-all-time"
   }),
   topLimit: 20,
+  allTimeLimit: 50,
   displayNameMin: 2,
   displayNameMax: 20,
   refreshSeconds: 60,
   realtimeReady: true,
   teamSheets: true,
   rankingRules: true,
+  allTimeLeaderboard: true,
   mockMode: false
 });
 
@@ -50,4 +53,14 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.ranki
   rankingRules.async = true;
   rankingRules.dataset.leaderboardRankingRules = "1";
   document.head.appendChild(rankingRules);
+}
+
+// The all-time standings are loaded separately so the daily leaderboard bridge stays
+// focused on today's verified challenge and its team-sheet privacy rules.
+if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.allTimeLeaderboard && !document.querySelector('script[data-leaderboard-all-time]')) {
+  const allTime = document.createElement("script");
+  allTime.src = new URL("js/leaderboard-all-time.js", document.baseURI).toString();
+  allTime.async = true;
+  allTime.dataset.leaderboardAllTime = "1";
+  document.head.appendChild(allTime);
 }
