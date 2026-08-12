@@ -8,13 +8,14 @@ Deno.serve(async (req) => {
     const challengeId = text(body.challengeId, 100);
     const clientId = text(body.clientId, 120);
     const limit = Math.max(1, Math.min(50, Number(body.limit) || 20));
-    if (!challengeId) return json({ total: 0, entries: [], viewer: null });
+    if (!challengeId) return json({ total: 0, entries: [], viewer: null, canViewTeams: false });
 
     const supabase = adminClient();
     const rows = await getRankedRows(supabase, challengeId);
-    const entries = rows.slice(0, limit).map((row, index) => publicRow(row, index + 1, clientId));
     const viewerIndex = clientId ? rows.findIndex(row => String(row.client_id) === clientId) : -1;
-    const viewer = viewerIndex >= 0 ? publicRow(rows[viewerIndex], viewerIndex + 1, clientId) : null;
-    return json({ total: rows.length, entries, viewer });
+    const canViewTeams = viewerIndex >= 0;
+    const entries = rows.slice(0, limit).map((row, index) => publicRow(row, index + 1, clientId, canViewTeams));
+    const viewer = viewerIndex >= 0 ? publicRow(rows[viewerIndex], viewerIndex + 1, clientId, true) : null;
+    return json({ total: rows.length, entries, viewer, canViewTeams });
   } catch (error) { return errorResponse(error); }
 });
