@@ -83,6 +83,14 @@ export type Verifier = {
   prompts: VerifierPrompt[];
 };
 
+export type PublicTeamPick = {
+  promptId: string;
+  playerId: string;
+  season: string;
+  points: number;
+  position: string;
+};
+
 export async function loadVerifier(supabase: ReturnType<typeof adminClient>, challengeId: string) {
   const { data, error } = await supabase
     .from("leaderboard_verifiers")
@@ -102,7 +110,7 @@ export async function loadVerifier(supabase: ReturnType<typeof adminClient>, cha
 export async function getRankedRows(supabase: ReturnType<typeof adminClient>, challengeId: string) {
   const { data, error } = await supabase
     .from("leaderboard_entries")
-    .select("challenge_id, client_id, display_name, final_score, efficiency, elapsed_seconds, penalty_points, player_points, perfect_score, perfect_prompt_picks, created_at")
+    .select("challenge_id, client_id, display_name, final_score, efficiency, elapsed_seconds, penalty_points, player_points, perfect_score, perfect_prompt_picks, selections, created_at")
     .eq("challenge_id", challengeId)
     .order("final_score", { ascending: false })
     .order("elapsed_seconds", { ascending: true })
@@ -112,7 +120,21 @@ export async function getRankedRows(supabase: ReturnType<typeof adminClient>, ch
   return data || [];
 }
 
-export function publicRow(row: Record<string, unknown>, rank: number, currentClientId = "") {
+export function publicTeam(value: unknown): PublicTeamPick[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 11).map(raw => {
+    const row = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
+    return {
+      promptId: text(row.promptId, 160),
+      playerId: text(row.playerId, 160),
+      season: text(row.season, 20),
+      points: Number(row.points) || 0,
+      position: text(row.position, 20)
+    };
+  }).filter(row => row.promptId && row.playerId && row.season);
+}
+
+export function publicRow(row: Record<string, unknown>, rank: number, currentClientId = "", includeTeam = false) {
   return {
     challengeId: String(row.challenge_id || ""),
     displayName: String(row.display_name || "Player"),
@@ -124,6 +146,7 @@ export function publicRow(row: Record<string, unknown>, rank: number, currentCli
     perfectScore: Number(row.perfect_score) || 0,
     perfectPromptPicks: Number(row.perfect_prompt_picks) || 0,
     rank,
-    isCurrentDevice: Boolean(currentClientId && String(row.client_id) === currentClientId)
+    isCurrentDevice: Boolean(currentClientId && String(row.client_id) === currentClientId),
+    ...(includeTeam ? { team: publicTeam(row.selections) } : {})
   };
 }
