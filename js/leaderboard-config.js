@@ -20,6 +20,16 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
   mockMode: false
 });
 
+// Small compatibility cleanup while the large index.html shell is still bundled inline.
+// This removes retired Phase 4.5 panels without disturbing the game engine.
+if (!document.querySelector('script[data-ui-cleanup]')) {
+  const cleanup = document.createElement("script");
+  cleanup.src = new URL("js/ui-cleanup.js", document.baseURI).toString();
+  cleanup.async = true;
+  cleanup.dataset.uiCleanup = "1";
+  document.head.appendChild(cleanup);
+}
+
 // Keep the team-sheet UI separate from the core leaderboard bridge so the verified
 // submission path stays small and easy to audit. Dynamic loading also avoids touching
 // the large index.html bundle just to add this enhancement.
