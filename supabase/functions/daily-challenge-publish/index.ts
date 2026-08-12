@@ -10,6 +10,17 @@ function isIsoDate(value: unknown) {
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ""));
 }
 
+function londonDateKey(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
 function validateChallenge(raw: unknown) {
   const item = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
   const releaseDate = text(item.releaseDate, 10);
@@ -97,8 +108,7 @@ Deno.serve(async (req) => {
     const action = text(body.action, 30) || "status";
 
     if (action === "status") {
-      const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" })
-        .format(new Date());
+      const today = londonDateKey();
       const { data, error } = await supabase
         .from("daily_challenge_schedule")
         .select("release_date, challenge_id, title, perfect_score, published_at")
