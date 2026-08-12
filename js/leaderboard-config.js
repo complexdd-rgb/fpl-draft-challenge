@@ -17,6 +17,7 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
   refreshSeconds: 60,
   realtimeReady: true,
   teamSheets: true,
+  rankingRules: true,
   mockMode: false
 });
 
@@ -39,4 +40,14 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.teamS
   teamView.async = true;
   teamView.dataset.leaderboardTeamView = "1";
   document.head.appendChild(teamView);
+}
+
+// Keep the ranking policy visible beside the live table so tie-breaks are clear to
+// players and stay aligned with the server ordering.
+if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.rankingRules && !document.querySelector('script[data-leaderboard-ranking-rules]')) {
+  const rankingRules = document.createElement("script");
+  rankingRules.src = new URL("js/leaderboard-ranking-rules.js", document.baseURI).toString();
+  rankingRules.async = true;
+  rankingRules.dataset.leaderboardRankingRules = "1";
+  document.head.appendChild(rankingRules);
 }

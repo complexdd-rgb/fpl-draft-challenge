@@ -107,17 +107,30 @@ export async function loadVerifier(supabase: ReturnType<typeof adminClient>, cha
   return verifier;
 }
 
+// Supabase/PostgREST commonly caps a single response at 1,000 rows. Fetch the ordered
+// ranking in deterministic pages so totals and personal ranks remain correct beyond
+// the first 1,000 verified finishes.
 export async function getRankedRows(supabase: ReturnType<typeof adminClient>, challengeId: string) {
-  const { data, error } = await supabase
-    .from("leaderboard_entries")
-    .select("challenge_id, client_id, display_name, final_score, efficiency, elapsed_seconds, penalty_points, player_points, perfect_score, perfect_prompt_picks, selections, created_at")
-    .eq("challenge_id", challengeId)
-    .order("final_score", { ascending: false })
-    .order("elapsed_seconds", { ascending: true })
-    .order("created_at", { ascending: true })
-    .limit(1000);
-  if (error) throw error;
-  return data || [];
+  const pageSize = 1000;
+  const rows: Record<string, unknown>[] = [];
+
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from("leaderboard_entries")
+      .select("challenge_id, client_id, display_name, final_score, efficiency, elapsed_seconds, penalty_points, player_points, perfect_score, perfect_prompt_picks, selections, created_at")
+      .eq("challenge_id", challengeId)
+      .order("final_score", { ascending: false })
+      .order("elapsed_seconds", { ascending: true })
+      .order("created_at", { ascending: true })
+      .range(from, from + pageSize - 1);
+    if (error) throw error;
+
+    const batch = (data || []) as Record<string, unknown>[];
+    rows.push(...batch);
+    if (batch.length < pageSize) break;
+  }
+
+  return rows;
 }
 
 export function publicTeam(value: unknown): PublicTeamPick[] {
