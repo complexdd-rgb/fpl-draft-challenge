@@ -21,10 +21,8 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
   teamSheets: true,
   rankingRules: true,
   allTimeLeaderboard: true,
-  // Keep accounts off until the GitHub Pages URL has been added to Supabase Auth's
-  // allowed Site/Redirect URLs. Guest leaderboard behaviour remains unchanged.
   accounts: Object.freeze({
-    enabled: false,
+    enabled: true,
     provider: "email-magic-link",
     redirectUrl: "https://complexdd-rgb.github.io/fpl-draft-challenge/"
   }),
@@ -110,4 +108,21 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.allTi
   allTime.async = true;
   allTime.dataset.leaderboardAllTime = "1";
   document.head.appendChild(allTime);
+}
+
+// Keep the All-Time helper copy aligned with the optional account launch without
+// coupling the leaderboard module to Auth internals.
+if (window.FPL_LEADERBOARD_CONFIG.accounts?.enabled) {
+  const updateAccountCopy = () => {
+    const note = document.querySelector(".leaderboard-alltime-note");
+    if (!note) return false;
+    note.innerHTML = "<strong>Scoring:</strong> each verified daily efficiency contributes up to 100 All-Time points. Ties go to higher average efficiency, then more wins, more podiums, then the earliest first verified entry. Sign in to sync your verified All-Time record across devices; guest play remains device-based.";
+    return true;
+  };
+  if (!updateAccountCopy()) {
+    const observer = new MutationObserver(() => {
+      if (updateAccountCopy()) observer.disconnect();
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
 }
