@@ -1,4 +1,4 @@
-import { adminClient, bodyJson, errorResponse, getRankedRows, httpError, json, loadVerifier, preflight, publicRow, requireBrowserKey, text, validDisplayName } from "../_shared/backend.ts";
+import { adminClient, bodyJson, errorResponse, getRankedRows, httpError, json, loadVerifier, preflight, publicRow, requireBrowserKey, resolveIdentity, text, validDisplayName } from "../_shared/backend.ts";
 
 Deno.serve(async (req) => {
   const options = preflight(req); if (options) return options;
@@ -11,21 +11,33 @@ Deno.serve(async (req) => {
     if (!attemptId || !challengeId || !clientId || !displayName) throw httpError(400, "Attempt, challenge, client and a valid display name are required.");
 
     const supabase = adminClient();
+    const identity = await resolveIdentity(req, supabase, clientId);
     const verifier = await loadVerifier(supabase, challengeId);
 
     const { data: existingEntry, error: existingError } = await supabase
-      .from("leaderboard_entries").select("*").eq("challenge_id", challengeId).eq("client_id", clientId).maybeSingle();
+      .from("leaderboard_entries")
+      .select("*")
+      .eq("challenge_id", challengeId)
+      .in("client_id", identity.memberClientIds)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
     if (existingError) throw existingError;
     if (existingEntry) {
       const ranked = await getRankedRows(supabase, challengeId);
-      const rank = ranked.findIndex(row => String(row.client_id) === clientId) + 1;
-      return json({ ...publicRow(existingEntry, rank || 1, clientId, true), alreadySubmitted: true });
+      const rank = ranked.findIndex(row => identity.memberClientIds.includes(String(row.client_id))) + 1;
+      return json({ ...publicRow(existingEntry, rank || 1, identity.memberClientIds, true), alreadySubmitted: true });
     }
 
     const { data: attempt, error: attemptError } = await supabase
-      .from("leaderboard_attempts").select("id, started_at, penalty_points, completed").eq("id", attemptId).eq("challenge_id", challengeId).eq("client_id", clientId).maybeSingle();
+      .from("leaderboard_attempts")
+      .select("id, started_at, penalty_points, completed")
+      .eq("id", attemptId)
+      .eq("challenge_id", challengeId)
+      .in("client_id", identity.memberClientIds)
+      .maybeSingle();
     if (attemptError) throw attemptError;
-    if (!attempt) throw httpError(404, "Leaderboard attempt was not found.");
+    if (!attempt) throw httpError(404, "Leaderboard attempt was not found for this device/account.");
 
     if (selections.length !== verifier.prompts.length) throw httpError(400, `Exactly ${verifier.prompts.length} selections are required.`);
     const byPrompt = new Map<string, { promptId: string; playerId: string; season: string }>();
@@ -62,20 +74,51 @@ Deno.serve(async (req) => {
     const efficiency = perfectScore > 0 ? finalScore / perfectScore * 100 : 0;
     const elapsedSeconds = Math.max(0, Math.floor((Date.now() - new Date(attempt.started_at).getTime()) / 1000));
 
-    const { data: inserted, error: insertError } = await supabase.from("leaderboard_entries").insert({
-      challenge_id: challengeId, client_id: clientId, display_name: displayName,
-      final_score: finalScore, efficiency, elapsed_seconds: elapsedSeconds,
-      penalty_points: penaltyPoints, player_points: playerPoints, perfect_score: perfectScore,
-      perfect_prompt_picks: perfectPromptPicks, selections: verifiedSelections
-    }).select("*").single();
-    if (insertError) throw insertError;
+    const insertPayload = {
+      challenge_id: challengeId,
+      client_id: identity.storageClientId,
+      display_name: displayName,
+      final_score: finalScore,
+      efficiency,
+      elapsed_seconds: elapsedSeconds,
+      penalty_points: penaltyPoints,
+      player_points: playerPoints,
+      perfect_score: perfectScore,
+      perfect_prompt_picks: perfectPromptPicks,
+      selections: verifiedSelections
+    };
+    let { data: inserted, error: insertError } = await supabase
+      .from("leaderboard_entries")
+      .insert(insertPayload)
+      .select("*")
+      .single();
+    if (insertError) {
+      // A simultaneous request from another linked device may have won the account's
+      // stable challenge/client uniqueness race. Recover that verified result.
+      const recovered = await supabase
+        .from("leaderboard_entries")
+        .select("*")
+        .eq("challenge_id", challengeId)
+        .in("client_id", identity.memberClientIds)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (recovered.error) throw recovered.error;
+      if (!recovered.data) throw insertError;
+      inserted = recovered.data;
+      insertError = null;
+    }
 
     const completedAt = new Date().toISOString();
-    const { error: updateError } = await supabase.from("leaderboard_attempts").update({ completed: true, completed_at: completedAt, last_activity_at: completedAt }).eq("id", attemptId);
+    const { error: updateError } = await supabase
+      .from("leaderboard_attempts")
+      .update({ completed: true, completed_at: completedAt, last_activity_at: completedAt })
+      .eq("id", attemptId);
     if (updateError) throw updateError;
 
     const ranked = await getRankedRows(supabase, challengeId);
-    const rank = ranked.findIndex(row => String(row.client_id) === clientId) + 1;
-    return json({ ...publicRow(inserted, rank || ranked.length, clientId, true), alreadySubmitted: false });
+    const rank = ranked.findIndex(row => identity.memberClientIds.includes(String(row.client_id))) + 1;
+    const submittedHere = String(inserted.client_id) === identity.storageClientId;
+    return json({ ...publicRow(inserted, rank || ranked.length, identity.memberClientIds, true), alreadySubmitted: !submittedHere });
   } catch (error) { return errorResponse(error); }
 });
