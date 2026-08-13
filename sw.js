@@ -1,4 +1,4 @@
-const CACHE_NAME = "fpl-draft-challenge-autocomplete-layer-v1";
+const CACHE_NAME = "fpl-draft-challenge-autocomplete-feedback-mask-v1";
 const STATIC_ASSETS = [
   "./manifest.webmanifest",
   "./icons/icon-192.svg",
