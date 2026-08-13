@@ -1,4 +1,4 @@
-/* FPL career relationship context · v1.4.0
+/* FPL career relationship context · v1.4.1
    Derived at runtime from verified player-season rows. Seasons with zero minutes
    do not contribute to any career or relationship rule. */
 (() => {
@@ -245,7 +245,7 @@
   });
 
   window.FPL_CAREER_CONTEXT = Object.freeze({
-    version: "1.4.0",
+    version: "1.4.1",
     coverage,
     normalise,
     seasonStart,
@@ -254,4 +254,9 @@
     getClubSeasonTeammates,
     players: freezeArray(publicSummaries)
   });
+
+  /* Career Shape is shared by Studio and the live game and loads before prompt consumers. */
+  if (document.readyState === "loading") {
+    document.write('<script src="js/career-shape-rules.js?v=1.1.0"><\/script>');
+  }
 })();
