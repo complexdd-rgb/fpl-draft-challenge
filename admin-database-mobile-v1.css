@@ -1,0 +1,76 @@
+/* FPL Challenge Studio — Database Health mobile refinement v1.0.0 */
+@media (max-width: 720px) {
+  .database-auditor .panel-heading {
+    margin-bottom: 12px;
+  }
+
+  .database-auditor .panel-heading .section-copy {
+    max-width: 42rem;
+    line-height: 1.45;
+  }
+
+  .database-auditor .audit-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .database-auditor .audit-summary-grid article {
+    min-height: 76px;
+    padding: 11px 12px;
+    border-radius: 13px;
+  }
+
+  .database-auditor .audit-summary-grid span {
+    font-size: .69rem;
+    line-height: 1.25;
+  }
+
+  .database-auditor .audit-summary-grid strong {
+    margin-top: 5px;
+    font-size: 1.28rem;
+    line-height: 1.05;
+  }
+
+  .database-auditor .audit-toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .database-auditor .audit-toolbar .button {
+    width: auto;
+    min-width: 0;
+    min-height: 46px;
+    padding: 9px 7px;
+    border-radius: 12px;
+    font-size: .72rem;
+    line-height: 1.18;
+  }
+
+  .database-auditor .audit-toolbar .button:first-child {
+    grid-column: 1 / -1;
+    min-height: 48px;
+    font-size: .82rem;
+  }
+
+  .database-auditor #auditActionStatus {
+    min-height: 0;
+    margin-top: 7px;
+    font-size: .72rem;
+    line-height: 1.35;
+  }
+
+  .database-auditor .audit-progress-wrap {
+    margin: 10px 0;
+    padding: 11px;
+  }
+}
+
+@media (max-width: 390px) {
+  .database-auditor .audit-toolbar .button {
+    font-size: .67rem;
+    padding-inline: 5px;
+  }
+}
