@@ -1,4 +1,4 @@
-const CACHE_NAME = "fpl-draft-challenge-studio-refresh-v4";
+const CACHE_NAME = "fpl-draft-challenge-studio-refresh-v5";
 const STATIC_ASSETS = [
   "./manifest.webmanifest",
   "./icons/icon-192.svg",
@@ -16,7 +16,7 @@ function isDynamic(url, request){
     || /\/admin(?:-[^/]+)?\.css$/.test(url.pathname)
     || /\/(players|prompt-library)\.js$/.test(url.pathname)
     || /\/challenges\//.test(url.pathname)
-    || /\/js\/(admin-import-tools|admin-import-tools-base|career-context|career-shape-rules|career-shape-studio|career-shape-unified-generator|career-shape-unified-fixes|daily-challenge-loader|daily-challenge-fallback|challenge-archive|phase45-polish|visual-overhaul|visual-finishing|season-select-performance|autocomplete-layer|results-v2|leaderboard-config|leaderboard-client|leaderboard-team-view|leaderboard-ranking-rules|leaderboard-all-time|leaderboard-account|player-profile|player-profile-core|player-profile-cache|leaderboard-admin-status|admin-batch-calendar|admin-daily-publish|ui-cleanup)\.js$/.test(url.pathname);
+    || /\/js\/(admin-import-tools|admin-import-tools-base|career-context|career-shape-rules|career-shape-rules-base|career-shape-quality-calibration|career-shape-studio|career-shape-unified-generator|career-shape-unified-fixes|daily-challenge-loader|daily-challenge-fallback|challenge-archive|phase45-polish|visual-overhaul|visual-finishing|season-select-performance|autocomplete-layer|results-v2|leaderboard-config|leaderboard-client|leaderboard-team-view|leaderboard-ranking-rules|leaderboard-all-time|leaderboard-account|player-profile|player-profile-core|player-profile-cache|leaderboard-admin-status|admin-batch-calendar|admin-daily-publish|ui-cleanup)\.js$/.test(url.pathname);
 }
 self.addEventListener("fetch", event => {
   if(event.request.method !== "GET") return;
