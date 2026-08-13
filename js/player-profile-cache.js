@@ -59,11 +59,11 @@
     return url === profileUrl && method === "POST";
   }
 
-  function scheduleIdle(callback, timeout = 1800) {
+  function scheduleIdle(callback, timeout = 4000) {
     if (typeof requestIdleCallback === "function") {
       requestIdleCallback(() => callback(), { timeout });
     } else {
-      setTimeout(callback, 500);
+      setTimeout(callback, 1200);
     }
   }
 
