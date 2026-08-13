@@ -1,6 +1,15 @@
-/* FPL Career Shape unified creator · control fixes v1.0.0 */
+/* FPL Career Shape unified creator · control fixes v1.0.1 */
 (() => {
   "use strict";
+
+  function ensureQualityCss() {
+    if (document.querySelector('link[data-prompt-quality-mobile="1.2"]')) return;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "admin-prompts-mobile-v1-2.css?v=1.2.0";
+    link.dataset.promptQualityMobile = "1.2";
+    document.head.appendChild(link);
+  }
 
   function boxes() {
     return [...document.querySelectorAll("#promptFactoryPreview [data-factory-select], #promptFactoryPreview [data-career-unified-select]")];
@@ -28,6 +37,7 @@
   }
 
   function install() {
+    ensureQualityCss();
     const preview = document.getElementById("promptFactoryPreview");
     const select = document.getElementById("selectPromptBatchBtn");
     if (!preview || !select || select.dataset.careerUnifiedFixes) return;
