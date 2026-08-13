@@ -1,0 +1,58 @@
+/* Validation Lab mobile refinement v1.1.0 */
+@media (max-width: 720px) {
+  .validation-lab-panel .validation-rule-card textarea { min-height: 108px; }
+  .validation-lab-panel .validation-rule-card .validation-button-row { display: grid; grid-template-columns: 1fr 1fr; }
+  .validation-lab-panel .validation-rule-card .validation-button-row .button { width: 100%; }
+
+  .validation-lab-panel .validation-explorer-card .validation-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .validation-lab-panel .validation-explorer-card .validation-form-grid > .button { grid-column: 1 / -1 !important; }
+
+  .validation-lab-panel .validation-health-controls {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .validation-lab-panel .validation-certification-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px !important;
+    width: 100%;
+    margin-top: 0 !important;
+  }
+  .validation-lab-panel .validation-certification-actions .button {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 9px;
+  }
+  .validation-lab-panel #validationCopyCertificateBtn:disabled { display: none; }
+  .validation-lab-panel #validationCopyCertificateBtn:not(:disabled) { grid-column: 1 / -1; }
+
+  .validation-lab-panel .validation-health-hero {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px;
+    padding: 12px 13px;
+    margin-top: 10px;
+  }
+  .validation-lab-panel .validation-health-hero > div:last-child {
+    margin-left: auto;
+    text-align: right !important;
+  }
+  .validation-lab-panel .validation-health-hero > div:last-child strong { font-size: 1.35rem; }
+
+  .validation-lab-panel .validation-health-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 9px !important;
+  }
+  .validation-lab-panel .validation-health-grid > div {
+    min-height: 68px;
+    padding: 10px 11px;
+    border-radius: 11px;
+  }
+  .validation-lab-panel .validation-health-grid span { font-size: .62rem; line-height: 1.25; }
+  .validation-lab-panel .validation-health-grid strong { align-self: end; font-size: .96rem; }
+}
+
+@media (max-width: 390px) {
+  .validation-lab-panel .validation-health-grid > div { min-height: 64px; padding: 9px 10px; }
+}
