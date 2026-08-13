@@ -13,10 +13,12 @@
       overflow: visible !important;
     }
 
+    .fpl-visual-overhaul-body .slot:has(.suggestions:not(.hidden)) .choice-row,
     .fpl-visual-overhaul-body .slot:has(.suggestions:not(.hidden)) .search-wrap {
       position: relative;
       z-index: 100001 !important;
       isolation: isolate;
+      overflow: visible !important;
     }
 
     /* Treat autocomplete as a true floating menu, never a translucent overlay. */
@@ -27,8 +29,8 @@
       opacity: 1 !important;
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
-      border: 1px solid rgba(95,229,255,.34) !important;
-      box-shadow: 0 24px 64px rgba(0,0,0,.72), 0 0 0 1px rgba(0,255,135,.08) !important;
+      border: 1px solid rgba(95,229,255,.42) !important;
+      box-shadow: 0 26px 70px rgba(0,0,0,.82), 0 0 0 1px rgba(0,255,135,.10) !important;
       overflow-y: auto;
       overscroll-behavior: contain;
       pointer-events: auto !important;
@@ -59,10 +61,14 @@
       border-radius: 0 0 12px 12px;
     }
 
-    /* Messages remain in their reserved space but cannot intercept a click while menu is open. */
+    /*
+     * Do not merely disable clicks underneath the open menu: hide those rows visually too.
+     * visibility keeps their reserved layout space, so the card never jumps while searching.
+     */
     .fpl-visual-overhaul-body .slot:has(.suggestions:not(.hidden)) > .feedback,
     .fpl-visual-overhaul-body .slot:has(.suggestions:not(.hidden)) > .selected-meta,
     .fpl-visual-overhaul-body .slot:has(.suggestions:not(.hidden)) > .clear {
+      visibility: hidden !important;
       pointer-events: none !important;
     }
 
