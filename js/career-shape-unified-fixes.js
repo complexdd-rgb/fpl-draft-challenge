@@ -1,4 +1,4 @@
-/* FPL Career Shape unified creator · control fixes v1.0.1 */
+/* FPL Career Shape unified creator · control fixes v1.0.2 */
 (() => {
   "use strict";
 
@@ -36,6 +36,21 @@
     if (clear) clear.disabled = all.length === 0;
   }
 
+  function decorateQualityStates() {
+    for (const card of document.querySelectorAll("#promptFactoryPreview .career-shape-unified-card")) {
+      if (card.dataset.qualityDecorated) continue;
+      card.dataset.qualityDecorated = "true";
+      const state = card.dataset.qualityState;
+      if (!state) continue;
+      const meta = card.querySelector(".factory-prompt-meta");
+      if (!meta) continue;
+      const chip = document.createElement("span");
+      chip.className = "career-chip";
+      chip.textContent = state === "preferred" ? "Preferred breadth" : state === "review" ? "Quality review" : "Acceptable breadth";
+      meta.appendChild(chip);
+    }
+  }
+
   function install() {
     ensureQualityCss();
     const preview = document.getElementById("promptFactoryPreview");
@@ -60,7 +75,12 @@
       setTimeout(syncButtons, 0);
     });
 
-    document.getElementById("generatePromptBatchBtn")?.addEventListener("click", () => setTimeout(syncButtons, 120));
+    const observer = new MutationObserver(() => {
+      setTimeout(() => { syncButtons(); decorateQualityStates(); }, 0);
+    });
+    observer.observe(preview, { childList: true, subtree: true });
+
+    document.getElementById("generatePromptBatchBtn")?.addEventListener("click", () => setTimeout(() => { syncButtons(); decorateQualityStates(); }, 150));
     document.getElementById("clearPromptBatchBtn")?.addEventListener("click", () => setTimeout(syncButtons, 0));
   }
 
