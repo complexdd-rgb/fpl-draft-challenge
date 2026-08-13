@@ -1,0 +1,165 @@
+/* FPL Challenge Studio — Prompt Quality Analyser mobile refinement v1.2.0 */
+@media (max-width: 720px) {
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser {
+    padding: 11px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .prompt-quality-head {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 7px !important;
+    margin-bottom: 8px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .prompt-quality-head h3 {
+    font-size: 1.08rem !important;
+    line-height: 1.08 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .prompt-quality-head p:not(.eyebrow) {
+    -webkit-line-clamp: 2 !important;
+    margin-top: 4px !important;
+    font-size: .66rem !important;
+    line-height: 1.35 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .prompt-quality-head .phase-chip {
+    max-width: 92px !important;
+    padding: 6px 8px !important;
+    font-size: .58rem !important;
+    line-height: 1.15 !important;
+  }
+
+  /* Career Shape is a quick filter, not a second analyser panel. */
+  body.stage-one-enabled [data-workspace="prompts"] #careerShapeQualityTools {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "label button"
+      "help help" !important;
+    gap: 4px 8px !important;
+    align-items: center !important;
+    margin: 7px 0 9px !important;
+    padding: 8px 9px !important;
+    border-radius: 10px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #careerShapeQualityTools > span {
+    grid-area: label !important;
+    font-size: .67rem !important;
+    line-height: 1.2 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #careerShapeQualityTools > button {
+    grid-area: button !important;
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 34px !important;
+    padding: 6px 9px !important;
+    font-size: .62rem !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #careerShapeQualityTools > small {
+    grid-area: help !important;
+    margin: 0 !important;
+    font-size: .58rem !important;
+    line-height: 1.3 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .quality-run-row {
+    gap: 6px !important;
+    margin-top: 7px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .quality-run-row label,
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .prompt-quality-filters label {
+    margin: 0 !important;
+    font-size: .65rem !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .quality-run-row select,
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .prompt-quality-filters input,
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .prompt-quality-filters select {
+    min-height: 38px !important;
+    margin-top: 4px !important;
+    padding: 7px 8px !important;
+    font-size: .67rem !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .quality-actions {
+    gap: 6px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityAnalyser .quality-actions .button {
+    min-height: 40px !important;
+    padding: 8px !important;
+    font-size: .68rem !important;
+    line-height: 1.18 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityStatus {
+    margin: 6px 0 9px !important;
+    font-size: .64rem !important;
+    line-height: 1.35 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #promptQualityFilters {
+    gap: 6px !important;
+    margin-top: 7px !important;
+  }
+
+  /* Bulk actions stay safe but stop occupying most of a screen. */
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-disable,
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-delete {
+    gap: 5px !important;
+    margin-top: 8px !important;
+    padding: 8px !important;
+    border-radius: 10px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-disable > strong,
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-delete > strong,
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-disable > label,
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-delete > label {
+    font-size: .65rem !important;
+    line-height: 1.25 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-disable select,
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-delete select {
+    min-height: 38px !important;
+    margin-top: 3px !important;
+    padding: 7px 8px !important;
+    font-size: .66rem !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-disable p,
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-delete p {
+    display: -webkit-box !important;
+    overflow: hidden !important;
+    margin: 1px 0 !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    font-size: .58rem !important;
+    line-height: 1.3 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-disable .button,
+  body.stage-one-enabled [data-workspace="prompts"] .quality-bulk-delete .button {
+    min-height: 38px !important;
+    padding: 7px 8px !important;
+    font-size: .66rem !important;
+  }
+}
+
+@media (max-width: 370px) {
+  body.stage-one-enabled [data-workspace="prompts"] #careerShapeQualityTools {
+    grid-template-columns: 1fr !important;
+    grid-template-areas: "label" "button" "help" !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #careerShapeQualityTools > button {
+    width: 100% !important;
+  }
+}
