@@ -1,0 +1,121 @@
+/* FPL Challenge Studio — Prompt Studio mobile refinement v1.1.0 */
+@media (max-width: 720px) {
+  body.stage-one-enabled [data-workspace="prompts"] .prompt-factory-options {
+    gap: 7px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .prompt-factory-options .check-label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    min-height: 0 !important;
+    padding: 10px 11px !important;
+    border-radius: 10px !important;
+    line-height: 1.28 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .prompt-factory-options .check-label input {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .factory-rule-note {
+    margin-bottom: 8px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory {
+    margin: 9px 0 10px !important;
+    padding: 10px !important;
+    border-radius: 11px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-head {
+    display: block !important;
+    margin-bottom: 9px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-head span {
+    display: block !important;
+    margin-bottom: 3px !important;
+    font-size: .63rem !important;
+    letter-spacing: .08em !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-head strong {
+    display: block !important;
+    font-size: .82rem !important;
+    line-height: 1.25 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-head em {
+    display: none !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-controls label {
+    min-width: 0 !important;
+    margin: 0 !important;
+    font-size: .66rem !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-controls select {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+    margin-top: 4px !important;
+    padding: 7px 9px !important;
+    font-size: .7rem !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+    margin-top: 8px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-actions .button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+    margin: 0 !important;
+    padding: 8px 9px !important;
+    font-size: .7rem !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+  }
+
+  /* Until a preview exists, disabled branch actions just add clutter. */
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-actions .button:disabled {
+    display: none !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #careerShapeFactoryStatus {
+    margin: 8px 1px 0 !important;
+    font-size: .64rem !important;
+    line-height: 1.35 !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .career-shape-factory .cs-preview {
+    margin-top: 8px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .prompt-factory-actions {
+    padding-top: 2px !important;
+    border-top: 1px solid rgba(196, 231, 211, .08) !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] #generatePromptBatchBtn {
+    margin-top: 7px !important;
+  }
+
+  body.stage-one-enabled [data-workspace="prompts"] .prompt-quality-head .phase-chip {
+    max-width: 105px !important;
+    font-size: .62rem !important;
+  }
+}
