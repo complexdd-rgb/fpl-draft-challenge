@@ -11,6 +11,15 @@
     document.head.appendChild(visual);
   }
 
+  function loadVisualFinishing() {
+    if (document.querySelector('script[data-visual-finishing]')) return;
+    const finishing = document.createElement("script");
+    finishing.src = new URL("js/visual-finishing.js", document.baseURI).toString();
+    finishing.async = true;
+    finishing.dataset.visualFinishing = "1";
+    document.head.appendChild(finishing);
+  }
+
   function retireLowValuePanels() {
     const shell = document.getElementById("phase45Shell");
     const livePanel = document.getElementById("liveXiPanel");
@@ -28,6 +37,7 @@
     achievements?.remove();
     livePanel?.remove();
     loadVisualOverhaul();
+    loadVisualFinishing();
   }
 
   if (document.readyState === "loading") {
