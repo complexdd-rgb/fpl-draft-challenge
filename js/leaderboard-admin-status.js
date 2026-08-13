@@ -29,3 +29,68 @@
     try{const response=await fetch(`${String(cfg.supabaseUrl).replace(/\/$/,"")}/functions/v1/${encodeURIComponent(cfg.functions.list)}`,{method:"POST",headers:{"Content-Type":"application/json","apikey":cfg.publishableKey},body:JSON.stringify({challengeId:"health-check",limit:1}),cache:"no-store"});let body={};try{body=await response.json()}catch{}if(response.ok){if(message)message.textContent="API responded successfully. Phase 5B connection looks healthy.";}else{if(message)message.textContent=`API reached (${response.status}) but returned: ${body.message||body.error||"check function logs"}`;}}catch(error){if(message)message.textContent=`Could not reach the API: ${error.message||error}`;}
   });
 })();
+
+/* Studio status authority v1.0.0 — retired repair counters must not override a completed live audit. */
+(() => {
+  "use strict";
+  const numberFrom = value => {
+    const match = String(value || "").replace(/,/g, "").match(/-?\d+(?:\.\d+)?/);
+    return match ? Number(match[0]) : 0;
+  };
+
+  function syncFromAudit() {
+    const auditText = document.getElementById("auditStatusTop")?.textContent?.trim() || "Not run";
+    const playerCount = numberFrom(document.getElementById("auditPlayerCount")?.textContent);
+    const auditHasRun = !/not run|loading|waiting/i.test(auditText) || playerCount > 0;
+    if (!auditHasRun) return;
+
+    const critical = numberFrom(document.getElementById("auditCriticalCount")?.textContent);
+    const metadata = numberFrom(document.getElementById("auditInfoCount")?.textContent);
+    const blockerPill = document.getElementById("stageOneBlockerPill");
+    if (blockerPill) {
+      blockerPill.classList.toggle("danger", critical > 0);
+      blockerPill.classList.toggle("safe", critical === 0);
+      blockerPill.textContent = critical > 0
+        ? `${critical.toLocaleString()} blocker${critical === 1 ? "" : "s"}`
+        : "No blockers";
+    }
+
+    const dashboardBadge = document.querySelector('[data-workspace-badge="dashboard"]');
+    if (dashboardBadge) {
+      dashboardBadge.textContent = critical > 0 ? String(critical) : "";
+      dashboardBadge.hidden = critical === 0;
+    }
+    const databaseBadge = document.querySelector('[data-workspace-badge="database"]');
+    if (databaseBadge) {
+      databaseBadge.textContent = critical > 0 ? String(critical) : "✓";
+      databaseBadge.hidden = false;
+      databaseBadge.classList.toggle("danger", critical > 0);
+    }
+
+    const databaseStatus = document.getElementById("dashboardDatabaseStatus");
+    if (databaseStatus) databaseStatus.textContent = `${critical.toLocaleString()} blockers · ${metadata.toLocaleString()} metadata gaps`;
+
+    const nextTitle = document.getElementById("nextActionTitle");
+    const nextCopy = document.getElementById("nextActionCopy");
+    const nextButton = document.getElementById("nextActionButton");
+    if (critical === 0 && nextTitle && nextCopy && nextButton && /database blocker/i.test(nextTitle.textContent || "")) {
+      nextTitle.textContent = "Generate the next seven-day calendar";
+      nextCopy.textContent = "The database has no blocking errors. Build and test the next dated challenge batch when you are ready.";
+      nextButton.textContent = "Open Daily Challenge";
+      nextButton.dataset.openWorkspace = "challenge";
+      nextButton.dataset.targetTitle = "Challenge settings";
+    }
+  }
+
+  function start() {
+    window.setTimeout(syncFromAudit, 0);
+    const observer = new MutationObserver(() => window.setTimeout(syncFromAudit, 0));
+    ["auditStatusTop", "auditCriticalCount", "auditInfoCount", "auditPlayerCount", "repairBlockedCount"].forEach(id => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element, { childList: true, subtree: true, characterData: true });
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  else start();
+})();
