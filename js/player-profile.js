@@ -50,9 +50,9 @@
   function scheduleAfterFirstPaint() {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       if (typeof requestIdleCallback === "function") {
-        requestIdleCallback(loadCore, { timeout: 1800 });
+        requestIdleCallback(loadCore, { timeout: 3500 });
       } else {
-        setTimeout(loadCore, 650);
+        setTimeout(loadCore, 900);
       }
     }));
   }
