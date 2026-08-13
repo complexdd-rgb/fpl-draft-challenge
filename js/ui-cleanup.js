@@ -2,6 +2,15 @@
 (() => {
   "use strict";
 
+  function loadVisualOverhaul() {
+    if (document.querySelector('script[data-visual-overhaul]')) return;
+    const visual = document.createElement("script");
+    visual.src = new URL("js/visual-overhaul.js", document.baseURI).toString();
+    visual.async = true;
+    visual.dataset.visualOverhaul = "1";
+    document.head.appendChild(visual);
+  }
+
   function retireLowValuePanels() {
     const shell = document.getElementById("phase45Shell");
     const livePanel = document.getElementById("liveXiPanel");
@@ -18,6 +27,7 @@
     // Retire the achievements panel and the remaining Live XI container.
     achievements?.remove();
     livePanel?.remove();
+    loadVisualOverhaul();
   }
 
   if (document.readyState === "loading") {
