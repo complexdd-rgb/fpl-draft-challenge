@@ -1,4 +1,4 @@
-const CACHE_NAME = "fpl-draft-challenge-visual-overhaul-v1";
+const CACHE_NAME = "fpl-draft-challenge-visual-v1-1";
 const STATIC_ASSETS = [
   "./manifest.webmanifest",
   "./icons/icon-192.svg",
@@ -11,7 +11,7 @@ self.addEventListener("activate", event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
 function isDynamic(url, request){
-  return request.mode === "navigate" || /\/(index|admin)\.html$/.test(url.pathname) || /\/challenges\//.test(url.pathname) || /\/js\/(daily-challenge-loader|daily-challenge-fallback|challenge-archive|phase45-polish|visual-overhaul|results-v2|leaderboard-config|leaderboard-client|leaderboard-team-view|leaderboard-ranking-rules|leaderboard-all-time|leaderboard-account|leaderboard-admin-status|admin-batch-calendar|admin-daily-publish|ui-cleanup)\.js$/.test(url.pathname);
+  return request.mode === "navigate" || /\/(index|admin)\.html$/.test(url.pathname) || /\/challenges\//.test(url.pathname) || /\/js\/(daily-challenge-loader|daily-challenge-fallback|challenge-archive|phase45-polish|visual-overhaul|visual-finishing|results-v2|leaderboard-config|leaderboard-client|leaderboard-team-view|leaderboard-ranking-rules|leaderboard-all-time|leaderboard-account|leaderboard-admin-status|admin-batch-calendar|admin-daily-publish|ui-cleanup)\.js$/.test(url.pathname);
 }
 self.addEventListener("fetch", event => {
   if(event.request.method !== "GET") return;
