@@ -29,6 +29,15 @@
     document.head.appendChild(performance);
   }
 
+  function loadAutocompleteLayer() {
+    if (document.querySelector('script[data-autocomplete-layer]')) return;
+    const autocomplete = document.createElement("script");
+    autocomplete.src = new URL("js/autocomplete-layer.js", document.baseURI).toString();
+    autocomplete.async = true;
+    autocomplete.dataset.autocompleteLayer = "1";
+    document.head.appendChild(autocomplete);
+  }
+
   function retireLowValuePanels() {
     const shell = document.getElementById("phase45Shell");
     const livePanel = document.getElementById("liveXiPanel");
@@ -46,6 +55,7 @@
     achievements?.remove();
     livePanel?.remove();
     loadSeasonSelectPerformance();
+    loadAutocompleteLayer();
     loadVisualOverhaul();
     loadVisualFinishing();
   }
