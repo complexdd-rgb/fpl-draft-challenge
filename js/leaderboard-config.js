@@ -10,7 +10,8 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
     pick: "leaderboard-pick",
     finish: "leaderboard-finish",
     list: "leaderboard-list",
-    allTime: "leaderboard-all-time"
+    allTime: "leaderboard-all-time",
+    profile: "leaderboard-profile"
   }),
   topLimit: 20,
   allTimeLimit: 50,
@@ -21,6 +22,7 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
   teamSheets: true,
   rankingRules: true,
   allTimeLeaderboard: true,
+  playerProfile: true,
   resultsV2: true,
   accounts: Object.freeze({
     enabled: true,
@@ -123,6 +125,16 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.allTi
   allTime.async = true;
   allTime.dataset.leaderboardAllTime = "1";
   document.head.appendChild(allTime);
+}
+
+// Signed-in profiles use verified backend results and the account identity bridge, so
+// account-wide history follows the player across linked browsers instead of localStorage.
+if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.playerProfile && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled && !document.querySelector('script[data-player-profile]')) {
+  const profile = document.createElement("script");
+  profile.src = new URL("js/player-profile.js", document.baseURI).toString();
+  profile.async = true;
+  profile.dataset.playerProfile = "1";
+  document.head.appendChild(profile);
 }
 
 // Studio-only publishing enhancement. It reuses the validated seven-day ZIP package,
