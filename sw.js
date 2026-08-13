@@ -1,4 +1,4 @@
-const CACHE_NAME = "fpl-draft-challenge-player-profile-v1";
+const CACHE_NAME = "fpl-draft-challenge-ui-performance-v1";
 const STATIC_ASSETS = [
   "./manifest.webmanifest",
   "./icons/icon-192.svg",

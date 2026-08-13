@@ -19,6 +19,17 @@
     } catch { return null; }
   };
 
+  let refreshQueued = false;
+  let lastPillSignature = "";
+  let lastShareSignature = "";
+  let lastAnimationSignature = "";
+
+  function scheduleRefresh(){
+    if(refreshQueued)return;
+    refreshQueued=true;
+    requestAnimationFrame(()=>{refreshQueued=false;refresh();});
+  }
+
   function decorateSlots(){
     document.querySelectorAll('.slot').forEach(slot=>{
       const locked = slot.classList.contains('compact-confirmed');
@@ -39,27 +50,36 @@
   function addPersonalBestPills(){
     const record=currentRecord();
     const host=document.querySelector('#results .result-copy');
-    if(!record||!host)return;
-    let wrap=document.getElementById('phase45RecordPills');
-    if(wrap)wrap.remove();
+    const existing=document.getElementById('phase45RecordPills');
+    if(!record||!host){ if(existing)existing.remove(); lastPillSignature=""; return; }
     const prior=priorRecords(record);
+    const signature=[record.challengeId,record.completedAt,record.finalScore,record.efficiency,record.elapsedSeconds,record.penalties,prior.length].join('|');
+    if(signature===lastPillSignature && existing)return;
+
     const pills=[];
     if(!prior.length && record.official!==false)pills.push('First official result');
     if(prior.length){
       const prevBestScore=Math.max(...prior.map(x=>Number(x.finalScore)||0));
       const prevBestEff=Math.max(...prior.map(x=>Number(x.efficiency)||0));
-      const prevFastest=Math.min(...prior.map(x=>Number(x.elapsedSeconds)).filter(Number.isFinite));
+      const times=prior.map(x=>Number(x.elapsedSeconds)).filter(Number.isFinite);
+      const prevFastest=times.length?Math.min(...times):NaN;
       if(Number(record.finalScore)>prevBestScore)pills.push('New best score');
       if(Number(record.efficiency)>prevBestEff)pills.push('New best efficiency');
       if(Number.isFinite(prevFastest)&&Number(record.elapsedSeconds)<prevFastest)pills.push('New fastest time');
     }
     if(Number(record.penalties)===0)pills.push('Zero penalties');
     if(Number(record.efficiency)>=100)pills.push('Perfect efficiency');
-    if(!pills.length)return;
-    wrap=document.createElement('div');
-    wrap.className='phase45-record-pills';wrap.id='phase45RecordPills';
-    wrap.innerHTML=pills.map(x=>`<span class="phase45-record-pill">${esc(x)}</span>`).join('');
-    host.appendChild(wrap);
+
+    if(!pills.length){ if(existing)existing.remove(); lastPillSignature=signature; return; }
+    const html=pills.map(x=>`<span class="phase45-record-pill">${esc(x)}</span>`).join('');
+    if(existing){
+      if(existing.innerHTML!==html)existing.innerHTML=html;
+    }else{
+      const wrap=document.createElement('div');
+      wrap.className='phase45-record-pills';wrap.id='phase45RecordPills';wrap.innerHTML=html;
+      host.appendChild(wrap);
+    }
+    lastPillSignature=signature;
   }
 
   function tierClass(percent){
@@ -89,7 +109,11 @@
     if(!efficiencies.length){
       document.querySelectorAll('.compact-efficiency strong').forEach(el=>efficiencies.push(Number(String(el.textContent).replace(/[^\d.]/g,''))||0));
     }
-    mount.innerHTML=`<article class="share-card"><div class="share-card-top"><div class="share-card-title"><span>FPL Draft Challenge · ${esc(challengeDateText(challenge.releaseDate))}${challenge.formation?` · ${esc(challenge.formation)}`:''}${runtime.archiveMode?' · practice':''}</span><strong>${esc(challenge.title||'Daily Challenge')}</strong></div><div class="share-card-grade">${esc(grade)}</div></div><div class="share-grid">${efficiencies.map(value=>`<span class="${tierClass(value)}" title="${value.toFixed(1)}%"></span>`).join('')}</div><div class="share-card-stats"><div class="share-card-stat"><span>Score</span><strong>${esc(score)} / ${Number(challenge.perfectScore||0).toLocaleString()}</strong></div><div class="share-card-stat"><span>Efficiency</span><strong>${esc(efficiency)}</strong></div><div class="share-card-stat"><span>Time · penalties</span><strong>${esc(time)} · ${esc(penalty)}</strong></div></div></article>`;
+    const signature=[record?.challengeId,record?.completedAt,efficiency,score,time,grade,penalty,efficiencies.join(',')].join('|');
+    if(signature===lastShareSignature && mount.firstElementChild)return;
+    const html=`<article class="share-card"><div class="share-card-top"><div class="share-card-title"><span>FPL Draft Challenge · ${esc(challengeDateText(challenge.releaseDate))}${challenge.formation?` · ${esc(challenge.formation)}`:''}${runtime.archiveMode?' · practice':''}</span><strong>${esc(challenge.title||'Daily Challenge')}</strong></div><div class="share-card-grade">${esc(grade)}</div></div><div class="share-grid">${efficiencies.map(value=>`<span class="${tierClass(value)}" title="${value.toFixed(1)}%"></span>`).join('')}</div><div class="share-card-stats"><div class="share-card-stat"><span>Score</span><strong>${esc(score)} / ${Number(challenge.perfectScore||0).toLocaleString()}</strong></div><div class="share-card-stat"><span>Efficiency</span><strong>${esc(efficiency)}</strong></div><div class="share-card-stat"><span>Time · penalties</span><strong>${esc(time)} · ${esc(penalty)}</strong></div></div></article>`;
+    if(mount.innerHTML!==html)mount.innerHTML=html;
+    lastShareSignature=signature;
   }
 
   function animateFreshResult(){
@@ -99,8 +123,11 @@
     const fresh=Date.now()-Number(record.completedAt||0)<12000;
     hero.classList.toggle('phase45-fresh-result',fresh);
     if(!fresh)return;
-    const targets=[['finalScore',Number(record.finalScore)||0,0],['playerPoints',Number(record.playerPoints)||0,0]];
-    targets.forEach(([id,target,dec])=>{
+    const signature=[record.challengeId,record.completedAt,record.finalScore,record.playerPoints].join('|');
+    if(signature===lastAnimationSignature)return;
+    lastAnimationSignature=signature;
+    const targets=[['finalScore',Number(record.finalScore)||0],['playerPoints',Number(record.playerPoints)||0]];
+    targets.forEach(([id,target])=>{
       const el=document.getElementById(id);if(!el)return;
       const duration=650,start=performance.now();
       const step=now=>{const p=Math.min(1,(now-start)/duration);const eased=1-Math.pow(1-p,3);el.textContent=Math.round(target*eased).toLocaleString();if(p<1)requestAnimationFrame(step);};
@@ -137,15 +164,20 @@
   const grid=document.getElementById('grid');
   const results=document.getElementById('results');
   const archive=document.querySelector('.challenge-calendar-nav');
-  const observer=new MutationObserver(()=>requestAnimationFrame(refresh));
-  if(grid)observer.observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-  if(results)observer.observe(results,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-  if(archive)observer.observe(archive,{childList:true,subtree:true});
+
+  // Observe only structural changes that can genuinely require re-decoration. The previous
+  // broad results-subtree observer watched DOM that this module itself rewrote, creating a
+  // self-triggering requestAnimationFrame loop and unnecessary full-page work.
+  if(grid)new MutationObserver(scheduleRefresh).observe(grid,{childList:true,subtree:true});
+  if(archive)new MutationObserver(scheduleRefresh).observe(archive,{childList:true,subtree:true});
   if(results){
-    const resultObserver=new MutationObserver(()=>{
-      if(!results.classList.contains('hidden')){animateFreshResult();setTimeout(()=>{addPersonalBestPills();renderShareCard();},50);}
-    });
-    resultObserver.observe(results,{attributes:true,attributeFilter:['class']});
+    new MutationObserver(()=>{
+      if(results.classList.contains('hidden'))return;
+      animateFreshResult();
+      scheduleRefresh();
+      setTimeout(scheduleRefresh,80);
+    }).observe(results,{attributes:true,attributeFilter:['class']});
   }
+  window.addEventListener('fpl:challenge-completed',()=>{animateFreshResult();scheduleRefresh();setTimeout(scheduleRefresh,100);});
   refresh();
 })();
