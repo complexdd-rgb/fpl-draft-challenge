@@ -1,13 +1,76 @@
-/* FPL Career Shape rule pack · v1.0.0
+/* FPL Career Shape rule pack · v1.1.0
    Adds checked career-shape prompts and clarifies the Premier-League-only A→B→A return rule. */
 (() => {
   "use strict";
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
   const POSITIONS = ["GK", "DEF", "MID", "FWD"];
   const NAMES = { GK: "Goalkeeper", DEF: "Defender", MID: "Midfielder", FWD: "Forward" };
   const LOWER = { GK: "goalkeeper", DEF: "defender", MID: "midfielder", FWD: "forward" };
   const players = () => Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
+  const BIG_SIX = new Set(["arsenal", "chelsea", "liverpool", "man city", "man utd", "spurs"]);
+  const norm = value => String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+
+  function deriveCareerShape() {
+    for (const player of players()) {
+      const positive = (player.seasons || []).filter(record => Number(record.minutes) > 0);
+      const clubs = new Map();
+      const managers = new Set();
+      const managersBySeason = new Map();
+      const rowsByYear = new Map();
+      for (const record of positive) {
+        const clubKey = norm(record.club);
+        if (clubKey && !clubs.has(clubKey)) clubs.set(clubKey, record.club);
+        const seasonKey = String(record.season || "");
+        if (!managersBySeason.has(seasonKey)) managersBySeason.set(seasonKey, new Set());
+        for (const manager of Array.isArray(record.managers) ? record.managers : []) {
+          const key = norm(manager);
+          if (!key) continue;
+          managers.add(key);
+          managersBySeason.get(seasonKey).add(key);
+        }
+        const year = Number(seasonKey.slice(0, 4));
+        if (Number.isFinite(year) && clubKey) {
+          if (!rowsByYear.has(year)) rowsByYear.set(year, new Set());
+          rowsByYear.get(year).add(clubKey);
+        }
+      }
+      let maxConsecutiveSameClub = 0;
+      const runs = new Map();
+      let previousYear = null;
+      let previousClubs = new Set();
+      for (const [year, clubKeys] of [...rowsByYear.entries()].sort((a, b) => a[0] - b[0])) {
+        const next = new Map();
+        for (const clubKey of clubKeys) {
+          const run = previousYear != null && year === previousYear + 1 && previousClubs.has(clubKey) ? (runs.get(clubKey) || 1) + 1 : 1;
+          next.set(clubKey, run);
+          maxConsecutiveSameClub = Math.max(maxConsecutiveSameClub, run);
+        }
+        runs.clear();
+        for (const [clubKey, run] of next) runs.set(clubKey, run);
+        previousYear = year;
+        previousClubs = clubKeys;
+      }
+      const bigSixClubs = [...clubs.entries()].filter(([key]) => BIG_SIX.has(key)).map(([, name]) => name);
+      const shape = Object.freeze({
+        managerCount: managers.size,
+        maxManagersInSeason: Math.max(0, ...[...managersBySeason.values()].map(set => set.size)),
+        bigSixClubCount: bigSixClubs.length,
+        bigSixClubs: Object.freeze(bigSixClubs),
+        neverBigSix: clubs.size > 0 && bigSixClubs.length === 0,
+        maxConsecutiveSameClub,
+        everChampion: positive.some(record => record.champions === true),
+        everTopFour: positive.some(record => record.topFour === true),
+        everRelegatedClub: positive.some(record => record.relegated === true)
+      });
+      for (const record of player.seasons || []) {
+        try { Object.defineProperty(record, "_careerShape", { value: shape, configurable: true, enumerable: true }); }
+        catch (_) { record._careerShape = shape; }
+      }
+    }
+  }
+
+  deriveCareerShape();
   const RETURN_WORDING = "returned to a former Premier League club after playing for another Premier League club";
 
   const RULES = {
@@ -15,49 +78,49 @@
       title: "Won the Premier League in their recorded career",
       label: noun => `${noun} who won the Premier League at some point in their recorded career`,
       fail: role => `That ${role} must have at least one recorded Premier League season for the league champions.`,
-      expression: "p._career?.everChampion === true"
+      expression: "p._careerShape?.everChampion === true"
     },
     everTopFour: {
       title: "Played for a top-four club in their recorded career",
       label: noun => `${noun} who played for a top-four club at some point in their recorded career`,
       fail: role => `That ${role} must have at least one recorded Premier League season for a club that finished in the top four.`,
-      expression: "p._career?.everTopFour === true"
+      expression: "p._careerShape?.everTopFour === true"
     },
     consecutiveSameClub4: {
       title: "4+ consecutive Premier League seasons at the same club",
       label: noun => `${noun} with 4+ consecutive recorded Premier League seasons at the same club`,
       fail: role => `That ${role} must have at least four consecutive positive-minute Premier League seasons at the same club.`,
-      expression: "Number(p._career?.maxConsecutiveSameClub) >= 4"
+      expression: "Number(p._careerShape?.maxConsecutiveSameClub) >= 4"
     },
     managerCount4: {
       title: "Played under 4+ different Premier League managers",
       label: noun => `${noun} who played under 4+ different managers across their recorded Premier League career`,
       fail: role => `That ${role} must have recorded Premier League minutes under at least four different stored managers.`,
-      expression: "Number(p._career?.managerCount) >= 4"
+      expression: "Number(p._careerShape?.managerCount) >= 4"
     },
     bigSixClubs2: {
       title: "Played for 2+ traditional Big Six clubs",
       label: noun => `${noun} who played for 2+ traditional Big Six clubs in their recorded Premier League career`,
       fail: role => `That ${role} must have recorded Premier League minutes for at least two different traditional Big Six clubs.`,
-      expression: "Number(p._career?.bigSixClubCount) >= 2"
+      expression: "Number(p._careerShape?.bigSixClubCount) >= 2"
     },
     neverBigSix: {
       title: "Never played for a traditional Big Six club",
       label: noun => `${noun} who never played for a traditional Big Six club in their recorded Premier League career`,
       fail: role => `That ${role} must have recorded Premier League minutes but none for Arsenal, Chelsea, Liverpool, Man City, Man Utd or Spurs.`,
-      expression: "p._career?.neverBigSix === true"
+      expression: "p._careerShape?.neverBigSix === true"
     },
     managersInSeason2: {
       title: "Had 2+ stored managers in one Premier League season",
       label: noun => `${noun} who had 2+ stored managers during a single recorded Premier League season`,
       fail: role => `That ${role} must have a recorded Premier League season containing at least two different stored managers.`,
-      expression: "Number(p._career?.maxManagersInSeason) >= 2"
+      expression: "Number(p._careerShape?.maxManagersInSeason) >= 2"
     },
     championAndRelegated: {
       title: "Won the league and also played for a relegated club",
       label: noun => `${noun} who won the Premier League and also played for a relegated club in their recorded career`,
       fail: role => `That ${role} must have at least one recorded title-winning Premier League season and at least one recorded season for a relegated club.`,
-      expression: "p._career?.everChampion === true && p._career?.everRelegatedClub === true"
+      expression: "p._careerShape?.everChampion === true && p._careerShape?.everRelegatedClub === true"
     }
   };
 
