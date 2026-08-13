@@ -1,39 +1,98 @@
-/* FPL Draft Challenge — season-select responsiveness + legacy render guards.
-   Presentation/performance only: the existing game handler still owns draft state,
-   validation, persistence and scoring. */
+/* FPL Draft Challenge — slot-level season selection + legacy render guards.
+   The core game engine still owns drafts, persistence, validation and scoring. This layer
+   only prevents a season dropdown change from rebuilding all 11 prompt cards. */
 (() => {
   "use strict";
 
   const grid = document.getElementById("grid");
   if (!grid) return;
 
-  // The legacy game handler rebuilds the full XI immediately on a season change. Let the
-  // browser paint the native select value first, then replay the same change event on the
-  // next frame. The original handler still performs the actual save/render unchanged.
-  const replaying = new WeakSet();
+  /*
+   * The core season handler does exactly the state work we want:
+   *   drafts[id].season = value; save(); render();
+   *
+   * Its expensive part is the final render(), which recreates the whole XI and rebinds
+   * every control. Because render is a global function binding in the classic game script,
+   * keep the original function for every other action but replace that one call with a
+   * single-slot metadata refresh when a season-select change is currently being handled.
+   */
+  let pendingSeasonId = "";
+  const fullRender = typeof render === "function" ? render : null;
+
+  function selectedRecord(id) {
+    try {
+      const draft = drafts?.[id];
+      return draft ? getRecord(draft.playerId, draft.season) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function refreshSeasonSlot(id) {
+    const slot = document.getElementById(`slot-${id}`);
+    if (!slot) {
+      fullRender?.();
+      return;
+    }
+
+    const record = selectedRecord(id);
+    const confirm = slot.querySelector("[data-confirm]");
+    if (confirm) confirm.disabled = !record;
+
+    let meta = slot.querySelector(".selected-meta");
+    if (!record) {
+      meta?.remove();
+      return;
+    }
+
+    if (!meta) {
+      meta = document.createElement("div");
+      meta.className = "selected-meta";
+      const feedback = slot.querySelector(".feedback");
+      const choiceRow = slot.querySelector(".choice-row");
+      if (feedback) feedback.before(meta);
+      else if (choiceRow) choiceRow.insertAdjacentElement("afterend", meta);
+      else slot.appendChild(meta);
+    }
+
+    const price = Number.isFinite(record.startingPrice)
+      ? `£${record.startingPrice.toFixed(1)}m starting price`
+      : "Starting price unavailable";
+    meta.textContent = `${record.club} · ${record.position} · ${price}`;
+  }
+
+  // Capture fires immediately before the game engine's existing target-level change
+  // listener. No event is stopped or replayed; this only identifies which render call can
+  // safely be reduced to a slot refresh.
   document.addEventListener("change", event => {
-    const select = event.target instanceof Element ? event.target.closest(".season-select[data-season]") : null;
-    if (!select || replaying.has(select)) return;
-
-    event.stopImmediatePropagation();
-    const confirm = select.closest(".slot")?.querySelector("[data-confirm]");
-    if (confirm) confirm.disabled = true;
-    select.dataset.seasonPending = "1";
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!select.isConnected) return;
-        replaying.add(select);
-        select.dispatchEvent(new Event("change", { bubbles: true }));
-        replaying.delete(select);
-        delete select.dataset.seasonPending;
-      });
-    });
+    const select = event.target instanceof Element
+      ? event.target.closest(".season-select[data-season]")
+      : null;
+    if (!select || !grid.contains(select)) return;
+    pendingSeasonId = select.dataset.season || "";
   }, true);
 
-  // Older Phase 4.5 dashboard code still writes the same panel HTML every second. Guard
-  // those instance setters so identical writes become no-ops. For the hero, a countdown-
-  // only change updates just the countdown text instead of rebuilding the whole dashboard.
+  if (fullRender) {
+    try {
+      render = function(...args) {
+        if (pendingSeasonId) {
+          const id = pendingSeasonId;
+          pendingSeasonId = "";
+          refreshSeasonSlot(id);
+          return;
+        }
+        return fullRender.apply(this, args);
+      };
+    } catch {
+      // If a future bundling change makes the global render binding immutable, fail open:
+      // the core engine continues using its original full render rather than risking state.
+      pendingSeasonId = "";
+    }
+  }
+
+  // Older Phase 4.5 dashboard code still computes its dashboard once a second. Guard the
+  // instance HTML setters so unchanged markup is a no-op; when only the countdown changed,
+  // update that text node rather than rebuilding the whole dashboard.
   const descriptor = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
   if (!descriptor?.get || !descriptor?.set) return;
   const nativeGet = descriptor.get;
