@@ -20,6 +20,15 @@
     document.head.appendChild(finishing);
   }
 
+  function loadSeasonSelectPerformance() {
+    if (document.querySelector('script[data-season-select-performance]')) return;
+    const performance = document.createElement("script");
+    performance.src = new URL("js/season-select-performance.js", document.baseURI).toString();
+    performance.async = true;
+    performance.dataset.seasonSelectPerformance = "1";
+    document.head.appendChild(performance);
+  }
+
   function retireLowValuePanels() {
     const shell = document.getElementById("phase45Shell");
     const livePanel = document.getElementById("liveXiPanel");
@@ -36,6 +45,7 @@
     // Retire the achievements panel and the remaining Live XI container.
     achievements?.remove();
     livePanel?.remove();
+    loadSeasonSelectPerformance();
     loadVisualOverhaul();
     loadVisualFinishing();
   }
