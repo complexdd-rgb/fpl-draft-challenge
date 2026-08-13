@@ -9,6 +9,8 @@
 
   let loading = false;
   let lastPayload = null;
+  let lastRefreshAt = 0;
+  let queuedRefresh = 0;
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const functionUrl = () => `${String(cfg.supabaseUrl || "").replace(/\/$/,"")}/functions/v1/${encodeURIComponent(cfg.functions.profile)}`;
@@ -144,8 +146,9 @@
     toggleLocalStats(false);
   }
 
-  async function refresh() {
+  async function refresh(force = false) {
     if (loading) return;
+    if (!force && lastPayload && Date.now() - lastRefreshAt < 120000) return;
     loading = true;
     try {
       const token = await authBridge.getAccessToken();
@@ -155,6 +158,7 @@
       toggleLocalStats(true);
       if (!lastPayload) panel.innerHTML = `<div class="player-profile-empty">Loading your synced verified profile…</div>`;
       render(await api());
+      lastRefreshAt = Date.now();
     } catch (error) {
       if (Number(error?.status) === 401) { hideProfile(); return; }
       const panel = mount();
@@ -164,14 +168,27 @@
     } finally { loading = false; }
   }
 
-  window.FPL_PLAYER_PROFILE_REFRESH = refresh;
-  window.addEventListener("fpl:account-auth-changed", () => { lastPayload = null; setTimeout(refresh, 80); });
-  window.addEventListener("fpl:leaderboard-updated", () => { if (lastPayload) setTimeout(refresh, 120); });
-  window.addEventListener("fpl:challenge-completed", () => setTimeout(refresh, 700));
+  function scheduleRefresh(delay = 0, force = false) {
+    if (queuedRefresh) clearTimeout(queuedRefresh);
+    queuedRefresh = setTimeout(() => { queuedRefresh = 0; refresh(force); }, delay);
+  }
 
-  const observer = new MutationObserver(() => {
-    if (!document.getElementById("playerProfilePanel") && (document.getElementById("liveLeaderboardPanel") || document.getElementById("phase45ExtendedStats"))) mount();
-  });
-  observer.observe(document.documentElement, { childList:true, subtree:true });
-  refresh();
+  window.FPL_PLAYER_PROFILE_REFRESH = () => refresh(true);
+  window.addEventListener("fpl:account-auth-changed", () => { lastPayload = null; lastRefreshAt = 0; scheduleRefresh(80, true); });
+  // Daily leaderboard refreshes happen frequently. Keep the synced profile fresh enough for
+  // changing ranks without re-running its heavier verified-history query on every poll.
+  window.addEventListener("fpl:leaderboard-updated", () => { if (lastPayload && Date.now() - lastRefreshAt >= 120000) scheduleRefresh(120); });
+  window.addEventListener("fpl:challenge-completed", () => scheduleRefresh(700, true));
+
+  if (!document.getElementById("playerProfilePanel")) {
+    const initialObserver = new MutationObserver((_, observer) => {
+      if (document.getElementById("liveLeaderboardPanel") || document.getElementById("phase45ExtendedStats")) {
+        mount();
+        observer.disconnect();
+      }
+    });
+    initialObserver.observe(document.documentElement, { childList:true, subtree:true });
+    setTimeout(() => initialObserver.disconnect(), 8000);
+  }
+  refresh(true);
 })();
