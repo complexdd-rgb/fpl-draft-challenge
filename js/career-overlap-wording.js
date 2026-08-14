@@ -127,7 +127,7 @@
   function loadQualityPromptPack() {
     if (document.querySelector('script[data-quality-prompt-pack-v1]')) return;
     const script = document.createElement("script");
-    script.src = new URL("js/prompt-quality-pack-v1.js?v=1.0.0", document.baseURI).toString();
+    script.src = new URL("js/prompt-quality-pack-v1.js?v=1.0.1", document.baseURI).toString();
     script.async = false;
     script.dataset.qualityPromptPackV1 = "1";
     document.head.appendChild(script);
