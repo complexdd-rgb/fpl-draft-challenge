@@ -11,6 +11,29 @@
   const endpoint = `${String(cfg.supabaseUrl || "").replace(/\/$/, "")}/functions/v1/${encodeURIComponent(functionName)}`;
   let publishing = false;
 
+  const scheduleApi = window.FPL_STUDIO_SCHEDULE = window.FPL_STUDIO_SCHEDULE || {
+    status: "loading",
+    scheduled: [],
+    lastDate: "",
+    error: "",
+    refreshedAt: "",
+    refresh: null
+  };
+  scheduleApi.refresh = refreshScheduleStatus;
+
+  function emitScheduleStatus() {
+    window.dispatchEvent(new CustomEvent("fpl:schedule-status", {
+      detail: {
+        status: scheduleApi.status,
+        scheduled: Array.isArray(scheduleApi.scheduled) ? scheduleApi.scheduled.slice() : [],
+        lastDate: scheduleApi.lastDate || "",
+        error: scheduleApi.error || "",
+        refreshedAt: scheduleApi.refreshedAt || "",
+        refresh: scheduleApi.refresh
+      }
+    }));
+  }
+
   function installUi() {
     if (document.getElementById("publishWeekSupabaseBtn")) return;
     const button = document.createElement("button");
@@ -73,17 +96,32 @@
   }
 
   async function refreshScheduleStatus() {
+    scheduleApi.status = "loading";
+    scheduleApi.error = "";
+    emitScheduleStatus();
     try {
       const data = await api({ action: "status" });
       const scheduled = Array.isArray(data.scheduled) ? data.scheduled : [];
+      const last = scheduled.length ? String(scheduled[scheduled.length - 1]?.release_date || "") : "";
+      scheduleApi.status = "ready";
+      scheduleApi.scheduled = scheduled;
+      scheduleApi.lastDate = last;
+      scheduleApi.refreshedAt = new Date().toISOString();
+      scheduleApi.error = "";
+      emitScheduleStatus();
       if (!scheduled.length) {
         setStatus("Supabase publishing is ready. No server-scheduled challenge dates yet.", "ready");
         return;
       }
-      const last = String(scheduled[scheduled.length - 1]?.release_date || "");
       setStatus(`${scheduled.length} Supabase challenge${scheduled.length === 1 ? "" : "s"} scheduled · coverage through ${last}.`, "ready");
     } catch (error) {
-      setStatus(error?.message || "Supabase publishing status is unavailable.", "neutral");
+      scheduleApi.status = "unavailable";
+      scheduleApi.scheduled = [];
+      scheduleApi.lastDate = "";
+      scheduleApi.refreshedAt = new Date().toISOString();
+      scheduleApi.error = error?.message || "Supabase publishing status is unavailable.";
+      emitScheduleStatus();
+      setStatus(scheduleApi.error, "neutral");
     }
   }
 
@@ -190,6 +228,7 @@
       setStatus(`Publishing ${challenges.length} validated challenge${challenges.length === 1 ? "" : "s"} and private verifiers to Supabase…`, "working");
       const result = await api({ action: "publish", challenges });
       setStatus(`${Number(result.published) || challenges.length} challenge${challenges.length === 1 ? "" : "s"} scheduled successfully · ${result.firstDate} to ${result.lastDate}. Midnight rollover is automatic.`, "published");
+      await refreshScheduleStatus();
     } catch (error) {
       console.error(error);
       setStatus(error?.message || "The challenge week could not be published.", "error");
