@@ -224,11 +224,10 @@
   });
 
   addStyles();
-  ensureModal();
-  // If the initial leaderboard response arrived before this enhancement script loaded,
-  // one safe refresh repopulates the event payload with the verified team-sheet fields.
-  setTimeout(() => {
+  const cached = window.FPL_LEADERBOARD_LAST_UPDATE;
+  if (cached) {
+    entries = Array.isArray(cached.entries) ? cached.entries : [];
+    viewer = cached.viewer || null;
     enhanceLeaderboard();
-    if (typeof window.FPL_LEADERBOARD_REFRESH === "function") window.FPL_LEADERBOARD_REFRESH();
-  }, 250);
+  }
 })();

@@ -71,7 +71,11 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.accou
   const readyPromise = new Promise(resolve => { resolveReady = resolve; });
   window.FPL_ACCOUNT_AUTH = {
     client: null,
-    _setSession(nextSession) { session = nextSession || null; },
+    signedIn: false,
+    _setSession(nextSession) {
+      session = nextSession || null;
+      this.signedIn = Boolean(session);
+    },
     _markReady() { if (!ready) { ready = true; resolveReady?.(); } },
     async getAccessToken() {
       if (!ready) await Promise.race([readyPromise, new Promise(resolve => setTimeout(resolve, 1500))]);
@@ -112,54 +116,45 @@ if (!FPL_IS_STUDIO && !document.querySelector('script[data-ui-cleanup]')) {
   document.head.appendChild(cleanup);
 }
 
-// Daily Challenge Results v2 is a modular presentation layer. It reads the already-loaded
-// challenge/player data and local completed record but never changes scoring or validation.
-if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.resultsV2 && document.getElementById("results") && !document.querySelector('script[data-results-v2]')) {
-  const resultsV2 = document.createElement("script");
-  resultsV2.src = new URL("js/results-v2.js", document.baseURI).toString();
-  resultsV2.async = true;
-  resultsV2.dataset.resultsV2 = "1";
-  document.head.appendChild(resultsV2);
-}
+// Secondary live-game presentation is intentionally deferred. The core challenge and
+// verified-attempt bridge stay available immediately, while results/leaderboard extras only
+// download once the player can actually see or use them.
+if (!FPL_IS_STUDIO) {
+  const loadModule = (src, marker) => {
+    if (document.querySelector(`script[${marker}]`)) return;
+    const script = document.createElement("script");
+    script.src = new URL(src, document.baseURI).toString();
+    script.async = true;
+    script.setAttribute(marker, "1");
+    document.head.appendChild(script);
+  };
 
-// Keep the team-sheet UI separate from the core leaderboard bridge so the verified
-// submission path stays small and easy to audit.
-if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.teamSheets && !document.querySelector('script[data-leaderboard-team-view]')) {
-  const teamView = document.createElement("script");
-  teamView.src = new URL("js/leaderboard-team-view.js", document.baseURI).toString();
-  teamView.async = true;
-  teamView.dataset.leaderboardTeamView = "1";
-  document.head.appendChild(teamView);
-}
+  const loadResultsV2 = () => {
+    if (window.FPL_LEADERBOARD_CONFIG.resultsV2) loadModule("js/results-v2.js", "data-results-v2");
+  };
+  const scheduleResultsV2 = () => {
+    requestAnimationFrame(() => {
+      if (typeof requestIdleCallback === "function") requestIdleCallback(loadResultsV2, { timeout: 1200 });
+      else setTimeout(loadResultsV2, 120);
+    });
+  };
+  const results = document.getElementById("results");
+  if (results && !results.classList.contains("hidden")) scheduleResultsV2();
+  else window.addEventListener("fpl:challenge-completed", scheduleResultsV2, { once: true });
+  window.FPL_LOAD_RESULTS_V2 = loadResultsV2;
 
-// Keep the ranking policy visible beside the live table so tie-breaks are clear to
-// players and stay aligned with the server ordering.
-if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.rankingRules && !document.querySelector('script[data-leaderboard-ranking-rules]')) {
-  const rankingRules = document.createElement("script");
-  rankingRules.src = new URL("js/leaderboard-ranking-rules.js", document.baseURI).toString();
-  rankingRules.async = true;
-  rankingRules.dataset.leaderboardRankingRules = "1";
-  document.head.appendChild(rankingRules);
-}
-
-// The all-time standings are loaded separately so the daily leaderboard bridge stays
-// focused on today's verified challenge and its team-sheet privacy rules.
-if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.allTimeLeaderboard && !document.querySelector('script[data-leaderboard-all-time]')) {
-  const allTime = document.createElement("script");
-  allTime.src = new URL("js/leaderboard-all-time.js", document.baseURI).toString();
-  allTime.async = true;
-  allTime.dataset.leaderboardAllTime = "1";
-  document.head.appendChild(allTime);
-}
-
-// Signed-in profiles use verified backend results and the account identity bridge, so
-// account-wide history follows the player across linked browsers instead of localStorage.
-if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.playerProfile && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled && !document.querySelector('script[data-player-profile]')) {
-  const profile = document.createElement("script");
-  profile.src = new URL("js/player-profile.js", document.baseURI).toString();
-  profile.async = true;
-  profile.dataset.playerProfile = "1";
-  document.head.appendChild(profile);
+  let leaderboardExtrasLoaded = false;
+  const loadLeaderboardExtras = () => {
+    if (leaderboardExtrasLoaded) return;
+    leaderboardExtrasLoaded = true;
+    const live = window.FPL_LEADERBOARD_CONFIG;
+    if (live.enabled && live.teamSheets) loadModule("js/leaderboard-team-view.js", "data-leaderboard-team-view");
+    if (live.enabled && live.rankingRules) loadModule("js/leaderboard-ranking-rules.js", "data-leaderboard-ranking-rules");
+    if (live.enabled && live.allTimeLeaderboard) loadModule("js/leaderboard-all-time.js", "data-leaderboard-all-time");
+    if (live.enabled && live.playerProfile && live.accounts?.enabled) loadModule("js/player-profile.js", "data-player-profile");
+  };
+  window.addEventListener("fpl:leaderboard-visible", loadLeaderboardExtras, { once: true });
+  window.FPL_LOAD_LEADERBOARD_EXTRAS = loadLeaderboardExtras;
 }
 
 // Studio-only publishing enhancement. It reuses the validated seven-day ZIP package,
@@ -191,21 +186,4 @@ if (FPL_IS_STUDIO && !document.querySelector('script[data-career-overlap-wording
   overlapWording.async = true;
   overlapWording.dataset.careerOverlapWording = "1";
   document.head.appendChild(overlapWording);
-}
-
-// Keep the All-Time helper copy aligned with the optional account launch without
-// coupling the leaderboard module to Auth internals.
-if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled) {
-  const updateAccountCopy = () => {
-    const note = document.querySelector(".leaderboard-alltime-note");
-    if (!note) return false;
-    note.innerHTML = "<strong>Scoring:</strong> each verified daily efficiency contributes up to 100 All-Time points. Ties go to higher average efficiency, then more wins, more podiums, then the earliest first verified entry. Sign in to sync your verified All-Time record across devices; guest play remains device-based.";
-    return true;
-  };
-  if (!updateAccountCopy()) {
-    const observer = new MutationObserver(() => {
-      if (updateAccountCopy()) observer.disconnect();
-    });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-  }
 }

@@ -164,7 +164,7 @@
       <div class="leaderboard-alltime-toolbar"><span id="leaderboardAllTimeCount">All-time standings</span><button class="leaderboard-refresh" id="leaderboardAllTimeRefresh" type="button">Refresh</button></div>
       <div class="leaderboard-alltime-personal" id="leaderboardAllTimePersonal" hidden></div>
       <div class="leaderboard-table-wrap"><table class="leaderboard-table"><thead><tr><th>#</th><th>Player</th><th>All-Time Score</th><th>Games</th><th>Avg Eff.</th><th>Wins</th><th>Podiums</th></tr></thead><tbody id="leaderboardAllTimeRows"><tr><td colspan="7" class="leaderboard-empty">Open All-Time to load standings.</td></tr></tbody></table></div>
-      <p class="leaderboard-alltime-note"><strong>Scoring:</strong> each verified daily efficiency contributes up to 100 All-Time points. Ties go to higher average efficiency, then more wins, more podiums, then the earliest first verified entry. All-Time identity is currently tied to this browser/device until accounts are added.</p>`;
+      <p class="leaderboard-alltime-note"><strong>Scoring:</strong> each verified daily efficiency contributes up to 100 All-Time points. Ties go to higher average efficiency, then more wins, more podiums, then the earliest first verified entry. Sign in to sync your verified All-Time record across devices; guest play remains device-based.</p>`;
     tabs.insertAdjacentElement("afterend", section);
 
     tabs.addEventListener("click", event => {

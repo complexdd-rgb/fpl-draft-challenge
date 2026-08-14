@@ -19,6 +19,9 @@
   let state = STATUS.CONNECTING;
   let lastRows = [];
   let refreshTimer = null;
+  let leaderboardActivated = false;
+  let activationObserver = null;
+  window.FPL_LEADERBOARD_ACTIVE = false;
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const readJson = key => { try { return JSON.parse(localStorage.getItem(key) || "null"); } catch { return null; } };
@@ -133,8 +136,8 @@
     input.addEventListener("input",()=>{localStorage.setItem(NAME_KEY,input.value.trim());renderNameState();updateSubmitButton();});
     document.getElementById("leaderboardEditName")?.addEventListener("click",()=>{input.disabled=false;input.focus();input.select();});
     document.getElementById("leaderboardSubmitResult")?.addEventListener("click",()=>submitPendingResult());
-    document.getElementById("leaderboardRefresh")?.addEventListener("click",()=>loadLeaderboard({manual:true}));
-    renderSkeleton();
+    document.getElementById("leaderboardRefresh")?.addEventListener("click",()=>{if(!leaderboardActivated)activateLeaderboard();else loadLeaderboard({manual:true});});
+    renderDeferredState();
     enhanceMobileNav();
   }
 
@@ -150,6 +153,7 @@
   function setMessage(text,type="info"){const el=document.getElementById("leaderboardMessage");if(!el)return;el.textContent=text||"";el.className=`leaderboard-message ${text?type:"hidden"}`;}
   function renderNameState(){const input=document.getElementById("leaderboardDisplayName"),help=document.getElementById("leaderboardNameHelp");if(!input||!help)return;const name=input.value.trim();if(!name){help.textContent="Choose the name that will appear next to your daily result.";return;}help.textContent=validName(name)?"Name ready. It is saved only in this browser for now.":"Use 2–20 letters, numbers, spaces, underscores, dots or hyphens.";}
   function renderSkeleton(){const body=document.getElementById("leaderboardRows");if(!body)return;body.innerHTML=Array.from({length:5},()=>'<tr><td colspan="6"><div class="leaderboard-skeleton"></div></td></tr>').join("");}
+  function renderDeferredState(){const body=document.getElementById("leaderboardRows");if(!body)return;body.innerHTML='<tr><td class="leaderboard-empty" colspan="6">Standings load automatically when you reach this section.</td></tr>';}
 
   function recoverCompletedRecord(){
     const saved=readJson(GAME_STORE); const record=saved?.completedRecord;
@@ -184,7 +188,7 @@
     const detail=event.detail||{}; queue(async()=>{const attempt=await ensureServerAttempt();if(!attempt?.attemptId)return;const result=await api(cfg.functions.pick,{attemptId:attempt.attemptId,challengeId:challenge.id,clientId:getClientId(),promptId:detail.promptId,playerId:detail.playerId,season:detail.season});setState(STATUS.READY);if(result.valid===false){setStatus(`Server rejected that pick · penalties now ${Number(result.penaltyPoints)||0}`);setMessage("That invalid attempt has been recorded by the leaderboard verifier.","info");}else{setStatus(`Verified attempt active · server penalties ${Number(result.penaltyPoints)||0}`);setMessage("");}});
   }
 
-  function onCompleted(event){const record=event.detail?.record;if(!record||record.official===false||runtime.archiveMode)return;pendingCompletedRecord=record;setState(STATUS.READY);setStatus("XI complete · ready for server verification.");setMessage("Enter or confirm your display name, then submit the result.","info");updateSubmitButton();}
+  function onCompleted(event){const record=event.detail?.record;if(!record||record.official===false||runtime.archiveMode)return;pendingCompletedRecord=record;activateLeaderboard();setState(STATUS.READY);setStatus("XI complete · ready for server verification.");setMessage("Enter or confirm your display name, then submit the result.","info");updateSubmitButton();}
 
   async function submitPendingResult(){
     if(!pendingCompletedRecord)return; const saved=readJson(submittedKey()); if(saved){showPersonal(saved);setState(STATUS.DUPLICATE);return;}
@@ -218,15 +222,29 @@
       const data=await api(cfg.functions.list,{challengeId:challenge.id,limit:Number(cfg.topLimit)||20,clientId:getClientId()}); const rows=Array.isArray(data.entries)?data.entries:[];lastRows=rows;renderRows(rows);renderPodium(rows);
       const count=Number(data.total)||rows.length;const countEl=document.getElementById("leaderboardCount");if(countEl)countEl.textContent=`${count.toLocaleString()} verified finish${count===1?"":"es"}`;
       if(data.viewer){showPersonal(data.viewer);writeJson(submittedKey(),data.viewer);setState(STATUS.ACCEPTED);setStatus(`You are #${Number(data.viewer.rank)||"–"} of ${count.toLocaleString()} verified finish${count===1?"":"es"}.`);}else if(state!==STATUS.VERIFYING){setState(STATUS.READY);setStatus(count?`${count.toLocaleString()} verified finishes today.`:"Leaderboard ready · no verified finishes yet today.");}
-      setMessage("");updateSubmitButton();window.dispatchEvent(new CustomEvent("fpl:leaderboard-updated",{detail:{challengeId:challenge.id,total:count,entries:rows,viewer:data.viewer||null}}));
+      setMessage("");updateSubmitButton();const detail={challengeId:challenge.id,total:count,entries:rows,viewer:data.viewer||null};window.FPL_LEADERBOARD_LAST_UPDATE=detail;window.dispatchEvent(new CustomEvent("fpl:leaderboard-updated",{detail}));
     }catch(error){handleError(error);}finally{if(button)button.disabled=false;}
   }
 
-  function startRefreshLoop(){clearInterval(refreshTimer);const seconds=Math.max(15,Number(cfg.refreshSeconds)||60);refreshTimer=setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine)loadLeaderboard();},seconds*1000);}
-  function networkChanged(){if(navigator.onLine){setState(STATUS.CONNECTING);setStatus("Connection restored · refreshing leaderboard…");loadLeaderboard({manual:true});}else handleError(new TypeError("Offline"));}
+  function startRefreshLoop(){clearInterval(refreshTimer);const seconds=Math.max(15,Number(cfg.refreshSeconds)||60);refreshTimer=setInterval(()=>{if(leaderboardActivated&&document.visibilityState==="visible"&&navigator.onLine)loadLeaderboard();},seconds*1000);}
+  function activateLeaderboard(){
+    if(leaderboardActivated)return;
+    leaderboardActivated=true;window.FPL_LEADERBOARD_ACTIVE=true;activationObserver?.disconnect();
+    setState(STATUS.CONNECTING);setStatus("Loading today’s verified standings…");renderSkeleton();loadLeaderboard({manual:true});startRefreshLoop();
+    window.dispatchEvent(new CustomEvent("fpl:leaderboard-visible"));
+  }
+  function installLazyActivation(){
+    const panel=document.getElementById("liveLeaderboardPanel");if(!panel)return;
+    if(!("IntersectionObserver" in window)){setTimeout(activateLeaderboard,1200);return;}
+    activationObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))activateLeaderboard();},{rootMargin:"650px 0px"});
+    activationObserver.observe(panel);
+  }
+  function networkChanged(){if(navigator.onLine){if(leaderboardActivated){setState(STATUS.CONNECTING);setStatus("Connection restored · refreshing leaderboard…");loadLeaderboard({manual:true});}else{setState(STATUS.READY,"Standby");setStatus("Leaderboard ready when you reach this section.");}}else handleError(new TypeError("Offline"));}
 
   renderShell(); recoverCompletedRecord(); renderNameState();
   window.addEventListener("fpl:attempt-started",onAttemptStarted); window.addEventListener("fpl:pick-attempt",onPickAttempt); window.addEventListener("fpl:challenge-completed",onCompleted); window.addEventListener("online",networkChanged); window.addEventListener("offline",networkChanged);
-  window.FPL_LEADERBOARD_REFRESH=()=>loadLeaderboard({manual:true});
-  const saved=readJson(submittedKey());if(saved)showPersonal(saved);updateSubmitButton();loadLeaderboard();startRefreshLoop();
+  window.FPL_LEADERBOARD_REFRESH=()=>{if(leaderboardActivated)loadLeaderboard({manual:true});};
+  window.FPL_LEADERBOARD_ACTIVATE=activateLeaderboard;
+  const saved=readJson(submittedKey());if(saved)showPersonal(saved);updateSubmitButton();installLazyActivation();
+  if(pendingCompletedRecord||saved){requestAnimationFrame(()=>setTimeout(activateLeaderboard,120));}else{setState(STATUS.READY,"Standby");setStatus("Leaderboard loads when you reach this section.");}
 })();

@@ -8,6 +8,7 @@
   if (!cfg?.enabled || !cfg?.playerProfile || !cfg?.accounts?.enabled || runtime.archiveMode) return;
 
   let started = false;
+  let scheduled = false;
 
   function loadCore() {
     if (started || document.querySelector('script[data-player-profile-core]')) return;
@@ -48,23 +49,21 @@
   }
 
   function scheduleAfterFirstPaint() {
+    if (started || scheduled || !window.FPL_ACCOUNT_AUTH?.signedIn) return;
+    scheduled = true;
     requestAnimationFrame(() => requestAnimationFrame(() => {
       if (typeof requestIdleCallback === "function") {
-        requestIdleCallback(loadCore, { timeout: 3500 });
+        requestIdleCallback(loadCore, { timeout: 2400 });
       } else {
-        setTimeout(loadCore, 900);
+        setTimeout(loadCore, 500);
       }
     }));
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", scheduleAfterFirstPaint, { once: true });
-  } else {
-    scheduleAfterFirstPaint();
-  }
-
-  // If somebody somehow completes the challenge before the idle loader fires, profile sync
-  // becomes useful immediately and should no longer wait for the idle window.
-  window.addEventListener("fpl:challenge-completed", loadCore, { once: true });
+  scheduleAfterFirstPaint();
+  window.addEventListener("fpl:account-auth-changed", event => {
+    if (event.detail?.signedIn) scheduleAfterFirstPaint();
+  });
+  window.addEventListener("fpl:challenge-completed", scheduleAfterFirstPaint, { once: true });
   window.FPL_LOAD_PLAYER_PROFILE_NOW = loadCore;
 })();
