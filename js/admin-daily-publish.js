@@ -34,8 +34,97 @@
     }));
   }
 
+  function installWorkflowStyles() {
+    if (document.getElementById("fpl-spoiler-safe-publish-css")) return;
+    const style = document.createElement("style");
+    style.id = "fpl-spoiler-safe-publish-css";
+    style.textContent = `
+      .spoiler-publish-flow{margin:14px 0 4px;padding:15px;border:1px solid rgba(57,232,143,.18);border-radius:17px;background:linear-gradient(145deg,rgba(12,34,24,.88),rgba(6,23,16,.94))}
+      .spoiler-publish-flow-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+      .spoiler-publish-flow-head span,.spoiler-publish-flow-head strong{display:block}
+      .spoiler-publish-flow-head span{color:#9bb7a8;font-size:.66rem;font-weight:950;letter-spacing:.1em;text-transform:uppercase}
+      .spoiler-publish-flow-head strong{margin-top:3px;color:#f4fff8;font-size:.96rem}
+      .spoiler-publish-badge{flex:0 0 auto!important;margin:0!important;padding:5px 8px;border:1px solid rgba(98,201,255,.2);border-radius:999px;background:rgba(98,201,255,.08);color:#62c9ff!important;font-size:.62rem!important;letter-spacing:.08em!important}
+      .spoiler-publish-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+      .spoiler-publish-step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:center;min-width:0;padding:10px;border:1px solid rgba(174,226,199,.1);border-radius:13px;background:rgba(0,0,0,.13)}
+      .spoiler-publish-step-index{display:grid;place-items:center;width:30px;height:30px;border:1px solid rgba(174,226,199,.15);border-radius:10px;background:rgba(255,255,255,.035);color:#9bb7a8;font-size:.7rem;font-weight:1000}
+      .spoiler-publish-step strong,.spoiler-publish-step small,.spoiler-publish-step em{display:block;min-width:0}
+      .spoiler-publish-step strong{color:#dcece3;font-size:.76rem;line-height:1.15}
+      .spoiler-publish-step small{margin-top:3px;overflow:hidden;color:#809b8c;font-size:.64rem;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+      .spoiler-publish-step em{grid-column:1/-1;margin-top:1px;color:#809b8c;font-size:.62rem;font-style:normal;font-weight:950;letter-spacing:.06em;text-transform:uppercase}
+      .spoiler-publish-step[data-state="done"]{border-color:rgba(57,232,143,.23);background:rgba(57,232,143,.055)}
+      .spoiler-publish-step[data-state="done"] .spoiler-publish-step-index{border-color:rgba(57,232,143,.28);background:rgba(57,232,143,.12);color:#39e88f}
+      .spoiler-publish-step[data-state="done"] em{color:#62eaa3}
+      .spoiler-publish-step[data-state="ready"],.spoiler-publish-step[data-state="active"]{border-color:rgba(98,201,255,.25);background:rgba(98,201,255,.06)}
+      .spoiler-publish-step[data-state="ready"] .spoiler-publish-step-index,.spoiler-publish-step[data-state="active"] .spoiler-publish-step-index{border-color:rgba(98,201,255,.28);background:rgba(98,201,255,.1);color:#62c9ff}
+      .spoiler-publish-step[data-state="ready"] em,.spoiler-publish-step[data-state="active"] em{color:#62c9ff}
+      .spoiler-publish-note{margin:11px 1px 0;color:#809b8c;font-size:.68rem;line-height:1.4}
+      @media(max-width:720px){.spoiler-publish-steps{grid-template-columns:1fr 1fr}.spoiler-publish-step{padding:9px}}
+      @media(max-width:390px){.spoiler-publish-flow{padding:13px}.spoiler-publish-step{grid-template-columns:26px minmax(0,1fr);gap:7px}.spoiler-publish-step-index{width:26px;height:26px}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function installWorkflow(status) {
+    if (document.getElementById("spoilerPublishFlow")) return;
+    const flow = document.createElement("section");
+    flow.id = "spoilerPublishFlow";
+    flow.className = "spoiler-publish-flow";
+    flow.setAttribute("aria-label", "Spoiler-safe publishing workflow");
+    flow.innerHTML = `
+      <div class="spoiler-publish-flow-head">
+        <div><span>Publishing workflow</span><strong>Spoiler-safe challenge status</strong></div>
+        <span class="spoiler-publish-badge">No spoilers</span>
+      </div>
+      <div class="spoiler-publish-steps">
+        <article class="spoiler-publish-step" data-publish-step="generate" data-state="active">
+          <span class="spoiler-publish-step-index">1</span><div><strong>Generate</strong><small>Build 7 days</small></div><em>Waiting</em>
+        </article>
+        <article class="spoiler-publish-step" data-publish-step="validate" data-state="locked">
+          <span class="spoiler-publish-step-index">2</span><div><strong>Validate</strong><small>All 7 pass</small></div><em>Locked</em>
+        </article>
+        <article class="spoiler-publish-step" data-publish-step="publish" data-state="locked">
+          <span class="spoiler-publish-step-index">3</span><div><strong>Publish</strong><small>Send schedule</small></div><em>Locked</em>
+        </article>
+        <article class="spoiler-publish-step" data-publish-step="rollover" data-state="locked">
+          <span class="spoiler-publish-step-index">4</span><div><strong>Midnight</strong><small>Automatic switch</small></div><em>After publish</em>
+        </article>
+      </div>
+      <p class="spoiler-publish-note">Only safe admin metadata is shown here — no prompt wording, player names, answers or perfect XI.</p>
+    `;
+    status.insertAdjacentElement("afterend", flow);
+    updateWorkflow();
+  }
+
+  function setWorkflowStep(name, state, label) {
+    const step = document.querySelector(`[data-publish-step="${name}"]`);
+    if (!step) return;
+    step.dataset.state = state;
+    const text = step.querySelector("em");
+    if (text) text.textContent = label;
+  }
+
+  function updateWorkflow() {
+    const status = document.getElementById("dailyPublishStatus");
+    const batchReady = !downloadButton.disabled;
+    const statusState = status?.dataset.state || "";
+    const published = statusState === "published";
+
+    setWorkflowStep("generate", batchReady ? "done" : "active", batchReady ? "Complete" : "Waiting");
+    setWorkflowStep("validate", batchReady ? "done" : "locked", batchReady ? "7 / 7 passed" : "Locked");
+
+    if (publishing) setWorkflowStep("publish", "active", "Publishing");
+    else if (published) setWorkflowStep("publish", "done", "Scheduled");
+    else if (batchReady) setWorkflowStep("publish", "ready", "Ready");
+    else setWorkflowStep("publish", "locked", "Locked");
+
+    setWorkflowStep("rollover", published ? "done" : "locked", published ? "Automatic" : "After publish");
+  }
+
   function installUi() {
     if (document.getElementById("publishWeekSupabaseBtn")) return;
+    installWorkflowStyles();
+
     const button = document.createElement("button");
     button.id = "publishWeekSupabaseBtn";
     button.className = "button secondary";
@@ -53,12 +142,15 @@
     if (batchStatus) batchStatus.insertAdjacentElement("afterend", status);
     else button.parentElement?.insertAdjacentElement("afterend", status);
 
+    installWorkflow(status);
     button.addEventListener("click", publishCurrentBatch);
     const sync = () => {
       button.disabled = publishing || downloadButton.disabled;
       if (!publishing && downloadButton.disabled && /ready to publish|published|scheduled/i.test(status.textContent || "")) {
         status.textContent = "Generate and validate a seven-day batch to unlock direct publishing.";
+        status.dataset.state = "neutral";
       }
+      updateWorkflow();
     };
     new MutationObserver(sync).observe(downloadButton, { attributes: true, attributeFilter: ["disabled"] });
     sync();
@@ -70,6 +162,7 @@
     if (!status) return;
     status.textContent = message;
     status.dataset.state = type;
+    updateWorkflow();
   }
 
   async function accessToken() {
@@ -227,14 +320,15 @@
       const challenges = buildPublishPayload(files);
       setStatus(`Publishing ${challenges.length} validated challenge${challenges.length === 1 ? "" : "s"} and private verifiers to Supabase…`, "working");
       const result = await api({ action: "publish", challenges });
-      setStatus(`${Number(result.published) || challenges.length} challenge${challenges.length === 1 ? "" : "s"} scheduled successfully · ${result.firstDate} to ${result.lastDate}. Midnight rollover is automatic.`, "published");
       await refreshScheduleStatus();
+      setStatus(`${Number(result.published) || challenges.length} challenge${challenges.length === 1 ? "" : "s"} scheduled successfully · ${result.firstDate} to ${result.lastDate}. Midnight rollover is automatic.`, "published");
     } catch (error) {
       console.error(error);
       setStatus(error?.message || "The challenge week could not be published.", "error");
     } finally {
       publishing = false;
       if (button) { button.textContent = "Publish week to Supabase"; button.disabled = downloadButton.disabled; }
+      updateWorkflow();
     }
   }
 
