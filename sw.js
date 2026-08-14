@@ -1,4 +1,4 @@
-const CACHE_NAME = "fpl-draft-challenge-studio-refresh-v7";
+const CACHE_NAME = "fpl-draft-challenge-studio-refresh-v8";
 const STATIC_ASSETS = [
   "./manifest.webmanifest",
   "./icons/icon-192.svg",
@@ -14,7 +14,7 @@ function isDynamic(url, request){
   return request.mode === "navigate"
     || /\/(index|admin)\.html$/.test(url.pathname)
     || /\.css$/.test(url.pathname)
-    || /\/(players|prompt-library)\.js$/.test(url.pathname)
+    || /\/(players|players-live|prompt-library)\.js$/.test(url.pathname)
     || /\/challenges\//.test(url.pathname)
     || /\/data\/[^/]+\.js$/.test(url.pathname)
     || /\/js\/[^/]+\.js$/.test(url.pathname);
