@@ -1,0 +1,128 @@
+/* FPL Challenge Studio · Leaderboard polish v1.0.0 */
+
+#leaderboardBackendPanel .panel-heading > div:first-child > .eyebrow {
+  font-size: 0;
+}
+
+#leaderboardBackendPanel .panel-heading > div:first-child > .eyebrow::after {
+  content: "LIVE SERVICES";
+  font-size: .72rem;
+}
+
+#leaderboardBackendHeading {
+  font-size: 0;
+}
+
+#leaderboardBackendHeading::after {
+  content: "Leaderboard status";
+  font-size: clamp(1.65rem, 4vw, 2.05rem);
+  line-height: 1.1;
+}
+
+#leaderboardBackendPanel .panel-heading .section-copy {
+  max-width: 650px;
+  font-size: 0;
+}
+
+#leaderboardBackendPanel .panel-heading .section-copy::after {
+  content: "Live leaderboard services are connected and operating normally. Use the health check below only when you need to verify the public connection.";
+  font-size: .94rem;
+  line-height: 1.55;
+}
+
+#leaderboardBackendPanel .panel-heading {
+  align-items: flex-start;
+}
+
+#leaderboardBackendChip.live {
+  min-width: 58px;
+  justify-content: center;
+  box-shadow: 0 0 0 1px rgba(57, 232, 143, .05), 0 8px 24px rgba(57, 232, 143, .08);
+}
+
+#leaderboardBackendStatus .leaderboard-health-item {
+  min-height: 0;
+}
+
+#leaderboardBackendStatus .leaderboard-health-item strong {
+  letter-spacing: -.01em;
+}
+
+#leaderboardBackendStatus .leaderboard-health-message.good {
+  position: relative;
+  padding-left: 38px;
+}
+
+#leaderboardBackendStatus .leaderboard-health-message.good::before {
+  content: "✓";
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(57, 232, 143, .14);
+  color: var(--stage-green, #39e88f);
+  font-weight: 1000;
+}
+
+@media (max-width: 700px) {
+  #leaderboardBackendPanel {
+    padding: 20px 18px;
+  }
+
+  #leaderboardBackendPanel .panel-heading {
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  #leaderboardBackendPanel .panel-heading > div:first-child > .eyebrow::after {
+    font-size: .66rem;
+  }
+
+  #leaderboardBackendHeading::after {
+    font-size: 1.72rem;
+  }
+
+  #leaderboardBackendPanel .panel-heading .section-copy::after {
+    font-size: .86rem;
+    line-height: 1.48;
+  }
+
+  #leaderboardBackendStatus .leaderboard-health-grid {
+    gap: 8px;
+  }
+
+  #leaderboardBackendStatus .leaderboard-health-item {
+    min-height: 88px;
+    padding: 10px;
+  }
+
+  #leaderboardBackendStatus .leaderboard-health-item span {
+    font-size: .56rem;
+  }
+
+  #leaderboardBackendStatus .leaderboard-health-item strong {
+    margin-top: 4px;
+    font-size: .79rem;
+  }
+
+  #leaderboardBackendStatus .leaderboard-health-item small {
+    font-size: .59rem;
+    line-height: 1.32;
+  }
+
+  #leaderboardBackendStatus .leaderboard-health-actions {
+    margin-top: 10px;
+  }
+
+  #leaderboardBackendStatus .leaderboard-health-message {
+    margin-top: 8px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    font-size: .67rem;
+  }
+}
