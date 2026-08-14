@@ -310,10 +310,29 @@
     players: freezeArray(publicSummaries)
   });
 
-  /* Career Shape rules are shared by Studio and the live game and still load before
-     prompt consumers. The Studio-only editor/generator layer is now loaded lazily when
-     Prompt Studio is opened by admin-import-tools.js. */
-  if (document.readyState === "loading") {
+  /* Career Shape derivation is mandatory in Studio/certification, but the live game only
+     needs it when today's prompt set actually references _careerShape or the strict PL
+     A→B→A return family whose wording/semantics are normalised by the same rule pack. */
+  const isStudio = /\/admin(?:\.html)?$/i.test(window.location.pathname)
+    || Boolean(document.querySelector("main.studio-shell"));
+  const livePrompts = Array.isArray(window.FPL_DAILY_CHALLENGE?.prompts)
+    ? window.FPL_DAILY_CHALLENGE.prompts
+    : [];
+  const liveNeedsCareerShape = livePrompts.some(prompt => {
+    const id = String(prompt?.id || "");
+    const family = String(prompt?.family || "");
+    const tags = Array.isArray(prompt?.tags) ? prompt.tags.join(" ") : "";
+    const label = String(prompt?.label || "");
+    const testSource = typeof prompt?.test === "function" ? String(prompt.test) : "";
+    return testSource.includes("_careerShape")
+      || /career[-_]?shape/i.test(family)
+      || /^career_shape_/i.test(id)
+      || /returned_to_former_club/i.test(id)
+      || /returned-club|pl-a-b-a-return/i.test(tags)
+      || /returned to a former Premier League club/i.test(label);
+  });
+
+  if (document.readyState === "loading" && (isStudio || liveNeedsCareerShape)) {
     document.write('<script src="js/career-shape-rules.js?v=1.1.2-repair"><\/script>');
   }
 })();
