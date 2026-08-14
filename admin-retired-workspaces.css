@@ -1,0 +1,8 @@
+/* FPL Challenge Studio — retired workspaces.
+   Historical Imports was a one-off 2015/16 archive importer and is no longer part of the active Studio workflow. */
+
+.studio-nav-button[data-open-workspace="imports"],
+.dashboard-action-card[data-open-workspace="imports"],
+.studio-workspace[data-workspace="imports"] {
+  display: none !important;
+}
