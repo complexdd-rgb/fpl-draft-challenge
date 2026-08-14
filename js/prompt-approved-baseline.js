@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — approved prompt baseline v1.0.0
+/* FPL Challenge Studio — approved prompt baseline v1.0.1
    Applies the user's 14 Aug 2026 Prompt Studio cleanup without replacing prompt objects.
    Existing baseline prompts must be on the approved list and rated 4★ or 5★.
    New browser-created custom prompts remain possible, but also have to meet the 4★ floor. */
@@ -53,7 +53,7 @@
 
     window.FPL_APPROVED_PROMPT_BASELINE = Object.freeze({
       ready: true,
-      version: "1.0.0",
+      version: "1.0.1",
       approvedExpected: EXPECTED_APPROVED,
       approvedPresent: baselinePresent,
       total: library.length,
@@ -65,6 +65,11 @@
     });
 
     window.dispatchEvent(new CustomEvent("fpl:approved-prompt-baseline-ready", { detail: window.FPL_APPROVED_PROMPT_BASELINE }));
+    setTimeout(() => {
+      const search = document.getElementById("promptManagerSearch");
+      if (search) search.dispatchEvent(new Event("input", { bubbles: true }));
+      window.dispatchEvent(new CustomEvent("fpl:prompt-library-changed", { detail: window.FPL_APPROVED_PROMPT_BASELINE }));
+    }, 0);
     return true;
   }
 
