@@ -1,0 +1,191 @@
+/* FPL Challenge Studio — Seven-day review cards v1
+   Visual-only upgrade: keeps the existing batch generator and validation logic untouched. */
+
+.batch-review .batch-table-wrap {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.batch-review .batch-table {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  border-collapse: separate;
+}
+
+.batch-review .batch-table thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.batch-review .batch-table tbody {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.batch-review .batch-table tbody tr {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+  padding: 17px;
+  overflow: hidden;
+  border: 1px solid rgba(174, 226, 199, .15);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(57, 232, 143, .08), transparent 12rem),
+    linear-gradient(145deg, rgba(16, 39, 29, .96), rgba(8, 25, 18, .98));
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .16);
+}
+
+.batch-review .batch-table tbody tr::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: #39e88f;
+  opacity: .9;
+}
+
+.batch-review .batch-table tbody tr:has(.batch-fail) {
+  border-color: rgba(255, 127, 153, .3);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 127, 153, .08), transparent 12rem),
+    linear-gradient(145deg, rgba(42, 24, 28, .96), rgba(24, 16, 18, .98));
+}
+
+.batch-review .batch-table tbody tr:has(.batch-fail)::after {
+  background: #ff7f99;
+}
+
+.batch-review .batch-table td {
+  display: block;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(174, 226, 199, .1);
+  border-radius: 13px;
+  background: rgba(0, 0, 0, .12);
+  color: #f4fff8;
+  vertical-align: top;
+}
+
+.batch-review .batch-table td::before {
+  display: block;
+  margin-bottom: 5px;
+  color: #8ea99a;
+  font-size: .62rem;
+  font-weight: 950;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.batch-review .batch-table td:nth-child(1)::before { content: "Date"; }
+.batch-review .batch-table td:nth-child(2)::before { content: "Challenge"; }
+.batch-review .batch-table td:nth-child(3)::before { content: "Difficulty"; }
+.batch-review .batch-table td:nth-child(4)::before { content: "Formation"; }
+.batch-review .batch-table td:nth-child(5)::before { content: "Perfect score"; }
+.batch-review .batch-table td:nth-child(6)::before { content: "Anti-meta"; }
+.batch-review .batch-table td:nth-child(7)::before { content: "Validation"; }
+
+.batch-review .batch-table td:nth-child(2) {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  padding: 13px 14px;
+  border-color: rgba(98, 201, 255, .16);
+  background: linear-gradient(135deg, rgba(98, 201, 255, .07), rgba(57, 232, 143, .04));
+}
+
+.batch-review .batch-table td:nth-child(1) {
+  grid-row: 2;
+}
+
+.batch-review .batch-table td:nth-child(7) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.batch-review .batch-table td:nth-child(3),
+.batch-review .batch-table td:nth-child(4),
+.batch-review .batch-table td:nth-child(5),
+.batch-review .batch-table td:nth-child(6) {
+  grid-row: auto;
+}
+
+.batch-review .batch-table td strong {
+  color: #f4fff8;
+  font-size: .94rem;
+  line-height: 1.25;
+}
+
+.batch-review .batch-table td:nth-child(2) strong {
+  font-size: 1.02rem;
+}
+
+.batch-review .batch-table td > span:not(.batch-status) {
+  margin-top: 4px;
+  color: #9bb7a8;
+  font-size: .76rem;
+  line-height: 1.35;
+}
+
+.batch-review .batch-table td:nth-child(5),
+.batch-review .batch-table td:nth-child(6) {
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.batch-review .batch-status {
+  margin-top: 1px;
+  padding: 5px 9px;
+  font-size: .66rem;
+}
+
+.batch-review .batch-table small {
+  margin-top: 7px;
+  max-width: none;
+  color: #9bb7a8;
+  font-size: .72rem;
+  line-height: 1.4;
+}
+
+.batch-review .batch-empty {
+  padding: 18px;
+  border-color: rgba(174, 226, 199, .15);
+  border-radius: 17px;
+  background: rgba(11, 29, 22, .72);
+}
+
+@media (max-width: 720px) {
+  .batch-review .batch-table tbody {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-review .batch-table tbody tr {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .batch-review .batch-table tbody tr {
+    gap: 8px;
+  }
+
+  .batch-review .batch-table td {
+    padding: 10px;
+  }
+
+  .batch-review .batch-table td:nth-child(2) {
+    padding: 12px;
+  }
+}
