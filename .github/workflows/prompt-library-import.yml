@@ -26,7 +26,17 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          cat .prompt-library-import/part-*.txt | base64 -d | xz -d > prompt-library.js
+          cat \
+            .prompt-library-import/part-00.txt \
+            .prompt-library-import/part-01.txt \
+            .prompt-library-import/part-02.txt \
+            .prompt-library-import/part-03.txt \
+            .prompt-library-import/part-04a.txt \
+            .prompt-library-import/part-04b.txt \
+            .prompt-library-import/part-04c.txt \
+            .prompt-library-import/part-05.txt \
+            .prompt-library-import/part-06.txt \
+            | base64 -d | xz -d > prompt-library.js
 
       - name: Verify exact reviewed artifact
         shell: bash
