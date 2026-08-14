@@ -30,6 +30,7 @@ jobs:
           node --check js/leaderboard-config.js
           node --check js/leaderboard-admin-status.js
           node --check js/career-context.js
+          node --check js/career-overlap-wording.js
           node --check js/career-shape-rules.js
           node --check js/career-shape-studio.js
           node --check js/career-shape-unified-generator.js
