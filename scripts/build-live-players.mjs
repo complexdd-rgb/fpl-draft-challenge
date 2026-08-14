@@ -4,7 +4,15 @@ import vm from 'node:vm';
 const sourcePath = 'players.js';
 const outputPath = 'players-live.js';
 const source = fs.readFileSync(sourcePath, 'utf8');
-const sandbox = { window: {} };
+const sandbox = {
+  window: {
+    addEventListener() {},
+    removeEventListener() {}
+  },
+  console,
+  setTimeout() { return 0; },
+  clearTimeout() {}
+};
 vm.createContext(sandbox);
 vm.runInContext(source, sandbox, { filename: sourcePath, timeout: 30000 });
 
