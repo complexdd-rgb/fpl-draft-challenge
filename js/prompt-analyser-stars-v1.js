@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Prompt Quality Analyser star-rating UI v1.0.0
+/* FPL Challenge Studio — Prompt Quality Analyser star-rating UI v1.0.1
    Keeps the analyser's detailed scoring engine intact, but presents its recommendations
    in the same 1–5★ language used by the Prompt Library and generator. */
 (() => {
@@ -9,7 +9,9 @@
   let queued = false;
 
   const root = () => document.getElementById("promptQualityAnalyser");
-  const stars = rating => `${"★".repeat(Math.max(0, Math.min(5, Math.round(Number(rating) || 0))))}${"☆".repeat(5 - Math.max(0, Math.min(5, Math.round(Number(rating) || 0))))}`;
+  const clampRating = rating => Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+  const stars = rating => `${"★".repeat(clampRating(rating))}${"☆".repeat(5 - clampRating(rating))}`;
+  const setText = (node, value) => { if (node && node.textContent !== value) node.textContent = value; };
 
   function optionLabel(selectId, value, label) {
     const option = document.querySelector(`#${selectId} option[value="${value}"]`);
@@ -39,7 +41,9 @@
     }
 
     const apply = document.getElementById("applyQualityRatingsBtn");
-    if (apply && /rating/i.test(apply.textContent || "")) apply.textContent = "Apply suggested star ratings";
+    if (apply && /rating/i.test(apply.textContent || "") && apply.textContent !== "Apply suggested star ratings") {
+      apply.textContent = "Apply suggested star ratings";
+    }
   }
 
   function results() {
@@ -55,14 +59,14 @@
     const count = rating => items.filter(item => Number(item.suggestedRating) === rating).length;
     const enabled = items.filter(item => item.enabled).length;
     const suggestedDisable = items.filter(item => !item.suggestedEnabled && item.enabled).length;
-    summary.innerHTML = `
-      <article><span>Analysed</span><strong>${total.toLocaleString("en-GB")}</strong></article>
+    const html = `<article><span>Analysed</span><strong>${total.toLocaleString("en-GB")}</strong></article>
       <article><span>Average rating</span><strong>${average.toFixed(1)}★</strong></article>
       <article><span>5★</span><strong>${count(5)}</strong></article>
       <article><span>4★</span><strong>${count(4)}</strong></article>
       <article><span>3★ and below</span><strong>${count(1) + count(2) + count(3)}</strong></article>
       <article><span>Enabled</span><strong>${enabled}</strong></article>
       <article><span>Suggested disables</span><strong>${suggestedDisable}</strong></article>`;
+    if (summary.innerHTML.trim() !== html.trim()) summary.innerHTML = html;
   }
 
   function patchCard(card, byId) {
@@ -76,23 +80,25 @@
       const strong = score.querySelector("strong");
       const span = score.querySelector("span");
       const em = score.querySelector("em");
-      if (strong) strong.textContent = `${rating}★`;
-      if (span) { span.textContent = stars(rating); span.classList.add("quality-star-strip"); }
-      if (em) em.textContent = rating === current ? "Keep rating" : "Suggested";
-      score.setAttribute("aria-label", `${rating} out of 5 stars`);
+      setText(strong, `${rating}★`);
+      setText(span, stars(rating));
+      if (span) span.classList.add("quality-star-strip");
+      setText(em, rating === current ? "Keep rating" : "Suggested");
+      const aria = `${rating} out of 5 stars`;
+      if (score.getAttribute("aria-label") !== aria) score.setAttribute("aria-label", aria);
     }
     const meter = card.querySelector(".quality-meter > span");
-    if (meter) meter.style.width = `${rating * 20}%`;
+    if (meter && meter.style.width !== `${rating * 20}%`) meter.style.width = `${rating * 20}%`;
 
     for (const detail of card.querySelectorAll(".quality-detail-grid strong")) {
       const text = detail.textContent || "";
       const next = text
         .replace(/Keep rating\s+(\d)\/5/gi, "Keep $1★")
         .replace(/Rating\s+(\d)\/5\s*→\s*(\d)\/5/gi, "$1★ → $2★");
-      if (next !== text) detail.textContent = next;
+      setText(detail, next);
     }
     const why = card.querySelector(".quality-details > summary");
-    if (why && /score/i.test(why.textContent || "")) why.textContent = "Why it received this star rating";
+    if (why && /score/i.test(why.textContent || "")) setText(why, "Why it received this star rating");
   }
 
   function patchStatus(items) {
@@ -101,7 +107,7 @@
     const five = items.filter(item => Number(item.suggestedRating) === 5).length;
     const four = items.filter(item => Number(item.suggestedRating) === 4).length;
     const below = items.filter(item => Number(item.suggestedRating) < 4).length;
-    status.textContent = `Analysis complete: ${five} rated 5★, ${four} rated 4★, ${below} below the 4★ library standard. Nothing has been changed automatically.`;
+    setText(status, `Analysis complete: ${five} rated 5★, ${four} rated 4★, ${below} below the 4★ library standard. Nothing has been changed automatically.`);
   }
 
   function patch() {
@@ -132,7 +138,7 @@
       style.textContent = `#promptQualityAnalyser .quality-score{min-width:90px}#promptQualityAnalyser .quality-score strong{font-size:1.08rem}#promptQualityAnalyser .quality-star-strip{display:block!important;margin-top:2px;color:#ffd477!important;font-size:.62rem!important;letter-spacing:.04em;white-space:nowrap}#promptQualityAnalyser .quality-score em{margin-top:2px}`;
       document.head.appendChild(style);
     }
-    new MutationObserver(queuePatch).observe(panel, { childList: true, subtree: true, characterData: true });
+    new MutationObserver(queuePatch).observe(panel, { childList: true, subtree: true });
     panel.addEventListener("change", queuePatch);
     panel.addEventListener("click", () => setTimeout(queuePatch, 0));
     queuePatch();
