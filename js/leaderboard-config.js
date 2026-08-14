@@ -173,6 +173,16 @@ if (window.FPL_LEADERBOARD_CONFIG.dailyPublishing?.enabled && document.getElemen
   document.head.appendChild(publisher);
 }
 
+// Studio finishing controls are admin-only. They aggregate existing health/certification
+// state and never run an expensive audit or certification automatically.
+if (FPL_IS_STUDIO && !document.querySelector('script[data-admin-studio-finish]')) {
+  const finish = document.createElement("script");
+  finish.src = new URL("js/admin-studio-finish.js?v=1.0.0", document.baseURI).toString();
+  finish.async = true;
+  finish.dataset.adminStudioFinish = "1";
+  document.head.appendChild(finish);
+}
+
 // Keep the All-Time helper copy aligned with the optional account launch without
 // coupling the leaderboard module to Auth internals.
 if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled) {
