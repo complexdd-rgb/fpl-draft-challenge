@@ -111,13 +111,36 @@ Deno.serve(async (req) => {
       const today = londonDateKey();
       const { data, error } = await supabase
         .from("daily_challenge_schedule")
-        .select("release_date, challenge_id, title, perfect_score, published_at")
+        .select("release_date, challenge_id, challenge_number, title, perfect_score, published_at")
         .eq("active", true)
         .gte("release_date", today)
         .order("release_date", { ascending: true })
-        .limit(31);
+        .limit(60);
       if (error) throw error;
       return json({ admin: true, today, scheduled: data || [] });
+    }
+
+    if (action === "remove") {
+      const rawDates = Array.isArray(body.dates) ? body.dates : [];
+      if (rawDates.length < 1 || rawDates.length > 14) throw httpError(400, "Remove between 1 and 14 scheduled dates at a time.");
+      const dates = rawDates.map(value => text(value, 10));
+      if (dates.some(value => !isIsoDate(value))) throw httpError(400, "Every removed challenge needs a valid release date.");
+      if (new Set(dates).size !== dates.length) throw httpError(400, "The removal request contains duplicate dates.");
+      const today = londonDateKey();
+      if (dates.some(value => value <= today)) throw httpError(400, "Only future UK challenge dates can be removed.");
+
+      const { data: removed, error: removeError } = await supabase.rpc("remove_daily_challenge_batch", {
+        p_published_by: user.id,
+        p_dates: dates
+      });
+      if (removeError) throw removeError;
+
+      const ordered = dates.slice().sort();
+      return json({
+        removed: Number(removed) || 0,
+        firstDate: ordered[0],
+        lastDate: ordered[ordered.length - 1]
+      });
     }
 
     if (action !== "publish") throw httpError(400, "Unknown publishing action.");
