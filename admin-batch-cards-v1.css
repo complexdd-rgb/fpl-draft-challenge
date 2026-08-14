@@ -1,5 +1,5 @@
-/* FPL Challenge Studio — Seven-day review cards v1.1
-   Visual-only upgrade: keeps the existing batch generator and validation logic untouched. */
+/* FPL Challenge Studio — Seven-day review cards v1.2
+   Visual-only upgrade: keeps the existing batch generator, validation and publishing logic untouched. */
 
 .batch-review .batch-table-wrap {
   overflow: visible;
@@ -180,6 +180,115 @@
   background: rgba(11, 29, 22, .72);
 }
 
+/* Daily Challenge action dock — one clear spoiler-safe workflow.
+   Generate and Publish are the primary path; ZIP and Clear are supporting actions. */
+.batch-planner .batch-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid rgba(174, 226, 199, .13);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(4, 20, 13, .68), rgba(8, 31, 21, .82));
+}
+
+.batch-planner .batch-actions .button {
+  min-width: 0;
+  margin: 0;
+}
+
+.batch-planner #generateWeekBtn {
+  grid-column: 1 / -1;
+  order: 1;
+  min-height: 56px;
+  font-size: .92rem;
+  box-shadow: 0 10px 24px rgba(57, 232, 143, .1);
+}
+
+.batch-planner #publishWeekSupabaseBtn {
+  grid-column: 1 / -1;
+  order: 2;
+  min-height: 52px;
+  border-color: rgba(98, 201, 255, .24);
+  background: linear-gradient(135deg, rgba(98, 201, 255, .11), rgba(57, 232, 143, .08));
+}
+
+.batch-planner #publishWeekSupabaseBtn:not(:disabled) {
+  border-color: rgba(57, 232, 143, .42);
+  background: linear-gradient(135deg, rgba(57, 232, 143, .2), rgba(98, 201, 255, .13));
+  color: #f4fff8;
+  box-shadow: inset 0 0 0 1px rgba(57, 232, 143, .08), 0 9px 22px rgba(0, 0, 0, .13);
+}
+
+.batch-planner #publishWeekSupabaseBtn:disabled {
+  opacity: .52;
+}
+
+.batch-planner #downloadWeekBtn {
+  grid-column: 1;
+  order: 3;
+  min-height: 46px;
+  font-size: .78rem;
+}
+
+.batch-planner #clearWeekBtn {
+  grid-column: 2;
+  order: 4;
+  min-height: 46px;
+  border-color: rgba(174, 226, 199, .1);
+  background: rgba(255, 255, 255, .025);
+  color: #9bb7a8;
+  font-size: .78rem;
+}
+
+.batch-planner #clearWeekBtn:hover {
+  color: #f4fff8;
+  border-color: rgba(174, 226, 199, .2);
+}
+
+/* Keep generation and server status together instead of two loose lines. */
+.batch-planner #batchStatus,
+.batch-planner #dailyPublishStatus {
+  padding: 10px 12px;
+  border: 1px solid rgba(174, 226, 199, .1);
+  background: rgba(0, 0, 0, .12);
+  color: #9bb7a8;
+  font-size: .76rem;
+  line-height: 1.42;
+}
+
+.batch-planner #batchStatus {
+  margin: 12px 0 0;
+  border-radius: 14px 14px 7px 7px;
+}
+
+.batch-planner #dailyPublishStatus {
+  margin: 6px 0 0;
+  border-radius: 7px 7px 14px 14px;
+}
+
+.batch-planner #batchStatus[data-state="pass"],
+.batch-planner #dailyPublishStatus[data-state="published"] {
+  border-color: rgba(57, 232, 143, .2);
+  background: rgba(57, 232, 143, .055);
+  color: #9ed9b9;
+}
+
+.batch-planner #batchStatus[data-state="working"],
+.batch-planner #dailyPublishStatus[data-state="working"] {
+  border-color: rgba(98, 201, 255, .2);
+  background: rgba(98, 201, 255, .055);
+  color: #a6d6e9;
+}
+
+.batch-planner #batchStatus[data-state="fail"],
+.batch-planner #dailyPublishStatus[data-state="error"] {
+  border-color: rgba(255, 127, 153, .22);
+  background: rgba(255, 127, 153, .055);
+  color: #e7a8b4;
+}
+
 @media (max-width: 720px) {
   .batch-review .batch-table tbody {
     grid-template-columns: 1fr;
@@ -187,6 +296,19 @@
 
   .batch-review .batch-table tbody tr {
     padding: 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .batch-planner .batch-actions {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .batch-planner #downloadWeekBtn,
+  .batch-planner #clearWeekBtn {
+    min-height: 44px;
+    padding-inline: 8px;
   }
 }
 
@@ -201,5 +323,16 @@
 
   .batch-review .batch-table td:nth-child(2) {
     padding: 12px;
+  }
+
+  .batch-planner .batch-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-planner #generateWeekBtn,
+  .batch-planner #publishWeekSupabaseBtn,
+  .batch-planner #downloadWeekBtn,
+  .batch-planner #clearWeekBtn {
+    grid-column: 1;
   }
 }
