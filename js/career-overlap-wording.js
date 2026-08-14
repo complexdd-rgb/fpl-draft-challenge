@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — career-overlap wording clarity v1.0.4
+/* FPL Challenge Studio — career-overlap wording clarity v1.0.5
    Presentation/migration helper only. The rule remains: both players recorded Premier
    League minutes in at least one matching season; they do not need to share a club. */
 (() => {
@@ -116,15 +116,26 @@
   function loadQualityStatuses() {
     loadStatus("js/prompt-quality-pack-status.js?v=1.0.0", "data-quality-prompt-pack-status");
     loadStatus("js/prompt-quality-pack-v2-status.js?v=1.0.0", "data-quality-prompt-pack-v2-status");
+    loadStatus("js/prompt-quality-pack-v3-status.js?v=1.0.0", "data-quality-prompt-pack-v3-status");
+  }
+
+  function loadQualityPromptPackV3() {
+    if (document.querySelector('script[data-quality-prompt-pack-v3]')) return loadQualityStatuses();
+    const script = document.createElement("script");
+    script.src = new URL("js/prompt-quality-pack-v3.js?v=3.0.0", document.baseURI).toString();
+    script.async = false;
+    script.dataset.qualityPromptPackV3 = "1";
+    script.addEventListener("load", loadQualityStatuses, { once: true });
+    document.head.appendChild(script);
   }
 
   function loadQualityPromptPackV2() {
-    if (document.querySelector('script[data-quality-prompt-pack-v2]')) return loadQualityStatuses();
+    if (document.querySelector('script[data-quality-prompt-pack-v2]')) return loadQualityPromptPackV3();
     const script = document.createElement("script");
     script.src = new URL("js/prompt-quality-pack-v2.js?v=2.0.0", document.baseURI).toString();
     script.async = false;
     script.dataset.qualityPromptPackV2 = "1";
-    script.addEventListener("load", loadQualityStatuses, { once: true });
+    script.addEventListener("load", loadQualityPromptPackV3, { once: true });
     document.head.appendChild(script);
   }
 
