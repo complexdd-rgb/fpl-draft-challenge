@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — career-overlap wording clarity v1.0.3
+/* FPL Challenge Studio — career-overlap wording clarity v1.0.4
    Presentation/migration helper only. The rule remains: both players recorded Premier
    League minutes in at least one matching season; they do not need to share a club. */
 (() => {
@@ -9,25 +9,14 @@
 
   function rewriteLabel(value) {
     let text = String(value || "");
-    text = text.replace(
-      /\bwhose recorded Premier League career overlapped with (.+?)(?=\s+and who scored|\s+and scored|\s+—|$)/i,
-      "who played in the Premier League in at least one of the same seasons as $1"
-    );
-    text = text.replace(
-      /\bwhose career overlapped with (.+?)(?=\s+and who scored|\s+and scored|\s+—|$)/i,
-      "who played in the Premier League in at least one of the same seasons as $1"
-    );
+    text = text.replace(/\bwhose recorded Premier League career overlapped with (.+?)(?=\s+and who scored|\s+and scored|\s+—|$)/i, "who played in the Premier League in at least one of the same seasons as $1");
+    text = text.replace(/\bwhose career overlapped with (.+?)(?=\s+and who scored|\s+and scored|\s+—|$)/i, "who played in the Premier League in at least one of the same seasons as $1");
     text = text.replace(/\s+and who scored\s+/i, " and scored ");
     return text;
   }
 
   function rewriteFail(value) {
-    let text = String(value || "");
-    text = text.replace(
-      /must overlap with (.+?) and score at least/i,
-      "must have recorded Premier League minutes in at least one of the same seasons as $1 and score at least"
-    );
-    return text;
+    return String(value || "").replace(/must overlap with (.+?) and score at least/i, "must have recorded Premier League minutes in at least one of the same seasons as $1 and score at least");
   }
 
   function rewritePrompt(prompt) {
@@ -56,9 +45,7 @@
       const state = JSON.parse(raw);
       if (!state || typeof state !== "object") return 0;
       let changed = 0;
-      if (Array.isArray(state.customs)) {
-        for (const prompt of state.customs) if (rewritePrompt(prompt)) changed += 1;
-      }
+      if (Array.isArray(state.customs)) for (const prompt of state.customs) if (rewritePrompt(prompt)) changed += 1;
       if (state.overrides && typeof state.overrides === "object") {
         for (const override of Object.values(state.overrides)) {
           if (!override || typeof override !== "object") continue;
@@ -75,9 +62,7 @@
       }
       if (changed) localStorage.setItem(MANAGER_KEY, JSON.stringify(state));
       return changed;
-    } catch (_) {
-      return 0;
-    }
+    } catch (_) { return 0; }
   }
 
   function rewriteTextNode(node) {
@@ -90,10 +75,7 @@
 
   function rewriteDom(root) {
     if (!root) return;
-    if (root.nodeType === Node.TEXT_NODE) {
-      rewriteTextNode(root);
-      return;
-    }
+    if (root.nodeType === Node.TEXT_NODE) return rewriteTextNode(root);
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) rewriteTextNode(node);
@@ -101,7 +83,8 @@
 
   function installDomObserver() {
     const root = document.querySelector(ROOT_SELECTOR);
-    if (!root) return;
+    if (!root || root.dataset.relationshipWordingObserver) return;
+    root.dataset.relationshipWordingObserver = "true";
     rewriteDom(root);
     const observer = new MutationObserver(mutations => {
       for (const mutation of mutations) {
@@ -110,11 +93,10 @@
       }
     });
     observer.observe(root, { childList: true, subtree: true, characterData: true });
-
     root.addEventListener("click", event => {
       const button = event.target.closest?.("button");
       if (!button || !/add selected/i.test(button.textContent || "")) return;
-      window.setTimeout(() => {
+      setTimeout(() => {
         migrateBrowserManager();
         rewriteDom(root);
         window.dispatchEvent(new CustomEvent("fpl:relationship-wording-updated"));
@@ -122,35 +104,32 @@
     }, true);
   }
 
-  function loadQualityPromptPackStatus() {
-    if (document.querySelector('script[data-quality-prompt-pack-status]')) return;
-    const status = document.createElement("script");
-    status.src = new URL("js/prompt-quality-pack-status.js?v=1.1.0", document.baseURI).toString();
-    status.async = false;
-    status.dataset.qualityPromptPackStatus = "1";
-    document.head.appendChild(status);
+  function loadStatus(src, marker) {
+    if (document.querySelector(`script[${marker}]`)) return;
+    const script = document.createElement("script");
+    script.src = new URL(src, document.baseURI).toString();
+    script.async = false;
+    script.setAttribute(marker, "1");
+    document.head.appendChild(script);
+  }
+
+  function loadQualityStatuses() {
+    loadStatus("js/prompt-quality-pack-status.js?v=1.0.0", "data-quality-prompt-pack-status");
+    loadStatus("js/prompt-quality-pack-v2-status.js?v=1.0.0", "data-quality-prompt-pack-v2-status");
   }
 
   function loadQualityPromptPackV2() {
-    const existing = document.querySelector('script[data-quality-prompt-pack-v2]');
-    if (existing) {
-      loadQualityPromptPackStatus();
-      return;
-    }
+    if (document.querySelector('script[data-quality-prompt-pack-v2]')) return loadQualityStatuses();
     const script = document.createElement("script");
     script.src = new URL("js/prompt-quality-pack-v2.js?v=2.0.0", document.baseURI).toString();
     script.async = false;
     script.dataset.qualityPromptPackV2 = "1";
-    script.addEventListener("load", loadQualityPromptPackStatus, { once: true });
+    script.addEventListener("load", loadQualityStatuses, { once: true });
     document.head.appendChild(script);
   }
 
   function loadQualityPromptPacks() {
-    const existing = document.querySelector('script[data-quality-prompt-pack-v1]');
-    if (existing) {
-      loadQualityPromptPackV2();
-      return;
-    }
+    if (document.querySelector('script[data-quality-prompt-pack-v1]')) return loadQualityPromptPackV2();
     const script = document.createElement("script");
     script.src = new URL("js/prompt-quality-pack-v1.js?v=1.0.1", document.baseURI).toString();
     script.async = false;
@@ -159,22 +138,16 @@
     document.head.appendChild(script);
   }
 
-  window.FPL_CAREER_OVERLAP_WORDING = Object.freeze({
-    rewriteLabel,
-    rewriteFail,
-    migrateBrowserManager
-  });
+  window.FPL_CAREER_OVERLAP_WORDING = Object.freeze({ rewriteLabel, rewriteFail, migrateBrowserManager });
 
   migrateBrowserManager();
   loadQualityPromptPacks();
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", installDomObserver, { once: true });
-  } else {
-    installDomObserver();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", installDomObserver, { once: true });
+  else installDomObserver();
   window.addEventListener("fpl:prompt-tools-ready", () => {
     migrateBrowserManager();
     installDomObserver();
     loadQualityPromptPacks();
+    loadQualityStatuses();
   });
 })();
