@@ -1,21 +1,26 @@
-/* FPL career relationship context · v1.4.4
+/* FPL career relationship context · v1.4.5
    Derived at runtime from verified player-season rows. Seasons with zero minutes
    do not contribute to any career or relationship rule. */
 (() => {
   "use strict";
 
   /* Studio performance guard: the legacy auditor schedules one full scan automatically
-     with setTimeout(runAudit, 350). Capture only that exact timer and release it when
-     Database Health is actually opened. Every other timer remains untouched. */
+     with setTimeout(runAudit, 350) from its window.load initializer. Capture only that
+     exact timer, then restore the native timer immediately. */
   if (/\/admin(?:\.html)?$/i.test(window.location.pathname) && !window.__FPL_STUDIO_AUDIT_DEFER__) {
     window.__FPL_STUDIO_AUDIT_DEFER__ = true;
     const nativeSetTimeout = window.setTimeout;
     let deferredAudit = null;
 
+    const restoreNativeTimer = () => {
+      if (window.setTimeout !== nativeSetTimeout) window.setTimeout = nativeSetTimeout;
+    };
+
     window.setTimeout = function(handler, delay, ...args) {
       if (!deferredAudit && typeof handler === "function" && handler.name === "runAudit" && Number(delay) === 350) {
         deferredAudit = () => handler(...args);
         window.FPL_STUDIO_RUN_DATABASE_AUDIT = deferredAudit;
+        restoreNativeTimer();
         return 0;
       }
       return nativeSetTimeout.call(window, handler, delay, ...args);
@@ -33,12 +38,24 @@
       if (event.target.closest?.('[data-open-workspace="database"]')) runDeferredAudit();
     }, true);
 
-    document.addEventListener("DOMContentLoaded", () => {
-      window.setTimeout = nativeSetTimeout;
-      const workspace = document.querySelector('[data-workspace="database"]');
-      let storedDatabase = false;
-      try { storedDatabase = localStorage.getItem("fpl-studio-stage-one-workspace") === "database"; } catch (_) {}
-      if (storedDatabase || (workspace && workspace.hidden === false)) runDeferredAudit();
+    // This listener is registered before admin-core's load listener. The zero-delay
+    // callback runs after the complete load-event dispatch, by which point the auditor
+    // has either been captured or normal timers can safely be restored.
+    window.addEventListener("load", () => {
+      nativeSetTimeout.call(window, () => {
+        restoreNativeTimer();
+        const workspace = document.querySelector('[data-workspace="database"]');
+        let storedDatabase = false;
+        try { storedDatabase = localStorage.getItem("fpl-studio-stage-one-workspace") === "database"; } catch (_) {}
+        if (storedDatabase || (workspace && workspace.hidden === false)) {
+          runDeferredAudit();
+          return;
+        }
+        if (deferredAudit) {
+          const topStatus = document.getElementById("auditStatusTop");
+          if (topStatus) topStatus.textContent = "Not run";
+        }
+      }, 0);
     }, { once: true });
   }
 
@@ -283,7 +300,7 @@
   });
 
   window.FPL_CAREER_CONTEXT = Object.freeze({
-    version: "1.4.4",
+    version: "1.4.5",
     coverage,
     normalise,
     seasonStart,
