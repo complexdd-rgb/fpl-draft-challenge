@@ -1,14 +1,16 @@
-/* FPL Challenge Studio — quality prompt baseline finalizer v1.0.0
-   Treats the approved 5-star V1/V2/V3 quality prompts as repository baseline prompts.
-   V3 prompts that missed the 5-star gate stay available for inspection but are disabled. */
+/* FPL Challenge Studio — quality prompt baseline finalizer v1.1.0
+   The project-wide approved prompt standard is now 4★ or 5★. Quality-pack prompts are
+   recognised by their tags whether they were loaded from prompt-library.js or generated
+   by the V1/V2/V3 checked-pack scripts during Studio startup. */
 (() => {
   "use strict";
 
   const POSITIONS = ["GK", "DEF", "MID", "FWD"];
   let attempts = 0;
 
-  function packIds(pack) {
-    return new Set(Array.isArray(pack?.ids) ? pack.ids.map(String) : []);
+  function isQualityPackPrompt(prompt) {
+    const tags = Array.isArray(prompt?.tags) ? prompt.tags : [];
+    return tags.includes("quality-pack-v1") || tags.includes("quality-pack-v2") || tags.includes("quality-pack-v3");
   }
 
   function finalise() {
@@ -18,32 +20,28 @@
     const library = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : null;
     if (!library || !v1?.ready || !v2?.ready || !v3?.ready) return false;
 
-    const v1Ids = packIds(v1);
-    const v2Ids = packIds(v2);
-    const v3Ids = packIds(v3);
-    const allIds = new Set([...v1Ids, ...v2Ids, ...v3Ids]);
     const approved = [];
     const withheld = [];
 
     for (const prompt of library) {
-      if (!allIds.has(String(prompt?.id || ""))) continue;
+      if (!isQualityPackPrompt(prompt)) continue;
       const tags = new Set(Array.isArray(prompt.tags) ? prompt.tags : []);
       tags.add("quality-pack");
       tags.add("quality-baseline");
+      prompt._studioBuiltIn = true;
+      prompt._studioCustom = false;
 
-      if (Number(prompt.rating) === 5) {
-        tags.add("approved-5-star");
+      if (Number(prompt.rating) >= 4) {
+        tags.add("approved-4-plus");
+        if (Number(prompt.rating) === 5) tags.add("approved-5-star");
         tags.delete("quality-withheld");
         prompt.enabled = true;
-        prompt._studioBuiltIn = true;
-        prompt._studioCustom = false;
         approved.push(prompt);
       } else {
         tags.add("quality-withheld");
+        tags.delete("approved-4-plus");
         tags.delete("approved-5-star");
         prompt.enabled = false;
-        prompt._studioBuiltIn = true;
-        prompt._studioCustom = false;
         withheld.push(prompt);
       }
       prompt.tags = [...tags];
@@ -53,11 +51,16 @@
       position,
       approved.filter(prompt => prompt.position === position).length
     ]));
+    const fourStar = approved.filter(prompt => Number(prompt.rating) === 4).length;
+    const fiveStar = approved.filter(prompt => Number(prompt.rating) === 5).length;
 
     window.FPL_QUALITY_PROMPT_BASELINE = Object.freeze({
       ready: true,
-      version: "1.0.0",
+      version: "1.1.0",
+      minimumRating: 4,
       approved: approved.length,
+      fourStar,
+      fiveStar,
       withheld: withheld.length,
       totalChecked: approved.length + withheld.length,
       ids: Object.freeze(approved.map(prompt => prompt.id)),
@@ -89,8 +92,8 @@
     const by = baseline.byPosition || {};
     panel.innerHTML = `
       <div class="quality-baseline-head">
-        <div><small>APPROVED QUALITY BASELINE</small><strong>${baseline.approved} permanent 5★ prompts</strong></div>
-        <span>${baseline.withheld} V3 held back</span>
+        <div><small>APPROVED QUALITY BASELINE</small><strong>${baseline.approved} permanent 4★+ prompts</strong></div>
+        <span>${baseline.fiveStar} 5★ · ${baseline.fourStar} 4★</span>
       </div>
       <div class="quality-baseline-grid">
         <span><b>GK</b>${Number(by.GK || 0)}</span>
@@ -98,7 +101,7 @@
         <span><b>MID</b>${Number(by.MID || 0)}</span>
         <span><b>FWD</b>${Number(by.FWD || 0)}</span>
       </div>
-      <p>These prompts are now treated as built-in Studio baseline prompts and are available to Daily Challenge generation. Anything below the 5★ gate remains disabled.</p>`;
+      <p>The quality packs now use the same project-wide rule as the main Prompt Library: 4★ and 5★ prompts qualify; anything below 4★ is held back.</p>`;
 
     if (!document.getElementById("qualityPromptBaselineStyles")) {
       const style = document.createElement("style");
@@ -114,7 +117,7 @@
   function retry() {
     if (finalise()) return;
     attempts += 1;
-    if (attempts < 50) setTimeout(retry, 120);
+    if (attempts < 60) setTimeout(retry, 120);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", retry, { once: true });
