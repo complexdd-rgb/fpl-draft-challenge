@@ -39,6 +39,28 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
 const FPL_IS_STUDIO = /\/admin(?:\.html)?$/i.test(window.location.pathname)
   || Boolean(document.querySelector("main.studio-shell"));
 
+// Two legacy prompt-tool modules still register their initialisers against window.load.
+// When their bundle is lazy-loaded after the real load event, replay one load event after
+// that bundle arrives. Existing once:true listeners have already been removed, so this
+// wakes only the newly-added Prompt Studio listeners without re-running the live app.
+if (FPL_IS_STUDIO) {
+  const latePromptObserver = new MutationObserver(mutations => {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (!(node instanceof HTMLScriptElement) || !/\/js\/admin-import-tools-base\.js(?:\?|$)/.test(node.src)) continue;
+        latePromptObserver.disconnect();
+        node.addEventListener("load", () => {
+          if (document.readyState === "complete") {
+            queueMicrotask(() => window.dispatchEvent(new Event("load")));
+          }
+        }, { once: true });
+        return;
+      }
+    }
+  });
+  latePromptObserver.observe(document.head, { childList: true });
+}
+
 // When accounts are enabled, install this tiny bridge synchronously before the static
 // leaderboard client runs. Studio also keeps this bridge because direct challenge
 // publishing uses the signed-in Supabase session without exposing privileged keys.
