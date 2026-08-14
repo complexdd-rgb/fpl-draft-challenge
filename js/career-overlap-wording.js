@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — career-overlap wording clarity v1.0.2
+/* FPL Challenge Studio — career-overlap wording clarity v1.0.3
    Presentation/migration helper only. The rule remains: both players recorded Premier
    League minutes in at least one matching season; they do not need to share a club. */
 (() => {
@@ -111,8 +111,6 @@
     });
     observer.observe(root, { childList: true, subtree: true, characterData: true });
 
-    // Automatic Creator keeps its generated batch in memory until "Add selected" is
-    // pressed. Once it persists the selection, migrate those browser customs too.
     root.addEventListener("click", event => {
       const button = event.target.closest?.("button");
       if (!button || !/add selected/i.test(button.textContent || "")) return;
@@ -127,28 +125,40 @@
   function loadQualityPromptPackStatus() {
     if (document.querySelector('script[data-quality-prompt-pack-status]')) return;
     const status = document.createElement("script");
-    status.src = new URL("js/prompt-quality-pack-status.js?v=1.0.0", document.baseURI).toString();
+    status.src = new URL("js/prompt-quality-pack-status.js?v=1.1.0", document.baseURI).toString();
     status.async = false;
     status.dataset.qualityPromptPackStatus = "1";
     document.head.appendChild(status);
   }
 
-  function loadQualityPromptPack() {
-    const existing = document.querySelector('script[data-quality-prompt-pack-v1]');
+  function loadQualityPromptPackV2() {
+    const existing = document.querySelector('script[data-quality-prompt-pack-v2]');
     if (existing) {
       loadQualityPromptPackStatus();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = new URL("js/prompt-quality-pack-v2.js?v=2.0.0", document.baseURI).toString();
+    script.async = false;
+    script.dataset.qualityPromptPackV2 = "1";
+    script.addEventListener("load", loadQualityPromptPackStatus, { once: true });
+    document.head.appendChild(script);
+  }
+
+  function loadQualityPromptPacks() {
+    const existing = document.querySelector('script[data-quality-prompt-pack-v1]');
+    if (existing) {
+      loadQualityPromptPackV2();
       return;
     }
     const script = document.createElement("script");
     script.src = new URL("js/prompt-quality-pack-v1.js?v=1.0.1", document.baseURI).toString();
     script.async = false;
     script.dataset.qualityPromptPackV1 = "1";
-    script.addEventListener("load", loadQualityPromptPackStatus, { once: true });
+    script.addEventListener("load", loadQualityPromptPackV2, { once: true });
     document.head.appendChild(script);
   }
 
-  // Keep a small public helper so the eventual repository-baseline export can migrate
-  // the same family deliberately rather than maintaining two wording definitions.
   window.FPL_CAREER_OVERLAP_WORDING = Object.freeze({
     rewriteLabel,
     rewriteFail,
@@ -156,7 +166,7 @@
   });
 
   migrateBrowserManager();
-  loadQualityPromptPack();
+  loadQualityPromptPacks();
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", installDomObserver, { once: true });
   } else {
@@ -165,6 +175,6 @@
   window.addEventListener("fpl:prompt-tools-ready", () => {
     migrateBrowserManager();
     installDomObserver();
-    loadQualityPromptPackStatus();
+    loadQualityPromptPacks();
   });
 })();
