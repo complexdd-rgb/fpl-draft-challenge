@@ -671,7 +671,7 @@ window.FPL_V3_HELPERS = {
 </script>
 
 <!-- The large database stays separate to keep index.html manageable. -->
-<script src="players.js?v=12.3.0"></script>
+<script src="players-live.js?v=1.0.0"></script>
 <script src="js/career-context.js?v=1.4.0"></script>
 
 <script>
@@ -690,7 +690,20 @@ if (!groupedPlayers.length) {
   if (status) status.textContent = "Player database failed to load";
   throw new Error("No FPL player database was loaded.");
 }
-const flatSeasons = groupedPlayers.flatMap(player => player.seasons.map(season => ({...season,playerId:player.playerId,name:player.name})));
+const playerById = new Map();
+const recordByKey = new Map();
+const flatSeasons = [];
+for (const player of groupedPlayers) {
+  playerById.set(player.playerId, player);
+  for (const season of Array.isArray(player.seasons) ? player.seasons : []) {
+    // Use the existing certified/live row object rather than cloning every season.
+    // Career Context attaches _career to these same objects before the game engine runs.
+    if (season.playerId == null) season.playerId = player.playerId;
+    if (season.name == null) season.name = player.name;
+    flatSeasons.push(season);
+    recordByKey.set(`${player.playerId}\u0000${season.season}`, season);
+  }
+}
 const availableSeasonLabels = [...new Set(flatSeasons.map(record => record.season).filter(season => /^\d{4}\/\d{2}$/.test(String(season))))]
   .sort((a,b) => Number(a.slice(0,4)) - Number(b.slice(0,4)));
 const databaseSeasonRange = availableSeasonLabels.length
@@ -715,8 +728,8 @@ let active = {};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const normalise=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const formatTime=n=>`${Math.floor(n/60)}:${String(Math.floor(n%60)).padStart(2,"0")}`;
-const getPlayer=id=>groupedPlayers.find(p=>p.playerId===id);
-const getRecord=(playerId,season)=>flatSeasons.find(p=>p.playerId===playerId&&p.season===season);
+const getPlayer=id=>playerById.get(id);
+const getRecord=(playerId,season)=>recordByKey.get(`${playerId}\u0000${season}`);
 const usedPlayerIds=()=>new Set(Object.values(picks).map(p=>p.playerId));
 /* Zero-minute answer eligibility rule. */
 const qualifiesForAnswer=record=>Number.isFinite(Number(record?.minutes))&&Number(record.minutes)>0;
@@ -1265,10 +1278,31 @@ if(completedRecord){renderCompletedResult(completedRecord,true);}else{timerId=se
 
   qa("#phase45BottomNav [data-jump]").forEach(button => button.addEventListener("click", () => { const target = button.dataset.jump; const map = { top: document.querySelector("main") || document.body, archive: document.querySelector(".challenge-calendar-nav") || document.getElementById("phase45Shell"), stats: document.getElementById("phase45ExtendedStats") || document.querySelector(".history"), results: document.getElementById("results") || document.getElementById("reveal") }; map[target]?.scrollIntoView({ behavior: "smooth", block: "start" }); }));
 
-  const refresh = () => { renderHero(); renderLivePitch(); renderExtendedStats(); renderAchievements(); const countdown = document.getElementById("phase45HeroCountdown"); if (countdown && runtime.nextScheduledDate && typeof dailyTime.millisecondsUntilUkDate === "function" && typeof dailyTime.formatCountdown === "function" && !runtime.archiveMode) { const remain = dailyTime.millisecondsUntilUkDate(runtime.nextScheduledDate); countdown.textContent = remain > 0 ? dailyTime.formatCountdown(remain) : "Ready"; } };
-  const grid = document.getElementById("grid"); const results = document.getElementById("results"); if (grid) { const observer = new MutationObserver(refresh); observer.observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]}); if (results) observer.observe(results,{childList:true,subtree:true,attributes:true,attributeFilter:["class","style"]}); }
+  const updatePhase45Countdown = () => {
+    const countdown = document.getElementById("phase45HeroCountdown");
+    if (countdown && runtime.nextScheduledDate && typeof dailyTime.millisecondsUntilUkDate === "function" && typeof dailyTime.formatCountdown === "function" && !runtime.archiveMode) {
+      const remain = dailyTime.millisecondsUntilUkDate(runtime.nextScheduledDate);
+      countdown.textContent = remain > 0 ? dailyTime.formatCountdown(remain) : "Ready";
+    }
+  };
+  const refresh = () => { renderHero(); renderLivePitch(); renderExtendedStats(); renderAchievements(); updatePhase45Countdown(); };
+  let phase45RefreshQueued = false;
+  const schedulePhase45Refresh = () => {
+    if (phase45RefreshQueued) return;
+    phase45RefreshQueued = true;
+    requestAnimationFrame(() => { phase45RefreshQueued = false; refresh(); });
+  };
+  const grid = document.getElementById("grid");
+  const results = document.getElementById("results");
+  if (grid) {
+    const observer = new MutationObserver(schedulePhase45Refresh);
+    observer.observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+    if (results) observer.observe(results,{childList:true,subtree:true,attributes:true,attributeFilter:["class","style"]});
+  }
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js?v=formation-1").catch(() => {});
-  refresh(); setInterval(refresh, 1000);
+  refresh();
+  setInterval(() => { if (document.visibilityState === "visible") updatePhase45Countdown(); }, 1000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") updatePhase45Countdown(); });
 })();
 </script>
 
