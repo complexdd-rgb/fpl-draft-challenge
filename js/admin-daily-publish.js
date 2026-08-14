@@ -165,6 +165,14 @@
     updateWorkflow();
   }
 
+  function setPublishedBatchMessage(challengeCount) {
+    const batchStatus = document.getElementById("batchStatus");
+    if (!batchStatus) return;
+    const count = Number(challengeCount) || 7;
+    batchStatus.textContent = `Backup ZIP downloaded automatically. ${count} challenge${count === 1 ? "" : "s"} scheduled successfully in Supabase.`;
+    batchStatus.dataset.state = "pass";
+  }
+
   async function accessToken() {
     return typeof authBridge?.getAccessToken === "function" ? await authBridge.getAccessToken() : "";
   }
@@ -206,7 +214,7 @@
         setStatus("Supabase publishing is ready. No server-scheduled challenge dates yet.", "ready");
         return;
       }
-      setStatus(`${scheduled.length} Supabase challenge${scheduled.length === 1 ? "" : "s"} scheduled · coverage through ${last}.`, "ready");
+      setStatus(`${scheduled.length} Supabase challenge${scheduled.length === 1 ? "" : "s"} scheduled · coverage through ${last}. Midnight rollover is automatic.`, "published");
     } catch (error) {
       scheduleApi.status = "unavailable";
       scheduleApi.scheduled = [];
@@ -321,6 +329,7 @@
       setStatus(`Publishing ${challenges.length} validated challenge${challenges.length === 1 ? "" : "s"} and private verifiers to Supabase…`, "working");
       const result = await api({ action: "publish", challenges });
       await refreshScheduleStatus();
+      setPublishedBatchMessage(Number(result.published) || challenges.length);
       setStatus(`${Number(result.published) || challenges.length} challenge${challenges.length === 1 ? "" : "s"} scheduled successfully · ${result.firstDate} to ${result.lastDate}. Midnight rollover is automatic.`, "published");
     } catch (error) {
       console.error(error);
