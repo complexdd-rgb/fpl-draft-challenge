@@ -1,0 +1,54 @@
+name: Live player data
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'players.js'
+      - 'scripts/build-live-players.mjs'
+      - '.github/workflows/live-player-data.yml'
+  pull_request:
+    paths:
+      - 'players.js'
+      - 'scripts/build-live-players.mjs'
+      - 'players-live.js'
+
+permissions:
+  contents: write
+
+jobs:
+  build-live-player-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build slim player-facing database
+        run: |
+          node scripts/build-live-players.mjs
+          node --check players-live.js
+
+      - name: Verify or publish generated file
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git diff --exit-code -- players-live.js
+            exit 0
+          fi
+          if git diff --quiet -- players-live.js; then
+            echo "players-live.js is already current."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add players-live.js
+          git commit -m 'Refresh slim live player database'
+          git push
