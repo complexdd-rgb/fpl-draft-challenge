@@ -1,4 +1,4 @@
-/* FPL career relationship context · v1.4.2
+/* FPL career relationship context · v1.4.3
    Derived at runtime from verified player-season rows. Seasons with zero minutes
    do not contribute to any career or relationship rule. */
 (() => {
@@ -245,7 +245,7 @@
   });
 
   window.FPL_CAREER_CONTEXT = Object.freeze({
-    version: "1.4.2",
+    version: "1.4.3",
     coverage,
     normalise,
     seasonStart,
@@ -255,11 +255,10 @@
     players: freezeArray(publicSummaries)
   });
 
-  /* Career Shape is shared by Studio and the live game and loads before prompt consumers. */
+  /* Career Shape rules are shared by Studio and the live game and still load before
+     prompt consumers. The Studio-only editor/generator layer is now loaded lazily when
+     Prompt Studio is opened by admin-import-tools.js. */
   if (document.readyState === "loading") {
-    document.write('<script src="js/career-shape-rules.js?v=1.1.0"><\/script>');
-    if (/\/admin(?:\.html)?$/i.test(window.location.pathname)) {
-      document.write('<script src="js/career-shape-studio.js?v=1.0.0"><\/script>');
-    }
+    document.write('<script src="js/career-shape-rules.js?v=1.1.2-repair"><\/script>');
   }
 })();
