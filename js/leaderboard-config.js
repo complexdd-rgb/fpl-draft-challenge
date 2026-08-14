@@ -183,6 +183,16 @@ if (FPL_IS_STUDIO && !document.querySelector('script[data-admin-studio-finish]')
   document.head.appendChild(finish);
 }
 
+// Relationship wording helper: career-overlap means same Premier League season(s), not
+// teammates. Keep the rule unchanged while making Prompt Studio wording unambiguous.
+if (FPL_IS_STUDIO && !document.querySelector('script[data-career-overlap-wording]')) {
+  const overlapWording = document.createElement("script");
+  overlapWording.src = new URL("js/career-overlap-wording.js?v=1.0.0", document.baseURI).toString();
+  overlapWording.async = true;
+  overlapWording.dataset.careerOverlapWording = "1";
+  document.head.appendChild(overlapWording);
+}
+
 // Keep the All-Time helper copy aligned with the optional account launch without
 // coupling the leaderboard module to Auth internals.
 if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled) {
