@@ -36,9 +36,12 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
   mockMode: false
 });
 
+const FPL_IS_STUDIO = /\/admin(?:\.html)?$/i.test(window.location.pathname)
+  || Boolean(document.querySelector("main.studio-shell"));
+
 // When accounts are enabled, install this tiny bridge synchronously before the static
-// leaderboard client runs. It adds the user's Supabase access token only to our own
-// leaderboard Edge Function calls; Auth/CDN/other fetches are untouched.
+// leaderboard client runs. Studio also keeps this bridge because direct challenge
+// publishing uses the signed-in Supabase session without exposing privileged keys.
 if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled && !window.FPL_ACCOUNT_AUTH) {
   let ready = false;
   let session = null;
@@ -76,9 +79,10 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.accou
   document.head.appendChild(account);
 }
 
-// Small compatibility cleanup while the large index.html shell is still bundled inline.
-// This removes retired Phase 4.5 panels without disturbing the game engine.
-if (!document.querySelector('script[data-ui-cleanup]')) {
+// Live-game presentation modules are deliberately skipped in Challenge Studio. They have
+// no admin DOM to enhance and previously created unnecessary network/parse work on every
+// Studio visit.
+if (!FPL_IS_STUDIO && !document.querySelector('script[data-ui-cleanup]')) {
   const cleanup = document.createElement("script");
   cleanup.src = new URL("js/ui-cleanup.js", document.baseURI).toString();
   cleanup.async = true;
@@ -88,7 +92,7 @@ if (!document.querySelector('script[data-ui-cleanup]')) {
 
 // Daily Challenge Results v2 is a modular presentation layer. It reads the already-loaded
 // challenge/player data and local completed record but never changes scoring or validation.
-if (window.FPL_LEADERBOARD_CONFIG.resultsV2 && document.getElementById("results") && !document.querySelector('script[data-results-v2]')) {
+if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.resultsV2 && document.getElementById("results") && !document.querySelector('script[data-results-v2]')) {
   const resultsV2 = document.createElement("script");
   resultsV2.src = new URL("js/results-v2.js", document.baseURI).toString();
   resultsV2.async = true;
@@ -97,9 +101,8 @@ if (window.FPL_LEADERBOARD_CONFIG.resultsV2 && document.getElementById("results"
 }
 
 // Keep the team-sheet UI separate from the core leaderboard bridge so the verified
-// submission path stays small and easy to audit. Dynamic loading also avoids touching
-// the large index.html bundle just to add this enhancement.
-if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.teamSheets && !document.querySelector('script[data-leaderboard-team-view]')) {
+// submission path stays small and easy to audit.
+if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.teamSheets && !document.querySelector('script[data-leaderboard-team-view]')) {
   const teamView = document.createElement("script");
   teamView.src = new URL("js/leaderboard-team-view.js", document.baseURI).toString();
   teamView.async = true;
@@ -109,7 +112,7 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.teamS
 
 // Keep the ranking policy visible beside the live table so tie-breaks are clear to
 // players and stay aligned with the server ordering.
-if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.rankingRules && !document.querySelector('script[data-leaderboard-ranking-rules]')) {
+if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.rankingRules && !document.querySelector('script[data-leaderboard-ranking-rules]')) {
   const rankingRules = document.createElement("script");
   rankingRules.src = new URL("js/leaderboard-ranking-rules.js", document.baseURI).toString();
   rankingRules.async = true;
@@ -119,7 +122,7 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.ranki
 
 // The all-time standings are loaded separately so the daily leaderboard bridge stays
 // focused on today's verified challenge and its team-sheet privacy rules.
-if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.allTimeLeaderboard && !document.querySelector('script[data-leaderboard-all-time]')) {
+if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.allTimeLeaderboard && !document.querySelector('script[data-leaderboard-all-time]')) {
   const allTime = document.createElement("script");
   allTime.src = new URL("js/leaderboard-all-time.js", document.baseURI).toString();
   allTime.async = true;
@@ -129,7 +132,7 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.allTi
 
 // Signed-in profiles use verified backend results and the account identity bridge, so
 // account-wide history follows the player across linked browsers instead of localStorage.
-if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.playerProfile && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled && !document.querySelector('script[data-player-profile]')) {
+if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.playerProfile && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled && !document.querySelector('script[data-player-profile]')) {
   const profile = document.createElement("script");
   profile.src = new URL("js/player-profile.js", document.baseURI).toString();
   profile.async = true;
@@ -150,7 +153,7 @@ if (window.FPL_LEADERBOARD_CONFIG.dailyPublishing?.enabled && document.getElemen
 
 // Keep the All-Time helper copy aligned with the optional account launch without
 // coupling the leaderboard module to Auth internals.
-if (window.FPL_LEADERBOARD_CONFIG.accounts?.enabled) {
+if (!FPL_IS_STUDIO && window.FPL_LEADERBOARD_CONFIG.accounts?.enabled) {
   const updateAccountCopy = () => {
     const note = document.querySelector(".leaderboard-alltime-note");
     if (!note) return false;
