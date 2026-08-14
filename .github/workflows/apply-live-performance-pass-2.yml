@@ -27,6 +27,18 @@ jobs:
       - name: Apply guarded changes
         run: |
           node scripts/apply-live-performance-pass-2.mjs
+          python - <<'PY'
+          from pathlib import Path
+          for name in [
+              'js/leaderboard-config.js',
+              'js/leaderboard-client.js',
+              'js/leaderboard-team-view.js',
+              'js/player-profile.js',
+              'js/leaderboard-all-time.js',
+          ]:
+              path = Path(name)
+              path.write_text(path.read_text().rstrip() + '\n')
+          PY
           node --check js/leaderboard-config.js
           node --check js/leaderboard-client.js
           node --check js/leaderboard-team-view.js
