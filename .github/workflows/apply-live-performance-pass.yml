@@ -1,0 +1,53 @@
+name: Apply live performance pass
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/apply-live-performance-pass.mjs'
+      - '.github/workflows/apply-live-performance-pass.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Apply guarded index migration
+        run: node scripts/apply-live-performance-pass.mjs
+
+      - name: Verify player-facing database and index guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check players-live.js
+          grep -q 'players-live.js?v=1.0.0' index.html
+          ! grep -q 'players.js?v=12.3.0' index.html
+          ! grep -q 'refresh(); setInterval(refresh, 1000);' index.html
+          grep -q 'const playerById = new Map();' index.html
+          grep -q 'const recordByKey = new Map();' index.html
+
+      - name: Commit live performance pass
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- index.html; then
+            echo 'index.html already contains the performance pass.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Improve live page startup and desktop runtime performance'
+          git push
