@@ -17,9 +17,10 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Check Studio JavaScript syntax
+      - name: Check Studio and live JavaScript syntax
         run: |
           node --check prompt-library.js
+          node --check players-live.js
           node --check js/admin-core.js
           node --check js/admin-batch-calendar.js
           node --check js/admin-import-tools.js
@@ -29,7 +30,16 @@ jobs:
           node --check js/validation-engine.js
           node --check js/validation-lab.js
           node --check js/leaderboard-config.js
+          node --check js/leaderboard-client.js
+          node --check js/leaderboard-team-view.js
+          node --check js/leaderboard-ranking-rules.js
+          node --check js/leaderboard-all-time.js
+          node --check js/leaderboard-account.js
           node --check js/leaderboard-admin-status.js
+          node --check js/player-profile.js
+          node --check js/player-profile-cache.js
+          node --check js/player-profile-core.js
+          node --check js/results-v2.js
           node --check js/career-context.js
           node --check js/career-overlap-wording.js
           node --check js/career-shape-rules.js
@@ -37,4 +47,10 @@ jobs:
           node --check js/career-shape-unified-generator.js
           node --check js/career-shape-unified-fixes.js
           node --check js/career-shape-future-quality-guard.js
+          node --check js/ui-cleanup.js
+          node --check js/phase45-polish.js
+          node --check js/season-select-performance.js
+          node --check js/autocomplete-layer.js
+          node --check js/visual-overhaul.js
+          node --check js/visual-finishing.js
           node --check sw.js
