@@ -1,8 +1,46 @@
-/* FPL career relationship context · v1.4.3
+/* FPL career relationship context · v1.4.4
    Derived at runtime from verified player-season rows. Seasons with zero minutes
    do not contribute to any career or relationship rule. */
 (() => {
   "use strict";
+
+  /* Studio performance guard: the legacy auditor schedules one full scan automatically
+     with setTimeout(runAudit, 350). Capture only that exact timer and release it when
+     Database Health is actually opened. Every other timer remains untouched. */
+  if (/\/admin(?:\.html)?$/i.test(window.location.pathname) && !window.__FPL_STUDIO_AUDIT_DEFER__) {
+    window.__FPL_STUDIO_AUDIT_DEFER__ = true;
+    const nativeSetTimeout = window.setTimeout;
+    let deferredAudit = null;
+
+    window.setTimeout = function(handler, delay, ...args) {
+      if (!deferredAudit && typeof handler === "function" && handler.name === "runAudit" && Number(delay) === 350) {
+        deferredAudit = () => handler(...args);
+        window.FPL_STUDIO_RUN_DATABASE_AUDIT = deferredAudit;
+        return 0;
+      }
+      return nativeSetTimeout.call(window, handler, delay, ...args);
+    };
+
+    const runDeferredAudit = () => {
+      if (!deferredAudit) return;
+      const run = deferredAudit;
+      deferredAudit = null;
+      window.FPL_STUDIO_RUN_DATABASE_AUDIT = null;
+      nativeSetTimeout.call(window, run, 0);
+    };
+
+    document.addEventListener("click", event => {
+      if (event.target.closest?.('[data-open-workspace="database"]')) runDeferredAudit();
+    }, true);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      window.setTimeout = nativeSetTimeout;
+      const workspace = document.querySelector('[data-workspace="database"]');
+      let storedDatabase = false;
+      try { storedDatabase = localStorage.getItem("fpl-studio-stage-one-workspace") === "database"; } catch (_) {}
+      if (storedDatabase || (workspace && workspace.hidden === false)) runDeferredAudit();
+    }, { once: true });
+  }
 
   const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
   const normalise = value => String(value || "")
@@ -245,7 +283,7 @@
   });
 
   window.FPL_CAREER_CONTEXT = Object.freeze({
-    version: "1.4.3",
+    version: "1.4.4",
     coverage,
     normalise,
     seasonStart,
