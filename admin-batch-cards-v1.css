@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Seven-day review cards v1
+/* FPL Challenge Studio — Seven-day review cards v1.1
    Visual-only upgrade: keeps the existing batch generator and validation logic untouched. */
 
 .batch-review .batch-table-wrap {
@@ -78,6 +78,7 @@
   background: rgba(0, 0, 0, .12);
   color: #f4fff8;
   vertical-align: top;
+  font-variant-numeric: tabular-nums;
 }
 
 .batch-review .batch-table td::before {
@@ -139,10 +140,23 @@
   line-height: 1.35;
 }
 
+/* Theme is already shown under Challenge, so do not repeat it under Formation. */
+.batch-review .batch-table td:nth-child(4) > span:not(.batch-status) {
+  display: none;
+}
+
 .batch-review .batch-table td:nth-child(5),
 .batch-review .batch-table td:nth-child(6) {
   font-size: 1rem;
   font-weight: 950;
+}
+
+.batch-review .batch-table td:nth-child(5) {
+  color: #f4fff8;
+}
+
+.batch-review .batch-table td:nth-child(6) {
+  color: #62eaa3;
 }
 
 .batch-review .batch-status {
