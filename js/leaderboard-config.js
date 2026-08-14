@@ -130,7 +130,9 @@ if (!FPL_IS_STUDIO) {
   };
 
   const loadResultsV2 = () => {
-    if (window.FPL_LEADERBOARD_CONFIG.resultsV2) loadModule("js/results-v2.js", "data-results-v2");
+    if (!window.FPL_LEADERBOARD_CONFIG.resultsV2) return;
+    loadModule("js/results-v2.js", "data-results-v2");
+    loadModule("js/results-polish-v3.js", "data-results-polish-v3");
   };
   const scheduleResultsV2 = () => {
     requestAnimationFrame(() => {
