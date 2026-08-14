@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — spoiler-safe schedule manager v1.0.0
+/* FPL Challenge Studio — spoiler-safe schedule manager v1.0.1
    Lists future Supabase challenge batches using safe metadata only and allows an admin
    to remove a future day or week. Removal deactivates schedule/verifier rows but keeps
    any historical leaderboard attempts and entries intact. */
@@ -16,6 +16,14 @@
   let removing = false;
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+
+  function londonToday() {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(new Date());
+    const values = Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
+    return `${values.year}-${values.month}-${values.day}`;
+  }
 
   function dateLabel(value, withYear = false) {
     const date = new Date(`${String(value)}T12:00:00Z`);
@@ -101,7 +109,7 @@
     const list = panel.querySelector("[data-schedule-batch-list]");
     const state = apiState || window.FPL_STUDIO_SCHEDULE || {};
     const rows = Array.isArray(state.scheduled) ? state.scheduled : [];
-    const today = String(state.today || "");
+    const today = String(state.today || londonToday());
 
     if (state.status === "loading") {
       status.textContent = "Loading future schedule…";
@@ -114,7 +122,7 @@
       return;
     }
 
-    const futureRows = today ? rows.filter(row => String(row.release_date) > today) : rows;
+    const futureRows = rows.filter(row => String(row.release_date) > today);
     status.textContent = `${futureRows.length} future scheduled challenge${futureRows.length === 1 ? "" : "s"}.`;
     if (!futureRows.length) {
       list.innerHTML = '<div class="schedule-empty">No removable future challenges are scheduled.</div>';
@@ -135,7 +143,9 @@
 
   async function removeDates(dates) {
     if (removing || !dates.length) return;
-    const ordered = dates.slice().sort();
+    const today = londonToday();
+    const ordered = dates.filter(date => String(date) > today).slice().sort();
+    if (!ordered.length) return;
     const label = ordered.length === 1 ? dateLabel(ordered[0],true) : `${dateLabel(ordered[0])} – ${dateLabel(ordered[ordered.length-1],true)}`;
     const noun = ordered.length === 1 ? "challenge" : `${ordered.length} scheduled challenges`;
     if (!window.confirm(`Remove ${noun} for ${label}?\n\nThey will no longer go live automatically. Existing leaderboard history, if any, will be preserved.`)) return;
