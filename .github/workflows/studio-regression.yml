@@ -19,6 +19,7 @@ jobs:
 
       - name: Check Studio JavaScript syntax
         run: |
+          node --check prompt-library.js
           node --check js/admin-core.js
           node --check js/admin-batch-calendar.js
           node --check js/admin-import-tools.js
