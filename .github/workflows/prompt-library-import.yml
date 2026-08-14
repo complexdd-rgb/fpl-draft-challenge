@@ -1,0 +1,61 @@
+name: Import reviewed prompt library baseline
+
+on:
+  push:
+    paths:
+      - '.prompt-library-import/READY'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Rebuild reviewed prompt library
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cat .prompt-library-import/part-*.txt | base64 -d | xz -d > prompt-library.js
+
+      - name: Verify exact reviewed artifact
+        shell: bash
+        run: |
+          set -euxo pipefail
+          node --check prompt-library.js
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+
+          path = Path('prompt-library.js')
+          data = path.read_bytes()
+          text = data.decode('utf-8')
+
+          assert len(data) == 1551001, len(data)
+          assert hashlib.sha256(data).hexdigest() == 'ad00beb2db207905620af28267df26df025abe7235aafbe52a759f29bc023aa5'
+          assert text.lower().count('career overlapped with') == 0
+          assert text.lower().count('must overlap with') == 0
+          assert text.count('played in the Premier League in at least one of the same seasons as') == 16
+          print('Reviewed prompt library verified exactly.')
+          PY
+
+      - name: Commit reviewed baseline
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prompt-library.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Promote reviewed Prompt Studio library baseline'
+          git push
