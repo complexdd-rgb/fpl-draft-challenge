@@ -1,0 +1,38 @@
+name: Studio regression
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  studio-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check Studio JavaScript syntax
+        run: |
+          node --check js/admin-core.js
+          node --check js/admin-batch-calendar.js
+          node --check js/admin-import-tools.js
+          node --check js/admin-import-tools-base.js
+          node --check js/admin-daily-publish.js
+          node --check js/admin-studio-finish.js
+          node --check js/validation-engine.js
+          node --check js/validation-lab.js
+          node --check js/leaderboard-config.js
+          node --check js/leaderboard-admin-status.js
+          node --check js/career-context.js
+          node --check js/career-shape-rules.js
+          node --check js/career-shape-studio.js
+          node --check js/career-shape-unified-generator.js
+          node --check js/career-shape-unified-fixes.js
+          node --check js/career-shape-future-quality-guard.js
+          node --check sw.js
