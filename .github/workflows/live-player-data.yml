@@ -40,10 +40,11 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git add -N players-live.js 2>/dev/null || true
             git diff --exit-code -- players-live.js
             exit 0
           fi
-          if git diff --quiet -- players-live.js; then
+          if [[ -z "$(git status --porcelain -- players-live.js)" ]]; then
             echo "players-live.js is already current."
             exit 0
           fi
