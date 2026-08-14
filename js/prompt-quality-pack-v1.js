@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Quality Prompt Pack v1.0.0
+/* FPL Challenge Studio — Quality Prompt Pack v1.0.1
    Adds a small deterministic set of story-led prompt combinations after checking the
    current full player database. Nothing is added unless its distinct-player answer pool
    sits inside the same position-aware breadth ranges used by the quality tooling. */
@@ -107,6 +107,11 @@
 
   function sourceFor(conditions) {
     return `p => (${conditions.map(conditionSource).join(" && ")})`;
+  }
+
+  function compileStandaloneTest(source) {
+    try { return Function(`"use strict"; return (${source});`)(); }
+    catch (_) { return null; }
   }
 
   function analyse(position, conditions) {
@@ -325,6 +330,8 @@
   for (const item of selected) {
     if (existingIds.has(item.id) || existingLabels.has(item.label.trim().toLowerCase())) continue;
     const source = sourceFor(item.conditions);
+    const standaloneTest = compileStandaloneTest(source);
+    if (!standaloneTest) continue;
     const prompt = {
       id: item.id,
       family: item.family,
@@ -338,7 +345,7 @@
       enabled: true,
       studioRule: { kind: "builder", join: "all", conditions: item.conditions.map(condition => ({ ...condition })) },
       testSource: source,
-      test: item.stats.test,
+      test: standaloneTest,
       _studioBuiltIn: false,
       _studioCustom: true,
       _qualityPackAnswerCount: item.stats.playerCount,
@@ -379,7 +386,7 @@
 
   window.FPL_QUALITY_PROMPT_PACK_V1 = Object.freeze({
     ready: true,
-    version: "1.0.0",
+    version: "1.0.1",
     added: added.length,
     selected: selected.length,
     ids: Object.freeze(added.map(prompt => prompt.id)),
