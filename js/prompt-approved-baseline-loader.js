@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — approved prompt baseline asset loader v1.0.0 */
+/* FPL Challenge Studio — approved prompt baseline asset loader v1.0.1 */
 (() => {
   "use strict";
   if (window.__FPL_APPROVED_BASELINE_LOADER__) return;
@@ -7,7 +7,7 @@
   const assets = [
     ...Array.from({ length: 8 }, (_, index) => `js/prompt-approved-ids-20260814-${index + 1}.js?v=1.0.0`),
     "js/prompt-approved-disabled-20260814.js?v=1.0.0",
-    "js/prompt-approved-baseline.js?v=1.0.0"
+    "js/prompt-approved-baseline.js?v=1.0.2"
   ];
 
   function load(index) {
