@@ -26,6 +26,7 @@ jobs:
           node --check js/admin-import-tools.js
           node --check js/admin-import-tools-base.js
           node --check js/admin-daily-publish.js
+          node --check js/admin-daily-generator-guard.js
           node --check js/admin-studio-finish.js
           node --check js/validation-engine.js
           node --check js/validation-lab.js
