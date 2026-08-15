@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Prompt Quality Analyser star-rating UI v1.0.1
+/* FPL Challenge Studio — Prompt Quality Analyser star-rating UI v1.0.2
    Keeps the analyser's detailed scoring engine intact, but presents its recommendations
    in the same 1–5★ language used by the Prompt Library and generator. */
 (() => {
@@ -58,14 +58,14 @@
     const average = items.reduce((sum, item) => sum + Number(item.suggestedRating || 0), 0) / total;
     const count = rating => items.filter(item => Number(item.suggestedRating) === rating).length;
     const enabled = items.filter(item => item.enabled).length;
-    const suggestedDisable = items.filter(item => !item.suggestedEnabled && item.enabled).length;
+    const belowStandard = items.filter(item => item.enabled && Number(item.suggestedRating || 0) < 4).length;
     const html = `<article><span>Analysed</span><strong>${total.toLocaleString("en-GB")}</strong></article>
       <article><span>Average rating</span><strong>${average.toFixed(1)}★</strong></article>
       <article><span>5★</span><strong>${count(5)}</strong></article>
       <article><span>4★</span><strong>${count(4)}</strong></article>
       <article><span>3★ and below</span><strong>${count(1) + count(2) + count(3)}</strong></article>
       <article><span>Enabled</span><strong>${enabled}</strong></article>
-      <article><span>Suggested disables</span><strong>${suggestedDisable}</strong></article>`;
+      <article><span>Below 4★ standard</span><strong>${belowStandard}</strong></article>`;
     if (summary.innerHTML.trim() !== html.trim()) summary.innerHTML = html;
   }
 
