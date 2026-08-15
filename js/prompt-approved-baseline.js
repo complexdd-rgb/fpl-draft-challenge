@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — approved prompt baseline v1.0.2
+/* FPL Challenge Studio — approved prompt baseline v1.0.3
    Applies the user's 14 Aug 2026 Prompt Studio cleanup without replacing prompt objects.
    Existing baseline prompts must be on the approved list and rated 4★ or 5★.
    Prompts that were disabled in the approved export are now deleted from the effective
@@ -57,13 +57,14 @@
 
     window.FPL_APPROVED_PROMPT_BASELINE = Object.freeze({
       ready: true,
-      version: "1.0.2",
+      version: "1.0.3",
       sourceApprovedExpected: EXPECTED_APPROVED_SOURCE,
       approvedExpected: activeExpected,
       approvedPresent: baselinePresent,
       total: library.length,
       removed,
       removedDisabled,
+      disabledDeleted: disabled.size,
       minimumRating: 4,
       fourStar,
       fiveStar,
