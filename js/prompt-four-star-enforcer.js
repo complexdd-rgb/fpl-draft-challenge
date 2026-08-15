@@ -1,8 +1,8 @@
-/* FPL Challenge Studio — four-star prompt floor enforcer v1.0.0
+/* FPL Challenge Studio — four-star prompt floor enforcer v1.0.1
    One-time-per-library analysis that removes prompts rated below 4★ by the Quality
-   Analyser. The rejected ID set is cached against the exact library fingerprint, so
-   subsequent Studio loads are fast while any library change automatically triggers a
-   fresh quality pass. */
+   Analyser. The rejected ID set is cached against the resulting library fingerprint,
+   so subsequent Studio loads are fast while any genuine library change triggers a fresh
+   quality pass. */
 (() => {
   "use strict";
 
@@ -11,7 +11,7 @@
 
   const CACHE_KEY = "fplPromptFourStarFloorV1";
   const MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
-  const VERSION = "1.0.0";
+  const VERSION = "1.0.1";
   const MINIMUM_RATING = 4;
   let running = false;
   let attempts = 0;
@@ -106,11 +106,16 @@
     panel.innerHTML = message;
   }
 
-  function publishMeta(sourceCount, rejectedIds, removed, fromCache) {
+  function disabledDeletedCount() {
     const baseline = window.FPL_APPROVED_PROMPT_BASELINE || {};
+    return Number(baseline.disabledDeleted || baseline.removedDisabled || 0);
+  }
+
+  function publishMeta(sourceCount, rejectedIds, removed, fromCache) {
     const finalLibrary = library();
     const four = finalLibrary.filter(prompt => Number(prompt.rating) === 4).length;
     const five = finalLibrary.filter(prompt => Number(prompt.rating) === 5).length;
+    const deletedDisabled = disabledDeletedCount();
     window.FPL_FOUR_STAR_LIBRARY = Object.freeze({
       ready: true,
       version: VERSION,
@@ -118,14 +123,14 @@
       analysed: sourceCount,
       analyserRejected: rejectedIds.length,
       removed,
-      disabledDeleted: Number(baseline.removedDisabled || 0),
+      disabledDeleted: deletedDisabled,
       total: finalLibrary.length,
       fourStarStoredRating: four,
       fiveStarStoredRating: five,
       fromCache: Boolean(fromCache)
     });
     window.dispatchEvent(new CustomEvent("fpl:four-star-library-ready", { detail: window.FPL_FOUR_STAR_LIBRARY }));
-    setStatus(`<strong>4★+ library enforced.</strong> ${rejectedIds.length} analyser-rated prompt${rejectedIds.length === 1 ? "" : "s"} below 4★ removed · ${Number(baseline.removedDisabled || 0)} previously disabled prompt${Number(baseline.removedDisabled || 0) === 1 ? "" : "s"} deleted · ${finalLibrary.length.toLocaleString("en-GB")} prompts remain.`);
+    setStatus(`<strong>4★+ library enforced.</strong> ${rejectedIds.length} analyser-rated prompt${rejectedIds.length === 1 ? "" : "s"} below 4★ removed · ${deletedDisabled} previously disabled prompt${deletedDisabled === 1 ? "" : "s"} deleted · ${finalLibrary.length.toLocaleString("en-GB")} prompts remain.`);
   }
 
   async function enforce() {
@@ -138,17 +143,18 @@
 
     running = true;
     try {
-      const sourceFingerprint = fingerprint(items);
       const cached = readCache();
-      if (cached?.fingerprint === sourceFingerprint) {
+      if (cached) {
         persistDeleted(cached.rejectedIds);
-        const removed = removeIds(cached.rejectedIds);
-        publishMeta(Number(cached.analysed || items.length), cached.rejectedIds, removed, true);
-        return true;
+        const removedCached = removeIds(cached.rejectedIds);
+        if (cached.finalFingerprint && fingerprint(library()) === cached.finalFingerprint) {
+          publishMeta(Number(cached.analysed || items.length), cached.rejectedIds, removedCached, true);
+          return true;
+        }
       }
 
-      setStatus(`<strong>Finalising the 4★+ library…</strong> Rechecking ${items.length.toLocaleString("en-GB")} prompts with the same full Quality Analyser rules. This only needs to run again when the library changes.`, "working");
-      const source = items.slice();
+      const source = library().slice();
+      setStatus(`<strong>Finalising the 4★+ library…</strong> Rechecking ${source.length.toLocaleString("en-GB")} prompts with the same full Quality Analyser rules. This only needs to run again when the library changes.`, "working");
       const results = await engine.analyseLibrary(source, players, {
         progress: (current, total) => {
           const now = Date.now();
@@ -158,20 +164,22 @@
           setStatus(`<strong>Finalising the 4★+ library… ${percent}%</strong> Checking answer breadth, overlap, variety and rule health before removing anything below the agreed quality floor.`, "working");
         }
       });
-      const rejectedIds = results
+      const newlyRejected = results
         .filter(result => Number(result?.suggestedRating || 0) < MINIMUM_RATING)
         .map(result => String(result.id || ""))
         .filter(Boolean);
+      const rejectedIds = [...new Set([...(cached?.rejectedIds || []), ...newlyRejected])];
 
-      writeCache({
-        version: VERSION,
-        fingerprint: sourceFingerprint,
-        analysed: source.length,
-        rejectedIds,
-        createdAt: new Date().toISOString()
-      });
       persistDeleted(rejectedIds);
       const removed = removeIds(rejectedIds);
+      const finalFingerprint = fingerprint(library());
+      writeCache({
+        version: VERSION,
+        analysed: source.length,
+        rejectedIds,
+        finalFingerprint,
+        createdAt: new Date().toISOString()
+      });
       publishMeta(source.length, rejectedIds, removed, false);
       return true;
     } catch (error) {
