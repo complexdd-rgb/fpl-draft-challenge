@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Prompt Quality Analyser star-rating UI v1.0.3
+/* FPL Challenge Studio — Prompt Quality Analyser star-rating UI v1.0.4
    Keeps the analyser's detailed scoring engine intact, but presents its recommendations
    in the same 1–5★ language used by the Prompt Library and generator. */
 (() => {
@@ -46,9 +46,17 @@
     }
   }
 
+  function livePromptIds() {
+    const library = window.FPL_STUDIO_API?.getPromptLibrary?.() || window.FPL_PROMPT_LIBRARY || [];
+    return new Set((Array.isArray(library) ? library : []).map(prompt => String(prompt?.id || "")).filter(Boolean));
+  }
+
   function results() {
-    try { return window.FPL_PROMPT_QUALITY_API?.getResults?.() || []; }
-    catch (_) { return []; }
+    try {
+      const raw = window.FPL_PROMPT_QUALITY_API?.getResults?.() || [];
+      const liveIds = livePromptIds();
+      return liveIds.size ? raw.filter(item => liveIds.has(String(item?.id || ""))) : raw;
+    } catch (_) { return []; }
   }
 
   function patchSummary(items) {
@@ -72,7 +80,7 @@
   function patchCard(card, byId) {
     const id = String(card?.dataset?.promptId || "");
     const result = byId.get(id);
-    if (!result) return;
+    if (!result) { card?.remove(); return; }
     const rating = Math.max(1, Math.min(5, Number(result.suggestedRating) || 1));
     const current = Math.max(1, Math.min(5, Number(result.currentRating) || 1));
     const score = card.querySelector(".quality-score");
@@ -111,6 +119,13 @@
     setText(status, `Analysis complete: ${five} rated 5★, ${four} rated 4★, ${below} below the 4★ library standard. Nothing has been changed automatically by this analysis run.`);
   }
 
+  function patchListSummary(items) {
+    const summary = document.getElementById("promptQualityListSummary");
+    if (!summary) return;
+    const shown = document.querySelectorAll("#promptQualityList .quality-card").length;
+    setText(summary, `${shown.toLocaleString("en-GB")} of ${items.length.toLocaleString("en-GB")} analysed prompts shown`);
+  }
+
   function patch() {
     queued = false;
     if (!root()) return;
@@ -120,6 +135,7 @@
     const byId = new Map(items.map(item => [String(item.id || ""), item]));
     patchSummary(items);
     document.querySelectorAll("#promptQualityList .quality-card").forEach(card => patchCard(card, byId));
+    patchListSummary(items);
     patchStatus(items);
   }
 
@@ -142,6 +158,8 @@
     new MutationObserver(queuePatch).observe(panel, { childList: true, subtree: true });
     panel.addEventListener("change", queuePatch);
     panel.addEventListener("click", () => setTimeout(queuePatch, 0));
+    window.addEventListener("fpl:four-star-library-ready", queuePatch);
+    window.addEventListener("fpl:prompt-library-changed", queuePatch);
     queuePatch();
     return true;
   }
