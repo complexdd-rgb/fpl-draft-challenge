@@ -1,35 +1,38 @@
-/* FPL Challenge Studio — approved prompt baseline v1.0.1
+/* FPL Challenge Studio — approved prompt baseline v1.0.2
    Applies the user's 14 Aug 2026 Prompt Studio cleanup without replacing prompt objects.
    Existing baseline prompts must be on the approved list and rated 4★ or 5★.
-   New browser-created custom prompts remain possible, but also have to meet the 4★ floor. */
+   Prompts that were disabled in the approved export are now deleted from the effective
+   Studio library rather than kept as dormant entries. */
 (() => {
   "use strict";
 
-  const EXPECTED_APPROVED = 937;
+  const EXPECTED_APPROVED_SOURCE = 937;
+  const EXPECTED_DISABLED_SOURCE = 34;
   let attempts = 0;
 
   function apply() {
     const library = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : null;
     const approvedIds = Array.isArray(window.FPL_APPROVED_PROMPT_IDS_20260814) ? window.FPL_APPROVED_PROMPT_IDS_20260814 : [];
     const disabledIds = Array.isArray(window.FPL_APPROVED_PROMPT_DISABLED_IDS_20260814) ? window.FPL_APPROVED_PROMPT_DISABLED_IDS_20260814 : [];
-    if (!library || approvedIds.length !== EXPECTED_APPROVED) return false;
+    if (!library || approvedIds.length !== EXPECTED_APPROVED_SOURCE || disabledIds.length !== EXPECTED_DISABLED_SOURCE) return false;
     if (!window.FPL_QUALITY_PROMPT_PACK_V1?.ready || !window.FPL_QUALITY_PROMPT_PACK_V2?.ready || !window.FPL_QUALITY_PROMPT_PACK_V3?.ready) return false;
 
     const approved = new Set(approvedIds.map(String));
     const disabled = new Set(disabledIds.map(String));
     let removed = 0;
+    let removedDisabled = 0;
 
     for (let index = library.length - 1; index >= 0; index -= 1) {
       const prompt = library[index];
       const id = String(prompt?.id || "");
       const rating = Number(prompt?.rating) || 0;
       const newCustom = prompt?._studioCustom === true && prompt?._studioBuiltIn !== true;
-      if (rating < 4 || (!approved.has(id) && !newCustom)) {
+      const approvedButDisabled = approved.has(id) && disabled.has(id);
+      if (rating < 4 || approvedButDisabled || (!approved.has(id) && !newCustom)) {
         library.splice(index, 1);
         removed += 1;
-        continue;
+        if (approvedButDisabled) removedDisabled += 1;
       }
-      if (approved.has(id) && disabled.has(id)) prompt.enabled = false;
     }
 
     // V3 originally withheld two 4★ prompts under the former 5★-only pack rule.
@@ -50,14 +53,17 @@
     const fiveStar = library.filter(prompt => Number(prompt.rating) === 5).length;
     const baselinePresent = library.filter(prompt => approved.has(String(prompt?.id || ""))).length;
     const disabledCount = library.filter(prompt => prompt.enabled === false).length;
+    const activeExpected = EXPECTED_APPROVED_SOURCE - disabled.size;
 
     window.FPL_APPROVED_PROMPT_BASELINE = Object.freeze({
       ready: true,
-      version: "1.0.1",
-      approvedExpected: EXPECTED_APPROVED,
+      version: "1.0.2",
+      sourceApprovedExpected: EXPECTED_APPROVED_SOURCE,
+      approvedExpected: activeExpected,
       approvedPresent: baselinePresent,
       total: library.length,
       removed,
+      removedDisabled,
       minimumRating: 4,
       fourStar,
       fiveStar,
