@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — career-overlap wording clarity v1.0.8
+/* FPL Challenge Studio — career-overlap wording clarity v1.0.9
    Presentation/migration helper only. The rule remains: both players recorded Premier
    League minutes in at least one matching season; they do not need to share a club. */
 (() => {
@@ -120,10 +120,11 @@
   }
 
   function loadQualityExtras() {
-    loadStatus("js/prompt-approved-baseline-loader.js?v=1.0.0", "data-approved-prompt-baseline-loader");
+    loadStatus("js/prompt-approved-baseline-loader.js?v=1.0.1", "data-approved-prompt-baseline-loader");
     loadStatus("js/prompt-quality-baseline-finalizer.js?v=1.1.0", "data-quality-prompt-baseline-finalizer");
     loadStatus("js/prompt-quality-family-generator.js?v=1.0.0", "data-quality-prompt-family-generator");
-    loadStatus("js/prompt-analyser-stars-v1.js?v=1.0.0", "data-prompt-analyser-stars");
+    loadStatus("js/prompt-analyser-stars-v1.js?v=1.0.2", "data-prompt-analyser-stars");
+    loadStatus("js/prompt-four-star-enforcer.js?v=1.0.0", "data-prompt-four-star-enforcer");
     loadQualityStatuses();
   }
 
