@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.0.0
+/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.0.1
    Keeps seven-day generation aligned with the server schedule and locks every generated
    week to the certified 902-prompt 4★+ pool. */
 (() => {
@@ -282,7 +282,6 @@
   }
 
   function onGenerateClick(event) {
-    if (!event.isTrusted && event.detail === 0) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     guardedGenerate();
