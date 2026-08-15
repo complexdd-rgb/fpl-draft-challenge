@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Prompt Quality Analyser star-rating UI v1.0.2
+/* FPL Challenge Studio — Prompt Quality Analyser star-rating UI v1.0.3
    Keeps the analyser's detailed scoring engine intact, but presents its recommendations
    in the same 1–5★ language used by the Prompt Library and generator. */
 (() => {
@@ -32,7 +32,7 @@
     optionLabel("qualitySort", "quality", "Star rating");
 
     for (const id of ["qualityDisableMode", "qualityDeleteMode"]) {
-      optionLabel(id, "recommended", "Analyser recommendations");
+      optionLabel(id, "recommended", "Engine safety recommendations");
       optionLabel(id, "broken", "Broken only");
       optionLabel(id, "poor", "1★ / broken");
       optionLabel(id, "review", "2★ and below");
@@ -83,7 +83,7 @@
       setText(strong, `${rating}★`);
       setText(span, stars(rating));
       if (span) span.classList.add("quality-star-strip");
-      setText(em, rating === current ? "Keep rating" : "Suggested");
+      setText(em, rating < 4 ? "Below standard" : (rating === current ? "Keep rating" : "Suggested"));
       const aria = `${rating} out of 5 stars`;
       if (score.getAttribute("aria-label") !== aria) score.setAttribute("aria-label", aria);
     }
@@ -92,9 +92,10 @@
 
     for (const detail of card.querySelectorAll(".quality-detail-grid strong")) {
       const text = detail.textContent || "";
-      const next = text
+      let next = text
         .replace(/Keep rating\s+(\d)\/5/gi, "Keep $1★")
         .replace(/Rating\s+(\d)\/5\s*→\s*(\d)\/5/gi, "$1★ → $2★");
+      if (rating < 4) next = next.replace(/Keep enabled|Disable for review/gi, "Remove below 4★ standard");
       setText(detail, next);
     }
     const why = card.querySelector(".quality-details > summary");
@@ -107,7 +108,7 @@
     const five = items.filter(item => Number(item.suggestedRating) === 5).length;
     const four = items.filter(item => Number(item.suggestedRating) === 4).length;
     const below = items.filter(item => Number(item.suggestedRating) < 4).length;
-    setText(status, `Analysis complete: ${five} rated 5★, ${four} rated 4★, ${below} below the 4★ library standard. Nothing has been changed automatically.`);
+    setText(status, `Analysis complete: ${five} rated 5★, ${four} rated 4★, ${below} below the 4★ library standard. Nothing has been changed automatically by this analysis run.`);
   }
 
   function patch() {
