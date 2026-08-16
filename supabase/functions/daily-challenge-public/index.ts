@@ -42,7 +42,37 @@ Deno.serve(async (req) => {
     const { data: selectedRows, error: selectedError } = await selectedQuery;
     if (selectedError) throw selectedError;
     const selected = Array.isArray(selectedRows) ? selectedRows[0] : null;
-    if (!selected?.source_js) return js("window.FPL_SUPABASE_CHALLENGE_LOADED=false;\n");
+
+    // A GitHub-backed challenge can still have its next day scheduled only in Supabase.
+    // Publish that upcoming date into the shared runtime without claiming that Supabase
+    // supplied today's challenge. Preserve an earlier local-manifest date when one exists.
+    if (!selected?.source_js) {
+      if (archiveRequest) return js("window.FPL_SUPABASE_CHALLENGE_LOADED=false;\n");
+
+      const { data: upcomingRows, error: upcomingError } = await supabase
+        .from("daily_challenge_schedule")
+        .select("release_date")
+        .eq("active", true)
+        .gt("release_date", requestedDate)
+        .order("release_date", { ascending: true })
+        .limit(1);
+      if (upcomingError) throw upcomingError;
+
+      const upcomingDate = Array.isArray(upcomingRows) && upcomingRows[0]?.release_date
+        ? String(upcomingRows[0].release_date)
+        : "";
+      if (!upcomingDate) return js("window.FPL_SUPABASE_CHALLENGE_LOADED=false;\n");
+
+      return js([
+        "window.FPL_SUPABASE_CHALLENGE_LOADED=false;",
+        "(function(){",
+        `const next=${JSON.stringify(upcomingDate)};`,
+        "const runtime=window.FPL_CHALLENGE_RUNTIME||{};",
+        "const current=String(runtime.nextScheduledDate||'');",
+        "if(!current||next<current){window.FPL_CHALLENGE_RUNTIME=Object.assign({},runtime,{nextScheduledDate:next,nextScheduledPath:'supabase:'+next});}",
+        "})();"
+      ].join("\n") + "\n");
+    }
 
     const selectedDate = String(selected.release_date || "");
     const { data: futureRows, error: futureError } = await supabase
