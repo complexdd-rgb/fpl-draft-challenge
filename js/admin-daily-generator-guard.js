@@ -1,5 +1,5 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.0.1
-   Keeps seven-day generation aligned with the server schedule and locks every generated
+/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.0.2
+   Keeps seven-day generation aligned with the live server schedule and locks every generated
    week to the certified 902-prompt 4★+ pool. */
 (() => {
   "use strict";
@@ -111,13 +111,14 @@
     installGuardChip();
     if (!guardChip) return;
     const meta = window.FPL_FOUR_STAR_LIBRARY;
-    const next = expectedNext();
+    const scheduleReady = window.FPL_STUDIO_SCHEDULE?.status === "ready";
+    const next = scheduleReady ? expectedNext() : null;
     const qualityText = meta?.ready
       ? `${Number(meta.total || 0).toLocaleString("en-GB")} prompt pool`
       : "quality pool finalising";
-    const nextText = next?.date && next?.number ? `next #${next.number} · ${next.date}` : "schedule pending";
+    const nextText = next?.date && next?.number ? `next #${next.number} · ${next.date}` : "live schedule pending";
     guardChip.textContent = `${qualityText} · ${nextText}`;
-    guardChip.title = "Daily Challenge generation is locked to the certified quality pool and the next unused schedule number.";
+    guardChip.title = "Daily Challenge generation is locked to the certified quality pool and a freshly loaded live Supabase schedule.";
   }
 
   function captureQualityPool() {
@@ -162,7 +163,28 @@
     }
   }
 
+  async function waitForServerSchedule(timeoutMs = 10000) {
+    const deadline = Date.now() + timeoutMs;
+    setStatus("Refreshing the live Supabase schedule before generation…", "working");
+    while (Date.now() < deadline) {
+      const schedule = window.FPL_STUDIO_SCHEDULE;
+      if (typeof schedule?.refresh === "function") {
+        if (await refreshServerSchedule()) {
+          updateGuardChip();
+          return true;
+        }
+        if (schedule.status === "unavailable") return false;
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    return false;
+  }
+
   function syncInputsToSchedule(force = false) {
+    if (window.FPL_STUDIO_SCHEDULE?.status !== "ready") {
+      updateGuardChip();
+      return false;
+    }
     const next = expectedNext();
     if (!next.consistent) return false;
     const start = String(startDateInput.value || "");
@@ -179,6 +201,9 @@
   }
 
   function validateScheduleSelection() {
+    if (window.FPL_STUDIO_SCHEDULE?.status !== "ready") {
+      return { ok: false, reason: "The live Supabase schedule is not ready. Generation stays locked until the server schedule has been refreshed successfully." };
+    }
     const next = expectedNext();
     if (!next.consistent) {
       return { ok: false, reason: `Challenge numbering is inconsistent: the latest dated challenge is #${next.latest?.number || "?"}, but #${next.maxNumber} is already reserved elsewhere. Resolve the schedule before generating.` };
@@ -245,7 +270,11 @@
         return;
       }
 
-      await refreshServerSchedule();
+      if (!await waitForServerSchedule()) {
+        setStatus("Generation is locked until the live Supabase schedule is available. Sign in on the live game if needed, then reload Studio before generating.", "fail");
+        return;
+      }
+
       const scheduleCheck = validateScheduleSelection();
       if (!scheduleCheck.ok) {
         setStatus(scheduleCheck.reason, "fail");
@@ -299,14 +328,15 @@
 
   installGuardChip();
   captureQualityPool();
-  syncInputsToSchedule(false);
+  updateGuardChip();
   setTimeout(() => {
-    refreshServerSchedule().then(() => syncInputsToSchedule(false));
+    waitForServerSchedule().then(ready => { if (ready) syncInputsToSchedule(false); else updateGuardChip(); });
   }, 0);
 
   window.FPL_DAILY_GENERATOR_GUARD = Object.freeze({
     expectedPoolSize: EXPECTED_POOL_SIZE,
     qualityReady: () => qualityIds instanceof Set && qualityIds.size === EXPECTED_POOL_SIZE,
+    scheduleReady: () => window.FPL_STUDIO_SCHEDULE?.status === "ready",
     getQualityPromptIds: () => qualityIds ? [...qualityIds] : [],
     getExpectedNext: () => ({ ...expectedNext() }),
     sync: () => syncInputsToSchedule(true),
