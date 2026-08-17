@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — career-overlap wording clarity v1.0.15
+/* FPL Challenge Studio — career-overlap wording clarity v1.0.16
    Presentation/migration helper only. The rule remains: both players recorded Premier
    League minutes in at least one matching season; they do not need to share a club. */
 (() => {
@@ -161,6 +161,8 @@
   window.FPL_CAREER_OVERLAP_WORDING = Object.freeze({ rewriteLabel, rewriteFail, migrateBrowserManager });
 
   migrateBrowserManager();
+  // Install the shared null/missing-field guard before further Prompt Studio tools are loaded.
+  loadStatus("js/prompt-missing-field-guard.js?v=1.0.0", "data-prompt-missing-field-guard");
   // Daily Challenge schedule controls and generation guards should be available immediately
   // in Studio and do not need to wait for the heavier Prompt Studio quality tooling.
   loadStatus("js/admin-schedule-manager.js?v=1.0.1", "data-admin-schedule-manager");
@@ -170,6 +172,7 @@
   else installDomObserver();
   window.addEventListener("fpl:prompt-tools-ready", () => {
     migrateBrowserManager();
+    window.FPL_PROMPT_FIELD_GUARD?.install?.();
     installDomObserver();
     loadQualityPromptPacks();
     loadQualityExtras();
