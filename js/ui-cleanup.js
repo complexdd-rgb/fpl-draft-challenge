@@ -2,6 +2,15 @@
 (() => {
   "use strict";
 
+  function loadPromptMissingFieldGuard() {
+    if (window.FPL_PROMPT_FIELD_GUARD || document.querySelector('script[data-prompt-missing-field-guard]')) return;
+    const guard = document.createElement("script");
+    guard.src = new URL("js/prompt-missing-field-guard.js?v=1.0.0", document.baseURI).toString();
+    guard.async = false;
+    guard.dataset.promptMissingFieldGuard = "1";
+    document.head.appendChild(guard);
+  }
+
   function loadVisualOverhaul() {
     if (document.querySelector('script[data-visual-overhaul]')) return;
     const visual = document.createElement("script");
@@ -39,6 +48,7 @@
   }
 
   function retireLowValuePanels() {
+    loadPromptMissingFieldGuard();
     const shell = document.getElementById("phase45Shell");
     const livePanel = document.getElementById("liveXiPanel");
     const stats = document.getElementById("phase45ExtendedStats");
