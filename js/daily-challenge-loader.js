@@ -2,6 +2,13 @@
 (() => {
   "use strict";
 
+  // Historical recovery rows may deliberately carry null prompt-specific values. Load the
+  // shared guard synchronously while the document parser is still here so it is installed
+  // before the inline live-game engine performs saved-pick, best-answer or perfect-XI tests.
+  if (!window.FPL_PROMPT_FIELD_GUARD && !document.querySelector('script[data-prompt-missing-field-guard]')) {
+    document.write('<script src="js/prompt-missing-field-guard.js?v=1.0.0" data-prompt-missing-field-guard="1"><\/script>');
+  }
+
   const DEFAULT_TIMEZONE = "Europe/London";
   const SUPABASE_CHALLENGE_ENDPOINT = "https://sacfscnhvmfvbazbfgji.supabase.co/functions/v1/daily-challenge-public";
   const manifest = window.FPL_CHALLENGE_MANIFEST || null;
