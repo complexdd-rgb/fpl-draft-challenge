@@ -336,3 +336,108 @@
     document.write('<script src="js/career-shape-rules.js?v=1.1.2-repair"><\/script>');
   }
 })();
+
+/* FPL Draft Challenge — missing numeric prompt field safety bridge · v1.0.0
+   null/undefined/blank/non-finite historical numeric fields are not evaluable.
+   Existing prompt.test call sites remain unchanged: prompt functions are wrapped at
+   runtime, while their original .toString() source is preserved for Studio exports. */
+(() => {
+  "use strict";
+
+  const PROMPT_NUMERIC_FIELDS = new Set([
+    "points", "minutes", "goals", "assists", "cleanSheets", "bonus", "saves",
+    "goalsConceded", "yellowCards", "redCards", "startingPrice", "finalPrice",
+    "leaguePosition", "ageAtSeasonStart"
+  ]);
+  const safeRecordCache = new WeakMap();
+  const wrappedArrays = new WeakMap();
+
+  function safePromptRecord(record) {
+    if (!record || typeof record !== "object") return record;
+    if (safeRecordCache.has(record)) return safeRecordCache.get(record);
+    const safeRecord = new Proxy(record, {
+      get(target, prop, receiver) {
+        const value = Reflect.get(target, prop, receiver);
+        if (
+          PROMPT_NUMERIC_FIELDS.has(String(prop)) &&
+          (value === null || value === undefined || value === "" || !Number.isFinite(Number(value)))
+        ) return NaN;
+        return value;
+      }
+    });
+    safeRecordCache.set(record, safeRecord);
+    return safeRecord;
+  }
+
+  function runSafePromptTest(test, record) {
+    if (typeof test !== "function" || !record) return false;
+    try { return test(safePromptRecord(record)) === true; } catch (_) { return false; }
+  }
+
+  function safePromptTest(prompt, record) {
+    if (!prompt || typeof prompt.test !== "function" || !record) return false;
+    const test = prompt.test.__fplMissingFieldOriginal || prompt.test;
+    return runSafePromptTest(test, record);
+  }
+
+  function wrapPrompt(prompt) {
+    if (!prompt || typeof prompt.test !== "function" || prompt.test.__fplMissingFieldSafe === true) return prompt;
+    const original = prompt.test;
+    const wrapped = function(record) { return runSafePromptTest(original, record); };
+    Object.defineProperties(wrapped, {
+      __fplMissingFieldSafe: { value: true },
+      __fplMissingFieldOriginal: { value: original },
+      toString: { value: () => original.toString(), configurable: true }
+    });
+    try { prompt.test = wrapped; } catch (_) { return prompt; }
+    return prompt;
+  }
+
+  function wrapPromptArray(value) {
+    if (!Array.isArray(value)) return value;
+    if (wrappedArrays.has(value)) return wrappedArrays.get(value);
+    value.forEach(wrapPrompt);
+    const proxy = new Proxy(value, {
+      set(target, prop, nextValue, receiver) {
+        const key = String(prop);
+        const prepared = /^(?:0|[1-9]\d*)$/.test(key) ? wrapPrompt(nextValue) : nextValue;
+        return Reflect.set(target, prop, prepared, receiver);
+      }
+    });
+    wrappedArrays.set(value, proxy);
+    return proxy;
+  }
+
+  function wrapChallenge(challenge) {
+    if (!challenge || !Array.isArray(challenge.prompts)) return challenge;
+    const prompts = wrapPromptArray(challenge.prompts);
+    try { challenge.prompts = prompts; } catch (_) { /* prompt objects were still wrapped */ }
+    return challenge;
+  }
+
+  function installWindowHook(name, prepare) {
+    const descriptor = Object.getOwnPropertyDescriptor(window, name);
+    let current = prepare(window[name]);
+    if (descriptor && descriptor.configurable === false) return;
+    try {
+      Object.defineProperty(window, name, {
+        configurable: true,
+        enumerable: true,
+        get: () => current,
+        set: value => { current = prepare(value); }
+      });
+    } catch (_) { /* direct wrapping above still protects already-loaded collections */ }
+  }
+
+  installWindowHook("FPL_DAILY_CHALLENGE", wrapChallenge);
+  installWindowHook("FPL_PROMPT_LIBRARY", wrapPromptArray);
+
+  window.safePromptTest = safePromptTest;
+  window.FPL_SAFE_PROMPT_TEST = Object.freeze({
+    version: "1.0.0",
+    numericFields: Object.freeze([...PROMPT_NUMERIC_FIELDS]),
+    test: safePromptTest,
+    wrapPrompt,
+    wrapPromptArray
+  });
+})();
