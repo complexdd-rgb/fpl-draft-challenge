@@ -6,12 +6,19 @@ on:
     paths:
       - 'players.js'
       - 'scripts/build-live-players.mjs'
+      - 'scripts/apply-2011-12-import.mjs'
+      - 'data/fpl-2011-12-import-v15.part-*'
+      - 'data/fpl-2011-12-import-v15.parts'
       - '.github/workflows/live-player-data.yml'
   pull_request:
     paths:
       - 'players.js'
       - 'scripts/build-live-players.mjs'
+      - 'scripts/apply-2011-12-import.mjs'
+      - 'data/fpl-2011-12-import-v15.part-*'
+      - 'data/fpl-2011-12-import-v15.parts'
       - 'players-live.js'
+      - '.github/workflows/live-player-data.yml'
 
 permissions:
   contents: write
@@ -30,26 +37,31 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Apply certified 2011/12 import
+        run: |
+          node scripts/apply-2011-12-import.mjs players.js data/fpl-2011-12-import-v15.parts
+          node --check players.js
+
       - name: Build slim player-facing database
         run: |
           node scripts/build-live-players.mjs
           node --check players-live.js
 
-      - name: Verify or publish generated file
+      - name: Verify or publish generated database
         shell: bash
         run: |
           set -euo pipefail
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            git add -N players-live.js 2>/dev/null || true
-            git diff --exit-code -- players-live.js
+            echo "Certified migration and live database build completed successfully."
+            git diff --stat -- players.js players-live.js
             exit 0
           fi
-          if [[ -z "$(git status --porcelain -- players-live.js)" ]]; then
-            echo "players-live.js is already current."
+          if [[ -z "$(git status --porcelain -- players.js players-live.js)" ]]; then
+            echo "players.js and players-live.js are already current."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add players-live.js
-          git commit -m 'Refresh slim live player database'
+          git add -- players.js players-live.js
+          git commit -m 'Import certified 2011/12 player database'
           git push
