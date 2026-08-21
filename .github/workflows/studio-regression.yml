@@ -56,3 +56,16 @@ jobs:
           node --check js/visual-overhaul.js
           node --check js/visual-finishing.js
           node --check sw.js
+
+      - name: Audit 2011/12 identity mapping
+        run: |
+          node --check scripts/audit-2011-12-identities.mjs
+          node scripts/audit-2011-12-identities.mjs
+
+      - name: Upload 2011/12 identity audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 2011-12-identity-audit
+          path: tmp/2011-12-identity-audit.json
+          if-no-files-found: warn
