@@ -14,7 +14,7 @@ const yr=v=>Number.parseInt(String(v||"").slice(0,4),10)||9999;
 const adjacent=p=>(p.seasons||[]).filter(s=>yr(s.season)>=2012).slice().sort((a,b)=>yr(a.season)-yr(b.season))[0]||null;
 const pnames=p=>[p.name,...(Array.isArray(p.aliases)?p.aliases:[])].filter(Boolean);
 const pcodes=p=>new Set([p?.sourceIdentity?.sourceCode,p?.sourceIdentity?.code,p?.sourceCode,p?.code].filter(v=>v!==null&&v!==undefined&&String(v)!=="").map(String));
-const FORCE_NEW=new Set(["2004"]);
+const FORCE_NEW=new Set(["2004","92488","78774"]);
 const exact=new Map(),codes=new Map();
 players.forEach((p,i)=>{for(const nm of pnames(p)){const k=norm(nm);if(!k)continue;if(!exact.has(k))exact.set(k,[]);exact.get(k).push(i);}for(const c of pcodes(p)){if(!codes.has(c))codes.set(c,[]);codes.get(c).push(i);}});
 function baseScore(src,p){const s=norm(src),sf=first(src),ss=last(src);let best=0;for(const raw of pnames(p)){const v=norm(raw),pf=first(raw),ps=last(raw);if(v===s)best=Math.max(best,120);if(v.replace(/ /g,"")===s.replace(/ /g,""))best=Math.max(best,115);if(ss&&ps===ss){if(pf===sf)best=Math.max(best,96);else if(nick(pf,sf))best=Math.max(best,92);else if(pf&&sf&&pf[0]===sf[0]&&sf.length>2)best=Math.max(best,78);}const at=new Set(v.split(" ")),bt=s.split(" ");if(bt.length>=2&&bt.every(t=>at.has(t)))best=Math.max(best,100);}return best;}
