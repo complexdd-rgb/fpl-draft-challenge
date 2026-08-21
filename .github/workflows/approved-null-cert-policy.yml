@@ -1,0 +1,51 @@
+name: Approved-null certification policy
+
+on:
+  pull_request:
+    paths:
+      - 'js/certification-approved-null-policy.js'
+      - 'scripts/apply-approved-null-cert-policy.mjs'
+      - '.github/workflows/approved-null-cert-policy.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/certification-approved-null-policy.js'
+      - 'scripts/apply-approved-null-cert-policy.mjs'
+      - '.github/workflows/approved-null-cert-policy.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wire policy into Studio
+        run: |
+          node scripts/apply-approved-null-cert-policy.mjs
+          node --check js/certification-approved-null-policy.js
+          node --check js/validation-engine.js
+          grep -q 'js/certification-approved-null-policy.js?v=1.0.0' admin.html
+          git diff --check
+      - name: Publish generated admin wiring
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$(git status --porcelain -- admin.html)" ]]; then
+            echo "admin.html is already wired."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- admin.html
+          git commit -m 'Wire approved-null certification policy into Studio'
+          git push
