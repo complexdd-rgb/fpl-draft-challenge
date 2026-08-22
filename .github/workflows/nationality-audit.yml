@@ -8,6 +8,11 @@ on:
       - players.js
       - scripts/audit-nationality-coverage.mjs
       - .github/workflows/nationality-audit.yml
+  pull_request:
+    paths:
+      - players.js
+      - scripts/audit-nationality-coverage.mjs
+      - .github/workflows/nationality-audit.yml
 
 jobs:
   audit:
