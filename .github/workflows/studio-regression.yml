@@ -51,6 +51,8 @@ jobs:
           node --check js/career-shape-unified-fixes.js
           node --check js/career-shape-future-quality-guard.js
           node --check js/ui-cleanup.js
+          node --check js/live-ui-bootstrap.js
+          node --check js/retired-panel-compat.js
           node --check js/phase45-polish.js
           node --check js/season-select-performance.js
           node --check js/autocomplete-layer.js
