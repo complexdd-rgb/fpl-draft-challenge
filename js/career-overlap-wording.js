@@ -1,10 +1,11 @@
-/* FPL Challenge Studio — career-overlap wording clarity v1.0.18
+/* FPL Challenge Studio — career-overlap wording clarity v1.0.19
    Presentation/migration helper only. The rule remains: both players recorded Premier
    League minutes in at least one matching season; they do not need to share a club. */
 (() => {
   "use strict";
 
   const MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
+  const WORKSPACE_KEY = "fpl-studio-stage-one-workspace";
   const ROOT_SELECTOR = '[data-workspace="prompts"]';
 
   function rewriteLabel(value) {
@@ -104,6 +105,37 @@
     }, true);
   }
 
+  function challengeWorkspaceIsActive() {
+    const workspace = document.querySelector('[data-workspace="challenge"]');
+    if (workspace && workspace.hidden === false) return true;
+    try { return localStorage.getItem(WORKSPACE_KEY) === "challenge"; }
+    catch (_) { return false; }
+  }
+
+  function ensureChallengeQualityTools() {
+    if (!challengeWorkspaceIsActive()) return false;
+    const loader = window.FPL_STUDIO_LOAD_PROMPT_TOOLS;
+    if (typeof loader !== "function") return false;
+    loader();
+    return true;
+  }
+
+  function installChallengeQualityBootstrap() {
+    ensureChallengeQualityTools();
+    document.addEventListener("click", event => {
+      const workspaceTrigger = event.target.closest?.('[data-open-workspace="challenge"]');
+      const generateTrigger = event.target.closest?.("#generateWeekBtn");
+      if (!workspaceTrigger && !generateTrigger) return;
+      const loader = window.FPL_STUDIO_LOAD_PROMPT_TOOLS;
+      if (typeof loader === "function") loader();
+    }, true);
+    window.addEventListener("fpl:studio-workspace-changed", event => {
+      if (event?.detail?.workspace === "challenge") ensureChallengeQualityTools();
+    });
+    setTimeout(ensureChallengeQualityTools, 0);
+    setTimeout(ensureChallengeQualityTools, 250);
+  }
+
   function loadStatus(src, marker) {
     if (document.querySelector(`script[${marker}]`)) return;
     const script = document.createElement("script");
@@ -124,7 +156,7 @@
     loadStatus("js/prompt-quality-baseline-finalizer.js?v=1.1.0", "data-quality-prompt-baseline-finalizer");
     loadStatus("js/prompt-quality-family-generator.js?v=1.0.0", "data-quality-prompt-family-generator");
     loadStatus("js/prompt-analyser-stars-v1.js?v=1.0.4", "data-prompt-analyser-stars");
-    loadStatus("js/prompt-four-star-enforcer.js?v=1.0.2", "data-prompt-four-star-enforcer");
+    loadStatus("js/prompt-four-star-enforcer.js?v=1.0.3", "data-prompt-four-star-enforcer");
     loadQualityStatuses();
   }
 
@@ -161,10 +193,10 @@
   window.FPL_CAREER_OVERLAP_WORDING = Object.freeze({ rewriteLabel, rewriteFail, migrateBrowserManager });
 
   migrateBrowserManager();
+  installChallengeQualityBootstrap();
   // Install the shared null/missing-field guard before further Prompt Studio tools are loaded.
   loadStatus("js/prompt-missing-field-guard.js?v=1.0.0", "data-prompt-missing-field-guard");
-  // Daily Challenge schedule controls and generation guards should be available immediately
-  // in Studio and do not need to wait for the heavier Prompt Studio quality tooling.
+  // Daily Challenge schedule controls and generation guards should be available immediately.
   loadStatus("js/admin-schedule-manager.js?v=1.0.1", "data-admin-schedule-manager");
   loadStatus("js/admin-daily-generator-guard.js?v=1.1.1", "data-admin-daily-generator-guard");
   loadQualityPromptPacks();
