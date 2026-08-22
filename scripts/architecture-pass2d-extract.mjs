@@ -32,7 +32,7 @@ function extractInlineBlock({ startMarker, endMarker, openTag, closeTag, replace
 
   const replaceEnd = markerEnd + endMarker.length;
   html = `${html.slice(0, markerStart)}${replacement}${html.slice(replaceEnd)}`;
-  fs.writeFileSync(outputPath, extracted, "utf8");
+  fs.writeFileSync(outputPath, `${extracted.trimEnd()}\n`, "utf8");
 }
 
 extractInlineBlock({
