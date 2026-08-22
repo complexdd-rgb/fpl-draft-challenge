@@ -6,6 +6,7 @@ on:
       - reduce-weekly-top-answer-repeats
     paths:
       - scripts/apply-weekly-top-answer-diversity.mjs
+      - scripts/verify-weekly-top-answer-diversity.mjs
       - js/admin-batch-calendar.js
       - .github/workflows/weekly-top-answer-diversity.yml
 
@@ -29,6 +30,9 @@ jobs:
 
       - name: Apply weekly diversity patch
         run: node scripts/apply-weekly-top-answer-diversity.mjs
+
+      - name: Verify weekly diversity policy
+        run: node scripts/verify-weekly-top-answer-diversity.mjs
 
       - name: Check generated JavaScript
         run: |
