@@ -2,9 +2,10 @@ import fs from 'node:fs';
 
 const path = 'js/admin-batch-calendar.js';
 let source = fs.readFileSync(path, 'utf8');
-const marker = 'const ANSWER_DIVERSITY_POLICY_VERSION = 1;';
-if (source.includes(marker)) {
-  console.log('Answer-diversity policy already applied.');
+const marker = /const ANSWER_DIVERSITY_POLICY_VERSION = (\d+);/;
+const markerMatch = source.match(marker);
+if (markerMatch && Number(markerMatch[1]) >= 1) {
+  console.log(`Answer-diversity policy v${markerMatch[1]} already applied.`);
   process.exit(0);
 }
 
