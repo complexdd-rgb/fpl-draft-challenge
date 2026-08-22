@@ -1,0 +1,579 @@
+{
+  "generatedAt": "2026-08-22T14:23:25.732Z",
+  "startingMissing": 65,
+  "autoResolved": 22,
+  "manualResolved": 43,
+  "totalResolved": 65,
+  "remainingMissing": 0,
+  "finalCoverage": 2636,
+  "finalCoveragePercent": 100,
+  "autoResolvedPlayers": [
+    {
+      "playerId": "adam-masina",
+      "name": "Adam Masina",
+      "nationality": "Morocco",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Watford_57/squad/2021-22_squad.csv",
+      "sourceSeason": "2021/22",
+      "sourceDisplayName": "Adam Masina",
+      "score": 110
+    },
+    {
+      "playerId": "ademola-lookman",
+      "name": "Ademola Lookman",
+      "nationality": "Nigeria",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Leicester_13/squad/2021-22_squad.csv",
+      "sourceSeason": "2021/22",
+      "sourceDisplayName": "Ademola Lookman",
+      "score": 110
+    },
+    {
+      "playerId": "akos-buzsaky",
+      "name": "Akos Buzsaky",
+      "nationality": "Hungary",
+      "method": "strongest-identity-evidence",
+      "sourceFile": "pl_stats/QPR_52/squad/2011-12_squad.csv",
+      "sourceSeason": "2011/12",
+      "sourceDisplayName": "Ákos Buzsáky",
+      "score": 110
+    },
+    {
+      "playerId": "alex-telles",
+      "name": "Alex Telles",
+      "nationality": "Brazil",
+      "method": "strongest-identity-evidence",
+      "sourceFile": "pl_stats/Man_Utd_1/squad/2022-23_squad.csv",
+      "sourceSeason": "2022/23",
+      "sourceDisplayName": "Alex Telles",
+      "score": 110
+    },
+    {
+      "playerId": "andre-gray",
+      "name": "Andre Gray",
+      "nationality": "Jamaica",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Watford_57/squad/2021-22_squad.csv",
+      "sourceSeason": "2021/22",
+      "sourceDisplayName": "Andre Gray",
+      "score": 110
+    },
+    {
+      "playerId": "aymeric-laporte",
+      "name": "Aymeric Laporte",
+      "nationality": "Spain",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Man_City_43/squad/2022-23_squad.csv",
+      "sourceSeason": "2022/23",
+      "sourceDisplayName": "Aymeric Laporte",
+      "score": 110
+    },
+    {
+      "playerId": "florent-hadergjonaj",
+      "name": "Florent Hadergjonaj",
+      "nationality": "Kosovo",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Huddersfield_38/squad/2018-19_squad.csv",
+      "sourceSeason": "2018/19",
+      "sourceDisplayName": "Florent Hadergjonaj",
+      "score": 110
+    },
+    {
+      "playerId": "gabriel-armando-de-abreu",
+      "name": "Gabriel Armando de Abreu",
+      "nationality": "Brazil",
+      "method": "strongest-identity-evidence",
+      "sourceFile": "pl_stats/Arsenal_3/squad/2016-17_squad.csv",
+      "sourceSeason": "2016/17",
+      "sourceDisplayName": "Gabriel",
+      "score": 110
+    },
+    {
+      "playerId": "george-baldock",
+      "name": "George Baldock",
+      "nationality": "Greece",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Sheffield_Utd_49/squad/2023-24_squad.csv",
+      "sourceSeason": "2023/24",
+      "sourceDisplayName": "George Baldock",
+      "score": 88
+    },
+    {
+      "playerId": "giannelli-imbula",
+      "name": "Giannelli Imbula",
+      "nationality": "DR Congo",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Stoke_110/squad/2016-17_squad.csv",
+      "sourceSeason": "2016/17",
+      "sourceDisplayName": "Giannelli Imbula",
+      "score": 110
+    },
+    {
+      "playerId": "jeremie-boga",
+      "name": "Jeremie Boga",
+      "nationality": "Ivory Coast",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Chelsea_8/squad/2016-17_squad.csv",
+      "sourceSeason": "2016/17",
+      "sourceDisplayName": "Jeremie Boga",
+      "score": 110
+    },
+    {
+      "playerId": "jesse-lingard",
+      "name": "Jesse Lingard",
+      "nationality": "England",
+      "method": "strongest-identity-evidence",
+      "sourceFile": "pl_stats/Nottm_Forest_17/squad/2022-23_squad.csv",
+      "sourceSeason": "2022/23",
+      "sourceDisplayName": "Jesse Lingard",
+      "score": 110
+    },
+    {
+      "playerId": "joao-cancelo",
+      "name": "João Cancelo",
+      "nationality": "Portugal",
+      "method": "strongest-identity-evidence",
+      "sourceFile": "pl_stats/Man_City_43/squad/2023-24_squad.csv",
+      "sourceSeason": "2023/24",
+      "sourceDisplayName": "João Cancelo",
+      "score": 110
+    },
+    {
+      "playerId": "jordan-zemura",
+      "name": "Jordan Zemura",
+      "nationality": "Zimbabwe",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Bournemouth_91/squad/2022-23_squad.csv",
+      "sourceSeason": "2022/23",
+      "sourceDisplayName": "Jordan Zemura",
+      "score": 110
+    },
+    {
+      "playerId": "josh-maja",
+      "name": "Josh Maja",
+      "nationality": "Nigeria",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Fulham_54/squad/2020-21_squad.csv",
+      "sourceSeason": "2020/21",
+      "sourceDisplayName": "Josh Maja",
+      "score": 110
+    },
+    {
+      "playerId": "loic-damour",
+      "name": "Loïc Damour",
+      "nationality": "France",
+      "method": "strongest-identity-evidence",
+      "sourceFile": "pl_stats/Cardiff_97/squad/2018-19_squad.csv",
+      "sourceSeason": "2018/19",
+      "sourceDisplayName": "Loïc Damour",
+      "score": 110
+    },
+    {
+      "playerId": "pedro-obiang",
+      "name": "Pedro Obiang",
+      "nationality": "Equatorial Guinea",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/West_Ham_21/squad/2018-19_squad.csv",
+      "sourceSeason": "2018/19",
+      "sourceDisplayName": "Pedro Obiang",
+      "score": 110
+    },
+    {
+      "playerId": "rafael-camacho",
+      "name": "Rafael Camacho",
+      "nationality": "Portugal",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Liverpool_14/squad/2018-19_squad.csv",
+      "sourceSeason": "2018/19",
+      "sourceDisplayName": "Rafael Camacho",
+      "score": 110
+    },
+    {
+      "playerId": "sean-morrison",
+      "name": "Sean Morrison",
+      "nationality": "England",
+      "method": "strongest-identity-evidence",
+      "sourceFile": "pl_stats/Cardiff_97/squad/2018-19_squad.csv",
+      "sourceSeason": "2018/19",
+      "sourceDisplayName": "Sean Morrison",
+      "score": 110
+    },
+    {
+      "playerId": "wesley-hoedt",
+      "name": "Wesley Hoedt",
+      "nationality": "Netherlands",
+      "method": "strongest-identity-evidence",
+      "sourceFile": "pl_stats/Southampton_20/squad/2019-20_squad.csv",
+      "sourceSeason": "2019/20",
+      "sourceDisplayName": "Wesley Hoedt",
+      "score": 110
+    },
+    {
+      "playerId": "yan-valery",
+      "name": "Yan Valery",
+      "nationality": "Tunisia",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Southampton_20/squad/2021-22_squad.csv",
+      "sourceSeason": "2021/22",
+      "sourceDisplayName": "Yan Valery",
+      "score": 110
+    },
+    {
+      "playerId": "yasser-larouci",
+      "name": "Yasser Larouci",
+      "nationality": "Algeria",
+      "method": "latest-strongest-identity-evidence",
+      "sourceFile": "pl_stats/Sheffield_Utd_49/squad/2023-24_squad.csv",
+      "sourceSeason": "2023/24",
+      "sourceDisplayName": "Yasser Larouci",
+      "score": 110
+    }
+  ],
+  "manualResolvedPlayers": [
+    {
+      "playerId": "aaron-mclean",
+      "name": "Aaron Mclean",
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "FBref player profile",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "abdelhamid-sabiri",
+      "name": "Abdelhamid Sabiri",
+      "nationality": "Morocco",
+      "method": "verified-manual-ledger",
+      "source": "Morocco senior international record; switched from Germany U21 in 2022",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "albert-adomah",
+      "name": "Albert Adomah",
+      "nationality": "Ghana",
+      "method": "verified-manual-ledger",
+      "source": "Ghana senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "andreas-cornelius",
+      "name": "Andreas Cornelius",
+      "nationality": "Denmark",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / Denmark senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "borja-gonzalez-tomas",
+      "name": "Borja González Tomás",
+      "nationality": "Spain",
+      "method": "verified-manual-ledger",
+      "source": "Spanish player profile / country-for-sport",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "chris-david",
+      "name": "Chris David",
+      "nationality": "Netherlands",
+      "method": "verified-manual-ledger",
+      "source": "Netherlands youth international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "dennis-srbeny",
+      "name": "Dennis Srbeny",
+      "nationality": "Germany",
+      "method": "verified-manual-ledger",
+      "source": "German player profile",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "emilio-nsue-lopez",
+      "name": "Emilio Nsue Lopez",
+      "nationality": "Equatorial Guinea",
+      "method": "verified-manual-ledger",
+      "source": "Equatorial Guinea senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "filip-krovinovic",
+      "name": "Filip Krovinovic",
+      "nationality": "Croatia",
+      "method": "verified-manual-ledger",
+      "source": "Croatian player profile / international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "frederico-rodrigues-de-paula-santos",
+      "name": "Frederico Rodrigues de Paula Santos",
+      "nationality": "Brazil",
+      "method": "verified-manual-ledger",
+      "source": "Brazil senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "gael-kakuta",
+      "name": "Gael Kakuta",
+      "nationality": "DR Congo",
+      "method": "verified-manual-ledger",
+      "source": "DR Congo senior international record / current Premier League profile",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "gedo",
+      "name": "Gedo",
+      "nationality": "Egypt",
+      "method": "verified-manual-ledger",
+      "source": "Egypt senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "ibrahim-amadou",
+      "name": "Ibrahim Amadou",
+      "nationality": "France",
+      "method": "verified-manual-ledger",
+      "source": "FFF France U19 profile and LOSC citizenship statement",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "jesus-vallejo-lazaro",
+      "name": "Jesús Vallejo Lázaro",
+      "nationality": "Spain",
+      "method": "verified-manual-ledger",
+      "source": "Spain senior/youth international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "jetro-willems",
+      "name": "Jetro Willems",
+      "nationality": "Netherlands",
+      "method": "verified-manual-ledger",
+      "source": "Netherlands senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "joe-lolley",
+      "name": "Joe Lolley",
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / England C record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "jonathan-kodjia",
+      "name": "Jonathan Kodjia",
+      "nationality": "Ivory Coast",
+      "method": "verified-manual-ledger",
+      "source": "Ivory Coast senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "joseph-johnson",
+      "name": "Joseph Johnson",
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "Luton player profile / England youth record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "juan-camilo-hernandez-suarez",
+      "name": "Juan Camilo Hernández Suárez",
+      "nationality": "Colombia",
+      "method": "verified-manual-ledger",
+      "source": "Colombia senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "kei-kamara",
+      "name": "Kei Kamara",
+      "nationality": "Sierra Leone",
+      "method": "verified-manual-ledger",
+      "source": "Sierra Leone senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "kosta-nedeljkovia",
+      "name": "Kosta NedeljkoviÄ",
+      "nationality": "Serbia",
+      "method": "verified-manual-ledger",
+      "source": "Serbia international/player profile",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "landon-donovan",
+      "name": "Landon Donovan",
+      "nationality": "USA",
+      "method": "verified-manual-ledger",
+      "source": "United States senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "ludwig-augustinsson",
+      "name": "Ludwig Augustinsson",
+      "nationality": "Sweden",
+      "method": "verified-manual-ledger",
+      "source": "Sweden senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "luis-hernandez",
+      "name": "Luis Hernández",
+      "nationality": "Spain",
+      "method": "verified-manual-ledger",
+      "source": "Spanish player profile",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "martin-cranie",
+      "name": "Martin Cranie",
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "England U21 international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "nathaniel-mendez-laing",
+      "name": "Nathaniel Mendez-Laing",
+      "nationality": "Guatemala",
+      "method": "verified-manual-ledger",
+      "source": "Guatemala senior international record since 2023",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "nick-blackman",
+      "name": "Nick Blackman",
+      "nationality": "Barbados",
+      "method": "verified-manual-ledger",
+      "source": "Barbados senior international record 2019-2021",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "nuri-sahin",
+      "name": "Nuri Şahin",
+      "nationality": "Turkey",
+      "method": "verified-manual-ledger",
+      "source": "Turkey senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "olayinka-fredrick-oladotun-ladapo",
+      "name": "Olayinka Fredrick Oladotun Ladapo",
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / English player profile",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "ondrej-duda",
+      "name": "Ondrej Duda",
+      "nationality": "Slovakia",
+      "method": "verified-manual-ledger",
+      "source": "Slovakia senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "ozan-tufan",
+      "name": "Ozan Tufan",
+      "nationality": "Turkey",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / Turkish FA",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "ralf-fahrmann",
+      "name": "Ralf Fahrmann",
+      "nationality": "Germany",
+      "method": "verified-manual-ledger",
+      "source": "DFB player profile",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "razvan-rat",
+      "name": "Răzvan Raț",
+      "nationality": "Romania",
+      "method": "verified-manual-ledger",
+      "source": "Romania senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "roque-mesa",
+      "name": "Roque Mesa",
+      "nationality": "Spain",
+      "method": "verified-manual-ledger",
+      "source": "Spanish player profile",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "sebastian-blanco",
+      "name": "Sebastián Blanco",
+      "nationality": "Argentina",
+      "method": "verified-manual-ledger",
+      "source": "Argentina international/player profile",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "silvestre-varela",
+      "name": "Silvestre Varela",
+      "nationality": "Portugal",
+      "method": "verified-manual-ledger",
+      "source": "Portugal senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "simone-zaza",
+      "name": "Simone Zaza",
+      "nationality": "Italy",
+      "method": "verified-manual-ledger",
+      "source": "Italy senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "solomon-march",
+      "name": "Solomon March",
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / England youth record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "thierry-henry",
+      "name": "Thierry Henry",
+      "nationality": "France",
+      "method": "verified-manual-ledger",
+      "source": "France senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "tyler-roberts",
+      "name": "Tyler Roberts",
+      "nationality": "Wales",
+      "method": "verified-manual-ledger",
+      "source": "Wales senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "vangelis-moras",
+      "name": "Vangelis Moras",
+      "nationality": "Greece",
+      "method": "verified-manual-ledger",
+      "source": "Greece senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "victor-ibarbo",
+      "name": "Víctor Ibarbo",
+      "nationality": "Colombia",
+      "method": "verified-manual-ledger",
+      "source": "Colombia senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "yann-kermorgant",
+      "name": "Yann Kermorgant",
+      "nationality": "France",
+      "method": "verified-manual-ledger",
+      "source": "French player profile",
+      "verifiedAt": "2026-08-22"
+    }
+  ],
+  "remaining": []
+}
