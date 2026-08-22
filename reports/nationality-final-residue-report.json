@@ -1,11 +1,13 @@
 {
-  "generatedAt": "2026-08-22T14:17:09.631Z",
+  "generatedAt": "2026-08-22T14:19:48.879Z",
   "startingMissing": 65,
   "autoResolved": 26,
-  "remainingMissing": 39,
-  "finalCoverage": 2597,
-  "finalCoveragePercent": 98.5,
-  "resolved": [
+  "manualResolved": 39,
+  "totalResolved": 65,
+  "remainingMissing": 0,
+  "finalCoverage": 2636,
+  "finalCoveragePercent": 100,
+  "autoResolvedPlayers": [
     {
       "playerId": "abdelhamid-sabiri",
       "name": "Abdelhamid Sabiri",
@@ -267,328 +269,319 @@
       "score": 110
     }
   ],
-  "remaining": [
+  "manualResolvedPlayers": [
     {
       "playerId": "aaron-mclean",
       "name": "Aaron Mclean",
-      "dateOfBirth": "1983-05-25",
-      "seasons": [
-        "2013/14"
-      ]
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "FBref player profile",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "albert-adomah",
       "name": "Albert Adomah",
-      "dateOfBirth": "1987-12-13",
-      "seasons": [
-        "2016/17"
-      ]
+      "nationality": "Ghana",
+      "method": "verified-manual-ledger",
+      "source": "Ghana senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "andreas-cornelius",
       "name": "Andreas Cornelius",
-      "dateOfBirth": "1993-03-16",
-      "seasons": [
-        "2013/14"
-      ]
+      "nationality": "Denmark",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / Denmark senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "borja-gonzalez-tomas",
       "name": "Borja González Tomás",
-      "dateOfBirth": "1992-08-25",
-      "seasons": [
-        "2019/20"
-      ]
+      "nationality": "Spain",
+      "method": "verified-manual-ledger",
+      "source": "Spanish player profile / country-for-sport",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "chris-david",
       "name": "Chris David",
-      "dateOfBirth": "1993-03-06",
-      "seasons": [
-        "2013/14"
-      ]
+      "nationality": "Netherlands",
+      "method": "verified-manual-ledger",
+      "source": "Netherlands youth international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "dennis-srbeny",
       "name": "Dennis Srbeny",
-      "dateOfBirth": "1994-05-05",
-      "seasons": [
-        "2019/20"
-      ]
+      "nationality": "Germany",
+      "method": "verified-manual-ledger",
+      "source": "German player profile",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "emilio-nsue-lopez",
       "name": "Emilio Nsue Lopez",
-      "dateOfBirth": "1989-09-30",
-      "seasons": [
-        "2016/17"
-      ]
+      "nationality": "Equatorial Guinea",
+      "method": "verified-manual-ledger",
+      "source": "Equatorial Guinea senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "filip-krovinovic",
       "name": "Filip Krovinovic",
-      "dateOfBirth": "1995-08-29",
-      "seasons": [
-        "2020/21"
-      ]
+      "nationality": "Croatia",
+      "method": "verified-manual-ledger",
+      "source": "Croatian player profile / international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "frederico-rodrigues-de-paula-santos",
       "name": "Frederico Rodrigues de Paula Santos",
-      "dateOfBirth": "1993-03-05",
-      "seasons": [
-        "2022/23",
-        "2021/22",
-        "2020/21",
-        "2019/20",
-        "2018/19"
-      ]
+      "nationality": "Brazil",
+      "method": "verified-manual-ledger",
+      "source": "Brazil senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "gedo",
       "name": "Gedo",
-      "dateOfBirth": "1984-10-30",
-      "seasons": [
-        "2013/14"
-      ]
+      "nationality": "Egypt",
+      "method": "verified-manual-ledger",
+      "source": "Egypt senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "ibrahim-amadou",
       "name": "Ibrahim Amadou",
-      "dateOfBirth": "1993-04-06",
-      "seasons": [
-        "2019/20"
-      ]
+      "nationality": "France",
+      "method": "verified-manual-ledger",
+      "source": "FFF France U19 profile and LOSC citizenship statement",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "jesus-vallejo-lazaro",
       "name": "Jesús Vallejo Lázaro",
-      "dateOfBirth": "1997-01-05",
-      "seasons": [
-        "2019/20"
-      ]
+      "nationality": "Spain",
+      "method": "verified-manual-ledger",
+      "source": "Spain senior/youth international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "jetro-willems",
       "name": "Jetro Willems",
-      "dateOfBirth": "1994-03-30",
-      "seasons": [
-        "2019/20"
-      ]
+      "nationality": "Netherlands",
+      "method": "verified-manual-ledger",
+      "source": "Netherlands senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "joe-lolley",
       "name": "Joe Lolley",
-      "dateOfBirth": "1992-08-25",
-      "seasons": [
-        "2017/18"
-      ]
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / England C record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "jonathan-kodjia",
       "name": "Jonathan Kodjia",
-      "dateOfBirth": "1989-10-22",
-      "seasons": [
-        "2019/20"
-      ]
+      "nationality": "Ivory Coast",
+      "method": "verified-manual-ledger",
+      "source": "Ivory Coast senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "joseph-johnson",
       "name": "Joseph Johnson",
-      "dateOfBirth": "2006-01-09",
-      "seasons": [
-        "2023/24"
-      ]
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "Luton player profile / England youth record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "juan-camilo-hernandez-suarez",
       "name": "Juan Camilo Hernández Suárez",
-      "dateOfBirth": "1999-04-22",
-      "seasons": [
-        "2021/22"
-      ]
+      "nationality": "Colombia",
+      "method": "verified-manual-ledger",
+      "source": "Colombia senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "kei-kamara",
       "name": "Kei Kamara",
-      "dateOfBirth": "1984-09-01",
-      "seasons": [
-        "2012/13"
-      ]
+      "nationality": "Sierra Leone",
+      "method": "verified-manual-ledger",
+      "source": "Sierra Leone senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "kosta-nedeljkovia",
       "name": "Kosta NedeljkoviÄ",
-      "dateOfBirth": "2005-12-16",
-      "seasons": [
-        "2024/25"
-      ]
+      "nationality": "Serbia",
+      "method": "verified-manual-ledger",
+      "source": "Serbia international/player profile",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "landon-donovan",
       "name": "Landon Donovan",
-      "dateOfBirth": "1982-03-04",
-      "seasons": [
-        "2011/12"
-      ]
+      "nationality": "USA",
+      "method": "verified-manual-ledger",
+      "source": "United States senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "ludwig-augustinsson",
       "name": "Ludwig Augustinsson",
-      "dateOfBirth": "1994-04-21",
-      "seasons": [
-        "2022/23"
-      ]
+      "nationality": "Sweden",
+      "method": "verified-manual-ledger",
+      "source": "Sweden senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "luis-hernandez",
       "name": "Luis Hernández",
-      "dateOfBirth": "1989-04-14",
-      "seasons": [
-        "2016/17"
-      ]
+      "nationality": "Spain",
+      "method": "verified-manual-ledger",
+      "source": "Spanish player profile",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "martin-cranie",
       "name": "Martin Cranie",
-      "dateOfBirth": "1986-09-23",
-      "seasons": [
-        "2017/18"
-      ]
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "England U21 international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "nuri-sahin",
       "name": "Nuri Şahin",
-      "dateOfBirth": "1988-09-05",
-      "seasons": [
-        "2012/13"
-      ]
+      "nationality": "Turkey",
+      "method": "verified-manual-ledger",
+      "source": "Turkey senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "olayinka-fredrick-oladotun-ladapo",
       "name": "Olayinka Fredrick Oladotun Ladapo",
-      "dateOfBirth": "1993-02-01",
-      "seasons": [
-        "2017/18"
-      ]
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / English player profile",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "ondrej-duda",
       "name": "Ondrej Duda",
-      "dateOfBirth": "1994-12-15",
-      "seasons": [
-        "2019/20"
-      ]
+      "nationality": "Slovakia",
+      "method": "verified-manual-ledger",
+      "source": "Slovakia senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "ozan-tufan",
       "name": "Ozan Tufan",
-      "dateOfBirth": "1995-03-23",
-      "seasons": [
-        "2021/22"
-      ]
+      "nationality": "Turkey",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / Turkish FA",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "ralf-fahrmann",
       "name": "Ralf Fahrmann",
-      "dateOfBirth": "1988-09-27",
-      "seasons": [
-        "2019/20"
-      ]
+      "nationality": "Germany",
+      "method": "verified-manual-ledger",
+      "source": "DFB player profile",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "razvan-rat",
       "name": "Răzvan Raț",
-      "dateOfBirth": "1981-05-26",
-      "seasons": [
-        "2013/14"
-      ]
+      "nationality": "Romania",
+      "method": "verified-manual-ledger",
+      "source": "Romania senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "roque-mesa",
       "name": "Roque Mesa",
-      "dateOfBirth": "1989-06-07",
-      "seasons": [
-        "2017/18"
-      ]
+      "nationality": "Spain",
+      "method": "verified-manual-ledger",
+      "source": "Spanish player profile",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "sebastian-blanco",
       "name": "Sebastián Blanco",
-      "dateOfBirth": "1988-03-15",
-      "seasons": [
-        "2014/15"
-      ]
+      "nationality": "Argentina",
+      "method": "verified-manual-ledger",
+      "source": "Argentina international/player profile",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "silvestre-varela",
       "name": "Silvestre Varela",
-      "dateOfBirth": "1985-02-02",
-      "seasons": [
-        "2014/15"
-      ]
+      "nationality": "Portugal",
+      "method": "verified-manual-ledger",
+      "source": "Portugal senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "simone-zaza",
       "name": "Simone Zaza",
-      "dateOfBirth": "1991-06-25",
-      "seasons": [
-        "2016/17"
-      ]
+      "nationality": "Italy",
+      "method": "verified-manual-ledger",
+      "source": "Italy senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "solomon-march",
       "name": "Solomon March",
-      "dateOfBirth": "1994-07-26",
-      "seasons": [
-        "2021/22",
-        "2020/21",
-        "2019/20",
-        "2018/19",
-        "2017/18"
-      ]
+      "nationality": "England",
+      "method": "verified-manual-ledger",
+      "source": "Premier League player profile / England youth record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "thierry-henry",
       "name": "Thierry Henry",
-      "dateOfBirth": "1977-08-17",
-      "seasons": [
-        "2011/12"
-      ]
+      "nationality": "France",
+      "method": "verified-manual-ledger",
+      "source": "France senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "tyler-roberts",
       "name": "Tyler Roberts",
-      "dateOfBirth": "1998-01-12",
-      "seasons": [
-        "2021/22",
-        "2020/21",
-        "2015/16"
-      ]
+      "nationality": "Wales",
+      "method": "verified-manual-ledger",
+      "source": "Wales senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "vangelis-moras",
       "name": "Vangelis Moras",
-      "dateOfBirth": "1981-08-26",
-      "seasons": [
-        "2011/12"
-      ]
+      "nationality": "Greece",
+      "method": "verified-manual-ledger",
+      "source": "Greece senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "victor-ibarbo",
       "name": "Víctor Ibarbo",
-      "dateOfBirth": "1990-05-19",
-      "seasons": [
-        "2015/16"
-      ]
+      "nationality": "Colombia",
+      "method": "verified-manual-ledger",
+      "source": "Colombia senior international record",
+      "verifiedAt": "2026-08-22"
     },
     {
       "playerId": "yann-kermorgant",
       "name": "Yann Kermorgant",
-      "dateOfBirth": "1981-11-08",
-      "seasons": [
-        "2015/16"
-      ]
+      "nationality": "France",
+      "method": "verified-manual-ledger",
+      "source": "French player profile",
+      "verifiedAt": "2026-08-22"
     }
-  ]
+  ],
+  "remaining": []
 }
