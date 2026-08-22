@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Nationality Family Generator v1.0.0
+/* FPL Challenge Studio — Nationality Family Generator v1.0.1
    Uses the verified player-level FPL regionId as the nationality key. Generated prompt
    tests are self-contained player-id membership rules, so published challenges do not
    depend on a live regions API or duplicate nationality strings into season rows. */
@@ -48,6 +48,7 @@
   const library = () => Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
   const slug = value => String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+  const hasNumber = value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
 
   function compile(source) {
     try { return Function(`"use strict"; return (${source});`)(); }
@@ -60,7 +61,7 @@
 
   function coverage() {
     const eligible = players().filter(eligiblePlayer);
-    const withRegion = eligible.filter(player => Number.isFinite(Number(player?.bio?.regionId)));
+    const withRegion = eligible.filter(player => hasNumber(player?.bio?.regionId));
     return {
       eligiblePlayers: eligible.length,
       withRegion: withRegion.length,
@@ -71,7 +72,7 @@
 
   function memberIds(regionId, position) {
     return players()
-      .filter(player => Number(player?.bio?.regionId) === Number(regionId))
+      .filter(player => hasNumber(player?.bio?.regionId) && Number(player.bio.regionId) === Number(regionId))
       .filter(player => (player.seasons || []).some(record => record?.position === position && Number(record?.minutes) > 0))
       .map(player => String(player.playerId));
   }
@@ -135,7 +136,6 @@
   }
 
   function addNationalityCandidates(position, out) {
-    const noun = NAMES[position];
     const lower = LOWER[position];
     const rawMinimum = RANGES[position]?.idealLow || 1;
 
@@ -167,7 +167,7 @@
           tail: `budget_${String(budget).replace(".","_")}`,
           label: `${country} ${lower} who started at £${budget.toFixed(1)}m or less`,
           fail: `That ${lower} must be from ${country} and have a recorded starting price of £${budget.toFixed(1)}m or less.`,
-          source: `p => (${membership} && Number.isFinite(Number(p.startingPrice)) && Number(p.startingPrice) <= ${budget} && Number(p.minutes) > 0)`,
+          source: `p => (${membership} && p.startingPrice !== null && p.startingPrice !== undefined && p.startingPrice !== "" && Number.isFinite(Number(p.startingPrice)) && Number(p.startingPrice) <= ${budget} && Number(p.minutes) > 0)`,
           tags: ["nationality-budget","budget","starting-price"],
           novelty: 20
         }));
@@ -334,7 +334,7 @@
   window.addEventListener("fpl:quality-prompt-baseline-ready", retryInstall);
 
   window.FPL_NATIONALITY_FAMILY = Object.freeze({
-    version: "1.0.0",
+    version: "1.0.1",
     coverage,
     regions: REGIONS
   });
