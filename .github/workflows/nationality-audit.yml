@@ -1,0 +1,26 @@
+name: Nationality coverage audit
+
+on:
+  push:
+    branches:
+      - nationality-audit-and-family
+    paths:
+      - players.js
+      - scripts/audit-nationality-coverage.mjs
+      - .github/workflows/nationality-audit.yml
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Audit nationality metadata
+        run: node scripts/audit-nationality-coverage.mjs
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: nationality-coverage
+          path: artifacts/nationality-coverage.json
