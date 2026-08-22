@@ -3,7 +3,7 @@ name: Repository cleanup pass 1
 on:
   push:
     branches:
-      - cleanup/repository-pass-1
+      - main
     paths:
       - scripts/repository-cleanup-pass1.mjs
       - .github/workflows/repository-cleanup-pass1.yml
@@ -15,10 +15,10 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out cleanup branch
+      - name: Check out main
         uses: actions/checkout@v4
         with:
-          ref: cleanup/repository-pass-1
+          ref: main
           fetch-depth: 0
 
       - name: Use Node.js
@@ -71,4 +71,4 @@ jobs:
             exit 0
           fi
           git commit -m 'Complete repository cleanup pass 1'
-          git push origin HEAD:cleanup/repository-pass-1
+          git push origin HEAD:main
