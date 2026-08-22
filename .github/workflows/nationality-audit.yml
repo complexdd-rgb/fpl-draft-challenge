@@ -9,6 +9,7 @@ on:
       - scripts/audit-nationality-coverage.mjs
       - scripts/audit-nationality-recoverability.mjs
       - scripts/audit-nationality-source-calibration.mjs
+      - scripts/audit-nationality-gameplay-readiness.mjs
       - .github/workflows/nationality-audit.yml
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - scripts/audit-nationality-coverage.mjs
       - scripts/audit-nationality-recoverability.mjs
       - scripts/audit-nationality-source-calibration.mjs
+      - scripts/audit-nationality-gameplay-readiness.mjs
       - .github/workflows/nationality-audit.yml
 
 jobs:
@@ -36,6 +38,8 @@ jobs:
         run: node scripts/audit-nationality-source-calibration.mjs /tmp/premier_league_dataset/dataset/DATA_JSON /tmp/fpl-regions.json
       - name: Audit nationality recoverability
         run: node scripts/audit-nationality-recoverability.mjs /tmp/premier_league_dataset/dataset/DATA_JSON
+      - name: Audit gameplay nationality readiness
+        run: node scripts/audit-nationality-gameplay-readiness.mjs
       - name: Upload audits
         uses: actions/upload-artifact@v4
         with:
@@ -46,3 +50,5 @@ jobs:
             artifacts/nationality-source-calibration-mismatches.json
             artifacts/nationality-recoverability-summary.json
             artifacts/nationality-recoverability-detail.json
+            artifacts/nationality-gameplay-readiness-summary.json
+            artifacts/nationality-gameplay-residual.json
