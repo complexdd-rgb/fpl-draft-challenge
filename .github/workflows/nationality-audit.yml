@@ -7,11 +7,13 @@ on:
     paths:
       - players.js
       - scripts/audit-nationality-coverage.mjs
+      - scripts/audit-nationality-recoverability.mjs
       - .github/workflows/nationality-audit.yml
   pull_request:
     paths:
       - players.js
       - scripts/audit-nationality-coverage.mjs
+      - scripts/audit-nationality-recoverability.mjs
       - .github/workflows/nationality-audit.yml
 
 jobs:
@@ -22,10 +24,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Audit nationality metadata
+      - name: Audit current nationality metadata
         run: node scripts/audit-nationality-coverage.mjs
-      - name: Upload audit
+      - name: Fetch historical Premier League squad reference
+        run: git clone --depth 1 https://github.com/Samoilov2004/premier_league_dataset.git /tmp/premier_league_dataset
+      - name: Audit nationality recoverability
+        run: node scripts/audit-nationality-recoverability.mjs /tmp/premier_league_dataset/dataset/DATA_JSON
+      - name: Upload audits
         uses: actions/upload-artifact@v4
         with:
-          name: nationality-coverage
-          path: artifacts/nationality-coverage.json
+          name: nationality-audit
+          path: |
+            artifacts/nationality-coverage.json
+            artifacts/nationality-recoverability-summary.json
+            artifacts/nationality-recoverability-detail.json
