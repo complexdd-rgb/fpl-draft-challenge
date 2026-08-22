@@ -20,6 +20,33 @@ function normalise(value) {
     .trim();
 }
 
+function canonicalClub(value) {
+  const key = normalise(String(value || '').replace(/_\d+$/, '').replaceAll('_', ' '));
+  const aliases = new Map([
+    ['a villa', 'aston villa'], ['aston villa', 'aston villa'],
+    ['c palace', 'crystal palace'], ['crystal palace', 'crystal palace'],
+    ['manchester city', 'man city'], ['man city', 'man city'],
+    ['manchester united', 'man utd'], ['man utd', 'man utd'],
+    ['tottenham', 'spurs'], ['tottenham hotspur', 'spurs'], ['spurs', 'spurs'],
+    ['nottingham forest', 'nottm forest'], ['nottm forest', 'nottm forest'],
+    ['west bromwich albion', 'west brom'], ['west brom', 'west brom'],
+    ['newcastle united', 'newcastle'], ['newcastle', 'newcastle'],
+    ['leicester city', 'leicester'], ['leicester', 'leicester'],
+    ['norwich city', 'norwich'], ['norwich', 'norwich'],
+    ['stoke city', 'stoke'], ['stoke', 'stoke'],
+    ['swansea city', 'swansea'], ['swansea', 'swansea'],
+    ['cardiff city', 'cardiff'], ['cardiff', 'cardiff'],
+    ['hull city', 'hull'], ['hull', 'hull'],
+    ['huddersfield town', 'huddersfield'], ['huddersfield', 'huddersfield'],
+    ['sheffield united', 'sheffield utd'], ['sheffield utd', 'sheffield utd'],
+    ['wolverhampton wanderers', 'wolves'], ['wolves', 'wolves'],
+    ['queens park rangers', 'qpr'], ['qpr', 'qpr'],
+    ['brighton hove albion', 'brighton'], ['brighton', 'brighton'],
+    ['afc bournemouth', 'bournemouth'], ['bournemouth', 'bournemouth']
+  ]);
+  return aliases.get(key) || key;
+}
+
 function parseCsv(text) {
   const rows = [];
   let row = [];
@@ -63,30 +90,16 @@ function canonicalNationality(value) {
   if (!raw) return '';
   const key = normalise(raw);
   const aliases = new Map([
-    ['cote d ivoire', 'Ivory Coast'],
-    ['cote divoire', 'Ivory Coast'],
-    ['ivory coast', 'Ivory Coast'],
-    ['korea republic', 'South Korea'],
-    ['republic of korea', 'South Korea'],
-    ['south korea', 'South Korea'],
-    ['united states', 'USA'],
-    ['united states of america', 'USA'],
-    ['usa', 'USA'],
-    ['republic of ireland', 'Ireland'],
-    ['ireland', 'Ireland'],
-    ['trinidad tobago', 'Trinidad and Tobago'],
-    ['trinidad and tobago', 'Trinidad and Tobago'],
-    ['bosnia and herzegovina', 'Bosnia-Herzegovina'],
-    ['bosnia herzegovina', 'Bosnia-Herzegovina'],
-    ['czechia', 'Czech Republic'],
-    ['czech republic', 'Czech Republic'],
-    ['congo dr', 'DR Congo'],
-    ['democratic republic of the congo', 'DR Congo'],
-    ['dr congo', 'DR Congo'],
-    ['cape verde islands', 'Cape Verde'],
-    ['cabo verde', 'Cape Verde'],
-    ['north macedonia', 'North Macedonia'],
-    ['macedonia', 'North Macedonia']
+    ['cote d ivoire', 'Ivory Coast'], ['cote divoire', 'Ivory Coast'], ['ivory coast', 'Ivory Coast'],
+    ['korea republic', 'South Korea'], ['republic of korea', 'South Korea'], ['south korea', 'South Korea'],
+    ['united states', 'USA'], ['united states of america', 'USA'], ['usa', 'USA'],
+    ['republic of ireland', 'Ireland'], ['ireland', 'Ireland'],
+    ['trinidad tobago', 'Trinidad and Tobago'], ['trinidad and tobago', 'Trinidad and Tobago'],
+    ['bosnia and herzegovina', 'Bosnia-Herzegovina'], ['bosnia herzegovina', 'Bosnia-Herzegovina'],
+    ['czechia', 'Czech Republic'], ['czech republic', 'Czech Republic'],
+    ['congo dr', 'DR Congo'], ['democratic republic of the congo', 'DR Congo'], ['dr congo', 'DR Congo'],
+    ['cape verde islands', 'Cape Verde'], ['cabo verde', 'Cape Verde'],
+    ['north macedonia', 'North Macedonia'], ['macedonia', 'North Macedonia']
   ]);
   return aliases.get(key) || raw.replace(/\s+/g, ' ');
 }
@@ -98,6 +111,11 @@ function positionCode(value) {
   if (key.includes('midfielder')) return 'MID';
   if (key.includes('forward') || key.includes('striker')) return 'FWD';
   return '';
+}
+
+function seasonYear(value) {
+  const year = Number.parseInt(String(value || '').slice(0, 4), 10);
+  return Number.isFinite(year) ? year : -Infinity;
 }
 
 function loadPlayers() {
@@ -152,6 +170,7 @@ function loadExternalRows() {
         season,
         position: positionCode(item.position),
         clubFolder,
+        clubKey: canonicalClub(clubFolder),
         sourceFile: path.relative(SOURCE_ROOT, file).replaceAll('\\', '/')
       });
     }
@@ -161,13 +180,8 @@ function loadExternalRows() {
 
 function playerCodes(player) {
   const values = [
-    player?.code,
-    player?.optaCode,
-    player?.bio?.optaCode,
-    player?.bio?.playerCode,
-    player?.sourceIdentity?.sourceCode,
-    player?.sourceIdentity?.playerCode,
-    player?.sourceIdentity?.optaCode
+    player?.code, player?.optaCode, player?.bio?.optaCode, player?.bio?.playerCode,
+    player?.sourceIdentity?.sourceCode, player?.sourceIdentity?.playerCode, player?.sourceIdentity?.optaCode
   ];
   return new Set(values.filter(value => value !== null && value !== undefined && value !== '').map(String));
 }
@@ -176,7 +190,7 @@ function positiveSeasons(player) {
   const map = new Map();
   for (const season of player?.seasons || []) {
     if (Number(season?.minutes) <= 0) continue;
-    map.set(String(season.season || ''), season);
+    map.set(String(season.season || ''), { ...season, clubKey: canonicalClub(season.club) });
   }
   return map;
 }
@@ -209,6 +223,30 @@ function addIndex(map, key, value) {
   map.get(key).push(value);
 }
 
+function chooseEvidence(evidence) {
+  if (!evidence.length) return { ok: false, reason: 'no-evidence' };
+  evidence.sort((a, b) => b.score - a.score || seasonYear(b.row.season) - seasonYear(a.row.season));
+  const bestScore = evidence[0].score;
+  const trusted = evidence.filter(item => item.score >= Math.max(88, bestScore - 8));
+  const nationalities = [...new Set(trusted.map(item => item.row.nationality).filter(Boolean))];
+  if (nationalities.length === 1) return { ok: true, nationality: nationalities[0], winner: trusted[0], trusted };
+
+  // National allegiance can legitimately change. Only auto-resolve when the newest
+  // nationality is repeated in at least two distinct later seasons after all alternatives.
+  const latestYear = Math.max(...trusted.map(item => seasonYear(item.row.season)));
+  const latestNations = [...new Set(trusted.filter(item => seasonYear(item.row.season) === latestYear).map(item => item.row.nationality))];
+  if (latestNations.length === 1) {
+    const latestNationality = latestNations[0];
+    const otherMaxYear = Math.max(-Infinity, ...trusted.filter(item => item.row.nationality !== latestNationality).map(item => seasonYear(item.row.season)));
+    const laterSeasons = new Set(trusted.filter(item => item.row.nationality === latestNationality && seasonYear(item.row.season) > otherMaxYear).map(item => item.row.season));
+    if (laterSeasons.size >= 2) {
+      const winner = trusted.find(item => item.row.nationality === latestNationality && seasonYear(item.row.season) === latestYear) || trusted[0];
+      return { ok: true, nationality: latestNationality, winner: { ...winner, method: 'consistent-later-nationality' }, trusted };
+    }
+  }
+  return { ok: false, reason: 'conflict', trusted };
+}
+
 const players = loadPlayers();
 const externalRows = loadExternalRows();
 const byCode = new Map();
@@ -221,10 +259,11 @@ for (const row of externalRows) {
 }
 
 const eligiblePlayers = players.filter(player => (player.seasons || []).some(season => Number(season?.minutes) > 0));
-const baselineCovered = eligiblePlayers.filter(player => {
+const hasExistingCoverage = player => {
   const bio = player?.bio || {};
   return Boolean(String(bio.nationality || '').trim()) || (bio.regionId !== null && bio.regionId !== undefined && bio.regionId !== '' && Number.isFinite(Number(bio.regionId)));
-}).length;
+};
+const baselineCovered = eligiblePlayers.filter(hasExistingCoverage).length;
 
 const mapping = {};
 const matched = [];
@@ -251,9 +290,11 @@ for (const player of eligiblePlayers) {
       const exactName = names.has(row.nameKey);
       const sameSeasonRecord = seasons.get(row.season);
       const samePosition = sameSeasonRecord && (!row.position || row.position === sameSeasonRecord.position);
+      const sameClub = sameSeasonRecord && row.clubKey && sameSeasonRecord.clubKey === row.clubKey;
       const surnameMatch = row.lastKey && surnames.has(row.lastKey.split(' ').at(-1));
       const similarity = Math.max(...[...names].map(name => tokenSimilarity(name, row.displayName)), 0);
       if (exactName) evidence.push({ row, score: 110, method: 'dob+exact-name' });
+      else if (sameSeasonRecord && sameClub) evidence.push({ row, score: 104, method: 'dob+season+club' });
       else if (sameSeasonRecord && samePosition && surnameMatch) evidence.push({ row, score: 100, method: 'dob+season+position+surname' });
       else if (sameSeasonRecord && samePosition && similarity >= 0.6) evidence.push({ row, score: 96, method: 'dob+season+position+name-similarity' });
     }
@@ -275,35 +316,31 @@ for (const player of eligiblePlayers) {
     continue;
   }
 
-  evidence.sort((a, b) => b.score - a.score);
-  const bestScore = evidence[0].score;
-  const trusted = evidence.filter(item => item.score >= Math.max(88, bestScore - 8));
-  const nationalities = [...new Set(trusted.map(item => item.row.nationality).filter(Boolean))];
-  if (nationalities.length !== 1) {
+  const choice = chooseEvidence(evidence);
+  if (!choice.ok) {
     conflicts.push({
       playerId: player.playerId,
       name: player.name,
       dateOfBirth: dob || null,
-      candidates: trusted.slice(0, 12).map(item => ({ nationality: item.row.nationality, method: item.method, score: item.score, sourceFile: item.row.sourceFile, displayName: item.row.displayName }))
+      candidates: (choice.trusted || evidence).slice(0, 16).map(item => ({ nationality: item.row.nationality, method: item.method, score: item.score, season: item.row.season, sourceFile: item.row.sourceFile, displayName: item.row.displayName }))
     });
     continue;
   }
 
-  const nationality = nationalities[0];
-  const winner = trusted.find(item => item.row.nationality === nationality) || trusted[0];
+  const nationality = choice.nationality;
+  const winner = choice.winner;
   mapping[String(player.playerId)] = nationality;
   methodCounts[winner.method] = (methodCounts[winner.method] || 0) + 1;
   matched.push({ playerId: player.playerId, name: player.name, nationality, method: winner.method, score: winner.score, sourceFile: winner.row.sourceFile, sourcePlayerId: winner.row.playerId || null });
 }
 
-const projectedCovered = eligiblePlayers.filter(player => {
-  const bio = player?.bio || {};
-  const existing = Boolean(String(bio.nationality || '').trim()) || (bio.regionId !== null && bio.regionId !== undefined && bio.regionId !== '' && Number.isFinite(Number(bio.regionId)));
-  return existing || Boolean(mapping[String(player.playerId)]);
-}).length;
+const projectedCovered = eligiblePlayers.filter(player => hasExistingCoverage(player) || Boolean(mapping[String(player.playerId)])).length;
+const projectedMissingPlayers = eligiblePlayers
+  .filter(player => !hasExistingCoverage(player) && !mapping[String(player.playerId)])
+  .map(player => ({ playerId: player.playerId, name: player.name, dateOfBirth: player?.bio?.dateOfBirth || null, seasons: [...positiveSeasons(player).keys()] }));
 
 const orderedMapping = Object.fromEntries(Object.entries(mapping).sort((a, b) => a[0].localeCompare(b[0])));
-const output = `/* Generated nationality enrichment. Source: ${SOURCE_URL}\n   Generated by scripts/enrich-nationalities.mjs. Existing bio.nationality values are never overwritten. */\n(() => {\n  \"use strict\";\n  const mapping = ${JSON.stringify(orderedMapping)};\n  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];\n  let applied = 0;\n  for (const player of players) {\n    const nationality = mapping[String(player?.playerId)];\n    if (!nationality) continue;\n    if (!player.bio || typeof player.bio !== \"object\") player.bio = {};\n    if (String(player.bio.nationality || \"\").trim()) continue;\n    player.bio.nationality = nationality;\n    applied += 1;\n  }\n  window.FPL_NATIONALITY_ENRICHMENT = Object.freeze({ version: \"1.0.0\", source: ${JSON.stringify(SOURCE_URL)}, applied, mapped: Object.keys(mapping).length });\n})();\n`;
+const output = `/* Generated nationality enrichment. Source: ${SOURCE_URL}\n   Generated by scripts/enrich-nationalities.mjs. Existing bio.nationality values are never overwritten. */\n(() => {\n  \"use strict\";\n  const mapping = ${JSON.stringify(orderedMapping)};\n  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];\n  let applied = 0;\n  for (const player of players) {\n    const nationality = mapping[String(player?.playerId)];\n    if (!nationality) continue;\n    if (!player.bio || typeof player.bio !== \"object\") player.bio = {};\n    if (String(player.bio.nationality || \"\").trim()) continue;\n    player.bio.nationality = nationality;\n    applied += 1;\n  }\n  window.FPL_NATIONALITY_ENRICHMENT = Object.freeze({ version: \"1.1.0\", source: ${JSON.stringify(SOURCE_URL)}, applied, mapped: Object.keys(mapping).length });\n})();\n`;
 fs.writeFileSync(OUTPUT_PATH, output);
 
 fs.mkdirSync(path.dirname(REPORT_PATH), { recursive: true });
@@ -318,10 +355,12 @@ const report = {
   newlyMapped: Object.keys(mapping).length,
   projectedCovered,
   projectedCoveragePercent: Number((projectedCovered / Math.max(1, eligiblePlayers.length) * 100).toFixed(1)),
+  projectedMissing: projectedMissingPlayers.length,
   unresolved: unresolved.length,
   conflicts: conflicts.length,
   methodCounts,
   matched,
+  projectedMissingPlayers,
   unresolvedPlayers: unresolved,
   conflictPlayers: conflicts
 };
@@ -333,6 +372,7 @@ console.log(JSON.stringify({
   newlyMapped: report.newlyMapped,
   projectedCovered: report.projectedCovered,
   projectedCoveragePercent: report.projectedCoveragePercent,
+  projectedMissing: report.projectedMissing,
   unresolved: report.unresolved,
   conflicts: report.conflicts,
   methodCounts: report.methodCounts
