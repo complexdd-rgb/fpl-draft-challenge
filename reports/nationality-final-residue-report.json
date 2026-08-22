@@ -1,23 +1,13 @@
 {
-  "generatedAt": "2026-08-22T14:19:48.879Z",
+  "generatedAt": "2026-08-22T14:23:25.732Z",
   "startingMissing": 65,
-  "autoResolved": 26,
-  "manualResolved": 39,
+  "autoResolved": 22,
+  "manualResolved": 43,
   "totalResolved": 65,
   "remainingMissing": 0,
   "finalCoverage": 2636,
   "finalCoveragePercent": 100,
   "autoResolvedPlayers": [
-    {
-      "playerId": "abdelhamid-sabiri",
-      "name": "Abdelhamid Sabiri",
-      "nationality": "Germany",
-      "method": "latest-strongest-identity-evidence",
-      "sourceFile": "pl_stats/Huddersfield_38/squad/2018-19_squad.csv",
-      "sourceSeason": "2018/19",
-      "sourceDisplayName": "Abdelhamid Sabiri",
-      "score": 110
-    },
     {
       "playerId": "adam-masina",
       "name": "Adam Masina",
@@ -96,16 +86,6 @@
       "sourceFile": "pl_stats/Arsenal_3/squad/2016-17_squad.csv",
       "sourceSeason": "2016/17",
       "sourceDisplayName": "Gabriel",
-      "score": 110
-    },
-    {
-      "playerId": "gael-kakuta",
-      "name": "Gael Kakuta",
-      "nationality": "France",
-      "method": "latest-strongest-identity-evidence",
-      "sourceFile": "pl_stats/Chelsea_8/squad/2014-15_squad.csv",
-      "sourceSeason": "2014/15",
-      "sourceDisplayName": "Gaël Kakuta",
       "score": 110
     },
     {
@@ -189,26 +169,6 @@
       "score": 110
     },
     {
-      "playerId": "nathaniel-mendez-laing",
-      "name": "Nathaniel Mendez-Laing",
-      "nationality": "England",
-      "method": "latest-strongest-identity-evidence",
-      "sourceFile": "pl_stats/Cardiff_97/squad/2018-19_squad.csv",
-      "sourceSeason": "2018/19",
-      "sourceDisplayName": "Nathaniel Mendez-Laing",
-      "score": 110
-    },
-    {
-      "playerId": "nick-blackman",
-      "name": "Nick Blackman",
-      "nationality": "England",
-      "method": "latest-strongest-identity-evidence",
-      "sourceFile": "pl_stats/Reading_108/squad/2012-13_squad.csv",
-      "sourceSeason": "2012/13",
-      "sourceDisplayName": "Nick Blackman",
-      "score": 110
-    },
-    {
       "playerId": "pedro-obiang",
       "name": "Pedro Obiang",
       "nationality": "Equatorial Guinea",
@@ -279,6 +239,14 @@
       "verifiedAt": "2026-08-22"
     },
     {
+      "playerId": "abdelhamid-sabiri",
+      "name": "Abdelhamid Sabiri",
+      "nationality": "Morocco",
+      "method": "verified-manual-ledger",
+      "source": "Morocco senior international record; switched from Germany U21 in 2022",
+      "verifiedAt": "2026-08-22"
+    },
+    {
       "playerId": "albert-adomah",
       "name": "Albert Adomah",
       "nationality": "Ghana",
@@ -340,6 +308,14 @@
       "nationality": "Brazil",
       "method": "verified-manual-ledger",
       "source": "Brazil senior international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "gael-kakuta",
+      "name": "Gael Kakuta",
+      "nationality": "DR Congo",
+      "method": "verified-manual-ledger",
+      "source": "DR Congo senior international record / current Premier League profile",
       "verifiedAt": "2026-08-22"
     },
     {
@@ -452,6 +428,22 @@
       "nationality": "England",
       "method": "verified-manual-ledger",
       "source": "England U21 international record",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "nathaniel-mendez-laing",
+      "name": "Nathaniel Mendez-Laing",
+      "nationality": "Guatemala",
+      "method": "verified-manual-ledger",
+      "source": "Guatemala senior international record since 2023",
+      "verifiedAt": "2026-08-22"
+    },
+    {
+      "playerId": "nick-blackman",
+      "name": "Nick Blackman",
+      "nationality": "Barbados",
+      "method": "verified-manual-ledger",
+      "source": "Barbados senior international record 2019-2021",
       "verifiedAt": "2026-08-22"
     },
     {
