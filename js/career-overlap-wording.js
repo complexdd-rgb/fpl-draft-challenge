@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — career-overlap wording clarity v1.0.19
+/* FPL Challenge Studio — career-overlap wording clarity v1.0.20
    Presentation/migration helper only. The rule remains: both players recorded Premier
    League minutes in at least one matching season; they do not need to share a club. */
 (() => {
@@ -7,6 +7,7 @@
   const MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
   const WORKSPACE_KEY = "fpl-studio-stage-one-workspace";
   const ROOT_SELECTOR = '[data-workspace="prompts"]';
+  let challengeGenerationRequested = false;
 
   function rewriteLabel(value) {
     let text = String(value || "");
@@ -120,15 +121,39 @@
     return true;
   }
 
+  function resumeRequestedGenerationWhenQualityReady() {
+    if (!challengeGenerationRequested) return;
+    setTimeout(() => {
+      if (!challengeGenerationRequested) return;
+      const existingResults = window.FPL_STUDIO_BATCH_CALENDAR?.getResults?.() || [];
+      if (Array.isArray(existingResults) && existingResults.length) {
+        challengeGenerationRequested = false;
+        return;
+      }
+      const batchStatus = document.getElementById("batchStatus");
+      const text = String(batchStatus?.textContent || "");
+      if (/could not synchronise|quality|rechecking|synchronis/i.test(text)) {
+        batchStatus.textContent = "Certified prompt pool ready. Continuing seven-day generation…";
+        batchStatus.dataset.state = "working";
+        window.FPL_DAILY_GENERATOR_GUARD?.generate?.();
+      }
+      challengeGenerationRequested = false;
+    }, 80);
+  }
+
   function installChallengeQualityBootstrap() {
     ensureChallengeQualityTools();
     document.addEventListener("click", event => {
       const workspaceTrigger = event.target.closest?.('[data-open-workspace="challenge"]');
       const generateTrigger = event.target.closest?.("#generateWeekBtn");
+      const clearTrigger = event.target.closest?.("#clearWeekBtn");
+      if (clearTrigger) challengeGenerationRequested = false;
+      if (generateTrigger) challengeGenerationRequested = true;
       if (!workspaceTrigger && !generateTrigger) return;
       const loader = window.FPL_STUDIO_LOAD_PROMPT_TOOLS;
       if (typeof loader === "function") loader();
     }, true);
+    window.addEventListener("fpl:four-star-library-ready", resumeRequestedGenerationWhenQualityReady);
     window.addEventListener("fpl:studio-workspace-changed", event => {
       if (event?.detail?.workspace === "challenge") ensureChallengeQualityTools();
     });
