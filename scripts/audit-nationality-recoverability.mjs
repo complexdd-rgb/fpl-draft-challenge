@@ -23,29 +23,45 @@ const normalise = value => String(value || '')
   .trim()
   .replace(/\s+/g, ' ');
 
+const CLUB_ALIASES = new Map([
+  ['man city', 'manchester city'],
+  ['man utd', 'manchester united'],
+  ['newcastle', 'newcastle united'],
+  ['norwich', 'norwich city'],
+  ['qpr', 'queens park rangers'],
+  ['spurs', 'tottenham hotspur'],
+  ['stoke', 'stoke city'],
+  ['swansea', 'swansea city'],
+  ['west brom', 'west bromwich albion'],
+  ['west ham', 'west ham united'],
+  ['wolves', 'wolverhampton wanderers'],
+  ['wigan', 'wigan athletic'],
+  ['blackburn', 'blackburn rovers'],
+  ['bolton', 'bolton wanderers'],
+  ['leicester', 'leicester city'],
+  ['hull', 'hull city'],
+  ['cardiff', 'cardiff city'],
+  ['brighton', 'brighton and hove albion'],
+  ['bournemouth', 'bournemouth'],
+  ['afc bournemouth', 'bournemouth'],
+  ['sheff utd', 'sheffield united'],
+  ['sheffield utd', 'sheffield united'],
+  ['huddersfield', 'huddersfield town'],
+  ['leeds', 'leeds united'],
+  ['ipswich', 'ipswich town'],
+  ['luton', 'luton town'],
+  ['nott m forest', 'nottingham forest'],
+  ['nottm forest', 'nottingham forest'],
+  ['forest', 'nottingham forest']
+]);
+
 const canonicalClub = value => {
-  let v = normalise(value)
+  const v = normalise(value)
     .replace(/\bfc\b/g, '')
     .replace(/\bafc\b/g, '')
     .replace(/\bfootball club\b/g, '')
     .trim().replace(/\s+/g, ' ');
-  const aliases = new Map([
-    ['man city', 'manchester city'],
-    ['man utd', 'manchester united'],
-    ['newcastle', 'newcastle united'],
-    ['norwich', 'norwich city'],
-    ['qpr', 'queens park rangers'],
-    ['spurs', 'tottenham hotspur'],
-    ['stoke', 'stoke city'],
-    ['swansea', 'swansea city'],
-    ['west brom', 'west bromwich albion'],
-    ['west ham', 'west ham united'],
-    ['wolves', 'wolverhampton wanderers'],
-    ['wigan', 'wigan athletic'],
-    ['blackburn', 'blackburn rovers'],
-    ['bolton', 'bolton wanderers']
-  ]);
-  return aliases.get(v) || v;
+  return CLUB_ALIASES.get(v) || v;
 };
 
 const seasonYear = season => Number(String(season || '').slice(0, 4));
@@ -87,6 +103,7 @@ for (const seasonDir of fs.readdirSync(externalRoot, { withFileTypes: true })) {
 const missing = players.filter(player => player?.bio?.regionId == null);
 const results = [];
 const methodCounts = new Map();
+const recoveredNationalityByPlayer = new Map();
 let recoverable = 0;
 let conflicting = 0;
 let noMatch = 0;
@@ -120,8 +137,7 @@ for (const player of missing) {
   }
 
   const uniqueEvidence = [...new Map(matches.map(m => [`${m.season}|${m.club}|${m.nameKey}`, m])).values()];
-  const nationalitySets = uniqueEvidence.map(m => m.primaryNationality).filter(Boolean);
-  const distinctPrimary = [...new Set(nationalitySets)];
+  const distinctPrimary = [...new Set(uniqueEvidence.map(m => m.primaryNationality).filter(Boolean))];
   const exactDobMatches = uniqueEvidence.filter(m => dob && m.dob === dob).length;
   const mismatchedDobMatches = uniqueEvidence.filter(m => dob && m.dob && m.dob !== dob && m.method === 'NAME_CLUB_SEASON').length;
   exactDobSupport += exactDobMatches > 0 ? 1 : 0;
@@ -134,6 +150,7 @@ for (const player of missing) {
     status = 'RECOVERABLE';
     nationality = distinctPrimary[0];
     recoverable += 1;
+    recoveredNationalityByPlayer.set(player.playerId, nationality);
     method = uniqueEvidence.some(m => m.method === 'NAME_CLUB_SEASON') ? 'NAME_CLUB_SEASON' : 'DOB_CLUB_SEASON';
     methodCounts.set(method, (methodCounts.get(method) || 0) + 1);
   } else if (distinctPrimary.length > 1) {
@@ -157,6 +174,28 @@ for (const player of missing) {
   });
 }
 
+const projectedSeasonStats = new Map();
+for (const player of players) {
+  const knownAfterPass = player?.bio?.regionId != null || recoveredNationalityByPlayer.has(player.playerId);
+  for (const row of player.seasons || []) {
+    if (!(Number(row?.minutes) > 0)) continue;
+    const season = String(row.season || 'unknown');
+    if (!projectedSeasonStats.has(season)) projectedSeasonStats.set(season, { total: 0, known: 0 });
+    const stat = projectedSeasonStats.get(season);
+    stat.total += 1;
+    if (knownAfterPass) stat.known += 1;
+  }
+}
+const projectedSeasonCoverage = [...projectedSeasonStats.entries()]
+  .sort((a, b) => a[0].localeCompare(b[0]))
+  .map(([season, stat]) => ({
+    season,
+    positiveMinutePlayers: stat.total,
+    projectedKnown: stat.known,
+    missingAfterPass: stat.total - stat.known,
+    projectedCoveragePct: Number((100 * stat.known / Math.max(1, stat.total)).toFixed(1))
+  }));
+
 const currentKnown = players.length - missing.length;
 const projectedKnown = currentKnown + recoverable;
 const summary = {
@@ -172,6 +211,8 @@ const summary = {
   recoverableWithExactDobSupport: exactDobSupport,
   recoverableOrMatchedWithDobDisagreement: dobConflict,
   methods: Object.fromEntries(methodCounts),
+  projectedSeasonCoverage,
+  nationalityReadySeasons: projectedSeasonCoverage.filter(item => item.missingAfterPass === 0).map(item => item.season),
   note: 'Primary nationality means the first nationality listed by the external squad source. No data was written to players.js.'
 };
 
