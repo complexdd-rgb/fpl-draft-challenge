@@ -33,6 +33,9 @@ jobs:
           node --check js/validation-engine.js
           node --check js/validation-lab.js
           node --check js/leaderboard-config.js
+          node --check js/live-feature-loader.js
+          node --check js/studio-feature-loader.js
+          node --check js/prompt-library-legacy-additions-20260814.js
           node --check js/leaderboard-client.js
           node --check js/leaderboard-team-view.js
           node --check js/leaderboard-ranking-rules.js
