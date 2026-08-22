@@ -24,35 +24,16 @@ const normalise = value => String(value || '')
   .replace(/\s+/g, ' ');
 
 const CLUB_ALIASES = new Map([
-  ['man city', 'manchester city'],
-  ['man utd', 'manchester united'],
-  ['newcastle', 'newcastle united'],
-  ['norwich', 'norwich city'],
-  ['qpr', 'queens park rangers'],
-  ['spurs', 'tottenham hotspur'],
-  ['stoke', 'stoke city'],
-  ['swansea', 'swansea city'],
-  ['west brom', 'west bromwich albion'],
-  ['west ham', 'west ham united'],
-  ['wolves', 'wolverhampton wanderers'],
-  ['wigan', 'wigan athletic'],
-  ['blackburn', 'blackburn rovers'],
-  ['bolton', 'bolton wanderers'],
-  ['leicester', 'leicester city'],
-  ['hull', 'hull city'],
-  ['cardiff', 'cardiff city'],
-  ['brighton', 'brighton and hove albion'],
-  ['bournemouth', 'bournemouth'],
-  ['afc bournemouth', 'bournemouth'],
-  ['sheff utd', 'sheffield united'],
-  ['sheffield utd', 'sheffield united'],
-  ['huddersfield', 'huddersfield town'],
-  ['leeds', 'leeds united'],
-  ['ipswich', 'ipswich town'],
-  ['luton', 'luton town'],
-  ['nott m forest', 'nottingham forest'],
-  ['nottm forest', 'nottingham forest'],
-  ['forest', 'nottingham forest']
+  ['man city', 'manchester city'], ['man utd', 'manchester united'], ['newcastle', 'newcastle united'],
+  ['norwich', 'norwich city'], ['qpr', 'queens park rangers'], ['spurs', 'tottenham hotspur'],
+  ['stoke', 'stoke city'], ['swansea', 'swansea city'], ['west brom', 'west bromwich albion'],
+  ['west ham', 'west ham united'], ['wolves', 'wolverhampton wanderers'], ['wigan', 'wigan athletic'],
+  ['blackburn', 'blackburn rovers'], ['bolton', 'bolton wanderers'], ['leicester', 'leicester city'],
+  ['hull', 'hull city'], ['cardiff', 'cardiff city'], ['brighton', 'brighton and hove albion'],
+  ['bournemouth', 'bournemouth'], ['afc bournemouth', 'bournemouth'], ['sheff utd', 'sheffield united'],
+  ['sheffield utd', 'sheffield united'], ['huddersfield', 'huddersfield town'], ['leeds', 'leeds united'],
+  ['ipswich', 'ipswich town'], ['luton', 'luton town'], ['nott m forest', 'nottingham forest'],
+  ['nottm forest', 'nottingham forest'], ['forest', 'nottingham forest']
 ]);
 
 const canonicalClub = value => {
@@ -65,6 +46,17 @@ const canonicalClub = value => {
 };
 
 const seasonYear = season => Number(String(season || '').slice(0, 4));
+const dobParts = value => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ''));
+  return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null;
+};
+const dobEquivalent = (left, right) => {
+  if (!left || !right) return false;
+  if (left === right) return true;
+  const a = dobParts(left), b = dobParts(right);
+  if (!a || !b || a[0] !== b[0]) return false;
+  return a[1] === b[2] && a[2] === b[1] && a[1] <= 12 && b[1] <= 12;
+};
 const externalBySeason = new Map();
 
 for (const seasonDir of fs.readdirSync(externalRoot, { withFileTypes: true })) {
@@ -108,6 +100,7 @@ let recoverable = 0;
 let conflicting = 0;
 let noMatch = 0;
 let exactDobSupport = 0;
+let swappedDobSupport = 0;
 let dobConflict = 0;
 
 for (const player of missing) {
@@ -121,17 +114,16 @@ for (const player of missing) {
     const pool = externalBySeason.get(year) || [];
     const club = canonicalClub(row.club);
 
-    // Strongest practical join: this player-name/alias occurs in the same PL club-season.
     for (const ext of pool) {
       if (ext.club !== club || !names.has(ext.nameKey)) continue;
       matches.push({ ...ext, season: row.season, method: 'NAME_CLUB_SEASON' });
     }
 
-    // Backstop for canonical-name differences: exact DOB in the same club-season, only if unique.
     if (dob) {
-      const dobCandidates = pool.filter(ext => ext.club === club && ext.dob === dob);
+      const dobCandidates = pool.filter(ext => ext.club === club && dobEquivalent(ext.dob, dob));
       if (dobCandidates.length === 1 && !matches.some(m => m.season === row.season && m.nameKey === dobCandidates[0].nameKey)) {
-        matches.push({ ...dobCandidates[0], season: row.season, method: 'DOB_CLUB_SEASON' });
+        const exact = dobCandidates[0].dob === dob;
+        matches.push({ ...dobCandidates[0], season: row.season, method: exact ? 'DOB_CLUB_SEASON' : 'SWAPPED_DOB_CLUB_SEASON' });
       }
     }
   }
@@ -139,8 +131,10 @@ for (const player of missing) {
   const uniqueEvidence = [...new Map(matches.map(m => [`${m.season}|${m.club}|${m.nameKey}`, m])).values()];
   const distinctPrimary = [...new Set(uniqueEvidence.map(m => m.primaryNationality).filter(Boolean))];
   const exactDobMatches = uniqueEvidence.filter(m => dob && m.dob === dob).length;
-  const mismatchedDobMatches = uniqueEvidence.filter(m => dob && m.dob && m.dob !== dob && m.method === 'NAME_CLUB_SEASON').length;
+  const swappedDobMatches = uniqueEvidence.filter(m => dob && m.dob !== dob && dobEquivalent(m.dob, dob)).length;
+  const mismatchedDobMatches = uniqueEvidence.filter(m => dob && m.dob && !dobEquivalent(m.dob, dob) && m.method === 'NAME_CLUB_SEASON').length;
   exactDobSupport += exactDobMatches > 0 ? 1 : 0;
+  swappedDobSupport += swappedDobMatches > 0 ? 1 : 0;
   dobConflict += mismatchedDobMatches > 0 ? 1 : 0;
 
   let status = 'NO_MATCH';
@@ -151,7 +145,9 @@ for (const player of missing) {
     nationality = distinctPrimary[0];
     recoverable += 1;
     recoveredNationalityByPlayer.set(player.playerId, nationality);
-    method = uniqueEvidence.some(m => m.method === 'NAME_CLUB_SEASON') ? 'NAME_CLUB_SEASON' : 'DOB_CLUB_SEASON';
+    if (uniqueEvidence.some(m => m.method === 'NAME_CLUB_SEASON')) method = 'NAME_CLUB_SEASON';
+    else if (uniqueEvidence.some(m => m.method === 'DOB_CLUB_SEASON')) method = 'DOB_CLUB_SEASON';
+    else method = 'SWAPPED_DOB_CLUB_SEASON';
     methodCounts.set(method, (methodCounts.get(method) || 0) + 1);
   } else if (distinctPrimary.length > 1) {
     status = 'CONFLICT';
@@ -169,6 +165,7 @@ for (const player of missing) {
     method,
     evidenceRows: uniqueEvidence.length,
     exactDobSupport: exactDobMatches,
+    swappedDobSupport: swappedDobMatches,
     mismatchedDobEvidence: mismatchedDobMatches,
     distinctPrimaryNationalities: distinctPrimary
   });
@@ -209,6 +206,7 @@ const summary = {
   projectedNationalityCoverage: projectedKnown,
   projectedCoveragePct: Number((100 * projectedKnown / players.length).toFixed(1)),
   recoverableWithExactDobSupport: exactDobSupport,
+  recoverableWithSwappedDobSupport: swappedDobSupport,
   recoverableOrMatchedWithDobDisagreement: dobConflict,
   methods: Object.fromEntries(methodCounts),
   projectedSeasonCoverage,
