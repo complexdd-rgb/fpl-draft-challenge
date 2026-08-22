@@ -2,7 +2,15 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const source = fs.readFileSync('players.js', 'utf8');
-const sandbox = { window: {} };
+const sandbox = {
+  window: {
+    addEventListener() {},
+    removeEventListener() {}
+  },
+  console,
+  setTimeout() { return 0; },
+  clearTimeout() {}
+};
 vm.createContext(sandbox);
 vm.runInContext(source, sandbox, { filename: 'players.js', timeout: 30_000 });
 const players = Array.isArray(sandbox.window.FPL_PLAYERS) ? sandbox.window.FPL_PLAYERS : [];
