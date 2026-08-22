@@ -1,6 +1,6 @@
-/* FPL Draft Challenge — leaderboard configuration and synchronous auth bridge.
-   Only browser-safe publishable configuration belongs here. The account bridge remains
-   synchronous because leaderboard-client.js is loaded immediately after this file. */
+/* FPL Draft Challenge — leaderboard configuration and synchronous compatibility bridges.
+   Only browser-safe publishable configuration belongs here. Two tiny bridges remain
+   synchronous because their timing must precede immediately-following page scripts. */
 window.FPL_LEADERBOARD_CONFIG = Object.freeze({
   enabled: true,
   supabaseUrl: "https://sacfscnhvmfvbazbfgji.supabase.co",
@@ -38,6 +38,27 @@ window.FPL_LEADERBOARD_CONFIG = Object.freeze({
 
 window.FPL_IS_STUDIO = /\/admin(?:\.html)?$/i.test(window.location.pathname)
   || Boolean(document.querySelector("main.studio-shell"));
+
+// Timing-sensitive Studio compatibility guard. Two older prompt-tool modules still bind
+// initialisers to window.load; install this observer before DOMContentLoaded so a lazy-loaded
+// bundle cannot race past it. Remove this once those modules are modernised.
+if (window.FPL_IS_STUDIO) {
+  const latePromptObserver = new MutationObserver(mutations => {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (!(node instanceof HTMLScriptElement) || !/\/js\/admin-import-tools-base\.js(?:\?|$)/.test(node.src)) continue;
+        latePromptObserver.disconnect();
+        node.addEventListener("load", () => {
+          if (document.readyState === "complete") {
+            queueMicrotask(() => window.dispatchEvent(new Event("load")));
+          }
+        }, { once: true });
+        return;
+      }
+    }
+  });
+  latePromptObserver.observe(document.head, { childList: true });
+}
 
 // Synchronous account bridge. This intercepts only leaderboard Edge Function requests and
 // adds the signed-in access token when one exists. The actual account UI remains deferred.
