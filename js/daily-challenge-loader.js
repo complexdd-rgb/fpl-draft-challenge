@@ -125,13 +125,13 @@
     }, {once:true});
   }
 
-  // Gameplay roadmap layer: run after the inline game engine and visual layers have loaded.
+  // Give Up gameplay layer: run after the inline game engine and visual layers have loaded.
   window.addEventListener("load", () => {
-    if (document.querySelector('script[data-game-roadmap-phase-1]')) return;
+    if (document.querySelector('script[data-give-up-gameplay]')) return;
     const script = document.createElement("script");
-    script.src = "js/game-roadmap-phase1.js?v=1.0.0";
+    script.src = "js/give-up-gameplay.js?v=1.0.0";
     script.async = false;
-    script.dataset.gameRoadmapPhase1 = "1";
+    script.dataset.giveUpGameplay = "1";
     document.body.appendChild(script);
   }, { once: true });
 })();
