@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — four-star prompt floor enforcer v1.0.2
+/* FPL Challenge Studio — four-star prompt floor enforcer v1.0.3
    One-time-per-library analysis that removes prompts rated below 4★ by the Quality
    Analyser. Rejections are cached only against the exact prompt + player-data snapshot;
    they are not persisted as manual Prompt Manager deletions. */
@@ -8,8 +8,10 @@
   if (window.__FPL_FOUR_STAR_ENFORCER_V1__) return;
   window.__FPL_FOUR_STAR_ENFORCER_V1__ = true;
 
+  // Keep the cache schema/version stable: v1.0.3 only adds Daily Challenge boot/progress reporting.
+  const CACHE_VERSION = "1.0.2";
+  const SCRIPT_VERSION = "1.0.3";
   const CACHE_KEY = "fplPromptFourStarFloorV1";
-  const VERSION = "1.0.2";
   const MINIMUM_RATING = 4;
   let running = false;
   let attempts = 0;
@@ -69,7 +71,7 @@
     try {
       const value = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
       return value
-        && value.version === VERSION
+        && value.version === CACHE_VERSION
         && typeof value.sourceFingerprint === "string"
         && Array.isArray(value.rejectedIds)
         ? value
@@ -135,6 +137,36 @@
     panel.innerHTML = message;
   }
 
+  function publishProgress(current, total, state = "working", message = "") {
+    const safeTotal = Math.max(0, Number(total) || 0);
+    const safeCurrent = Math.max(0, Number(current) || 0);
+    const percent = safeTotal ? Math.max(0, Math.min(100, Math.round((safeCurrent / safeTotal) * 100))) : 0;
+    const detail = Object.freeze({
+      state,
+      current: safeCurrent,
+      total: safeTotal,
+      percent,
+      message: String(message || ""),
+      scriptVersion: SCRIPT_VERSION
+    });
+    window.FPL_FOUR_STAR_LIBRARY_PROGRESS = detail;
+    window.dispatchEvent(new CustomEvent("fpl:four-star-library-progress", { detail }));
+
+    const batchStatus = document.getElementById("batchStatus");
+    const challenge = document.querySelector('[data-workspace="challenge"]');
+    if (batchStatus && (!challenge || challenge.hidden === false)) {
+      if (state === "working") {
+        batchStatus.textContent = safeTotal
+          ? `Rechecking the certified 4★+ prompt pool… ${percent}% (${safeCurrent.toLocaleString("en-GB")} / ${safeTotal.toLocaleString("en-GB")}). This runs after prompt or player-data changes.`
+          : "Loading the prompt-quality engine for Daily Challenge…";
+        batchStatus.dataset.state = "working";
+      } else if (state === "fail") {
+        batchStatus.textContent = message || "The prompt-quality check could not finish.";
+        batchStatus.dataset.state = "fail";
+      }
+    }
+  }
+
   function disabledDeletedCount() {
     const baseline = window.FPL_APPROVED_PROMPT_BASELINE || {};
     return Number(baseline.disabledDeleted || baseline.removedDisabled || 0);
@@ -147,7 +179,8 @@
     const deletedDisabled = disabledDeletedCount();
     window.FPL_FOUR_STAR_LIBRARY = Object.freeze({
       ready: true,
-      version: VERSION,
+      version: CACHE_VERSION,
+      scriptVersion: SCRIPT_VERSION,
       minimumRating: MINIMUM_RATING,
       analysed: sourceCount,
       analyserRejected: rejectedIds.length,
@@ -158,6 +191,7 @@
       fiveStarStoredRating: five,
       fromCache: Boolean(fromCache)
     });
+    publishProgress(sourceCount, sourceCount, "ready");
     window.dispatchEvent(new CustomEvent("fpl:four-star-library-ready", { detail: window.FPL_FOUR_STAR_LIBRARY }));
     setStatus(`<strong>4★+ library enforced.</strong> ${rejectedIds.length} analyser-rated prompt${rejectedIds.length === 1 ? "" : "s"} below 4★ removed · ${deletedDisabled} previously disabled prompt${deletedDisabled === 1 ? "" : "s"} deleted · ${finalLibrary.length.toLocaleString("en-GB")} prompts remain.`);
   }
@@ -168,7 +202,10 @@
     const engine = window.FPL_PROMPT_QUALITY_ENGINE;
     const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
     const items = library();
-    if (!baseline?.ready || typeof engine?.analyseLibrary !== "function" || !players.length || !items.length) return false;
+    if (!baseline?.ready || typeof engine?.analyseLibrary !== "function" || !players.length || !items.length) {
+      publishProgress(0, 0, "working");
+      return false;
+    }
 
     running = true;
     try {
@@ -187,6 +224,7 @@
 
       const source = library().slice();
       const freshSourceFingerprint = sourceFingerprint(source, players);
+      publishProgress(0, source.length, "working");
       setStatus(`<strong>Finalising the 4★+ library…</strong> Rechecking ${source.length.toLocaleString("en-GB")} prompts with the same full Quality Analyser rules. This only needs to run again when prompts or player data change.`, "working");
       const results = await engine.analyseLibrary(source, players, {
         progress: (current, total) => {
@@ -194,6 +232,7 @@
           if (now - lastProgressPaint < 350 && current < total) return;
           lastProgressPaint = now;
           const percent = total ? Math.round((current / total) * 100) : 0;
+          publishProgress(current, total, "working");
           setStatus(`<strong>Finalising the 4★+ library… ${percent}%</strong> Checking answer breadth, overlap, variety and rule health before removing anything below the agreed quality floor.`, "working");
         }
       });
@@ -205,7 +244,7 @@
       const removed = removeIds(rejectedIds);
       const finalFingerprint = finalLibraryFingerprint(library());
       writeCache({
-        version: VERSION,
+        version: CACHE_VERSION,
         analysed: source.length,
         sourceFingerprint: freshSourceFingerprint,
         rejectedIds,
@@ -215,7 +254,9 @@
       publishMeta(source.length, rejectedIds, removed, false);
       return true;
     } catch (error) {
+      const message = `4★+ cleanup could not finish: ${String(error?.message || error || "Unknown error")}`;
       console.error("Four-star prompt floor could not be enforced.", error);
+      publishProgress(0, 0, "fail", message);
       setStatus(`<strong>4★+ cleanup could not finish.</strong> ${String(error?.message || error || "Unknown error")}`, "working");
       return true;
     } finally {
