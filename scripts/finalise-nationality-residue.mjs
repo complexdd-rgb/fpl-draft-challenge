@@ -42,6 +42,8 @@ const autoResolved = [];
 for (const row of conflictRows) {
   const playerId = String(row?.playerId || '');
   if (!missingIds.has(playerId)) continue;
+  // Explicitly verified player-level football nationality outranks historical PL-only evidence.
+  if (manualPlayers[playerId]) continue;
   const result = resolveConflict(row);
   if (!result) continue;
   mapping[playerId] = result.nationality;
@@ -60,7 +62,6 @@ for (const row of conflictRows) {
 const manualResolved = [];
 for (const [playerId, item] of Object.entries(manualPlayers)) {
   if (!missingIds.has(String(playerId))) continue;
-  if (mapping[String(playerId)]) continue;
   const nationality = String(item?.nationality || '').trim();
   if (!nationality) continue;
   mapping[String(playerId)] = nationality;
@@ -77,7 +78,7 @@ for (const [playerId, item] of Object.entries(manualPlayers)) {
 
 const orderedMapping = Object.fromEntries(Object.entries(mapping).sort((a, b) => a[0].localeCompare(b[0])));
 if (Object.keys(orderedMapping).length) {
-  const overlay = `\n/* Final nationality residue resolver. Only fills players still missing nationality after the bulk pass. */\n(() => {\n  \"use strict\";\n  const mapping = ${JSON.stringify(orderedMapping)};\n  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];\n  let applied = 0;\n  for (const player of players) {\n    const nationality = mapping[String(player?.playerId)];\n    if (!nationality) continue;\n    if (!player.bio || typeof player.bio !== \"object\") player.bio = {};\n    if (String(player.bio.nationality || \"\").trim()) continue;\n    const regionId = player.bio.regionId;\n    if (regionId !== null && regionId !== undefined && regionId !== \"\" && Number.isFinite(Number(regionId))) continue;\n    player.bio.nationality = nationality;\n    applied += 1;\n  }\n  window.FPL_NATIONALITY_FINAL_RESIDUE = Object.freeze({ version: \"1.1.0\", applied, mapped: Object.keys(mapping).length });\n})();\n`;
+  const overlay = `\n/* Final nationality residue resolver. Only fills players still missing nationality after the bulk pass. */\n(() => {\n  \"use strict\";\n  const mapping = ${JSON.stringify(orderedMapping)};\n  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];\n  let applied = 0;\n  for (const player of players) {\n    const nationality = mapping[String(player?.playerId)];\n    if (!nationality) continue;\n    if (!player.bio || typeof player.bio !== \"object\") player.bio = {};\n    if (String(player.bio.nationality || \"\").trim()) continue;\n    const regionId = player.bio.regionId;\n    if (regionId !== null && regionId !== undefined && regionId !== \"\" && Number.isFinite(Number(regionId))) continue;\n    player.bio.nationality = nationality;\n    applied += 1;\n  }\n  window.FPL_NATIONALITY_FINAL_RESIDUE = Object.freeze({ version: \"1.2.0\", applied, mapped: Object.keys(mapping).length });\n})();\n`;
   fs.appendFileSync(enrichmentPath, overlay);
 }
 
