@@ -1,78 +1,31 @@
-/* FPL Draft Challenge — temporary UI retirements for low-value Phase 4.5 panels. */
+/* FPL Draft Challenge — legacy live-UI entrypoint.
+   Kept temporarily so older loaders can keep requesting ui-cleanup.js while the
+   responsibilities live in explicitly named modules. */
 (() => {
   "use strict";
 
-  function loadPromptMissingFieldGuard() {
-    if (window.FPL_PROMPT_FIELD_GUARD || document.querySelector('script[data-prompt-missing-field-guard]')) return;
-    const guard = document.createElement("script");
-    guard.src = new URL("js/prompt-missing-field-guard.js?v=1.0.0", document.baseURI).toString();
-    guard.async = false;
-    guard.dataset.promptMissingFieldGuard = "1";
-    document.head.appendChild(guard);
-  }
-
-  function loadVisualOverhaul() {
-    if (document.querySelector('script[data-visual-overhaul]')) return;
-    const visual = document.createElement("script");
-    visual.src = new URL("js/visual-overhaul.js", document.baseURI).toString();
-    visual.async = true;
-    visual.dataset.visualOverhaul = "1";
-    document.head.appendChild(visual);
-  }
-
-  function loadVisualFinishing() {
-    if (document.querySelector('script[data-visual-finishing]')) return;
-    const finishing = document.createElement("script");
-    finishing.src = new URL("js/visual-finishing.js", document.baseURI).toString();
-    finishing.async = true;
-    finishing.dataset.visualFinishing = "1";
-    document.head.appendChild(finishing);
-  }
-
-  function loadSeasonSelectPerformance() {
-    if (document.querySelector('script[data-season-select-performance]')) return;
-    const performance = document.createElement("script");
-    performance.src = new URL("js/season-select-performance.js", document.baseURI).toString();
-    performance.async = true;
-    performance.dataset.seasonSelectPerformance = "1";
-    document.head.appendChild(performance);
-  }
-
-  function loadAutocompleteLayer() {
-    if (document.querySelector('script[data-autocomplete-layer]')) return;
-    const autocomplete = document.createElement("script");
-    autocomplete.src = new URL("js/autocomplete-layer.js", document.baseURI).toString();
-    autocomplete.async = true;
-    autocomplete.dataset.autocompleteLayer = "1";
-    document.head.appendChild(autocomplete);
-  }
-
-  function retireLowValuePanels() {
-    loadPromptMissingFieldGuard();
-    const shell = document.getElementById("phase45Shell");
-    const livePanel = document.getElementById("liveXiPanel");
-    const stats = document.getElementById("phase45ExtendedStats");
-    const achievements = document.getElementById("phase45Achievements");
-
-    // Keep the useful local-record panel, but move it out of the retired Live XI layout.
-    if (shell && livePanel && stats && livePanel.contains(stats)) {
-      shell.insertBefore(stats, livePanel);
-      const note = stats.querySelector(".phase45-section-head p");
-      if (note) note.textContent = "Your completed daily results stored on this device.";
+  const load = (src, marker, done) => {
+    const existing = document.querySelector(`script[${marker}]`);
+    if (existing) {
+      if (done) {
+        if (existing.dataset.loaded === "true") done();
+        else existing.addEventListener("load", done, { once: true });
+      }
+      return;
     }
 
-    // Retire the achievements panel and the remaining Live XI container.
-    achievements?.remove();
-    livePanel?.remove();
-    loadSeasonSelectPerformance();
-    loadAutocompleteLayer();
-    loadVisualOverhaul();
-    loadVisualFinishing();
-  }
+    const script = document.createElement("script");
+    script.src = new URL(src, document.baseURI).toString();
+    script.async = false;
+    script.setAttribute(marker, "1");
+    script.addEventListener("load", () => {
+      script.dataset.loaded = "true";
+      done?.();
+    }, { once: true });
+    document.head.appendChild(script);
+  };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", retireLowValuePanels, { once: true });
-  } else {
-    retireLowValuePanels();
-  }
+  load("js/live-ui-bootstrap.js", "data-live-ui-bootstrap", () => {
+    load("js/retired-panel-compat.js", "data-retired-panel-compat");
+  });
 })();
