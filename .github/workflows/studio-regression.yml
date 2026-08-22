@@ -24,6 +24,8 @@ jobs:
           node --check js/admin-core.js
           node --check js/admin-batch-calendar.js
           node --check js/admin-import-tools.js
+          node --check js/prompt-studio-loader.js
+          node --check js/career-shape-validation-bridge.js
           node --check js/admin-import-tools-base.js
           node --check js/admin-daily-publish.js
           node --check js/admin-daily-generator-guard.js
