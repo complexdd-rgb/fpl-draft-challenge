@@ -28,7 +28,7 @@ jobs:
       - name: Verify generator syntax and policy
         run: |
           node --check js/admin-batch-calendar.js
-          grep -q 'ANSWER_DIVERSITY_POLICY_VERSION = 1' js/admin-batch-calendar.js
+          grep -Eq 'ANSWER_DIVERSITY_POLICY_VERSION = [1-9][0-9]*' js/admin-batch-calendar.js
           grep -q 'leaderRepeatedInDraft' js/admin-batch-calendar.js
           grep -q 'answerOverlapWithDraft' js/admin-batch-calendar.js
           grep -q 'answerDiversityPenalty(draft)' js/admin-batch-calendar.js

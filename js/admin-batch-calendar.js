@@ -244,6 +244,7 @@
       scheduledDates.add(date);
     }
     const rotationState = buildExactRotationState(virtualSchedule, startDate, basePools, promptById);
+    const weeklyLeaderDays = new Map();
 
     try {
       for (let dayIndex = 0; dayIndex < DAYS_IN_BATCH; dayIndex += 1) {
@@ -278,6 +279,7 @@
           formationSlots,
           exactPlan,
           familyPlan,
+          weeklyLeaderDays,
           dayIndex,
           date,
           token
@@ -335,7 +337,10 @@
           issues: validation
         };
         batchResults.push(result);
-        if (!validation.length) commitExactRotationSelection(rotationState, exactPlan, prompts, basePools);
+        if (!validation.length) {
+          commitExactRotationSelection(rotationState, exactPlan, prompts, basePools);
+          commitWeeklyLeaderDays(prompts, weeklyLeaderDays);
+        }
         virtualSchedule.push(manifestEntryForResult(result));
         renderBatchReview();
 
@@ -560,7 +565,7 @@
     return true;
   }
 
-  async function generateCandidateForDay({ basePools, settings, requiredFormation, formationSlots, exactPlan, familyPlan, dayIndex, date, token }) {
+  async function generateCandidateForDay({ basePools, settings, requiredFormation, formationSlots, exactPlan, familyPlan, weeklyLeaderDays, dayIndex, date, token }) {
     const availability = Object.fromEntries(
       Object.keys(requiredFormation).map(position => [
         position,
@@ -583,7 +588,7 @@
         const options = basePools[position].filter(prompt =>
           exactPlanAllows(prompt, exactPlan) && familyPlanAllows(prompt, familyPlan) && !used.has(prompt.id)
         );
-        const choice = weightedPick(options, draft, settings, familyPlan);
+        const choice = weightedPick(options, draft, settings, familyPlan, weeklyLeaderDays);
         if (!choice) break;
         draft.push(choice);
         used.add(choice.id);
@@ -597,7 +602,7 @@
       signatures.add(signature);
       candidates.push({
         prompts: draft,
-        balance: scoreDraft(draft, settings),
+        balance: scoreDraft(draft, settings, weeklyLeaderDays),
         naiveScore: naivePerfectUpperBound(draft)
       });
 
@@ -652,8 +657,10 @@
     };
   }
 
-  const ANSWER_DIVERSITY_POLICY_VERSION = 1;
+  const ANSWER_DIVERSITY_POLICY_VERSION = 2;
   const ANSWER_DIVERSITY_POOL_SIZE = 16;
+  const WEEKLY_LEADER_SOFT_CAP = 2;
+  const WEEKLY_LEADER_BASE_PENALTY = 180;
 
   function topAnswerRecords(prompt, limit = ANSWER_DIVERSITY_POOL_SIZE) {
     const stats = core.getPromptStats(prompt);
@@ -721,7 +728,34 @@
     return penalty;
   }
 
-  function weightedPick(options, currentDraft, settings, familyPlan) {
+  function weeklyLeaderIds(draft) {
+    const ids = new Set();
+    for (const prompt of draft || []) {
+      const playerId = core.getPromptStats(prompt)?.bestAnswer?.playerId;
+      if (playerId) ids.add(playerId);
+    }
+    return ids;
+  }
+
+  function weeklyLeaderPenalty(draft, weeklyLeaderDays) {
+    if (!(weeklyLeaderDays instanceof Map) || !weeklyLeaderDays.size) return 0;
+    let penalty = 0;
+    for (const playerId of weeklyLeaderIds(draft)) {
+      const projectedDays = Number(weeklyLeaderDays.get(playerId) || 0) + 1;
+      if (projectedDays <= WEEKLY_LEADER_SOFT_CAP) continue;
+      const excess = projectedDays - WEEKLY_LEADER_SOFT_CAP;
+      penalty += excess * excess * WEEKLY_LEADER_BASE_PENALTY;
+    }
+    return penalty;
+  }
+
+  function commitWeeklyLeaderDays(draft, weeklyLeaderDays) {
+    for (const playerId of weeklyLeaderIds(draft)) {
+      weeklyLeaderDays.set(playerId, Number(weeklyLeaderDays.get(playerId) || 0) + 1);
+    }
+  }
+
+  function weightedPick(options, currentDraft, settings, familyPlan, weeklyLeaderDays) {
     if (!options.length) return null;
     const usedFamilies = new Set(currentDraft.map(promptFamily));
     const familyFreshOptions = options.filter(prompt => !usedFamilies.has(promptFamily(prompt)));
@@ -743,6 +777,12 @@
       const repeatedThemeCount = (prompt.tags || []).filter(tag => DIVERSITY_TAGS.has(tag) && tagsAlreadyUsed.has(tag)).length;
       weight /= 1 + repeatedThemeCount * 1.6;
       if (leaderRepeatedInDraft(prompt, currentDraft)) weight /= 8;
+      const leaderId = core.getPromptStats(prompt)?.bestAnswer?.playerId;
+      const priorLeaderDays = leaderId ? Number(weeklyLeaderDays?.get(leaderId) || 0) : 0;
+      if (priorLeaderDays >= WEEKLY_LEADER_SOFT_CAP) {
+        const excess = priorLeaderDays - WEEKLY_LEADER_SOFT_CAP + 1;
+        weight /= 1 + excess * excess * 12;
+      }
       const answerOverlap = answerOverlapWithDraft(prompt, currentDraft);
       weight /= 1 + answerOverlap * 0.65;
       if (familyPlan?.recentFamilies?.has(promptFamily(prompt))) weight /= 12;
@@ -758,7 +798,7 @@
     return weighted[weighted.length - 1].prompt;
   }
 
-  function scoreDraft(draft, settings) {
+  function scoreDraft(draft, settings, weeklyLeaderDays) {
     const target = difficultyTargetValue(settings.difficultyTarget);
     const averageDifficulty = draft.reduce((sum, prompt) => sum + (DIFFICULTY_VALUE[prompt.difficulty] || 2), 0) / draft.length;
     let score = Math.abs(averageDifficulty - target) * 20;
@@ -776,6 +816,7 @@
     }
     for (const count of tagCounts.values()) if (count > 2) score += (count - 2) * 14;
     score += answerDiversityPenalty(draft);
+    score += weeklyLeaderPenalty(draft, weeklyLeaderDays);
     return score + Math.random() * 0.25;
   }
 
