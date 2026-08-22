@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.1.0
+/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.1.1
    Keeps seven-day generation aligned with the live server schedule and locks every generated
    week to the current certified 4★+ prompt pool. */
 (() => {
@@ -9,7 +9,10 @@
 
   const DAYS_IN_BATCH = 7;
   const LONDON_TIMEZONE = "Europe/London";
-  const QUALITY_WAIT_MS = 15000;
+  const QUALITY_WAIT_MS = 30000;
+  const QUALITY_CACHE_KEY = "fplPromptFourStarFloorV1";
+  const PROMPT_MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
+  const QUALITY_DELETE_MIGRATION_KEY = "fplQualityFloorDeleteMigrationV1";
   const core = window.FPL_STUDIO_API;
   const generateButton = document.getElementById("generateWeekBtn");
   const startDateInput = document.getElementById("batchStartDate");
@@ -23,6 +26,41 @@
   let certifiedPoolSize = 0;
   let generationRunning = false;
   let guardChip = null;
+
+  function releaseLegacyQualityFloorDeletions() {
+    try {
+      if (localStorage.getItem(QUALITY_DELETE_MIGRATION_KEY)) return { stale: 0, released: 0 };
+      const cache = JSON.parse(localStorage.getItem(QUALITY_CACHE_KEY) || "null");
+      const staleIds = new Set(Array.isArray(cache?.rejectedIds) ? cache.rejectedIds.map(String).filter(Boolean) : []);
+      let released = 0;
+
+      if (staleIds.size) {
+        const state = JSON.parse(localStorage.getItem(PROMPT_MANAGER_KEY) || "null");
+        if (state && typeof state === "object" && Array.isArray(state.deletedIds)) {
+          const before = state.deletedIds.length;
+          state.deletedIds = state.deletedIds.filter(id => !staleIds.has(String(id)));
+          released = before - state.deletedIds.length;
+          if (released) localStorage.setItem(PROMPT_MANAGER_KEY, JSON.stringify(state));
+        }
+        localStorage.removeItem(QUALITY_CACHE_KEY);
+      }
+
+      localStorage.setItem(QUALITY_DELETE_MIGRATION_KEY, JSON.stringify({
+        version: 1,
+        stale: staleIds.size,
+        released,
+        migratedAt: new Date().toISOString()
+      }));
+      return { stale: staleIds.size, released };
+    } catch (_) {
+      return { stale: 0, released: 0 };
+    }
+  }
+
+  const qualityDeleteMigration = releaseLegacyQualityFloorDeletions();
+  if (qualityDeleteMigration.stale > 0) {
+    setTimeout(() => location.reload(), 60);
+  }
 
   function setStatus(message, state = "neutral") {
     if (!status) return;
