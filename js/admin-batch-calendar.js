@@ -652,6 +652,75 @@
     };
   }
 
+  const ANSWER_DIVERSITY_POLICY_VERSION = 1;
+  const ANSWER_DIVERSITY_POOL_SIZE = 16;
+
+  function topAnswerRecords(prompt, limit = ANSWER_DIVERSITY_POOL_SIZE) {
+    const stats = core.getPromptStats(prompt);
+    const values = stats?.bestByPlayer?.values ? [...stats.bestByPlayer.values()] : [];
+    return values
+      .filter(Boolean)
+      .sort((left, right) => Number(right.points || 0) - Number(left.points || 0) || String(left.name || "").localeCompare(String(right.name || "")))
+      .slice(0, limit);
+  }
+
+  function topAnswerPlayerIds(prompt, limit = ANSWER_DIVERSITY_POOL_SIZE) {
+    return new Set(topAnswerRecords(prompt, limit).map(record => record.playerId).filter(Boolean));
+  }
+
+  function answerOverlapWithDraft(prompt, currentDraft) {
+    if (!currentDraft.length) return 0;
+    const candidate = topAnswerPlayerIds(prompt, 12);
+    const alreadyUsed = new Set(currentDraft.flatMap(item => [...topAnswerPlayerIds(item, 12)]));
+    let overlap = 0;
+    for (const playerId of candidate) if (alreadyUsed.has(playerId)) overlap += 1;
+    return overlap;
+  }
+
+  function leaderRepeatedInDraft(prompt, currentDraft) {
+    const leaderId = core.getPromptStats(prompt)?.bestAnswer?.playerId;
+    if (!leaderId) return false;
+    return currentDraft.some(item => core.getPromptStats(item)?.bestAnswer?.playerId === leaderId);
+  }
+
+  function answerDiversityPenalty(draft) {
+    const leaders = new Map();
+    const clubs = new Map();
+    const seasons = new Map();
+    const scoreBands = new Map();
+    const pools = draft.map(prompt => topAnswerPlayerIds(prompt));
+    let penalty = 0;
+
+    for (const prompt of draft) {
+      const leader = core.getPromptStats(prompt)?.bestAnswer;
+      if (!leader) continue;
+      if (leader.playerId) leaders.set(leader.playerId, (leaders.get(leader.playerId) || 0) + 1);
+      if (leader.club) clubs.set(leader.club, (clubs.get(leader.club) || 0) + 1);
+      if (leader.season) seasons.set(leader.season, (seasons.get(leader.season) || 0) + 1);
+      const points = Number(leader.points) || 0;
+      const band = points < 50 ? "0-49" : points < 100 ? "50-99" : points < 150 ? "100-149" : "150+";
+      scoreBands.set(band, (scoreBands.get(band) || 0) + 1);
+    }
+
+    for (const count of leaders.values()) if (count > 1) penalty += (count - 1) * 60;
+    for (const count of clubs.values()) if (count > 2) penalty += (count - 2) * 10;
+    for (const count of seasons.values()) if (count > 3) penalty += (count - 3) * 6;
+    for (const count of scoreBands.values()) if (count > 4) penalty += (count - 4) * 3;
+
+    for (let left = 0; left < pools.length; left += 1) {
+      for (let right = left + 1; right < pools.length; right += 1) {
+        const a = pools[left];
+        const b = pools[right];
+        if (!a.size || !b.size) continue;
+        let intersection = 0;
+        for (const playerId of a) if (b.has(playerId)) intersection += 1;
+        const overlapRatio = intersection / Math.min(a.size, b.size);
+        penalty += overlapRatio * 28;
+      }
+    }
+    return penalty;
+  }
+
   function weightedPick(options, currentDraft, settings, familyPlan) {
     if (!options.length) return null;
     const usedFamilies = new Set(currentDraft.map(promptFamily));
@@ -673,6 +742,9 @@
       else if (antiNeeded > 0 && isAntiMeta(prompt)) weight *= 2;
       const repeatedThemeCount = (prompt.tags || []).filter(tag => DIVERSITY_TAGS.has(tag) && tagsAlreadyUsed.has(tag)).length;
       weight /= 1 + repeatedThemeCount * 1.6;
+      if (leaderRepeatedInDraft(prompt, currentDraft)) weight /= 8;
+      const answerOverlap = answerOverlapWithDraft(prompt, currentDraft);
+      weight /= 1 + answerOverlap * 0.65;
       if (familyPlan?.recentFamilies?.has(promptFamily(prompt))) weight /= 12;
       return { prompt, weight };
     });
@@ -703,6 +775,7 @@
       score += Math.abs(Math.log(Math.max(answerCount, 1)) - Math.log(25)) * 0.8;
     }
     for (const count of tagCounts.values()) if (count > 2) score += (count - 2) * 14;
+    score += answerDiversityPenalty(draft);
     return score + Math.random() * 0.25;
   }
 
