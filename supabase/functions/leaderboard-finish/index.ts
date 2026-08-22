@@ -40,18 +40,37 @@ Deno.serve(async (req) => {
     if (!attempt) throw httpError(404, "Leaderboard attempt was not found for this device/account.");
 
     if (selections.length !== verifier.prompts.length) throw httpError(400, `Exactly ${verifier.prompts.length} selections are required.`);
-    const byPrompt = new Map<string, { promptId: string; playerId: string; season: string }>();
+    const byPrompt = new Map<string, { promptId: string; playerId: string; season: string; skipped: boolean }>();
     for (const raw of selections) {
-      const item = { promptId: text(raw?.promptId, 160), playerId: text(raw?.playerId, 160), season: text(raw?.season, 20) };
-      if (!item.promptId || !item.playerId || !item.season || byPrompt.has(item.promptId)) throw httpError(400, "Selections contain a missing or duplicate prompt.");
-      byPrompt.set(item.promptId, item);
+      const promptId = text(raw?.promptId, 160);
+      const playerId = text(raw?.playerId, 160);
+      const season = text(raw?.season, 20);
+      // Give Up is represented by the live client as a prompt with neither player nor season.
+      // Treat that exact shape as an intentional zero-point completion, while still rejecting
+      // partially missing selections and duplicate/missing prompt ids.
+      const skipped = !playerId && !season;
+      if (!promptId || byPrompt.has(promptId) || (!skipped && (!playerId || !season))) {
+        throw httpError(400, "Selections contain a missing or duplicate prompt.");
+      }
+      byPrompt.set(promptId, { promptId, playerId, season, skipped });
     }
     const usedPlayers = new Set<string>();
-    const verifiedSelections: Array<{ promptId: string; playerId: string; season: string; points: number; position: string }> = [];
+    const verifiedSelections: Array<{ promptId: string; playerId: string; season: string; points: number; position: string; skipped?: boolean }> = [];
     let playerPoints = 0, perfectPromptPicks = 0;
     for (const prompt of verifier.prompts) {
       const selection = byPrompt.get(prompt.promptId);
       if (!selection) throw httpError(400, `Missing selection for ${prompt.promptId}.`);
+      if (selection.skipped) {
+        verifiedSelections.push({
+          promptId: prompt.promptId,
+          playerId: "",
+          season: "",
+          points: 0,
+          position: text(prompt.position, 20),
+          skipped: true
+        });
+        continue;
+      }
       if (usedPlayers.has(selection.playerId)) throw httpError(400, "The same footballer cannot be used twice.");
       usedPlayers.add(selection.playerId);
       const allowed = prompt.allowed.find(row => row.playerId === selection.playerId && row.season === selection.season);
