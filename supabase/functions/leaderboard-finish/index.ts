@@ -54,12 +54,32 @@ Deno.serve(async (req) => {
       }
       byPrompt.set(promptId, { promptId, playerId, season, skipped });
     }
+
+    // Validate the whole XI before scoring so a stale verifier can be diagnosed in one retry.
+    // The response only echoes the caller's own submitted ids/seasons; it never exposes allowed answers.
     const usedPlayers = new Set<string>();
-    const verifiedSelections: Array<{ promptId: string; playerId: string; season: string; points: number; position: string; skipped?: boolean }> = [];
-    let playerPoints = 0, perfectPromptPicks = 0;
+    const duplicatePlayers = new Set<string>();
+    const mismatches: Array<{ promptId: string; playerId: string; season: string }> = [];
     for (const prompt of verifier.prompts) {
       const selection = byPrompt.get(prompt.promptId);
       if (!selection) throw httpError(400, `Missing selection for ${prompt.promptId}.`);
+      if (selection.skipped) continue;
+      if (usedPlayers.has(selection.playerId)) duplicatePlayers.add(selection.playerId);
+      usedPlayers.add(selection.playerId);
+      const allowed = prompt.allowed.find(row => row.playerId === selection.playerId && row.season === selection.season);
+      if (!allowed) mismatches.push({ promptId: prompt.promptId, playerId: selection.playerId, season: selection.season });
+    }
+    if (duplicatePlayers.size) throw httpError(400, "The same footballer cannot be used twice.");
+    if (mismatches.length) {
+      console.error("Leaderboard verifier mismatch", { challengeId, attemptId, mismatches });
+      const details = mismatches.map(item => `${item.promptId}=${item.playerId}@${item.season}`).join("; ");
+      throw httpError(409, `Verifier mismatch (${mismatches.length}): ${details}`);
+    }
+
+    const verifiedSelections: Array<{ promptId: string; playerId: string; season: string; points: number; position: string; skipped?: boolean }> = [];
+    let playerPoints = 0, perfectPromptPicks = 0;
+    for (const prompt of verifier.prompts) {
+      const selection = byPrompt.get(prompt.promptId)!;
       if (selection.skipped) {
         verifiedSelections.push({
           promptId: prompt.promptId,
@@ -71,10 +91,7 @@ Deno.serve(async (req) => {
         });
         continue;
       }
-      if (usedPlayers.has(selection.playerId)) throw httpError(400, "The same footballer cannot be used twice.");
-      usedPlayers.add(selection.playerId);
-      const allowed = prompt.allowed.find(row => row.playerId === selection.playerId && row.season === selection.season);
-      if (!allowed) throw httpError(400, `Selection for ${prompt.promptId} does not satisfy the verified prompt.`);
+      const allowed = prompt.allowed.find(row => row.playerId === selection.playerId && row.season === selection.season)!;
       const points = Number(allowed.points) || 0;
       playerPoints += points;
       if (points === Number(prompt.bestPoints || 0)) perfectPromptPicks += 1;
