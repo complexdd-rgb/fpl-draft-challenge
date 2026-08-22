@@ -1,10 +1,13 @@
 import fs from 'node:fs';
 
 const reportPath = 'reports/nationality-enrichment-report.json';
+const manualPath = 'data/nationality-manual-overrides.json';
 const enrichmentPath = 'nationality-enrichment.js';
 const outputReportPath = 'reports/nationality-final-residue-report.json';
 
 const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+const manualLedger = fs.existsSync(manualPath) ? JSON.parse(fs.readFileSync(manualPath, 'utf8')) : { players: {} };
+const manualPlayers = manualLedger?.players && typeof manualLedger.players === 'object' ? manualLedger.players : {};
 const missingRows = Array.isArray(report.projectedMissingPlayers) ? report.projectedMissingPlayers : [];
 const missingIds = new Set(missingRows.map(row => String(row.playerId)));
 const conflictRows = Array.isArray(report.conflictPlayers) ? report.conflictPlayers : [];
@@ -25,9 +28,6 @@ function resolveConflict(row) {
     return { nationality: strongestNationalities[0], method: 'strongest-identity-evidence', winner };
   }
 
-  // For genuine allegiance changes, nationality is player-level and should reflect the
-  // most recent exact/shared identity evidence. We only resolve when that newest season
-  // has one unambiguous nationality among the strongest candidates.
   const latestYear = Math.max(...strongest.map(item => year(item.season)));
   const latest = strongest.filter(item => year(item.season) === latestYear);
   const latestNationalities = [...new Set(latest.map(item => String(item.nationality || '').trim()).filter(Boolean))];
@@ -38,14 +38,14 @@ function resolveConflict(row) {
 }
 
 const mapping = {};
-const resolved = [];
+const autoResolved = [];
 for (const row of conflictRows) {
   const playerId = String(row?.playerId || '');
   if (!missingIds.has(playerId)) continue;
   const result = resolveConflict(row);
   if (!result) continue;
   mapping[playerId] = result.nationality;
-  resolved.push({
+  autoResolved.push({
     playerId,
     name: row.name,
     nationality: result.nationality,
@@ -57,9 +57,27 @@ for (const row of conflictRows) {
   });
 }
 
+const manualResolved = [];
+for (const [playerId, item] of Object.entries(manualPlayers)) {
+  if (!missingIds.has(String(playerId))) continue;
+  if (mapping[String(playerId)]) continue;
+  const nationality = String(item?.nationality || '').trim();
+  if (!nationality) continue;
+  mapping[String(playerId)] = nationality;
+  const row = missingRows.find(candidate => String(candidate.playerId) === String(playerId));
+  manualResolved.push({
+    playerId: String(playerId),
+    name: row?.name || null,
+    nationality,
+    method: 'verified-manual-ledger',
+    source: String(item?.source || '').trim() || null,
+    verifiedAt: manualLedger.verifiedAt || null
+  });
+}
+
 const orderedMapping = Object.fromEntries(Object.entries(mapping).sort((a, b) => a[0].localeCompare(b[0])));
 if (Object.keys(orderedMapping).length) {
-  const overlay = `\n/* Final nationality residue resolver. Only fills players still missing nationality after the bulk pass. */\n(() => {\n  \"use strict\";\n  const mapping = ${JSON.stringify(orderedMapping)};\n  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];\n  let applied = 0;\n  for (const player of players) {\n    const nationality = mapping[String(player?.playerId)];\n    if (!nationality) continue;\n    if (!player.bio || typeof player.bio !== \"object\") player.bio = {};\n    if (String(player.bio.nationality || \"\").trim()) continue;\n    const regionId = player.bio.regionId;\n    if (regionId !== null && regionId !== undefined && regionId !== \"\" && Number.isFinite(Number(regionId))) continue;\n    player.bio.nationality = nationality;\n    applied += 1;\n  }\n  window.FPL_NATIONALITY_FINAL_RESIDUE = Object.freeze({ version: \"1.0.0\", applied, mapped: Object.keys(mapping).length });\n})();\n`;
+  const overlay = `\n/* Final nationality residue resolver. Only fills players still missing nationality after the bulk pass. */\n(() => {\n  \"use strict\";\n  const mapping = ${JSON.stringify(orderedMapping)};\n  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];\n  let applied = 0;\n  for (const player of players) {\n    const nationality = mapping[String(player?.playerId)];\n    if (!nationality) continue;\n    if (!player.bio || typeof player.bio !== \"object\") player.bio = {};\n    if (String(player.bio.nationality || \"\").trim()) continue;\n    const regionId = player.bio.regionId;\n    if (regionId !== null && regionId !== undefined && regionId !== \"\" && Number.isFinite(Number(regionId))) continue;\n    player.bio.nationality = nationality;\n    applied += 1;\n  }\n  window.FPL_NATIONALITY_FINAL_RESIDUE = Object.freeze({ version: \"1.1.0\", applied, mapped: Object.keys(mapping).length });\n})();\n`;
   fs.appendFileSync(enrichmentPath, overlay);
 }
 
@@ -67,12 +85,21 @@ const remaining = missingRows.filter(row => !orderedMapping[String(row.playerId)
 const finalReport = {
   generatedAt: new Date().toISOString(),
   startingMissing: missingRows.length,
-  autoResolved: resolved.length,
+  autoResolved: autoResolved.length,
+  manualResolved: manualResolved.length,
+  totalResolved: autoResolved.length + manualResolved.length,
   remainingMissing: remaining.length,
   finalCoverage: report.eligiblePlayers ? report.eligiblePlayers - remaining.length : null,
   finalCoveragePercent: report.eligiblePlayers ? Number(((report.eligiblePlayers - remaining.length) / report.eligiblePlayers * 100).toFixed(1)) : null,
-  resolved,
+  autoResolvedPlayers: autoResolved,
+  manualResolvedPlayers: manualResolved,
   remaining
 };
 fs.writeFileSync(outputReportPath, `${JSON.stringify(finalReport, null, 2)}\n`);
-console.log(JSON.stringify({ startingMissing: finalReport.startingMissing, autoResolved: finalReport.autoResolved, remainingMissing: finalReport.remainingMissing, finalCoveragePercent: finalReport.finalCoveragePercent }, null, 2));
+console.log(JSON.stringify({
+  startingMissing: finalReport.startingMissing,
+  autoResolved: finalReport.autoResolved,
+  manualResolved: finalReport.manualResolved,
+  remainingMissing: finalReport.remainingMissing,
+  finalCoveragePercent: finalReport.finalCoveragePercent
+}, null, 2));
