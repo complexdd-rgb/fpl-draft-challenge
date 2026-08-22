@@ -72,3 +72,5 @@ jobs:
           fi
           git commit -m 'Complete repository cleanup pass 1'
           git push origin HEAD:main
+
+# Triggered after the workflow already exists on main.
