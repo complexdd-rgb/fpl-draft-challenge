@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — admin-only feature loader. */
+/* FPL Challenge Studio — admin-only non-critical feature loader. */
 (() => {
   "use strict";
   const config = window.FPL_LEADERBOARD_CONFIG;
@@ -12,22 +12,6 @@
     script.setAttribute(marker, "1");
     document.head.appendChild(script);
   };
-
-  // Two older prompt-tool modules still register initialisers against window.load.
-  // Replay one load event when their lazy bundle arrives after the real load event.
-  const latePromptObserver = new MutationObserver(mutations => {
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
-        if (!(node instanceof HTMLScriptElement) || !/\/js\/admin-import-tools-base\.js(?:\?|$)/.test(node.src)) continue;
-        latePromptObserver.disconnect();
-        node.addEventListener("load", () => {
-          if (document.readyState === "complete") queueMicrotask(() => window.dispatchEvent(new Event("load")));
-        }, { once: true });
-        return;
-      }
-    }
-  });
-  latePromptObserver.observe(document.head, { childList: true });
 
   // Preserve the five approved Studio-export prompts until they are promoted into the
   // canonical prompt library during the later prompt-library consolidation pass.
