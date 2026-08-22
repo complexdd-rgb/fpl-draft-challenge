@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const sourcePath = 'players.js';
+const enrichmentPath = 'nationality-enrichment.js';
 const outputPath = 'players-live.js';
 const source = fs.readFileSync(sourcePath, 'utf8');
 const sandbox = {
@@ -15,6 +16,9 @@ const sandbox = {
 };
 vm.createContext(sandbox);
 vm.runInContext(source, sandbox, { filename: sourcePath, timeout: 30000 });
+if (fs.existsSync(enrichmentPath)) {
+  vm.runInContext(fs.readFileSync(enrichmentPath, 'utf8'), sandbox, { filename: enrichmentPath, timeout: 30000 });
+}
 
 const players = sandbox.window.FPL_PLAYERS;
 if (!Array.isArray(players) || !players.length) {
@@ -26,6 +30,7 @@ const keepBio = bio => {
   const compact = {};
   if (bio.dateOfBirth != null) compact.dateOfBirth = bio.dateOfBirth;
   if (bio.regionId != null) compact.regionId = bio.regionId;
+  if (bio.nationality != null && String(bio.nationality).trim()) compact.nationality = String(bio.nationality).trim();
   return Object.keys(compact).length ? compact : undefined;
 };
 
@@ -93,7 +98,7 @@ for (let index = 0; index < players.length; index += 1) {
   }
 }
 
-const banner = `/* Player-facing FPL database — generated from certified players.js.\n   Positive-minute seasons only; audit/source metadata is intentionally omitted.\n   Regenerate with: node scripts/build-live-players.mjs */\n`;
+const banner = `/* Player-facing FPL database — generated from certified players.js.\n   Positive-minute seasons only; audit/source metadata is intentionally omitted.\n   Nationality enrichment is applied from nationality-enrichment.js when present.\n   Regenerate with: node scripts/build-live-players.mjs */\n`;
 const output = `${banner}window.FPL_PLAYERS = ${JSON.stringify(livePlayers)};\n`;
 fs.writeFileSync(outputPath, output);
 
@@ -106,6 +111,7 @@ console.log(JSON.stringify({
   liveRows,
   strippedZeroMinuteRows,
   strippedSourceBlocks,
+  nationalityEnrichment: fs.existsSync(enrichmentPath) ? (sandbox.window.FPL_NATIONALITY_ENRICHMENT || null) : null,
   sourceBytes,
   liveBytes,
   reductionPercent: Number(reduction.toFixed(1))

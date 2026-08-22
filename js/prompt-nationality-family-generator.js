@@ -1,13 +1,11 @@
-/* FPL Challenge Studio — Nationality Family Generator v1.0.1
-   Uses the verified player-level FPL regionId as the nationality key. Generated prompt
-   tests are self-contained player-id membership rules, so published challenges do not
-   depend on a live regions API or duplicate nationality strings into season rows. */
+/* FPL Challenge Studio — Nationality Family Generator v1.1.0
+   Uses bio.nationality when available and falls back to verified FPL regionId values.
+   Generated prompt tests are self-contained player-id membership rules. */
 (() => {
   "use strict";
 
   const STORAGE_KEY = "fplChallengeStudioPromptManagerV1";
   const POSITIONS = ["GK", "DEF", "MID", "FWD"];
-  const NAMES = { GK: "Goalkeeper", DEF: "Defender", MID: "Midfielder", FWD: "Forward" };
   const LOWER = { GK: "goalkeeper", DEF: "defender", MID: "midfielder", FWD: "forward" };
   const RANGES = {
     GK: { idealLow: 8, idealHigh: 35 },
@@ -23,8 +21,6 @@
   };
   const BUDGETS = [4.5, 5, 5.5, 6, 6.5, 7];
 
-  // FPL /api/regions/ ids. Keep this list focused on football nationalities represented
-  // in the historical Premier League database; unknown ids remain safely ineligible.
   const REGIONS = Object.freeze([
     [241,"England"],[243,"Scotland"],[244,"Wales"],[242,"Northern Ireland"],[104,"Ireland"],
     [73,"France"],[80,"Germany"],[200,"Spain"],[173,"Portugal"],[152,"Netherlands"],[21,"Belgium"],
@@ -34,21 +30,48 @@
     [207,"Switzerland"],[14,"Austria"],[177,"Romania"],[34,"Bulgaria"],[225,"Ukraine"],[178,"Russia"],
     [30,"Brazil"],[10,"Argentina"],[230,"Uruguay"],[48,"Colombia"],[62,"Ecuador"],[44,"Chile"],
     [168,"Paraguay"],[169,"Peru"],[139,"Mexico"],[53,"Costa Rica"],[229,"USA"],[39,"Canada"],
-    [107,"Jamaica"],[217,"Trinidad and Tobago"],
-    [81,"Ghana"],[157,"Nigeria"],[38,"Cameroon"],[54,"Ivory Coast"],[189,"Senegal"],[132,"Mali"],
-    [3,"Algeria"],[145,"Morocco"],[63,"Egypt"],[198,"South Africa"],[218,"Tunisia"],
-    [50,"DR Congo"],[51,"Congo"],[77,"Gabon"],[89,"Guinea"],[78,"Gambia"],[111,"Kenya"],
-    [108,"Japan"],[114,"South Korea"],[13,"Australia"],[154,"New Zealand"],[105,"Israel"]
+    [107,"Jamaica"],[217,"Trinidad and Tobago"],[81,"Ghana"],[157,"Nigeria"],[38,"Cameroon"],
+    [54,"Ivory Coast"],[189,"Senegal"],[132,"Mali"],[3,"Algeria"],[145,"Morocco"],[63,"Egypt"],
+    [198,"South Africa"],[218,"Tunisia"],[50,"DR Congo"],[51,"Congo"],[77,"Gabon"],[89,"Guinea"],
+    [78,"Gambia"],[111,"Kenya"],[108,"Japan"],[114,"South Korea"],[13,"Australia"],[154,"New Zealand"],[105,"Israel"]
   ]);
+  const REGION_NAME = new Map(REGIONS.map(([id, name]) => [Number(id), name]));
 
   let installed = false;
   let currentBatch = [];
+  let enrichmentReady = false;
+  let enrichmentLoading = false;
+  const enrichmentWaiters = [];
 
   const players = () => Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
   const library = () => Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
   const slug = value => String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
   const hasNumber = value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+
+  function canonicalCountry(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    const key = slug(raw);
+    const aliases = {
+      cote_d_ivoire: "Ivory Coast", ivory_coast: "Ivory Coast",
+      korea_republic: "South Korea", republic_of_korea: "South Korea", south_korea: "South Korea",
+      united_states: "USA", united_states_of_america: "USA", usa: "USA",
+      republic_of_ireland: "Ireland", ireland: "Ireland",
+      trinidad_tobago: "Trinidad and Tobago", trinidad_and_tobago: "Trinidad and Tobago",
+      bosnia_and_herzegovina: "Bosnia-Herzegovina", bosnia_herzegovina: "Bosnia-Herzegovina",
+      czechia: "Czech Republic", czech_republic: "Czech Republic",
+      democratic_republic_of_the_congo: "DR Congo", congo_dr: "DR Congo", dr_congo: "DR Congo"
+    };
+    return aliases[key] || raw.replace(/\s+/g, " ");
+  }
+
+  function countryForPlayer(player) {
+    const stored = canonicalCountry(player?.bio?.nationality);
+    if (stored) return stored;
+    const regionId = player?.bio?.regionId;
+    return hasNumber(regionId) ? (REGION_NAME.get(Number(regionId)) || "") : "";
+  }
 
   function compile(source) {
     try { return Function(`"use strict"; return (${source});`)(); }
@@ -61,20 +84,26 @@
 
   function coverage() {
     const eligible = players().filter(eligiblePlayer);
-    const withRegion = eligible.filter(player => hasNumber(player?.bio?.regionId));
+    const usable = eligible.filter(player => Boolean(countryForPlayer(player)));
     return {
       eligiblePlayers: eligible.length,
-      withRegion: withRegion.length,
-      missingRegion: eligible.length - withRegion.length,
-      percentage: eligible.length ? Number((withRegion.length / eligible.length * 100).toFixed(1)) : 0
+      withNationality: usable.length,
+      missingNationality: eligible.length - usable.length,
+      percentage: eligible.length ? Number((usable.length / eligible.length * 100).toFixed(1)) : 0,
+      enrichedApplied: Number(window.FPL_NATIONALITY_ENRICHMENT?.applied || 0)
     };
   }
 
-  function memberIds(regionId, position) {
-    return players()
-      .filter(player => hasNumber(player?.bio?.regionId) && Number(player.bio.regionId) === Number(regionId))
-      .filter(player => (player.seasons || []).some(record => record?.position === position && Number(record?.minutes) > 0))
-      .map(player => String(player.playerId));
+  function idsByCountry(position) {
+    const map = new Map();
+    for (const player of players()) {
+      const country = countryForPlayer(player);
+      if (!country) continue;
+      if (!(player.seasons || []).some(record => record?.position === position && Number(record?.minutes) > 0)) continue;
+      if (!map.has(country)) map.set(country, []);
+      map.get(country).push(String(player.playerId));
+    }
+    return map;
   }
 
   function analyse(position, test) {
@@ -119,14 +148,7 @@
     return {
       id: `quality_factory_${position.toLowerCase()}_nationality_${countrySlug}_${tail}`,
       family: "quality-factory:nationality",
-      position,
-      label,
-      fail,
-      source,
-      test,
-      stats,
-      score,
-      country,
+      position, label, fail, source, test, stats, score, country,
       difficulty: difficulty(position, stats.playerCount),
       tags: [...new Set(["auto-generated","quality-family","nationality",`country-${countrySlug}`,"approved-5-star",...tags])],
       rating: 5,
@@ -138,52 +160,40 @@
   function addNationalityCandidates(position, out) {
     const lower = LOWER[position];
     const rawMinimum = RANGES[position]?.idealLow || 1;
+    const countries = [...idsByCountry(position).entries()].sort((a, b) => a[0].localeCompare(b[0]));
 
-    for (const [regionId, country] of REGIONS) {
-      const ids = memberIds(regionId, position);
+    for (const [country, ids] of countries) {
       if (ids.length < rawMinimum) continue;
       const countrySlug = slug(country);
       const membership = `${JSON.stringify(ids)}.includes(String(p._career?.playerId))`;
 
       for (const points of POINTS[position]) {
         out.push(candidate({
-          position,
-          country,
-          countrySlug,
-          tail: `points_${points}`,
+          position, country, countrySlug, tail: `points_${points}`,
           label: `${country} ${lower} with ${points}+ FPL points`,
           fail: `That ${lower} must be from ${country} and score at least ${points} FPL points in the qualifying season.`,
           source: `p => (${membership} && Number(p.points) >= ${points} && Number(p.minutes) > 0)`,
-          tags: ["nationality-points","points"],
-          novelty: 18
+          tags: ["nationality-points","points"], novelty: 18
         }));
       }
 
       for (const budget of BUDGETS) {
         out.push(candidate({
-          position,
-          country,
-          countrySlug,
-          tail: `budget_${String(budget).replace(".","_")}`,
+          position, country, countrySlug, tail: `budget_${String(budget).replace(".","_")}`,
           label: `${country} ${lower} who started at £${budget.toFixed(1)}m or less`,
           fail: `That ${lower} must be from ${country} and have a recorded starting price of £${budget.toFixed(1)}m or less.`,
           source: `p => (${membership} && p.startingPrice !== null && p.startingPrice !== undefined && p.startingPrice !== "" && Number.isFinite(Number(p.startingPrice)) && Number(p.startingPrice) <= ${budget} && Number(p.minutes) > 0)`,
-          tags: ["nationality-budget","budget","starting-price"],
-          novelty: 20
+          tags: ["nationality-budget","budget","starting-price"], novelty: 20
         }));
       }
 
       for (const points of POINTS[position].slice(0, 4)) {
         out.push(candidate({
-          position,
-          country,
-          countrySlug,
-          tail: `bottom_half_points_${points}`,
+          position, country, countrySlug, tail: `bottom_half_points_${points}`,
           label: `${country} ${lower} from a bottom-half club with ${points}+ FPL points`,
           fail: `That ${lower} must be from ${country}, play for a bottom-half club and score at least ${points} FPL points.`,
           source: `p => (${membership} && p.bottomHalf === true && Number(p.points) >= ${points} && Number(p.minutes) > 0)`,
-          tags: ["nationality-bottom-half","bottom-half","points","anti-meta"],
-          novelty: 24
+          tags: ["nationality-bottom-half","bottom-half","points","anti-meta"], novelty: 24
         }));
       }
     }
@@ -219,10 +229,7 @@
         const posUsed = chosen.filter(other => other.position === item.position).length;
         const countryUsed = chosen.filter(other => other.country === item.country).length;
         const value = item.score - posUsed * (positions.length > 1 ? 7 : 0) - countryUsed * 18;
-        if (value > bestValue) {
-          bestValue = value;
-          bestIndex = index;
-        }
+        if (value > bestValue) { bestValue = value; bestIndex = index; }
       }
       if (bestIndex < 0) break;
       chosen.push(candidates.splice(bestIndex, 1)[0]);
@@ -232,34 +239,22 @@
 
   function serialise(item) {
     return {
-      id: item.id,
-      family: item.family,
-      position: item.position,
-      label: item.label,
-      fail: item.fail,
-      difficulty: item.difficulty,
-      tags: item.tags,
-      rating: 5,
-      cooldown: item.cooldown,
-      enabled: item.enabled,
-      studioRule: { kind: "source", source: item.source },
-      testSource: item.source
+      id: item.id, family: item.family, position: item.position, label: item.label, fail: item.fail,
+      difficulty: item.difficulty, tags: item.tags, rating: 5, cooldown: item.cooldown, enabled: item.enabled,
+      studioRule: { kind: "source", source: item.source }, testSource: item.source
     };
   }
 
   function saveSelected(panel) {
     const selected = [...panel.querySelectorAll("[data-nationality-family-select]:checked")]
-      .map(input => currentBatch[Number(input.dataset.nationalityFamilySelect)])
-      .filter(Boolean);
+      .map(input => currentBatch[Number(input.dataset.nationalityFamilySelect)]).filter(Boolean);
     if (!selected.length) return;
-
     let state;
     try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (_) {}
     if (!state || typeof state !== "object") state = { version: 1, overrides: {}, customs: [], deletedIds: [] };
     if (!Array.isArray(state.customs)) state.customs = [];
     if (!state.overrides || typeof state.overrides !== "object") state.overrides = {};
     if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
-
     const known = new Set(state.customs.map(prompt => String(prompt?.id || "")));
     let added = 0;
     for (const item of selected) {
@@ -293,49 +288,65 @@
     const factory = document.getElementById("automaticPromptFactory");
     if (!factory || !players().length) return;
     installed = true;
-
     const stats = coverage();
     const panel = document.createElement("details");
     panel.id = "nationalityFamilyGenerator";
     panel.className = "nationality-family-generator";
-    panel.innerHTML = `<summary><span><small>NATIONALITY FAMILY</small><strong>Generate nationality + stats prompts</strong></span><em>${stats.percentage}% coverage</em></summary><div class="nationality-family-body"><p>Uses verified FPL region IDs and the Automatic Creator's position, difficulty, count, cooldown and enabled settings. Missing nationality only excludes that player from this family.</p><p class="nationality-coverage"><b>${stats.withRegion.toLocaleString("en-GB")}</b> of <b>${stats.eligiblePlayers.toLocaleString("en-GB")}</b> answer-eligible players have a region ID · <b>${stats.missingRegion.toLocaleString("en-GB")}</b> missing.</p><div class="nationality-family-actions"><button type="button" class="button primary" data-nationality-family-generate>Generate nationality batch</button><button type="button" class="button secondary" data-nationality-family-add disabled>Add selected to browser library</button></div><p class="action-status" data-nationality-family-status>Ready. Nothing is saved until you approve a generated batch.</p><div class="nationality-family-preview" data-nationality-family-preview></div></div>`;
-
+    const enrichedCopy = stats.enrichedApplied ? ` · ${stats.enrichedApplied.toLocaleString("en-GB")} enriched` : "";
+    panel.innerHTML = `<summary><span><small>NATIONALITY FAMILY</small><strong>Generate nationality + stats prompts</strong></span><em>${stats.percentage}% coverage</em></summary><div class="nationality-family-body"><p>Uses verified nationality metadata plus FPL region IDs. The Automatic Creator's position, difficulty, count, cooldown and enabled settings still apply. Missing nationality only excludes that player from this family.</p><p class="nationality-coverage"><b>${stats.withNationality.toLocaleString("en-GB")}</b> of <b>${stats.eligiblePlayers.toLocaleString("en-GB")}</b> answer-eligible players have usable nationality data · <b>${stats.missingNationality.toLocaleString("en-GB")}</b> missing${enrichedCopy}.</p><div class="nationality-family-actions"><button type="button" class="button primary" data-nationality-family-generate>Generate nationality batch</button><button type="button" class="button secondary" data-nationality-family-add disabled>Add selected to browser library</button></div><p class="action-status" data-nationality-family-status>Ready. Nothing is saved until you approve a generated batch.</p><div class="nationality-family-preview" data-nationality-family-preview></div></div>`;
     const anchor = document.getElementById("qualityFamilyGenerator");
-    if (anchor?.parentNode === factory) anchor.after(panel);
-    else factory.appendChild(panel);
-
+    if (anchor?.parentNode === factory) anchor.after(panel); else factory.appendChild(panel);
     panel.querySelector("[data-nationality-family-generate]").addEventListener("click", () => {
       panel.querySelector("[data-nationality-family-status]").textContent = "Checking nationality combinations against the full database…";
-      setTimeout(() => {
-        currentBatch = buildBatch();
-        renderBatch(panel);
-      }, 20);
+      setTimeout(() => { currentBatch = buildBatch(); renderBatch(panel); }, 20);
     });
     panel.querySelector("[data-nationality-family-add]").addEventListener("click", () => saveSelected(panel));
     panel.addEventListener("change", event => {
       if (!event.target.matches("[data-nationality-family-select]")) return;
       panel.querySelector("[data-nationality-family-add]").disabled = !panel.querySelector("[data-nationality-family-select]:checked");
     });
-
     const style = document.createElement("style");
     style.textContent = `.nationality-family-generator{margin:14px 0 0;border:1px solid rgba(167,139,250,.2);border-radius:14px;background:rgba(167,139,250,.035);overflow:hidden}.nationality-family-generator summary{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px;cursor:pointer}.nationality-family-generator summary span{display:grid;gap:2px}.nationality-family-generator summary small{color:#c4b5fd;font-size:.62rem;font-weight:950;letter-spacing:.09em}.nationality-family-generator summary strong{color:#f4fff8;font-size:.88rem}.nationality-family-generator summary em{color:#63eaa1;font-size:.66rem;font-style:normal;font-weight:900}.nationality-family-body{padding:0 12px 12px}.nationality-family-body>p{color:#9bb7a8;font-size:.72rem;line-height:1.45}.nationality-coverage{padding:9px 10px;border:1px solid rgba(167,139,250,.13);border-radius:10px;background:rgba(0,0,0,.1)}.nationality-coverage b{color:#f4fff8}.nationality-family-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.nationality-family-preview{display:grid;gap:7px;margin-top:10px}.nationality-family-card{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:9px;align-items:center;padding:10px;border:1px solid rgba(174,226,199,.1);border-radius:11px;background:rgba(0,0,0,.11);cursor:pointer}.nationality-family-card input{width:17px;height:17px}.nationality-family-card span:nth-child(3){min-width:0}.nationality-family-card strong,.nationality-family-card small{display:block}.nationality-family-card strong{color:#f4fff8;font-size:.74rem;line-height:1.35}.nationality-family-card small{margin-top:3px;color:#9bb7a8;font-size:.64rem}.nationality-family-card>b{color:#63eaa1;font-size:.7rem}.nationality-family-empty{padding:12px;border:1px dashed rgba(174,226,199,.13);border-radius:10px;color:#9bb7a8;font-size:.72rem}@media(max-width:520px){.nationality-family-actions{display:grid;grid-template-columns:1fr}.nationality-family-card{grid-template-columns:auto auto minmax(0,1fr)}.nationality-family-card>b{grid-column:3}}`;
     document.head.appendChild(style);
   }
 
-  function retryInstall() {
-    if (installed) return;
-    install();
-    if (!installed) setTimeout(retryInstall, 150);
+  function flushEnrichmentWaiters() {
+    enrichmentReady = true;
+    enrichmentLoading = false;
+    while (enrichmentWaiters.length) enrichmentWaiters.shift()();
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", retryInstall, { once: true });
-  else retryInstall();
+  function ensureEnrichment(callback) {
+    if (enrichmentReady || window.FPL_NATIONALITY_ENRICHMENT) { enrichmentReady = true; callback(); return; }
+    enrichmentWaiters.push(callback);
+    if (enrichmentLoading) return;
+    enrichmentLoading = true;
+    const existing = document.querySelector('script[data-nationality-enrichment]');
+    if (existing) {
+      existing.addEventListener("load", flushEnrichmentWaiters, { once: true });
+      existing.addEventListener("error", flushEnrichmentWaiters, { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = new URL("nationality-enrichment.js?v=1.0.0", document.baseURI).toString();
+    script.async = false;
+    script.dataset.nationalityEnrichment = "1";
+    script.addEventListener("load", flushEnrichmentWaiters, { once: true });
+    script.addEventListener("error", flushEnrichmentWaiters, { once: true });
+    document.head.appendChild(script);
+  }
+
+  function retryInstall() {
+    if (installed) return;
+    ensureEnrichment(() => {
+      install();
+      if (!installed) setTimeout(retryInstall, 150);
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", retryInstall, { once: true }); else retryInstall();
   window.addEventListener("fpl:prompt-tools-ready", retryInstall);
   window.addEventListener("fpl:quality-prompt-baseline-ready", retryInstall);
 
-  window.FPL_NATIONALITY_FAMILY = Object.freeze({
-    version: "1.0.1",
-    coverage,
-    regions: REGIONS
-  });
+  window.FPL_NATIONALITY_FAMILY = Object.freeze({ version: "1.1.0", coverage, regions: REGIONS, countryForPlayer });
 })();
