@@ -1,0 +1,69 @@
+name: Nationality final residue
+
+on:
+  push:
+    branches:
+      - feature/nationality-final-65
+    paths:
+      - scripts/finalise-nationality-residue.mjs
+      - scripts/enrich-nationalities.mjs
+      - .github/workflows/nationality-final-residue.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalise:
+    if: ${{ !contains(github.event.head_commit.message, '[nationality-final-output]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch historical Premier League squad metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/plstats
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/imadeddine-belkat/Premier-League-Stats.git /tmp/plstats
+          cd /tmp/plstats
+          git sparse-checkout init --no-cone
+          printf 'pl_stats/*/squad/*.csv\n' > .git/info/sparse-checkout
+          git checkout
+          test -n "$(find pl_stats -path '*/squad/*_squad.csv' -print -quit)"
+
+      - name: Rebuild bulk nationality evidence
+        run: node scripts/enrich-nationalities.mjs /tmp/plstats
+
+      - name: Resolve final conflict residue
+        run: node scripts/finalise-nationality-residue.mjs
+
+      - name: Rebuild player-facing database
+        run: node scripts/build-live-players.mjs
+
+      - name: Show final coverage
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const report = require('./reports/nationality-final-residue-report.json');
+          console.log(`Final residue: ${report.startingMissing} -> ${report.remainingMissing}`);
+          console.log(`Final coverage: ${report.finalCoverage} players (${report.finalCoveragePercent}%)`);
+          if (report.finalCoveragePercent < 97.5) process.exit(1);
+          NODE
+
+      - name: Commit generated final output
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add nationality-enrichment.js players-live.js reports/nationality-enrichment-report.json reports/nationality-final-residue-report.json
+          if git diff --cached --quiet; then
+            echo 'No generated changes.'
+            exit 0
+          fi
+          git commit -m '[nationality-final-output] Resolve nationality conflict residue'
+          git push origin HEAD:${GITHUB_REF_NAME}
