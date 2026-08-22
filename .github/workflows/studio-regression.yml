@@ -5,17 +5,12 @@ on:
     branches: [main]
   pull_request:
 
-permissions:
-  contents: write
-
 jobs:
   studio-syntax:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -27,6 +22,7 @@ jobs:
           node --check prompt-library.js
           node --check players-live.js
           node --check js/admin-core.js
+          node --check js/admin-stage-one.js
           node --check js/admin-batch-calendar.js
           node --check js/admin-import-tools.js
           node --check js/prompt-studio-loader.js
@@ -69,28 +65,3 @@ jobs:
           node --check js/visual-overhaul.js
           node --check js/visual-finishing.js
           node --check sw.js
-
-      - name: Generate guarded Stage One extraction
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/architecture-pass-2d'
-        run: |
-          node --check scripts/architecture-pass2d-extract.mjs
-          node scripts/architecture-pass2d-extract.mjs
-          test -s admin-stage-one.css
-          test -s js/admin-stage-one.js
-          node --check js/admin-stage-one.js
-          grep -q 'href="admin-stage-one.css?v=1.0.0"' admin.html
-          grep -q 'src="js/admin-stage-one.js?v=1.0.0"' admin.html
-          ! grep -q 'FPL STUDIO STAGE ONE CSS START' admin.html
-          ! grep -q 'FPL STUDIO STAGE ONE JS START' admin.html
-          git diff --check
-
-      - name: Commit generated Stage One source
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/architecture-pass-2d'
-        run: |
-          git add admin.html admin-stage-one.css js/admin-stage-one.js
-          git diff --cached --check
-          if git diff --cached --quiet; then exit 0; fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Extract Studio Stage One assets"
-          git push origin HEAD:${{ github.head_ref }}
