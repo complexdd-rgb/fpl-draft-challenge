@@ -22,6 +22,7 @@ jobs:
           node --check prompt-library.js
           node --check players-live.js
           node --check js/admin-core.js
+          node --check js/admin-stage-one.js
           node --check js/admin-batch-calendar.js
           node --check js/admin-import-tools.js
           node --check js/prompt-studio-loader.js
