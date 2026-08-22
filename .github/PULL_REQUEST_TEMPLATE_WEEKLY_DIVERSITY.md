@@ -1,0 +1,1 @@
+Reduce cross-day repetition of the same top-answer player in seven-day challenge generation. The first two days remain unpenalised; a third or later day is increasingly discouraged through soft weighting and candidate scoring, preserving exact-prompt rotation and avoiding hard-generation failures.
