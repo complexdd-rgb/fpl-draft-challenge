@@ -24,6 +24,16 @@
   }
 
   function resolvePick(pick) {
+    if (pick?.skipped) {
+      return {
+        position: String(pick?.position || "XI"),
+        name: "Give Up",
+        season: "",
+        club: "No player selected",
+        points: 0,
+        skipped: true
+      };
+    }
     const player = playersById().get(String(pick?.playerId || ""));
     const season = Array.isArray(player?.seasons)
       ? player.seasons.find(row => String(row?.season || "") === String(pick?.season || ""))
@@ -33,7 +43,8 @@
       name: String(player?.name || pick?.playerId || "Unknown player"),
       season: String(pick?.season || season?.season || ""),
       club: String(season?.club || ""),
-      points: Number(pick?.points ?? season?.points ?? 0) || 0
+      points: Number(pick?.points ?? season?.points ?? 0) || 0,
+      skipped: false
     };
   }
 
@@ -56,9 +67,13 @@
       .leaderboard-team-close{width:38px;height:38px;flex:0 0 38px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:1.15rem;cursor:pointer}
       .leaderboard-team-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
       .leaderboard-team-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px;border-radius:15px;border:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.035)}
+      .leaderboard-team-card.given-up{border-color:rgba(255,209,102,.25);background:rgba(255,209,102,.045)}
       .leaderboard-team-pos{min-width:38px;padding:6px 7px;border-radius:10px;background:rgba(0,255,135,.08);border:1px solid rgba(0,255,135,.16);color:var(--accent);font-size:.58rem;font-weight:950;text-align:center;text-transform:uppercase}
+      .leaderboard-team-card.given-up .leaderboard-team-pos{background:rgba(255,209,102,.08);border-color:rgba(255,209,102,.2);color:#ffd166}
       .leaderboard-team-player{min-width:0}.leaderboard-team-player strong,.leaderboard-team-player small{display:block}.leaderboard-team-player strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem}.leaderboard-team-player small{margin-top:3px;color:var(--muted);font-size:.62rem}
+      .leaderboard-team-card.given-up .leaderboard-team-player strong{color:#ffd166}
       .leaderboard-team-points{text-align:right}.leaderboard-team-points strong,.leaderboard-team-points small{display:block}.leaderboard-team-points strong{color:#fff;font-size:.86rem}.leaderboard-team-points small{color:var(--muted);font-size:.55rem;text-transform:uppercase}
+      .leaderboard-team-card.given-up .leaderboard-team-points strong{color:#ffd166}
       .leaderboard-team-unavailable{padding:18px;border-radius:15px;border:1px dashed rgba(255,255,255,.13);color:var(--muted);font-size:.72rem;line-height:1.5;text-align:center}
       @media(max-width:620px){.leaderboard-team-grid{grid-template-columns:1fr}.leaderboard-team-dialog{padding:14px;border-radius:20px}.leaderboard-team-modal{padding:10px}}
     `;
@@ -114,7 +129,7 @@
     } else {
       for (const pick of team) {
         const card = document.createElement("article");
-        card.className = "leaderboard-team-card";
+        card.className = `leaderboard-team-card${pick.skipped ? " given-up" : ""}`;
 
         const pos = document.createElement("span");
         pos.className = "leaderboard-team-pos";
@@ -125,7 +140,7 @@
         const strong = document.createElement("strong");
         strong.textContent = pick.name;
         const small = document.createElement("small");
-        small.textContent = [pick.season, pick.club].filter(Boolean).join(" · ");
+        small.textContent = pick.skipped ? "No player selected" : [pick.season, pick.club].filter(Boolean).join(" · ");
         player.append(strong, small);
 
         const points = document.createElement("div");
