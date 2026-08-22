@@ -189,6 +189,41 @@
     }
   }
 
+  const ANTI_META_INVERSE_POLICY_VERSION = 1;
+
+  function addInverseAntiMeta(position, out) {
+    const noun = NAMES[position], lower = LOWER[position];
+    const pointCaps = position === "GK" ? [55, 65, 75, 85, 100]
+      : position === "FWD" ? [60, 70, 80, 90, 100, 110]
+      : [65, 75, 85, 100, 110, 120];
+    const minuteFloors = position === "GK" ? [900, 1500, 2200]
+      : [1000, 1600, 2200, 2600];
+
+    for (const cap of pointCaps) for (const minutes of minuteFloors) {
+      out.push(candidate(position, "inverse-points", `under_${cap}_m${minutes}`,
+        `${noun} who scored under ${cap} FPL points despite playing ${minutes.toLocaleString("en-GB")}+ minutes`,
+        `That ${lower} must play at least ${minutes.toLocaleString("en-GB")} minutes but score fewer than ${cap} FPL points.`,
+        `p => (Number(p.minutes) >= ${minutes} && Number(p.points) < ${cap})`,
+        ["inverse-stat","under-points","minutes","less-obvious"], 18));
+    }
+
+    const lowOutput = position === "GK"
+      ? { field: "cleanSheets", word: "clean sheets", caps: [4,5,6,7,8], minutes: [1500,2200] }
+      : position === "DEF"
+        ? { field: "goals", word: "goals", caps: [0,1], minutes: [1600,2200,2600] }
+        : position === "MID"
+          ? { field: "goals", word: "goals", caps: [1,2,3,4], minutes: [1600,2200] }
+          : { field: "goals", word: "goals", caps: [3,4,5,6,7], minutes: [1200,1800,2200] };
+
+    for (const cap of lowOutput.caps) for (const minutes of lowOutput.minutes) {
+      out.push(candidate(position, "low-output-workhorse", `low_${lowOutput.field}_${cap}_m${minutes}`,
+        `${noun} with at most ${cap} ${lowOutput.word} despite playing ${minutes.toLocaleString("en-GB")}+ minutes`,
+        `That ${lower} must play at least ${minutes.toLocaleString("en-GB")} minutes and record no more than ${cap} ${lowOutput.word}.`,
+        `p => (Number(p.minutes) >= ${minutes} && Number(p.${lowOutput.field}) <= ${cap})`,
+        ["inverse-stat","low-output","minutes",lowOutput.field,"less-obvious"], 16));
+    }
+  }
+
   function existingQualityPools(position) {
     const pools = [];
     for (const prompt of library()) {
@@ -215,6 +250,7 @@
       addV1(position, positionCandidates);
       addV2(position, positionCandidates);
       addV3(position, positionCandidates);
+      addInverseAntiMeta(position, positionCandidates);
       const oldPools = existingQualityPools(position);
       const byFamily = new Map();
       for (const item of positionCandidates.filter(Boolean)) {
@@ -301,14 +337,14 @@
     const panel = document.createElement("details");
     panel.id = "qualityFamilyGenerator";
     panel.className = "quality-family-generator";
-    panel.innerHTML = `<summary><span><small>QUALITY FAMILIES</small><strong>Generate more V1 / V2 / V3-style prompts</strong></span><em>5★ gate only</em></summary><div class="quality-family-body"><p>Uses the Automatic Creator's count, position, difficulty, cooldown and enabled settings. New variants are tested against the full database, rejected if their answer pool falls outside the 5★ range, and checked against existing quality-pack answer pools.</p><div class="quality-family-actions"><button type="button" class="button primary" data-quality-family-generate>Generate quality-family batch</button><button type="button" class="button secondary" data-quality-family-add disabled>Add selected to browser library</button></div><p class="action-status" data-quality-family-status>Ready. Nothing is saved until you approve a generated batch.</p><div class="quality-family-preview" data-quality-family-preview></div></div>`;
+    panel.innerHTML = `<summary><span><small>QUALITY FAMILIES</small><strong>Generate V1 / V2 / V3 + inverse anti-meta prompts</strong></span><em>5★ gate only</em></summary><div class="quality-family-body"><p>Uses the Automatic Creator's count, position, difficulty, cooldown and enabled settings. New variants are tested against the full database, rejected if their answer pool falls outside the 5★ range, and checked against existing quality-pack answer pools.</p><div class="quality-family-actions"><button type="button" class="button primary" data-quality-family-generate>Generate quality-family batch</button><button type="button" class="button secondary" data-quality-family-add disabled>Add selected to browser library</button></div><p class="action-status" data-quality-family-status>Ready. Nothing is saved until you approve a generated batch.</p><div class="quality-family-preview" data-quality-family-preview></div></div>`;
 
     const existingPreview = document.getElementById("promptFactoryPreview");
     if (existingPreview?.parentNode === factory) existingPreview.after(panel); else factory.appendChild(panel);
 
     panel.querySelector("[data-quality-family-generate]").addEventListener("click", () => {
       const status = panel.querySelector("[data-quality-family-status]");
-      status.textContent = "Checking V1, V2 and V3 quality-family variations against the full database…";
+      status.textContent = "Checking V1, V2, V3 and inverse anti-meta variations against the full database…";
       setTimeout(() => { currentBatch = buildBatch(); renderBatch(panel); }, 20);
     });
     panel.querySelector("[data-quality-family-add]").addEventListener("click", () => saveSelected(panel));
