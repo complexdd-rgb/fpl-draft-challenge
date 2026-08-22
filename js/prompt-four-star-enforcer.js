@@ -1,8 +1,7 @@
-/* FPL Challenge Studio — four-star prompt floor enforcer v1.0.1
+/* FPL Challenge Studio — four-star prompt floor enforcer v1.0.2
    One-time-per-library analysis that removes prompts rated below 4★ by the Quality
-   Analyser. The rejected ID set is cached against the resulting library fingerprint,
-   so subsequent Studio loads are fast while any genuine library change triggers a fresh
-   quality pass. */
+   Analyser. Rejections are cached only against the exact source-library fingerprint;
+   they are not persisted as manual Prompt Manager deletions. */
 (() => {
   "use strict";
 
@@ -10,8 +9,7 @@
   window.__FPL_FOUR_STAR_ENFORCER_V1__ = true;
 
   const CACHE_KEY = "fplPromptFourStarFloorV1";
-  const MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
-  const VERSION = "1.0.1";
+  const VERSION = "1.0.2";
   const MINIMUM_RATING = 4;
   let running = false;
   let attempts = 0;
@@ -35,28 +33,17 @@
   function readCache() {
     try {
       const value = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
-      return value && value.version === VERSION && Array.isArray(value.rejectedIds) ? value : null;
+      return value
+        && value.version === VERSION
+        && typeof value.sourceFingerprint === "string"
+        && Array.isArray(value.rejectedIds)
+        ? value
+        : null;
     } catch (_) { return null; }
   }
 
   function writeCache(value) {
     try { localStorage.setItem(CACHE_KEY, JSON.stringify(value)); } catch (_) {}
-  }
-
-  function persistDeleted(ids) {
-    if (!ids.length) return;
-    try {
-      const state = JSON.parse(localStorage.getItem(MANAGER_KEY) || "{}") || {};
-      const rejected = new Set(ids.map(String));
-      const deleted = new Set(Array.isArray(state.deletedIds) ? state.deletedIds.map(String) : []);
-      for (const id of rejected) deleted.add(id);
-      state.deletedIds = [...deleted];
-      if (Array.isArray(state.customs)) state.customs = state.customs.filter(prompt => !rejected.has(String(prompt?.id || "")));
-      if (state.overrides && typeof state.overrides === "object") {
-        for (const id of rejected) delete state.overrides[id];
-      }
-      localStorage.setItem(MANAGER_KEY, JSON.stringify(state));
-    } catch (_) {}
   }
 
   function removeIds(ids) {
@@ -143,17 +130,19 @@
 
     running = true;
     try {
+      const sourceFingerprint = fingerprint(items);
       const cached = readCache();
-      if (cached) {
-        persistDeleted(cached.rejectedIds);
+      if (cached?.sourceFingerprint === sourceFingerprint) {
         const removedCached = removeIds(cached.rejectedIds);
-        if (cached.finalFingerprint && fingerprint(library()) === cached.finalFingerprint) {
+        if (!cached.finalFingerprint || fingerprint(library()) === cached.finalFingerprint) {
           publishMeta(Number(cached.analysed || items.length), cached.rejectedIds, removedCached, true);
           return true;
         }
+        console.warn("Four-star cache final fingerprint did not match; rebuilding from the current source library.");
       }
 
       const source = library().slice();
+      const freshSourceFingerprint = fingerprint(source);
       setStatus(`<strong>Finalising the 4★+ library…</strong> Rechecking ${source.length.toLocaleString("en-GB")} prompts with the same full Quality Analyser rules. This only needs to run again when the library changes.`, "working");
       const results = await engine.analyseLibrary(source, players, {
         progress: (current, total) => {
@@ -164,18 +153,17 @@
           setStatus(`<strong>Finalising the 4★+ library… ${percent}%</strong> Checking answer breadth, overlap, variety and rule health before removing anything below the agreed quality floor.`, "working");
         }
       });
-      const newlyRejected = results
+      const rejectedIds = results
         .filter(result => Number(result?.suggestedRating || 0) < MINIMUM_RATING)
         .map(result => String(result.id || ""))
         .filter(Boolean);
-      const rejectedIds = [...new Set([...(cached?.rejectedIds || []), ...newlyRejected])];
 
-      persistDeleted(rejectedIds);
       const removed = removeIds(rejectedIds);
       const finalFingerprint = fingerprint(library());
       writeCache({
         version: VERSION,
         analysed: source.length,
+        sourceFingerprint: freshSourceFingerprint,
         rejectedIds,
         finalFingerprint,
         createdAt: new Date().toISOString()
