@@ -7,15 +7,7 @@ const outputReportPath = 'reports/nationality-final-residue-report.json';
 const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
 const missingRows = Array.isArray(report.projectedMissingPlayers) ? report.projectedMissingPlayers : [];
 const missingIds = new Set(missingRows.map(row => String(row.playerId)));
-const conflicts = Array.isArray(report.conflictDetails) ? report.conflictDetails : (Array.isArray(report.conflictsDetail) ? report.conflictsDetail : (Array.isArray(report.conflicts) ? report.conflicts : []));
-
-// Current report schema stores conflict detail under `conflictDetails` in newer runs;
-// older generated reports may expose the detail array as `conflictsList`. Fall back safely.
-const conflictRows = Array.isArray(report.conflictDetails)
-  ? report.conflictDetails
-  : Array.isArray(report.conflictsList)
-    ? report.conflictsList
-    : [];
+const conflictRows = Array.isArray(report.conflictPlayers) ? report.conflictPlayers : [];
 
 function year(value) {
   const parsed = Number.parseInt(String(value || '').slice(0, 4), 10);
