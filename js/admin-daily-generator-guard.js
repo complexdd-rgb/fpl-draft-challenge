@@ -1,15 +1,15 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.0.2
+/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.1.0
    Keeps seven-day generation aligned with the live server schedule and locks every generated
-   week to the certified 902-prompt 4★+ pool. */
+   week to the current certified 4★+ prompt pool. */
 (() => {
   "use strict";
 
   if (window.__FPL_DAILY_GENERATOR_GUARD_V1__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V1__ = true;
 
-  const EXPECTED_POOL_SIZE = 902;
   const DAYS_IN_BATCH = 7;
   const LONDON_TIMEZONE = "Europe/London";
+  const QUALITY_WAIT_MS = 15000;
   const core = window.FPL_STUDIO_API;
   const generateButton = document.getElementById("generateWeekBtn");
   const startDateInput = document.getElementById("batchStartDate");
@@ -20,6 +20,7 @@
   if (!core || !generateButton || !startDateInput || !firstNumberInput) return;
 
   let qualityIds = null;
+  let certifiedPoolSize = 0;
   let generationRunning = false;
   let guardChip = null;
 
@@ -113,28 +114,47 @@
     const meta = window.FPL_FOUR_STAR_LIBRARY;
     const scheduleReady = window.FPL_STUDIO_SCHEDULE?.status === "ready";
     const next = scheduleReady ? expectedNext() : null;
-    const qualityText = meta?.ready
-      ? `${Number(meta.total || 0).toLocaleString("en-GB")} prompt pool`
-      : "quality pool finalising";
+    const qualityText = qualityIds instanceof Set && certifiedPoolSize > 0
+      ? `${certifiedPoolSize.toLocaleString("en-GB")} certified prompts`
+      : meta?.ready
+        ? `${Number(meta.total || 0).toLocaleString("en-GB")} prompt pool syncing`
+        : "quality pool finalising";
     const nextText = next?.date && next?.number ? `next #${next.number} · ${next.date}` : "live schedule pending";
     guardChip.textContent = `${qualityText} · ${nextText}`;
-    guardChip.title = "Daily Challenge generation is locked to the certified quality pool and a freshly loaded live Supabase schedule.";
+    guardChip.title = "Daily Challenge generation is locked to the current certified quality pool and a freshly loaded live Supabase schedule.";
   }
 
   function captureQualityPool() {
     const meta = window.FPL_FOUR_STAR_LIBRARY;
-    const library = core.getPromptLibrary?.() || [];
-    if (!meta?.ready || Number(meta.total) !== EXPECTED_POOL_SIZE || !Array.isArray(library)) return false;
+    const library = core.getPromptLibrary?.();
+    if (!meta?.ready || !Array.isArray(library)) return false;
+
+    const certifiedSize = Number(meta.total);
+    if (!Number.isInteger(certifiedSize) || certifiedSize <= 0) return false;
+
     const ids = library.map(prompt => String(prompt?.id || "")).filter(Boolean);
-    if (ids.length !== EXPECTED_POOL_SIZE || new Set(ids).size !== EXPECTED_POOL_SIZE) return false;
-    qualityIds = new Set(ids);
+    const uniqueIds = new Set(ids);
+    if (ids.length !== library.length || ids.length !== certifiedSize || uniqueIds.size !== certifiedSize) return false;
+    if (library.some(prompt => Number(prompt?.rating || 0) < 4)) return false;
+
+    qualityIds = uniqueIds;
+    certifiedPoolSize = certifiedSize;
     updateGuardChip();
     return true;
   }
 
+  function qualityPoolDiagnostic() {
+    const meta = window.FPL_FOUR_STAR_LIBRARY;
+    const library = core.getPromptLibrary?.();
+    const liveSize = Array.isArray(library) ? library.length : 0;
+    const certifiedSize = Number(meta?.total) || 0;
+    if (!meta?.ready) return `quality certification metadata is still pending; live library ${liveSize.toLocaleString("en-GB")}`;
+    return `certified metadata ${certifiedSize.toLocaleString("en-GB")}; live library ${liveSize.toLocaleString("en-GB")}`;
+  }
+
   async function waitForQualityPool() {
     if (captureQualityPool()) return true;
-    setStatus(`Finalising the certified ${EXPECTED_POOL_SIZE}-prompt quality pool before generation…`, "working");
+    setStatus("Synchronising the current certified 4★+ prompt pool before generation…", "working");
     return await new Promise(resolve => {
       let settled = false;
       const finish = value => {
@@ -145,9 +165,9 @@
         clearTimeout(timeout);
         resolve(value);
       };
-      const onReady = () => finish(captureQualityPool());
+      const onReady = () => { if (captureQualityPool()) finish(true); };
       const timer = setInterval(() => { if (captureQualityPool()) finish(true); }, 250);
-      const timeout = setTimeout(() => finish(false), 120000);
+      const timeout = setTimeout(() => finish(false), QUALITY_WAIT_MS);
       window.addEventListener("fpl:four-star-library-ready", onReady);
     });
   }
@@ -234,12 +254,12 @@
   }
 
   function lockLibraryToQualityPool() {
-    if (!(qualityIds instanceof Set) || qualityIds.size !== EXPECTED_POOL_SIZE) return null;
+    if (!(qualityIds instanceof Set) || qualityIds.size <= 0 || qualityIds.size !== certifiedPoolSize) return null;
     const library = core.getPromptLibrary?.();
     if (!Array.isArray(library)) return null;
     const original = library.slice();
     const certified = original.filter(prompt => qualityIds.has(String(prompt?.id || "")));
-    if (certified.length !== EXPECTED_POOL_SIZE) return null;
+    if (certified.length !== certifiedPoolSize) return null;
     library.splice(0, library.length, ...certified);
     core.invalidatePromptStats?.();
     return () => {
@@ -266,7 +286,7 @@
     let restoreLibrary = null;
     try {
       if (!await waitForQualityPool()) {
-        setStatus(`Generation is locked until the final ${EXPECTED_POOL_SIZE}-prompt 4★+ quality pool is ready. Reload Studio if the quality check does not finish.`, "fail");
+        setStatus(`Generation could not synchronise the certified 4★+ prompt pool within ${Math.round(QUALITY_WAIT_MS / 1000)} seconds (${qualityPoolDiagnostic()}). Reload Studio if the quality panel is still working, then try again.`, "fail");
         return;
       }
 
@@ -283,7 +303,7 @@
 
       restoreLibrary = lockLibraryToQualityPool();
       if (!restoreLibrary) {
-        setStatus(`Could not lock generation to exactly ${EXPECTED_POOL_SIZE} certified prompts. Reload Studio before generating a future week.`, "fail");
+        setStatus(`Could not lock generation to the current ${certifiedPoolSize.toLocaleString("en-GB")} certified prompts. Reload Studio before generating a future week.`, "fail");
         return;
       }
 
@@ -296,7 +316,7 @@
       await generator();
       if (!certifyGeneratedResults()) {
         window.FPL_STUDIO_BATCH_CALENDAR?.clear?.();
-        setStatus(`Quality certification failed: every generated prompt must belong to the locked ${EXPECTED_POOL_SIZE}-prompt pool. The batch was cleared and cannot be published.`, "fail");
+        setStatus(`Quality certification failed: every generated prompt must belong to the locked ${certifiedPoolSize.toLocaleString("en-GB")} prompt pool. The batch was cleared and cannot be published.`, "fail");
         return;
       }
       updateGuardChip();
@@ -321,9 +341,16 @@
     else updateGuardChip();
   }
 
+  function onPromptLibraryChanged() {
+    qualityIds = null;
+    certifiedPoolSize = 0;
+    captureQualityPool();
+    updateGuardChip();
+  }
+
   generateButton.addEventListener("click", onGenerateClick, true);
   window.addEventListener("fpl:four-star-library-ready", () => { captureQualityPool(); updateGuardChip(); });
-  window.addEventListener("fpl:prompt-library-changed", updateGuardChip);
+  window.addEventListener("fpl:prompt-library-changed", onPromptLibraryChanged);
   window.addEventListener("fpl:schedule-status", onScheduleStatus);
 
   installGuardChip();
@@ -334,8 +361,8 @@
   }, 0);
 
   window.FPL_DAILY_GENERATOR_GUARD = Object.freeze({
-    expectedPoolSize: EXPECTED_POOL_SIZE,
-    qualityReady: () => qualityIds instanceof Set && qualityIds.size === EXPECTED_POOL_SIZE,
+    get expectedPoolSize() { return certifiedPoolSize || Number(window.FPL_FOUR_STAR_LIBRARY?.total) || 0; },
+    qualityReady: () => qualityIds instanceof Set && certifiedPoolSize > 0 && qualityIds.size === certifiedPoolSize,
     scheduleReady: () => window.FPL_STUDIO_SCHEDULE?.status === "ready",
     getQualityPromptIds: () => qualityIds ? [...qualityIds] : [],
     getExpectedNext: () => ({ ...expectedNext() }),
