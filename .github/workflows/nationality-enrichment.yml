@@ -1,0 +1,70 @@
+name: Nationality enrichment
+
+on:
+  push:
+    branches:
+      - feature/nationality-data-enrichment
+    paths:
+      - scripts/enrich-nationalities.mjs
+      - scripts/build-live-players.mjs
+      - js/prompt-nationality-family-generator.js
+      - .github/workflows/nationality-enrichment.yml
+
+permissions:
+  contents: write
+
+jobs:
+  enrich:
+    if: ${{ !contains(github.event.head_commit.message, '[nationality-output]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch historical Premier League squad metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/plstats
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/imadeddine-belkat/Premier-League-Stats.git /tmp/plstats
+          cd /tmp/plstats
+          git sparse-checkout init --no-cone
+          printf 'pl_stats/*/squad/*.csv\n' > .git/info/sparse-checkout
+          git checkout
+          test -n "$(find pl_stats -path '*/squad/*_squad.csv' -print -quit)"
+
+      - name: Build nationality enrichment
+        run: node scripts/enrich-nationalities.mjs /tmp/plstats
+
+      - name: Rebuild player-facing database
+        run: node scripts/build-live-players.mjs
+
+      - name: Show coverage summary
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const report = require('./reports/nationality-enrichment-report.json');
+          console.log(`Coverage: ${report.baselineCovered}/${report.eligiblePlayers} (${report.baselineCoveragePercent}%) -> ${report.projectedCovered}/${report.eligiblePlayers} (${report.projectedCoveragePercent}%)`);
+          console.log(`New mappings: ${report.newlyMapped}; unresolved: ${report.unresolved}; conflicts: ${report.conflicts}`);
+          if (report.projectedCoveragePercent < 90) {
+            console.error('Projected nationality coverage stayed below 90%; refusing to commit the generated output.');
+            process.exit(1);
+          }
+          NODE
+
+      - name: Commit generated enrichment output
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add nationality-enrichment.js players-live.js reports/nationality-enrichment-report.json
+          if git diff --cached --quiet; then
+            echo 'No generated changes.'
+            exit 0
+          fi
+          git commit -m '[nationality-output] Apply bulk nationality enrichment'
+          git push origin HEAD:${GITHUB_REF_NAME}
