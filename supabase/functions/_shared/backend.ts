@@ -202,6 +202,7 @@ export type PublicTeamPick = {
   season: string;
   points: number;
   position: string;
+  skipped?: boolean;
 };
 
 export async function loadVerifier(supabase: ReturnType<typeof adminClient>, challengeId: string) {
@@ -250,14 +251,16 @@ export function publicTeam(value: unknown): PublicTeamPick[] {
   if (!Array.isArray(value)) return [];
   return value.slice(0, 11).map(raw => {
     const row = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
+    const skipped = Boolean(row.skipped) || (!text(row.playerId, 160) && !text(row.season, 20));
     return {
       promptId: text(row.promptId, 160),
       playerId: text(row.playerId, 160),
       season: text(row.season, 20),
       points: Number(row.points) || 0,
-      position: text(row.position, 20)
+      position: text(row.position, 20),
+      ...(skipped ? { skipped: true } : {})
     };
-  }).filter(row => row.promptId && row.playerId && row.season);
+  }).filter(row => row.promptId && (row.skipped || (row.playerId && row.season)));
 }
 
 export function publicRow(row: Record<string, unknown>, rank: number, currentClientIds: string | string[] = "", includeTeam = false) {
