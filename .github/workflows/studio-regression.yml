@@ -5,9 +5,6 @@ on:
     branches: [main]
   pull_request:
 
-permissions:
-  contents: write
-
 jobs:
   studio-syntax:
     runs-on: ubuntu-latest
@@ -60,61 +57,3 @@ jobs:
           node --check js/visual-overhaul.js
           node --check js/visual-finishing.js
           node --check sw.js
-
-  repository-cleanup-pass1:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: studio-syntax
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out main
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Apply repository cleanup
-        run: node scripts/repository-cleanup-pass1.mjs
-
-      - name: Verify cleaned source
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --check js/game-roadmap-phase1.js
-          node --check js/ui-cleanup.js
-          node --check js/admin-import-tools-base.js
-          node --check js/admin-batch-calendar.js
-          ! grep -q 'Today’s selection challenge' index.html
-          ! grep -q 'id="liveXiPanel"' index.html
-          ! grep -q 'id="phase45Achievements"' index.html
-          grep -q 'id="phase45ExtendedStats"' index.html
-          ! grep -q 'data-workspace="imports"' admin.html
-          ! grep -q 'data-open-workspace="imports"' admin.html
-          ! grep -q 'fpl-history-2015-16.js' admin.html
-          ! grep -q 'BEGIN admin-phase12.js' js/admin-import-tools-base.js
-          test ! -e admin-retired-workspaces.css
-          test ! -e data/fpl-history-2015-16.js
-          test ! -e admin-batch-calendar.js
-          test -e js/admin-batch-calendar.js
-          git diff --check
-
-      - name: Remove temporary cleanup scaffolding
-        shell: bash
-        run: |
-          rm -f scripts/repository-cleanup-pass1.mjs
-          rm -f .github/workflows/repository-cleanup-pass1.yml
-          git checkout HEAD^ -- .github/workflows/studio-regression.yml
-
-      - name: Commit cleanup result
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'Complete repository cleanup pass 1'
-          git push origin HEAD:main
