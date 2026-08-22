@@ -8,12 +8,14 @@ on:
       - players.js
       - scripts/audit-nationality-coverage.mjs
       - scripts/audit-nationality-recoverability.mjs
+      - scripts/audit-nationality-source-calibration.mjs
       - .github/workflows/nationality-audit.yml
   pull_request:
     paths:
       - players.js
       - scripts/audit-nationality-coverage.mjs
       - scripts/audit-nationality-recoverability.mjs
+      - scripts/audit-nationality-source-calibration.mjs
       - .github/workflows/nationality-audit.yml
 
 jobs:
@@ -28,6 +30,10 @@ jobs:
         run: node scripts/audit-nationality-coverage.mjs
       - name: Fetch historical Premier League squad reference
         run: git clone --depth 1 https://github.com/Samoilov2004/premier_league_dataset.git /tmp/premier_league_dataset
+      - name: Fetch official FPL region map
+        run: curl -fsSL https://fantasy.premierleague.com/api/regions/ -o /tmp/fpl-regions.json
+      - name: Calibrate squad nationality against official FPL nationality
+        run: node scripts/audit-nationality-source-calibration.mjs /tmp/premier_league_dataset/dataset/DATA_JSON /tmp/fpl-regions.json
       - name: Audit nationality recoverability
         run: node scripts/audit-nationality-recoverability.mjs /tmp/premier_league_dataset/dataset/DATA_JSON
       - name: Upload audits
@@ -36,5 +42,7 @@ jobs:
           name: nationality-audit
           path: |
             artifacts/nationality-coverage.json
+            artifacts/nationality-source-calibration-summary.json
+            artifacts/nationality-source-calibration-mismatches.json
             artifacts/nationality-recoverability-summary.json
             artifacts/nationality-recoverability-detail.json
