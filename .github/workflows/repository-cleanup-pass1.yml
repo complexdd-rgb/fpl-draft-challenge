@@ -1,0 +1,74 @@
+name: Repository cleanup pass 1
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/repository-cleanup-pass1.mjs
+      - .github/workflows/repository-cleanup-pass1.yml
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Apply repository cleanup
+        run: node scripts/repository-cleanup-pass1.mjs
+
+      - name: Check changed JavaScript
+        run: |
+          node --check js/game-roadmap-phase1.js
+          node --check js/ui-cleanup.js
+          node --check js/admin-import-tools-base.js
+          node --check js/admin-batch-calendar.js
+
+      - name: Verify retired source is gone
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'Today’s selection challenge' index.html
+          ! grep -q 'id="liveXiPanel"' index.html
+          ! grep -q 'id="phase45Achievements"' index.html
+          grep -q 'id="phase45ExtendedStats"' index.html
+          ! grep -q 'data-workspace="imports"' admin.html
+          ! grep -q 'data-open-workspace="imports"' admin.html
+          ! grep -q 'fpl-history-2015-16.js' admin.html
+          ! grep -q 'BEGIN admin-phase12.js' js/admin-import-tools-base.js
+          test ! -e admin-retired-workspaces.css
+          test ! -e data/fpl-history-2015-16.js
+          test ! -e admin-batch-calendar.js
+          test -e js/admin-batch-calendar.js
+          git diff --check
+
+      - name: Remove one-shot cleanup tooling
+        run: |
+          rm scripts/repository-cleanup-pass1.mjs
+          rm .github/workflows/repository-cleanup-pass1.yml
+
+      - name: Commit cleanup result
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No cleanup changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Complete repository cleanup pass 1'
+          git push origin HEAD:main
