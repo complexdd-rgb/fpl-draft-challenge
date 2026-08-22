@@ -15,3 +15,22 @@
   }
   window.FPL_NATIONALITY_ENRICHMENT = Object.freeze({ version: "1.1.0", source: "https://github.com/imadeddine-belkat/Premier-League-Stats", applied, mapped: Object.keys(mapping).length });
 })();
+
+/* Final nationality residue resolver. Only fills players still missing nationality after the bulk pass. */
+(() => {
+  "use strict";
+  const mapping = {"abdelhamid-sabiri":"Germany","adam-masina":"Morocco","ademola-lookman":"Nigeria","akos-buzsaky":"Hungary","alex-telles":"Brazil","andre-gray":"Jamaica","aymeric-laporte":"Spain","florent-hadergjonaj":"Kosovo","gabriel-armando-de-abreu":"Brazil","gael-kakuta":"France","george-baldock":"Greece","giannelli-imbula":"DR Congo","jeremie-boga":"Ivory Coast","jesse-lingard":"England","joao-cancelo":"Portugal","jordan-zemura":"Zimbabwe","josh-maja":"Nigeria","loic-damour":"France","nathaniel-mendez-laing":"England","nick-blackman":"England","pedro-obiang":"Equatorial Guinea","rafael-camacho":"Portugal","sean-morrison":"England","wesley-hoedt":"Netherlands","yan-valery":"Tunisia","yasser-larouci":"Algeria"};
+  const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
+  let applied = 0;
+  for (const player of players) {
+    const nationality = mapping[String(player?.playerId)];
+    if (!nationality) continue;
+    if (!player.bio || typeof player.bio !== "object") player.bio = {};
+    if (String(player.bio.nationality || "").trim()) continue;
+    const regionId = player.bio.regionId;
+    if (regionId !== null && regionId !== undefined && regionId !== "" && Number.isFinite(Number(regionId))) continue;
+    player.bio.nationality = nationality;
+    applied += 1;
+  }
+  window.FPL_NATIONALITY_FINAL_RESIDUE = Object.freeze({ version: "1.0.0", applied, mapped: Object.keys(mapping).length });
+})();
