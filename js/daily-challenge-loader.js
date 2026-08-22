@@ -124,4 +124,14 @@
       }, 1000);
     }, {once:true});
   }
+
+  // Gameplay roadmap layer: run after the inline game engine and visual layers have loaded.
+  window.addEventListener("load", () => {
+    if (document.querySelector('script[data-game-roadmap-phase-1]')) return;
+    const script = document.createElement("script");
+    script.src = "js/game-roadmap-phase1.js?v=1.0.0";
+    script.async = false;
+    script.dataset.gameRoadmapPhase1 = "1";
+    document.body.appendChild(script);
+  }, { once: true });
 })();

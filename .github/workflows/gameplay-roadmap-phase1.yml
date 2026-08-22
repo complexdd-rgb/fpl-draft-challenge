@@ -1,0 +1,37 @@
+name: Gameplay roadmap phase 1
+
+on:
+  pull_request:
+    paths:
+      - 'js/game-roadmap-phase1.js'
+      - 'js/daily-challenge-loader.js'
+      - '.github/workflows/gameplay-roadmap-phase1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/game-roadmap-phase1.js'
+      - 'js/daily-challenge-loader.js'
+      - '.github/workflows/gameplay-roadmap-phase1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check gameplay files
+        run: |
+          node --check js/game-roadmap-phase1.js
+          node --check js/daily-challenge-loader.js
+      - name: Verify roadmap wiring and safety rules
+        run: |
+          grep -q 'game-roadmap-phase1.js' js/daily-challenge-loader.js
+          grep -q 'Give up · 0 points' js/game-roadmap-phase1.js
+          grep -q 'skippedPrompts' js/game-roadmap-phase1.js
+          grep -q 'document.querySelector(".challenge-overview")?.remove()' js/game-roadmap-phase1.js
+          grep -q 'completed !== total' js/game-roadmap-phase1.js
