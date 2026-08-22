@@ -1,6 +1,6 @@
 /* FPL Challenge Studio — four-star prompt floor enforcer v1.0.2
    One-time-per-library analysis that removes prompts rated below 4★ by the Quality
-   Analyser. Rejections are cached only against the exact source-library fingerprint;
+   Analyser. Rejections are cached only against the exact prompt + player-data snapshot;
    they are not persisted as manual Prompt Manager deletions. */
 (() => {
   "use strict";
@@ -20,14 +20,49 @@
     return Array.isArray(apiLibrary) ? apiLibrary : (Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : []);
   }
 
-  function fingerprint(items) {
-    const text = items.map(prompt => String(prompt?.id || "")).filter(Boolean).sort().join("\n");
-    let hash = 2166136261;
-    for (let index = 0; index < text.length; index += 1) {
-      hash ^= text.charCodeAt(index);
+  function hashText(text, seed = 2166136261) {
+    let hash = seed >>> 0;
+    const value = String(text || "");
+    for (let index = 0; index < value.length; index += 1) {
+      hash ^= value.charCodeAt(index);
       hash = Math.imul(hash, 16777619);
     }
-    return `${items.length}:${(hash >>> 0).toString(16).padStart(8, "0")}`;
+    return hash >>> 0;
+  }
+
+  function promptFingerprint(items) {
+    const signatures = items.map(prompt => [
+      String(prompt?.id || ""),
+      String(prompt?.rating ?? ""),
+      prompt?.enabled === false ? "0" : "1",
+      String(prompt?.label || ""),
+      String(prompt?.testSource || prompt?.studioRule?.source || prompt?.test || "")
+    ].join("|")).sort();
+    let hash = 2166136261;
+    for (const signature of signatures) hash = hashText(`${signature}\n`, hash);
+    return `${items.length}:${hash.toString(16).padStart(8, "0")}`;
+  }
+
+  function playerDataFingerprint(players) {
+    let hash = 2166136261;
+    let positiveRows = 0;
+    for (const player of players) {
+      hash = hashText(`${String(player?.playerId || player?.name || "")}\n`, hash);
+      for (const season of player?.seasons || []) {
+        if (Number(season?.minutes) <= 0) continue;
+        positiveRows += 1;
+        hash = hashText(`${JSON.stringify(season)}\n`, hash);
+      }
+    }
+    return `${players.length}:${positiveRows}:${hash.toString(16).padStart(8, "0")}`;
+  }
+
+  function sourceFingerprint(items, players) {
+    return `${promptFingerprint(items)}|${playerDataFingerprint(players)}`;
+  }
+
+  function finalLibraryFingerprint(items) {
+    return promptFingerprint(items);
   }
 
   function readCache() {
@@ -63,6 +98,13 @@
     if (search) search.dispatchEvent(new Event("input", { bubbles: true }));
     window.dispatchEvent(new CustomEvent("fpl:prompt-library-changed", { detail: { reason: "four-star-floor", removed } }));
     return removed;
+  }
+
+  function restoreLibrary(snapshot) {
+    const items = library();
+    if (!Array.isArray(items)) return;
+    items.splice(0, items.length, ...snapshot);
+    window.FPL_STUDIO_API?.invalidatePromptStats?.();
   }
 
   function statusPanel() {
@@ -130,20 +172,22 @@
 
     running = true;
     try {
-      const sourceFingerprint = fingerprint(items);
+      const sourceSnapshot = items.slice();
+      const currentSourceFingerprint = sourceFingerprint(sourceSnapshot, players);
       const cached = readCache();
-      if (cached?.sourceFingerprint === sourceFingerprint) {
+      if (cached?.sourceFingerprint === currentSourceFingerprint) {
         const removedCached = removeIds(cached.rejectedIds);
-        if (!cached.finalFingerprint || fingerprint(library()) === cached.finalFingerprint) {
-          publishMeta(Number(cached.analysed || items.length), cached.rejectedIds, removedCached, true);
+        if (!cached.finalFingerprint || finalLibraryFingerprint(library()) === cached.finalFingerprint) {
+          publishMeta(Number(cached.analysed || sourceSnapshot.length), cached.rejectedIds, removedCached, true);
           return true;
         }
+        restoreLibrary(sourceSnapshot);
         console.warn("Four-star cache final fingerprint did not match; rebuilding from the current source library.");
       }
 
       const source = library().slice();
-      const freshSourceFingerprint = fingerprint(source);
-      setStatus(`<strong>Finalising the 4★+ library…</strong> Rechecking ${source.length.toLocaleString("en-GB")} prompts with the same full Quality Analyser rules. This only needs to run again when the library changes.`, "working");
+      const freshSourceFingerprint = sourceFingerprint(source, players);
+      setStatus(`<strong>Finalising the 4★+ library…</strong> Rechecking ${source.length.toLocaleString("en-GB")} prompts with the same full Quality Analyser rules. This only needs to run again when prompts or player data change.`, "working");
       const results = await engine.analyseLibrary(source, players, {
         progress: (current, total) => {
           const now = Date.now();
@@ -159,7 +203,7 @@
         .filter(Boolean);
 
       const removed = removeIds(rejectedIds);
-      const finalFingerprint = fingerprint(library());
+      const finalFingerprint = finalLibraryFingerprint(library());
       writeCache({
         version: VERSION,
         analysed: source.length,
