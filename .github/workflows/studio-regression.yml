@@ -79,3 +79,18 @@ jobs:
           ! grep -q 'retired-panel-compat' js/ui-cleanup.js
           test ! -e js/retired-panel-compat.js
           git diff --check
+
+      - name: Verify retired 2015/16 importer is physically removed
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'id="legacyImportCentre"' admin.html
+          ! grep -q 'fpl-history-2015-16.js' admin.html
+          test ! -e data/fpl-history-2015-16.js
+          ! grep -q 'BEGIN admin-phase12.js' js/admin-import-tools-base.js
+          ! grep -q 'END admin-phase12.js' js/admin-import-tools-base.js
+          grep -q 'BEGIN admin-phase15.js' js/admin-import-tools-base.js
+          grep -q 'id="importCentreHeading"' admin.html
+          grep -q 'id="identityConsolidationCentre"' admin.html
+          node --check js/admin-import-tools-base.js
+          git diff --check
