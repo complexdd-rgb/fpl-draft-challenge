@@ -1150,7 +1150,7 @@
       setStatus("The ZIP is locked until all seven dated challenges pass validation.", "fail");
       return;
     }
-    const zipBuilder = window.FPL_STUDIO_PHASE6?.buildZipBlob;
+    const zipBuilder = window.FPL_STUDIO_ZIP?.buildZipBlob;
     if (typeof zipBuilder !== "function") {
       setStatus("Studio ZIP support is unavailable. Reload admin.html and try again.", "fail");
       return;
