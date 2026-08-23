@@ -28,6 +28,20 @@ function removeElement(source, marker, tagName) {
   throw new Error(`Could not balance <${tagName}> for ${marker}`);
 }
 
+function removePhase(source, phase) {
+  const begin = `BEGIN admin-phase${phase}.js`;
+  const end = `END admin-phase${phase}.js`;
+  assert((source.match(new RegExp(`BEGIN admin-phase${phase}\\.js`, "g")) || []).length === 1, `Expected one Phase ${phase} begin marker`);
+  assert((source.match(new RegExp(`END admin-phase${phase}\\.js`, "g")) || []).length === 1, `Expected one Phase ${phase} end marker`);
+  const beginIndex = source.indexOf(begin);
+  const endIndex = source.indexOf(end, beginIndex);
+  const start = source.lastIndexOf("\n", beginIndex) + 1;
+  let finish = source.indexOf("\n", endIndex);
+  if (finish < 0) finish = source.length;
+  else finish += 1;
+  return source.slice(0, start) + source.slice(finish).replace(/^\n+/, "");
+}
+
 let admin = read("admin.html");
 assert((admin.match(/data-studio-retired="true"/g) || []).length === 2, "Expected exactly two remaining retired Studio panels");
 assert((admin.match(/id="databaseRepairPanel"/g) || []).length === 1, "Expected one retired Database Repair Centre");
@@ -47,6 +61,19 @@ assert(admin.includes('id="importCentreHeading"'), "Generic Historical Database 
 assert(admin.includes('id="identityConsolidationCentre"'), "Identity Consolidation Centre was accidentally removed");
 write("admin.html", admin);
 
+let core = read("js/admin-core.js");
+for (const phase of [7, 8, 9, 10, 11]) {
+  assert(core.includes(`BEGIN admin-phase${phase}.js`), `Expected Phase ${phase} before cleanup`);
+}
+core = removePhase(core, 8);
+core = removePhase(core, 9);
+assert(!core.includes("BEGIN admin-phase8.js") && !core.includes("END admin-phase8.js"), "Retired Phase 8 repair bundle remains");
+assert(!core.includes("BEGIN admin-phase9.js") && !core.includes("END admin-phase9.js"), "Retired Phase 9 auto-repair bundle remains");
+for (const phase of [7, 10, 11]) {
+  assert(core.includes(`BEGIN admin-phase${phase}.js`), `Protected Phase ${phase} was accidentally removed`);
+}
+write("js/admin-core.js", core);
+
 let readme = read("README.md");
 readme = readme.replace(
   "The generic Historical Database Import Centre and Identity Consolidation tools are retained for verified season expansion. The one-off 2015/16 archive hotfix importer is retired and has been removed; older automatic database-repair workspaces remain outside the active Studio workflow while cleanup continues.",
@@ -54,4 +81,4 @@ readme = readme.replace(
 );
 write("README.md", readme);
 
-console.log("Architecture Cleanup Pass 2G retired repair UI migration complete.");
+console.log("Architecture Cleanup Pass 2G retired repair UI and bundles migration complete.");
