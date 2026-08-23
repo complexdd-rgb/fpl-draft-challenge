@@ -1,0 +1,62 @@
+name: 2011/12 post-import certification
+
+on:
+  pull_request:
+    paths:
+      - 'players.js'
+      - 'players-live.js'
+      - 'prompt-library.js'
+      - 'js/career-context.js'
+      - 'js/validation-engine.js'
+      - 'js/certification-approved-null-policy.js'
+      - 'scripts/audit-2011-12-post-import.mjs'
+      - '.github/workflows/2011-12-post-import-certification.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'players.js'
+      - 'players-live.js'
+      - 'prompt-library.js'
+      - 'js/career-context.js'
+      - 'js/validation-engine.js'
+      - 'js/certification-approved-null-policy.js'
+      - 'scripts/audit-2011-12-post-import.mjs'
+      - '.github/workflows/2011-12-post-import-certification.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  certify-2011-12:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check audit inputs
+        run: |
+          node --check players.js
+          node --check players-live.js
+          node --check prompt-library.js
+          node --check js/career-context.js
+          node --check js/validation-engine.js
+          node --check js/certification-approved-null-policy.js
+          node --check scripts/audit-2011-12-post-import.mjs
+
+      - name: Run current production certification engine
+        run: node scripts/audit-2011-12-post-import.mjs
+
+      - name: Upload certification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 2011-12-post-import-certification
+          path: |
+            reports/2011-12-post-import-certification.json
+            reports/2011-12-post-import-certification.txt
+          if-no-files-found: warn
