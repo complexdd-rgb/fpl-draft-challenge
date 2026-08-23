@@ -1,0 +1,65 @@
+name: Architecture Cleanup Pass 2N
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  remove-stage-one-residue:
+    if: github.head_ref == 'architecture-cleanup-pass2n-stage-one-residue'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out cleanup branch
+        uses: actions/checkout@v4
+        with:
+          ref: architecture-cleanup-pass2n-stage-one-residue
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Confirm retired Stage One residue
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'studioRetired' js/admin-stage-one.js
+          grep -q 'repairBlockedCount' js/admin-stage-one.js
+          grep -q 'database repair|automatic repair' js/admin-stage-one.js
+          grep -q 'publishing centre|daily challenge' js/admin-stage-one.js
+          grep -q 'studio-retired-tool' admin-stage-one.css
+          grep -q 'id: "imports"' js/admin-stage-one.js
+
+      - name: Remove compatibility residue
+        run: |
+          node --check scripts/architecture-cleanup-pass2n-stage-one-residue.mjs
+          node scripts/architecture-cleanup-pass2n-stage-one-residue.mjs
+
+      - name: Verify active Stage One boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check js/admin-stage-one.js
+          ! grep -q 'studioRetired' js/admin-stage-one.js
+          ! grep -q 'repairBlockedCount' js/admin-stage-one.js
+          ! grep -q 'database repair|automatic repair' js/admin-stage-one.js
+          ! grep -q 'publishing centre|daily challenge' js/admin-stage-one.js
+          ! grep -q 'studio-retired-tool' admin-stage-one.css
+          grep -q 'id: "imports"' js/admin-stage-one.js
+          grep -q 'Player Database Auditor' js/admin-stage-one.js
+          grep -q 'Historical Database Import Centre' js/admin-stage-one.js
+          git diff --check
+
+      - name: Commit residue cleanup to review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/architecture-cleanup-pass2n-stage-one-residue.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add js/admin-stage-one.js admin-stage-one.css scripts/architecture-cleanup-pass2n-stage-one-residue.mjs
+          git commit -m 'Architecture Cleanup Pass 2N — remove Stage One retired residue'
+          git push origin HEAD:architecture-cleanup-pass2n-stage-one-residue
