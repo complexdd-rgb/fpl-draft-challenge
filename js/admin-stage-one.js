@@ -76,7 +76,6 @@
   }
 
   function classifyElement(element) {
-    if (element.dataset.studioRetired === "true") return "retired";
     if (element.matches(".studio-hero, .safety-banner, .status-grid")) return "dashboard";
 
     const title = normaliseText(getToolTitle(element));
@@ -85,8 +84,8 @@
     if (/prompt library|prompt quality|prompt studio/.test(title)) return "prompts";
     if (/leaderboard backend|leaderboard health|supabase/.test(title)) return "leaderboard";
     if (/historical database import|official fpl archive import|archive import|identity consolidation/.test(title)) return "imports";
-    if (/player database auditor|database repair|automatic repair|database health/.test(title)) return "database";
-    if (/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|publishing centre|daily challenge/.test(title)) return "challenge";
+    if (/player database auditor|database health/.test(title)) return "database";
+    if (/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|daily challenge/.test(title)) return "challenge";
 
     return "challenge";
   }
@@ -179,7 +178,7 @@
         <div>
           <p class="eyebrow">Next recommended action</p>
           <h2 id="nextActionTitle">Run the database audit</h2>
-          <p id="nextActionCopy">Start with a fresh read-only scan so the studio can guide the repair work safely.</p>
+          <p id="nextActionCopy">Start with a fresh read-only scan so the studio can guide database research safely.</p>
         </div>
         <button id="nextActionButton" class="button primary" type="button">Open Database Health</button>
       </section>
@@ -337,13 +336,12 @@
     const auditText = document.getElementById("auditStatusTop")?.textContent?.trim() || "Not run";
     const critical = parseNumber(document.getElementById("auditCriticalCount")?.textContent);
     const metadata = parseNumber(document.getElementById("auditInfoCount")?.textContent);
-    const repairBlocked = parseNumber(document.getElementById("repairBlockedCount")?.textContent);
     const libraryText = document.getElementById("libraryStatus")?.textContent?.trim() || "Loading…";
     const challengeText = document.getElementById("batchStatus")?.textContent?.trim() || "Ready to generate";
     const importText = document.getElementById("importCentreStatus")?.textContent?.trim() || "Waiting for files";
 
     const auditHasRun = !/not run|loading|waiting/i.test(auditText) || parseNumber(document.getElementById("auditPlayerCount")?.textContent) > 0;
-    const effectiveBlockers = Math.max(critical, repairBlocked);
+    const effectiveBlockers = critical;
 
     const blockerPill = document.getElementById("stageOneBlockerPill");
     const promptPill = document.getElementById("stageOnePromptPill");
@@ -551,7 +549,7 @@
     activateWorkspace(initialWorkspace, "", true);
 
     const watchedIds = [
-      "auditStatusTop", "auditCriticalCount", "auditInfoCount", "repairBlockedCount",
+      "auditStatusTop", "auditCriticalCount", "auditInfoCount",
       "libraryStatus", "batchStatus", "importCentreStatus", "auditPlayerCount"
     ];
     const observer = new MutationObserver(updateDynamicStatus);

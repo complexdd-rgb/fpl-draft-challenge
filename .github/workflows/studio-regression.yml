@@ -276,3 +276,18 @@ jobs:
           if (!(base >= 0 && stage > base && tools > stage && tools < html.indexOf('</head>'))) throw new Error('Studio stylesheet load order changed');
           NODE
           git diff --check
+
+      - name: Verify Stage One has no retired-workspace compatibility residue
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'studioRetired' js/admin-stage-one.js
+          ! grep -q 'repairBlockedCount' js/admin-stage-one.js
+          ! grep -q 'database repair|automatic repair' js/admin-stage-one.js
+          ! grep -q 'publishing centre|daily challenge' js/admin-stage-one.js
+          ! grep -q 'studio-retired-tool' admin-stage-one.css
+          grep -q 'id: "imports"' js/admin-stage-one.js
+          grep -q 'Player Database Auditor' js/admin-stage-one.js
+          grep -q 'Historical Database Import Centre' js/admin-stage-one.js
+          node --check js/admin-stage-one.js
+          git diff --check
