@@ -1,0 +1,698 @@
+archive_id,first_name,second_name,web_name,current_team,current_type,element_type_id,history_status,season,minutes,goals,assists,clean_sheets,goals_conceded,own_goals,penalties_saved,penalties_missed,yellow_cards,red_cards,saves,bonus,ea_ppi,end_cost_tenths,end_price_m,total_points,source_path
+1,Lukasz,Fabianski,Fabianski,Arsenal,Goalkeeper,1,POSITIVE_MINUTES,2010/11,1260,0,1,5,14,0,0,0,0,0,33,2,0,45,4.5,55,20_5_2013/1
+2,Wojciech,Szczesny,Szczesny,Arsenal,Goalkeeper,1,POSITIVE_MINUTES,2010/11,1350,0,0,6,19,0,1,0,1,0,45,0,0,43,4.3,62,20_5_2013/2
+3,Sebastien,Squillaci,Squillaci,Arsenal,Defender,2,POSITIVE_MINUTES,2010/11,1820,1,0,5,28,1,0,0,1,0,0,0,0,60,6.0,55,20_5_2013/3
+4,Laurent,Koscielny,Koscielny,Arsenal,Defender,2,POSITIVE_MINUTES,2010/11,2617,2,0,9,36,0,0,0,5,2,0,0,0,59,5.9,85,20_5_2013/4
+5,Thomas,Vermaelen,Vermaelen,Arsenal,Defender,2,POSITIVE_MINUTES,2010/11,450,0,1,1,6,0,0,0,0,0,0,0,0,71,7.1,15,20_5_2013/5
+6,Johan,Djourou,Djourou,Arsenal,Defender,2,POSITIVE_MINUTES,2010/11,1794,1,0,10,15,0,0,0,3,0,0,6,0,40,4.0,86,20_5_2013/6
+7,Bacary,Sagna,Sagna,Arsenal,Defender,2,POSITIVE_MINUTES,2010/11,2969,1,3,12,39,0,0,0,3,1,0,1,0,63,6.3,111,20_5_2013/7
+8,Kieran,Gibbs,Gibbs,Arsenal,Defender,2,POSITIVE_MINUTES,2010/11,348,0,0,0,8,0,0,0,1,0,0,0,0,52,5.2,7,20_5_2013/8
+9,Carl,Jenkinson,Jenkinson,Arsenal,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/9
+10,Ignasi,Miquel,Miquel,Arsenal,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/10
+11,Per,Mertesacker,Mertesacker,Arsenal,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/11
+12,Clarindo,Andre Santos,Santos,Arsenal,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/12
+13,Jack,Wilshere,Wilshere,Arsenal,Midfielder,3,POSITIVE_MINUTES,2010/11,2640,1,3,12,30,0,0,0,7,1,0,14,0,49,4.9,93,20_5_2013/13
+14,Andrey,Arshavin,Arshavin,Arsenal,Midfielder,3,POSITIVE_MINUTES,2010/11,2188,6,11,8,27,0,0,0,1,0,0,8,0,87,8.7,138,20_5_2013/14
+15,Theo,Walcott,Walcott,Arsenal,Midfielder,3,POSITIVE_MINUTES,2010/11,1691,9,8,10,16,0,0,0,0,0,0,7,0,70,7.0,133,20_5_2013/15
+16,Alex,Song,Song,Arsenal,Midfielder,3,POSITIVE_MINUTES,2010/11,2592,4,2,12,29,0,0,0,7,1,0,15,0,53,5.3,102,20_5_2013/16
+17,Vassiriki,Diaby,Diaby,Arsenal,Midfielder,3,POSITIVE_MINUTES,2010/11,953,2,3,3,16,0,0,0,1,1,0,3,0,72,7.2,46,20_5_2013/17
+18,Aaron,Ramsey,Ramsey,Arsenal,Midfielder,3,POSITIVE_MINUTES,2010/11,355,1,0,1,8,0,0,0,1,0,0,3,0,60,6.0,18,20_5_2013/18
+19,Tomas,Rosicky,Rosicky,Arsenal,Midfielder,3,POSITIVE_MINUTES,2010/11,939,0,1,2,17,0,0,1,3,0,0,0,0,60,6.0,30,20_5_2013/19
+20,Mikel,Arteta,Arteta,Arsenal,Midfielder,3,POSITIVE_MINUTES,2010/11,2405,3,4,6,36,0,0,1,1,1,0,18,0,78,7.8,101,20_5_2013/20
+21,Alex,Oxlade-Chamberlain,Chamberlain,Arsenal,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/21
+22,Henri,Lansbury,Lansbury,Arsenal,Midfielder,3,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,50,5.0,0,20_5_2013/22
+23,Francis,Coquelin,Coquelin,Arsenal,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/23
+24,Yao,Gervinho,Gervinho,Arsenal,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/24
+25,Ryo,Miyaichi,Miyaichi,Wigan,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/25
+26,Robin,van Persie,Van Persie,Man Utd,Forward,4,POSITIVE_MINUTES,2010/11,1770,18,7,7,24,0,0,1,4,0,0,27,0,110,11.0,157,20_5_2013/26
+27,Marouane,Chamakh,Chamakh,West Ham,Forward,4,POSITIVE_MINUTES,2010/11,1846,7,7,4,24,0,0,0,5,0,0,11,0,79,7.9,101,20_5_2013/27
+28,Carlos Alberto,Vela,Vela,Arsenal,Forward,4,POSITIVE_MINUTES,2010/11,386,3,1,0,6,0,0,0,0,0,0,0,0,42,4.2,29,20_5_2013/28
+29,Chu-Young,Park,Park,Arsenal,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/29
+30,Lukas,Podolski,Podolski,Arsenal,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/30
+31,Nicklas,Bendtner,Bendtner,Arsenal,Forward,4,POSITIVE_MINUTES,2010/11,509,2,2,2,5,0,0,0,2,0,0,0,0,63,6.3,32,20_5_2013/31
+32,Olivier,Giroud,Giroud,Arsenal,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/32
+33,Andy,Marshall,Marshall,Aston Villa,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/33
+34,Shay,Given,Given,Aston Villa,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,53,5.3,0,20_5_2013/34
+35,Nathan,Baker,Baker,Aston Villa,Defender,2,POSITIVE_MINUTES,2010/11,247,0,0,0,4,0,0,0,0,0,0,0,0,40,4.0,5,20_5_2013/35
+36,Richard,Dunne,Dunne,Aston Villa,Defender,2,POSITIVE_MINUTES,2010/11,2717,0,1,6,45,1,0,0,4,0,0,6,0,65,6.5,73,20_5_2013/36
+37,Ciaran,Clark,Clark,Aston Villa,Defender,2,POSITIVE_MINUTES,2010/11,1569,3,0,4,33,0,0,0,9,0,0,3,0,41,4.1,51,20_5_2013/37
+38,James,Collins,Collins,West Ham,Defender,2,POSITIVE_MINUTES,2010/11,2854,3,0,7,45,0,0,0,5,0,0,14,0,58,5.8,104,20_5_2013/38
+39,Stephen,Warnock,Warnock,Aston Villa,Defender,2,POSITIVE_MINUTES,2010/11,1710,0,2,4,34,0,0,0,8,0,0,0,0,54,5.4,38,20_5_2013/39
+40,Alan,Hutton,Hutton,Aston Villa,Defender,2,POSITIVE_MINUTES,2010/11,1705,2,2,2,25,0,0,0,2,0,0,2,0,43,4.3,58,20_5_2013/40
+41,Derrick,Williams,Williams,Aston Villa,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/41
+42,Eric,Lichaj,Lichaj,Aston Villa,Defender,2,POSITIVE_MINUTES,2010/11,274,0,0,0,7,0,0,0,1,0,0,0,0,40,4.0,4,20_5_2013/42
+43,Enda,Stevens,Stevens,Aston Villa,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/43
+44,Matthew,Lowton,Lowton,Aston Villa,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/44
+45,Barry,Bannan,Bannan,Aston Villa,Midfielder,3,POSITIVE_MINUTES,2010/11,640,0,1,1,14,0,0,0,1,0,0,0,0,44,4.4,21,20_5_2013/45
+46,Chris,Herd,Herd,Aston Villa,Midfielder,3,POSITIVE_MINUTES,2010/11,110,0,0,0,2,0,0,0,0,0,0,0,0,45,4.5,7,20_5_2013/46
+47,Jean,Makoun,Makoun,Aston Villa,Midfielder,3,POSITIVE_MINUTES,2010/11,551,0,0,1,9,0,0,0,3,1,0,0,0,55,5.5,8,20_5_2013/47
+48,Fabian,Delph,Delph,Aston Villa,Midfielder,3,POSITIVE_MINUTES,2010/11,414,0,0,0,7,0,0,0,1,0,0,0,0,50,5.0,9,20_5_2013/48
+49,Marc,Albrighton,Albrighton,Aston Villa,Midfielder,3,POSITIVE_MINUTES,2010/11,1800,5,7,4,33,0,0,0,3,0,0,4,0,44,4.4,99,20_5_2013/49
+50,Stephen,Ireland,Ireland,Aston Villa,Midfielder,3,POSITIVE_MINUTES,2010/11,555,0,0,1,16,0,0,0,1,0,0,0,0,58,5.8,17,20_5_2013/50
+51,Charles,N'Zogbia,N'Zogbia,Aston Villa,Midfielder,3,POSITIVE_MINUTES,2010/11,2785,9,7,8,49,0,0,0,2,1,0,33,0,59,5.9,167,20_5_2013/51
+52,Gary,Gardner,Gardner,Aston Villa,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/52
+53,Daniel,Johnson,Johnson,Aston Villa,Midfielder,3,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/53
+54,Samir,Carruthers,Carruthers,Aston Villa,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/54
+55,Jack,Grealish,Grealish,Aston Villa,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/55
+56,Brett,Holman,Holman,Aston Villa,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/56
+57,Karim,El Ahmadi,El Ahmadi,Aston Villa,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/57
+58,Darren,Bent,Bent,Aston Villa,Forward,4,POSITIVE_MINUTES,2010/11,3142,17,2,12,41,0,0,0,1,0,0,14,0,92,9.2,158,20_5_2013/58
+59,Nathan,Delfouneso,Delfouneso,Aston Villa,Forward,4,POSITIVE_MINUTES,2010/11,398,1,0,1,8,0,0,0,0,0,0,0,0,46,4.6,17,20_5_2013/59
+60,Gabriel,Agbonlahor,Agbonlahor,Aston Villa,Forward,4,POSITIVE_MINUTES,2010/11,1603,3,1,4,26,0,0,0,3,0,0,0,0,81,8.1,55,20_5_2013/60
+61,Andreas,Weimann,Weimann,Aston Villa,Forward,4,POSITIVE_MINUTES,2010/11,5,0,0,0,0,0,0,0,0,0,0,0,0,50,5.0,1,20_5_2013/61
+62,Graham,Burke,Burke,Aston Villa,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/62
+63,Petr,Cech,Cech,Chelsea,Goalkeeper,1,POSITIVE_MINUTES,2010/11,3420,0,1,15,33,0,1,0,0,0,98,2,0,67,6.7,158,20_5_2013/63
+64,Henrique,Hilario,Hilario,Chelsea,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,41,4.1,0,20_5_2013/64
+65,Ross,Turnbull,Turnbull,Chelsea,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,41,4.1,0,20_5_2013/65
+66,Gary,Cahill,Cahill,Chelsea,Defender,2,POSITIVE_MINUTES,2010/11,3213,3,0,5,53,0,0,0,7,1,0,23,0,56,5.6,105,20_5_2013/66
+67,David,Luiz,Luiz,Chelsea,Defender,2,POSITIVE_MINUTES,2010/11,953,2,0,4,8,0,0,0,3,0,0,10,0,65,6.5,56,20_5_2013/67
+68,Ryan,Bertrand,Bertrand,Chelsea,Defender,2,POSITIVE_MINUTES,2010/11,35,0,1,0,1,0,0,0,0,0,0,0,0,40,4.0,4,20_5_2013/68
+69,John,Terry,Terry,Chelsea,Defender,2,POSITIVE_MINUTES,2010/11,2961,3,2,14,27,0,0,0,6,0,0,0,0,74,7.4,134,20_5_2013/69
+70,Branislav,Ivanovic,Ivanovic,Chelsea,Defender,2,POSITIVE_MINUTES,2010/11,2827,4,5,13,27,0,0,0,12,0,0,5,0,71,7.1,144,20_5_2013/70
+71,Paulo,Ferreira,Ferreira,Chelsea,Defender,2,POSITIVE_MINUTES,2010/11,1039,0,2,4,14,0,0,0,2,0,0,0,0,48,4.8,48,20_5_2013/71
+72,Ashley,Cole,Cole A,Chelsea,Defender,2,POSITIVE_MINUTES,2010/11,3385,0,5,15,32,0,0,0,4,0,0,11,0,81,8.1,150,20_5_2013/72
+73,Sam,Hutchinson,Hutchinson,Chelsea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/73
+74,Nathaniel,Chalobah,Chalobah,Chelsea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/74
+75,Josh,McEachran,McEachran,Chelsea,Midfielder,3,POSITIVE_MINUTES,2010/11,180,0,0,0,3,0,0,0,1,0,0,0,0,45,4.5,9,20_5_2013/75
+76,Nascimento,Ramires,Ramires,Chelsea,Midfielder,3,POSITIVE_MINUTES,2010/11,1933,2,0,10,18,0,0,0,7,0,0,4,0,67,6.7,68,20_5_2013/76
+77,Frank,Lampard,Lampard,Chelsea,Midfielder,3,POSITIVE_MINUTES,2010/11,2024,10,4,9,21,0,0,1,2,0,0,16,0,130,13.0,130,20_5_2013/77
+78,Michael,Essien,Essien,Chelsea,Midfielder,3,POSITIVE_MINUTES,2010/11,2797,3,2,13,25,0,0,0,4,1,0,15,0,69,6.9,105,20_5_2013/78
+79,Florent,Malouda,Malouda,Chelsea,Midfielder,3,POSITIVE_MINUTES,2010/11,2799,13,5,16,27,0,0,0,1,0,0,22,0,97,9.7,186,20_5_2013/79
+80,,Mikel,Mikel,Chelsea,Midfielder,3,POSITIVE_MINUTES,2010/11,2204,0,2,11,21,0,0,0,3,0,0,1,0,44,4.4,67,20_5_2013/80
+82,Oriol,Romeu,Romeu,Chelsea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/82
+83,Juan,Mata,Mata,Chelsea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/83
+84,Lucas,Piazon,Piazon,Chelsea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/84
+85,Eden,Hazard,Hazard,Chelsea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/85
+86,Yossi,Benayoun,Benayoun,Chelsea,Midfielder,3,POSITIVE_MINUTES,2010/11,209,1,0,0,1,0,0,0,0,0,0,0,0,68,6.8,13,20_5_2013/86
+87,Marko,Marin,Marin,Chelsea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/87
+88,Kevin,De Bruyne,De Bruyne,Chelsea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/88
+89,Fernando,Torres,Torres,Chelsea,Forward,4,POSITIVE_MINUTES,2010/11,2655,10,7,10,36,0,0,0,7,0,0,8,0,112,11.2,128,20_5_2013/89
+90,Daniel,Sturridge,Sturridge,Liverpool,Forward,4,POSITIVE_MINUTES,2010/11,1131,8,0,2,17,0,0,0,0,1,0,14,0,53,5.3,78,20_5_2013/90
+91,Romelu,Lukaku,Lukaku,West Brom,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/91
+92,Jan,Mucha,Mucha,Everton,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,42,4.2,0,20_5_2013/92
+93,Tim,Howard,Howard,Everton,Goalkeeper,1,POSITIVE_MINUTES,2010/11,3420,0,0,9,45,0,0,0,3,0,108,3,0,53,5.3,124,20_5_2013/93
+94,Johnny,Heitinga,Heitinga,Everton,Defender,2,POSITIVE_MINUTES,2010/11,1888,1,0,4,30,0,0,0,9,0,0,0,0,55,5.5,50,20_5_2013/94
+95,Phil,Jagielka,Jagielka,Everton,Defender,2,POSITIVE_MINUTES,2010/11,2796,1,1,9,32,2,0,0,3,0,0,10,0,56,5.6,104,20_5_2013/95
+96,Tony,Hibbert,Hibbert,Everton,Defender,2,POSITIVE_MINUTES,2010/11,1452,0,0,3,20,1,0,0,3,0,0,0,0,48,4.8,38,20_5_2013/96
+97,Leighton,Baines,Baines,Everton,Defender,2,POSITIVE_MINUTES,2010/11,3420,5,11,9,45,0,0,0,4,0,0,20,0,81,8.1,178,20_5_2013/97
+98,Sylvain,Distin,Distin,Everton,Defender,2,POSITIVE_MINUTES,2010/11,3409,2,0,9,45,1,0,0,1,0,0,16,0,53,5.3,124,20_5_2013/98
+99,Shkodran,Mustafi,Mustafi,Everton,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/99
+100,Shane,Duffy,Duffy,Everton,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/100
+101,Adam,Forshaw,Forshaw,Everton,Midfielder,3,POSITIVE_MINUTES,2010/11,9,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,1,20_5_2013/101
+102,Jack,Rodwell,Rodwell,Man City,Midfielder,3,POSITIVE_MINUTES,2010/11,1420,0,1,3,19,0,0,0,4,0,0,0,0,50,5.0,41,20_5_2013/102
+103,Leon,Osman,Osman,Everton,Midfielder,3,POSITIVE_MINUTES,2010/11,1811,4,6,5,23,0,0,0,4,0,0,8,0,56,5.6,91,20_5_2013/103
+104,Tim,Cahill,Cahill,Everton,Midfielder,3,POSITIVE_MINUTES,2010/11,2016,9,4,5,28,0,0,0,4,0,0,10,0,89,8.9,117,20_5_2013/104
+105,Marouane,Fellaini,Fellaini,Everton,Midfielder,3,POSITIVE_MINUTES,2010/11,1652,1,3,3,24,0,0,0,3,1,0,7,0,59,5.9,56,20_5_2013/105
+106,Phil,Neville,Neville,Everton,Midfielder,3,POSITIVE_MINUTES,2010/11,2657,1,1,8,33,0,0,0,5,0,0,5,0,46,4.6,77,20_5_2013/106
+107,Seamus,Coleman,Coleman,Everton,Midfielder,3,POSITIVE_MINUTES,2010/11,2256,4,4,7,27,0,0,0,4,1,0,8,0,52,5.2,116,20_5_2013/107
+108,Darron,Gibson,Gibson,Everton,Midfielder,3,POSITIVE_MINUTES,2010/11,657,0,1,3,8,0,0,0,3,0,0,0,0,49,4.9,21,20_5_2013/108
+109,Ross,Barkley,Barkley,Everton,Midfielder,3,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,50,5.0,0,20_5_2013/109
+110,Apostolos,Vellios,Vellios,Everton,Forward,4,POSITIVE_MINUTES,2010/11,35,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,3,20_5_2013/110
+111,Magaye,Gueye,Gueye,Everton,Forward,4,POSITIVE_MINUTES,2010/11,191,0,1,2,2,0,0,0,0,0,0,1,0,50,5.0,11,20_5_2013/111
+112,Jose,Baxter,Baxter,Everton,Forward,4,POSITIVE_MINUTES,2010/11,13,0,0,0,0,0,0,0,0,0,0,0,0,41,4.1,1,20_5_2013/112
+113,Victor,Anichebe,Anichebe,Everton,Forward,4,POSITIVE_MINUTES,2010/11,769,0,0,0,13,0,0,0,1,1,0,0,0,50,5.0,19,20_5_2013/113
+114,Conor,McAleny,McAleny,Everton,Forward,4,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/114
+115,Nikica,Jelavic,Jelavic,Everton,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/115
+116,Steven,Naismith,Naismith,Everton,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/116
+117,David,Stockdale,Stockdale,Fulham,Goalkeeper,1,POSITIVE_MINUTES,2010/11,630,0,0,3,6,0,1,0,0,0,25,1,0,38,3.8,38,20_5_2013/117
+118,Mark,Schwarzer,Schwarzer,Fulham,Goalkeeper,1,POSITIVE_MINUTES,2010/11,2790,0,0,11,37,0,0,0,0,0,93,0,0,47,4.7,113,20_5_2013/118
+119,Neil,Etheridge,Etheridge,Fulham,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/119
+120,Matthew,Briggs,Briggs,Fulham,Defender,2,POSITIVE_MINUTES,2010/11,195,0,0,0,4,0,0,0,0,0,0,0,0,40,4.0,4,20_5_2013/120
+121,Philippe,Senderos,Senderos,Fulham,Defender,2,POSITIVE_MINUTES,2010/11,270,0,0,2,2,0,0,0,0,0,0,0,0,42,4.2,13,20_5_2013/121
+122,Stephen,Kelly,Kelly,Reading,Defender,2,POSITIVE_MINUTES,2010/11,729,0,0,2,8,0,0,0,0,0,0,0,0,42,4.2,23,20_5_2013/122
+123,Aaron,Hughes,Hughes,Fulham,Defender,2,POSITIVE_MINUTES,2010/11,3404,1,1,14,43,0,0,0,0,0,0,3,0,50,5.0,129,20_5_2013/123
+124,Brede,Hangeland,Hangeland,Fulham,Defender,2,POSITIVE_MINUTES,2010/11,3330,6,1,13,43,1,0,0,6,0,0,12,0,59,5.9,154,20_5_2013/124
+125,Chris,Baird,Baird,Fulham,Defender,2,POSITIVE_MINUTES,2010/11,2383,2,1,10,30,0,0,0,5,0,0,4,0,47,4.7,99,20_5_2013/125
+127,John Arne,Riise,Riise,Fulham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/127
+128,Sascha,Riether,Riether,Fulham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/128
+129,Steve,Sidwell,Sidwell,Fulham,Midfielder,3,POSITIVE_MINUTES,2010/11,1063,2,2,5,11,0,0,0,4,0,0,2,0,47,4.7,45,20_5_2013/129
+130,Damien,Duff,Duff,Fulham,Midfielder,3,POSITIVE_MINUTES,2010/11,1876,4,2,9,20,0,0,0,3,0,0,14,0,61,6.1,91,20_5_2013/130
+131,Dickson,Etuhu,Etuhu,Fulham,Midfielder,3,POSITIVE_MINUTES,2010/11,1971,2,2,7,27,0,0,0,3,0,0,7,0,43,4.3,76,20_5_2013/131
+132,Clint,Dempsey,Dempsey,Tottenham,Midfielder,3,POSITIVE_MINUTES,2010/11,3091,12,3,12,41,0,0,1,5,0,0,23,0,74,7.4,168,20_5_2013/132
+133,Simon,Davies,Davies,Fulham,Midfielder,3,POSITIVE_MINUTES,2010/11,2213,4,4,9,29,0,0,0,0,0,0,6,0,45,4.5,101,20_5_2013/133
+134,Marcel,Gecov,Gecov,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/134
+135,Pajtim,Kasami,Kasami,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/135
+136,Kerim,Frei,Frei,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/136
+137,Alex,Kacaniklic,Kacaniklic,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/137
+138,Mahamadou,Diarra,Diarra,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/138
+139,Mousa,Dembele,Dembele,Tottenham,Midfielder,3,POSITIVE_MINUTES,2010/11,1916,3,3,7,27,0,0,0,0,0,0,15,0,47,4.7,81,20_5_2013/139
+140,Bryan,Ruiz,Ruiz,Fulham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/140
+141,Marcello,Trotta,Trotta,Fulham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/141
+142,Mladen,Petric,Petric,Fulham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/142
+143,Hugo,Rodallega,Rodallega,Fulham,Forward,4,POSITIVE_MINUTES,2010/11,3025,9,2,8,54,0,0,0,4,1,0,18,0,54,5.4,123,20_5_2013/143
+144,Jose,Reina,Reina,Liverpool,Goalkeeper,1,POSITIVE_MINUTES,2010/11,3420,0,0,14,44,1,0,0,4,0,106,2,0,61,6.1,135,20_5_2013/144
+145,Alexander,Doni,Doni,Liverpool,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/145
+146,Brad,Jones,Jones,Liverpool,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,49,4.9,0,20_5_2013/146
+147,Danny,Wilson,Wilson,Liverpool,Defender,2,POSITIVE_MINUTES,2010/11,157,0,0,0,5,0,0,0,1,0,0,0,0,44,4.4,1,20_5_2013/147
+148,Jack,Robinson,Robinson,Liverpool,Defender,2,POSITIVE_MINUTES,2010/11,147,0,0,1,1,0,0,0,1,0,0,0,0,40,4.0,7,20_5_2013/148
+149,Jon,Flanagan,Flanagan,Liverpool,Defender,2,POSITIVE_MINUTES,2010/11,620,0,0,3,6,0,0,0,3,0,0,0,0,45,4.5,21,20_5_2013/149
+150,Martin,Kelly,Kelly,Liverpool,Defender,2,POSITIVE_MINUTES,2010/11,860,0,1,5,7,0,0,0,1,0,0,2,0,37,3.7,42,20_5_2013/150
+151,Glen,Johnson,Johnson,Liverpool,Defender,2,POSITIVE_MINUTES,2010/11,2437,2,2,10,34,0,0,0,4,0,0,3,0,71,7.1,100,20_5_2013/151
+152,Jamie,Carragher,Carragher,Liverpool,Defender,2,POSITIVE_MINUTES,2010/11,2486,0,0,11,30,1,0,0,4,0,0,6,0,60,6.0,90,20_5_2013/152
+153,Martin,Skrtel,Skrtel,Liverpool,Defender,2,POSITIVE_MINUTES,2010/11,3420,2,1,14,44,1,0,0,8,0,0,4,0,59,5.9,126,20_5_2013/153
+154,Daniel,Agger,Agger,Liverpool,Defender,2,POSITIVE_MINUTES,2010/11,1092,0,0,6,10,0,0,0,0,0,0,5,0,63,6.3,54,20_5_2013/154
+155,Sanchez,Jose Enrique,Jose Enrique,Liverpool,Defender,2,POSITIVE_MINUTES,2010/11,3124,0,3,9,50,0,0,0,5,0,0,11,0,47,4.7,105,20_5_2013/155
+156,Sebastian,Coates,Coates,Liverpool,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/156
+157,Stewart,Downing,Downing,Liverpool,Midfielder,3,POSITIVE_MINUTES,2010/11,3385,7,9,7,59,0,0,0,0,0,0,18,0,71,7.1,163,20_5_2013/157
+158,Jonjo,Shelvey,Shelvey,Liverpool,Midfielder,3,POSITIVE_MINUTES,2010/11,340,0,1,0,5,0,0,0,1,0,0,0,0,50,5.0,18,20_5_2013/158
+159,Jay,Spearing,Spearing,Liverpool,Midfielder,3,POSITIVE_MINUTES,2010/11,795,0,2,4,9,0,0,0,0,0,0,0,0,45,4.5,30,20_5_2013/159
+160,Joe,Cole,Cole,West Ham,Midfielder,3,POSITIVE_MINUTES,2010/11,802,2,1,1,20,0,0,0,1,1,0,0,0,83,8.3,38,20_5_2013/160
+161,Steven,Gerrard,Gerrard,Liverpool,Midfielder,3,POSITIVE_MINUTES,2010/11,1870,4,5,7,26,0,0,1,2,0,0,8,0,113,11.3,88,20_5_2013/161
+162,Leiva,Lucas,Lucas,Liverpool,Midfielder,3,POSITIVE_MINUTES,2010/11,2858,0,2,12,37,0,0,0,6,1,0,7,0,45,4.5,81,20_5_2013/162
+163,Charlie,Adam,Adam,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,3049,12,9,5,68,1,0,1,10,0,0,45,0,60,6.0,192,20_5_2013/163
+164,Jordan,Henderson,Henderson,Liverpool,Midfielder,3,POSITIVE_MINUTES,2010/11,3211,3,5,13,46,0,0,0,2,0,0,20,0,54,5.4,133,20_5_2013/164
+165,Alberto,Aquilani,Aquilani,Liverpool,Midfielder,3,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,73,7.3,0,20_5_2013/165
+166,Raheem,Sterling,Sterling,Liverpool,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/166
+167,Luis,Suarez,Suarez,Liverpool,Forward,4,POSITIVE_MINUTES,2010/11,1100,4,5,5,12,0,0,0,2,0,0,14,0,95,9.5,68,20_5_2013/167
+168,Andy,Carroll,Carroll,West Ham,Forward,4,POSITIVE_MINUTES,2010/11,2071,13,6,7,34,0,0,0,5,0,0,21,0,62,6.2,135,20_5_2013/168
+169,Craig,Bellamy,Bellamy,Liverpool,Forward,4,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,79,7.9,0,20_5_2013/169
+170,Nathan,Eccleston,Eccleston,Liverpool,Forward,4,POSITIVE_MINUTES,2010/11,11,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,1,20_5_2013/170
+171,Joe,Hart,Hart,Man City,Goalkeeper,1,POSITIVE_MINUTES,2010/11,3420,0,1,18,33,0,1,0,1,0,115,4,0,69,6.9,175,20_5_2013/171
+172,Costel,Pantilimon,Pantilimon,Man City,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/172
+173,Aleksandar,Kolarov,Kolarov,Man City,Defender,2,POSITIVE_MINUTES,2010/11,1719,1,1,5,21,0,0,0,5,1,0,4,0,57,5.7,60,20_5_2013/173
+174,Micah,Richards,Richards,Man City,Defender,2,POSITIVE_MINUTES,2010/11,1399,1,1,8,15,0,0,0,4,0,0,2,0,54,5.4,67,20_5_2013/174
+175,Pablo,Zabaleta,Zabaleta,Man City,Defender,2,POSITIVE_MINUTES,2010/11,1947,2,2,12,13,0,0,0,8,1,0,5,0,61,6.1,102,20_5_2013/175
+176,Joleon,Lescott,Lescott,Man City,Defender,2,POSITIVE_MINUTES,2010/11,1883,3,1,10,18,0,0,0,1,0,0,7,0,64,6.4,103,20_5_2013/176
+177,Vincent,Kompany,Kompany,Man City,Defender,2,POSITIVE_MINUTES,2010/11,3330,0,1,18,32,0,0,0,6,0,0,6,0,52,5.2,95,20_5_2013/177
+178,Gael,Clichy,Clichy,Man City,Defender,2,POSITIVE_MINUTES,2010/11,2970,0,1,13,33,0,0,0,3,0,0,0,0,61,6.1,109,20_5_2013/178
+179,Stefan,Savic,Savic,Man City,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/179
+180,Kolo,Toure,Toure,Man City,Defender,2,POSITIVE_MINUTES,2010/11,1847,1,0,9,14,0,0,0,2,1,0,0,0,62,6.2,76,20_5_2013/180
+181,Karim,Rekik,Rekik,Man City,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/181
+182,Samir,Nasri,Nasri,Man City,Midfielder,3,POSITIVE_MINUTES,2010/11,2383,10,1,9,28,0,0,0,4,0,0,20,0,82,8.2,134,20_5_2013/182
+183,David,Silva,Silva,Man City,Midfielder,3,POSITIVE_MINUTES,2010/11,2551,4,9,16,24,0,0,0,2,0,0,20,0,86,8.6,144,20_5_2013/183
+184,Yaya,Toure,Yaya Toure,Man City,Midfielder,3,POSITIVE_MINUTES,2010/11,2966,6,6,18,25,0,0,0,3,0,0,15,0,63,6.3,146,20_5_2013/184
+185,Nigel,De Jong,De Jong,Man City,Midfielder,3,POSITIVE_MINUTES,2010/11,2610,1,0,16,21,0,0,0,9,0,0,8,0,42,4.2,80,20_5_2013/185
+186,Gareth,Barry,Barry,Man City,Midfielder,3,POSITIVE_MINUTES,2010/11,2702,2,3,13,29,0,0,0,8,0,0,3,0,65,6.5,90,20_5_2013/186
+187,James,Milner,Milner,Man City,Midfielder,3,POSITIVE_MINUTES,2010/11,2134,1,7,11,24,0,0,0,4,0,0,10,0,81,8.1,97,20_5_2013/187
+188,Adam,Johnson,Johnson,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,1542,4,7,10,12,0,0,0,2,0,0,9,0,57,5.7,104,20_5_2013/188
+189,Abdul,Razak,Razak,Man City,Midfielder,3,POSITIVE_MINUTES,2010/11,1,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,1,20_5_2013/189
+190,Carlos,Tevez,Tevez,Man City,Forward,4,POSITIVE_MINUTES,2010/11,2513,21,6,16,19,0,0,1,6,0,0,32,0,115,11.5,185,20_5_2013/190
+191,Mario,Balotelli,Balotelli,Man City,Forward,4,POSITIVE_MINUTES,2010/11,1090,6,1,7,11,0,0,0,5,1,0,6,0,76,7.6,55,20_5_2013/191
+192,Edin,Dzeko,Dzeko,Man City,Forward,4,POSITIVE_MINUTES,2010/11,854,2,2,1,15,0,0,0,1,0,0,0,0,84,8.4,35,20_5_2013/192
+193,Sergio,Aguero,Aguero,Man City,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/193
+194,Emmanuel,Adebayor,Adebayor,Tottenham,Forward,4,POSITIVE_MINUTES,2010/11,244,1,0,1,5,0,0,0,0,0,0,0,0,89,8.9,14,20_5_2013/194
+195,David,De Gea,de Gea,Man Utd,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/195
+196,Anders,Lindegaard,Lindegaard,Man Utd,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/196
+197,Ben,Amos,Amos,Man Utd,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/197
+198,Chris,Smalling,Smalling,Man Utd,Defender,2,POSITIVE_MINUTES,2010/11,1086,0,1,5,12,0,0,0,0,0,0,5,0,44,4.4,51,20_5_2013/198
+199,Phil,Jones,Jones,Man Utd,Defender,2,POSITIVE_MINUTES,2010/11,2175,0,0,6,33,0,0,0,4,0,0,11,0,42,4.2,70,20_5_2013/199
+200,Rafael,Da Silva,Rafael,Man Utd,Defender,2,POSITIVE_MINUTES,2010/11,1197,0,1,6,13,0,0,0,2,1,0,4,0,54,5.4,51,20_5_2013/200
+201,Nemanja,Vidic,Vidic,Man Utd,Defender,2,POSITIVE_MINUTES,2010/11,3116,5,1,14,33,0,0,0,6,1,0,9,0,81,8.1,148,20_5_2013/201
+202,Rio,Ferdinand,Ferdinand,Man Utd,Defender,2,POSITIVE_MINUTES,2010/11,1710,0,0,8,13,0,0,0,0,0,0,1,0,63,6.3,69,20_5_2013/202
+203,Patrice,Evra,Evra,Man Utd,Defender,2,POSITIVE_MINUTES,2010/11,2957,1,2,12,33,1,0,0,1,0,0,0,0,73,7.3,113,20_5_2013/203
+204,Jonny,Evans,Evans J,Man Utd,Defender,2,POSITIVE_MINUTES,2010/11,1004,0,0,4,16,0,0,0,2,1,0,0,0,46,4.6,29,20_5_2013/204
+205,Ezekiel,Fryers,Fryers,Tottenham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/205
+206,Antonio,Valencia,Valencia,Man Utd,Midfielder,3,POSITIVE_MINUTES,2010/11,742,1,2,4,6,0,0,0,1,0,0,10,0,79,7.9,42,20_5_2013/206
+207,Luis,Nani,Nani,Man Utd,Midfielder,3,POSITIVE_MINUTES,2010/11,2660,9,18,14,29,0,0,1,1,0,0,25,0,94,9.4,198,20_5_2013/207
+208,Oliveira,Anderson,Anderson,Man Utd,Midfielder,3,POSITIVE_MINUTES,2010/11,1182,1,3,8,8,0,0,0,2,0,0,6,0,55,5.5,57,20_5_2013/208
+209,Ryan,Giggs,Giggs,Man Utd,Midfielder,3,POSITIVE_MINUTES,2010/11,1676,2,8,5,21,0,0,0,5,0,0,4,0,68,6.8,79,20_5_2013/209
+210,Michael,Carrick,Carrick,Man Utd,Midfielder,3,POSITIVE_MINUTES,2010/11,1972,0,0,9,21,0,0,0,1,0,0,4,0,62,6.2,61,20_5_2013/210
+211,Darren,Fletcher,Fletcher,Man Utd,Midfielder,3,POSITIVE_MINUTES,2010/11,2109,2,6,9,25,0,0,0,3,0,0,4,0,68,6.8,87,20_5_2013/211
+212,Tom,Cleverley,Cleverley,Man Utd,Midfielder,3,POSITIVE_MINUTES,2010/11,1637,4,2,2,26,0,0,0,1,0,0,4,0,42,4.2,72,20_5_2013/212
+213,Ashley,Young,Young,Man Utd,Midfielder,3,POSITIVE_MINUTES,2010/11,3050,7,11,7,49,0,0,1,8,0,0,27,0,84,8.4,160,20_5_2013/213
+214,Larnell,Cole,Cole,Man Utd,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/214
+215,Jesse,Lingard,Lingard,Man Utd,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/215
+216,Paul,Scholes,Scholes,Man Utd,Midfielder,3,POSITIVE_MINUTES,2010/11,1537,1,4,6,19,0,0,0,9,0,0,12,0,61,6.1,64,20_5_2013/216
+217,Nick,Powell,Powell,Man Utd,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/217
+218,Shinji,Kagawa,Kagawa,Man Utd,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/218
+219,Dimitar,Berbatov,Berbatov,Fulham,Forward,4,POSITIVE_MINUTES,2010/11,2208,21,4,8,28,0,0,0,1,0,0,26,0,92,9.2,176,20_5_2013/219
+220,Javier,Hernandez,Hernandez,Man Utd,Forward,4,POSITIVE_MINUTES,2010/11,1491,13,2,4,12,0,0,0,5,0,0,16,0,71,7.1,110,20_5_2013/220
+221,Wayne,Rooney,Rooney,Man Utd,Forward,4,POSITIVE_MINUTES,2010/11,2225,11,11,10,22,0,0,1,5,0,0,19,0,118,11.8,142,20_5_2013/221
+222,Danny,Welbeck,Welbeck,Man Utd,Forward,4,POSITIVE_MINUTES,2010/11,1756,6,1,9,27,0,0,0,2,0,0,11,0,44,4.4,79,20_5_2013/222
+223,Will,Keane,Keane W,Man Utd,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/223
+224,Federico,Macheda,Macheda,Man Utd,Forward,4,POSITIVE_MINUTES,2010/11,220,1,0,1,2,0,0,0,0,0,0,0,0,50,5.0,12,20_5_2013/224
+225,Steve,Harper,Harper,Newcastle,Goalkeeper,1,POSITIVE_MINUTES,2010/11,1564,0,0,5,22,0,0,0,0,0,47,0,0,43,4.3,57,20_5_2013/225
+226,Tim,Krul,Krul,Newcastle,Goalkeeper,1,POSITIVE_MINUTES,2010/11,1856,0,0,3,35,0,0,0,0,0,48,0,0,39,3.9,51,20_5_2013/226
+227,Rob,Elliot,Elliot,Newcastle,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/227
+228,James,Perch,Perch,Newcastle,Defender,2,POSITIVE_MINUTES,2010/11,877,0,0,2,15,1,0,0,6,0,0,0,0,38,3.8,16,20_5_2013/228
+229,Mike,Williamson,Williamson,Newcastle,Defender,2,POSITIVE_MINUTES,2010/11,2565,0,2,7,41,0,0,0,5,0,0,3,0,41,4.1,75,20_5_2013/229
+230,Danny,Simpson,Simpson,Newcastle,Defender,2,POSITIVE_MINUTES,2010/11,2685,0,0,7,45,0,0,0,4,0,0,0,0,39,3.9,70,20_5_2013/230
+231,Steven,Taylor,Taylor S,Newcastle,Defender,2,POSITIVE_MINUTES,2010/11,1008,3,1,1,19,0,0,0,2,0,0,3,0,39,3.9,45,20_5_2013/231
+232,Fabricio,Coloccini,Coloccini,Newcastle,Defender,2,POSITIVE_MINUTES,2010/11,3080,2,0,9,51,0,0,0,3,1,0,3,0,46,4.6,97,20_5_2013/232
+233,Ryan,Taylor,Taylor R,Newcastle,Defender,2,POSITIVE_MINUTES,2010/11,276,0,1,0,6,0,0,0,0,1,0,0,0,39,3.9,5,20_5_2013/233
+234,Davide,Santon,Santon,Newcastle,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/234
+235,James,Tavernier,Tavernier,Newcastle,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/235
+236,Gabriel,Obertan,Obertan,Newcastle,Midfielder,3,POSITIVE_MINUTES,2010/11,284,0,0,1,4,0,0,0,0,0,0,2,0,44,4.4,12,20_5_2013/236
+237,Cheick,Tiote,Tiote,Newcastle,Midfielder,3,POSITIVE_MINUTES,2010/11,2308,1,1,8,34,0,0,0,14,0,0,12,0,44,4.4,66,20_5_2013/237
+238,Hatem,Ben Arfa,Ben Arfa,Newcastle,Midfielder,3,POSITIVE_MINUTES,2010/11,168,1,0,2,1,0,0,0,0,0,0,1,0,43,4.3,14,20_5_2013/238
+239,Shane,Ferguson,Ferguson,Newcastle,Midfielder,3,POSITIVE_MINUTES,2010/11,309,0,0,0,7,0,0,0,0,0,0,0,0,40,4.0,10,20_5_2013/239
+240,Dan,Gosling,Gosling,Newcastle,Midfielder,3,POSITIVE_MINUTES,2010/11,1,0,0,0,1,0,0,0,0,0,0,0,0,43,4.3,1,20_5_2013/240
+241,Jonas,Gutierrez,Gutierrez,Newcastle,Midfielder,3,POSITIVE_MINUTES,2010/11,2973,3,5,9,45,0,0,0,5,0,0,11,0,48,4.8,116,20_5_2013/241
+242,Yohan,Cabaye,Cabaye,Newcastle,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/242
+243,Sylvain,Marveaux,Marveaux,Newcastle,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/243
+244,Haris,Vuckic,Vuckic,Newcastle,Midfielder,3,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/244
+245,Mehdi,Abeid,Abeid,Newcastle,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/245
+246,Romain,Amalfitano,Amalfiltano,Newcastle,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/246
+247,Gael,Bigirimana,Bigirimana,Newcastle,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/247
+248,Shola,Ameobi,Ameobi,Newcastle,Forward,4,POSITIVE_MINUTES,2010/11,1753,6,6,5,30,0,0,0,2,0,0,7,0,41,4.1,93,20_5_2013/248
+249,Demba,Ba,Ba,Chelsea,Forward,4,POSITIVE_MINUTES,2010/11,933,7,0,2,21,0,0,0,1,0,0,8,0,49,4.9,57,20_5_2013/249
+250,Sammy,Ameobi,Sammy Ameobi,Newcastle,Forward,4,POSITIVE_MINUTES,2010/11,9,0,0,0,1,0,0,0,0,0,0,0,0,40,4.0,1,20_5_2013/250
+251,Papiss,Cisse,Cisse,Newcastle,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/251
+252,John,Ruddy,Ruddy,Norwich,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/252
+253,Declan,Rudd,Rudd,Norwich,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/253
+254,Jed,Steer,Steer,Norwich,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/254
+255,Russell,Martin,Martin R,Norwich,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/255
+256,Leon,Barnett,Barnett,Norwich,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/256
+257,Elliott,Ward,Ward,Norwich,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/257
+258,Marc,Tierney,Tierney,Norwich,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/258
+259,Daniel,Ayala,Ayala,Norwich,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,41,4.1,0,20_5_2013/259
+260,Ryan,Bennett,Ryan Bennett,Norwich,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/260
+261,Steven,Whittaker,Whittaker,Norwich,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/261
+262,Andrew,Crofts,Crofts,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/262
+263,Andrew,Surman,Surman,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/263
+264,Wes,Hoolahan,Hoolahan,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/264
+265,David,Fox,Fox,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/265
+266,Korey,Smith,Smith,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/266
+267,Simon,Lappin,Lappin,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/267
+268,Bradley,Johnson,Johnson,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/268
+269,Anthony,Pilkington,Pilkington,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/269
+270,Elliott,Bennett,Bennett,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/270
+271,Jonathan,Howson,Howson,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/271
+272,Jacob,Butterfield,Butterfield,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/272
+273,Grant,Holt,Holt,Norwich,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/273
+274,Simeon,Jackson,Jackson,Norwich,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/274
+275,Chris,Martin,Martin C,Norwich,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/275
+276,Steve,Morison,Morison,Norwich,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/276
+277,James,Vaughan,Vaughan,Norwich,Forward,4,POSITIVE_MINUTES,2010/11,18,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,1,20_5_2013/277
+278,Radek,Cerny,Cerny,QPR,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/278
+279,Rob,Green,Green,QPR,Goalkeeper,1,POSITIVE_MINUTES,2010/11,3330,0,0,5,69,1,1,0,0,0,162,6,0,48,4.8,122,20_5_2013/279
+280,Luke,Young,Young,QPR,Defender,2,POSITIVE_MINUTES,2010/11,2070,1,1,5,37,0,0,0,1,0,0,5,0,48,4.8,65,20_5_2013/280
+281,Nedum,Onuoha,Onuoha,QPR,Defender,2,POSITIVE_MINUTES,2010/11,2662,1,2,9,44,0,0,0,1,0,0,4,0,51,5.1,97,20_5_2013/281
+282,Clint,Hill,Hill,QPR,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/282
+283,Matthew,Connolly,Connolly,QPR,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/283
+284,Anton,Ferdinand,Ferdinand,QPR,Defender,2,POSITIVE_MINUTES,2010/11,2088,0,0,7,36,0,0,0,2,0,0,3,0,45,4.5,66,20_5_2013/284
+285,Michael,Harriman,Harriman,QPR,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/285
+286,Armand,Traore,Traore,QPR,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,49,4.9,0,20_5_2013/286
+287,Ryan,Nelsen,Nelsen,QPR,Defender,2,POSITIVE_MINUTES,2010/11,2413,3,3,5,46,0,0,0,3,1,0,8,0,49,4.9,86,20_5_2013/287
+288,Fabio,Da Silva,Fabio,QPR,Defender,2,POSITIVE_MINUTES,2010/11,559,1,1,1,5,0,0,0,2,0,0,0,0,44,4.4,26,20_5_2013/288
+289,Shaun,Wright-Phillips,Wright-Phillips,QPR,Midfielder,3,POSITIVE_MINUTES,2010/11,205,0,0,1,2,0,0,0,0,0,0,0,0,70,7.0,9,20_5_2013/289
+290,Joey,Barton,Barton,QPR,Midfielder,3,POSITIVE_MINUTES,2010/11,2878,4,9,8,45,0,0,0,8,0,0,20,0,48,4.8,131,20_5_2013/290
+291,Shaun,Derry,Derry,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/291
+292,Adel,Taarabt,Taarabt,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/292
+293,Akos,Buzsaky,Buzsaky,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/293
+294,Alejandro,Faurlin,Faurlin,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/294
+295,Bruno,Andrade,Andrade,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/295
+296,Kieron,Dyer,Dyer,QPR,Midfielder,3,POSITIVE_MINUTES,2010/11,602,0,1,0,13,0,0,0,0,0,0,0,0,41,4.1,20,20_5_2013/296
+297,Samba,Diakite,Diakite,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/297
+298,Ji-Sung,Park,Park,QPR,Midfielder,3,POSITIVE_MINUTES,2010/11,1080,5,3,5,13,0,0,0,1,0,0,9,0,47,4.7,74,20_5_2013/298
+299,Bobby,Zamora,Zamora,QPR,Forward,4,POSITIVE_MINUTES,2010/11,757,5,5,3,8,0,0,0,2,0,0,10,0,56,5.6,63,20_5_2013/299
+300,Heidar,Helguson,Helguson,QPR,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/300
+301,Jamie,Mackie,Mackie,QPR,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/301
+302,Tommy,Smith,Smith,QPR,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/302
+303,Jay,Bothroyd,Bothroyd,QPR,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/303
+304,DJ,Campbell,Campbell,QPR,Forward,4,POSITIVE_MINUTES,2010/11,2625,13,4,5,55,0,0,0,1,1,0,8,0,45,4.5,128,20_5_2013/304
+305,Djibril,Cisse,Cisse,QPR,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/305
+306,Andrew,Johnson,Johnson,QPR,Forward,4,POSITIVE_MINUTES,2010/11,1560,3,3,6,21,0,0,0,4,0,0,2,0,55,5.5,61,20_5_2013/306
+307,Adam,Federici,Federici,Reading,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/307
+308,Alex,McCarthy,McCarthy,Reading,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/308
+309,Mikkel,Andersen,Andersen,Reading,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/309
+310,Alex,Pearce,Pearce,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/310
+311,Joseph,Mills,Mills,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/311
+312,Kaspars,Gorkss,Gorkss,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/312
+313,Ian,Harte,Harte,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/313
+314,Shaun,Cummings,Cummings,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/314
+315,Jack,Mills,Mills,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/315
+316,Nicky,Shorey,Shorey,Reading,Defender,2,POSITIVE_MINUTES,2010/11,2314,0,1,1,46,1,0,0,1,0,0,0,0,42,4.2,43,20_5_2013/316
+317,Jobi,McAnuff,McAnuff,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/317
+318,Jimmy,Kebe,Kebe,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/318
+319,Hal,Robson-Kanu,Robson-Kanu,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/319
+320,Michail,Antonio,Antonio,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/320
+321,Jordan,Obita,Obita,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/321
+322,Jem,Karacan,Karacan,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/322
+323,Brynjar,Gunnarsson,Gunnarsson,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/323
+324,Jay,Tabb,Tabb,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/324
+325,Mikele,Leigertwood,Leigertwood,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/325
+326,Garath,McCleary,McCleary,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/326
+327,Danny,Guthrie,Guthrie,Reading,Midfielder,3,POSITIVE_MINUTES,2010/11,949,0,1,3,14,0,0,0,3,0,0,0,0,47,4.7,28,20_5_2013/327
+328,Noel,Hunt,Hunt,Reading,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/328
+329,Simon,Church,Church,Reading,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/329
+330,Jason,Roberts,Roberts,Reading,Forward,4,POSITIVE_MINUTES,2010/11,1489,5,4,4,28,0,0,0,2,0,0,6,0,53,5.3,73,20_5_2013/330
+331,Adam,Le Fondre,Le Fondre,Reading,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/331
+332,Pavel,Pogrebnyak,Pogrebnyak,Reading,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/332
+333,Kelvin,Davis,Davis,Southampton,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/333
+334,Danny,Butterfield,Butterfield,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/334
+335,Daniel,Fox,Fox,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/335
+336,Frazer,Richardson,Richardson,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/336
+337,Daniel,Seaborne,Seaborne,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/337
+338,Jos,Hooiveld,Hooiveld,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/338
+339,Ben,Reeves,Reeves,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/339
+340,Dan,Harding,Harding,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/340
+341,Jose,Fonte,Fonte,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/341
+342,Jack,Cork,Cork,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/342
+343,Guly,Do Prado,Guilherme,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/343
+344,Dean,Hammond,Hammond,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/344
+345,Richard,Chaplow,Chaplow,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/345
+346,Adam,Lallana,Lallana,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/346
+347,Morgan,Schneiderlin,Schneiderlin,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/347
+348,Jason,Puncheon,Puncheon,Southampton,Midfielder,3,POSITIVE_MINUTES,2010/11,647,3,0,0,19,0,0,0,0,0,0,0,0,50,5.0,32,20_5_2013/348
+349,Steve,De Ridder,De Ridder,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/349
+350,Steven,Davis,Davis,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/350
+351,Billy,Sharp,Sharp,Southampton,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/351
+352,Tadanari,Lee,Lee,Southampton,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/352
+353,Rickie,Lambert,Lambert,Southampton,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/353
+354,Jay,Rodriguez,Rodriguez,Southampton,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/354
+355,Asmir,Begovic,Begovic,Stoke City,Goalkeeper,1,POSITIVE_MINUTES,2010/11,2520,0,0,8,32,0,1,0,3,0,97,5,0,44,4.4,108,20_5_2013/355
+356,Thomas,Sorensen,Sorensen,Stoke City,Goalkeeper,1,POSITIVE_MINUTES,2010/11,900,0,0,1,16,0,1,0,0,0,25,0,0,42,4.2,27,20_5_2013/356
+357,Danny,Collins,Collins,Stoke City,Defender,2,POSITIVE_MINUTES,2010/11,2030,0,0,5,30,1,0,0,6,0,0,0,0,43,4.3,48,20_5_2013/357
+358,Danny,Higginbotham,Higginbotham,Stoke City,Defender,2,POSITIVE_MINUTES,2010/11,844,2,0,3,12,0,0,0,0,0,0,1,0,39,3.9,39,20_5_2013/358
+359,Andy,Wilkinson,Wilkinson,Stoke City,Defender,2,POSITIVE_MINUTES,2010/11,1746,0,1,7,22,0,0,0,4,0,0,1,0,42,4.2,62,20_5_2013/359
+360,Ryan,Shawcross,Shawcross,Stoke City,Defender,2,POSITIVE_MINUTES,2010/11,3196,1,0,9,44,0,0,0,7,2,0,6,0,47,4.7,92,20_5_2013/360
+361,Robert,Huth,Huth,Stoke City,Defender,2,POSITIVE_MINUTES,2010/11,3110,6,3,8,43,0,0,0,7,0,0,14,0,59,5.9,138,20_5_2013/361
+362,Matthew,Upson,Upson,Stoke City,Defender,2,POSITIVE_MINUTES,2010/11,2470,0,0,5,49,1,0,0,4,0,0,3,0,46,4.6,56,20_5_2013/362
+363,Jamie,Ness,Ness,Stoke City,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/363
+364,Marc,Wilson,Wilson,Stoke City,Defender,2,POSITIVE_MINUTES,2010/11,1855,1,1,4,28,0,0,0,7,0,0,2,0,45,4.5,56,20_5_2013/364
+365,Dean,Whitehead,Whitehead,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,2902,2,2,8,40,0,0,0,6,0,0,6,0,43,4.3,93,20_5_2013/365
+366,Jermaine,Pennant,Pennant,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,2015,3,7,10,19,0,0,0,3,0,0,14,0,48,4.8,108,20_5_2013/366
+367,Matthew,Etherington,Etherington,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,2519,5,7,7,37,0,0,0,5,0,0,16,0,57,5.7,124,20_5_2013/367
+368,Glenn,Whelan,Whelan,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,1357,0,1,3,25,0,0,0,2,0,0,4,0,43,4.3,50,20_5_2013/368
+369,Salif,Diao,Diao,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,236,0,0,0,5,0,0,0,3,0,0,0,0,43,4.3,7,20_5_2013/369
+370,Rory,Delap,Delap,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,2956,2,1,9,40,0,0,0,5,0,0,1,0,45,4.5,88,20_5_2013/370
+371,Wilson,Palacios,Palacios,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,1226,0,0,3,15,0,0,0,5,0,0,2,0,48,4.8,32,20_5_2013/371
+372,Diego,Arismendi,Arismendi,Stoke City,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/372
+373,Ryan,Shotton,Shotton,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,52,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,2,20_5_2013/373
+374,Jonathan,Walters,Walters,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,2341,6,3,5,34,0,0,0,4,0,0,8,0,54,5.4,109,20_5_2013/374
+375,Kenwyne,Jones,Jones,Stoke City,Forward,4,POSITIVE_MINUTES,2010/11,2782,9,2,12,32,0,0,0,0,0,0,13,0,64,6.4,121,20_5_2013/375
+376,Mamady,Sidibe,Sidibe,Stoke City,Forward,4,POSITIVE_MINUTES,2010/11,40,0,0,0,2,0,0,0,0,0,0,0,0,50,5.0,2,20_5_2013/376
+377,Peter,Crouch,Crouch,Stoke City,Forward,4,POSITIVE_MINUTES,2010/11,1945,4,7,4,28,1,0,0,0,0,0,5,0,65,6.5,92,20_5_2013/377
+378,Cameron,Jerome,Jerome,Stoke City,Forward,4,POSITIVE_MINUTES,2010/11,2647,3,7,5,47,0,0,0,2,0,0,4,0,55,5.5,98,20_5_2013/378
+379,Keiren,Westwood,Westwood,Sunderland,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/379
+380,Simon,Mignolet,Mignolet,Sunderland,Goalkeeper,1,POSITIVE_MINUTES,2010/11,2070,0,0,8,35,0,0,0,1,0,74,2,0,40,4.0,83,20_5_2013/380
+381,Titus,Bramble,Bramble,Sunderland,Defender,2,POSITIVE_MINUTES,2010/11,2002,0,0,8,30,0,0,0,5,1,0,8,0,43,4.3,66,20_5_2013/381
+382,Marcos,Angeleri,Angeleri,Sunderland,Defender,2,POSITIVE_MINUTES,2010/11,9,0,0,0,0,0,0,0,0,0,0,0,0,44,4.4,2,20_5_2013/382
+383,Michael,Turner,Turner,Norwich,Defender,2,POSITIVE_MINUTES,2010/11,1305,0,0,5,25,0,0,0,4,0,0,4,0,49,4.9,39,20_5_2013/383
+384,Phil,Bardsley,Bardsley,Sunderland,Defender,2,POSITIVE_MINUTES,2010/11,2820,3,2,13,45,0,0,0,5,0,0,5,0,49,4.9,123,20_5_2013/384
+385,John,O'Shea,O'Shea,Sunderland,Defender,2,POSITIVE_MINUTES,2010/11,1541,0,3,8,14,0,0,0,1,0,0,0,0,47,4.7,71,20_5_2013/385
+386,Wes,Brown,Brown,Sunderland,Defender,2,POSITIVE_MINUTES,2010/11,429,0,0,0,7,0,0,0,2,0,0,0,0,48,4.8,6,20_5_2013/386
+387,Louis,Laing,Laing,Sunderland,Defender,2,POSITIVE_MINUTES,2010/11,4,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,1,20_5_2013/387
+388,Matthew,Kilgallon,Kilgallon,Sunderland,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/388
+389,Carlos,Cuellar,Cuellar,Sunderland,Defender,2,POSITIVE_MINUTES,2010/11,894,0,1,1,15,0,0,0,2,0,0,1,0,62,6.2,23,20_5_2013/389
+390,Lee,Cattermole,Cattermole,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,1921,0,0,9,35,0,0,0,8,2,0,5,0,54,5.4,44,20_5_2013/390
+391,David,Meyler,Meyler,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,259,0,0,1,1,0,0,0,2,0,0,0,0,45,4.5,5,20_5_2013/391
+392,Kieran,Richardson,Richardson,Fulham,Midfielder,3,POSITIVE_MINUTES,2010/11,2039,4,3,9,27,0,0,0,9,0,0,4,0,53,5.3,80,20_5_2013/392
+393,Jack,Colback,Colback,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,589,0,0,1,14,0,0,0,1,0,0,2,0,45,4.5,19,20_5_2013/393
+394,Ahmed,Elmohamady,Elmohamady,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,2457,0,3,11,38,0,0,0,1,0,0,9,0,46,4.6,109,20_5_2013/394
+395,Sebastian,Larsson,Larsson,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,2833,4,6,8,45,0,0,0,5,0,0,9,0,50,5.0,116,20_5_2013/395
+396,Craig,Gardner,Gardner,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,2216,8,0,6,34,0,0,0,5,2,0,5,0,49,4.9,92,20_5_2013/396
+397,David,Vaughan,Vaughan,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,3150,2,3,6,69,0,0,0,6,0,0,21,0,43,4.3,110,20_5_2013/397
+398,James,McClean,McClean,Sunderland,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/398
+399,Stephane,Sessegnon,Sessegnon,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,1183,3,2,2,29,0,0,0,2,0,0,3,0,58,5.8,51,20_5_2013/399
+400,Craig,Lynch,Lynch,Sunderland,Forward,4,POSITIVE_MINUTES,2010/11,30,0,0,0,1,0,0,0,0,0,0,0,0,45,4.5,2,20_5_2013/400
+401,Ryan,Noble,Noble,Sunderland,Forward,4,POSITIVE_MINUTES,2010/11,66,0,0,0,1,0,0,0,0,0,0,0,0,45,4.5,3,20_5_2013/401
+402,Fraizer,Campbell,Campbell,Sunderland,Forward,4,POSITIVE_MINUTES,2010/11,225,0,1,0,3,0,0,0,0,0,0,0,0,56,5.6,8,20_5_2013/402
+403,Connor,Wickham,Wickham,Sunderland,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/403
+404,Dong-Won,Ji,Dong-Won Ji,Sunderland,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/404
+405,Michel,Vorm,Vorm,Swansea,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/405
+406,Gerhard,Tremmel,Tremmel,Swansea,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/406
+407,Ashley,Williams,Williams,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/407
+408,Neil,Taylor,Taylor,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/408
+409,Alan,Tate,Tate,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/409
+410,Garry,Monk,Monk,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/410
+411,Angel,Rangel,Rangel,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/411
+412,Federico,Bessone,Bessone,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/412
+413,Darnel,Situ,Situ,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/413
+414,,Chico,Chico,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/414
+415,Wayne,Routledge,Routledge,Swansea,Midfielder,3,POSITIVE_MINUTES,2010/11,996,0,1,2,18,0,0,0,0,0,0,2,0,41,4.1,34,20_5_2013/415
+416,Andrea,Orlandi,Orlandi,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/416
+417,Nathan,Dyer,Dyer,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/417
+418,Scott,Sinclair,Sinclair,Man City,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/418
+419,Joe,Allen,Allen,Liverpool,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/419
+420,Kemy,Agustien,Agustien,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/420
+421,Mark,Gower,Gower,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/421
+422,Ashley,Richards,Richards,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/422
+423,Leon,Britton,Britton,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/423
+424,Stephen,Dobbie,Dobbie,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/424
+425,Lee,Lucas,Lucas,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/425
+426,Gwion,Edwards,Edwards,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/426
+427,Jonathan,de Guzman,De Guzman,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/427
+428,Luke,Moore,Moore,Swansea,Forward,4,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,42,4.2,0,20_5_2013/428
+429,Danny,Graham,Graham,Sunderland,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/429
+430,Leroy,Lita,Lita,Swansea,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/430
+431,Heurelho,Gomes,Gomes,Tottenham,Goalkeeper,1,POSITIVE_MINUTES,2010/11,2700,0,0,7,39,0,2,0,4,0,109,0,0,52,5.2,108,20_5_2013/431
+432,Carlo,Cudicini,Cudicini,Tottenham,Goalkeeper,1,POSITIVE_MINUTES,2010/11,720,0,0,1,7,0,0,0,0,0,22,0,0,42,4.2,24,20_5_2013/432
+433,Brad,Friedel,Friedel,Tottenham,Goalkeeper,1,POSITIVE_MINUTES,2010/11,3420,0,0,7,59,0,0,0,2,0,116,4,0,54,5.4,111,20_5_2013/433
+434,Ledley,King,King,Tottenham,Defender,2,POSITIVE_MINUTES,2010/11,493,0,0,2,4,0,0,0,0,0,0,3,0,52,5.2,22,20_5_2013/434
+435,Michael,Dawson,Dawson,Tottenham,Defender,2,POSITIVE_MINUTES,2010/11,2160,1,0,7,27,0,0,0,6,0,0,8,0,53,5.3,77,20_5_2013/435
+436,Benoit,Assou-Ekotto,Assou-Ekotto,Tottenham,Defender,2,POSITIVE_MINUTES,2010/11,2569,0,0,7,36,0,0,0,2,0,0,7,0,52,5.2,81,20_5_2013/436
+437,Younes,Kaboul,Kaboul,Tottenham,Defender,2,POSITIVE_MINUTES,2010/11,1632,1,1,2,25,0,0,0,1,1,0,3,0,47,4.7,46,20_5_2013/437
+438,William,Gallas,Gallas,Tottenham,Defender,2,POSITIVE_MINUTES,2010/11,2339,0,0,4,37,0,0,0,5,0,0,3,0,53,5.3,56,20_5_2013/438
+439,Kyle,Walker,Walker,Tottenham,Defender,2,POSITIVE_MINUTES,2010/11,1341,1,3,2,20,0,0,0,3,0,1,5,0,40,4.0,51,20_5_2013/439
+440,Adam,Smith,Smith,Tottenham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/440
+441,Kyle,Naughton,Naughton,Tottenham,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/441
+442,Steven,Caulker,Caulker,Tottenham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/442
+443,Jan,Vertonghen,Vertonghen,Tottenham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/443
+444,Raniere,Sandro,Sandro,Tottenham,Midfielder,3,POSITIVE_MINUTES,2010/11,1079,1,0,3,14,0,0,0,4,0,0,3,0,43,4.3,37,20_5_2013/444
+445,Rafael,Van der Vaart,Van der Vaart,Tottenham,Midfielder,3,POSITIVE_MINUTES,2010/11,2222,13,9,7,24,0,0,1,4,0,0,19,0,89,8.9,165,20_5_2013/445
+446,Luka,Modric,Modric,Tottenham,Midfielder,3,POSITIVE_MINUTES,2010/11,2794,3,3,7,39,0,0,0,3,0,0,34,0,74,7.4,125,20_5_2013/446
+447,Aaron,Lennon,Lennon,Tottenham,Midfielder,3,POSITIVE_MINUTES,2010/11,2361,3,3,8,26,0,0,0,1,0,0,10,0,73,7.3,99,20_5_2013/447
+448,Gareth,Bale,Bale,Tottenham,Midfielder,3,POSITIVE_MINUTES,2010/11,2447,7,3,6,34,0,0,0,1,0,0,13,0,70,7.0,118,20_5_2013/448
+449,Danny,Rose,Rose,Sunderland,Midfielder,3,POSITIVE_MINUTES,2010/11,351,0,2,1,3,0,0,0,0,0,0,2,0,44,4.4,17,20_5_2013/449
+450,Tom,Huddlestone,Huddlestone,Tottenham,Midfielder,3,POSITIVE_MINUTES,2010/11,1162,2,2,1,17,0,0,0,3,0,0,5,0,56,5.6,46,20_5_2013/450
+451,Jake,Livermore,Livermore,Tottenham,Midfielder,3,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/451
+452,Scott,Parker,Parker,Tottenham,Midfielder,3,POSITIVE_MINUTES,2010/11,2738,5,3,6,52,0,0,0,8,0,0,25,0,55,5.5,119,20_5_2013/452
+453,Yago,Falque,Falque,Tottenham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/453
+454,Tom,Carroll,Carroll,Tottenham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/454
+455,Jermaine,Jenas,Jenas,QPR,Midfielder,3,POSITIVE_MINUTES,2010/11,1322,0,1,2,19,0,0,0,2,0,0,3,0,51,5.1,39,20_5_2013/455
+456,Steven,Pienaar,Pienaar,Everton,Midfielder,3,POSITIVE_MINUTES,2010/11,2060,1,2,4,32,0,0,0,3,0,0,6,0,65,6.5,66,20_5_2013/456
+457,Gylfi,Sigurdsson,Sigurdsson,Tottenham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/457
+458,Jermain,Defoe,Defoe,Tottenham,Forward,4,POSITIVE_MINUTES,2010/11,1479,4,2,4,17,0,0,1,0,1,0,3,0,83,8.3,56,20_5_2013/458
+459,Dos Santos,Giovani,Giovani,Tottenham,Forward,4,POSITIVE_MINUTES,2010/11,45,0,0,0,1,0,0,0,0,0,0,0,0,49,4.9,3,20_5_2013/459
+460,Harry,Kane,Kane,Tottenham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/460
+461,Cameron,Lancaster,Lancaster,Tottenham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/461
+462,Boaz,Myhill,Myhill,West Brom,Goalkeeper,1,POSITIVE_MINUTES,2010/11,540,0,0,0,13,0,0,0,0,0,19,0,0,38,3.8,12,20_5_2013/462
+463,Ben,Foster,Foster,West Brom,Goalkeeper,1,POSITIVE_MINUTES,2010/11,3369,0,1,9,55,0,1,0,3,0,178,9,0,53,5.3,153,20_5_2013/463
+464,Luke,Daniels,Daniels,West Brom,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/464
+465,Gabriel,Tamas,Tamas,West Brom,Defender,2,POSITIVE_MINUTES,2010/11,2040,0,0,2,38,1,0,0,4,1,0,3,0,38,3.8,37,20_5_2013/465
+466,James,Hurst,Hurst,West Brom,Defender,2,POSITIVE_MINUTES,2010/11,90,0,0,0,3,0,0,0,0,0,0,0,0,40,4.0,1,20_5_2013/466
+467,Gonzalo,Jara Reyes,Jara,West Brom,Defender,2,POSITIVE_MINUTES,2010/11,2104,1,0,1,47,0,0,0,6,1,0,3,0,39,3.9,39,20_5_2013/467
+468,Jonas,Olsson,Olsson,West Brom,Defender,2,POSITIVE_MINUTES,2010/11,2123,1,3,2,39,1,0,0,1,0,0,7,0,42,4.2,62,20_5_2013/468
+469,Billy,Jones,Jones,West Brom,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/469
+470,Gareth,McAuley,McAuley,West Brom,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/470
+471,Craig,Dawson,Dawson,West Brom,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/471
+472,Liam,Ridgewell,Ridgewell,West Brom,Defender,2,POSITIVE_MINUTES,2010/11,3173,4,0,9,55,0,0,0,6,1,0,1,0,54,5.4,104,20_5_2013/472
+473,George,Thorne,Thorne,West Brom,Midfielder,3,POSITIVE_MINUTES,2010/11,31,0,0,0,0,0,0,0,0,0,0,0,0,41,4.1,1,20_5_2013/473
+474,Graham,Dorrans,Dorrans,West Brom,Midfielder,3,POSITIVE_MINUTES,2010/11,1414,1,2,1,31,0,0,0,2,0,0,0,0,47,4.7,46,20_5_2013/474
+475,Steven,Reid,Reid,West Brom,Midfielder,3,POSITIVE_MINUTES,2010/11,1288,1,6,1,25,0,0,0,3,0,0,4,0,41,4.1,61,20_5_2013/475
+476,Jerome,Thomas,Thomas,West Brom,Midfielder,3,POSITIVE_MINUTES,2010/11,2569,3,8,2,57,0,0,0,4,0,0,5,0,45,4.5,105,20_5_2013/476
+477,James,Morrison,Morrison,West Brom,Midfielder,3,POSITIVE_MINUTES,2010/11,2268,4,3,2,49,0,0,0,2,1,0,6,0,44,4.4,89,20_5_2013/477
+478,Youssouf,Mulumbu,Mulumbu,West Brom,Midfielder,3,POSITIVE_MINUTES,2010/11,2850,6,2,2,58,0,0,0,5,2,0,17,0,44,4.4,110,20_5_2013/478
+479,Chris,Brunt,Brunt,West Brom,Midfielder,3,POSITIVE_MINUTES,2010/11,3012,4,11,2,61,0,0,1,9,0,0,18,0,54,5.4,130,20_5_2013/479
+480,Zoltan,Gera,Gera,West Brom,Midfielder,3,POSITIVE_MINUTES,2010/11,1118,1,2,5,11,0,0,0,2,1,0,0,0,45,4.5,48,20_5_2013/480
+481,Sam,Mantom,Mantom,West Brom,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/481
+482,Scott,Allan,Allan,West Brom,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/482
+483,Kemar,Roofe,Roofe,West Brom,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/483
+484,Yassine,El Ghanassy,El Ghanassy,West Brom,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/484
+485,Peter,Odemwingie,Odemwingie,West Brom,Forward,4,POSITIVE_MINUTES,2010/11,2680,15,9,2,51,0,0,1,3,0,0,28,0,58,5.8,171,20_5_2013/485
+486,Marc-Antoine,Fortune,Fortune,West Brom,Forward,4,POSITIVE_MINUTES,2010/11,1119,2,1,0,24,0,0,0,0,0,0,0,0,50,5.0,45,20_5_2013/486
+487,Simon,Cox,Cox,West Brom,Forward,4,POSITIVE_MINUTES,2010/11,772,1,0,1,18,0,0,0,0,0,0,0,0,50,5.0,30,20_5_2013/487
+488,Shane,Long,Long,West Brom,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/488
+489,Jussi,Jaaskelainen,Jaaskelainen,West Ham,Goalkeeper,1,POSITIVE_MINUTES,2010/11,3096,0,0,5,50,0,2,0,1,1,117,3,0,46,4.6,109,20_5_2013/489
+490,Stephen,Henderson,Henderson,West Ham,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/490
+491,Joey,O'Brien,O'Brien,West Ham,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/491
+492,Winston,Reid,Reid,West Ham,Defender,2,POSITIVE_MINUTES,2010/11,407,0,0,0,12,1,0,0,0,0,0,0,0,40,4.0,5,20_5_2013/492
+493,Guy,Demel,Demel,West Ham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/493
+494,Daniel,Potts,Potts,West Ham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/494
+495,James,Tomkins,Tomkins,West Ham,Defender,2,POSITIVE_MINUTES,2010/11,1579,1,1,2,33,0,0,0,3,0,0,1,0,41,4.1,41,20_5_2013/495
+496,George,McCartney,McCartney,West Ham,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,50,5.0,0,20_5_2013/496
+497,Jack,Collison,Collison,West Ham,Midfielder,3,POSITIVE_MINUTES,2010/11,199,0,0,0,5,0,0,0,0,0,0,0,0,55,5.5,5,20_5_2013/497
+498,Matthew,Taylor,Taylor,West Ham,Midfielder,3,POSITIVE_MINUTES,2010/11,1922,2,3,2,35,0,0,0,4,0,0,0,0,51,5.1,73,20_5_2013/498
+499,Mark,Noble,Noble,West Ham,Midfielder,3,POSITIVE_MINUTES,2010/11,2140,4,3,4,44,0,0,0,7,0,0,3,0,53,5.3,78,20_5_2013/499
+500,Ravel,Morrison,Morrison,West Ham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/500
+501,Gary,O'Neil,O'Neil,West Ham,Midfielder,3,POSITIVE_MINUTES,2010/11,589,0,1,1,10,0,0,0,0,0,0,0,0,45,4.5,19,20_5_2013/501
+502,Kevin,Nolan,Nolan,West Ham,Midfielder,3,POSITIVE_MINUTES,2010/11,2651,12,2,8,42,0,0,0,10,0,0,16,0,63,6.3,140,20_5_2013/502
+503,Mohamed,Diame,Diame,West Ham,Midfielder,3,POSITIVE_MINUTES,2010/11,2633,1,3,6,49,0,0,0,6,0,0,0,0,41,4.1,79,20_5_2013/503
+504,Ricardo,Vaz Te,Vaz Te,West Ham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/504
+505,Sam,Baldock,Baldock,West Ham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/505
+506,Nicky,Maynard,Maynard,West Ham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/506
+507,Carlton,Cole,Cole,West Ham,Forward,4,POSITIVE_MINUTES,2010/11,2120,5,4,3,47,0,0,1,4,0,0,7,0,57,5.7,89,20_5_2013/507
+508,Ali,Al Habsi,Al-Habsi,Wigan,Goalkeeper,1,POSITIVE_MINUTES,2010/11,3060,0,1,7,49,0,1,0,0,0,121,7,0,41,4.1,125,20_5_2013/508
+509,Michael,Pollitt,Pollitt,Wigan,Goalkeeper,1,POSITIVE_MINUTES,2010/11,29,0,0,0,0,0,0,0,0,0,2,0,0,40,4.0,1,20_5_2013/509
+510,Lee,Nicholls,Nicholls,Wigan,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/510
+511,Antolin,Alcaraz,Alcaraz,Wigan,Defender,2,POSITIVE_MINUTES,2010/11,3028,1,1,7,51,0,0,0,6,1,0,10,0,43,4.3,87,20_5_2013/511
+512,Ronnie,Stam,Stam,Wigan,Defender,2,POSITIVE_MINUTES,2010/11,1579,1,0,3,27,0,0,0,2,0,0,0,0,40,4.0,47,20_5_2013/512
+513,Maynor,Figueroa,Figueroa,Wigan,Defender,2,POSITIVE_MINUTES,2010/11,2808,1,3,5,49,0,0,0,11,0,0,0,0,41,4.1,71,20_5_2013/513
+514,Emmerson,Boyce,Boyce,Wigan,Defender,2,POSITIVE_MINUTES,2010/11,1669,0,2,5,27,0,0,0,3,0,0,0,0,43,4.3,55,20_5_2013/514
+515,Gary,Caldwell,Caldwell,Wigan,Defender,2,POSITIVE_MINUTES,2010/11,1975,0,1,2,33,0,0,0,7,1,0,4,0,45,4.5,40,20_5_2013/515
+516,Adrian,Lopez,Lopez,Wigan,Defender,2,POSITIVE_MINUTES,2010/11,68,0,0,0,1,0,0,0,0,0,0,0,0,40,4.0,2,20_5_2013/516
+517,James,McArthur,McArthur,Wigan,Midfielder,3,POSITIVE_MINUTES,2010/11,557,0,0,0,11,0,0,0,0,0,0,0,0,41,4.1,21,20_5_2013/517
+518,James,McCarthy,McCarthy,Wigan,Midfielder,3,POSITIVE_MINUTES,2010/11,1976,3,1,5,34,0,0,0,2,0,0,8,0,46,4.6,75,20_5_2013/518
+519,Jordi,Gomez,Gomez,Wigan,Midfielder,3,POSITIVE_MINUTES,2010/11,720,1,0,1,11,0,0,0,0,0,0,3,0,45,4.5,28,20_5_2013/519
+520,Ben,Watson,Watson,Wigan,Midfielder,3,POSITIVE_MINUTES,2010/11,2124,3,2,3,40,0,0,0,3,0,0,12,0,42,4.2,85,20_5_2013/520
+521,Victor,Moses,Moses,Chelsea,Midfielder,3,POSITIVE_MINUTES,2010/11,815,1,3,1,16,0,0,0,1,0,0,0,0,45,4.5,42,20_5_2013/521
+522,David,Jones,Jones,Wigan,Midfielder,3,POSITIVE_MINUTES,2010/11,951,1,0,1,19,0,0,0,1,0,0,2,0,46,4.6,30,20_5_2013/522
+523,Shaun,Maloney,Maloney,Wigan,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/523
+524,Albert,Crusat,Crusat,Wigan,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/524
+525,Jean,Beausejour,Beausejour,Wigan,Midfielder,3,POSITIVE_MINUTES,2010/11,895,2,0,1,13,0,0,0,0,0,0,0,0,50,5.0,36,20_5_2013/525
+526,Franco,Di Santo,Di Santo,Wigan,Forward,4,POSITIVE_MINUTES,2010/11,929,1,3,2,18,0,0,0,2,0,0,3,0,43,4.3,47,20_5_2013/526
+527,Conor,Sammon,Sammon,Wigan,Forward,4,POSITIVE_MINUTES,2010/11,214,1,0,1,2,0,0,0,0,0,0,0,0,50,5.0,12,20_5_2013/527
+528,Callum,McManaman,McManaman,Wigan,Forward,4,POSITIVE_MINUTES,2010/11,14,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,3,20_5_2013/528
+529,Fabio,Borini,Borini,Liverpool,Forward,4,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,50,5.0,0,20_5_2013/529
+530,Bradley,Guzan,Guzan,Aston Villa,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,43,4.3,0,20_5_2013/530
+531,Modibo,Maiga,Maiga,West Ham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/531
+532,Nathaniel,Clyne,Clyne,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/532
+533,Chris,Gunter,Gunter,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/533
+534,Paulo,Gazzaniga,Gazzaniga,Southampton,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/534
+535,Fraser,Fyvie,Fyvie,Wigan,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/535
+536,Adrian,Mariappa,Mariappa,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/536
+537,Miguel,Michu,Michu,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/537
+538,Claudio,Yacob,Yacob,West Brom,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/538
+539,Emboaba,Oscar,Oscar,Chelsea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/539
+540,Mauro,Boselli,Boselli,Wigan,Forward,4,POSITIVE_MINUTES,2010/11,496,0,0,1,14,0,0,1,0,0,0,0,0,48,4.8,11,20_5_2013/540
+541,Robert,Snodgrass,Snodgrass,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/541
+542,David,Hoilett,Hoilett,QPR,Midfielder,3,POSITIVE_MINUTES,2010/11,1494,5,1,4,26,0,0,0,2,0,0,10,0,40,4.0,71,20_5_2013/542
+543,Curtis,Good,Good,Newcastle,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/543
+544,Ron,Vlaar,Vlaar,Aston Villa,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/544
+545,Ivan,Ramis,Ramis,Wigan,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/545
+546,Santi,Cazorla,Santi Cazorla,Arsenal,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/546
+547,Markus,Rosenberg,Rosenberg,West Brom,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/547
+548,Michael,Kightly,Kightly,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,162,0,0,0,4,0,0,0,1,0,0,0,0,50,5.0,4,20_5_2013/548
+549,Geoff,Cameron,Cameron,Stoke City,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/549
+550,Alou,Diarra,Diarra,West Ham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/550
+551,Michael,Keane,Keane M,Man Utd,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/551
+552,Francisco,Junior,Francisco,Everton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/552
+553,Arouna,Kone,Kone,Wigan,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/553
+554,Louis,Saha,Saha,Sunderland,Forward,4,POSITIVE_MINUTES,2010/11,1366,7,1,1,22,0,0,0,0,0,0,5,0,71,7.1,70,20_5_2013/554
+555,Vurnon,Anita,Anita,Newcastle,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/555
+556,Javier,Garrido,Garrido,Norwich,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/556
+557,Kyle,Bartley,Bartley,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/557
+558,Jose,Bosingwa,Bosingwa,QPR,Defender,2,POSITIVE_MINUTES,2010/11,1263,0,0,6,11,1,0,0,1,0,0,0,0,49,4.9,52,20_5_2013/558
+559,James,Ward-Prowse,Ward-Prowse,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/559
+560,Luke,Shaw,Shaw,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/560
+561,Vito,Mannone,Mannone,Arsenal,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,43,4.3,0,20_5_2013/561
+562,Andros,Townsend,Townsend,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/562
+563,Brian,Murphy,Murphy,QPR,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/563
+564,Scott,Wootton,Wootton,Man Utd,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/564
+565,Oussama,Assaidi,Assaidi,Liverpool,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/565
+566,Kevin,Mirallas,Mirallas,Everton,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/566
+567,Stuart,Taylor,Taylor,Reading,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,39,3.9,0,20_5_2013/567
+568,Itay,Shechter,Shechter,Swansea,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/568
+569,Jamie,Proctor,Proctor,Swansea,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/569
+570,Sebastien,Bassong,Bassong,Norwich,Defender,2,POSITIVE_MINUTES,2010/11,828,1,0,2,8,0,0,0,0,0,0,2,0,44,4.4,35,20_5_2013/570
+571,Alexander,Buttner,Buttner,Man Utd,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/571
+572,Matthew,Jarvis,Jarvis,West Ham,Midfielder,3,POSITIVE_MINUTES,2010/11,3050,4,8,6,57,0,0,0,2,0,0,15,0,52,5.2,133,20_5_2013/572
+573,Steven,Fletcher,Fletcher,Sunderland,Forward,4,POSITIVE_MINUTES,2010/11,1395,10,3,2,31,0,0,0,1,0,0,7,0,49,4.9,97,20_5_2013/573
+574,Cesar,Azpilicueta,Azpilicueta,Chelsea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/574
+575,Ben,Davies,Davies,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/575
+576,Damian,Martinez,Martinez,Arsenal,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/576
+577,Sung-Yeung,Ki,Ki,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/577
+578,Alexander,Tettey,Tettey,Norwich,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/578
+579,Nuri,Sahin,Sahin,Liverpool,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/579
+580,Joe,Bennett,Bennett,Aston Villa,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/580
+581,Esteban,Granero,Granero,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/581
+582,Robert,Hall,Hall,West Ham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/582
+583,Maurice,Edu,Edu,Stoke City,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/583
+584,Jordan,Bowery,Bowery,Aston Villa,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/584
+585,Emmanuel,Mayuka,Mayuka,Southampton,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/585
+586,Christian,Benteke,Benteke,Aston Villa,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/586
+587,Ashley,Westwood,Westwood,Aston Villa,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/587
+588,Gaston,Ramirez,Ramirez,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/588
+589,Maya,Yoshida,Yoshida,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/589
+590,Ashkan,Dejagah,Dejagah,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/590
+591,Francisco,Javi Garcia,Garcia,Man City,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/591
+592,Pablo,Hernandez,Hernandez,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/592
+593,Hugo,Lloris,Lloris,Tottenham,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/593
+594,Sisenando,Maicon,Maicon,Man City,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/594
+595,Stephane,Mbia,Mbia,QPR,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/595
+596,Matija,Nastasic,Nastasic,Man City,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/596
+597,Steven,Nzonzi,Nzonzi,Stoke City,Midfielder,3,POSITIVE_MINUTES,2010/11,1274,1,1,6,13,0,0,0,4,1,0,2,0,46,4.6,43,20_5_2013/597
+598,Bryan,Oviedo,Oviedo,Everton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/598
+599,Goran,Popov,Popov,West Brom,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/599
+600,Soares,Julio Cesar,Cesar,QPR,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/600
+601,Michael,Owen,Owen,Stoke City,Forward,4,POSITIVE_MINUTES,2010/11,238,2,0,0,1,0,0,0,1,0,0,0,0,73,7.3,18,20_5_2013/601
+602,Giorgos,Karagounis,Karagounis,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/602
+603,Alex,Smith,Smith,Fulham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/603
+604,Richard,Wright,Wright,Man City,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/604
+605,Dwight,Tiendalli,Tiendalli,Swansea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/605
+606,,Suso,Fernandez Saez,Liverpool,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/606
+607,Max,Ehmer,Ehmer,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/607
+608,Ryan,Mason,Mason,Tottenham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/608
+609,Mark,Bunn,Bunn,Norwich,Goalkeeper,1,POSITIVE_MINUTES,2010/11,225,0,0,0,4,0,0,0,1,0,9,0,0,40,4.0,5,20_5_2013/609
+610,Andre,Wisdom,Wisdom,Liverpool,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/610
+611,Hogan,Ephraim,Ephraim,QPR,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/611
+612,Jak,Alnwick,Alnwick,Newcastle,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/612
+613,Peter,Gulacsi,Gulacsi,Liverpool,Goalkeeper,1,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,0,20_5_2013/613
+614,Serge,Gnabry,Gnabry,Arsenal,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/614
+615,Artur,Boruc,Boruc,Southampton,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/615
+616,Raphael,Spiegel,Spiegel,West Ham,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/616
+617,Jordan,Spence,Spence,West Ham,Defender,2,POSITIVE_MINUTES,2010/11,180,0,0,0,6,0,0,0,0,0,0,0,0,39,3.9,2,20_5_2013/617
+618,Leo,Chambers,Chambers,West Ham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/618
+619,Thomas,Hitzlsperger,Hitzlsperger,Everton,Midfielder,3,POSITIVE_MINUTES,2010/11,990,2,4,2,22,0,0,0,1,0,0,3,0,48,4.8,48,20_5_2013/619
+620,George,Evans,Evans,Man City,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/620
+621,David,Cornell,Cornell,Swansea,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/621
+622,Sean,Morrison,Morrison,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/622
+623,James,McFadden,McFadden,Sunderland,Forward,4,POSITIVE_MINUTES,2010/11,276,0,1,2,2,0,0,0,0,0,0,0,0,45,4.5,10,20_5_2013/623
+624,Sam,Johnstone,Johnstone,Man Utd,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/624
+625,Matthew,Kennedy,Kennedy,Everton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/625
+626,Charles,Banya,Banya,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/626
+627,George,Moncur,Moncur,West Ham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/627
+628,Nile,Ranger,Ranger,Newcastle,Midfielder,3,POSITIVE_MINUTES,2010/11,588,0,1,0,10,0,0,0,2,0,0,0,0,41,4.1,27,20_5_2013/628
+629,Sebastian,Lletget,Lletget,West Ham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/629
+630,Roman,Golobart,Golobart,Wigan,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/630
+631,Daniel,Redmond,Redmond,Wigan,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/631
+632,Rory,Donnelly,Donnelly,Swansea,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/632
+633,Matthias,Fanimo,Fanimo,West Ham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/633
+634,Dominic,Samuel,Samuel,Reading,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/634
+635,Adam,Morgan,Morgan,Liverpool,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/635
+636,Mickael,Tavares,Tavares,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/636
+637,Nathan,Ake,Ake,Chelsea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/637
+638,Ryan,Tunnicliffe,Tunnicliffe,Man Utd,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/638
+639,Adam,Campbell,Campbell,Newcastle,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/639
+640,Remie,Streete,Streete,Newcastle,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/640
+641,Tyias,Browning,Browning,Everton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/641
+642,Csaba,Somogyi,Somogyi,Fulham,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/642
+643,Elliott,Lee,Lee,West Ham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/643
+644,Mathieu,Debuchy,Debuchy,Newcastle,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/644
+645,Roger,Espinoza,Espinoza,Wigan,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/645
+646,Angelo,Henriquez,Henriquez,Wigan,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/646
+647,Tal,Ben Haim,Ben Haim,QPR,Defender,2,POSITIVE_MINUTES,2010/11,712,0,1,1,15,0,0,0,3,0,1,0,0,42,4.2,16,20_5_2013/647
+648,Adil,Nabi,Nabi,West Brom,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/648
+649,Daniel,Carrico,Daniel Carrico,Reading,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/649
+650,Hope,Akpan,Akpan,Reading,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/650
+651,Alfred,N'Diaye,N'Diaye,Sunderland,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/651
+652,Denis,Suarez,Suarez,Man City,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/652
+653,Loic,Remy,Remy,QPR,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/653
+654,Kader,Mangane,Mangane,Sunderland,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/654
+655,Wellington,Paulista,Paulista,West Ham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/655
+656,Roland,Lamah,Lamah,Swansea,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/656
+657,Joel,Robles,Robles,Wigan,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/657
+658,Emmanuel,Frimpong,Frimpong,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/658
+659,Yoan,Gouffran,Gouffran,Newcastle,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/659
+660,Mapou,Yanga-Mbiwa,Yanga-Mbiwa,Newcastle,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/660
+661,Moussa,Sissoko,Sissoko,Newcastle,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/661
+662,Massadio,Haidara,Haidara,Newcastle,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/662
+663,Vegard,Forren,Forren,Southampton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/663
+664,Jordan,Mustoe,Mustoe,Wigan,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/664
+665,Emanuel,Pogatetz,Pogatetz,West Ham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/665
+666,Lee,Camp,Camp,Norwich,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/666
+667,Lewis,Holtby,Holtby,Tottenham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/667
+668,Nacho,Monreal,Monreal,Arsenal,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/668
+669,Yacouba,Sylla,Sylla,Aston Villa,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/669
+670,Simon,Dawkins,Dawkins,Aston Villa,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/670
+671,John,Stones,Stones,Everton,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/671
+672,Urby,Emanuelson,Emanuelson,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/672
+673,Eyong,Enoh,Enoh,Fulham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/673
+674,Stanislav,Manolev,Manolev,Fulham,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/674
+675,Phillippe,Coutinho,Coutinho,Liverpool,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/675
+676,Luciano,Becchio,Becchio,Norwich,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/676
+677,Christopher,Samba,Samba,QPR,Defender,2,POSITIVE_MINUTES,2010/11,2879,4,0,7,46,0,0,0,3,1,0,17,0,51,5.1,111,20_5_2013/677
+678,Yun,Suk-young,Yun,QPR,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/678
+679,Nick,Blackman,Blackman,Reading,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/679
+680,Brek,Shea,Shea,Stoke City,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/680
+681,Paul,Scharner,Scharner,Wigan,Defender,2,POSITIVE_MINUTES,2010/11,2740,4,1,3,53,0,0,0,6,1,0,5,0,44,4.4,86,20_5_2013/681
+682,Kei,Kamara,Kamara,Norwich,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/682
+683,Eduard,Campabadal,Campabadal,Wigan,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/683
+684,Isaiah,Brown,Brown,West Brom,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/684
+685,Mason,Springthorpe,Springthorpe,Everton,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/685
+686,Jonathan,Henly,Henly,Reading,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/686
+687,Shaquile,Coulthirst,Coulthirst,Tottenham,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/687
+688,Marcos,Lopes,Lopes,Man City,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/688
+689,Jordon,Ibe,Ibe,Liverpool,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/689
+690,Mikael,Mandron,Mandron,Sunderland,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/690
+691,Jordan,Archer,Archer,Tottenham,Goalkeeper,1,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/691
+692,Cristian,Ceballos,Ceballos,Tottenham,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/692
+693,Jordan,Laidler,Laidler,Sunderland,Forward,4,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/693
+694,Liam,Marrs,Marrs,Sunderland,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/694
+695,Conor,Coady,Coady,Liverpool,Defender,2,ZERO_MINUTES,2010/11,0,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,0,20_5_2013/695
+696,Donervorn,Daniels,D Daniels,West Brom,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/696
+697,Lloyd,Jones,Jones L,Liverpool,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/697
+698,Andreas,Christensen,Christensen,Chelsea,Defender,2,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/698
+699,Calum,Chambers,Chambers,Southampton,Midfielder,3,NO_2010_11_HISTORY,2010/11,,,,,,,,,,,,,,,,,20_5_2013/699
