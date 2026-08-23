@@ -16,16 +16,18 @@ assert(js.includes('/player database auditor|database repair|automatic repair|da
 assert(js.includes('/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|publishing centre|daily challenge/'), "Retired Publishing Centre classification keyword is missing unexpectedly");
 assert(js.includes('const repairBlocked = parseNumber(document.getElementById("repairBlockedCount")?.textContent);'), "Retired repair blocker lookup is missing unexpectedly");
 assert(js.includes('const effectiveBlockers = Math.max(critical, repairBlocked);'), "Retired repair blocker aggregation is missing unexpectedly");
+assert(js.includes('"auditStatusTop", "auditCriticalCount", "auditInfoCount", "repairBlockedCount",'), "Retired repair blocker observer is missing unexpectedly");
 
 js = replaceOnce(js, '    if (element.dataset.studioRetired === "true") return "retired";\n', "", "retired-element classifier");
 js = replaceOnce(js, '/player database auditor|database repair|automatic repair|database health/', '/player database auditor|database health/', "retired repair classification keywords");
 js = replaceOnce(js, '/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|publishing centre|daily challenge/', '/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|daily challenge/', "retired publishing classification keyword");
 js = replaceOnce(js, '    const repairBlocked = parseNumber(document.getElementById("repairBlockedCount")?.textContent);\n', "", "retired repair blocker lookup");
 js = replaceOnce(js, '    const effectiveBlockers = Math.max(critical, repairBlocked);', '    const effectiveBlockers = critical;', "retired repair blocker aggregation");
+js = replaceOnce(js, '      "auditStatusTop", "auditCriticalCount", "auditInfoCount", "repairBlockedCount",\n', '      "auditStatusTop", "auditCriticalCount", "auditInfoCount",\n', "retired repair blocker observer");
 js = js.replace("Start with a fresh read-only scan so the studio can guide the repair work safely.", "Start with a fresh read-only scan so the studio can guide database research safely.");
 
 assert(!js.includes("studioRetired"), "Stage One still contains retired-element compatibility logic");
-assert(!js.includes("repairBlockedCount"), "Stage One still reads the removed repair blocker element");
+assert(!js.includes("repairBlockedCount"), "Stage One still reads or observes the removed repair blocker element");
 assert(!js.includes("database repair|automatic repair"), "Stage One still classifies retired repair tools");
 assert(!js.includes("publishing centre|daily challenge"), "Stage One still classifies the retired Publishing Centre");
 assert(js.includes('id: "imports"'), "Historical Imports workspace was accidentally removed");
