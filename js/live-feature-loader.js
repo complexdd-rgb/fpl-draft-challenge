@@ -13,8 +13,7 @@
     document.head.appendChild(script);
   };
 
-  // Core live presentation compatibility entrypoint. The entrypoint itself now delegates
-  // to explicitly named presentation and retired-panel modules.
+  // Core live presentation compatibility entrypoint; active presentation startup lives in live-ui-bootstrap.js.
   loadModule("js/ui-cleanup.js", "data-ui-cleanup");
 
   // Results are deferred until there is something to show.

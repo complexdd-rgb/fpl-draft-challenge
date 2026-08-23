@@ -58,10 +58,24 @@ jobs:
           node --check js/career-shape-future-quality-guard.js
           node --check js/ui-cleanup.js
           node --check js/live-ui-bootstrap.js
-          node --check js/retired-panel-compat.js
           node --check js/phase45-polish.js
           node --check js/season-select-performance.js
           node --check js/autocomplete-layer.js
           node --check js/visual-overhaul.js
           node --check js/visual-finishing.js
           node --check sw.js
+
+      - name: Verify retired public UI is physically removed
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'class="challenge-overview"' index.html
+          ! grep -q 'id="liveXiPanel"' index.html
+          ! grep -q 'id="phase45Achievements"' index.html
+          grep -q 'id="phase45ExtendedStats"' index.html
+          ! grep -q 'renderLivePitch' index.html
+          ! grep -q 'renderAchievements' index.html
+          ! grep -q 'removeLegacySelectionPanel' js/give-up-gameplay.js
+          ! grep -q 'retired-panel-compat' js/ui-cleanup.js
+          test ! -e js/retired-panel-compat.js
+          git diff --check

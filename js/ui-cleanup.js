@@ -1,6 +1,5 @@
-/* FPL Draft Challenge — legacy live-UI entrypoint.
-   Kept temporarily so older loaders can keep requesting ui-cleanup.js while the
-   responsibilities live in explicitly named modules. */
+/* FPL Draft Challenge — live UI compatibility entrypoint.
+   Older loaders may still request ui-cleanup.js; active presentation startup now lives in live-ui-bootstrap.js. */
 (() => {
   "use strict";
 
@@ -25,7 +24,5 @@
     document.head.appendChild(script);
   };
 
-  load("js/live-ui-bootstrap.js", "data-live-ui-bootstrap", () => {
-    load("js/retired-panel-compat.js", "data-retired-panel-compat");
-  });
+  load("js/live-ui-bootstrap.js", "data-live-ui-bootstrap");
 })();
