@@ -1,0 +1,59 @@
+name: Temporary 2010-11 frontier audit runner
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/tmp-2010-11-frontier-runner.yml
+
+permissions:
+  contents: write
+
+jobs:
+  frontier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp/2010-11-unresolved-frontier-20260823
+          fetch-depth: 0
+
+      - name: Fetch frozen recovery sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/fpl2010-frontier
+          mkdir -p /tmp/fpl2010-frontier/official /tmp/fpl2010-frontier/vaastav
+
+          git -C /tmp/fpl2010-frontier/official init -q
+          git -C /tmp/fpl2010-frontier/official remote add origin https://github.com/elie222/Fantasy-Football-AI.git
+          git -C /tmp/fpl2010-frontier/official sparse-checkout init --cone
+          git -C /tmp/fpl2010-frontier/official sparse-checkout set 20_5_2013
+          git -C /tmp/fpl2010-frontier/official fetch -q --depth 1 --filter=blob:none origin a607e4eb7a3002432cc39b20e0650af33dc334da
+          git -C /tmp/fpl2010-frontier/official checkout -q FETCH_HEAD
+
+          git -C /tmp/fpl2010-frontier/vaastav init -q
+          git -C /tmp/fpl2010-frontier/vaastav remote add origin https://github.com/vaastav/Fantasy-Premier-League.git
+          git -C /tmp/fpl2010-frontier/vaastav sparse-checkout init --cone
+          git -C /tmp/fpl2010-frontier/vaastav sparse-checkout set data/2016-17/players data/2017-18/players
+          git -C /tmp/fpl2010-frontier/vaastav fetch -q --depth 1 --filter=blob:none origin c2add969e11ec19002a091f8aa60164c9a255854
+          git -C /tmp/fpl2010-frontier/vaastav checkout -q FETCH_HEAD
+
+          curl -fsSL https://raw.githubusercontent.com/imadeddine-belkat/Premier-League-Stats/main/pl_stats/_merged/players/2010-11_players_stats.csv -o /tmp/fpl2010-frontier/canonical.csv
+
+      - name: Reconcile exact frontier
+        run: python tmp/reconcile_2010_11_frontier.py
+
+      - name: Commit outputs to temporary branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tmp/2010-11-frontier-output
+          if git diff --cached --quiet; then
+            echo 'No output changes.'
+          else
+            git commit -m 'Materialise exact 2010/11 unresolved frontier [skip ci]'
+            git push origin HEAD:tmp/2010-11-unresolved-frontier-20260823
+          fi
