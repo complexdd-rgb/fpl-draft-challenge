@@ -7,16 +7,23 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
 function elementRange(source, marker, tagName) {
   const markerIndex = source.indexOf(marker);
   assert(markerIndex >= 0, `Missing marker: ${marker}`);
-  const start = source.lastIndexOf(`<${tagName}`, markerIndex);
-  assert(start >= 0, `Could not find <${tagName}> start for ${marker}`);
+  const tagStart = source.lastIndexOf(`<${tagName}`, markerIndex);
+  assert(tagStart >= 0, `Could not find <${tagName}> start for ${marker}`);
+  const lineStart = source.lastIndexOf("\n", tagStart) + 1;
+  const start = /^\s*$/.test(source.slice(lineStart, tagStart)) ? lineStart : tagStart;
   const token = new RegExp(`<\\/?${tagName}\\b[^>]*>`, "gi");
-  token.lastIndex = start;
+  token.lastIndex = tagStart;
   let depth = 0;
   let match;
   while ((match = token.exec(source))) {
     if (match[0].startsWith("</")) depth -= 1;
     else depth += 1;
-    if (depth === 0) return { start, end: token.lastIndex };
+    if (depth === 0) {
+      let end = token.lastIndex;
+      if (source[end] === "\r" && source[end + 1] === "\n") end += 2;
+      else if (source[end] === "\n") end += 1;
+      return { start, end };
+    }
   }
   throw new Error(`Could not balance <${tagName}> for ${marker}`);
 }
