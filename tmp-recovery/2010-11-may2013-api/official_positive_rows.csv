@@ -1,315 +1,315 @@
-archive_id,code,first_name,second_name,web_name,current_team,current_type,element_type_id,minutes,goals,assists,clean_sheets,goals_conceded,own_goals,penalties_saved,penalties_missed,yellow_cards,red_cards,saves,bonus,ea_ppi,end_cost_tenths,end_price_m,total_points,source_path
-1,315730,Lukasz,Fabianski,Fabianski,Arsenal,Goalkeeper,1,1260,0,1,5,14,0,0,0,0,0,33,2,0,45,4.5,55,20_5_2013/1
-2,361545,Wojciech,Szczesny,Szczesny,Arsenal,Goalkeeper,1,1350,0,0,6,19,0,1,0,1,0,45,0,0,43,4.3,62,20_5_2013/2
-3,214650,Sebastien,Squillaci,Squillaci,Arsenal,Defender,2,1820,1,0,5,28,1,0,0,1,0,0,0,0,60,6.0,55,20_5_2013/3
-4,322957,Laurent,Koscielny,Koscielny,Arsenal,Defender,2,2617,2,0,9,36,0,0,0,5,2,0,0,0,59,5.9,85,20_5_2013/4
-5,285782,Thomas,Vermaelen,Vermaelen,Arsenal,Defender,2,450,0,1,1,6,0,0,0,0,0,0,0,0,71,7.1,15,20_5_2013/5
-6,303158,Johan,Djourou,Djourou,Arsenal,Defender,2,1794,1,0,10,15,0,0,0,3,0,0,6,0,40,4.0,86,20_5_2013/6
-7,282300,Bacary,Sagna,Sagna,Arsenal,Defender,2,2969,1,3,12,39,0,0,0,3,1,0,1,0,63,6.3,111,20_5_2013/7
-8,365051,Kieran,Gibbs,Gibbs,Arsenal,Defender,2,348,0,0,0,8,0,0,0,1,0,0,0,0,52,5.2,7,20_5_2013/8
-13,398216,Jack,Wilshere,Wilshere,Arsenal,Midfielder,3,2640,1,3,12,30,0,0,0,7,1,0,14,0,49,4.9,93,20_5_2013/13
-14,202962,Andrey,Arshavin,Arshavin,Arsenal,Midfielder,3,2188,6,11,8,27,0,0,0,1,0,0,8,0,87,8.7,138,20_5_2013/14
-15,304763,Theo,Walcott,Walcott,Arsenal,Midfielder,3,1691,9,8,10,16,0,0,0,0,0,0,7,0,70,7.0,133,20_5_2013/15
-16,299259,Alex,Song,Song,Arsenal,Midfielder,3,2592,4,2,12,29,0,0,0,7,1,0,15,0,53,5.3,102,20_5_2013/16
-17,300448,Vassiriki,Diaby,Diaby,Arsenal,Midfielder,3,953,2,3,3,16,0,0,0,1,1,0,3,0,72,7.2,46,20_5_2013/17
-18,377145,Aaron,Ramsey,Ramsey,Arsenal,Midfielder,3,355,1,0,1,8,0,0,0,1,0,0,3,0,60,6.0,18,20_5_2013/18
-19,195916,Tomas,Rosicky,Rosicky,Arsenal,Midfielder,3,939,0,1,2,17,0,0,1,3,0,0,0,0,60,6.0,30,20_5_2013/19
-20,206849,Mikel,Arteta,Arteta,Arsenal,Midfielder,3,2405,3,4,6,36,0,0,1,1,1,0,18,0,78,7.8,101,20_5_2013/20
-26,241625,Robin,van Persie,Van Persie,Man Utd,Forward,4,1770,18,7,7,24,0,0,1,4,0,0,27,0,110,11.0,157,20_5_2013/26
-27,261728,Marouane,Chamakh,Chamakh,West Ham,Forward,4,1846,7,7,4,24,0,0,0,5,0,0,11,0,79,7.9,101,20_5_2013/27
-28,342903,Carlos Alberto,Vela,Vela,Arsenal,Forward,4,386,3,1,0,6,0,0,0,0,0,0,0,0,42,4.2,29,20_5_2013/28
-31,303162,Nicklas,Bendtner,Bendtner,Arsenal,Forward,4,509,2,2,2,5,0,0,0,2,0,0,0,0,63,6.3,32,20_5_2013/31
-35,397035,Nathan,Baker,Baker,Aston Villa,Defender,2,247,0,0,0,4,0,0,0,0,0,0,0,0,40,4.0,5,20_5_2013/35
-36,214102,Richard,Dunne,Dunne,Aston Villa,Defender,2,2717,0,1,6,45,1,0,0,4,0,0,6,0,65,6.5,73,20_5_2013/36
-37,341264,Ciaran,Clark,Clark,Aston Villa,Defender,2,1569,3,0,4,33,0,0,0,9,0,0,3,0,41,4.1,51,20_5_2013/37
-38,203533,James,Collins,Collins,West Ham,Defender,2,2854,3,0,7,45,0,0,0,5,0,0,14,0,58,5.8,104,20_5_2013/38
-39,249195,Stephen,Warnock,Warnock,Aston Villa,Defender,2,1710,0,2,4,34,0,0,0,8,0,0,0,0,54,5.4,38,20_5_2013/39
-40,258309,Alan,Hutton,Hutton,Aston Villa,Defender,2,1705,2,2,2,25,0,0,0,2,0,0,2,0,43,4.3,58,20_5_2013/40
-42,393547,Eric,Lichaj,Lichaj,Aston Villa,Defender,2,274,0,0,0,7,0,0,0,1,0,0,0,0,40,4.0,4,20_5_2013/42
-45,369746,Barry,Bannan,Bannan,Aston Villa,Midfielder,3,640,0,1,1,14,0,0,0,1,0,0,0,0,44,4.4,21,20_5_2013/45
-46,343557,Chris,Herd,Herd,Aston Villa,Midfielder,3,110,0,0,0,2,0,0,0,0,0,0,0,0,45,4.5,7,20_5_2013/46
-47,256045,Jean,Makoun,Makoun,Aston Villa,Midfielder,3,551,0,0,1,9,0,0,0,3,1,0,0,0,55,5.5,8,20_5_2013/47
-48,377777,Fabian,Delph,Delph,Aston Villa,Midfielder,3,414,0,0,0,7,0,0,0,1,0,0,0,0,50,5.0,9,20_5_2013/48
-49,366890,Marc,Albrighton,Albrighton,Aston Villa,Midfielder,3,1800,5,7,4,33,0,0,0,3,0,0,4,0,44,4.4,99,20_5_2013/49
-50,299570,Stephen,Ireland,Ireland,Aston Villa,Midfielder,3,555,0,0,1,16,0,0,0,1,0,0,0,0,58,5.8,17,20_5_2013/50
-51,303069,Charles,N'Zogbia,N'Zogbia,Aston Villa,Midfielder,3,2785,9,7,8,49,0,0,0,2,1,0,33,0,59,5.9,167,20_5_2013/51
-58,221712,Darren,Bent,Bent,Aston Villa,Forward,4,3142,17,2,12,41,0,0,0,1,0,0,14,0,92,9.2,158,20_5_2013/58
-59,374474,Nathan,Delfouneso,Delfouneso,Aston Villa,Forward,4,398,1,0,1,8,0,0,0,0,0,0,0,0,46,4.6,17,20_5_2013/59
-60,291915,Gabriel,Agbonlahor,Agbonlahor,Aston Villa,Forward,4,1603,3,1,4,26,0,0,0,3,0,0,0,0,81,8.1,55,20_5_2013/60
-61,388225,Andreas,Weimann,Weimann,Aston Villa,Forward,4,5,0,0,0,0,0,0,0,0,0,0,0,0,50,5.0,1,20_5_2013/61
-63,221744,Petr,Cech,Cech,Chelsea,Goalkeeper,1,3420,0,1,15,33,0,1,0,0,0,98,2,0,67,6.7,158,20_5_2013/63
-66,285679,Gary,Cahill,Cahill,Chelsea,Defender,2,3213,3,0,5,53,0,0,0,7,1,0,23,0,56,5.6,105,20_5_2013/66
-67,370569,David,Luiz,Luiz,Chelsea,Defender,2,953,2,0,4,8,0,0,0,3,0,0,10,0,65,6.5,56,20_5_2013/67
-68,341721,Ryan,Bertrand,Bertrand,Chelsea,Defender,2,35,0,1,0,1,0,0,0,0,0,0,0,0,40,4.0,4,20_5_2013/68
-69,38930,John,Terry,Terry,Chelsea,Defender,2,2961,3,2,14,27,0,0,0,6,0,0,0,0,74,7.4,134,20_5_2013/69
-70,304752,Branislav,Ivanovic,Ivanovic,Chelsea,Defender,2,2827,4,5,13,27,0,0,0,12,0,0,5,0,71,7.1,144,20_5_2013/70
-71,197542,Paulo,Ferreira,Ferreira,Chelsea,Defender,2,1039,0,2,4,14,0,0,0,2,0,0,0,0,48,4.8,48,20_5_2013/71
-72,41948,Ashley,Cole,Cole A,Chelsea,Defender,2,3385,0,5,15,32,0,0,0,4,0,0,11,0,81,8.1,150,20_5_2013/72
-75,428056,Josh,McEachran,McEachran,Chelsea,Midfielder,3,180,0,0,0,3,0,0,0,1,0,0,0,0,45,4.5,9,20_5_2013/75
-76,378933,Nascimento,Ramires,Ramires,Chelsea,Midfielder,3,1933,2,0,10,18,0,0,0,7,0,0,4,0,67,6.7,68,20_5_2013/76
-77,23277,Frank,Lampard,Lampard,Chelsea,Midfielder,3,2024,10,4,9,21,0,0,1,2,0,0,16,0,130,13.0,130,20_5_2013/77
-78,211367,Michael,Essien,Essien,Chelsea,Midfielder,3,2797,3,2,13,25,0,0,0,4,1,0,15,0,69,6.9,105,20_5_2013/78
-79,203978,Florent,Malouda,Malouda,Chelsea,Midfielder,3,2799,13,5,16,27,0,0,0,1,0,0,22,0,97,9.7,186,20_5_2013/79
-80,317560,,Mikel,Mikel,Chelsea,Midfielder,3,2204,0,2,11,21,0,0,0,3,0,0,1,0,44,4.4,67,20_5_2013/80
-86,185995,Yossi,Benayoun,Benayoun,Chelsea,Midfielder,3,209,1,0,0,1,0,0,0,0,0,0,0,0,68,6.8,13,20_5_2013/86
-89,250968,Fernando,Torres,Torres,Chelsea,Forward,4,2655,10,7,10,36,0,0,0,7,0,0,8,0,112,11.2,128,20_5_2013/89
-90,317578,Daniel,Sturridge,Sturridge,Liverpool,Forward,4,1131,8,0,2,17,0,0,0,0,1,0,14,0,53,5.3,78,20_5_2013/90
-93,207096,Tim,Howard,Howard,Everton,Goalkeeper,1,3420,0,0,9,45,0,0,0,3,0,108,3,0,53,5.3,124,20_5_2013/93
-94,221992,Johnny,Heitinga,Heitinga,Everton,Defender,2,1888,1,0,4,30,0,0,0,9,0,0,0,0,55,5.5,50,20_5_2013/94
-95,195992,Phil,Jagielka,Jagielka,Everton,Defender,2,2796,1,1,9,32,2,0,0,3,0,0,10,0,56,5.6,104,20_5_2013/95
-96,203605,Tony,Hibbert,Hibbert,Everton,Defender,2,1452,0,0,3,20,1,0,0,3,0,0,0,0,48,4.8,38,20_5_2013/96
-97,244134,Leighton,Baines,Baines,Everton,Defender,2,3420,5,11,9,45,0,0,0,4,0,0,20,0,81,8.1,178,20_5_2013/97
-98,200195,Sylvain,Distin,Distin,Everton,Defender,2,3409,2,0,9,45,1,0,0,1,0,0,16,0,53,5.3,124,20_5_2013/98
-101,426375,Adam,Forshaw,Forshaw,Everton,Midfielder,3,9,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,1,20_5_2013/101
-102,364105,Jack,Rodwell,Rodwell,Man City,Midfielder,3,1420,0,1,3,19,0,0,0,4,0,0,0,0,50,5.0,41,20_5_2013/102
-103,203599,Leon,Osman,Osman,Everton,Midfielder,3,1811,4,6,5,23,0,0,0,4,0,0,8,0,56,5.6,91,20_5_2013/103
-104,38226,Tim,Cahill,Cahill,Everton,Midfielder,3,2016,9,4,5,28,0,0,0,4,0,0,10,0,89,8.9,117,20_5_2013/104
-105,355729,Marouane,Fellaini,Fellaini,Everton,Midfielder,3,1652,1,3,3,24,0,0,0,3,1,0,7,0,59,5.9,56,20_5_2013/105
-106,19683,Phil,Neville,Neville,Everton,Midfielder,3,2657,1,1,8,33,0,0,0,5,0,0,5,0,46,4.6,77,20_5_2013/106
-107,366783,Seamus,Coleman,Coleman,Everton,Midfielder,3,2256,4,4,7,27,0,0,0,4,1,0,8,0,52,5.2,116,20_5_2013/107
-108,324568,Darron,Gibson,Gibson,Everton,Midfielder,3,657,0,1,3,8,0,0,0,3,0,0,0,0,49,4.9,21,20_5_2013/108
-110,428025,Apostolos,Vellios,Vellios,Everton,Forward,4,35,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,3,20_5_2013/110
-111,418782,Magaye,Gueye,Gueye,Everton,Forward,4,191,0,1,2,2,0,0,0,0,0,0,1,0,50,5.0,11,20_5_2013/111
-112,389438,Jose,Baxter,Baxter,Everton,Forward,4,13,0,0,0,0,0,0,0,0,0,0,0,0,41,4.1,1,20_5_2013/112
-113,300989,Victor,Anichebe,Anichebe,Everton,Forward,4,769,0,0,0,13,0,0,0,1,1,0,0,0,50,5.0,19,20_5_2013/113
-117,265274,David,Stockdale,Stockdale,Fulham,Goalkeeper,1,630,0,0,3,6,0,1,0,0,0,25,1,0,38,3.8,38,20_5_2013/117
-118,30805,Mark,Schwarzer,Schwarzer,Fulham,Goalkeeper,1,2790,0,0,11,37,0,0,0,0,0,93,0,0,47,4.7,113,20_5_2013/118
-120,370942,Matthew,Briggs,Briggs,Fulham,Defender,2,195,0,0,0,4,0,0,0,0,0,0,0,0,40,4.0,4,20_5_2013/120
-121,242792,Philippe,Senderos,Senderos,Fulham,Defender,2,270,0,0,2,2,0,0,0,0,0,0,0,0,42,4.2,13,20_5_2013/121
-122,253711,Stephen,Kelly,Kelly,Reading,Defender,2,729,0,0,2,8,0,0,0,0,0,0,0,0,42,4.2,23,20_5_2013/122
-123,31892,Aaron,Hughes,Hughes,Fulham,Defender,2,3404,1,1,14,43,0,0,0,0,0,0,3,0,50,5.0,129,20_5_2013/123
-124,219296,Brede,Hangeland,Hangeland,Fulham,Defender,2,3330,6,1,13,43,1,0,0,6,0,0,12,0,59,5.9,154,20_5_2013/124
-125,230594,Chris,Baird,Baird,Fulham,Defender,2,2383,2,1,10,30,0,0,0,5,0,0,4,0,47,4.7,99,20_5_2013/125
-129,224958,Steve,Sidwell,Sidwell,Fulham,Midfielder,3,1063,2,2,5,11,0,0,0,4,0,0,2,0,47,4.7,45,20_5_2013/129
-130,30746,Damien,Duff,Duff,Fulham,Midfielder,3,1876,4,2,9,20,0,0,0,3,0,0,14,0,61,6.1,91,20_5_2013/130
-131,204349,Dickson,Etuhu,Etuhu,Fulham,Midfielder,3,1971,2,2,7,27,0,0,0,3,0,0,7,0,43,4.3,76,20_5_2013/131
-132,292498,Clint,Dempsey,Dempsey,Tottenham,Midfielder,3,3091,12,3,12,41,0,0,1,5,0,0,23,0,74,7.4,168,20_5_2013/132
-133,33177,Simon,Davies,Davies,Fulham,Midfielder,3,2213,4,4,9,29,0,0,0,0,0,0,6,0,45,4.5,101,20_5_2013/133
-139,299815,Mousa,Dembele,Dembele,Tottenham,Midfielder,3,1916,3,3,7,27,0,0,0,0,0,0,15,0,47,4.7,81,20_5_2013/139
-143,293455,Hugo,Rodallega,Rodallega,Fulham,Forward,4,3025,9,2,8,54,0,0,0,4,1,0,18,0,54,5.4,123,20_5_2013/143
-144,195189,Jose,Reina,Reina,Liverpool,Goalkeeper,1,3420,0,0,14,44,1,0,0,4,0,106,2,0,61,6.1,135,20_5_2013/144
-147,421437,Danny,Wilson,Wilson,Liverpool,Defender,2,157,0,0,0,5,0,0,0,1,0,0,0,0,44,4.4,1,20_5_2013/147
-148,448652,Jack,Robinson,Robinson,Liverpool,Defender,2,147,0,0,1,1,0,0,0,1,0,0,0,0,40,4.0,7,20_5_2013/148
-149,447142,Jon,Flanagan,Flanagan,Liverpool,Defender,2,620,0,0,3,6,0,0,0,3,0,0,0,0,45,4.5,21,20_5_2013/149
-150,389502,Martin,Kelly,Kelly,Liverpool,Defender,2,860,0,1,5,7,0,0,0,1,0,0,2,0,37,3.7,42,20_5_2013/150
-151,249096,Glen,Johnson,Johnson,Liverpool,Defender,2,2437,2,2,10,34,0,0,0,4,0,0,3,0,71,7.1,100,20_5_2013/151
-152,28634,Jamie,Carragher,Carragher,Liverpool,Defender,2,2486,0,0,11,30,1,0,0,4,0,0,6,0,60,6.0,90,20_5_2013/152
-153,284089,Martin,Skrtel,Skrtel,Liverpool,Defender,2,3420,2,1,14,44,1,0,0,8,0,0,4,0,59,5.9,126,20_5_2013/153
-154,281745,Daniel,Agger,Agger,Liverpool,Defender,2,1092,0,0,6,10,0,0,0,0,0,0,5,0,63,6.3,54,20_5_2013/154
-155,320925,Sanchez,Jose Enrique,Jose Enrique,Liverpool,Defender,2,3124,0,3,9,50,0,0,0,5,0,0,11,0,47,4.7,105,20_5_2013/155
-157,245367,Stewart,Downing,Downing,Liverpool,Midfielder,3,3385,7,9,7,59,0,0,0,0,0,0,18,0,71,7.1,163,20_5_2013/157
-158,389451,Jonjo,Shelvey,Shelvey,Liverpool,Midfielder,3,340,0,1,0,5,0,0,0,1,0,0,0,0,50,5.0,18,20_5_2013/158
-159,368391,Jay,Spearing,Spearing,Liverpool,Midfielder,3,795,0,2,4,9,0,0,0,0,0,0,0,0,45,4.5,30,20_5_2013/159
-160,43188,Joe,Cole,Cole,West Ham,Midfielder,3,802,2,1,1,20,0,0,0,1,1,0,0,0,83,8.3,38,20_5_2013/160
-161,42671,Steven,Gerrard,Gerrard,Liverpool,Midfielder,3,1870,4,5,7,26,0,0,1,2,0,0,8,0,113,11.3,88,20_5_2013/161
-162,353260,Leiva,Lucas,Lucas,Liverpool,Midfielder,3,2858,0,2,12,37,0,0,0,6,1,0,7,0,45,4.5,81,20_5_2013/162
-163,293131,Charlie,Adam,Adam,Stoke City,Midfielder,3,3049,12,9,5,68,1,0,1,10,0,0,45,0,60,6.0,192,20_5_2013/163
-164,390092,Jordan,Henderson,Henderson,Liverpool,Midfielder,3,3211,3,5,13,46,0,0,0,2,0,0,20,0,54,5.4,133,20_5_2013/164
-167,326934,Luis,Suarez,Suarez,Liverpool,Forward,4,1100,4,5,5,12,0,0,0,2,0,0,14,0,95,9.5,68,20_5_2013/167
-168,312242,Andy,Carroll,Carroll,West Ham,Forward,4,2071,13,6,7,34,0,0,0,5,0,0,21,0,62,6.2,135,20_5_2013/168
-170,399711,Nathan,Eccleston,Eccleston,Liverpool,Forward,4,11,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,1,20_5_2013/170
-171,262521,Joe,Hart,Hart,Man City,Goalkeeper,1,3420,0,1,18,33,0,1,0,1,0,115,4,0,69,6.9,175,20_5_2013/171
-173,309604,Aleksandar,Kolarov,Kolarov,Man City,Defender,2,1719,1,1,5,21,0,0,0,5,1,0,4,0,57,5.7,60,20_5_2013/173
-174,305535,Micah,Richards,Richards,Man City,Defender,2,1399,1,1,8,15,0,0,0,4,0,0,2,0,54,5.4,67,20_5_2013/174
-175,276042,Pablo,Zabaleta,Zabaleta,Man City,Defender,2,1947,2,2,12,13,0,0,0,8,1,0,5,0,61,6.1,102,20_5_2013/175
-176,195093,Joleon,Lescott,Lescott,Man City,Defender,2,1883,3,1,10,18,0,0,0,1,0,0,7,0,64,6.4,103,20_5_2013/176
-177,275555,Vincent,Kompany,Kompany,Man City,Defender,2,3330,0,1,18,32,0,0,0,6,0,0,6,0,52,5.2,95,20_5_2013/177
-178,275505,Gael,Clichy,Clichy,Man City,Defender,2,2970,0,1,13,33,0,0,0,3,0,0,0,0,61,6.1,109,20_5_2013/178
-180,249719,Kolo,Toure,Toure,Man City,Defender,2,1847,1,0,9,14,0,0,0,2,1,0,0,0,62,6.2,76,20_5_2013/180
-182,294839,Samir,Nasri,Nasri,Man City,Midfielder,3,2383,10,1,9,28,0,0,0,4,0,0,20,0,82,8.2,134,20_5_2013/182
-183,299191,David,Silva,Silva,Man City,Midfielder,3,2551,4,9,16,24,0,0,0,2,0,0,20,0,86,8.6,144,20_5_2013/183
-184,248850,Yaya,Toure,Yaya Toure,Man City,Midfielder,3,2966,6,6,18,25,0,0,0,3,0,0,15,0,63,6.3,146,20_5_2013/184
-185,255061,Nigel,De Jong,De Jong,Man City,Midfielder,3,2610,1,0,16,21,0,0,0,9,0,0,8,0,42,4.2,80,20_5_2013/185
-186,37796,Gareth,Barry,Barry,Man City,Midfielder,3,2702,2,3,13,29,0,0,0,8,0,0,3,0,65,6.5,90,20_5_2013/186
-187,247364,James,Milner,Milner,Man City,Midfielder,3,2134,1,7,11,24,0,0,0,4,0,0,10,0,81,8.1,97,20_5_2013/187
-188,269098,Adam,Johnson,Johnson,Sunderland,Midfielder,3,1542,4,7,10,12,0,0,0,2,0,0,9,0,57,5.7,104,20_5_2013/188
-189,461855,Abdul,Razak,Razak,Man City,Midfielder,3,1,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,1,20_5_2013/189
-190,246035,Carlos,Tevez,Tevez,Man City,Forward,4,2513,21,6,16,19,0,0,1,6,0,0,32,0,115,11.5,185,20_5_2013/190
-191,394623,Mario,Balotelli,Balotelli,Man City,Forward,4,1090,6,1,7,11,0,0,0,5,1,0,6,0,76,7.6,55,20_5_2013/191
-192,279289,Edin,Dzeko,Dzeko,Man City,Forward,4,854,2,2,1,15,0,0,0,1,0,0,0,0,84,8.4,35,20_5_2013/192
-194,237670,Emmanuel,Adebayor,Adebayor,Tottenham,Forward,4,244,1,0,1,5,0,0,0,0,0,0,0,0,89,8.9,14,20_5_2013/194
-198,412073,Chris,Smalling,Smalling,Man Utd,Defender,2,1086,0,1,5,12,0,0,0,0,0,0,5,0,44,4.4,51,20_5_2013/198
-199,426380,Phil,Jones,Jones,Man Utd,Defender,2,2175,0,0,6,33,0,0,0,4,0,0,11,0,42,4.2,70,20_5_2013/199
-200,252396,Rafael,Da Silva,Rafael,Man Utd,Defender,2,1197,0,1,6,13,0,0,0,2,1,0,4,0,54,5.4,51,20_5_2013/200
-201,234542,Nemanja,Vidic,Vidic,Man Utd,Defender,2,3116,5,1,14,33,0,0,0,6,1,0,9,0,81,8.1,148,20_5_2013/201
-202,27639,Rio,Ferdinand,Ferdinand,Man Utd,Defender,2,1710,0,0,8,13,0,0,0,0,0,0,1,0,63,6.3,69,20_5_2013/202
-203,215054,Patrice,Evra,Evra,Man Utd,Defender,2,2957,1,2,12,33,1,0,0,1,0,0,0,0,73,7.3,113,20_5_2013/203
-204,318192,Jonny,Evans,Evans J,Man Utd,Defender,2,1004,0,0,4,16,0,0,0,2,1,0,0,0,46,4.6,29,20_5_2013/204
-206,296546,Antonio,Valencia,Valencia,Man Utd,Midfielder,3,742,1,2,4,6,0,0,0,1,0,0,10,0,79,7.9,42,20_5_2013/206
-207,324066,Luis,Nani,Nani,Man Utd,Midfielder,3,2660,9,18,14,29,0,0,1,1,0,0,25,0,94,9.4,198,20_5_2013/207
-208,346222,Oliveira,Anderson,Anderson,Man Utd,Midfielder,3,1182,1,3,8,8,0,0,0,2,0,0,6,0,55,5.5,57,20_5_2013/208
-209,15722,Ryan,Giggs,Giggs,Man Utd,Midfielder,3,1676,2,8,5,21,0,0,0,5,0,0,4,0,68,6.8,79,20_5_2013/209
-210,154848,Michael,Carrick,Carrick,Man Utd,Midfielder,3,1972,0,0,9,21,0,0,0,1,0,0,4,0,62,6.2,61,20_5_2013/210
-211,204353,Darren,Fletcher,Fletcher,Man Utd,Midfielder,3,2109,2,6,9,25,0,0,0,3,0,0,4,0,68,6.8,87,20_5_2013/211
-212,345100,Tom,Cleverley,Cleverley,Man Utd,Midfielder,3,1637,4,2,2,26,0,0,0,1,0,0,4,0,42,4.2,72,20_5_2013/212
-213,266858,Ashley,Young,Young,Man Utd,Midfielder,3,3050,7,11,7,49,0,0,1,8,0,0,27,0,84,8.4,160,20_5_2013/213
-216,16392,Paul,Scholes,Scholes,Man Utd,Midfielder,3,1537,1,4,6,19,0,0,0,9,0,0,12,0,61,6.1,64,20_5_2013/216
-219,210993,Dimitar,Berbatov,Berbatov,Fulham,Forward,4,2208,21,4,8,28,0,0,0,1,0,0,26,0,92,9.2,176,20_5_2013/219
-220,336059,Javier,Hernandez,Hernandez,Man Utd,Forward,4,1491,13,2,4,12,0,0,0,5,0,0,16,0,71,7.1,110,20_5_2013/220
-221,243973,Wayne,Rooney,Rooney,Man Utd,Forward,4,2225,11,11,10,22,0,0,1,5,0,0,19,0,118,11.8,142,20_5_2013/221
-222,377074,Danny,Welbeck,Welbeck,Man Utd,Forward,4,1756,6,1,9,27,0,0,0,2,0,0,11,0,44,4.4,79,20_5_2013/222
-224,398489,Federico,Macheda,Macheda,Man Utd,Forward,4,220,1,0,1,2,0,0,0,0,0,0,0,0,50,5.0,12,20_5_2013/224
-225,30578,Steve,Harper,Harper,Newcastle,Goalkeeper,1,1564,0,0,5,22,0,0,0,0,0,47,0,0,43,4.3,57,20_5_2013/225
-226,331410,Tim,Krul,Krul,Newcastle,Goalkeeper,1,1856,0,0,3,35,0,0,0,0,0,48,0,0,39,3.9,51,20_5_2013/226
-228,280385,James,Perch,Perch,Newcastle,Defender,2,877,0,0,2,15,1,0,0,6,0,0,0,0,38,3.8,16,20_5_2013/228
-229,232984,Mike,Williamson,Williamson,Newcastle,Defender,2,2565,0,2,7,41,0,0,0,5,0,0,3,0,41,4.1,75,20_5_2013/229
-230,325985,Danny,Simpson,Simpson,Newcastle,Defender,2,2685,0,0,7,45,0,0,0,4,0,0,0,0,39,3.9,70,20_5_2013/230
-231,247146,Steven,Taylor,Taylor S,Newcastle,Defender,2,1008,3,1,1,19,0,0,0,2,0,0,3,0,39,3.9,45,20_5_2013/231
-232,198241,Fabricio,Coloccini,Coloccini,Newcastle,Defender,2,3080,2,0,9,51,0,0,0,3,1,0,3,0,46,4.6,97,20_5_2013/232
-233,236404,Ryan,Taylor,Taylor R,Newcastle,Defender,2,276,0,1,0,6,0,0,0,0,1,0,0,0,39,3.9,5,20_5_2013/233
-236,355012,Gabriel,Obertan,Obertan,Newcastle,Midfielder,3,284,0,0,1,4,0,0,0,0,0,0,2,0,44,4.4,12,20_5_2013/236
-237,322937,Cheick,Tiote,Tiote,Newcastle,Midfielder,3,2308,1,1,8,34,0,0,0,14,0,0,12,0,44,4.4,66,20_5_2013/237
-238,294836,Hatem,Ben Arfa,Ben Arfa,Newcastle,Midfielder,3,168,1,0,2,1,0,0,0,0,0,0,1,0,43,4.3,14,20_5_2013/238
-239,386022,Shane,Ferguson,Ferguson,Newcastle,Midfielder,3,309,0,0,0,7,0,0,0,0,0,0,0,0,40,4.0,10,20_5_2013/239
-240,367862,Dan,Gosling,Gosling,Newcastle,Midfielder,3,1,0,0,0,1,0,0,0,0,0,0,0,0,43,4.3,1,20_5_2013/240
-241,265387,Jonas,Gutierrez,Gutierrez,Newcastle,Midfielder,3,2973,3,5,9,45,0,0,0,5,0,0,11,0,48,4.8,116,20_5_2013/241
-248,212413,Shola,Ameobi,Ameobi,Newcastle,Forward,4,1753,6,6,5,30,0,0,0,2,0,0,7,0,41,4.1,93,20_5_2013/248
-249,355256,Demba,Ba,Ba,Chelsea,Forward,4,933,7,0,2,21,0,0,0,1,0,0,8,0,49,4.9,57,20_5_2013/249
-250,466925,Sammy,Ameobi,Sammy Ameobi,Newcastle,Forward,4,9,0,0,0,1,0,0,0,0,0,0,0,0,40,4.0,1,20_5_2013/250
-277,299746,James,Vaughan,Vaughan,Norwich,Forward,4,18,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,1,20_5_2013/277
-279,42772,Rob,Green,Green,QPR,Goalkeeper,1,3330,0,0,5,69,1,1,0,0,0,162,6,0,48,4.8,122,20_5_2013/279
-280,42773,Luke,Young,Young,QPR,Defender,2,2070,1,1,5,37,0,0,0,1,0,0,5,0,48,4.8,65,20_5_2013/280
-281,299568,Nedum,Onuoha,Onuoha,QPR,Defender,2,2662,1,2,9,44,0,0,0,1,0,0,4,0,51,5.1,97,20_5_2013/281
-284,249218,Anton,Ferdinand,Ferdinand,QPR,Defender,2,2088,0,0,7,36,0,0,0,2,0,0,3,0,45,4.5,66,20_5_2013/284
-287,227665,Ryan,Nelsen,Nelsen,QPR,Defender,2,2413,3,3,5,46,0,0,0,3,1,0,8,0,49,4.9,86,20_5_2013/287
-288,410367,Fabio,Da Silva,Fabio,QPR,Defender,2,559,1,1,1,5,0,0,0,2,0,0,0,0,44,4.4,26,20_5_2013/288
-289,154949,Shaun,Wright-Phillips,Wright-Phillips,QPR,Midfielder,3,205,0,0,1,2,0,0,0,0,0,0,0,0,70,7.0,9,20_5_2013/289
-290,256600,Joey,Barton,Barton,QPR,Midfielder,3,2878,4,9,8,45,0,0,0,8,0,0,20,0,48,4.8,131,20_5_2013/290
-296,31055,Kieron,Dyer,Dyer,QPR,Midfielder,3,602,0,1,0,13,0,0,0,0,0,0,0,0,41,4.1,20,20_5_2013/296
-298,207242,Ji-Sung,Park,Park,QPR,Midfielder,3,1080,5,3,5,13,0,0,0,1,0,0,9,0,47,4.7,74,20_5_2013/298
-299,180845,Bobby,Zamora,Zamora,QPR,Forward,4,757,5,5,3,8,0,0,0,2,0,0,10,0,56,5.6,63,20_5_2013/299
-304,284842,DJ,Campbell,Campbell,QPR,Forward,4,2625,13,4,5,55,0,0,0,1,1,0,8,0,45,4.5,128,20_5_2013/304
-306,39460,Andrew,Johnson,Johnson,QPR,Forward,4,1560,3,3,6,21,0,0,0,4,0,0,2,0,55,5.5,61,20_5_2013/306
-316,181098,Nicky,Shorey,Shorey,Reading,Defender,2,2314,0,1,1,46,1,0,0,1,0,0,0,0,42,4.2,43,20_5_2013/316
-327,299577,Danny,Guthrie,Guthrie,Reading,Midfielder,3,949,0,1,3,14,0,0,0,3,0,0,0,0,47,4.7,28,20_5_2013/327
-330,35910,Jason,Roberts,Roberts,Reading,Forward,4,1489,5,4,4,28,0,0,0,2,0,0,6,0,53,5.3,73,20_5_2013/330
-348,291350,Jason,Puncheon,Puncheon,Southampton,Midfielder,3,647,3,0,0,19,0,0,0,0,0,0,0,0,50,5.0,32,20_5_2013/348
-355,321403,Asmir,Begovic,Begovic,Stoke City,Goalkeeper,1,2520,0,0,8,32,0,1,0,3,0,97,5,0,44,4.4,108,20_5_2013/355
-356,38752,Thomas,Sorensen,Sorensen,Stoke City,Goalkeeper,1,900,0,0,1,16,0,1,0,0,0,25,0,0,42,4.2,27,20_5_2013/356
-357,243766,Danny,Collins,Collins,Stoke City,Defender,2,2030,0,0,5,30,1,0,0,6,0,0,0,0,43,4.3,48,20_5_2013/357
-358,38310,Danny,Higginbotham,Higginbotham,Stoke City,Defender,2,844,2,0,3,12,0,0,0,0,0,0,1,0,39,3.9,39,20_5_2013/358
-359,235593,Andy,Wilkinson,Wilkinson,Stoke City,Defender,2,1746,0,1,7,22,0,0,0,4,0,0,1,0,42,4.2,62,20_5_2013/359
-360,309921,Ryan,Shawcross,Shawcross,Stoke City,Defender,2,3196,1,0,9,44,0,0,0,7,2,0,6,0,47,4.7,92,20_5_2013/360
-361,241730,Robert,Huth,Huth,Stoke City,Defender,2,3110,6,3,8,43,0,0,0,7,0,0,14,0,59,5.9,138,20_5_2013/361
-362,28934,Matthew,Upson,Upson,Stoke City,Defender,2,2470,0,0,5,49,1,0,0,4,0,0,3,0,46,4.6,56,20_5_2013/362
-364,306354,Marc,Wilson,Wilson,Stoke City,Defender,2,1855,1,1,4,28,0,0,0,7,0,0,2,0,45,4.5,56,20_5_2013/364
-365,192134,Dean,Whitehead,Whitehead,Stoke City,Midfielder,3,2902,2,2,8,40,0,0,0,6,0,0,6,0,43,4.3,93,20_5_2013/365
-366,43037,Jermaine,Pennant,Pennant,Stoke City,Midfielder,3,2015,3,7,10,19,0,0,0,3,0,0,14,0,48,4.8,108,20_5_2013/366
-367,32483,Matthew,Etherington,Etherington,Stoke City,Midfielder,3,2519,5,7,7,37,0,0,0,5,0,0,16,0,57,5.7,124,20_5_2013/367
-368,229959,Glenn,Whelan,Whelan,Stoke City,Midfielder,3,1357,0,1,3,25,0,0,0,2,0,0,4,0,43,4.3,50,20_5_2013/368
-369,31934,Salif,Diao,Diao,Stoke City,Midfielder,3,236,0,0,0,5,0,0,0,3,0,0,0,0,43,4.3,7,20_5_2013/369
-370,12537,Rory,Delap,Delap,Stoke City,Midfielder,3,2956,2,1,9,40,0,0,0,5,0,0,1,0,45,4.5,88,20_5_2013/370
-371,295796,Wilson,Palacios,Palacios,Stoke City,Midfielder,3,1226,0,0,3,15,0,0,0,5,0,0,2,0,48,4.8,32,20_5_2013/371
-373,382582,Ryan,Shotton,Shotton,Stoke City,Midfielder,3,52,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,2,20_5_2013/373
-374,219605,Jonathan,Walters,Walters,Stoke City,Midfielder,3,2341,6,3,5,34,0,0,0,4,0,0,8,0,54,5.4,109,20_5_2013/374
-375,294336,Kenwyne,Jones,Jones,Stoke City,Forward,4,2782,9,2,12,32,0,0,0,0,0,0,13,0,64,6.4,121,20_5_2013/375
-376,229388,Mamady,Sidibe,Sidibe,Stoke City,Forward,4,40,0,0,0,2,0,0,0,0,0,0,0,0,50,5.0,2,20_5_2013/376
-377,196137,Peter,Crouch,Crouch,Stoke City,Forward,4,1945,4,7,4,28,1,0,0,0,0,0,5,0,65,6.5,92,20_5_2013/377
-378,299179,Cameron,Jerome,Jerome,Stoke City,Forward,4,2647,3,7,5,47,0,0,0,2,0,0,4,0,55,5.5,98,20_5_2013/378
-380,322905,Simon,Mignolet,Mignolet,Sunderland,Goalkeeper,1,2070,0,0,8,35,0,0,0,1,0,74,2,0,40,4.0,83,20_5_2013/380
-381,39491,Titus,Bramble,Bramble,Sunderland,Defender,2,2002,0,0,8,30,0,0,0,5,1,0,8,0,43,4.3,66,20_5_2013/381
-382,266190,Marcos,Angeleri,Angeleri,Sunderland,Defender,2,9,0,0,0,0,0,0,0,0,0,0,0,0,44,4.4,2,20_5_2013/382
-383,257051,Michael,Turner,Turner,Norwich,Defender,2,1305,0,0,5,25,0,0,0,4,0,0,4,0,49,4.9,39,20_5_2013/383
-384,269091,Phil,Bardsley,Bardsley,Sunderland,Defender,2,2820,3,2,13,45,0,0,0,5,0,0,5,0,49,4.9,123,20_5_2013/384
-385,184542,John,O'Shea,O'Shea,Sunderland,Defender,2,1541,0,3,8,14,0,0,0,1,0,0,0,0,47,4.7,71,20_5_2013/385
-386,38281,Wes,Brown,Brown,Sunderland,Defender,2,429,0,0,0,7,0,0,0,2,0,0,0,0,48,4.8,6,20_5_2013/386
-387,428054,Louis,Laing,Laing,Sunderland,Defender,2,4,0,0,0,0,0,0,0,0,0,0,0,0,40,4.0,1,20_5_2013/387
-389,231222,Carlos,Cuellar,Cuellar,Sunderland,Defender,2,894,0,1,1,15,0,0,0,2,0,0,1,0,62,6.2,23,20_5_2013/389
-390,293920,Lee,Cattermole,Cattermole,Sunderland,Midfielder,3,1921,0,0,9,35,0,0,0,8,2,0,5,0,54,5.4,44,20_5_2013/390
-391,399088,David,Meyler,Meyler,Sunderland,Midfielder,3,259,0,0,1,1,0,0,0,2,0,0,0,0,45,4.5,5,20_5_2013/391
-392,243955,Kieran,Richardson,Richardson,Fulham,Midfielder,3,2039,4,3,9,27,0,0,0,9,0,0,4,0,53,5.3,80,20_5_2013/392
-393,390093,Jack,Colback,Colback,Sunderland,Midfielder,3,589,0,0,1,14,0,0,0,1,0,0,2,0,45,4.5,19,20_5_2013/393
-394,428214,Ahmed,Elmohamady,Elmohamady,Sunderland,Midfielder,3,2457,0,3,11,38,0,0,0,1,0,0,9,0,46,4.6,109,20_5_2013/394
-395,297197,Sebastian,Larsson,Larsson,Sunderland,Midfielder,3,2833,4,6,8,45,0,0,0,5,0,0,9,0,50,5.0,116,20_5_2013/395
-396,291914,Craig,Gardner,Gardner,Sunderland,Midfielder,3,2216,8,0,6,34,0,0,0,5,2,0,5,0,49,4.9,92,20_5_2013/396
-397,204399,David,Vaughan,Vaughan,Sunderland,Midfielder,3,3150,2,3,6,69,0,0,0,6,0,0,21,0,43,4.3,110,20_5_2013/397
-399,297106,Stephane,Sessegnon,Sessegnon,Sunderland,Midfielder,3,1183,3,2,2,29,0,0,0,2,0,0,3,0,58,5.8,51,20_5_2013/399
-400,455379,Craig,Lynch,Lynch,Sunderland,Forward,4,30,0,0,0,1,0,0,0,0,0,0,0,0,45,4.5,2,20_5_2013/400
-401,442135,Ryan,Noble,Noble,Sunderland,Forward,4,66,0,0,0,1,0,0,0,0,0,0,0,0,45,4.5,3,20_5_2013/401
-402,290309,Fraizer,Campbell,Campbell,Sunderland,Forward,4,225,0,1,0,3,0,0,0,0,0,0,0,0,56,5.6,8,20_5_2013/402
-415,236287,Wayne,Routledge,Routledge,Swansea,Midfielder,3,996,0,1,2,18,0,0,0,0,0,0,2,0,41,4.1,34,20_5_2013/415
-431,283600,Heurelho,Gomes,Gomes,Tottenham,Goalkeeper,1,2700,0,0,7,39,0,2,0,4,0,109,0,0,52,5.2,108,20_5_2013/431
-432,180891,Carlo,Cudicini,Cudicini,Tottenham,Goalkeeper,1,720,0,0,1,7,0,0,0,0,0,22,0,0,42,4.2,24,20_5_2013/432
-433,35934,Brad,Friedel,Friedel,Tottenham,Goalkeeper,1,3420,0,0,7,59,0,0,0,2,0,116,4,0,54,5.4,111,20_5_2013/433
-434,45233,Ledley,King,King,Tottenham,Defender,2,493,0,0,2,4,0,0,0,0,0,0,3,0,52,5.2,22,20_5_2013/434
-435,243780,Michael,Dawson,Dawson,Tottenham,Defender,2,2160,1,0,7,27,0,0,0,6,0,0,8,0,53,5.3,77,20_5_2013/435
-436,286965,Benoit,Assou-Ekotto,Assou-Ekotto,Tottenham,Defender,2,2569,0,0,7,36,0,0,0,2,0,0,7,0,52,5.2,81,20_5_2013/436
-437,292509,Younes,Kaboul,Kaboul,Tottenham,Defender,2,1632,1,1,2,25,0,0,0,1,1,0,3,0,47,4.7,46,20_5_2013/437
-438,46896,William,Gallas,Gallas,Tottenham,Defender,2,2339,0,0,4,37,0,0,0,5,0,0,3,0,53,5.3,56,20_5_2013/438
-439,377016,Kyle,Walker,Walker,Tottenham,Defender,2,1341,1,3,2,20,0,0,0,3,0,1,5,0,40,4.0,51,20_5_2013/439
-444,405041,Raniere,Sandro,Sandro,Tottenham,Midfielder,3,1079,1,0,3,14,0,0,0,4,0,0,3,0,43,4.3,37,20_5_2013/444
-445,198585,Rafael,Van der Vaart,Van der Vaart,Tottenham,Midfielder,3,2222,13,9,7,24,0,0,1,4,0,0,19,0,89,8.9,165,20_5_2013/445
-446,281995,Luka,Modric,Modric,Tottenham,Midfielder,3,2794,3,3,7,39,0,0,0,3,0,0,34,0,74,7.4,125,20_5_2013/446
-447,247150,Aaron,Lennon,Lennon,Tottenham,Midfielder,3,2361,3,3,8,26,0,0,0,1,0,0,10,0,73,7.3,99,20_5_2013/447
-448,332408,Gareth,Bale,Bale,Tottenham,Midfielder,3,2447,7,3,6,34,0,0,0,1,0,0,13,0,70,7.0,118,20_5_2013/448
-449,377456,Danny,Rose,Rose,Sunderland,Midfielder,3,351,0,2,1,3,0,0,0,0,0,0,2,0,44,4.4,17,20_5_2013/449
-450,247144,Tom,Huddlestone,Huddlestone,Tottenham,Midfielder,3,1162,2,2,1,17,0,0,0,3,0,0,5,0,56,5.6,46,20_5_2013/450
-452,36824,Scott,Parker,Parker,Tottenham,Midfielder,3,2738,5,3,6,52,0,0,0,8,0,0,25,0,55,5.5,119,20_5_2013/452
-455,216837,Jermaine,Jenas,Jenas,QPR,Midfielder,3,1322,0,1,2,19,0,0,0,2,0,0,3,0,51,5.1,39,20_5_2013/455
-456,242107,Steven,Pienaar,Pienaar,Everton,Midfielder,3,2060,1,2,4,32,0,0,0,3,0,0,6,0,65,6.5,66,20_5_2013/456
-458,193388,Jermain,Defoe,Defoe,Tottenham,Forward,4,1479,4,2,4,17,0,0,1,0,1,0,3,0,83,8.3,56,20_5_2013/458
-459,329936,Dos Santos,Giovani,Giovani,Tottenham,Forward,4,45,0,0,0,1,0,0,0,0,0,0,0,0,49,4.9,3,20_5_2013/459
-462,225420,Boaz,Myhill,Myhill,West Brom,Goalkeeper,1,540,0,0,0,13,0,0,0,0,0,19,0,0,38,3.8,12,20_5_2013/462
-463,248757,Ben,Foster,Foster,West Brom,Goalkeeper,1,3369,0,1,9,55,0,1,0,3,0,178,9,0,53,5.3,153,20_5_2013/463
-465,252845,Gabriel,Tamas,Tamas,West Brom,Defender,2,2040,0,0,2,38,1,0,0,4,1,0,3,0,38,3.8,37,20_5_2013/465
-466,412080,James,Hurst,Hurst,West Brom,Defender,2,90,0,0,0,3,0,0,0,0,0,0,0,0,40,4.0,1,20_5_2013/466
-467,272783,Gonzalo,Jara Reyes,Jara,West Brom,Defender,2,2104,1,0,1,47,0,0,0,6,1,0,3,0,39,3.9,39,20_5_2013/467
-468,293499,Jonas,Olsson,Olsson,West Brom,Defender,2,2123,1,3,2,39,1,0,0,1,0,0,7,0,42,4.2,62,20_5_2013/468
-472,222093,Liam,Ridgewell,Ridgewell,West Brom,Defender,2,3173,4,0,9,55,0,0,0,6,1,0,1,0,54,5.4,104,20_5_2013/472
-473,426732,George,Thorne,Thorne,West Brom,Midfielder,3,31,0,0,0,0,0,0,0,0,0,0,0,0,41,4.1,1,20_5_2013/473
-474,319518,Graham,Dorrans,Dorrans,West Brom,Midfielder,3,1414,1,2,1,31,0,0,0,2,0,0,0,0,47,4.7,46,20_5_2013/474
-475,38230,Steven,Reid,Reid,West Brom,Midfielder,3,1288,1,6,1,25,0,0,0,3,0,0,4,0,41,4.1,61,20_5_2013/475
-476,224503,Jerome,Thomas,Thomas,West Brom,Midfielder,3,2569,3,8,2,57,0,0,0,4,0,0,5,0,45,4.5,105,20_5_2013/476
-477,264643,James,Morrison,Morrison,West Brom,Midfielder,3,2268,4,3,2,49,0,0,0,2,1,0,6,0,44,4.4,89,20_5_2013/477
-478,364788,Youssouf,Mulumbu,Mulumbu,West Brom,Midfielder,3,2850,6,2,2,58,0,0,0,5,2,0,17,0,44,4.4,110,20_5_2013/478
-479,269090,Chris,Brunt,Brunt,West Brom,Midfielder,3,3012,4,11,2,61,0,0,1,9,0,0,18,0,54,5.4,130,20_5_2013/479
-480,208114,Zoltan,Gera,Gera,West Brom,Midfielder,3,1118,1,2,5,11,0,0,0,2,1,0,0,0,45,4.5,48,20_5_2013/480
-485,261439,Peter,Odemwingie,Odemwingie,West Brom,Forward,4,2680,15,9,2,51,0,0,1,3,0,0,28,0,58,5.8,171,20_5_2013/485
-486,248233,Marc-Antoine,Fortune,Fortune,West Brom,Forward,4,1119,2,1,0,24,0,0,0,0,0,0,0,0,50,5.0,45,20_5_2013/486
-487,275646,Simon,Cox,Cox,West Brom,Forward,4,772,1,0,1,18,0,0,0,0,0,0,0,0,50,5.0,30,20_5_2013/487
-489,35134,Jussi,Jaaskelainen,Jaaskelainen,West Ham,Goalkeeper,1,3096,0,0,5,50,0,2,0,1,1,117,3,0,46,4.6,109,20_5_2013/489
-492,327115,Winston,Reid,Reid,West Ham,Defender,2,407,0,0,0,12,1,0,0,0,0,0,0,0,40,4.0,5,20_5_2013/492
-495,317640,James,Tomkins,Tomkins,West Ham,Defender,2,1579,1,1,2,33,0,0,0,3,0,0,1,0,41,4.1,41,20_5_2013/495
-497,344517,Jack,Collison,Collison,West Ham,Midfielder,3,199,0,0,0,5,0,0,0,0,0,0,0,0,55,5.5,5,20_5_2013/497
-498,21307,Matthew,Taylor,Taylor,West Ham,Midfielder,3,1922,2,3,2,35,0,0,0,4,0,0,0,0,51,5.1,73,20_5_2013/498
-499,287656,Mark,Noble,Noble,West Ham,Midfielder,3,2140,4,3,4,44,0,0,0,7,0,0,3,0,53,5.3,78,20_5_2013/499
-501,194033,Gary,O'Neil,O'Neil,West Ham,Midfielder,3,589,0,1,1,10,0,0,0,0,0,0,0,0,45,4.5,19,20_5_2013/501
-502,196168,Kevin,Nolan,Nolan,West Ham,Midfielder,3,2651,12,2,8,42,0,0,0,10,0,0,16,0,63,6.3,140,20_5_2013/502
-503,327600,Mohamed,Diame,Diame,West Ham,Midfielder,3,2633,1,3,6,49,0,0,0,6,0,0,0,0,41,4.1,79,20_5_2013/503
-507,244611,Carlton,Cole,Cole,West Ham,Forward,4,2120,5,4,3,47,0,0,1,4,0,0,7,0,57,5.7,89,20_5_2013/507
-508,261854,Ali,Al Habsi,Al-Habsi,Wigan,Goalkeeper,1,3060,0,1,7,49,0,1,0,0,0,121,7,0,41,4.1,125,20_5_2013/508
-509,35789,Michael,Pollitt,Pollitt,Wigan,Goalkeeper,1,29,0,0,0,0,0,0,0,0,0,2,0,0,40,4.0,1,20_5_2013/509
-511,262365,Antolin,Alcaraz,Alcaraz,Wigan,Defender,2,3028,1,1,7,51,0,0,0,6,1,0,10,0,43,4.3,87,20_5_2013/511
-512,270726,Ronnie,Stam,Stam,Wigan,Defender,2,1579,1,0,3,27,0,0,0,2,0,0,0,0,40,4.0,47,20_5_2013/512
-513,295793,Maynor,Figueroa,Figueroa,Wigan,Defender,2,2808,1,3,5,49,0,0,0,11,0,0,0,0,41,4.1,71,20_5_2013/513
-514,39713,Emmerson,Boyce,Boyce,Wigan,Defender,2,1669,0,2,5,27,0,0,0,3,0,0,0,0,43,4.3,55,20_5_2013/514
-515,181472,Gary,Caldwell,Caldwell,Wigan,Defender,2,1975,0,1,2,33,0,0,0,7,1,0,4,0,45,4.5,40,20_5_2013/515
-516,369397,Adrian,Lopez,Lopez,Wigan,Defender,2,68,0,0,0,1,0,0,0,0,0,0,0,0,40,4.0,2,20_5_2013/516
-517,312025,James,McArthur,McArthur,Wigan,Midfielder,3,557,0,0,0,11,0,0,0,0,0,0,0,0,41,4.1,21,20_5_2013/517
-518,355811,James,McCarthy,McCarthy,Wigan,Midfielder,3,1976,3,1,5,34,0,0,0,2,0,0,8,0,46,4.6,75,20_5_2013/518
-519,341763,Jordi,Gomez,Gomez,Wigan,Midfielder,3,720,1,0,1,11,0,0,0,0,0,0,3,0,45,4.5,28,20_5_2013/519
-520,268156,Ben,Watson,Watson,Wigan,Midfielder,3,2124,3,2,3,40,0,0,0,3,0,0,12,0,42,4.2,85,20_5_2013/520
-521,377453,Victor,Moses,Moses,Chelsea,Midfielder,3,815,1,3,1,16,0,0,0,1,0,0,0,0,45,4.5,42,20_5_2013/521
-522,269108,David,Jones,Jones,Wigan,Midfielder,3,951,1,0,1,19,0,0,0,1,0,0,2,0,46,4.6,30,20_5_2013/522
-525,285034,Jean,Beausejour,Beausejour,Wigan,Midfielder,3,895,2,0,1,13,0,0,0,0,0,0,0,0,50,5.0,36,20_5_2013/525
-526,397610,Franco,Di Santo,Di Santo,Wigan,Forward,4,929,1,3,2,18,0,0,0,2,0,0,3,0,43,4.3,47,20_5_2013/526
-527,348967,Conor,Sammon,Sammon,Wigan,Forward,4,214,1,0,1,2,0,0,0,0,0,0,0,0,50,5.0,12,20_5_2013/527
-528,402026,Callum,McManaman,McManaman,Wigan,Forward,4,14,0,0,0,0,0,0,0,0,0,0,0,0,45,4.5,3,20_5_2013/528
-540,275107,Mauro,Boselli,Boselli,Wigan,Forward,4,496,0,0,1,14,0,0,1,0,0,0,0,0,48,4.8,11,20_5_2013/540
-542,396945,David,Hoilett,Hoilett,QPR,Midfielder,3,1494,5,1,4,26,0,0,0,2,0,0,10,0,40,4.0,71,20_5_2013/542
-548,258660,Michael,Kightly,Kightly,Stoke City,Midfielder,3,162,0,0,0,4,0,0,0,1,0,0,0,0,50,5.0,4,20_5_2013/548
-554,47850,Louis,Saha,Saha,Sunderland,Forward,4,1366,7,1,1,22,0,0,0,0,0,0,5,0,71,7.1,70,20_5_2013/554
-558,232655,Jose,Bosingwa,Bosingwa,QPR,Defender,2,1263,0,0,6,11,1,0,0,1,0,0,0,0,49,4.9,52,20_5_2013/558
-570,322560,Sebastien,Bassong,Bassong,Norwich,Defender,2,828,1,0,2,8,0,0,0,0,0,0,2,0,44,4.4,35,20_5_2013/570
-572,283249,Matthew,Jarvis,Jarvis,West Ham,Midfielder,3,3050,4,8,6,57,0,0,0,2,0,0,15,0,52,5.2,133,20_5_2013/572
-573,292454,Steven,Fletcher,Fletcher,Sunderland,Forward,4,1395,10,3,2,31,0,0,0,1,0,0,7,0,49,4.9,97,20_5_2013/573
-597,394058,Steven,Nzonzi,Nzonzi,Stoke City,Midfielder,3,1274,1,1,6,13,0,0,0,4,1,0,2,0,46,4.6,43,20_5_2013/597
-601,32371,Michael,Owen,Owen,Stoke City,Forward,4,238,2,0,0,1,0,0,0,1,0,0,0,0,73,7.3,18,20_5_2013/601
-609,231150,Mark,Bunn,Bunn,Norwich,Goalkeeper,1,225,0,0,0,4,0,0,0,1,0,9,0,0,40,4.0,5,20_5_2013/609
-617,348712,Jordan,Spence,Spence,West Ham,Defender,2,180,0,0,0,6,0,0,0,0,0,0,0,0,39,3.9,2,20_5_2013/617
-619,214457,Thomas,Hitzlsperger,Hitzlsperger,Everton,Midfielder,3,990,2,4,2,22,0,0,0,1,0,0,3,0,48,4.8,48,20_5_2013/619
-623,154996,James,McFadden,McFadden,Sunderland,Forward,4,276,0,1,2,2,0,0,0,0,0,0,0,0,45,4.5,10,20_5_2013/623
-628,411414,Nile,Ranger,Ranger,Newcastle,Midfielder,3,588,0,1,0,10,0,0,0,2,0,0,0,0,41,4.1,27,20_5_2013/628
-647,242601,Tal,Ben Haim,Ben Haim,QPR,Defender,2,712,0,1,1,15,0,0,0,3,0,1,0,0,42,4.2,16,20_5_2013/647
-677,275441,Christopher,Samba,Samba,QPR,Defender,2,2879,4,0,7,46,0,0,0,3,1,0,17,0,51,5.1,111,20_5_2013/677
-681,201521,Paul,Scharner,Scharner,Wigan,Defender,2,2740,4,1,3,53,0,0,0,6,1,0,5,0,44,4.4,86,20_5_2013/681
+archive_id,full_name,web_name,current_team,current_type,element_type_id,minutes,goals,assists,clean_sheets,goals_conceded,own_goals,penalties_saved,penalties_missed,yellow_cards,red_cards,saves,bonus,end_cost_tenths,total_points,ea_ppi,end_price_m,source_path
+1,Lukasz Fabianski,Fabianski,Arsenal,Goalkeeper,1,1260,0,1,5,14,0,0,0,0,0,33,2,45,55,0,4.5,20_5_2013/1
+2,Wojciech Szczesny,Szczesny,Arsenal,Goalkeeper,1,1350,0,0,6,19,0,1,0,1,0,45,0,43,62,0,4.3,20_5_2013/2
+3,Sebastien Squillaci,Squillaci,Arsenal,Defender,2,1820,1,0,5,28,1,0,0,1,0,0,0,60,55,0,6.0,20_5_2013/3
+4,Laurent Koscielny,Koscielny,Arsenal,Defender,2,2617,2,0,9,36,0,0,0,5,2,0,0,59,85,0,5.9,20_5_2013/4
+5,Thomas Vermaelen,Vermaelen,Arsenal,Defender,2,450,0,1,1,6,0,0,0,0,0,0,0,71,15,0,7.1,20_5_2013/5
+6,Johan Djourou,Djourou,Arsenal,Defender,2,1794,1,0,10,15,0,0,0,3,0,0,6,40,86,0,4.0,20_5_2013/6
+7,Bacary Sagna,Sagna,Arsenal,Defender,2,2969,1,3,12,39,0,0,0,3,1,0,1,63,111,0,6.3,20_5_2013/7
+8,Kieran Gibbs,Gibbs,Arsenal,Defender,2,348,0,0,0,8,0,0,0,1,0,0,0,52,7,0,5.2,20_5_2013/8
+13,Jack Wilshere,Wilshere,Arsenal,Midfielder,3,2640,1,3,12,30,0,0,0,7,1,0,14,49,93,0,4.9,20_5_2013/13
+14,Andrey Arshavin,Arshavin,Arsenal,Midfielder,3,2188,6,11,8,27,0,0,0,1,0,0,8,87,138,0,8.7,20_5_2013/14
+15,Theo Walcott,Walcott,Arsenal,Midfielder,3,1691,9,8,10,16,0,0,0,0,0,0,7,70,133,0,7.0,20_5_2013/15
+16,Alex Song,Song,Arsenal,Midfielder,3,2592,4,2,12,29,0,0,0,7,1,0,15,53,102,0,5.3,20_5_2013/16
+17,Vassiriki Diaby,Diaby,Arsenal,Midfielder,3,953,2,3,3,16,0,0,0,1,1,0,3,72,46,0,7.2,20_5_2013/17
+18,Aaron Ramsey,Ramsey,Arsenal,Midfielder,3,355,1,0,1,8,0,0,0,1,0,0,3,60,18,0,6.0,20_5_2013/18
+19,Tomas Rosicky,Rosicky,Arsenal,Midfielder,3,939,0,1,2,17,0,0,1,3,0,0,0,60,30,0,6.0,20_5_2013/19
+20,Mikel Arteta,Arteta,Arsenal,Midfielder,3,2405,3,4,6,36,0,0,1,1,1,0,18,78,101,0,7.8,20_5_2013/20
+26,Robin van Persie,Van Persie,Man Utd,Forward,4,1770,18,7,7,24,0,0,1,4,0,0,27,110,157,0,11.0,20_5_2013/26
+27,Marouane Chamakh,Chamakh,West Ham,Forward,4,1846,7,7,4,24,0,0,0,5,0,0,11,79,101,0,7.9,20_5_2013/27
+28,Carlos Alberto Vela,Vela,Arsenal,Forward,4,386,3,1,0,6,0,0,0,0,0,0,0,42,29,0,4.2,20_5_2013/28
+31,Nicklas Bendtner,Bendtner,Arsenal,Forward,4,509,2,2,2,5,0,0,0,2,0,0,0,63,32,0,6.3,20_5_2013/31
+35,Nathan Baker,Baker,Aston Villa,Defender,2,247,0,0,0,4,0,0,0,0,0,0,0,40,5,0,4.0,20_5_2013/35
+36,Richard Dunne,Dunne,Aston Villa,Defender,2,2717,0,1,6,45,1,0,0,4,0,0,6,65,73,0,6.5,20_5_2013/36
+37,Ciaran Clark,Clark,Aston Villa,Defender,2,1569,3,0,4,33,0,0,0,9,0,0,3,41,51,0,4.1,20_5_2013/37
+38,James Collins,Collins,West Ham,Defender,2,2854,3,0,7,45,0,0,0,5,0,0,14,58,104,0,5.8,20_5_2013/38
+39,Stephen Warnock,Warnock,Aston Villa,Defender,2,1710,0,2,4,34,0,0,0,8,0,0,0,54,38,0,5.4,20_5_2013/39
+40,Alan Hutton,Hutton,Aston Villa,Defender,2,1705,2,2,2,25,0,0,0,2,0,0,2,43,58,0,4.3,20_5_2013/40
+42,Eric Lichaj,Lichaj,Aston Villa,Defender,2,274,0,0,0,7,0,0,0,1,0,0,0,40,4,0,4.0,20_5_2013/42
+45,Barry Bannan,Bannan,Aston Villa,Midfielder,3,640,0,1,1,14,0,0,0,1,0,0,0,44,21,0,4.4,20_5_2013/45
+46,Chris Herd,Herd,Aston Villa,Midfielder,3,110,0,0,0,2,0,0,0,0,0,0,0,45,7,0,4.5,20_5_2013/46
+47,Jean Makoun,Makoun,Aston Villa,Midfielder,3,551,0,0,1,9,0,0,0,3,1,0,0,55,8,0,5.5,20_5_2013/47
+48,Fabian Delph,Delph,Aston Villa,Midfielder,3,414,0,0,0,7,0,0,0,1,0,0,0,50,9,0,5.0,20_5_2013/48
+49,Marc Albrighton,Albrighton,Aston Villa,Midfielder,3,1800,5,7,4,33,0,0,0,3,0,0,4,44,99,0,4.4,20_5_2013/49
+50,Stephen Ireland,Ireland,Aston Villa,Midfielder,3,555,0,0,1,16,0,0,0,1,0,0,0,58,17,0,5.8,20_5_2013/50
+51,Charles N'Zogbia,N'Zogbia,Aston Villa,Midfielder,3,2785,9,7,8,49,0,0,0,2,1,0,33,59,167,0,5.9,20_5_2013/51
+58,Darren Bent,Bent,Aston Villa,Forward,4,3142,17,2,12,41,0,0,0,1,0,0,14,92,158,0,9.2,20_5_2013/58
+59,Nathan Delfouneso,Delfouneso,Aston Villa,Forward,4,398,1,0,1,8,0,0,0,0,0,0,0,46,17,0,4.6,20_5_2013/59
+60,Gabriel Agbonlahor,Agbonlahor,Aston Villa,Forward,4,1603,3,1,4,26,0,0,0,3,0,0,0,81,55,0,8.1,20_5_2013/60
+61,Andreas Weimann,Weimann,Aston Villa,Forward,4,5,0,0,0,0,0,0,0,0,0,0,0,50,1,0,5.0,20_5_2013/61
+63,Petr Cech,Cech,Chelsea,Goalkeeper,1,3420,0,1,15,33,0,1,0,0,0,98,2,67,158,0,6.7,20_5_2013/63
+66,Gary Cahill,Cahill,Chelsea,Defender,2,3213,3,0,5,53,0,0,0,7,1,0,23,56,105,0,5.6,20_5_2013/66
+67,David Luiz,Luiz,Chelsea,Defender,2,953,2,0,4,8,0,0,0,3,0,0,10,65,56,0,6.5,20_5_2013/67
+68,Ryan Bertrand,Bertrand,Chelsea,Defender,2,35,0,1,0,1,0,0,0,0,0,0,0,40,4,0,4.0,20_5_2013/68
+69,John Terry,Terry,Chelsea,Defender,2,2961,3,2,14,27,0,0,0,6,0,0,0,74,134,0,7.4,20_5_2013/69
+70,Branislav Ivanovic,Ivanovic,Chelsea,Defender,2,2827,4,5,13,27,0,0,0,12,0,0,5,71,144,0,7.1,20_5_2013/70
+71,Paulo Ferreira,Ferreira,Chelsea,Defender,2,1039,0,2,4,14,0,0,0,2,0,0,0,48,48,0,4.8,20_5_2013/71
+72,Ashley Cole,Cole A,Chelsea,Defender,2,3385,0,5,15,32,0,0,0,4,0,0,11,81,150,0,8.1,20_5_2013/72
+75,Josh McEachran,McEachran,Chelsea,Midfielder,3,180,0,0,0,3,0,0,0,1,0,0,0,45,9,0,4.5,20_5_2013/75
+76,Nascimento Ramires,Ramires,Chelsea,Midfielder,3,1933,2,0,10,18,0,0,0,7,0,0,4,67,68,0,6.7,20_5_2013/76
+77,Frank Lampard,Lampard,Chelsea,Midfielder,3,2024,10,4,9,21,0,0,1,2,0,0,16,130,130,0,13.0,20_5_2013/77
+78,Michael Essien,Essien,Chelsea,Midfielder,3,2797,3,2,13,25,0,0,0,4,1,0,15,69,105,0,6.9,20_5_2013/78
+79,Florent Malouda,Malouda,Chelsea,Midfielder,3,2799,13,5,16,27,0,0,0,1,0,0,22,97,186,0,9.7,20_5_2013/79
+80,Mikel,Mikel,Chelsea,Midfielder,3,2204,0,2,11,21,0,0,0,3,0,0,1,44,67,0,4.4,20_5_2013/80
+86,Yossi Benayoun,Benayoun,Chelsea,Midfielder,3,209,1,0,0,1,0,0,0,0,0,0,0,68,13,0,6.8,20_5_2013/86
+89,Fernando Torres,Torres,Chelsea,Forward,4,2655,10,7,10,36,0,0,0,7,0,0,8,112,128,0,11.2,20_5_2013/89
+90,Daniel Sturridge,Sturridge,Liverpool,Forward,4,1131,8,0,2,17,0,0,0,0,1,0,14,53,78,0,5.3,20_5_2013/90
+93,Tim Howard,Howard,Everton,Goalkeeper,1,3420,0,0,9,45,0,0,0,3,0,108,3,53,124,0,5.3,20_5_2013/93
+94,Johnny Heitinga,Heitinga,Everton,Defender,2,1888,1,0,4,30,0,0,0,9,0,0,0,55,50,0,5.5,20_5_2013/94
+95,Phil Jagielka,Jagielka,Everton,Defender,2,2796,1,1,9,32,2,0,0,3,0,0,10,56,104,0,5.6,20_5_2013/95
+96,Tony Hibbert,Hibbert,Everton,Defender,2,1452,0,0,3,20,1,0,0,3,0,0,0,48,38,0,4.8,20_5_2013/96
+97,Leighton Baines,Baines,Everton,Defender,2,3420,5,11,9,45,0,0,0,4,0,0,20,81,178,0,8.1,20_5_2013/97
+98,Sylvain Distin,Distin,Everton,Defender,2,3409,2,0,9,45,1,0,0,1,0,0,16,53,124,0,5.3,20_5_2013/98
+101,Adam Forshaw,Forshaw,Everton,Midfielder,3,9,0,0,0,0,0,0,0,0,0,0,0,45,1,0,4.5,20_5_2013/101
+102,Jack Rodwell,Rodwell,Man City,Midfielder,3,1420,0,1,3,19,0,0,0,4,0,0,0,50,41,0,5.0,20_5_2013/102
+103,Leon Osman,Osman,Everton,Midfielder,3,1811,4,6,5,23,0,0,0,4,0,0,8,56,91,0,5.6,20_5_2013/103
+104,Tim Cahill,Cahill,Everton,Midfielder,3,2016,9,4,5,28,0,0,0,4,0,0,10,89,117,0,8.9,20_5_2013/104
+105,Marouane Fellaini,Fellaini,Everton,Midfielder,3,1652,1,3,3,24,0,0,0,3,1,0,7,59,56,0,5.9,20_5_2013/105
+106,Phil Neville,Neville,Everton,Midfielder,3,2657,1,1,8,33,0,0,0,5,0,0,5,46,77,0,4.6,20_5_2013/106
+107,Seamus Coleman,Coleman,Everton,Midfielder,3,2256,4,4,7,27,0,0,0,4,1,0,8,52,116,0,5.2,20_5_2013/107
+108,Darron Gibson,Gibson,Everton,Midfielder,3,657,0,1,3,8,0,0,0,3,0,0,0,49,21,0,4.9,20_5_2013/108
+110,Apostolos Vellios,Vellios,Everton,Forward,4,35,0,0,0,0,0,0,0,0,0,0,0,45,3,0,4.5,20_5_2013/110
+111,Magaye Gueye,Gueye,Everton,Forward,4,191,0,1,2,2,0,0,0,0,0,0,1,50,11,0,5.0,20_5_2013/111
+112,Jose Baxter,Baxter,Everton,Forward,4,13,0,0,0,0,0,0,0,0,0,0,0,41,1,0,4.1,20_5_2013/112
+113,Victor Anichebe,Anichebe,Everton,Forward,4,769,0,0,0,13,0,0,0,1,1,0,0,50,19,0,5.0,20_5_2013/113
+117,David Stockdale,Stockdale,Fulham,Goalkeeper,1,630,0,0,3,6,0,1,0,0,0,25,1,38,38,0,3.8,20_5_2013/117
+118,Mark Schwarzer,Schwarzer,Fulham,Goalkeeper,1,2790,0,0,11,37,0,0,0,0,0,93,0,47,113,0,4.7,20_5_2013/118
+120,Matthew Briggs,Briggs,Fulham,Defender,2,195,0,0,0,4,0,0,0,0,0,0,0,40,4,0,4.0,20_5_2013/120
+121,Philippe Senderos,Senderos,Fulham,Defender,2,270,0,0,2,2,0,0,0,0,0,0,0,42,13,0,4.2,20_5_2013/121
+122,Stephen Kelly,Kelly,Reading,Defender,2,729,0,0,2,8,0,0,0,0,0,0,0,42,23,0,4.2,20_5_2013/122
+123,Aaron Hughes,Hughes,Fulham,Defender,2,3404,1,1,14,43,0,0,0,0,0,0,3,50,129,0,5.0,20_5_2013/123
+124,Brede Hangeland,Hangeland,Fulham,Defender,2,3330,6,1,13,43,1,0,0,6,0,0,12,59,154,0,5.9,20_5_2013/124
+125,Chris Baird,Baird,Fulham,Defender,2,2383,2,1,10,30,0,0,0,5,0,0,4,47,99,0,4.7,20_5_2013/125
+129,Steve Sidwell,Sidwell,Fulham,Midfielder,3,1063,2,2,5,11,0,0,0,4,0,0,2,47,45,0,4.7,20_5_2013/129
+130,Damien Duff,Duff,Fulham,Midfielder,3,1876,4,2,9,20,0,0,0,3,0,0,14,61,91,0,6.1,20_5_2013/130
+131,Dickson Etuhu,Etuhu,Fulham,Midfielder,3,1971,2,2,7,27,0,0,0,3,0,0,7,43,76,0,4.3,20_5_2013/131
+132,Clint Dempsey,Dempsey,Tottenham,Midfielder,3,3091,12,3,12,41,0,0,1,5,0,0,23,74,168,0,7.4,20_5_2013/132
+133,Simon Davies,Davies,Fulham,Midfielder,3,2213,4,4,9,29,0,0,0,0,0,0,6,45,101,0,4.5,20_5_2013/133
+139,Mousa Dembele,Dembele,Tottenham,Midfielder,3,1916,3,3,7,27,0,0,0,0,0,0,15,47,81,0,4.7,20_5_2013/139
+143,Hugo Rodallega,Rodallega,Fulham,Forward,4,3025,9,2,8,54,0,0,0,4,1,0,18,54,123,0,5.4,20_5_2013/143
+144,Jose Reina,Reina,Liverpool,Goalkeeper,1,3420,0,0,14,44,1,0,0,4,0,106,2,61,135,0,6.1,20_5_2013/144
+147,Danny Wilson,Wilson,Liverpool,Defender,2,157,0,0,0,5,0,0,0,1,0,0,0,44,1,0,4.4,20_5_2013/147
+148,Jack Robinson,Robinson,Liverpool,Defender,2,147,0,0,1,1,0,0,0,1,0,0,0,40,7,0,4.0,20_5_2013/148
+149,Jon Flanagan,Flanagan,Liverpool,Defender,2,620,0,0,3,6,0,0,0,3,0,0,0,45,21,0,4.5,20_5_2013/149
+150,Martin Kelly,Kelly,Liverpool,Defender,2,860,0,1,5,7,0,0,0,1,0,0,2,37,42,0,3.7,20_5_2013/150
+151,Glen Johnson,Johnson,Liverpool,Defender,2,2437,2,2,10,34,0,0,0,4,0,0,3,71,100,0,7.1,20_5_2013/151
+152,Jamie Carragher,Carragher,Liverpool,Defender,2,2486,0,0,11,30,1,0,0,4,0,0,6,60,90,0,6.0,20_5_2013/152
+153,Martin Skrtel,Skrtel,Liverpool,Defender,2,3420,2,1,14,44,1,0,0,8,0,0,4,59,126,0,5.9,20_5_2013/153
+154,Daniel Agger,Agger,Liverpool,Defender,2,1092,0,0,6,10,0,0,0,0,0,0,5,63,54,0,6.3,20_5_2013/154
+155,Sanchez Jose Enrique,Jose Enrique,Liverpool,Defender,2,3124,0,3,9,50,0,0,0,5,0,0,11,47,105,0,4.7,20_5_2013/155
+157,Stewart Downing,Downing,Liverpool,Midfielder,3,3385,7,9,7,59,0,0,0,0,0,0,18,71,163,0,7.1,20_5_2013/157
+158,Jonjo Shelvey,Shelvey,Liverpool,Midfielder,3,340,0,1,0,5,0,0,0,1,0,0,0,50,18,0,5.0,20_5_2013/158
+159,Jay Spearing,Spearing,Liverpool,Midfielder,3,795,0,2,4,9,0,0,0,0,0,0,0,45,30,0,4.5,20_5_2013/159
+160,Joe Cole,Cole,West Ham,Midfielder,3,802,2,1,1,20,0,0,0,1,1,0,0,83,38,0,8.3,20_5_2013/160
+161,Steven Gerrard,Gerrard,Liverpool,Midfielder,3,1870,4,5,7,26,0,0,1,2,0,0,8,113,88,0,11.3,20_5_2013/161
+162,Leiva Lucas,Lucas,Liverpool,Midfielder,3,2858,0,2,12,37,0,0,0,6,1,0,7,45,81,0,4.5,20_5_2013/162
+163,Charlie Adam,Adam,Stoke City,Midfielder,3,3049,12,9,5,68,1,0,1,10,0,0,45,60,192,0,6.0,20_5_2013/163
+164,Jordan Henderson,Henderson,Liverpool,Midfielder,3,3211,3,5,13,46,0,0,0,2,0,0,20,54,133,0,5.4,20_5_2013/164
+167,Luis Suarez,Suarez,Liverpool,Forward,4,1100,4,5,5,12,0,0,0,2,0,0,14,95,68,0,9.5,20_5_2013/167
+168,Andy Carroll,Carroll,West Ham,Forward,4,2071,13,6,7,34,0,0,0,5,0,0,21,62,135,0,6.2,20_5_2013/168
+170,Nathan Eccleston,Eccleston,Liverpool,Forward,4,11,0,0,0,0,0,0,0,0,0,0,0,45,1,0,4.5,20_5_2013/170
+171,Joe Hart,Hart,Man City,Goalkeeper,1,3420,0,1,18,33,0,1,0,1,0,115,4,69,175,0,6.9,20_5_2013/171
+173,Aleksandar Kolarov,Kolarov,Man City,Defender,2,1719,1,1,5,21,0,0,0,5,1,0,4,57,60,0,5.7,20_5_2013/173
+174,Micah Richards,Richards,Man City,Defender,2,1399,1,1,8,15,0,0,0,4,0,0,2,54,67,0,5.4,20_5_2013/174
+175,Pablo Zabaleta,Zabaleta,Man City,Defender,2,1947,2,2,12,13,0,0,0,8,1,0,5,61,102,0,6.1,20_5_2013/175
+176,Joleon Lescott,Lescott,Man City,Defender,2,1883,3,1,10,18,0,0,0,1,0,0,7,64,103,0,6.4,20_5_2013/176
+177,Vincent Kompany,Kompany,Man City,Defender,2,3330,0,1,18,32,0,0,0,6,0,0,6,52,95,0,5.2,20_5_2013/177
+178,Gael Clichy,Clichy,Man City,Defender,2,2970,0,1,13,33,0,0,0,3,0,0,0,61,109,0,6.1,20_5_2013/178
+180,Kolo Toure,Toure,Man City,Defender,2,1847,1,0,9,14,0,0,0,2,1,0,0,62,76,0,6.2,20_5_2013/180
+182,Samir Nasri,Nasri,Man City,Midfielder,3,2383,10,1,9,28,0,0,0,4,0,0,20,82,134,0,8.2,20_5_2013/182
+183,David Silva,Silva,Man City,Midfielder,3,2551,4,9,16,24,0,0,0,2,0,0,20,86,144,0,8.6,20_5_2013/183
+184,Yaya Toure,Yaya Toure,Man City,Midfielder,3,2966,6,6,18,25,0,0,0,3,0,0,15,63,146,0,6.3,20_5_2013/184
+185,Nigel De Jong,De Jong,Man City,Midfielder,3,2610,1,0,16,21,0,0,0,9,0,0,8,42,80,0,4.2,20_5_2013/185
+186,Gareth Barry,Barry,Man City,Midfielder,3,2702,2,3,13,29,0,0,0,8,0,0,3,65,90,0,6.5,20_5_2013/186
+187,James Milner,Milner,Man City,Midfielder,3,2134,1,7,11,24,0,0,0,4,0,0,10,81,97,0,8.1,20_5_2013/187
+188,Adam Johnson,Johnson,Sunderland,Midfielder,3,1542,4,7,10,12,0,0,0,2,0,0,9,57,104,0,5.7,20_5_2013/188
+189,Abdul Razak,Razak,Man City,Midfielder,3,1,0,0,0,0,0,0,0,0,0,0,0,45,1,0,4.5,20_5_2013/189
+190,Carlos Tevez,Tevez,Man City,Forward,4,2513,21,6,16,19,0,0,1,6,0,0,32,115,185,0,11.5,20_5_2013/190
+191,Mario Balotelli,Balotelli,Man City,Forward,4,1090,6,1,7,11,0,0,0,5,1,0,6,76,55,0,7.6,20_5_2013/191
+192,Edin Dzeko,Dzeko,Man City,Forward,4,854,2,2,1,15,0,0,0,1,0,0,0,84,35,0,8.4,20_5_2013/192
+194,Emmanuel Adebayor,Adebayor,Tottenham,Forward,4,244,1,0,1,5,0,0,0,0,0,0,0,89,14,0,8.9,20_5_2013/194
+198,Chris Smalling,Smalling,Man Utd,Defender,2,1086,0,1,5,12,0,0,0,0,0,0,5,44,51,0,4.4,20_5_2013/198
+199,Phil Jones,Jones,Man Utd,Defender,2,2175,0,0,6,33,0,0,0,4,0,0,11,42,70,0,4.2,20_5_2013/199
+200,Rafael Da Silva,Rafael,Man Utd,Defender,2,1197,0,1,6,13,0,0,0,2,1,0,4,54,51,0,5.4,20_5_2013/200
+201,Nemanja Vidic,Vidic,Man Utd,Defender,2,3116,5,1,14,33,0,0,0,6,1,0,9,81,148,0,8.1,20_5_2013/201
+202,Rio Ferdinand,Ferdinand,Man Utd,Defender,2,1710,0,0,8,13,0,0,0,0,0,0,1,63,69,0,6.3,20_5_2013/202
+203,Patrice Evra,Evra,Man Utd,Defender,2,2957,1,2,12,33,1,0,0,1,0,0,0,73,113,0,7.3,20_5_2013/203
+204,Jonny Evans,Evans J,Man Utd,Defender,2,1004,0,0,4,16,0,0,0,2,1,0,0,46,29,0,4.6,20_5_2013/204
+206,Antonio Valencia,Valencia,Man Utd,Midfielder,3,742,1,2,4,6,0,0,0,1,0,0,10,79,42,0,7.9,20_5_2013/206
+207,Luis Nani,Nani,Man Utd,Midfielder,3,2660,9,18,14,29,0,0,1,1,0,0,25,94,198,0,9.4,20_5_2013/207
+208,Oliveira Anderson,Anderson,Man Utd,Midfielder,3,1182,1,3,8,8,0,0,0,2,0,0,6,55,57,0,5.5,20_5_2013/208
+209,Ryan Giggs,Giggs,Man Utd,Midfielder,3,1676,2,8,5,21,0,0,0,5,0,0,4,68,79,0,6.8,20_5_2013/209
+210,Michael Carrick,Carrick,Man Utd,Midfielder,3,1972,0,0,9,21,0,0,0,1,0,0,4,62,61,0,6.2,20_5_2013/210
+211,Darren Fletcher,Fletcher,Man Utd,Midfielder,3,2109,2,6,9,25,0,0,0,3,0,0,4,68,87,0,6.8,20_5_2013/211
+212,Tom Cleverley,Cleverley,Man Utd,Midfielder,3,1637,4,2,2,26,0,0,0,1,0,0,4,42,72,0,4.2,20_5_2013/212
+213,Ashley Young,Young,Man Utd,Midfielder,3,3050,7,11,7,49,0,0,1,8,0,0,27,84,160,0,8.4,20_5_2013/213
+216,Paul Scholes,Scholes,Man Utd,Midfielder,3,1537,1,4,6,19,0,0,0,9,0,0,12,61,64,0,6.1,20_5_2013/216
+219,Dimitar Berbatov,Berbatov,Fulham,Forward,4,2208,21,4,8,28,0,0,0,1,0,0,26,92,176,0,9.2,20_5_2013/219
+220,Javier Hernandez,Hernandez,Man Utd,Forward,4,1491,13,2,4,12,0,0,0,5,0,0,16,71,110,0,7.1,20_5_2013/220
+221,Wayne Rooney,Rooney,Man Utd,Forward,4,2225,11,11,10,22,0,0,1,5,0,0,19,118,142,0,11.8,20_5_2013/221
+222,Danny Welbeck,Welbeck,Man Utd,Forward,4,1756,6,1,9,27,0,0,0,2,0,0,11,44,79,0,4.4,20_5_2013/222
+224,Federico Macheda,Macheda,Man Utd,Forward,4,220,1,0,1,2,0,0,0,0,0,0,0,50,12,0,5.0,20_5_2013/224
+225,Steve Harper,Harper,Newcastle,Goalkeeper,1,1564,0,0,5,22,0,0,0,0,0,47,0,43,57,0,4.3,20_5_2013/225
+226,Tim Krul,Krul,Newcastle,Goalkeeper,1,1856,0,0,3,35,0,0,0,0,0,48,0,39,51,0,3.9,20_5_2013/226
+228,James Perch,Perch,Newcastle,Defender,2,877,0,0,2,15,1,0,0,6,0,0,0,38,16,0,3.8,20_5_2013/228
+229,Mike Williamson,Williamson,Newcastle,Defender,2,2565,0,2,7,41,0,0,0,5,0,0,3,41,75,0,4.1,20_5_2013/229
+230,Danny Simpson,Simpson,Newcastle,Defender,2,2685,0,0,7,45,0,0,0,4,0,0,0,39,70,0,3.9,20_5_2013/230
+231,Steven Taylor,Taylor S,Newcastle,Defender,2,1008,3,1,1,19,0,0,0,2,0,0,3,39,45,0,3.9,20_5_2013/231
+232,Fabricio Coloccini,Coloccini,Newcastle,Defender,2,3080,2,0,9,51,0,0,0,3,1,0,3,46,97,0,4.6,20_5_2013/232
+233,Ryan Taylor,Taylor R,Newcastle,Defender,2,276,0,1,0,6,0,0,0,0,1,0,0,39,5,0,3.9,20_5_2013/233
+236,Gabriel Obertan,Obertan,Newcastle,Midfielder,3,284,0,0,1,4,0,0,0,0,0,0,2,44,12,0,4.4,20_5_2013/236
+237,Cheick Tiote,Tiote,Newcastle,Midfielder,3,2308,1,1,8,34,0,0,0,14,0,0,12,44,66,0,4.4,20_5_2013/237
+238,Hatem Ben Arfa,Ben Arfa,Newcastle,Midfielder,3,168,1,0,2,1,0,0,0,0,0,0,1,43,14,0,4.3,20_5_2013/238
+239,Shane Ferguson,Ferguson,Newcastle,Midfielder,3,309,0,0,0,7,0,0,0,0,0,0,0,40,10,0,4.0,20_5_2013/239
+240,Dan Gosling,Gosling,Newcastle,Midfielder,3,1,0,0,0,1,0,0,0,0,0,0,0,43,1,0,4.3,20_5_2013/240
+241,Jonas Gutierrez,Gutierrez,Newcastle,Midfielder,3,2973,3,5,9,45,0,0,0,5,0,0,11,48,116,0,4.8,20_5_2013/241
+248,Shola Ameobi,Ameobi,Newcastle,Forward,4,1753,6,6,5,30,0,0,0,2,0,0,7,41,93,0,4.1,20_5_2013/248
+249,Demba Ba,Ba,Chelsea,Forward,4,933,7,0,2,21,0,0,0,1,0,0,8,49,57,0,4.9,20_5_2013/249
+250,Sammy Ameobi,Sammy Ameobi,Newcastle,Forward,4,9,0,0,0,1,0,0,0,0,0,0,0,40,1,0,4.0,20_5_2013/250
+277,James Vaughan,Vaughan,Norwich,Forward,4,18,0,0,0,0,0,0,0,0,0,0,0,45,1,0,4.5,20_5_2013/277
+279,Rob Green,Green,QPR,Goalkeeper,1,3330,0,0,5,69,1,1,0,0,0,162,6,48,122,0,4.8,20_5_2013/279
+280,Luke Young,Young,QPR,Defender,2,2070,1,1,5,37,0,0,0,1,0,0,5,48,65,0,4.8,20_5_2013/280
+281,Nedum Onuoha,Onuoha,QPR,Defender,2,2662,1,2,9,44,0,0,0,1,0,0,4,51,97,0,5.1,20_5_2013/281
+284,Anton Ferdinand,Ferdinand,QPR,Defender,2,2088,0,0,7,36,0,0,0,2,0,0,3,45,66,0,4.5,20_5_2013/284
+287,Ryan Nelsen,Nelsen,QPR,Defender,2,2413,3,3,5,46,0,0,0,3,1,0,8,49,86,0,4.9,20_5_2013/287
+288,Fabio Da Silva,Fabio,QPR,Defender,2,559,1,1,1,5,0,0,0,2,0,0,0,44,26,0,4.4,20_5_2013/288
+289,Shaun Wright-Phillips,Wright-Phillips,QPR,Midfielder,3,205,0,0,1,2,0,0,0,0,0,0,0,70,9,0,7.0,20_5_2013/289
+290,Joey Barton,Barton,QPR,Midfielder,3,2878,4,9,8,45,0,0,0,8,0,0,20,48,131,0,4.8,20_5_2013/290
+296,Kieron Dyer,Dyer,QPR,Midfielder,3,602,0,1,0,13,0,0,0,0,0,0,0,41,20,0,4.1,20_5_2013/296
+298,Ji-Sung Park,Park,QPR,Midfielder,3,1080,5,3,5,13,0,0,0,1,0,0,9,47,74,0,4.7,20_5_2013/298
+299,Bobby Zamora,Zamora,QPR,Forward,4,757,5,5,3,8,0,0,0,2,0,0,10,56,63,0,5.6,20_5_2013/299
+304,DJ Campbell,Campbell,QPR,Forward,4,2625,13,4,5,55,0,0,0,1,1,0,8,45,128,0,4.5,20_5_2013/304
+306,Andrew Johnson,Johnson,QPR,Forward,4,1560,3,3,6,21,0,0,0,4,0,0,2,55,61,0,5.5,20_5_2013/306
+316,Nicky Shorey,Shorey,Reading,Defender,2,2314,0,1,1,46,1,0,0,1,0,0,0,42,43,0,4.2,20_5_2013/316
+327,Danny Guthrie,Guthrie,Reading,Midfielder,3,949,0,1,3,14,0,0,0,3,0,0,0,47,28,0,4.7,20_5_2013/327
+330,Jason Roberts,Roberts,Reading,Forward,4,1489,5,4,4,28,0,0,0,2,0,0,6,53,73,0,5.3,20_5_2013/330
+348,Jason Puncheon,Puncheon,Southampton,Midfielder,3,647,3,0,0,19,0,0,0,0,0,0,0,50,32,0,5.0,20_5_2013/348
+355,Asmir Begovic,Begovic,Stoke City,Goalkeeper,1,2520,0,0,8,32,0,1,0,3,0,97,5,44,108,0,4.4,20_5_2013/355
+356,Thomas Sorensen,Sorensen,Stoke City,Goalkeeper,1,900,0,0,1,16,0,1,0,0,0,25,0,42,27,0,4.2,20_5_2013/356
+357,Danny Collins,Collins,Stoke City,Defender,2,2030,0,0,5,30,1,0,0,6,0,0,0,43,48,0,4.3,20_5_2013/357
+358,Danny Higginbotham,Higginbotham,Stoke City,Defender,2,844,2,0,3,12,0,0,0,0,0,0,1,39,39,0,3.9,20_5_2013/358
+359,Andy Wilkinson,Wilkinson,Stoke City,Defender,2,1746,0,1,7,22,0,0,0,4,0,0,1,42,62,0,4.2,20_5_2013/359
+360,Ryan Shawcross,Shawcross,Stoke City,Defender,2,3196,1,0,9,44,0,0,0,7,2,0,6,47,92,0,4.7,20_5_2013/360
+361,Robert Huth,Huth,Stoke City,Defender,2,3110,6,3,8,43,0,0,0,7,0,0,14,59,138,0,5.9,20_5_2013/361
+362,Matthew Upson,Upson,Stoke City,Defender,2,2470,0,0,5,49,1,0,0,4,0,0,3,46,56,0,4.6,20_5_2013/362
+364,Marc Wilson,Wilson,Stoke City,Defender,2,1855,1,1,4,28,0,0,0,7,0,0,2,45,56,0,4.5,20_5_2013/364
+365,Dean Whitehead,Whitehead,Stoke City,Midfielder,3,2902,2,2,8,40,0,0,0,6,0,0,6,43,93,0,4.3,20_5_2013/365
+366,Jermaine Pennant,Pennant,Stoke City,Midfielder,3,2015,3,7,10,19,0,0,0,3,0,0,14,48,108,0,4.8,20_5_2013/366
+367,Matthew Etherington,Etherington,Stoke City,Midfielder,3,2519,5,7,7,37,0,0,0,5,0,0,16,57,124,0,5.7,20_5_2013/367
+368,Glenn Whelan,Whelan,Stoke City,Midfielder,3,1357,0,1,3,25,0,0,0,2,0,0,4,43,50,0,4.3,20_5_2013/368
+369,Salif Diao,Diao,Stoke City,Midfielder,3,236,0,0,0,5,0,0,0,3,0,0,0,43,7,0,4.3,20_5_2013/369
+370,Rory Delap,Delap,Stoke City,Midfielder,3,2956,2,1,9,40,0,0,0,5,0,0,1,45,88,0,4.5,20_5_2013/370
+371,Wilson Palacios,Palacios,Stoke City,Midfielder,3,1226,0,0,3,15,0,0,0,5,0,0,2,48,32,0,4.8,20_5_2013/371
+373,Ryan Shotton,Shotton,Stoke City,Midfielder,3,52,0,0,0,0,0,0,0,0,0,0,0,40,2,0,4.0,20_5_2013/373
+374,Jonathan Walters,Walters,Stoke City,Midfielder,3,2341,6,3,5,34,0,0,0,4,0,0,8,54,109,0,5.4,20_5_2013/374
+375,Kenwyne Jones,Jones,Stoke City,Forward,4,2782,9,2,12,32,0,0,0,0,0,0,13,64,121,0,6.4,20_5_2013/375
+376,Mamady Sidibe,Sidibe,Stoke City,Forward,4,40,0,0,0,2,0,0,0,0,0,0,0,50,2,0,5.0,20_5_2013/376
+377,Peter Crouch,Crouch,Stoke City,Forward,4,1945,4,7,4,28,1,0,0,0,0,0,5,65,92,0,6.5,20_5_2013/377
+378,Cameron Jerome,Jerome,Stoke City,Forward,4,2647,3,7,5,47,0,0,0,2,0,0,4,55,98,0,5.5,20_5_2013/378
+380,Simon Mignolet,Mignolet,Sunderland,Goalkeeper,1,2070,0,0,8,35,0,0,0,1,0,74,2,40,83,0,4.0,20_5_2013/380
+381,Titus Bramble,Bramble,Sunderland,Defender,2,2002,0,0,8,30,0,0,0,5,1,0,8,43,66,0,4.3,20_5_2013/381
+382,Marcos Angeleri,Angeleri,Sunderland,Defender,2,9,0,0,0,0,0,0,0,0,0,0,0,44,2,0,4.4,20_5_2013/382
+383,Michael Turner,Turner,Norwich,Defender,2,1305,0,0,5,25,0,0,0,4,0,0,4,49,39,0,4.9,20_5_2013/383
+384,Phil Bardsley,Bardsley,Sunderland,Defender,2,2820,3,2,13,45,0,0,0,5,0,0,5,49,123,0,4.9,20_5_2013/384
+385,John O'Shea,O'Shea,Sunderland,Defender,2,1541,0,3,8,14,0,0,0,1,0,0,0,47,71,0,4.7,20_5_2013/385
+386,Wes Brown,Brown,Sunderland,Defender,2,429,0,0,0,7,0,0,0,2,0,0,0,48,6,0,4.8,20_5_2013/386
+387,Louis Laing,Laing,Sunderland,Defender,2,4,0,0,0,0,0,0,0,0,0,0,0,40,1,0,4.0,20_5_2013/387
+389,Carlos Cuellar,Cuellar,Sunderland,Defender,2,894,0,1,1,15,0,0,0,2,0,0,1,62,23,0,6.2,20_5_2013/389
+390,Lee Cattermole,Cattermole,Sunderland,Midfielder,3,1921,0,0,9,35,0,0,0,8,2,0,5,54,44,0,5.4,20_5_2013/390
+391,David Meyler,Meyler,Sunderland,Midfielder,3,259,0,0,1,1,0,0,0,2,0,0,0,45,5,0,4.5,20_5_2013/391
+392,Kieran Richardson,Richardson,Fulham,Midfielder,3,2039,4,3,9,27,0,0,0,9,0,0,4,53,80,0,5.3,20_5_2013/392
+393,Jack Colback,Colback,Sunderland,Midfielder,3,589,0,0,1,14,0,0,0,1,0,0,2,45,19,0,4.5,20_5_2013/393
+394,Ahmed Elmohamady,Elmohamady,Sunderland,Midfielder,3,2457,0,3,11,38,0,0,0,1,0,0,9,46,109,0,4.6,20_5_2013/394
+395,Sebastian Larsson,Larsson,Sunderland,Midfielder,3,2833,4,6,8,45,0,0,0,5,0,0,9,50,116,0,5.0,20_5_2013/395
+396,Craig Gardner,Gardner,Sunderland,Midfielder,3,2216,8,0,6,34,0,0,0,5,2,0,5,49,92,0,4.9,20_5_2013/396
+397,David Vaughan,Vaughan,Sunderland,Midfielder,3,3150,2,3,6,69,0,0,0,6,0,0,21,43,110,0,4.3,20_5_2013/397
+399,Stephane Sessegnon,Sessegnon,Sunderland,Midfielder,3,1183,3,2,2,29,0,0,0,2,0,0,3,58,51,0,5.8,20_5_2013/399
+400,Craig Lynch,Lynch,Sunderland,Forward,4,30,0,0,0,1,0,0,0,0,0,0,0,45,2,0,4.5,20_5_2013/400
+401,Ryan Noble,Noble,Sunderland,Forward,4,66,0,0,0,1,0,0,0,0,0,0,0,45,3,0,4.5,20_5_2013/401
+402,Fraizer Campbell,Campbell,Sunderland,Forward,4,225,0,1,0,3,0,0,0,0,0,0,0,56,8,0,5.6,20_5_2013/402
+415,Wayne Routledge,Routledge,Swansea,Midfielder,3,996,0,1,2,18,0,0,0,0,0,0,2,41,34,0,4.1,20_5_2013/415
+431,Heurelho Gomes,Gomes,Tottenham,Goalkeeper,1,2700,0,0,7,39,0,2,0,4,0,109,0,52,108,0,5.2,20_5_2013/431
+432,Carlo Cudicini,Cudicini,Tottenham,Goalkeeper,1,720,0,0,1,7,0,0,0,0,0,22,0,42,24,0,4.2,20_5_2013/432
+433,Brad Friedel,Friedel,Tottenham,Goalkeeper,1,3420,0,0,7,59,0,0,0,2,0,116,4,54,111,0,5.4,20_5_2013/433
+434,Ledley King,King,Tottenham,Defender,2,493,0,0,2,4,0,0,0,0,0,0,3,52,22,0,5.2,20_5_2013/434
+435,Michael Dawson,Dawson,Tottenham,Defender,2,2160,1,0,7,27,0,0,0,6,0,0,8,53,77,0,5.3,20_5_2013/435
+436,Benoit Assou-Ekotto,Assou-Ekotto,Tottenham,Defender,2,2569,0,0,7,36,0,0,0,2,0,0,7,52,81,0,5.2,20_5_2013/436
+437,Younes Kaboul,Kaboul,Tottenham,Defender,2,1632,1,1,2,25,0,0,0,1,1,0,3,47,46,0,4.7,20_5_2013/437
+438,William Gallas,Gallas,Tottenham,Defender,2,2339,0,0,4,37,0,0,0,5,0,0,3,53,56,0,5.3,20_5_2013/438
+439,Kyle Walker,Walker,Tottenham,Defender,2,1341,1,3,2,20,0,0,0,3,0,1,5,40,51,0,4.0,20_5_2013/439
+444,Raniere Sandro,Sandro,Tottenham,Midfielder,3,1079,1,0,3,14,0,0,0,4,0,0,3,43,37,0,4.3,20_5_2013/444
+445,Rafael Van der Vaart,Van der Vaart,Tottenham,Midfielder,3,2222,13,9,7,24,0,0,1,4,0,0,19,89,165,0,8.9,20_5_2013/445
+446,Luka Modric,Modric,Tottenham,Midfielder,3,2794,3,3,7,39,0,0,0,3,0,0,34,74,125,0,7.4,20_5_2013/446
+447,Aaron Lennon,Lennon,Tottenham,Midfielder,3,2361,3,3,8,26,0,0,0,1,0,0,10,73,99,0,7.3,20_5_2013/447
+448,Gareth Bale,Bale,Tottenham,Midfielder,3,2447,7,3,6,34,0,0,0,1,0,0,13,70,118,0,7.0,20_5_2013/448
+449,Danny Rose,Rose,Sunderland,Midfielder,3,351,0,2,1,3,0,0,0,0,0,0,2,44,17,0,4.4,20_5_2013/449
+450,Tom Huddlestone,Huddlestone,Tottenham,Midfielder,3,1162,2,2,1,17,0,0,0,3,0,0,5,56,46,0,5.6,20_5_2013/450
+452,Scott Parker,Parker,Tottenham,Midfielder,3,2738,5,3,6,52,0,0,0,8,0,0,25,55,119,0,5.5,20_5_2013/452
+455,Jermaine Jenas,Jenas,QPR,Midfielder,3,1322,0,1,2,19,0,0,0,2,0,0,3,51,39,0,5.1,20_5_2013/455
+456,Steven Pienaar,Pienaar,Everton,Midfielder,3,2060,1,2,4,32,0,0,0,3,0,0,6,65,66,0,6.5,20_5_2013/456
+458,Jermain Defoe,Defoe,Tottenham,Forward,4,1479,4,2,4,17,0,0,1,0,1,0,3,83,56,0,8.3,20_5_2013/458
+459,Dos Santos Giovani,Giovani,Tottenham,Forward,4,45,0,0,0,1,0,0,0,0,0,0,0,49,3,0,4.9,20_5_2013/459
+462,Boaz Myhill,Myhill,West Brom,Goalkeeper,1,540,0,0,0,13,0,0,0,0,0,19,0,38,12,0,3.8,20_5_2013/462
+463,Ben Foster,Foster,West Brom,Goalkeeper,1,3369,0,1,9,55,0,1,0,3,0,178,9,53,153,0,5.3,20_5_2013/463
+465,Gabriel Tamas,Tamas,West Brom,Defender,2,2040,0,0,2,38,1,0,0,4,1,0,3,38,37,0,3.8,20_5_2013/465
+466,James Hurst,Hurst,West Brom,Defender,2,90,0,0,0,3,0,0,0,0,0,0,0,40,1,0,4.0,20_5_2013/466
+467,Gonzalo Jara Reyes,Jara,West Brom,Defender,2,2104,1,0,1,47,0,0,0,6,1,0,3,39,39,0,3.9,20_5_2013/467
+468,Jonas Olsson,Olsson,West Brom,Defender,2,2123,1,3,2,39,1,0,0,1,0,0,7,42,62,0,4.2,20_5_2013/468
+472,Liam Ridgewell,Ridgewell,West Brom,Defender,2,3173,4,0,9,55,0,0,0,6,1,0,1,54,104,0,5.4,20_5_2013/472
+473,George Thorne,Thorne,West Brom,Midfielder,3,31,0,0,0,0,0,0,0,0,0,0,0,41,1,0,4.1,20_5_2013/473
+474,Graham Dorrans,Dorrans,West Brom,Midfielder,3,1414,1,2,1,31,0,0,0,2,0,0,0,47,46,0,4.7,20_5_2013/474
+475,Steven Reid,Reid,West Brom,Midfielder,3,1288,1,6,1,25,0,0,0,3,0,0,4,41,61,0,4.1,20_5_2013/475
+476,Jerome Thomas,Thomas,West Brom,Midfielder,3,2569,3,8,2,57,0,0,0,4,0,0,5,45,105,0,4.5,20_5_2013/476
+477,James Morrison,Morrison,West Brom,Midfielder,3,2268,4,3,2,49,0,0,0,2,1,0,6,44,89,0,4.4,20_5_2013/477
+478,Youssouf Mulumbu,Mulumbu,West Brom,Midfielder,3,2850,6,2,2,58,0,0,0,5,2,0,17,44,110,0,4.4,20_5_2013/478
+479,Chris Brunt,Brunt,West Brom,Midfielder,3,3012,4,11,2,61,0,0,1,9,0,0,18,54,130,0,5.4,20_5_2013/479
+480,Zoltan Gera,Gera,West Brom,Midfielder,3,1118,1,2,5,11,0,0,0,2,1,0,0,45,48,0,4.5,20_5_2013/480
+485,Peter Odemwingie,Odemwingie,West Brom,Forward,4,2680,15,9,2,51,0,0,1,3,0,0,28,58,171,0,5.8,20_5_2013/485
+486,Marc-Antoine Fortune,Fortune,West Brom,Forward,4,1119,2,1,0,24,0,0,0,0,0,0,0,50,45,0,5.0,20_5_2013/486
+487,Simon Cox,Cox,West Brom,Forward,4,772,1,0,1,18,0,0,0,0,0,0,0,50,30,0,5.0,20_5_2013/487
+489,Jussi Jaaskelainen,Jaaskelainen,West Ham,Goalkeeper,1,3096,0,0,5,50,0,2,0,1,1,117,3,46,109,0,4.6,20_5_2013/489
+492,Winston Reid,Reid,West Ham,Defender,2,407,0,0,0,12,1,0,0,0,0,0,0,40,5,0,4.0,20_5_2013/492
+495,James Tomkins,Tomkins,West Ham,Defender,2,1579,1,1,2,33,0,0,0,3,0,0,1,41,41,0,4.1,20_5_2013/495
+497,Jack Collison,Collison,West Ham,Midfielder,3,199,0,0,0,5,0,0,0,0,0,0,0,55,5,0,5.5,20_5_2013/497
+498,Matthew Taylor,Taylor,West Ham,Midfielder,3,1922,2,3,2,35,0,0,0,4,0,0,0,51,73,0,5.1,20_5_2013/498
+499,Mark Noble,Noble,West Ham,Midfielder,3,2140,4,3,4,44,0,0,0,7,0,0,3,53,78,0,5.3,20_5_2013/499
+501,Gary O'Neil,O'Neil,West Ham,Midfielder,3,589,0,1,1,10,0,0,0,0,0,0,0,45,19,0,4.5,20_5_2013/501
+502,Kevin Nolan,Nolan,West Ham,Midfielder,3,2651,12,2,8,42,0,0,0,10,0,0,16,63,140,0,6.3,20_5_2013/502
+503,Mohamed Diame,Diame,West Ham,Midfielder,3,2633,1,3,6,49,0,0,0,6,0,0,0,41,79,0,4.1,20_5_2013/503
+507,Carlton Cole,Cole,West Ham,Forward,4,2120,5,4,3,47,0,0,1,4,0,0,7,57,89,0,5.7,20_5_2013/507
+508,Ali Al Habsi,Al-Habsi,Wigan,Goalkeeper,1,3060,0,1,7,49,0,1,0,0,0,121,7,41,125,0,4.1,20_5_2013/508
+509,Michael Pollitt,Pollitt,Wigan,Goalkeeper,1,29,0,0,0,0,0,0,0,0,0,2,0,40,1,0,4.0,20_5_2013/509
+511,Antolin Alcaraz,Alcaraz,Wigan,Defender,2,3028,1,1,7,51,0,0,0,6,1,0,10,43,87,0,4.3,20_5_2013/511
+512,Ronnie Stam,Stam,Wigan,Defender,2,1579,1,0,3,27,0,0,0,2,0,0,0,40,47,0,4.0,20_5_2013/512
+513,Maynor Figueroa,Figueroa,Wigan,Defender,2,2808,1,3,5,49,0,0,0,11,0,0,0,41,71,0,4.1,20_5_2013/513
+514,Emmerson Boyce,Boyce,Wigan,Defender,2,1669,0,2,5,27,0,0,0,3,0,0,0,43,55,0,4.3,20_5_2013/514
+515,Gary Caldwell,Caldwell,Wigan,Defender,2,1975,0,1,2,33,0,0,0,7,1,0,4,45,40,0,4.5,20_5_2013/515
+516,Adrian Lopez,Lopez,Wigan,Defender,2,68,0,0,0,1,0,0,0,0,0,0,0,40,2,0,4.0,20_5_2013/516
+517,James McArthur,McArthur,Wigan,Midfielder,3,557,0,0,0,11,0,0,0,0,0,0,0,41,21,0,4.1,20_5_2013/517
+518,James McCarthy,McCarthy,Wigan,Midfielder,3,1976,3,1,5,34,0,0,0,2,0,0,8,46,75,0,4.6,20_5_2013/518
+519,Jordi Gomez,Gomez,Wigan,Midfielder,3,720,1,0,1,11,0,0,0,0,0,0,3,45,28,0,4.5,20_5_2013/519
+520,Ben Watson,Watson,Wigan,Midfielder,3,2124,3,2,3,40,0,0,0,3,0,0,12,42,85,0,4.2,20_5_2013/520
+521,Victor Moses,Moses,Chelsea,Midfielder,3,815,1,3,1,16,0,0,0,1,0,0,0,45,42,0,4.5,20_5_2013/521
+522,David Jones,Jones,Wigan,Midfielder,3,951,1,0,1,19,0,0,0,1,0,0,2,46,30,0,4.6,20_5_2013/522
+525,Jean Beausejour,Beausejour,Wigan,Midfielder,3,895,2,0,1,13,0,0,0,0,0,0,0,50,36,0,5.0,20_5_2013/525
+526,Franco Di Santo,Di Santo,Wigan,Forward,4,929,1,3,2,18,0,0,0,2,0,0,3,43,47,0,4.3,20_5_2013/526
+527,Conor Sammon,Sammon,Wigan,Forward,4,214,1,0,1,2,0,0,0,0,0,0,0,50,12,0,5.0,20_5_2013/527
+528,Callum McManaman,McManaman,Wigan,Forward,4,14,0,0,0,0,0,0,0,0,0,0,0,45,3,0,4.5,20_5_2013/528
+540,Mauro Boselli,Boselli,Wigan,Forward,4,496,0,0,1,14,0,0,1,0,0,0,0,48,11,0,4.8,20_5_2013/540
+542,David Hoilett,Hoilett,QPR,Midfielder,3,1494,5,1,4,26,0,0,0,2,0,0,10,40,71,0,4.0,20_5_2013/542
+548,Michael Kightly,Kightly,Stoke City,Midfielder,3,162,0,0,0,4,0,0,0,1,0,0,0,50,4,0,5.0,20_5_2013/548
+554,Louis Saha,Saha,Sunderland,Forward,4,1366,7,1,1,22,0,0,0,0,0,0,5,71,70,0,7.1,20_5_2013/554
+558,Jose Bosingwa,Bosingwa,QPR,Defender,2,1263,0,0,6,11,1,0,0,1,0,0,0,49,52,0,4.9,20_5_2013/558
+570,Sebastien Bassong,Bassong,Norwich,Defender,2,828,1,0,2,8,0,0,0,0,0,0,2,44,35,0,4.4,20_5_2013/570
+572,Matthew Jarvis,Jarvis,West Ham,Midfielder,3,3050,4,8,6,57,0,0,0,2,0,0,15,52,133,0,5.2,20_5_2013/572
+573,Steven Fletcher,Fletcher,Sunderland,Forward,4,1395,10,3,2,31,0,0,0,1,0,0,7,49,97,0,4.9,20_5_2013/573
+597,Steven Nzonzi,Nzonzi,Stoke City,Midfielder,3,1274,1,1,6,13,0,0,0,4,1,0,2,46,43,0,4.6,20_5_2013/597
+601,Michael Owen,Owen,Stoke City,Forward,4,238,2,0,0,1,0,0,0,1,0,0,0,73,18,0,7.3,20_5_2013/601
+609,Mark Bunn,Bunn,Norwich,Goalkeeper,1,225,0,0,0,4,0,0,0,1,0,9,0,40,5,0,4.0,20_5_2013/609
+617,Jordan Spence,Spence,West Ham,Defender,2,180,0,0,0,6,0,0,0,0,0,0,0,39,2,0,3.9,20_5_2013/617
+619,Thomas Hitzlsperger,Hitzlsperger,Everton,Midfielder,3,990,2,4,2,22,0,0,0,1,0,0,3,48,48,0,4.8,20_5_2013/619
+623,James McFadden,McFadden,Sunderland,Forward,4,276,0,1,2,2,0,0,0,0,0,0,0,45,10,0,4.5,20_5_2013/623
+628,Nile Ranger,Ranger,Newcastle,Midfielder,3,588,0,1,0,10,0,0,0,2,0,0,0,41,27,0,4.1,20_5_2013/628
+647,Tal Ben Haim,Ben Haim,QPR,Defender,2,712,0,1,1,15,0,0,0,3,0,1,0,42,16,0,4.2,20_5_2013/647
+677,Christopher Samba,Samba,QPR,Defender,2,2879,4,0,7,46,0,0,0,3,1,0,17,51,111,0,5.1,20_5_2013/677
+681,Paul Scharner,Scharner,Wigan,Defender,2,2740,4,1,3,53,0,0,0,6,1,0,5,44,86,0,4.4,20_5_2013/681

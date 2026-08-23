@@ -1,24 +1,20 @@
 {
-  "archive_numeric_files_scanned": 697,
+  "archive_files_scanned": 697,
   "archive_parse_errors": [],
   "official_positive_minutes": 314,
-  "official_zero_minutes": 39,
-  "official_no_2010_11_history": 344,
-  "vaastav_positive_carrier_candidates_rows": 225,
-  "vaastav_unique_positive_carrier_codes": 135,
-  "vaastav_duplicate_code_conflicts": 0,
-  "official_carrier_overlap": 0,
-  "official_carrier_exact_matches": 0,
+  "later_carrier_positive_rows_raw": 225,
+  "later_carrier_unique_name_tuple_rows": 135,
+  "official_carrier_matches": 114,
+  "official_carrier_exact": 114,
   "official_carrier_conflicts": 0,
-  "carrier_only_not_in_may2013_archive": 135,
-  "official_only_not_in_vaastav_carriers": 314,
+  "carrier_only": 21,
+  "official_only": 200,
   "special_carriers": [
     {
       "name": "Wojciech Szczesny",
       "covered_by_official": true,
       "official": {
         "archive_id": 2,
-        "code": 361545,
         "first_name": "Wojciech",
         "second_name": "Szczesny",
         "web_name": "Szczesny",
@@ -26,8 +22,6 @@
         "current_type": "Goalkeeper",
         "element_type_id": 1,
         "source_path": "20_5_2013/2",
-        "history_status": "POSITIVE_MINUTES",
-        "season": "2010/11",
         "minutes": 1350,
         "goals": 0,
         "assists": 0,
@@ -43,7 +37,10 @@
         "ea_ppi": 0,
         "end_cost_tenths": 43,
         "end_price_m": 4.3,
-        "total_points": 62
+        "total_points": 62,
+        "full_name": "Wojciech Szczesny",
+        "norm_name": "wojciech szczesny",
+        "norm_web": "szczesny"
       }
     },
     {
@@ -51,7 +48,6 @@
       "covered_by_official": true,
       "official": {
         "archive_id": 219,
-        "code": 210993,
         "first_name": "Dimitar",
         "second_name": "Berbatov",
         "web_name": "Berbatov",
@@ -59,8 +55,6 @@
         "current_type": "Forward",
         "element_type_id": 4,
         "source_path": "20_5_2013/219",
-        "history_status": "POSITIVE_MINUTES",
-        "season": "2010/11",
         "minutes": 2208,
         "goals": 21,
         "assists": 4,
@@ -76,13 +70,16 @@
         "ea_ppi": 0,
         "end_cost_tenths": 92,
         "end_price_m": 9.2,
-        "total_points": 176
+        "total_points": 176,
+        "full_name": "Dimitar Berbatov",
+        "norm_name": "dimitar berbatov",
+        "norm_web": "berbatov"
       }
     }
   ],
   "special_only_count": 0,
-  "recovered_union_count": 449,
+  "recovered_union_count": 335,
   "canonical_positive_minute_universe": 544,
-  "remaining_after_union": 95,
-  "coverage": 0.8253676470588235
+  "remaining_after_union": 209,
+  "coverage": 0.6158088235294118
 }
