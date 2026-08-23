@@ -1,3 +1,4 @@
+// One-shot Architecture Cleanup Pass 2E migration.
 import fs from "node:fs";
 
 const INDEX_PATH = "index.html";
