@@ -109,25 +109,11 @@ jobs:
           test ! -e js/retired-panel-compat.js
           git diff --check
 
-      - name: Restore permanent workflow and remove migration
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -f scripts/architecture-cleanup-pass2e-public-ui.mjs
-          git checkout f3a3889325309873eb329d6636246d76d6f17c41 -- .github/workflows/studio-regression.yml
-          node <<'NODE'
-          const fs = require('node:fs');
-          const path = '.github/workflows/studio-regression.yml';
-          let workflow = fs.readFileSync(path, 'utf8');
-          workflow = workflow.replace('          node --check js/retired-panel-compat.js\n', '');
-          workflow = `${workflow.trimEnd()}\n\n      - name: Verify retired public UI is physically removed\n        shell: bash\n        run: |\n          set -euo pipefail\n          ! grep -q 'class=\"challenge-overview\"' index.html\n          ! grep -q 'id=\"liveXiPanel\"' index.html\n          ! grep -q 'id=\"phase45Achievements\"' index.html\n          grep -q 'id=\"phase45ExtendedStats\"' index.html\n          ! grep -q 'renderLivePitch' index.html\n          ! grep -q 'renderAchievements' index.html\n          ! grep -q 'removeLegacySelectionPanel' js/give-up-gameplay.js\n          ! grep -q 'retired-panel-compat' js/ui-cleanup.js\n          test ! -e js/retired-panel-compat.js\n          git diff --check\n`;
-          fs.writeFileSync(path, workflow, 'utf8');
-          NODE
-
       - name: Commit cleanup result to review branch
         shell: bash
         run: |
           set -euo pipefail
+          rm -f scripts/architecture-cleanup-pass2e-public-ui.mjs
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
