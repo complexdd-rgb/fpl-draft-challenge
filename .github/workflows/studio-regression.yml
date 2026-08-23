@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   studio-syntax:
     runs-on: ubuntu-latest
@@ -79,3 +82,50 @@ jobs:
           ! grep -q 'retired-panel-compat' js/ui-cleanup.js
           test ! -e js/retired-panel-compat.js
           git diff --check
+
+  architecture-cleanup-pass2f-legacy-import:
+    if: github.event_name == 'pull_request' && github.head_ref == 'architecture-cleanup-pass2f-legacy-import'
+    needs: studio-syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out cleanup branch
+        uses: actions/checkout@v4
+        with:
+          ref: architecture-cleanup-pass2f-legacy-import
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Apply retired legacy importer cleanup
+        run: |
+          node --check scripts/architecture-cleanup-pass2f-legacy-import.mjs
+          node scripts/architecture-cleanup-pass2f-legacy-import.mjs
+
+      - name: Verify retired importer removal and protected tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check js/admin-import-tools-base.js
+          ! grep -q 'id="legacyImportCentre"' admin.html
+          ! grep -q 'fpl-history-2015-16.js' admin.html
+          test ! -e data/fpl-history-2015-16.js
+          ! grep -q 'BEGIN admin-phase12.js' js/admin-import-tools-base.js
+          ! grep -q 'END admin-phase12.js' js/admin-import-tools-base.js
+          grep -q 'BEGIN admin-phase15.js' js/admin-import-tools-base.js
+          grep -q 'id="importCentreHeading"' admin.html
+          grep -q 'id="identityConsolidationCentre"' admin.html
+          git diff --check
+
+      - name: Commit cleanup result to review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/architecture-cleanup-pass2f-legacy-import.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Architecture Cleanup Pass 2F — remove retired 2015/16 importer'
+          git push origin HEAD:architecture-cleanup-pass2f-legacy-import
