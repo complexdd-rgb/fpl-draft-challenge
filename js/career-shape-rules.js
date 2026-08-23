@@ -10,6 +10,7 @@
   const players = () => Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
   const BIG_SIX = new Set(["arsenal", "chelsea", "liverpool", "man city", "man utd", "spurs"]);
   const norm = value => String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+  const isChampionSeason = record => record?.champions === true || Number(record?.leaguePosition) === 1;
 
   function deriveCareerShape() {
     for (const player of players()) {
@@ -59,7 +60,7 @@
         bigSixClubs: Object.freeze(bigSixClubs),
         neverBigSix: clubs.size > 0 && bigSixClubs.length === 0,
         maxConsecutiveSameClub,
-        everChampion: positive.some(record => record.champions === true),
+        everChampion: positive.some(isChampionSeason),
         everTopFour: positive.some(record => record.topFour === true),
         everRelegatedClub: positive.some(record => record.relegated === true)
       });
