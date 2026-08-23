@@ -1,0 +1,68 @@
+name: Architecture Cleanup Pass 2M
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  extract-admin-css:
+    if: github.head_ref == 'architecture-cleanup-pass2m-admin-css'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out cleanup branch
+        uses: actions/checkout@v4
+        with:
+          ref: architecture-cleanup-pass2m-admin-css
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Confirm inline Studio CSS boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'id="fpl-score-visual-upgrade-css"' admin.html
+          grep -q 'FPL STUDIO PERFECT-SCORE LIMIT + PICK EFFICIENCY v1' admin.html
+          grep -q 'Phase 2 — seven-day calendar generator' admin.html
+          test ! -e admin-live-tools.css
+
+      - name: Extract Studio visual-tools stylesheet
+        run: |
+          node --check scripts/architecture-cleanup-pass2m-admin-css.mjs
+          node scripts/architecture-cleanup-pass2m-admin-css.mjs
+
+      - name: Verify Studio stylesheet extraction
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s admin-live-tools.css
+          grep -q 'href="admin-live-tools.css?v=1.0.0"' admin.html
+          ! grep -q '<style' admin.html
+          grep -q 'FPL STUDIO PERFECT-SCORE LIMIT + PICK EFFICIENCY v1' admin-live-tools.css
+          grep -q 'Phase 2 — seven-day calendar generator' admin-live-tools.css
+          grep -q '.perfect-score-limit' admin-live-tools.css
+          grep -q '.batch-planner' admin-live-tools.css
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('admin.html','utf8');
+          const stage = html.indexOf('admin-stage-one.css?v=1.0.0');
+          const tools = html.indexOf('admin-live-tools.css?v=1.0.0');
+          if (!(stage >= 0 && tools > stage && tools < html.indexOf('</head>'))) throw new Error('Studio stylesheet load order changed');
+          NODE
+          git diff --check
+
+      - name: Commit Studio CSS extraction to review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/architecture-cleanup-pass2m-admin-css.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin.html admin-live-tools.css scripts/architecture-cleanup-pass2m-admin-css.mjs
+          git commit -m 'Architecture Cleanup Pass 2M — extract Studio live-tools CSS'
+          git push origin HEAD:architecture-cleanup-pass2m-admin-css
