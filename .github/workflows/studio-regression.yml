@@ -59,6 +59,9 @@ jobs:
           node --check js/ui-cleanup.js
           node --check js/live-ui-bootstrap.js
           node --check js/studio-zip.js
+          node --check js/challenge-manifest-bootstrap.js
+          node --check js/challenge-legacy-fallback.js
+          node --check js/prompt-helpers.js
           node --check js/phase45-polish.js
           node --check js/season-select-performance.js
           node --check js/autocomplete-layer.js
@@ -163,5 +166,33 @@ jobs:
           const head = html.slice(0, html.indexOf('</head>'));
           if ((head.match(/player-game\.css\?v=1\.0\.0/g) || []).length !== 1) throw new Error('Expected exactly one player-game.css load');
           if (head.indexOf('player-game.css?v=1.0.0') > head.indexOf('manifest.webmanifest')) throw new Error('Player stylesheet load order changed');
+          NODE
+          git diff --check
+
+      - name: Verify live bootstrap scripts are externalized in order
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s js/challenge-manifest-bootstrap.js
+          test -s js/challenge-legacy-fallback.js
+          test -s js/prompt-helpers.js
+          grep -q 'src="js/challenge-manifest-bootstrap.js?v=1.0.0"' index.html
+          grep -q 'src="js/challenge-legacy-fallback.js?v=1.0.0"' index.html
+          grep -q 'src="js/prompt-helpers.js?v=1.0.0"' index.html
+          ! grep -q '<script>[[:space:]]*document.write' index.html
+          grep -q 'Core FPL Daily Challenge game engine' index.html
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const order = [
+            'js/challenge-manifest-bootstrap.js?v=1.0.0',
+            'js/daily-challenge-loader.js?v=1.0.0',
+            'js/challenge-legacy-fallback.js?v=1.0.0',
+            'js/challenge-archive.js?v=2.0.0',
+            'js/prompt-helpers.js?v=1.0.0',
+            'players-live.js?v=1.0.0',
+            'js/career-context.js?v=1.4.0'
+          ].map(item => html.indexOf(item));
+          if (!order.every(index => index >= 0) || !order.every((index, i) => i === 0 || index > order[i - 1])) throw new Error('Live bootstrap load order changed');
           NODE
           git diff --check
