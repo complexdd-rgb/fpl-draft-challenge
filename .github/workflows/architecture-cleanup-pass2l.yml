@@ -1,0 +1,84 @@
+name: Architecture Cleanup Pass 2L
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  extract-final-inline-scripts:
+    if: github.head_ref == 'architecture-cleanup-pass2l-final-inline-js'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out cleanup branch
+        uses: actions/checkout@v4
+        with:
+          ref: architecture-cleanup-pass2l-final-inline-js
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Confirm final inline presentation boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(grep -c '<script>' index.html)" -eq 2
+          grep -q 'FPL Daily Challenge 4.3 — inline visual enhancements' index.html
+          grep -q 'const historyStore = "fpl-v4-local-history";' index.html
+          grep -q 'id="phase45BottomNav"' index.html
+          grep -q 'id="completionMoment"' index.html
+          test ! -e js/live-visual-enhancements.js
+          test ! -e js/phase45-dashboard.js
+
+      - name: Extract final presentation scripts
+        run: |
+          node --check scripts/architecture-cleanup-pass2l-final-inline-js.mjs
+          node scripts/architecture-cleanup-pass2l-final-inline-js.mjs
+
+      - name: Verify zero inline scripts and presentation load order
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check js/live-visual-enhancements.js
+          node --check js/phase45-dashboard.js
+          test "$(grep -c '<script>' index.html || true)" -eq 0
+          grep -q 'src="js/live-visual-enhancements.js?v=1.0.0"' index.html
+          grep -q 'src="js/phase45-dashboard.js?v=1.0.0"' index.html
+          grep -q 'FPL Daily Challenge 4.3 — inline visual enhancements' js/live-visual-enhancements.js
+          grep -q 'const historyStore = "fpl-v4-local-history";' js/phase45-dashboard.js
+          grep -q 'id="phase45BottomNav"' index.html
+          grep -q 'id="completionMoment"' index.html
+          grep -q 'const INVALID_PENALTY = 10;' js/game-engine.js
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/gi)];
+          if (inline.length !== 0) throw new Error(`Expected zero inline scripts, found ${inline.length}`);
+          const order = [
+            'js/game-engine.js?v=1.0.0',
+            'js/live-visual-enhancements.js?v=1.0.0',
+            'phase45BottomNav',
+            'completionMoment',
+            'js/phase45-dashboard.js?v=1.0.0',
+            'js/leaderboard-config.js?v=5.0.0',
+            'js/leaderboard-client.js?v=5.0.0',
+            'js/phase45-polish.js?v=2.0.0'
+          ].map(item => html.indexOf(item));
+          if (!order.every(index => index >= 0) || !order.every((index, i) => i === 0 || index > order[i - 1])) throw new Error('Final live-page order changed');
+          NODE
+          git diff --check
+
+      - name: Commit presentation extraction to review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/architecture-cleanup-pass2l-final-inline-js.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html js/live-visual-enhancements.js js/phase45-dashboard.js scripts/architecture-cleanup-pass2l-final-inline-js.mjs
+          git commit -m 'Architecture Cleanup Pass 2L — externalize final live scripts'
+          git push origin HEAD:architecture-cleanup-pass2l-final-inline-js
