@@ -27,4 +27,12 @@
   };
 
   window.FPL_LIVE_UI_BOOTSTRAP = Object.freeze(api);
+
+  const start = () => {
+    api.loadPromptMissingFieldGuard();
+    api.loadPresentationLayers();
+  };
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  else start();
 })();

@@ -530,18 +530,7 @@ body::before{
 <span class="pill penalty" id="penalty">Penalties −0</span>
 </div>
 </header>
-<section class="challenge-overview" aria-label="How this challenge works">
-  <div class="overview-copy">
-    <span class="overview-kicker">Today’s selection challenge</span>
-    <h2>Build the strongest valid 1–4–4–2</h2>
-    <p>Every prompt has its own answer pool. Confirm a player-season to lock it in and see how close that pick is to the prompt’s highest-scoring valid answer.</p>
-  </div>
-  <div class="overview-rules">
-    <div><strong>11</strong><span>prompt slots</span></div>
-    <div><strong>1×</strong><span>each footballer</span></div>
-    <div><strong>100%</strong><span>best prompt pick</span></div>
-  </div>
-</section>
+
 <section class="local-history" id="localHistory" aria-label="Your local challenge history">
   <div class="local-history-head">
     <div><span class="overview-kicker">Your history</span><h2>Daily record on this device</h2></div>
@@ -560,22 +549,10 @@ body::before{
 
 <section class="phase45-shell" id="phase45Shell">
   <section class="phase45-hero" id="phase45Hero"></section>
-  <section class="live-xi-panel" id="liveXiPanel">
-    <div class="live-xi-pitch-card">
-      <div class="live-xi-head"><div><span class="overview-kicker">Visual XI</span><h3>Live pitch view</h3><p>Your XI fills the pitch as each answer is locked in. This is a live visual layer only and does not change scoring.</p></div><span class="live-xi-badge" id="liveXiFormation">Formation</span></div>
-      <div class="live-mini-pitch" id="liveMiniPitch"></div>
-    </div>
-    <div class="phase45-side-stack">
-      <section class="phase45-panel" id="phase45ExtendedStats">
+  <section class="phase45-panel" id="phase45ExtendedStats">
         <div class="phase45-section-head"><div><span class="overview-kicker">Profile</span><h3>Your local record</h3></div><p>Stored on this device until accounts and the live leaderboard arrive.</p></div>
         <div class="history-grid-extended" id="historyGridExtended"></div>
       </section>
-      <section class="phase45-panel" id="phase45Achievements">
-        <div class="phase45-section-head"><div><span class="overview-kicker">Achievements</span><h3>Daily milestones</h3></div><p>These run locally for now and can move straight onto accounts later.</p></div>
-        <div class="achievements-grid" id="achievementGrid"></div>
-      </section>
-    </div>
-  </section>
 </section>
 <div class="section-heading">
   <div><span class="overview-kicker">Your draft board</span><h2>Build your historical XI</h2></div>
@@ -1253,24 +1230,10 @@ if(completedRecord){renderCompletedResult(completedRecord,true);}else{timerId=se
     mount.innerHTML = `<article class="phase45-dashboard"><span class="phase45-kicker">${esc(runtime.archiveMode ? "Archive practice" : "Today’s challenge")} · ${esc(challenge.difficulty || challenge.dateLabel || "Daily game")}</span><h2>${esc(challenge.title || `${challengeDateLabel(challenge.releaseDate)} · Daily Challenge`)}</h2><p>Build your historical XI by finding one valid player-season for each prompt. Scores stay hidden until the reveal, while pick efficiency compares each selection with the best answer for that exact clue.</p><div class="phase45-metrics"><div class="phase45-metric"><span>Date</span><strong>${esc(challengeDateLabel(challenge.releaseDate))}</strong></div><div class="phase45-metric"><span>Formation</span><strong>${esc(challenge.formation || "4-4-2")}</strong></div><div class="phase45-metric"><span>Progress</span><strong>${progressCount}/${total}</strong></div><div class="phase45-metric"><span>Current streak</span><strong>${streak(history)} day${streak(history) === 1 ? "" : "s"}</strong></div><div class="phase45-metric"><span>Best score</span><strong>${best(scores).toLocaleString()}</strong></div></div></article><aside class="phase45-sidecard"><div><span class="overview-kicker">Daily dashboard</span><h3>Challenge control room</h3><p>Keep an eye on completion pace, next rollover, your latest efficiency and where your saved streak is heading.</p></div><div class="phase45-mini-progress"><div class="phase45-mini-track"><span style="width:${progressPercent.toFixed(1)}%"></span></div><div class="phase45-mini-row"><span>Next challenge</span><strong id="phase45HeroCountdown">${esc(countdown)}</strong></div><div class="phase45-mini-row"><span>Latest efficiency</span><strong>${completed ? `${Number(completed.efficiency || 0).toFixed(1)}%` : "—"}</strong></div><div class="phase45-mini-row"><span>Average score</span><strong>${history.length ? Math.round(average(scores)).toLocaleString() : "—"}</strong></div><div class="phase45-mini-row"><span>Average time</span><strong>${history.length && times.length ? formatTime(Math.round(average(times))) : "—"}</strong></div></div></aside>`;
   }
 
-  function renderLivePitch() {
-    const mount = document.getElementById("liveMiniPitch");
-    const badge = document.getElementById("liveXiFormation");
-    if (!mount) return;
-    const selections = qa(".slot.valid.compact-confirmed").map(slot => ({ position: slot.dataset.position || "MID", name: slot.querySelector(".confirmed-player strong")?.textContent?.trim() || "", meta: slot.querySelector(".confirmed-player span")?.textContent?.trim() || "Locked in", tier: slot.querySelector(".compact-efficiency span")?.textContent?.trim() || "Selected" }));
-    const byPos = { GK: selections.filter(item => item.position === "GK"), DEF: selections.filter(item => item.position === "DEF"), MID: selections.filter(item => item.position === "MID"), FWD: selections.filter(item => item.position === "FWD") };
-    const inferredCounts = challenge.prompts.reduce((counts, prompt) => { if (counts[prompt.position] != null) counts[prompt.position] += 1; return counts; }, { GK:0, DEF:0, MID:0, FWD:0 });
-    const target = challenge.formationCounts || inferredCounts;
-    if (badge) badge.textContent = `${challenge.formation || `${target.DEF}-${target.MID}-${target.FWD}`} formation`;
-    const renderLine = (position, rows, targetCount) => `<div class="live-pitch-col ${position.toLowerCase()}">${Array.from({length: Math.max(rows.length, Number(targetCount)||0)}, (_, i) => { const item = rows[i]; return item ? `<div class="live-shirt filled"><strong>${esc(item.name)}</strong><span>${esc(item.meta.split("·").slice(0,2).join("·").trim())}</span><em>${esc(item.tier)}</em></div>` : `<div class="live-shirt empty"><strong>${esc(position)}</strong><span>Awaiting pick</span><em>Open slot</em></div>`; }).join("")}</div>`;
-    mount.innerHTML = [renderLine("FWD", byPos.FWD, target.FWD), renderLine("MID", byPos.MID, target.MID), renderLine("DEF", byPos.DEF, target.DEF), renderLine("GK", byPos.GK, target.GK || 1)].join("");
-  }
 
   function renderExtendedStats() {
     const mount = document.getElementById("historyGridExtended"); if (!mount) return; const history = officialHistory(); const scores = history.map(item => Number(item.finalScore)).filter(Number.isFinite); const efficiencies = history.map(item => Number(item.efficiency)).filter(Number.isFinite); const penalties = history.map(item => Number(item.penalties)).filter(Number.isFinite); const exactMatches = history.map(item => Number(item.exactPerfectXiMatches)).filter(Number.isFinite); const perfectPickRate = history.length ? history.reduce((sum, item) => sum + (Number(item.perfectPromptPicks) || 0), 0) / (history.length * 11) * 100 : 0; mount.innerHTML = `<div class="history-chip"><span>Games played</span><strong>${history.length.toLocaleString()}</strong></div><div class="history-chip"><span>Current streak</span><strong>${streak(history)} day${streak(history) === 1 ? "" : "s"}</strong></div><div class="history-chip"><span>Best score</span><strong>${best(scores).toLocaleString()}</strong></div><div class="history-chip"><span>Best efficiency</span><strong>${efficiencies.length ? `${best(efficiencies).toFixed(1)}%` : "0%"}</strong></div><div class="history-chip"><span>Average efficiency</span><strong>${history.length ? `${average(efficiencies).toFixed(1)}%` : "0%"}</strong></div><div class="history-chip"><span>Average penalties</span><strong>${history.length ? average(penalties).toFixed(1) : "0.0"}</strong></div><div class="history-chip"><span>Perfect-pick rate</span><strong>${history.length ? `${perfectPickRate.toFixed(1)}%` : "0%"}</strong></div><div class="history-chip"><span>Exact XI matches</span><strong>${best(exactMatches).toLocaleString()}</strong></div>`; }
 
-  function renderAchievements() {
-    const mount = document.getElementById("achievementGrid"); if (!mount) return; const history = officialHistory(); const scores = history.map(item => Number(item.finalScore)).filter(Number.isFinite); const efficiencies = history.map(item => Number(item.efficiency)).filter(Number.isFinite); const cards = [["🏁","First XI","Complete your first daily challenge.",history.length>=1],["🔥","7-day streak","Finish seven official daily challenges in a row.",streak(history)>=7],["📈","90% club","Record at least 90% efficiency.",efficiencies.some(v=>v>=90)],["👑","Perfect game","Hit 100% efficiency in a daily challenge.",efficiencies.some(v=>v>=100)],["🧼","Clean hands","Finish a daily challenge with zero penalties.",history.some(item=>Number(item.penalties)===0)],["💯","1,800 points","Reach a final score of 1,800 or more.",scores.some(v=>v>=1800)],["🎯","Exact read","Match at least three spots in the exact perfect XI.",history.some(item=>Number(item.exactPerfectXiMatches)>=3)],["🧠","Prompt hunter","Accumulate 25 perfect prompt picks.",history.reduce((sum,item)=>sum+(Number(item.perfectPromptPicks)||0),0)>=25]]; mount.innerHTML = cards.map(([icon,title,desc,state])=>`<article class="achievement-card ${state ? "" : "locked"}"><div class="achievement-icon">${icon}</div><div class="achievement-copy"><strong>${esc(title)}</strong><small>${esc(desc)}</small></div></article>`).join(""); }
 
   function buildShareText() { const score = document.getElementById("finalScore")?.textContent || "0"; const efficiency = document.getElementById("efficiency")?.textContent || "0%"; const time = document.getElementById("timeTaken")?.textContent || "0:00"; const penalties = document.getElementById("penaltyPoints")?.textContent || "0"; const grade = document.getElementById("grade")?.textContent || "–"; const grid = qa(".slot.valid.compact-confirmed").map(slot => { const percent = Number((slot.querySelector(".compact-efficiency strong")?.textContent || "0").replace(/[^\d.]/g, "")); if (percent >= 99.95) return "🟨"; if (percent >= 90) return "🟩"; if (percent >= 75) return "🟦"; return "🟥"; }); const rows=[]; for (let i=0;i<grid.length;i+=4) rows.push(grid.slice(i,i+4).join("")); return `FPL Draft Challenge · ${challengeDateLabel(challenge.releaseDate)}\n${challenge.title}\n${runtime.archiveMode ? "Archive practice\n" : ""}${rows.join("\n")}\n\nScore: ${score} / ${challenge.perfectScore}\nEfficiency: ${efficiency} · Grade ${grade}\nTime: ${time} · Penalties: ${penalties}\n\nCan you beat my historical XI?`; }
 
@@ -1285,7 +1248,7 @@ if(completedRecord){renderCompletedResult(completedRecord,true);}else{timerId=se
       countdown.textContent = remain > 0 ? dailyTime.formatCountdown(remain) : "Ready";
     }
   };
-  const refresh = () => { renderHero(); renderLivePitch(); renderExtendedStats(); renderAchievements(); updatePhase45Countdown(); };
+  const refresh = () => { renderHero(); renderExtendedStats(); updatePhase45Countdown(); };
   let phase45RefreshQueued = false;
   const schedulePhase45Refresh = () => {
     if (phase45RefreshQueued) return;

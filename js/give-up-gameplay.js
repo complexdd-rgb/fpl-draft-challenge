@@ -73,9 +73,6 @@
     document.head.appendChild(style);
   }
 
-  function removeLegacySelectionPanel() {
-    document.querySelector(".challenge-overview")?.remove();
-  }
 
   const baseSave = save;
   save = function saveWithGiveUps() {
@@ -323,7 +320,6 @@
 
   restoreSkippedPrompts();
   addStyles();
-  removeLegacySelectionPanel();
   render();
   if (completedRecord) renderCompletedResult(completedRecord, true);
 })();
