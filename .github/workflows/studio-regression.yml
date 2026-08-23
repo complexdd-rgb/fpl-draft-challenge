@@ -106,19 +106,8 @@ jobs:
         run: |
           set -euo pipefail
           rm -f scripts/architecture-cleanup-pass2e.mjs
-          git checkout HEAD^ -- .github/workflows/studio-regression.yml
-          cat >> .github/workflows/studio-regression.yml <<'EOF'
-
-      - name: Verify modular live-page stylesheet
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -s player-game.css
-          grep -q '<link rel="stylesheet" href="player-game.css"/>' index.html
-          ! grep -q '<style>' index.html
-          ! grep -q '</style>' index.html
-          git diff --check
-          EOF
+          git checkout 977a5f95228aa21a350e05dafef9e0452965563f -- .github/workflows/studio-regression.yml
+          node -e 'const fs=require("node:fs");fs.appendFileSync(".github/workflows/studio-regression.yml","\n\n      - name: Verify modular live-page stylesheet\n        shell: bash\n        run: |\n          set -euo pipefail\n          test -s player-game.css\n          grep -Fq \"<link rel=\\\"stylesheet\\\" href=\\\"player-game.css\\\"/>\" index.html\n          ! grep -Fq \"<style>\" index.html\n          ! grep -Fq \"</style>\" index.html\n          git diff --check\n");'
 
       - name: Commit Architecture Cleanup Pass 2E
         shell: bash
