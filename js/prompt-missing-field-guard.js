@@ -88,6 +88,13 @@
       catch (_) { return false; }
     };
     try {
+      // Studio challenge exporters serialise prompt.test with toString(). Keep the runtime
+      // guard active, but make exports see the original standalone test rather than this
+      // closure-backed wrapper, whose captured variables do not exist in published files.
+      Object.defineProperty(prompt.test, "toString", {
+        value: () => original.toString(),
+        configurable: true
+      });
       Object.defineProperty(prompt, "_missingFieldGuarded", { value: true, configurable: true });
       Object.defineProperty(prompt, "_unguardedTest", { value: original, configurable: true });
     } catch (_) {
