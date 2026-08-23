@@ -228,27 +228,27 @@
 
   function captureGeneratedPackage() {
     if (downloadButton.disabled) throw new Error("Generate a seven-day batch and wait for all seven challenges to pass first.");
-    const originalPhase6 = window.FPL_STUDIO_PHASE6;
-    const originalBuilder = originalPhase6?.buildZipBlob;
+    const originalZipApi = window.FPL_STUDIO_ZIP;
+    const originalBuilder = originalZipApi?.buildZipBlob;
     if (typeof originalBuilder !== "function") throw new Error("Studio ZIP support is unavailable. Reload the admin page and try again.");
 
     let captured = null;
     const wrapper = files => {
       captured = Array.isArray(files) ? files.map(file => ({ name: String(file?.name || ""), content: file?.content })) : null;
-      return originalBuilder.call(originalPhase6, files);
+      return originalBuilder.call(originalZipApi, files);
     };
 
     let restore = null;
     try {
       try {
-        originalPhase6.buildZipBlob = wrapper;
-        if (originalPhase6.buildZipBlob !== wrapper) throw new Error("Builder is read-only.");
-        restore = () => { try { originalPhase6.buildZipBlob = originalBuilder; } catch {} };
+        originalZipApi.buildZipBlob = wrapper;
+        if (originalZipApi.buildZipBlob !== wrapper) throw new Error("Builder is read-only.");
+        restore = () => { try { originalZipApi.buildZipBlob = originalBuilder; } catch {} };
       } catch {
-        const replacement = { ...originalPhase6, buildZipBlob: wrapper };
-        window.FPL_STUDIO_PHASE6 = replacement;
-        if (window.FPL_STUDIO_PHASE6 !== replacement) throw new Error("Studio package capture is unavailable.");
-        restore = () => { try { window.FPL_STUDIO_PHASE6 = originalPhase6; } catch {} };
+        const replacement = { ...originalZipApi, buildZipBlob: wrapper };
+        window.FPL_STUDIO_ZIP = replacement;
+        if (window.FPL_STUDIO_ZIP !== replacement) throw new Error("Studio package capture is unavailable.");
+        restore = () => { try { window.FPL_STUDIO_ZIP = originalZipApi; } catch {} };
       }
 
       // Reuse Studio's existing locked download path. This both captures the exact validated

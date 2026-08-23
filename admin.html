@@ -47,10 +47,6 @@
         <span>Database audit</span>
         <strong id="auditStatusTop">Not run</strong>
       </article>
-      <article class="status-card studio-retired-tool" aria-hidden="true">
-        <span>Repair workspace</span>
-        <strong id="repairStatusTop">Waiting for audit</strong>
-      </article>
       <article class="status-card">
         <span>Prompt library</span>
         <strong id="libraryStatus">Loading…</strong>
@@ -62,10 +58,6 @@
       <article class="status-card">
         <span>Challenge history</span>
         <strong id="historyStatus">Loading…</strong>
-      </article>
-      <article class="status-card studio-retired-tool" aria-hidden="true">
-        <span>Publishing</span>
-        <strong id="publishingStatus" class="safe-text">Checking…</strong>
       </article>
     </section>
 
@@ -618,56 +610,6 @@
     </section>
 
 
-    <section class="panel publish-centre studio-retired-tool" id="publishingPanel" data-studio-retired="true" aria-hidden="true">
-      <div class="panel-heading">
-        <div>
-          <p class="eyebrow">Step 7</p>
-          <h2>Publishing Centre</h2>
-          <p class="section-copy">Compare the generated draft with the challenge currently served by GitHub Pages, run the final checks, and download one backup pack. Uploading to GitHub remains manual.</p>
-        </div>
-        <span id="publishReadyChip" class="phase-chip">Waiting for draft</span>
-      </div>
-
-      <div class="publish-overview-grid">
-        <article class="publish-summary-card">
-          <span>Current live challenge</span>
-          <strong id="liveChallengeTitle">Loading…</strong>
-          <small id="liveChallengeMeta">Fetching todays-challenge.js</small>
-        </article>
-        <article class="publish-summary-card">
-          <span>Prepared challenge</span>
-          <strong id="candidateChallengeTitle">No draft generated</strong>
-          <small id="candidateChallengeMeta">Generate and test a draft above</small>
-        </article>
-        <article class="publish-summary-card publish-state-card">
-          <span>Final status</span>
-          <strong id="publishFinalStatus">Not ready</strong>
-          <small id="publishFinalReason">Complete the checklist below</small>
-        </article>
-      </div>
-
-      <div class="publish-comparison" id="publishComparison" aria-live="polite"></div>
-
-      <div class="publish-checklist-wrap">
-        <div class="publish-checklist-head">
-          <div>
-            <h3>Pre-publish checklist</h3>
-            <p>Red checks block the publishing pack. Amber checks are warnings for you to review.</p>
-          </div>
-          <button id="refreshPublishChecksBtn" class="button secondary" type="button">Refresh live comparison</button>
-        </div>
-        <div id="publishChecklist" class="publish-checklist"></div>
-      </div>
-
-      <div class="publish-pack-panel">
-        <div>
-          <h3>Safe publishing pack</h3>
-          <p>The ZIP includes the new <code>todays-challenge.js</code>, challenge-history backups, a prompt-library backup, the current live challenge snapshot, a manifest of every check, and upload instructions.</p>
-        </div>
-        <button id="downloadPublishPackBtn" class="button primary" type="button" disabled>Download publishing pack</button>
-      </div>
-      <p id="publishActionStatus" class="action-status" role="status"></p>
-    </section>
 
     <section class="panel database-auditor" id="databaseAuditorPanel">
       <div class="panel-heading">
@@ -1061,6 +1003,7 @@
   <script src="js/validation-engine.js?v=1.7.0"></script>
   <script src="js/certification-approved-null-policy.js?v=1.0.0"></script>
   <script src="challenges/manifest.js?v=2.0.0"></script>
+  <script src="js/studio-zip.js?v=1.0.0"></script>
   <script src="js/admin-core.js?v=19.0.0"></script>
   <script src="js/admin-batch-calendar.js?v=3.0.0"></script>
 

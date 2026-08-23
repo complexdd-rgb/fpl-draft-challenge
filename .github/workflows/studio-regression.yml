@@ -58,6 +58,7 @@ jobs:
           node --check js/career-shape-future-quality-guard.js
           node --check js/ui-cleanup.js
           node --check js/live-ui-bootstrap.js
+          node --check js/studio-zip.js
           node --check js/phase45-polish.js
           node --check js/season-select-performance.js
           node --check js/autocomplete-layer.js
@@ -101,8 +102,6 @@ jobs:
           set -euo pipefail
           ! grep -q 'id="databaseRepairPanel"' admin.html
           ! grep -q 'id="autoRepairHeading"' admin.html
-          test "$(grep -c 'data-studio-retired="true"' admin.html)" -eq 1
-          grep -q 'id="publishingPanel"' admin.html
           ! grep -q 'BEGIN admin-phase8.js' js/admin-core.js
           ! grep -q 'END admin-phase8.js' js/admin-core.js
           ! grep -q 'BEGIN admin-phase9.js' js/admin-core.js
@@ -114,4 +113,35 @@ jobs:
           grep -q 'id="importCentreHeading"' admin.html
           grep -q 'id="identityConsolidationCentre"' admin.html
           node --check js/admin-core.js
+          git diff --check
+
+      - name: Verify legacy Publishing Centre is removed and ZIP paths remain active
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'id="publishingPanel"' admin.html
+          ! grep -q 'id="publishingStatus"' admin.html
+          ! grep -q 'id="repairStatusTop"' admin.html
+          ! grep -q 'studio-retired-tool' admin.html
+          ! grep -q 'BEGIN admin-phase6.js' js/admin-core.js
+          ! grep -q 'END admin-phase6.js' js/admin-core.js
+          ! grep -R -q 'FPL_STUDIO_PHASE6' js --include='*.js'
+          grep -q 'FPL_STUDIO_ZIP?.buildZipBlob' js/admin-batch-calendar.js
+          grep -q 'window.FPL_STUDIO_ZIP' js/admin-daily-publish.js
+          grep -q 'FPL_STUDIO_ZIP?.buildZipBlob' js/admin-core.js
+          grep -q 'src="js/studio-zip.js?v=1.0.0"' admin.html
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('admin.html', 'utf8');
+          if (html.indexOf('js/studio-zip.js') > html.indexOf('js/admin-core.js')) throw new Error('studio-zip.js must load before admin-core.js');
+          global.window = {};
+          eval(fs.readFileSync('js/studio-zip.js', 'utf8'));
+          (async () => {
+            const blob = window.FPL_STUDIO_ZIP.buildZipBlob([{ name: 'hello.txt', content: 'hello' }]);
+            const bytes = new Uint8Array(await blob.arrayBuffer());
+            if (blob.type !== 'application/zip' || bytes.length < 22 || bytes[0] !== 0x50 || bytes[1] !== 0x4b || bytes[2] !== 0x03 || bytes[3] !== 0x04) {
+              throw new Error('Shared ZIP utility smoke test failed');
+            }
+          })().catch(error => { console.error(error); process.exit(1); });
+          NODE
           git diff --check
