@@ -255,3 +255,24 @@ jobs:
           if (!order.every(index => index >= 0) || !order.every((index, i) => i === 0 || index > order[i - 1])) throw new Error('Final live-page order changed');
           NODE
           git diff --check
+
+      - name: Verify Studio page uses external CSS and JavaScript only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s admin-live-tools.css
+          grep -q 'href="admin-live-tools.css?v=1.0.0"' admin.html
+          ! grep -q '<style' admin.html
+          grep -q 'FPL STUDIO PERFECT-SCORE LIMIT + PICK EFFICIENCY v1' admin-live-tools.css
+          grep -q 'Phase 2 — seven-day calendar generator' admin-live-tools.css
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('admin.html','utf8');
+          const inlineScripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/gi)];
+          if (inlineScripts.length !== 0) throw new Error(`Expected zero inline Studio scripts, found ${inlineScripts.length}`);
+          const base = html.indexOf('admin.css?v=16.2.0');
+          const stage = html.indexOf('admin-stage-one.css?v=1.0.0');
+          const tools = html.indexOf('admin-live-tools.css?v=1.0.0');
+          if (!(base >= 0 && stage > base && tools > stage && tools < html.indexOf('</head>'))) throw new Error('Studio stylesheet load order changed');
+          NODE
+          git diff --check
