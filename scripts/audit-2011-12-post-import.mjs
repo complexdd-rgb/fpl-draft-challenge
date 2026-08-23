@@ -7,8 +7,23 @@ const SEASON = '2011/12';
 const EXPECTED_ROWS = 539;
 
 function makeSandbox() {
+  const document = {
+    readyState: 'complete',
+    querySelector() { return null; },
+    getElementById() { return null; },
+    addEventListener() {},
+    removeEventListener() {},
+    write() {}
+  };
+  const localStorage = {
+    getItem() { return null; },
+    setItem() {},
+    removeItem() {}
+  };
   const browserWindow = {
     location: { pathname: '/audit' },
+    document,
+    localStorage,
     addEventListener() {},
     removeEventListener() {},
     dispatchEvent() {},
@@ -21,6 +36,8 @@ function makeSandbox() {
   browserWindow.window = browserWindow;
   const sandbox = {
     window: browserWindow,
+    document,
+    localStorage,
     console,
     setTimeout,
     clearTimeout,
