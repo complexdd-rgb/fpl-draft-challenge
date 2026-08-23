@@ -94,3 +94,24 @@ jobs:
           grep -q 'id="identityConsolidationCentre"' admin.html
           node --check js/admin-import-tools-base.js
           git diff --check
+
+      - name: Verify retired repair workspaces are physically removed
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'id="databaseRepairPanel"' admin.html
+          ! grep -q 'id="autoRepairHeading"' admin.html
+          test "$(grep -c 'data-studio-retired="true"' admin.html)" -eq 1
+          grep -q 'id="publishingPanel"' admin.html
+          ! grep -q 'BEGIN admin-phase8.js' js/admin-core.js
+          ! grep -q 'END admin-phase8.js' js/admin-core.js
+          ! grep -q 'BEGIN admin-phase9.js' js/admin-core.js
+          ! grep -q 'END admin-phase9.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase7.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase10.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase11.js' js/admin-core.js
+          grep -q 'id="databaseAuditorPanel"' admin.html
+          grep -q 'id="importCentreHeading"' admin.html
+          grep -q 'id="identityConsolidationCentre"' admin.html
+          node --check js/admin-core.js
+          git diff --check
