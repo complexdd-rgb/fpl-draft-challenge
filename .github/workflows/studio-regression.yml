@@ -114,25 +114,36 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Confirm retired repair controls have no JavaScript consumers
+      - name: Confirm repair bundles are isolated between active phases
         shell: bash
         run: |
           set -euo pipefail
-          ! grep -R -q 'buildRepairPlanBtn' js --include='*.js'
-          ! grep -R -q 'runAutoRepairBtn' js --include='*.js'
+          grep -q 'BEGIN admin-phase7.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase8.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase9.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase10.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase11.js' js/admin-core.js
 
-      - name: Apply retired repair UI cleanup
+      - name: Apply retired repair UI and bundle cleanup
         run: |
           node --check scripts/architecture-cleanup-pass2g-retired-repair-ui.mjs
           node scripts/architecture-cleanup-pass2g-retired-repair-ui.mjs
 
-      - name: Verify retired repair UI removal and active tools
+      - name: Verify retired repair removal and active boundaries
         shell: bash
         run: |
           set -euo pipefail
+          node --check js/admin-core.js
           ! grep -q 'id="databaseRepairPanel"' admin.html
           ! grep -q 'id="autoRepairHeading"' admin.html
           ! grep -q 'data-studio-retired="true"' admin.html
+          ! grep -q 'BEGIN admin-phase8.js' js/admin-core.js
+          ! grep -q 'END admin-phase8.js' js/admin-core.js
+          ! grep -q 'BEGIN admin-phase9.js' js/admin-core.js
+          ! grep -q 'END admin-phase9.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase7.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase10.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase11.js' js/admin-core.js
           grep -q 'id="databaseAuditorPanel"' admin.html
           grep -q 'id="importCentreHeading"' admin.html
           grep -q 'id="identityConsolidationCentre"' admin.html
@@ -146,5 +157,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'Architecture Cleanup Pass 2G — remove retired repair UI'
+          git commit -m 'Architecture Cleanup Pass 2G — remove retired repair UI and bundles'
           git push origin HEAD:architecture-cleanup-pass2g-retired-repair-ui
