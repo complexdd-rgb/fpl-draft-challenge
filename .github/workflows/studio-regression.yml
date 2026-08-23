@@ -5,9 +5,6 @@ on:
     branches: [main]
   pull_request:
 
-permissions:
-  contents: write
-
 jobs:
   studio-syntax:
     runs-on: ubuntu-latest
@@ -68,71 +65,3 @@ jobs:
           node --check js/visual-overhaul.js
           node --check js/visual-finishing.js
           node --check sw.js
-
-  architecture-cleanup-pass2e-public-ui:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: studio-syntax
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out main
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Check migration syntax
-        run: node --check scripts/architecture-cleanup-pass2e-public-ui.mjs
-
-      - name: Apply public UI cleanup
-        run: node scripts/architecture-cleanup-pass2e-public-ui.mjs
-
-      - name: Verify cleaned public UI
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --check js/give-up-gameplay.js
-          node --check js/live-ui-bootstrap.js
-          node --check js/ui-cleanup.js
-          node --check js/live-feature-loader.js
-          ! grep -q 'class="challenge-overview"' index.html
-          ! grep -q 'id="liveXiPanel"' index.html
-          ! grep -q 'id="phase45Achievements"' index.html
-          grep -q 'id="phase45ExtendedStats"' index.html
-          ! grep -q 'renderLivePitch' index.html
-          ! grep -q 'renderAchievements' index.html
-          ! grep -q 'removeLegacySelectionPanel' js/give-up-gameplay.js
-          ! grep -q 'retired-panel-compat' js/ui-cleanup.js
-          test ! -e js/retired-panel-compat.js
-          grep -q 'loadPromptMissingFieldGuard' js/live-ui-bootstrap.js
-          grep -q 'loadPresentationLayers' js/live-ui-bootstrap.js
-          git diff --check
-
-      - name: Restore permanent regression workflow
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -f scripts/architecture-cleanup-pass2e-public-ui.mjs
-          git checkout a60e2419417498f848dca07dd89741b9e7844065 -- .github/workflows/studio-regression.yml
-          node <<'NODE'
-          const fs = require('node:fs');
-          const path = '.github/workflows/studio-regression.yml';
-          let workflow = fs.readFileSync(path, 'utf8');
-          workflow = workflow.replace('          node --check js/retired-panel-compat.js\n', '');
-          workflow = `${workflow.trimEnd()}\n\n      - name: Verify retired public UI is physically removed\n        shell: bash\n        run: |\n          set -euo pipefail\n          ! grep -q 'class=\"challenge-overview\"' index.html\n          ! grep -q 'id=\"liveXiPanel\"' index.html\n          ! grep -q 'id=\"phase45Achievements\"' index.html\n          grep -q 'id=\"phase45ExtendedStats\"' index.html\n          ! grep -q 'renderLivePitch' index.html\n          ! grep -q 'renderAchievements' index.html\n          ! grep -q 'removeLegacySelectionPanel' js/give-up-gameplay.js\n          ! grep -q 'retired-panel-compat' js/ui-cleanup.js\n          test ! -e js/retired-panel-compat.js\n          git diff --check\n`;
-          fs.writeFileSync(path, workflow, 'utf8');
-          NODE
-
-      - name: Commit Architecture Cleanup Pass 2E public UI
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'Architecture Cleanup Pass 2E — remove retired public UI source'
-          git push origin HEAD:main
