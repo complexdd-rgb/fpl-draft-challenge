@@ -1,4 +1,4 @@
-name: Temp 2010-11 May-2013 API bulk scan
+name: Temp 2010-11 full archive reconciliation
 
 on:
   push:
@@ -11,114 +11,197 @@ permissions:
   contents: write
 
 jobs:
-  scan:
+  reconcile:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout working branch
         uses: actions/checkout@v4
 
-      - name: Clone preserved FPL API archive
+      - name: Clone preserved source repositories
         run: |
           git clone https://github.com/elie222/Fantasy-Football-AI.git source-archive
           git -C source-archive checkout a607e4eb7a3002432cc39b20e0650af33dc334da
+          git clone https://github.com/vaastav/Fantasy-Premier-League.git vaastav
+          git -C vaastav checkout c2add969e11ec19002a091f8aa60164c9a255854
 
-      - name: Extract 2010-11 season-history rows
+      - name: Extract and reconcile by stable player code
         run: |
           python - <<'PY'
-          import csv
-          import json
+          import csv, json, re, unicodedata
           from pathlib import Path
 
-          root = Path('source-archive/20_5_2013')
-          out_dir = Path('tmp-recovery/2010-11-may2013-api')
-          out_dir.mkdir(parents=True, exist_ok=True)
+          out = Path('tmp-recovery/2010-11-may2013-api')
+          out.mkdir(parents=True, exist_ok=True)
 
-          columns = [
-              'archive_id','first_name','second_name','web_name','current_team','current_type','element_type_id',
-              'history_status','season','minutes','goals','assists','clean_sheets','goals_conceded','own_goals',
-              'penalties_saved','penalties_missed','yellow_cards','red_cards','saves','bonus','ea_ppi',
-              'end_cost_tenths','end_price_m','total_points','source_path'
-          ]
+          def norm_name(s):
+              s = unicodedata.normalize('NFKD', s or '').encode('ascii','ignore').decode().lower()
+              s = re.sub(r"[^a-z0-9]+", ' ', s).strip()
+              return ' '.join(s.split())
 
-          rows = []
-          errors = []
-          files = sorted((p for p in root.iterdir() if p.is_file() and p.name.isdigit()), key=lambda p: int(p.name))
-          for path in files:
+          # ---------- Official May-2013 archive ----------
+          official_rows=[]
+          root=Path('source-archive/20_5_2013')
+          files=sorted((p for p in root.iterdir() if p.is_file() and p.name.isdigit()), key=lambda p:int(p.name))
+          errors=[]
+          for p in files:
               try:
-                  player = json.loads(path.read_text())
+                  x=json.loads(p.read_text())
               except Exception as exc:
-                  errors.append({'archive_id': int(path.name), 'error': repr(exc)})
+                  errors.append({'archive_id':p.name,'error':repr(exc)})
                   continue
-
-              hist = None
-              for item in player.get('season_history', []):
-                  if item and item[0] == '2010/11':
-                      hist = item
-                      break
-
-              base = {
-                  'archive_id': player.get('id', int(path.name)),
-                  'first_name': player.get('first_name',''),
-                  'second_name': player.get('second_name',''),
-                  'web_name': player.get('web_name',''),
-                  'current_team': player.get('team_name',''),
-                  'current_type': player.get('type_name',''),
-                  'element_type_id': player.get('element_type_id',''),
-                  'source_path': f"20_5_2013/{path.name}",
+              hist=next((r for r in x.get('season_history',[]) if r and r[0]=='2010/11'),None)
+              base={
+                  'archive_id':x.get('id',int(p.name)), 'code':x.get('code'),
+                  'first_name':x.get('first_name',''), 'second_name':x.get('second_name',''),
+                  'web_name':x.get('web_name',''), 'current_team':x.get('team_name',''),
+                  'current_type':x.get('type_name',''), 'element_type_id':x.get('element_type_id'),
+                  'source_path':f'20_5_2013/{p.name}'
               }
-
               if hist is None:
-                  row = dict(base)
-                  row.update({'history_status':'NO_2010_11_HISTORY','season':'2010/11'})
+                  row={**base,'history_status':'NO_2010_11_HISTORY','season':'2010/11'}
               else:
-                  # Official historic schema:
-                  # season, minutes, goals, assists, clean_sheets, goals_conceded,
-                  # own_goals, penalties_saved, penalties_missed, yellow_cards,
-                  # red_cards, saves, bonus, ea_ppi, end_cost_tenths, total_points
-                  vals = list(hist) + [None] * max(0, 16-len(hist))
-                  row = dict(base)
-                  row.update({
-                      'history_status': 'POSITIVE_MINUTES' if (vals[1] or 0) > 0 else 'ZERO_MINUTES',
-                      'season': vals[0], 'minutes': vals[1], 'goals': vals[2], 'assists': vals[3],
-                      'clean_sheets': vals[4], 'goals_conceded': vals[5], 'own_goals': vals[6],
-                      'penalties_saved': vals[7], 'penalties_missed': vals[8], 'yellow_cards': vals[9],
-                      'red_cards': vals[10], 'saves': vals[11], 'bonus': vals[12], 'ea_ppi': vals[13],
-                      'end_cost_tenths': vals[14],
-                      'end_price_m': (vals[14] / 10.0) if vals[14] is not None else None,
-                      'total_points': vals[15],
-                  })
-              rows.append(row)
+                  v=list(hist)+[None]*max(0,16-len(hist))
+                  row={**base,'history_status':'POSITIVE_MINUTES' if (v[1] or 0)>0 else 'ZERO_MINUTES',
+                       'season':v[0],'minutes':v[1],'goals':v[2],'assists':v[3],'clean_sheets':v[4],
+                       'goals_conceded':v[5],'own_goals':v[6],'penalties_saved':v[7],'penalties_missed':v[8],
+                       'yellow_cards':v[9],'red_cards':v[10],'saves':v[11],'bonus':v[12],'ea_ppi':v[13],
+                       'end_cost_tenths':v[14],'end_price_m':(v[14]/10 if v[14] is not None else None),
+                       'total_points':v[15]}
+              official_rows.append(row)
 
-          csv_path = out_dir / 'may2013_2010_11_full_scan.csv'
-          with csv_path.open('w', newline='', encoding='utf-8') as f:
-              writer = csv.DictWriter(f, fieldnames=columns)
-              writer.writeheader()
-              for row in rows:
-                  writer.writerow({k: row.get(k,'') for k in columns})
+          official_pos=[r for r in official_rows if r['history_status']=='POSITIVE_MINUTES']
+          official_by_code={str(r['code']):r for r in official_pos if r.get('code') not in (None,'')}
 
-          json_path = out_dir / 'may2013_2010_11_full_scan.json'
-          json_path.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding='utf-8')
+          # ---------- Vaastav later-history carriers ----------
+          carrier_candidates=[]
+          for season_dir in ['data/2016-17/players','data/2017-18/players']:
+              d=Path('vaastav')/season_dir
+              if not d.exists():
+                  continue
+              for hist_path in d.glob('*/history.csv'):
+                  try:
+                      with hist_path.open(newline='',encoding='utf-8-sig') as f:
+                          for rr in csv.DictReader(f):
+                              if rr.get('season_name')!='2010/11':
+                                  continue
+                              mins=int(float(rr.get('minutes') or 0))
+                              if mins<=0:
+                                  continue
+                              code=str(rr.get('element_code') or '').strip()
+                              carrier_candidates.append({
+                                  'code':code,
+                                  'carrier_name_from_path':hist_path.parent.name.replace('_',' '),
+                                  'carrier_source':str(hist_path.relative_to(Path('vaastav'))),
+                                  'carrier_season_dir':season_dir.split('/')[1],
+                                  'minutes':mins,
+                                  'goals':int(float(rr.get('goals_scored') or 0)),
+                                  'assists':int(float(rr.get('assists') or 0)),
+                                  'clean_sheets':int(float(rr.get('clean_sheets') or 0)),
+                                  'goals_conceded':int(float(rr.get('goals_conceded') or 0)),
+                                  'own_goals':int(float(rr.get('own_goals') or 0)),
+                                  'penalties_saved':int(float(rr.get('penalties_saved') or 0)),
+                                  'penalties_missed':int(float(rr.get('penalties_missed') or 0)),
+                                  'yellow_cards':int(float(rr.get('yellow_cards') or 0)),
+                                  'red_cards':int(float(rr.get('red_cards') or 0)),
+                                  'saves':int(float(rr.get('saves') or 0)),
+                                  'bonus':int(float(rr.get('bonus') or 0)),
+                                  'end_cost_tenths':int(float(rr.get('end_cost') or 0)),
+                                  'start_cost_tenths':int(float(rr.get('start_cost') or 0)),
+                                  'total_points':int(float(rr.get('total_points') or 0)),
+                              })
+                  except Exception:
+                      pass
 
-          summary = {
-              'archive_commit': 'a607e4eb7a3002432cc39b20e0650af33dc334da',
-              'numeric_files_scanned': len(files),
-              'rows_parsed': len(rows),
-              'positive_minutes': sum(r.get('history_status') == 'POSITIVE_MINUTES' for r in rows),
-              'zero_minutes': sum(r.get('history_status') == 'ZERO_MINUTES' for r in rows),
-              'no_2010_11_history': sum(r.get('history_status') == 'NO_2010_11_HISTORY' for r in rows),
-              'parse_errors': errors,
-              'min_id': min((int(p.name) for p in files), default=None),
-              'max_id': max((int(p.name) for p in files), default=None),
+          # Deduplicate carriers by stable code; same player may exist in both later-season folders.
+          carrier_by_code={}
+          carrier_dup_conflicts=[]
+          core=['minutes','goals','assists','clean_sheets','goals_conceded','own_goals','penalties_saved','penalties_missed','yellow_cards','red_cards','saves','bonus','end_cost_tenths','total_points']
+          for r in carrier_candidates:
+              code=r['code']
+              if not code:
+                  continue
+              if code not in carrier_by_code:
+                  carrier_by_code[code]=r
+              else:
+                  prev=carrier_by_code[code]
+                  if any(prev[k]!=r[k] for k in core):
+                      carrier_dup_conflicts.append({'code':code,'a':prev,'b':r})
+                  # Prefer 2017-18 as later carrier when values agree.
+                  if r['carrier_season_dir']=='2017-18':
+                      carrier_by_code[code]=r
+
+          carrier_rows=list(carrier_by_code.values())
+
+          overlap=[]; carrier_only=[]; exact=[]; conflicts=[]
+          for code,c in carrier_by_code.items():
+              o=official_by_code.get(code)
+              if not o:
+                  carrier_only.append(c)
+                  continue
+              joined={'code':code,'official':o,'carrier':c}
+              overlap.append(joined)
+              diffs={k:{'official':o.get(k),'carrier':c.get(k)} for k in core if o.get(k)!=c.get(k)}
+              if diffs:
+                  joined['diffs']=diffs; conflicts.append(joined)
+              else:
+                  exact.append(joined)
+
+          carrier_codes=set(carrier_by_code)
+          official_only=[o for code,o in official_by_code.items() if code not in carrier_codes]
+
+          # Two pre-v4 special carriers that were not Vaastav later-history rows.
+          specials=['Wojciech Szczesny','Dimitar Berbatov']
+          special_checks=[]
+          official_name_map={norm_name((r.get('first_name','')+' '+r.get('second_name','')).strip()):r for r in official_pos}
+          for n in specials:
+              hit=official_name_map.get(norm_name(n))
+              special_checks.append({'name':n,'covered_by_official':bool(hit),'official':hit})
+          special_only=sum(not x['covered_by_official'] for x in special_checks)
+
+          union_count=len(official_pos)+len(carrier_only)+special_only
+          summary={
+              'archive_numeric_files_scanned':len(files),
+              'archive_parse_errors':errors,
+              'official_positive_minutes':len(official_pos),
+              'official_zero_minutes':sum(r['history_status']=='ZERO_MINUTES' for r in official_rows),
+              'official_no_2010_11_history':sum(r['history_status']=='NO_2010_11_HISTORY' for r in official_rows),
+              'vaastav_positive_carrier_candidates_rows':len(carrier_candidates),
+              'vaastav_unique_positive_carrier_codes':len(carrier_rows),
+              'vaastav_duplicate_code_conflicts':len(carrier_dup_conflicts),
+              'official_carrier_overlap':len(overlap),
+              'official_carrier_exact_matches':len(exact),
+              'official_carrier_conflicts':len(conflicts),
+              'carrier_only_not_in_may2013_archive':len(carrier_only),
+              'official_only_not_in_vaastav_carriers':len(official_only),
+              'special_carriers':special_checks,
+              'special_only_count':special_only,
+              'recovered_union_count':union_count,
+              'canonical_positive_minute_universe':544,
+              'remaining_after_union':544-union_count,
+              'coverage':union_count/544,
           }
-          (out_dir / 'summary.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
-          print(json.dumps(summary, indent=2))
+
+          # Write compact outputs.
+          (out/'reconciliation_summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+          (out/'official_positive_rows.json').write_text(json.dumps(official_pos,ensure_ascii=False,indent=2),encoding='utf-8')
+          (out/'carrier_only_rows.json').write_text(json.dumps(carrier_only,ensure_ascii=False,indent=2),encoding='utf-8')
+          (out/'official_carrier_conflicts.json').write_text(json.dumps(conflicts,ensure_ascii=False,indent=2),encoding='utf-8')
+          (out/'official_carrier_exact.json').write_text(json.dumps(exact,ensure_ascii=False,indent=2),encoding='utf-8')
+          (out/'special_carrier_checks.json').write_text(json.dumps(special_checks,ensure_ascii=False,indent=2),encoding='utf-8')
+
+          # CSV for all 314 official positives.
+          cols=['archive_id','code','first_name','second_name','web_name','current_team','current_type','element_type_id','minutes','goals','assists','clean_sheets','goals_conceded','own_goals','penalties_saved','penalties_missed','yellow_cards','red_cards','saves','bonus','ea_ppi','end_cost_tenths','end_price_m','total_points','source_path']
+          with (out/'official_positive_rows.csv').open('w',newline='',encoding='utf-8') as f:
+              w=csv.DictWriter(f,fieldnames=cols); w.writeheader()
+              for r in official_pos:w.writerow({k:r.get(k,'') for k in cols})
+          print(json.dumps(summary,ensure_ascii=False,indent=2))
           PY
 
-      - name: Commit compact scan output to temporary branch
+      - name: Commit reconciliation output
         run: |
-          rm -rf source-archive
+          rm -rf source-archive vaastav
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add tmp-recovery/2010-11-may2013-api
-          git commit -m "chore: materialise May-2013 2010/11 API bulk scan"
+          git commit -m "chore: reconcile full 2010-11 archive scan" || exit 0
           git push origin HEAD:temp/2010-11-api-bulk-scan-20260823
