@@ -55,7 +55,7 @@ assert(!index.includes("renderAchievements"), "Retired achievements renderer rem
 write("index.html", index);
 
 let giveUp = read("js/give-up-gameplay.js");
-const legacySelectionFunction = /\n  function removeLegacySelectionPanel\(\) \{\n    document\.querySelector\("\\\.challenge-overview"\)\?\.remove\(\);\n  \}\n/;
+const legacySelectionFunction = /\n  function removeLegacySelectionPanel\(\) \{\n    document\.querySelector\("\.challenge-overview"\)\?\.remove\(\);\n  \}\n/;
 assert(legacySelectionFunction.test(giveUp), "Could not locate legacy selection-panel deletion shim");
 giveUp = giveUp.replace(legacySelectionFunction, "\n");
 assert(giveUp.includes("  removeLegacySelectionPanel();"), "Could not locate selection-panel shim call");
