@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   studio-syntax:
     runs-on: ubuntu-latest
@@ -58,6 +61,7 @@ jobs:
           node --check js/career-shape-future-quality-guard.js
           node --check js/ui-cleanup.js
           node --check js/live-ui-bootstrap.js
+          node --check js/studio-zip.js
           node --check js/phase45-polish.js
           node --check js/season-select-performance.js
           node --check js/autocomplete-layer.js
@@ -115,3 +119,93 @@ jobs:
           grep -q 'id="identityConsolidationCentre"' admin.html
           node --check js/admin-core.js
           git diff --check
+
+  architecture-cleanup-pass2h-publishing:
+    if: github.event_name == 'pull_request' && github.head_ref == 'architecture-cleanup-pass2h-publishing'
+    needs: studio-syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out cleanup branch
+        uses: actions/checkout@v4
+        with:
+          ref: architecture-cleanup-pass2h-publishing
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Confirm Publishing and shared ZIP boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'id="publishingPanel"' admin.html
+          grep -q 'BEGIN admin-phase6.js' js/admin-core.js
+          grep -q 'FPL_STUDIO_PHASE6' js/admin-batch-calendar.js
+          grep -q 'FPL_STUDIO_PHASE6' js/admin-daily-publish.js
+          grep -q 'window.FPL_STUDIO_ZIP' js/studio-zip.js
+          grep -q 'BEGIN admin-phase7.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase10.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase11.js' js/admin-core.js
+
+      - name: Smoke-test standalone ZIP utility
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          global.window = {};
+          eval(fs.readFileSync('js/studio-zip.js', 'utf8'));
+          (async () => {
+            const blob = window.FPL_STUDIO_ZIP.buildZipBlob([{ name: 'hello.txt', content: 'hello' }]);
+            const bytes = new Uint8Array(await blob.arrayBuffer());
+            if (blob.type !== 'application/zip') throw new Error('Unexpected ZIP MIME type');
+            if (bytes.length < 22 || bytes[0] !== 0x50 || bytes[1] !== 0x4b || bytes[2] !== 0x03 || bytes[3] !== 0x04) {
+              throw new Error('ZIP local-file signature is invalid');
+            }
+          })().catch(error => { console.error(error); process.exit(1); });
+          NODE
+
+      - name: Apply Publishing cleanup
+        run: |
+          node --check scripts/architecture-cleanup-pass2h-publishing.mjs
+          node scripts/architecture-cleanup-pass2h-publishing.mjs
+
+      - name: Verify current publishing and import paths use shared ZIP utility
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check js/studio-zip.js
+          node --check js/admin-core.js
+          node --check js/admin-batch-calendar.js
+          node --check js/admin-daily-publish.js
+          ! grep -q 'id="publishingPanel"' admin.html
+          ! grep -q 'id="publishingStatus"' admin.html
+          ! grep -q 'id="repairStatusTop"' admin.html
+          ! grep -q 'studio-retired-tool' admin.html
+          ! grep -q 'BEGIN admin-phase6.js' js/admin-core.js
+          ! grep -q 'END admin-phase6.js' js/admin-core.js
+          ! grep -R -q 'FPL_STUDIO_PHASE6' js --include='*.js'
+          grep -q 'FPL_STUDIO_ZIP?.buildZipBlob' js/admin-batch-calendar.js
+          grep -q 'window.FPL_STUDIO_ZIP' js/admin-daily-publish.js
+          grep -q 'FPL_STUDIO_ZIP?.buildZipBlob' js/admin-core.js
+          grep -q 'src="js/studio-zip.js?v=1.0.0"' admin.html
+          grep -q 'id="databaseAuditorPanel"' admin.html
+          grep -q 'id="importCentreHeading"' admin.html
+          grep -q 'id="identityConsolidationCentre"' admin.html
+          grep -q 'BEGIN admin-phase7.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase10.js' js/admin-core.js
+          grep -q 'BEGIN admin-phase11.js' js/admin-core.js
+          git diff --check
+
+      - name: Commit cleanup result to review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/architecture-cleanup-pass2h-publishing.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Architecture Cleanup Pass 2H — retire legacy Publishing Centre'
+          git push origin HEAD:architecture-cleanup-pass2h-publishing
