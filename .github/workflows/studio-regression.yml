@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   studio-syntax:
     runs-on: ubuntu-latest
@@ -65,3 +68,64 @@ jobs:
           node --check js/visual-overhaul.js
           node --check js/visual-finishing.js
           node --check sw.js
+
+  architecture-cleanup-pass2e:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: studio-syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check migration syntax
+        run: node --check scripts/architecture-cleanup-pass2e.mjs
+
+      - name: Extract live-page stylesheet
+        run: node scripts/architecture-cleanup-pass2e.mjs
+
+      - name: Verify extraction boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s player-game.css
+          grep -q '<link rel="stylesheet" href="player-game.css"/>' index.html
+          ! grep -q '<style>' index.html
+          ! grep -q '</style>' index.html
+          git diff --check
+
+      - name: Restore standard workflow with permanent guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/architecture-cleanup-pass2e.mjs
+          git checkout HEAD^ -- .github/workflows/studio-regression.yml
+          cat >> .github/workflows/studio-regression.yml <<'EOF'
+
+      - name: Verify modular live-page stylesheet
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s player-game.css
+          grep -q '<link rel="stylesheet" href="player-game.css"/>' index.html
+          ! grep -q '<style>' index.html
+          ! grep -q '</style>' index.html
+          git diff --check
+          EOF
+
+      - name: Commit Architecture Cleanup Pass 2E
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Architecture Cleanup Pass 2E'
+          git push origin HEAD:main
