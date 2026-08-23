@@ -13,7 +13,7 @@ This repository contains the live FPL Draft Challenge, its historical player dat
 - Player Database Auditor
 - Live leaderboard backend health tools
 
-Historical import and automatic database-repair workspaces are retired from the active Studio workflow. Their legacy code remains temporarily in the repository while the Studio bundles are being modularised and cleaned up.
+The generic Historical Database Import Centre and Identity Consolidation tools are retained for verified season expansion. The one-off 2015/16 archive hotfix importer is retired and has been removed; older automatic database-repair workspaces remain outside the active Studio workflow while cleanup continues.
 
 ## Prompt Engine 2
 
