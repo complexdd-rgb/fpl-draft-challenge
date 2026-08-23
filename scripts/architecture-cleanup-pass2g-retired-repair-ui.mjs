@@ -43,7 +43,8 @@ function removePhase(source, phase) {
 }
 
 let admin = read("admin.html");
-assert((admin.match(/data-studio-retired="true"/g) || []).length === 2, "Expected exactly two remaining retired Studio panels");
+assert((admin.match(/data-studio-retired="true"/g) || []).length === 3, "Expected three retired Studio panels before Pass 2G");
+assert((admin.match(/id="publishingPanel"/g) || []).length === 1, "Retired Publishing Centre is missing");
 assert((admin.match(/id="databaseRepairPanel"/g) || []).length === 1, "Expected one retired Database Repair Centre");
 assert((admin.match(/id="autoRepairHeading"/g) || []).length === 1, "Expected one retired Automatic Repair Engine");
 assert((admin.match(/id="databaseAuditorPanel"/g) || []).length === 1, "Active Player Database Auditor is missing");
@@ -55,7 +56,8 @@ admin = removeElement(admin, 'id="autoRepairHeading"', "section");
 
 assert(!admin.includes('id="databaseRepairPanel"'), "Retired Database Repair Centre remains");
 assert(!admin.includes('id="autoRepairHeading"'), "Retired Automatic Repair Engine remains");
-assert(!admin.includes('data-studio-retired="true"'), "Retired Studio markup remains");
+assert((admin.match(/data-studio-retired="true"/g) || []).length === 1, "Unexpected retired Studio panel count after repair cleanup");
+assert(admin.includes('id="publishingPanel"'), "Retired Publishing Centre was accidentally removed");
 assert(admin.includes('id="databaseAuditorPanel"'), "Active Player Database Auditor was accidentally removed");
 assert(admin.includes('id="importCentreHeading"'), "Generic Historical Database Import Centre was accidentally removed");
 assert(admin.includes('id="identityConsolidationCentre"'), "Identity Consolidation Centre was accidentally removed");
