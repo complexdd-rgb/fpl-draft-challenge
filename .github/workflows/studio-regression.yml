@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   studio-syntax:
     runs-on: ubuntu-latest
@@ -145,3 +148,57 @@ jobs:
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
           git diff --check
+
+  architecture-cleanup-pass2i-player-css:
+    if: github.event_name == 'pull_request' && github.head_ref == 'architecture-cleanup-pass2i-player-css'
+    needs: studio-syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out cleanup branch
+        uses: actions/checkout@v4
+        with:
+          ref: architecture-cleanup-pass2i-player-css
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Confirm inline player CSS boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q '<style>' index.html
+          grep -q 'Core player-facing game styles extracted from index.html' index.html
+          grep -q 'PHASE 4.5 second pass' index.html
+          test ! -e player-game.css
+
+      - name: Extract player stylesheet without changing the body
+        run: |
+          node --check scripts/architecture-cleanup-pass2i-player-css.mjs
+          node scripts/architecture-cleanup-pass2i-player-css.mjs
+
+      - name: Verify stylesheet extraction
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s player-game.css
+          grep -q 'href="player-game.css?v=1.0.0"' index.html
+          ! grep -q '<style>' index.html
+          grep -q 'Core player-facing game styles extracted from index.html' player-game.css
+          grep -q 'PHASE 4.5 second pass' player-game.css
+          grep -q '.phase45-shell' player-game.css
+          grep -q '.slot' player-game.css
+          git diff --check
+
+      - name: Commit extracted stylesheet to review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/architecture-cleanup-pass2i-player-css.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Architecture Cleanup Pass 2I — extract player stylesheet'
+          git push origin HEAD:architecture-cleanup-pass2i-player-css
