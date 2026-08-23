@@ -123,6 +123,7 @@ jobs:
           grep -q 'BEGIN admin-phase9.js' js/admin-core.js
           grep -q 'BEGIN admin-phase10.js' js/admin-core.js
           grep -q 'BEGIN admin-phase11.js' js/admin-core.js
+          grep -q 'id="publishingPanel"' admin.html
 
       - name: Apply retired repair UI and bundle cleanup
         run: |
@@ -136,7 +137,8 @@ jobs:
           node --check js/admin-core.js
           ! grep -q 'id="databaseRepairPanel"' admin.html
           ! grep -q 'id="autoRepairHeading"' admin.html
-          ! grep -q 'data-studio-retired="true"' admin.html
+          test "$(grep -c 'data-studio-retired="true"' admin.html)" -eq 1
+          grep -q 'id="publishingPanel"' admin.html
           ! grep -q 'BEGIN admin-phase8.js' js/admin-core.js
           ! grep -q 'END admin-phase8.js' js/admin-core.js
           ! grep -q 'BEGIN admin-phase9.js' js/admin-core.js
