@@ -1,0 +1,72 @@
+name: Architecture Cleanup Pass 2K
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  extract-game-engine:
+    if: github.head_ref == 'architecture-cleanup-pass2k-game-engine'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out cleanup branch
+        uses: actions/checkout@v4
+        with:
+          ref: architecture-cleanup-pass2k-game-engine
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Confirm core engine boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'Core FPL Daily Challenge game engine' index.html
+          grep -q 'FPL Daily Challenge 4.3 — inline visual enhancements' index.html
+          grep -q 'const INVALID_PENALTY = 10;' index.html
+          grep -q 'function calculatePerfectXI()' index.html
+          test ! -e js/game-engine.js
+
+      - name: Extract core game engine
+        run: |
+          node --check scripts/architecture-cleanup-pass2k-game-engine.mjs
+          node scripts/architecture-cleanup-pass2k-game-engine.mjs
+
+      - name: Verify engine extraction and load order
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check js/game-engine.js
+          grep -q 'src="js/game-engine.js?v=1.0.0"' index.html
+          ! grep -q '<script>[[:space:]]*/\* Core FPL Daily Challenge game engine' index.html
+          grep -q 'Core FPL Daily Challenge game engine' js/game-engine.js
+          grep -q 'const INVALID_PENALTY = 10;' js/game-engine.js
+          grep -q 'const qualifiesForAnswer=record=>' js/game-engine.js
+          grep -q 'function calculatePerfectXI()' js/game-engine.js
+          grep -q 'function reveal(restoring=false)' js/game-engine.js
+          grep -q 'FPL Daily Challenge 4.3 — inline visual enhancements' index.html
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const career = html.indexOf('js/career-context.js?v=1.4.0');
+          const engine = html.indexOf('js/game-engine.js?v=1.0.0');
+          const visual = html.indexOf('FPL Daily Challenge 4.3 — inline visual enhancements');
+          if (!(career >= 0 && engine > career && visual > engine)) throw new Error('Core engine load order changed');
+          NODE
+          git diff --check
+
+      - name: Commit engine extraction to review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/architecture-cleanup-pass2k-game-engine.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html js/game-engine.js scripts/architecture-cleanup-pass2k-game-engine.mjs
+          git commit -m 'Architecture Cleanup Pass 2K — extract core game engine'
+          git push origin HEAD:architecture-cleanup-pass2k-game-engine
