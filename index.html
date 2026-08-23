@@ -1,31 +1,23 @@
 <!doctype html>
-
 <html lang="en">
 <head><!-- Daily challenge content loads from the dated UK challenge calendar. -->
-
-
-
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
-<meta content="#151a35" name="theme-color"/>
-<title>FPL Daily Challenge 4.1</title>
-
-
+<title>FPL Draft Challenge</title>
 <link rel="stylesheet" href="player-game.css?v=1.0.0">
-
+<link rel="stylesheet" href="player-ui-pass-3.css?v=1.0.0">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0b2017">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FPL Challenge">
-
 </head>
 <body>
 <main class="app">
 <header class="hero">
-<div class="eyebrow">Version 4.5 · Polish & retention edition</div>
+<div class="eyebrow">Daily historical FPL challenge</div>
 <h1 id="title">FPL Daily Challenge</h1>
-<p>Search once for a footballer, choose the season beside their name, then confirm. A footballer can only be used once across the whole XI. Invalid confirmed seasons cost 10 points.</p>
+<p>Find one valid player-season for every clue and build the strongest unique XI you can. Invalid confirmed seasons cost 10 points.</p>
 <div class="status">
 <span class="pill" id="dbStatus">Loading database…</span>
 <span class="pill" id="progress">0 / 11 valid</span>
@@ -34,29 +26,11 @@
 </div>
 </header>
 
-<section class="local-history" id="localHistory" aria-label="Your local challenge history">
-  <div class="local-history-head">
-    <div><span class="overview-kicker">Your history</span><h2>Daily record on this device</h2></div>
-    <p>Stored only in this browser for now. It will become the foundation for the live leaderboard later.</p>
-  </div>
-  <div class="local-history-grid">
-    <div class="history-stat"><strong id="historyGames">0</strong><span>games played</span></div>
-    <div class="history-stat"><strong id="historyStreak">0</strong><span>current streak</span></div>
-    <div class="history-stat"><strong id="historyBestScore">0</strong><span>best score</span></div>
-    <div class="history-stat"><strong id="historyBestEfficiency">0%</strong><span>best efficiency</span></div>
-    <div class="history-stat"><strong id="historyAverageEfficiency">0%</strong><span>average efficiency</span></div>
-    <div class="history-stat"><strong id="historyPerfectPicks">0</strong><span>perfect prompt picks</span></div>
-  </div>
-  <p class="completed-local-note hidden" id="completedLocalNote">Today’s challenge is already completed on this device. Your saved result has been restored.</p>
-</section>
-
-<section class="phase45-shell" id="phase45Shell">
+<section class="phase45-shell player-ui-pass-3" id="phase45Shell">
   <section class="phase45-hero" id="phase45Hero"></section>
-  <section class="phase45-panel" id="phase45ExtendedStats">
-        <div class="phase45-section-head"><div><span class="overview-kicker">Profile</span><h3>Your local record</h3></div><p>Stored on this device until accounts and the live leaderboard arrive.</p></div>
-        <div class="history-grid-extended" id="historyGridExtended"></div>
-      </section>
 </section>
+<p class="completed-local-note hidden" id="completedLocalNote">Today’s challenge is already completed on this device. Your saved result has been restored.</p>
+
 <div class="section-heading">
   <div><span class="overview-kicker">Your draft board</span><h2>Build your historical XI</h2></div>
   <p>Pick carefully: a valid answer can still leave points on the table.</p>
@@ -70,6 +44,13 @@
 </nav>
 <section class="grid" id="grid"></section>
 <div class="actions"><button class="btn secondary" id="reset">Reset team</button><button class="btn primary" disabled="" id="reveal">Reveal my XI</button></div>
+
+<details class="phase45-panel player-stats-details" id="phase45ExtendedStats">
+  <summary><span><span class="overview-kicker">My stats</span><strong>Your challenge record</strong></span><span class="stats-summary-action">View</span></summary>
+  <div class="phase45-section-head"><div><h3>Performance history</h3></div><p>Your official daily results saved on this device.</p></div>
+  <div class="history-grid-extended" id="historyGridExtended"></div>
+</details>
+
 <section class="results hidden" id="results">
 <div class="result-hero" id="resultHero">
   <div class="result-ring" id="resultRing"><div><strong id="resultEfficiencyHero">0%</strong><span>efficiency</span></div></div>
@@ -97,8 +78,8 @@
 <div><span>Penalties</span><strong id="penaltyPoints">0</strong></div>
 <div><span>Final score</span><strong id="finalScore">0</strong></div>
 <div><span>Perfect score</span><strong id="perfectScore">0</strong></div>
-<div><span>Efficiency</span><strong id="efficiency">0%</strong></div>
-<div><span>Grade</span><strong id="grade">–</strong></div>
+<div class="result-secondary-duplicate" hidden><span>Efficiency</span><strong id="efficiency">0%</strong></div>
+<div class="result-secondary-duplicate" hidden><span>Grade</span><strong id="grade">–</strong></div>
 <div><span>Time</span><strong id="timeTaken">0:00</strong></div>
 <div><span>Best score</span><strong id="bestScore">0</strong></div>
 </div>
@@ -113,35 +94,24 @@
 </section>
 </main>
 
-
-
-
-
-
-<!-- Phase 1: load the challenge calendar, then synchronously load the challenge selected for the current UK date. -->
+<!-- Load the challenge calendar, then synchronously load the challenge selected for the current UK date. -->
 <script src="js/challenge-manifest-bootstrap.js?v=1.0.0"></script>
 <script src="js/daily-challenge-loader.js?v=1.0.0"></script>
 <!-- Emergency compatibility fallback: the legacy file remains usable if the calendar or dated file is unavailable. -->
 <script src="js/challenge-legacy-fallback.js?v=1.0.0"></script>
 <script src="js/challenge-archive.js?v=2.0.0"></script>
-
 <script src="js/prompt-helpers.js?v=1.0.0"></script>
-
 <!-- The large database stays separate to keep index.html manageable. -->
 <script src="players-live.js?v=1.0.0"></script>
 <script src="js/career-context.js?v=1.4.0"></script>
-
 <script src="js/game-engine.js?v=1.0.0"></script>
-
 <script src="js/live-visual-enhancements.js?v=1.0.0"></script>
-
-
 
 <div class="phase45-bottom-nav" id="phase45BottomNav" aria-label="Quick navigation">
   <button type="button" data-jump="top"><span>🏠</span>Today</button>
   <button type="button" data-jump="archive"><span>🗂️</span>Archive</button>
-  <button type="button" data-jump="stats"><span>📈</span>Stats</button>
-  <button type="button" data-jump="results"><span>🏆</span>Results</button>
+  <button type="button" data-jump="stats"><span>📈</span>My stats</button>
+  <button type="button" id="phase45ContextAction" data-jump="next"><span>➡️</span>Next pick</button>
 </div>
 <div class="completion-moment hidden" id="completionMoment" role="status" aria-live="polite">
   <div class="completion-card">
@@ -153,10 +123,8 @@
   </div>
 </div>
 
-
 <script src="js/phase45-dashboard.js?v=1.0.0"></script>
-
-<!-- Phase 5A leaderboard foundation. Disabled until Supabase project details are added to leaderboard-config.js. -->
+<!-- Live leaderboard, accounts and player-facing competition features. -->
 <script src="js/leaderboard-config.js?v=5.0.0"></script>
 <script src="js/leaderboard-client.js?v=5.0.0"></script>
 <script src="js/phase45-polish.js?v=2.0.0"></script>

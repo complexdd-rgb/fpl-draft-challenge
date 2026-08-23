@@ -1,4 +1,4 @@
-/* FPL Daily Challenge — Phase 4 challenge archive UI. */
+/* FPL Daily Challenge — challenge archive UI. */
 (() => {
   "use strict";
   const manifest = window.FPL_CHALLENGE_MANIFEST || {};
@@ -31,8 +31,8 @@
   style.textContent=`
     .challenge-calendar-nav{margin:14px 0 18px;padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(7,27,19,.78);box-shadow:0 10px 30px rgba(0,0,0,.14)}
     .challenge-calendar-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.calendar-tab{display:flex;align-items:center;justify-content:center;min-height:42px;padding:9px 12px;border:1px solid rgba(255,255,255,.11);border-radius:12px;background:#10281d;color:var(--text);font:inherit;font-size:.78rem;font-weight:900;text-decoration:none;cursor:pointer}.calendar-tab:hover{border-color:rgba(0,255,135,.48)}.calendar-tab.active{background:linear-gradient(135deg,var(--accent),#a6ff4b);color:#04140c;border-color:transparent}.calendar-tab.disabled{opacity:.42;cursor:not-allowed}.archive-mode-banner{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(74,161,255,.1);border:1px solid rgba(74,161,255,.22);font-size:.72rem;line-height:1.45;color:#b9ddff}.archive-mode-banner strong{color:#fff}
-    .challenge-archive-panel{margin-top:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}.challenge-archive-panel.hidden{display:none}.archive-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin-bottom:10px}.archive-head h2{font-size:1rem;margin:3px 0 0}.archive-head p{margin:0;color:var(--muted);font-size:.68rem;text-align:right}.archive-list{display:grid;gap:8px;max-height:380px;overflow:auto;padding-right:2px}.archive-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.13)}.archive-entry h3{margin:0 0 3px;font-size:.82rem}.archive-entry p{margin:0;color:var(--muted);font-size:.66rem;line-height:1.35}.archive-result{color:var(--accent)!important;font-weight:800}.archive-action{white-space:nowrap;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#153324;color:#fff;text-decoration:none;font-size:.68rem;font-weight:900}.archive-action:hover{border-color:var(--accent)}.archive-empty{padding:13px;border-radius:12px;background:rgba(0,0,0,.12);color:var(--muted);font-size:.72rem}.archive-practice-label{color:#9fddea!important}
-    @media(max-width:560px){.challenge-calendar-tabs{grid-template-columns:1fr 1fr}.challenge-calendar-tabs .archive-toggle{grid-column:1/-1}.archive-entry{grid-template-columns:1fr}.archive-action{text-align:center}.archive-head{align-items:flex-start;flex-direction:column}.archive-head p{text-align:left}}
+    .challenge-archive-panel{margin-top:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}.challenge-archive-panel.hidden{display:none}.archive-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin-bottom:10px}.archive-head h2{font-size:1rem;margin:3px 0 0}.archive-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.archive-head p{margin:0;color:var(--muted);font-size:.68rem;text-align:right;max-width:290px}.archive-list{display:grid;gap:8px;max-height:380px;overflow:auto;padding-right:2px}.archive-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.13)}.archive-entry h3{margin:0 0 3px;font-size:.82rem}.archive-entry p{margin:0;color:var(--muted);font-size:.66rem;line-height:1.35}.archive-result{color:var(--accent)!important;font-weight:800}.archive-action{white-space:nowrap;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#153324;color:#fff;text-decoration:none;font:inherit;font-size:.68rem;font-weight:900;cursor:pointer}.archive-action:hover{border-color:var(--accent)}.archive-action:disabled{opacity:.45;cursor:not-allowed}.archive-empty{padding:13px;border-radius:12px;background:rgba(0,0,0,.12);color:var(--muted);font-size:.72rem}.archive-practice-label{color:#9fddea!important}
+    @media(max-width:560px){.challenge-calendar-tabs{grid-template-columns:1fr 1fr}.challenge-calendar-tabs .archive-toggle{grid-column:1/-1}.archive-entry{grid-template-columns:1fr}.archive-action{text-align:center}.archive-head{align-items:flex-start;flex-direction:column}.archive-head-actions{width:100%;justify-content:space-between}.archive-head p{text-align:left;max-width:none}}
   `;
   document.head.appendChild(style);
 
@@ -49,7 +49,7 @@
     </nav>
     ${isArchive ? `<div class="archive-mode-banner"><strong>Archive practice:</strong> ${esc(fmtDate(currentSelected))}. If you completed this challenge on its original day, your locked result is restored. Otherwise this run is practice and does not change your official streak or daily stats.</div>` : ""}
     <div class="challenge-archive-panel ${isArchive?"":"hidden"}" id="challengeArchivePanel">
-      <div class="archive-head"><div><span class="overview-kicker">Previous days</span><h2>Challenge archive</h2></div><p>Completed daily results stay locked. Missed challenges can be played for practice.</p></div>
+      <div class="archive-head"><div><span class="overview-kicker">Previous days</span><h2>Challenge archive</h2></div><div class="archive-head-actions"><p>Completed results stay locked. Missed days are practice.</p><button class="archive-action" id="randomPastChallenge" type="button" ${pastEntries.length?"":"disabled"}>Random past challenge</button></div></div>
       <div class="archive-list" id="challengeArchiveList"></div>
     </div>`;
   const hero=document.querySelector(".hero");
@@ -63,7 +63,7 @@
       if(official){result=`Completed · ${Number(official.finalScore||0).toLocaleString()} pts · ${Number(official.efficiency||0).toFixed(1)}%`; action="View result";}
       else if(practice){result=`Practice complete · ${Number(practice.finalScore||0).toLocaleString()} pts · ${Number(practice.efficiency||0).toFixed(1)}%`; action="View practice";}
       return `<article class="archive-entry"><div><h3>${esc(entry.title||`${fmtDate(entry.date)} · Daily Challenge`)}</h3><p>${esc(fmtDate(entry.date))} · ${esc(entry.formation || "4-4-2")}${entry.theme ? ` · ${esc(entry.theme)}` : ""}</p><p class="${official?"archive-result":practice?"archive-practice-label":""}">${esc(result)}</p></div><a class="archive-action" href="${esc(linkFor(entry.date))}">${esc(action)}</a></article>`;
-    }).join("") : '<div class="archive-empty">No previous dated challenges are in the calendar yet. Once Phase 2 publishes a week, they will appear here automatically.</div>';
+    }).join("") : '<div class="archive-empty">No previous dated challenges are available yet.</div>';
   }
 
   const toggle=shell.querySelector("#archiveToggle"), panel=shell.querySelector("#challengeArchivePanel");
@@ -71,6 +71,12 @@
     const hidden=panel.classList.toggle("hidden");
     toggle.setAttribute("aria-expanded",String(!hidden));
     if(!hidden) panel.scrollIntoView({behavior:"smooth",block:"nearest"});
+  });
+
+  shell.querySelector("#randomPastChallenge")?.addEventListener("click",()=>{
+    if(!pastEntries.length)return;
+    const choice=pastEntries[Math.floor(Math.random()*pastEntries.length)];
+    if(choice?.date) window.location.href=linkFor(choice.date);
   });
 
   if(runtime.selectionMode==="latest-published" && !isArchive){
