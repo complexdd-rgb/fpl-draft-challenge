@@ -145,3 +145,23 @@ jobs:
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
           git diff --check
+
+      - name: Verify player stylesheet is externalized
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s player-game.css
+          grep -q 'href="player-game.css?v=1.0.0"' index.html
+          ! grep -q '<style>' index.html
+          grep -q 'Core player-facing game styles extracted from index.html' player-game.css
+          grep -q 'PHASE 4.5 second pass' player-game.css
+          grep -q '.phase45-shell' player-game.css
+          grep -q '.slot' player-game.css
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const head = html.slice(0, html.indexOf('</head>'));
+          if ((head.match(/player-game\.css\?v=1\.0\.0/g) || []).length !== 1) throw new Error('Expected exactly one player-game.css load');
+          if (head.indexOf('player-game.css?v=1.0.0') > head.indexOf('manifest.webmanifest')) throw new Error('Player stylesheet load order changed');
+          NODE
+          git diff --check
