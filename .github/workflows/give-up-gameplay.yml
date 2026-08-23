@@ -33,5 +33,6 @@ jobs:
           grep -q 'give-up-gameplay.js' js/daily-challenge-loader.js
           grep -q 'Give up · 0 points' js/give-up-gameplay.js
           grep -q 'skippedPrompts' js/give-up-gameplay.js
-          grep -q 'document.querySelector(".challenge-overview")?.remove()' js/give-up-gameplay.js
+          ! grep -q 'removeLegacySelectionPanel' js/give-up-gameplay.js
+          ! grep -q 'class="challenge-overview"' index.html
           grep -q 'completed !== total' js/give-up-gameplay.js
