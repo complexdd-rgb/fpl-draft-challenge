@@ -1,0 +1,124 @@
+name: Temp 2010-11 May-2013 API bulk scan
+
+on:
+  push:
+    branches:
+      - temp/2010-11-api-bulk-scan-20260823
+    paths:
+      - .github/workflows/temp-2010-11-api-bulk-scan.yml
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+
+      - name: Clone preserved FPL API archive
+        run: |
+          git clone https://github.com/elie222/Fantasy-Football-AI.git source-archive
+          git -C source-archive checkout a607e4eb7a3002432cc39b20e0650af33dc334da
+
+      - name: Extract 2010-11 season-history rows
+        run: |
+          python - <<'PY'
+          import csv
+          import json
+          from pathlib import Path
+
+          root = Path('source-archive/20_5_2013')
+          out_dir = Path('tmp-recovery/2010-11-may2013-api')
+          out_dir.mkdir(parents=True, exist_ok=True)
+
+          columns = [
+              'archive_id','first_name','second_name','web_name','current_team','current_type','element_type_id',
+              'history_status','season','minutes','goals','assists','clean_sheets','goals_conceded','own_goals',
+              'penalties_saved','penalties_missed','yellow_cards','red_cards','saves','bonus','ea_ppi',
+              'end_cost_tenths','end_price_m','total_points','source_path'
+          ]
+
+          rows = []
+          errors = []
+          files = sorted((p for p in root.iterdir() if p.is_file() and p.name.isdigit()), key=lambda p: int(p.name))
+          for path in files:
+              try:
+                  player = json.loads(path.read_text())
+              except Exception as exc:
+                  errors.append({'archive_id': int(path.name), 'error': repr(exc)})
+                  continue
+
+              hist = None
+              for item in player.get('season_history', []):
+                  if item and item[0] == '2010/11':
+                      hist = item
+                      break
+
+              base = {
+                  'archive_id': player.get('id', int(path.name)),
+                  'first_name': player.get('first_name',''),
+                  'second_name': player.get('second_name',''),
+                  'web_name': player.get('web_name',''),
+                  'current_team': player.get('team_name',''),
+                  'current_type': player.get('type_name',''),
+                  'element_type_id': player.get('element_type_id',''),
+                  'source_path': f"20_5_2013/{path.name}",
+              }
+
+              if hist is None:
+                  row = dict(base)
+                  row.update({'history_status':'NO_2010_11_HISTORY','season':'2010/11'})
+              else:
+                  # Official historic schema:
+                  # season, minutes, goals, assists, clean_sheets, goals_conceded,
+                  # own_goals, penalties_saved, penalties_missed, yellow_cards,
+                  # red_cards, saves, bonus, ea_ppi, end_cost_tenths, total_points
+                  vals = list(hist) + [None] * max(0, 16-len(hist))
+                  row = dict(base)
+                  row.update({
+                      'history_status': 'POSITIVE_MINUTES' if (vals[1] or 0) > 0 else 'ZERO_MINUTES',
+                      'season': vals[0], 'minutes': vals[1], 'goals': vals[2], 'assists': vals[3],
+                      'clean_sheets': vals[4], 'goals_conceded': vals[5], 'own_goals': vals[6],
+                      'penalties_saved': vals[7], 'penalties_missed': vals[8], 'yellow_cards': vals[9],
+                      'red_cards': vals[10], 'saves': vals[11], 'bonus': vals[12], 'ea_ppi': vals[13],
+                      'end_cost_tenths': vals[14],
+                      'end_price_m': (vals[14] / 10.0) if vals[14] is not None else None,
+                      'total_points': vals[15],
+                  })
+              rows.append(row)
+
+          csv_path = out_dir / 'may2013_2010_11_full_scan.csv'
+          with csv_path.open('w', newline='', encoding='utf-8') as f:
+              writer = csv.DictWriter(f, fieldnames=columns)
+              writer.writeheader()
+              for row in rows:
+                  writer.writerow({k: row.get(k,'') for k in columns})
+
+          json_path = out_dir / 'may2013_2010_11_full_scan.json'
+          json_path.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding='utf-8')
+
+          summary = {
+              'archive_commit': 'a607e4eb7a3002432cc39b20e0650af33dc334da',
+              'numeric_files_scanned': len(files),
+              'rows_parsed': len(rows),
+              'positive_minutes': sum(r.get('history_status') == 'POSITIVE_MINUTES' for r in rows),
+              'zero_minutes': sum(r.get('history_status') == 'ZERO_MINUTES' for r in rows),
+              'no_2010_11_history': sum(r.get('history_status') == 'NO_2010_11_HISTORY' for r in rows),
+              'parse_errors': errors,
+              'min_id': min((int(p.name) for p in files), default=None),
+              'max_id': max((int(p.name) for p in files), default=None),
+          }
+          (out_dir / 'summary.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Commit compact scan output to temporary branch
+        run: |
+          rm -rf source-archive
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tmp-recovery/2010-11-may2013-api
+          git commit -m "chore: materialise May-2013 2010/11 API bulk scan"
+          git push origin HEAD:temp/2010-11-api-bulk-scan-20260823
