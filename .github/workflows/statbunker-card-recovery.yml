@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - data/statbunker-2012-14-card-save-recovery
+  pull_request:
   workflow_dispatch:
 
 jobs:
