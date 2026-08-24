@@ -1,73 +1,23 @@
-name: StatBunker prompt-stat recovery
+name: Historical prompt-stat completeness
 
 on:
-  push:
-    branches:
-      - data/statbunker-2012-14-card-save-recovery
+  pull_request:
+    paths:
+      - 'players.js'
+      - 'players-live.js'
+      - 'scripts/audit-prompt-stat-completeness.mjs'
+      - '.github/workflows/statbunker-card-recovery.yml'
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  recover:
+  audit:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-        with:
-          ref: data/statbunker-2012-14-card-save-recovery
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Recover, load and audit prompt stats
-        id: import
-        shell: bash
-        run: |
-          mkdir -p reports
-          set +e
-          node scripts/import-prompt-stats-2012-14.mjs > reports/prompt-stat-import.log 2>&1
-          import_status=$?
-          if [ "$import_status" -eq 0 ]; then
-            node scripts/build-live-players.mjs >> reports/prompt-stat-import.log 2>&1
-            build_status=$?
-          else
-            build_status=99
-          fi
-          if [ "$import_status" -eq 0 ] && [ "$build_status" -eq 0 ]; then
-            node scripts/audit-prompt-stat-completeness.mjs >> reports/prompt-stat-import.log 2>&1
-            audit_status=$?
-          else
-            audit_status=99
-          fi
-          cat reports/prompt-stat-import.log
-          printf 'import=%s\nbuild=%s\naudit=%s\n' "$import_status" "$build_status" "$audit_status" > reports/prompt-stat-import-status.txt
-          echo "import_status=$import_status" >> "$GITHUB_OUTPUT"
-          echo "build_status=$build_status" >> "$GITHUB_OUTPUT"
-          echo "audit_status=$audit_status" >> "$GITHUB_OUTPUT"
-      - name: Commit database recovery or diagnostic status
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add players.js players-live.js reports/prompt-stat-import-status.txt
-          if git diff --cached --quiet; then
-            echo "No database/status changes to commit."
-          else
-            git commit -m "Load StatBunker card and verified save recovery"
-            git push origin HEAD:data/statbunker-2012-14-card-save-recovery
-          fi
-      - name: Upload StatBunker recovery evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: statbunker-card-recovery-2012-14
-          path: |
-            reports/statbunker-card-recovery-2012-14.json
-            reports/prompt-stat-import.log
-            reports/prompt-stat-import-status.txt
-          if-no-files-found: ignore
-      - name: Fail if import or audit failed
-        if: steps.import.outputs.import_status != '0' || steps.import.outputs.build_status != '0' || steps.import.outputs.audit_status != '0'
-        run: exit 1
+      - name: Audit yellow cards, red cards, saves and Murphy identity
+        run: node scripts/audit-prompt-stat-completeness.mjs
