@@ -1,0 +1,20 @@
+name: Full database null audit
+
+on:
+  push:
+    branches:
+      - diagnostics/full-database-null-audit-20260824
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit all player-season fields
+        run: node scripts/diagnose-full-database-null-audit.mjs
