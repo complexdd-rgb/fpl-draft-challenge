@@ -1,0 +1,23 @@
+name: All-season certification
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  certify-all-seasons:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Diagnose approved Studio prompt baseline
+        run: node scripts/diagnose-approved-library-certification.mjs
+
+      - name: Run Studio all-season certification
+        run: node scripts/diagnose-all-season-certification.mjs
