@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const seasons = {
-  '2012/13': { compId: 415, url: 'https://dr.statbunker.com/competitions/PlayerStandings?comp_id=415' },
-  '2013/14': { compId: 449, url: 'https://dr.statbunker.com/competitions/PlayerStandings?comp_id=449' }
+  '2012/13': { compId: 415, url: 'http://www.statbunker.com/competitions/PlayerStandings?comp_id=415' },
+  '2013/14': { compId: 449, url: 'http://www.statbunker.com/competitions/PlayerStandings?comp_id=449' }
 };
 
 function installBrowserShim() {
@@ -52,7 +52,6 @@ function parseStandings(html) {
     const cells = [...tr.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)].map(m => m[1]);
     if (cells.length < 9) continue;
     const texts = cells.map(strip);
-    // Player standings columns: Players, Clubs, Position, Total, Goals, A, Yellow, Red+Yellow, Red, Start...
     const posIndex = texts.findIndex(v => /^(Forward|Midfielder|Defender|Goalkeeper)$/i.test(v));
     if (posIndex < 2) continue;
     const player = texts[0], club = texts[1], position = texts[posIndex];
@@ -71,7 +70,6 @@ function bestMatch(target, statRows) {
   const names = [target.player.name, ...(Array.isArray(target.player.aliases) ? target.player.aliases : [])].map(norm).filter(Boolean);
   let candidates = statRows.filter(r => names.includes(norm(r.player)));
   if (!candidates.length) {
-    // Conservative token fallback for punctuation/known expanded-name differences only.
     const targetTokens = new Set(norm(target.player.name).split(' ').filter(Boolean));
     candidates = statRows.filter(r => {
       const rt = new Set(norm(r.player).split(' ').filter(Boolean));
@@ -87,23 +85,31 @@ function bestMatch(target, statRows) {
   return candidates.length === 1 ? candidates[0] : { ambiguous: candidates };
 }
 
+const requestHeaders = {
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0 Safari/537.36',
+  'accept': 'text/html,application/xhtml+xml',
+  'accept-language': 'en-GB,en;q=0.9',
+  'referer': 'https://www.statbunker.com/'
+};
+
 const report = { generatedAt: new Date().toISOString(), source: 'StatBunker PlayerStandings', seasons: {}, recoveries: [], unresolved: [] };
 for (const [season, cfg] of Object.entries(seasons)) {
-  const response = await fetch(cfg.url, { headers: { 'user-agent': 'Mozilla/5.0 (compatible; FPL-Draft-Challenge historical data audit)' } });
+  const response = await fetch(cfg.url, { headers: requestHeaders, redirect: 'follow' });
   if (!response.ok) throw new Error(`${season} StatBunker fetch failed: ${response.status}`);
   const html = await response.text();
   const statRows = parseStandings(html);
+  if (statRows.length < 400) throw new Error(`${season} StatBunker parse returned only ${statRows.length} player rows`);
   const targets = players.flatMap(player => (player.seasons || []).filter(record => record.season === season && (record.yellowCards === null || record.yellowCards === undefined || record.yellowCards === '')).map(record => ({ player, record })));
   let matched = 0, ambiguous = 0, missing = 0, correctedSecondYellow = 0;
   for (const target of targets) {
     const match = bestMatch(target, statRows);
     if (match && !match.ambiguous) {
-      // Project convention established in 2011/12 audit: StatBunker yellow event total includes the second yellow that produces a dismissal.
-      // FPL-style yellowCards therefore subtracts Red+Yellow events; sent-off events are kept separately.
+      // Existing project convention from the 2011/12 StatBunker cross-check:
+      // Yellow Card includes the second yellow in a second-yellow dismissal, so subtract Red+Yellow for the FPL-style yellow-card total.
       const yellowCards = Math.max(0, match.yellowEvents - match.redYellow);
       const redCards = match.redYellow + match.straightRed;
       if (match.redYellow) correctedSecondYellow += 1;
-      report.recoveries.push({ season, playerId: target.player.playerId, name: target.player.name, club: target.record.club, statBunkerName: match.player, statBunkerClub: match.club, yellowEvents: match.yellowEvents, redYellow: match.redYellow, straightRed: match.straightRed, yellowCards, redCards, sourceUrl: cfg.url });
+      report.recoveries.push({ season, playerId: target.player.playerId, name: target.player.name, club: target.record.club, statBunkerName: match.player, statBunkerClub: match.club, yellowEvents: match.yellowEvents, redYellow: match.redYellow, straightRed: match.straightRed, yellowCards, redCards, sourceUrl: response.url });
       matched += 1;
     } else {
       const count = match?.ambiguous?.length || 0;
@@ -111,7 +117,7 @@ for (const [season, cfg] of Object.entries(seasons)) {
       if (count) ambiguous += 1; else missing += 1;
     }
   }
-  report.seasons[season] = { compId: cfg.compId, sourceUrl: cfg.url, statRows: statRows.length, targets: targets.length, matched, ambiguous, missing, correctedSecondYellow };
+  report.seasons[season] = { compId: cfg.compId, sourceUrl: response.url, statRows: statRows.length, targets: targets.length, matched, ambiguous, missing, correctedSecondYellow };
 }
 
 fs.mkdirSync('reports', { recursive: true });
