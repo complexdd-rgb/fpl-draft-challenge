@@ -6,7 +6,7 @@ on:
       - 'players.js'
       - 'players-live.js'
       - 'scripts/audit-prompt-stat-completeness.mjs'
-      - '.github/workflows/statbunker-card-recovery.yml'
+      - '.github/workflows/historical-prompt-stat-completeness.yml'
   workflow_dispatch:
 
 jobs:
@@ -19,5 +19,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Audit yellow cards, red cards, saves and Murphy identity
+      - name: Audit historical prompt-stat completeness
         run: node scripts/audit-prompt-stat-completeness.mjs
