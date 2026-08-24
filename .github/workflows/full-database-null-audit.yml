@@ -19,3 +19,5 @@ jobs:
           node-version: '22'
       - name: Audit all player-season fields
         run: node scripts/diagnose-full-database-null-audit.mjs
+      - name: Audit effective bio metadata
+        run: node scripts/diagnose-bio-coverage.mjs
