@@ -21,3 +21,5 @@ jobs:
         run: node scripts/diagnose-full-database-null-audit.mjs
       - name: Audit effective bio metadata
         run: node scripts/diagnose-bio-coverage.mjs
+      - name: Audit current prompt gaps
+        run: node scripts/diagnose-current-prompt-gaps.mjs
