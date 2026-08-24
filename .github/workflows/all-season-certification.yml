@@ -16,5 +16,8 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Diagnose approved Studio prompt baseline
+        run: node scripts/diagnose-approved-library-certification.mjs
+
       - name: Run Studio all-season certification
         run: node scripts/diagnose-all-season-certification.mjs
