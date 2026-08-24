@@ -1,0 +1,21 @@
+name: Live feature loader race guard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  leaderboard-extras:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check loader syntax
+        run: node --check js/live-feature-loader.js
+      - name: Verify already-visible leaderboard still loads team sheets
+        run: node scripts/test-live-feature-loader-race.mjs
