@@ -1,0 +1,703 @@
+﻿yellow_cards,net_transfers,last_name,goals_conceded,saves,result,team_name_1,index,first_name,own_goals,minutes_played,EA_Spots_PPI,week,bonus,clean_sheets,assists,date,penalties_saved,penalties missed,value,points,position,red_cards,goals_scored
+0,115,Robinson,3,0,LIV(A) 1-3,Bolton,743,Paul,0,90,5,3,0,0,0,27 Aug. 17:30,0,0,45,1,Defender,0,0
+0,-365,Robinson,1,0,BLA(A) 2-1,Bolton,7417,Paul,0,34,6,17,0,0,0,20 Dec. 20:00,0,0,43,1,Defender,0,0
+0,-25892,Cech,0,0,NOR(H) 3-1,Chelsea,893,Petr,0,0,0,3,0,0,0,27 Aug. 15:00,0,0,70,0,Goalkeeper,0,0
+0,-1117,Cech,1,3,TOT(A) 1-1,Chelsea,8917,Petr,0,90,8,17,0,0,0,22 Dec. 20:00,0,0,68,3,Goalkeeper,0,0
+0,-469,Cech,2,6,MCI(A) 1-2,Chelsea,8929,Petr,0,90,11,29,0,0,0,21 March 19:45,0,0,68,3,Goalkeeper,0,0
+0,-18,Ferreira,0,0,MCI(A) 1-2,Chelsea,9629,Paulo,0,0,0,29,0,0,0,21 March 19:45,0,0,46,0,Defender,0,0
+0,-195,Jagielka,0,0,ARS(H) 0-1,Everton,11629,Phil,0,0,0,29,0,0,0,21 March 20:00,0,0,53,0,Defender,0,0
+0,-470,Neville,0,0,ARS(H) 0-1,Everton,12529,Phil,0,0,0,29,0,0,0,21 March 20:00,0,0,47,0,Midfielder,0,0
+0,-1735,Senderos,0,0,CHE(H) 1-1,Fulham,13933,Philippe,0,0,0,33,0,0,0,09 April 20:00,0,0,42,0,Defender,0,0
+0,0,Gulacsi,0,0,ARS(H) 1-2,Liverpool,15627,Peter,0,0,0,27,0,0,0,03 March 12:45,0,0,45,0,Goalkeeper,0,0
+0,0,Zabaleta,0,0,BOL(A) 3-2,Man City,1882,Pablo,0,3,0,2,0,0,0,21 Aug. 16:00,0,0,60,1,Defender,0,0
+0,2275,Jones,0,0,WOL(A) 5-0,Man Utd,20929,Phil,0,0,0,29,0,0,0,18 March 13:30,0,0,62,0,Defender,0,0
+0,17904,Evra,0,0,WOL(A) 5-0,Man Utd,21329,Patrice,0,62,9,29,0,1,0,18 March 13:30,0,0,73,6,Defender,0,0
+0,-84,Bardsley,2,0,QPR(A) 3-2,Sunderland,33817,Phillip,0,90,14,17,0,0,0,21 Dec. 20:00,0,0,48,1,Defender,0,0
+0,3659,Crouch,0,0,NOR(H) 1-0,Stoke City,40527,Peter,0,68,8,27,0,1,0,03 March 15:00,0,0,64,2,Forward,0,0
+0,45,Crouch,0,0,AVL(A) 1-1,Stoke City,40533,Peter,0,29,2,33,0,0,0,09 April 17:30,0,0,63,1,Forward,0,0
+0,-238,Scharner,0,0,CHE(H) 1-0,West Brom,42127,Paul,0,0,0,27,0,0,0,03 March 15:00,0,0,51,0,Midfielder,0,0
+0,-31,Scharner,4,0,MCI(A) 0-4,West Brom,42133,Paul,0,90,-1,33,0,0,0,11 April 19:45,0,0,51,2,Midfielder,0,0
+0,16466,Odemwingie,0,0,CHE(H) 1-0,West Brom,43027,Peter,0,90,12,27,0,1,0,03 March 15:00,0,0,72,2,Forward,0,0
+0,-3021,Odemwingie,0,0,MCI(A) 0-4,West Brom,43033,Peter,0,0,0,33,0,0,0,11 April 19:45,0,0,73,0,Forward,0,0
+0,-4,Kasami,0,0,CHE(H) 1-1,Fulham,48333,Pajtim,0,0,0,33,0,0,0,09 April 20:00,0,0,47,0,Midfielder,0,0
+1,112,Mertesacker,1,0,AVL(A) 2-1,Arsenal,56017,Per,0,90,18,17,0,0,0,21 Dec. 19:45,0,0,57,1,Defender,0,0
+0,-8,Van Aanholt,0,0,WBA(H) 1-1,Wigan,56629,Patrick,0,0,0,29,0,0,0,17 March 15:00,0,0,43,0,Defender,0,0
+0,7773,Scholes,0,0,WOL(A) 5-0,Man Utd,62429,Paul,0,90,20,29,0,1,0,18 March 13:30,0,0,54,3,Midfielder,0,0
+0,6063,Cisse,1,0,SUN(H) 1-1,Newcastle,63527,Papiss,0,71,8,27,0,0,0,04 March 12:00,0,0,70,2,Forward,0,0
+0,0,Mertesacker,0,0,SUN(H) 0-0,Arsenal,111,Per,0,90,9,1,0,1,0,18 Aug 15:00,0,0,50,6,Defender,0,0
+0,17928,Mertesacker,0,0,STK(A) 0-0,Arsenal,112,Per,0,90,12,2,0,1,0,26 Aug 13:30,0,0,50,6,Defender,0,0
+1,17816,Mertesacker,0,0,LIV(A) 2-0,Arsenal,113,Per,0,90,14,3,0,1,0,02 Sep 13:30,0,0,50,5,Defender,0,0
+0,40154,Mertesacker,1,0,SOU(H) 6-1,Arsenal,114,Per,0,90,14,4,0,0,0,15 Sep 15:00,0,0,51,2,Defender,0,0
+0,4293,Mertesacker,1,0,MCI(A) 1-1,Arsenal,115,Per,0,90,6,5,0,0,0,23 Sep 16:00,0,0,51,2,Defender,0,0
+0,5629,Mertesacker,0,0,CHE(H) 1-2,Arsenal,116,Per,0,0,0,6,0,0,0,29 Sep 12:45,0,0,51,0,Defender,0,0
+0,-16391,Mertesacker,1,0,WHU(A) 3-1,Arsenal,117,Per,0,90,6,7,0,0,0,06 Oct 17:30,0,0,51,2,Defender,0,0
+0,6809,Mertesacker,1,0,NOR(A) 0-1,Arsenal,118,Per,0,90,3,8,0,0,0,20 Oct 17:30,0,0,51,2,Defender,0,0
+0,4257,Mertesacker,0,0,QPR(H) 1-0,Arsenal,119,Per,0,90,19,9,0,1,0,27 Oct 15:00,0,0,51,6,Defender,0,0
+0,7175,Mertesacker,2,0,MUN(A) 1-2,Arsenal,1110,Per,0,90,5,10,0,0,0,03 Nov 12:45,0,0,51,1,Defender,0,0
+0,13421,Mertesacker,0,0,NEW(H) 7-3,Arsenal,1120,Per,0,0,0,20,0,0,0,29 Dec 17:30,0,0,54,0,Defender,0,0
+0,4048,Mertesacker,0,0,SWA(A) 2-0,Arsenal,1130,Per,0,90,15,30,0,1,0,16 Mar 15:00,0,0,53,6,Defender,0,0
+0,0,Cech,2,2,RDG(H) 4-2,Chelsea,631,Petr,0,90,16,1,0,0,0,22 Aug 19:45,0,0,65,1,Goalkeeper,0,0
+0,-6144,Cech,0,3,NEW(H) 2-0,Chelsea,632,Petr,0,90,18,2,0,1,0,25 Aug 17:30,0,0,65,7,Goalkeeper,0,0
+0,8094,Cech,0,3,QPR(A) 0-0,Chelsea,634,Petr,0,90,11,4,0,1,0,15 Sep 15:00,0,0,65,7,Goalkeeper,0,0
+0,23660,Cech,0,3,STK(H) 1-0,Chelsea,635,Petr,0,90,18,5,0,1,0,22 Sep 15:00,0,0,65,7,Goalkeeper,0,0
+0,18439,Cech,1,3,ARS(A) 2-1,Chelsea,636,Petr,0,90,14,6,0,0,0,29 Sep 12:45,0,0,65,3,Goalkeeper,0,0
+0,24435,Cech,1,2,NOR(H) 4-1,Chelsea,637,Petr,0,90,13,7,0,0,0,06 Oct 15:00,0,0,66,2,Goalkeeper,0,0
+0,3417,Cech,2,8,TOT(A) 4-2,Chelsea,638,Petr,0,90,18,8,0,0,0,20 Oct 12:45,0,0,66,3,Goalkeeper,0,0
+0,-2494,Cech,3,3,MUN(H) 2-3,Chelsea,639,Petr,0,90,6,9,0,0,0,28 Oct 16:00,0,0,66,2,Goalkeeper,0,0
+0,1113,Cech,1,2,SWA(A) 1-1,Chelsea,6310,Petr,0,90,7,10,0,0,0,03 Nov 15:00,0,0,66,2,Goalkeeper,0,0
+0,-7627,Cech,1,2,LIV(H) 1-1,Chelsea,6311,Petr,0,90,9,11,0,0,0,11 Nov 16:00,0,0,66,2,Goalkeeper,0,0
+0,-9802,Cech,2,3,WBA(A) 1-2,Chelsea,6312,Petr,0,90,4,12,0,0,0,17 Nov 15:00,0,0,66,2,Goalkeeper,0,0
+0,-16687,Cech,0,5,MCI(H) 0-0,Chelsea,6313,Petr,0,90,13,13,0,1,0,25 Nov 16:00,0,0,66,7,Goalkeeper,0,0
+0,-1516,Cech,0,5,FUL(H) 0-0,Chelsea,6314,Petr,0,90,13,14,0,1,0,28 Nov 19:45,0,0,66,7,Goalkeeper,0,0
+1,1954,Cech,3,5,WHU(A) 1-3,Chelsea,6315,Petr,0,90,11,15,0,0,0,01 Dec 12:45,0,0,66,1,Goalkeeper,0,0
+0,-9165,Cech,1,4,SUN(A) 3-1,Chelsea,6316,Petr,0,90,20,16,0,0,0,08 Dec 15:00,0,0,66,3,Goalkeeper,0,0
+0,-4130,Cech,0,3,AVL(H) 8-0,Chelsea,6318,Petr,0,90,19,18,0,1,0,23 Dec 16:00,0,0,65,7,Goalkeeper,0,0
+0,-1942,Cech,0,1,NOR(A) 1-0,Chelsea,6319,Petr,0,90,16,19,0,1,0,26 Dec 15:00,0,0,65,6,Goalkeeper,0,0
+0,-2156,Cech,1,2,EVE(A) 2-1,Chelsea,6320,Petr,0,45,10,20,0,0,0,30 Dec 13:30,0,0,65,1,Goalkeeper,0,0
+0,-18394,Cech,0,0,QPR(H) 0-1,Chelsea,6321,Petr,0,0,0,21,0,0,0,02 Jan 19:45,0,0,65,0,Goalkeeper,0,0
+0,-60202,Cech,2,0,SOU(H) 2-2,Chelsea,6322,Petr,0,90,6,22,0,0,0,16 Jan 19:45,0,0,64,1,Goalkeeper,0,0
+0,-3408,Cech,1,5,ARS(H) 2-1,Chelsea,6323,Petr,0,90,19,23,0,0,0,20 Jan 13:30,0,0,64,3,Goalkeeper,0,0
+0,-4557,Cech,0,0,RDG(A) 2-2,Chelsea,6324,Petr,0,0,0,24,0,0,0,30 Jan 20:00,0,0,64,0,Goalkeeper,0,0
+0,-7007,Cech,3,8,NEW(A) 2-3,Chelsea,6325,Petr,0,90,10,25,0,0,0,02 Feb 15:00,0,0,64,3,Goalkeeper,0,0
+0,-4929,Cech,1,5,WIG(H) 4-1,Chelsea,6326,Petr,0,90,16,26,0,0,0,09 Feb 15:00,0,0,64,3,Goalkeeper,0,0
+0,-1850,Cech,2,4,MCI(A) 0-2,Chelsea,6327,Petr,0,90,6,27,0,0,0,24 Feb 13:30,0,0,64,2,Goalkeeper,0,0
+0,-585,Cech,0,3,WBA(H) 1-0,Chelsea,6328,Petr,0,90,18,28,0,1,0,02 Mar 15:00,0,0,64,7,Goalkeeper,0,0
+0,1297,Cech,0,7,WHU(H) 2-0,Chelsea,6330,Petr,0,90,22,30,0,1,0,17 Mar 16:00,0,0,64,8,Goalkeeper,0,0
+0,1622,Cech,2,2,SOU(A) 1-2,Chelsea,6331,Petr,0,90,4,31,0,0,0,30 Mar 15:00,0,0,64,1,Goalkeeper,0,0
+0,2158,Cech,1,0,SUN(H) 2-1,Chelsea,6332,Petr,0,90,13,32,0,0,0,07 Apr 15:00,0,0,64,2,Goalkeeper,0,0
+0,-2113,Cech,0,2,FUL(A) 3-0,Chelsea,6333,Petr,0,90,19,33,0,1,0,17 Apr 20:00,0,0,64,6,Goalkeeper,0,0
+1,-450,Cech,2,7,LIV(A) 2-2,Chelsea,6334,Petr,0,90,12,34,0,0,0,21 Apr 16:00,0,0,64,2,Goalkeeper,0,0
+0,848,Cech,0,4,SWA(H) 2-0,Chelsea,6335,Petr,0,90,19,35,0,1,0,28 Apr 15:00,0,0,64,7,Goalkeeper,0,0
+0,2865,Cech,2,2,TOT(H) 2-2,Chelsea,6336,Petr,0,90,7,36,0,0,0,08 May 19:45,0,0,64,1,Goalkeeper,0,0
+0,1206,Cech,1,1,AVL(A) 2-1,Chelsea,6337,Petr,0,90,15,37,0,0,0,11 May 12:45,0,0,64,2,Goalkeeper,0,0
+0,75,Cech,1,7,EVE(H) 2-1,Chelsea,6338,Petr,0,90,18,38,1,0,0,19 May 16:00,0,0,64,5,Goalkeeper,0,0
+0,0,Ferreira,0,0,RDG(H) 4-2,Chelsea,711,Paulo,0,0,0,1,0,0,0,22 Aug 19:45,0,0,45,0,Defender,0,0
+0,-349,Ferreira,0,0,NEW(H) 2-0,Chelsea,712,Paulo,0,0,0,2,0,0,0,25 Aug 17:30,0,0,45,0,Defender,0,0
+0,-225,Ferreira,0,0,QPR(A) 0-0,Chelsea,714,Paulo,0,0,0,4,0,0,0,15 Sep 15:00,0,0,44,0,Defender,0,0
+0,-149,Ferreira,0,0,STK(H) 1-0,Chelsea,715,Paulo,0,0,0,5,0,0,0,22 Sep 15:00,0,0,43,0,Defender,0,0
+0,-112,Ferreira,0,0,ARS(A) 2-1,Chelsea,716,Paulo,0,0,0,6,0,0,0,29 Sep 12:45,0,0,43,0,Defender,0,0
+0,-73,Ferreira,0,0,NOR(H) 4-1,Chelsea,717,Paulo,0,0,0,7,0,0,0,06 Oct 15:00,0,0,43,0,Defender,0,0
+0,-90,Ferreira,0,0,TOT(A) 4-2,Chelsea,718,Paulo,0,0,0,8,0,0,0,20 Oct 12:45,0,0,42,0,Defender,0,0
+0,-79,Ferreira,0,0,MUN(H) 2-3,Chelsea,719,Paulo,0,0,0,9,0,0,0,28 Oct 16:00,0,0,42,0,Defender,0,0
+0,-53,Ferreira,0,0,SWA(A) 1-1,Chelsea,7110,Paulo,0,0,0,10,0,0,0,03 Nov 15:00,0,0,42,0,Defender,0,0
+0,-53,Ferreira,0,0,LIV(H) 1-1,Chelsea,7111,Paulo,0,0,0,11,0,0,0,11 Nov 16:00,0,0,42,0,Defender,0,0
+0,-36,Ferreira,0,0,WBA(A) 1-2,Chelsea,7112,Paulo,0,0,0,12,0,0,0,17 Nov 15:00,0,0,42,0,Defender,0,0
+0,-44,Ferreira,0,0,MCI(H) 0-0,Chelsea,7113,Paulo,0,0,0,13,0,0,0,25 Nov 16:00,0,0,42,0,Defender,0,0
+0,-17,Ferreira,0,0,FUL(H) 0-0,Chelsea,7114,Paulo,0,0,0,14,0,0,0,28 Nov 19:45,0,0,41,0,Defender,0,0
+0,-15,Ferreira,0,0,WHU(A) 1-3,Chelsea,7115,Paulo,0,0,0,15,0,0,0,01 Dec 12:45,0,0,41,0,Defender,0,0
+0,-29,Ferreira,0,0,SUN(A) 3-1,Chelsea,7116,Paulo,0,0,0,16,0,0,0,08 Dec 15:00,0,0,41,0,Defender,0,0
+0,-3,Ferreira,0,0,AVL(H) 8-0,Chelsea,7118,Paulo,0,0,0,18,0,0,0,23 Dec 16:00,0,0,41,0,Defender,0,0
+0,-9,Ferreira,0,0,NOR(A) 1-0,Chelsea,7119,Paulo,0,0,0,19,0,0,0,26 Dec 15:00,0,0,41,0,Defender,0,0
+0,-11,Ferreira,0,0,EVE(A) 2-1,Chelsea,7120,Paulo,0,0,0,20,0,0,0,30 Dec 13:30,0,0,41,0,Defender,0,0
+0,-10,Ferreira,0,0,QPR(H) 0-1,Chelsea,7121,Paulo,0,0,0,21,0,0,0,02 Jan 19:45,0,0,41,0,Defender,0,0
+0,-34,Ferreira,0,0,SOU(H) 2-2,Chelsea,7122,Paulo,0,0,0,22,0,0,0,16 Jan 19:45,0,0,41,0,Defender,0,0
+0,-22,Ferreira,0,0,ARS(H) 2-1,Chelsea,7123,Paulo,0,0,0,23,0,0,0,20 Jan 13:30,0,0,41,0,Defender,0,0
+0,-19,Ferreira,0,0,RDG(A) 2-2,Chelsea,7124,Paulo,0,0,0,24,0,0,0,30 Jan 20:00,0,0,41,0,Defender,0,0
+0,-17,Ferreira,0,0,NEW(A) 2-3,Chelsea,7125,Paulo,0,0,0,25,0,0,0,02 Feb 15:00,0,0,41,0,Defender,0,0
+0,5,Ferreira,0,0,WIG(H) 4-1,Chelsea,7126,Paulo,0,0,0,26,0,0,0,09 Feb 15:00,0,0,41,0,Defender,0,0
+0,-4,Ferreira,0,0,MCI(A) 0-2,Chelsea,7127,Paulo,0,0,0,27,0,0,0,24 Feb 13:30,0,0,41,0,Defender,0,0
+0,6,Ferreira,0,0,WBA(H) 1-0,Chelsea,7128,Paulo,0,0,0,28,0,0,0,02 Mar 15:00,0,0,41,0,Defender,0,0
+0,-1,Ferreira,0,0,WHU(H) 2-0,Chelsea,7130,Paulo,0,0,0,30,0,0,0,17 Mar 16:00,0,0,41,0,Defender,0,0
+0,-6,Ferreira,0,0,SOU(A) 1-2,Chelsea,7131,Paulo,0,0,0,31,0,0,0,30 Mar 15:00,0,0,41,0,Defender,0,0
+0,1,Ferreira,0,0,SUN(H) 2-1,Chelsea,7132,Paulo,0,0,0,32,0,0,0,07 Apr 15:00,0,0,40,0,Defender,0,0
+0,-5,Ferreira,0,0,FUL(A) 3-0,Chelsea,7133,Paulo,0,0,0,33,0,0,0,17 Apr 20:00,0,0,40,0,Defender,0,0
+0,-5,Ferreira,0,0,LIV(A) 2-2,Chelsea,7134,Paulo,0,0,0,34,0,0,0,21 Apr 16:00,0,0,40,0,Defender,0,0
+0,-6,Ferreira,0,0,SWA(H) 2-0,Chelsea,7135,Paulo,0,0,0,35,0,0,0,28 Apr 15:00,0,0,40,0,Defender,0,0
+0,-1,Ferreira,0,0,TOT(H) 2-2,Chelsea,7136,Paulo,0,0,0,36,0,0,0,08 May 19:45,0,0,40,0,Defender,0,0
+0,0,Ferreira,0,0,AVL(A) 2-1,Chelsea,7137,Paulo,0,0,0,37,0,0,0,11 May 12:45,0,0,40,0,Defender,0,0
+0,12,Ferreira,0,0,EVE(H) 2-1,Chelsea,7138,Paulo,0,3,1,38,0,0,0,19 May 16:00,0,0,40,1,Defender,0,0
+0,0,Jagielka,0,0,MUN(H) 1-0,Everton,951,Phil,0,90,21,1,1,1,0,20 Aug 20:00,0,0,60,7,Defender,0,0
+0,33214,Jagielka,1,0,AVL(A) 3-1,Everton,952,Phil,0,90,16,2,0,0,1,25 Aug 15:00,0,0,60,5,Defender,0,0
+0,33794,Jagielka,2,0,WBA(A) 0-2,Everton,953,Phil,0,90,7,3,0,0,0,01 Sep 15:00,0,0,61,1,Defender,0,0
+0,-3303,Jagielka,2,0,NEW(H) 2-2,Everton,954,Phil,0,90,11,4,0,0,0,17 Sep 20:00,0,0,61,1,Defender,0,0
+0,-3969,Jagielka,0,0,SWA(A) 3-0,Everton,955,Phil,0,90,24,5,0,1,0,22 Sep 12:45,0,0,61,6,Defender,0,0
+0,11900,Jagielka,1,0,SOU(H) 3-1,Everton,956,Phil,0,90,14,6,0,0,0,29 Sep 15:00,0,0,61,2,Defender,0,0
+0,1828,Jagielka,2,0,WIG(A) 2-2,Everton,957,Phil,0,90,8,7,0,0,0,06 Oct 15:00,0,0,61,1,Defender,0,0
+0,-6271,Jagielka,1,0,QPR(A) 1-1,Everton,958,Phil,0,90,6,8,0,0,0,21 Oct 16:00,0,0,61,2,Defender,0,0
+1,-4673,Jagielka,2,0,LIV(H) 2-2,Everton,959,Phil,0,90,10,9,0,0,0,28 Oct 13:30,0,0,61,0,Defender,0,0
+0,-7290,Jagielka,2,0,FUL(A) 2-2,Everton,9510,Phil,0,90,10,10,0,0,1,03 Nov 15:00,0,0,61,4,Defender,0,0
+0,1319,Jagielka,1,0,SUN(H) 2-1,Everton,9511,Phil,0,90,15,11,0,0,0,10 Nov 15:00,0,0,61,2,Defender,0,0
+0,-1650,Jagielka,2,0,RDG(A) 1-2,Everton,9512,Phil,0,90,3,12,0,0,0,17 Nov 15:00,0,0,61,1,Defender,0,0
+0,-3452,Jagielka,1,0,NOR(H) 1-1,Everton,9513,Phil,0,90,7,13,0,0,0,24 Nov 15:00,0,0,61,2,Defender,0,0
+0,-7272,Jagielka,1,0,ARS(H) 1-1,Everton,9514,Phil,0,90,10,14,0,0,0,28 Nov 19:45,0,0,61,2,Defender,0,0
+0,-9834,Jagielka,1,0,MCI(A) 1-1,Everton,9515,Phil,0,90,14,15,0,0,0,01 Dec 15:00,0,0,61,2,Defender,0,0
+0,-5904,Jagielka,1,0,TOT(H) 2-1,Everton,9516,Phil,0,90,15,16,0,0,0,09 Dec 15:00,0,0,61,2,Defender,0,0
+0,-4941,Jagielka,1,0,STK(A) 1-1,Everton,9517,Phil,0,90,13,17,1,0,0,15 Dec 15:00,0,0,60,3,Defender,0,0
+0,-4672,Jagielka,1,0,WHU(A) 2-1,Everton,9518,Phil,0,90,14,18,0,0,0,22 Dec 15:00,0,0,60,2,Defender,0,0
+0,-1702,Jagielka,1,0,WIG(H) 2-1,Everton,9519,Phil,0,90,32,19,2,0,0,26 Dec 15:00,0,0,60,10,Defender,0,1
+0,-535,Jagielka,2,0,CHE(H) 1-2,Everton,9520,Phil,0,90,16,20,0,0,0,30 Dec 13:30,0,0,60,1,Defender,0,0
+0,-1546,Jagielka,1,0,NEW(A) 2-1,Everton,9521,Phil,0,90,18,21,0,0,0,02 Jan 20:00,0,0,60,2,Defender,0,0
+0,-7587,Jagielka,0,0,SWA(H) 0-0,Everton,9522,Phil,0,90,2,22,0,1,0,12 Jan 15:00,0,0,60,6,Defender,0,0
+0,-2998,Jagielka,0,0,SOU(A) 0-0,Everton,9523,Phil,0,90,21,23,3,1,0,21 Jan 20:00,0,0,60,9,Defender,0,0
+0,7292,Jagielka,1,0,WBA(H) 2-1,Everton,9524,Phil,0,90,6,24,0,0,0,30 Jan 19:45,0,0,60,2,Defender,0,0
+0,7195,Jagielka,3,0,AVL(H) 3-3,Everton,9525,Phil,0,90,-2,25,0,0,0,02 Feb 15:00,0,0,60,1,Defender,0,0
+0,-9421,Jagielka,2,0,MUN(A) 0-2,Everton,9526,Phil,0,90,4,26,0,0,0,10 Feb 16:00,0,0,60,1,Defender,0,0
+0,-1582,Jagielka,2,0,NOR(A) 1-2,Everton,9527,Phil,0,90,4,27,0,0,0,23 Feb 15:00,0,0,60,1,Defender,0,0
+0,-1747,Jagielka,0,0,RDG(H) 3-1,Everton,9528,Phil,0,4,1,28,0,0,0,02 Mar 15:00,0,0,60,1,Defender,0,0
+0,-11436,Jagielka,0,0,MCI(H) 2-0,Everton,9530,Phil,0,0,0,30,0,0,0,16 Mar 12:45,0,0,59,0,Defender,0,0
+0,-7923,Jagielka,0,0,STK(H) 1-0,Everton,9531,Phil,0,90,15,31,0,1,0,30 Mar 17:30,0,0,58,6,Defender,0,0
+0,980,Jagielka,2,0,TOT(A) 2-2,Everton,9532,Phil,0,90,31,32,3,0,0,07 Apr 14:05,0,0,58,10,Defender,0,1
+0,29829,Jagielka,0,0,ARS(A) 0-0,Everton,9533,Phil,0,90,13,33,0,1,0,16 Apr 19:45,0,0,59,6,Defender,0,0
+0,9104,Jagielka,0,0,SUN(A) 0-1,Everton,9534,Phil,0,0,0,34,0,0,0,20 Apr 15:00,0,0,59,0,Defender,0,0
+0,-11716,Jagielka,0,0,FUL(H) 1-0,Everton,9535,Phil,0,90,16,35,0,1,0,27 Apr 15:00,0,0,59,6,Defender,0,0
+0,-4168,Jagielka,0,0,LIV(A) 0-0,Everton,9536,Phil,0,90,13,36,0,1,0,05 May 13:30,0,0,59,6,Defender,0,0
+0,3817,Jagielka,0,0,WHU(H) 2-0,Everton,9537,Phil,0,90,17,37,0,1,0,12 May 15:00,0,0,59,6,Defender,0,0
+0,313,Jagielka,2,0,CHE(A) 1-2,Everton,9538,Phil,0,90,4,38,0,0,0,19 May 16:00,0,0,59,1,Defender,0,0
+0,0,Neville,0,0,MUN(H) 1-0,Everton,1061,Phil,0,90,16,1,0,1,0,20 Aug 20:00,0,0,45,3,Midfielder,0,0
+0,-1138,Neville,1,0,AVL(A) 3-1,Everton,1062,Phil,0,90,14,2,0,0,0,25 Aug 15:00,0,0,45,2,Midfielder,0,0
+1,-3878,Neville,1,0,WBA(A) 0-2,Everton,1063,Phil,0,72,4,3,0,0,0,01 Sep 15:00,0,0,45,1,Midfielder,0,0
+1,-4168,Neville,2,0,NEW(H) 2-2,Everton,1064,Phil,0,90,8,4,0,0,0,17 Sep 20:00,0,0,45,1,Midfielder,0,0
+0,-3201,Neville,0,0,SWA(A) 3-0,Everton,1065,Phil,0,90,17,5,0,1,0,22 Sep 12:45,0,0,45,3,Midfielder,0,0
+0,-1712,Neville,1,0,SOU(H) 3-1,Everton,1066,Phil,0,90,15,6,0,0,0,29 Sep 15:00,0,0,45,2,Midfielder,0,0
+1,-578,Neville,2,0,WIG(A) 2-2,Everton,1067,Phil,0,80,6,7,0,0,0,06 Oct 15:00,0,0,44,1,Midfielder,0,0
+0,-1024,Neville,1,0,QPR(A) 1-1,Everton,1068,Phil,0,90,7,8,0,0,0,21 Oct 16:00,0,0,44,2,Midfielder,0,0
+1,-668,Neville,2,0,LIV(H) 2-2,Everton,1069,Phil,0,90,7,9,0,0,0,28 Oct 13:30,0,0,44,1,Midfielder,0,0
+0,-247,Neville,2,0,FUL(A) 2-2,Everton,10610,Phil,0,90,9,10,0,0,0,03 Nov 15:00,0,0,44,2,Midfielder,0,0
+0,-25,Neville,1,0,SUN(H) 2-1,Everton,10611,Phil,0,72,21,11,0,0,0,10 Nov 15:00,0,0,44,2,Midfielder,0,0
+0,-901,Neville,0,0,RDG(A) 1-2,Everton,10612,Phil,0,0,0,12,0,0,0,17 Nov 15:00,0,0,44,0,Midfielder,0,0
+0,-7809,Neville,0,0,NOR(H) 1-1,Everton,10613,Phil,0,0,0,13,0,0,0,24 Nov 15:00,0,0,44,0,Midfielder,0,0
+0,-2971,Neville,0,0,ARS(H) 1-1,Everton,10614,Phil,0,0,0,14,0,0,0,28 Nov 19:45,0,0,44,0,Midfielder,0,0
+0,-2920,Neville,0,0,MCI(A) 1-1,Everton,10615,Phil,0,0,0,15,0,0,0,01 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-3487,Neville,0,0,TOT(H) 2-1,Everton,10616,Phil,0,0,0,16,0,0,0,09 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-2361,Neville,0,0,STK(A) 1-1,Everton,10617,Phil,0,0,0,17,0,0,0,15 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-1348,Neville,1,0,WHU(A) 2-1,Everton,10618,Phil,0,84,14,18,0,0,0,22 Dec 15:00,0,0,42,2,Midfielder,0,0
+0,2183,Neville,1,0,WIG(H) 2-1,Everton,10619,Phil,0,90,28,19,1,0,1,26 Dec 15:00,0,0,42,6,Midfielder,0,0
+0,3047,Neville,0,0,CHE(H) 1-2,Everton,10620,Phil,0,0,0,20,0,0,0,30 Dec 13:30,0,0,42,0,Midfielder,0,0
+0,-674,Neville,1,0,NEW(A) 2-1,Everton,10621,Phil,0,90,13,21,0,0,0,02 Jan 20:00,0,0,42,2,Midfielder,0,0
+0,3753,Neville,0,0,SWA(H) 0-0,Everton,10622,Phil,0,68,12,22,0,1,0,12 Jan 15:00,0,0,42,3,Midfielder,0,0
+0,3720,Neville,0,0,SOU(A) 0-0,Everton,10623,Phil,0,90,10,23,0,1,0,21 Jan 20:00,0,0,42,3,Midfielder,0,0
+0,4612,Neville,1,0,WBA(H) 2-1,Everton,10624,Phil,0,90,12,24,0,0,0,30 Jan 19:45,0,0,42,2,Midfielder,0,0
+0,2396,Neville,0,0,AVL(H) 3-3,Everton,10625,Phil,0,0,0,25,0,0,0,02 Feb 15:00,0,0,42,0,Midfielder,0,0
+0,-1260,Neville,2,0,MUN(A) 0-2,Everton,10626,Phil,0,90,7,26,0,0,0,10 Feb 16:00,0,0,42,2,Midfielder,0,0
+0,515,Neville,0,0,NOR(A) 1-2,Everton,10627,Phil,0,0,0,27,0,0,0,23 Feb 15:00,0,0,42,0,Midfielder,0,0
+0,-909,Neville,0,0,RDG(H) 3-1,Everton,10628,Phil,0,0,0,28,0,0,0,02 Mar 15:00,0,0,42,0,Midfielder,0,0
+0,-378,Neville,0,0,MCI(H) 2-0,Everton,10630,Phil,0,0,0,30,0,0,0,16 Mar 12:45,0,0,42,0,Midfielder,0,0
+0,-622,Neville,0,0,STK(H) 1-0,Everton,10631,Phil,0,0,0,31,0,0,0,30 Mar 17:30,0,0,42,0,Midfielder,0,0
+0,-904,Neville,0,0,TOT(A) 2-2,Everton,10632,Phil,0,0,0,32,0,0,0,07 Apr 14:05,0,0,42,0,Midfielder,0,0
+0,-947,Neville,0,0,ARS(A) 0-0,Everton,10633,Phil,0,0,0,33,0,0,0,16 Apr 19:45,0,0,42,0,Midfielder,0,0
+0,-594,Neville,0,0,SUN(A) 0-1,Everton,10634,Phil,0,0,0,34,0,0,0,20 Apr 15:00,0,0,41,0,Midfielder,0,0
+0,866,Neville,0,0,FUL(H) 1-0,Everton,10635,Phil,0,0,0,35,0,0,0,27 Apr 15:00,0,0,41,0,Midfielder,0,0
+0,-418,Neville,0,0,LIV(A) 0-0,Everton,10636,Phil,0,0,0,36,0,0,0,05 May 13:30,0,0,41,0,Midfielder,0,0
+0,-1019,Neville,0,0,WHU(H) 2-0,Everton,10637,Phil,0,0,0,37,0,0,0,12 May 15:00,0,0,41,0,Midfielder,0,0
+0,-775,Neville,0,0,CHE(A) 1-2,Everton,10638,Phil,0,0,0,38,0,0,0,19 May 16:00,0,0,41,0,Midfielder,0,0
+0,0,Senderos,0,0,NOR(H) 5-0,Fulham,1211,Philippe,0,0,0,1,0,0,0,18 Aug 15:00,0,0,50,0,Defender,0,0
+0,-1038,Senderos,0,0,MUN(A) 2-3,Fulham,1212,Philippe,0,0,0,2,0,0,0,25 Aug 15:00,0,0,50,0,Defender,0,0
+0,-892,Senderos,0,0,WHU(A) 0-3,Fulham,1213,Philippe,0,0,0,3,0,0,0,01 Sep 12:45,0,0,49,0,Defender,0,0
+0,-519,Senderos,0,0,WBA(H) 3-0,Fulham,1214,Philippe,0,0,0,4,0,0,0,15 Sep 15:00,0,0,49,0,Defender,0,0
+0,-251,Senderos,0,0,WIG(A) 2-1,Fulham,1215,Philippe,0,0,0,5,0,0,0,22 Sep 15:00,0,0,48,0,Defender,0,0
+0,-198,Senderos,0,0,MCI(H) 1-2,Fulham,1216,Philippe,0,0,0,6,0,0,0,29 Sep 15:00,0,0,48,0,Defender,0,0
+0,-142,Senderos,0,0,SOU(A) 2-2,Fulham,1217,Philippe,0,0,0,7,0,0,0,07 Oct 13:30,0,0,48,0,Defender,0,0
+0,-19,Senderos,0,0,AVL(H) 1-0,Fulham,1218,Philippe,0,0,0,8,0,0,0,20 Oct 15:00,0,0,48,0,Defender,0,0
+0,-16,Senderos,0,0,RDG(A) 3-3,Fulham,1219,Philippe,0,0,0,9,0,0,0,27 Oct 15:00,0,0,48,0,Defender,0,0
+0,-30,Senderos,0,0,EVE(H) 2-2,Fulham,12110,Philippe,0,0,0,10,0,0,0,03 Nov 15:00,0,0,48,0,Defender,0,0
+0,-39,Senderos,0,0,ARS(A) 3-3,Fulham,12111,Philippe,0,0,0,11,0,0,0,10 Nov 15:00,0,0,48,0,Defender,0,0
+0,-35,Senderos,3,0,SUN(H) 1-3,Fulham,12112,Philippe,0,56,3,12,0,0,0,18 Nov 16:00,0,0,48,0,Defender,0,0
+1,-9,Senderos,1,0,STK(A) 0-1,Fulham,12113,Philippe,0,90,8,13,0,0,0,24 Nov 15:00,0,0,48,1,Defender,0,0
+0,-10,Senderos,0,0,CHE(A) 0-0,Fulham,12114,Philippe,0,90,14,14,0,1,0,28 Nov 19:45,0,0,48,6,Defender,0,0
+0,22,Senderos,3,0,TOT(H) 0-3,Fulham,12115,Philippe,0,90,3,15,0,0,0,01 Dec 15:00,0,0,48,1,Defender,0,0
+0,-3,Senderos,0,0,NEW(H) 2-1,Fulham,12116,Philippe,0,0,0,16,0,0,0,10 Dec 20:00,0,0,48,0,Defender,0,0
+0,-34,Senderos,0,0,QPR(A) 1-2,Fulham,12117,Philippe,0,0,0,17,0,0,0,15 Dec 15:00,0,0,48,0,Defender,0,0
+0,-33,Senderos,0,0,LIV(A) 0-4,Fulham,12118,Philippe,0,0,0,18,0,0,0,22 Dec 17:30,0,0,48,0,Defender,0,0
+1,-28,Senderos,1,0,SOU(H) 1-1,Fulham,12119,Philippe,0,90,5,19,0,0,0,26 Dec 15:00,0,0,48,1,Defender,0,0
+0,-12,Senderos,0,0,SWA(H) 1-2,Fulham,12120,Philippe,0,7,0,20,0,0,0,29 Dec 15:00,0,0,48,1,Defender,0,0
+0,-10,Senderos,0,0,WBA(A) 2-1,Fulham,12121,Philippe,0,1,0,21,0,0,0,01 Jan 12:45,0,0,48,1,Defender,0,0
+0,-2,Senderos,0,0,WIG(H) 1-1,Fulham,12122,Philippe,0,0,0,22,0,0,0,12 Jan 15:00,0,0,48,0,Defender,0,0
+0,-27,Senderos,0,0,MCI(A) 0-2,Fulham,12123,Philippe,0,0,0,23,0,0,0,19 Jan 15:00,0,0,48,0,Defender,0,0
+0,-17,Senderos,1,0,WHU(H) 3-1,Fulham,12124,Philippe,0,90,14,24,0,0,0,30 Jan 20:00,0,0,47,2,Defender,0,0
+0,0,Senderos,1,0,MUN(H) 0-1,Fulham,12125,Philippe,0,90,6,25,0,0,0,02 Feb 17:30,0,0,47,2,Defender,0,0
+0,16,Senderos,0,0,NOR(A) 0-0,Fulham,12126,Philippe,0,90,9,26,0,1,0,09 Feb 15:00,0,0,47,6,Defender,0,0
+0,194,Senderos,0,0,STK(H) 1-0,Fulham,12127,Philippe,0,90,17,27,0,1,0,23 Feb 12:45,0,0,47,6,Defender,0,0
+0,144,Senderos,2,0,SUN(A) 2-2,Fulham,12128,Philippe,0,90,6,28,0,0,0,02 Mar 15:00,0,0,47,1,Defender,0,0
+0,-16,Senderos,0,0,TOT(A) 1-0,Fulham,12130,Philippe,0,90,16,30,0,1,0,17 Mar 15:00,0,0,47,6,Defender,0,0
+1,353,Senderos,2,0,QPR(H) 3-2,Fulham,12131,Philippe,0,90,19,31,1,0,0,01 Apr 20:00,0,0,47,1,Defender,0,0
+1,162,Senderos,1,0,NEW(A) 0-1,Fulham,12132,Philippe,0,90,6,32,0,0,0,07 Apr 15:00,0,0,47,1,Defender,0,0
+1,601,Senderos,3,0,CHE(H) 0-3,Fulham,12133,Philippe,0,90,5,33,0,0,0,17 Apr 20:00,0,0,47,0,Defender,0,0
+0,-73,Senderos,1,0,ARS(H) 0-1,Fulham,12134,Philippe,0,90,5,34,0,0,0,20 Apr 15:00,0,0,47,2,Defender,0,0
+0,-87,Senderos,1,0,EVE(A) 0-1,Fulham,12135,Philippe,0,90,11,35,0,0,0,27 Apr 15:00,0,0,47,2,Defender,0,0
+1,-50,Senderos,4,0,RDG(H) 2-4,Fulham,12136,Philippe,0,90,10,36,0,0,0,04 May 15:00,0,0,47,-1,Defender,0,0
+0,-51,Senderos,0,0,LIV(H) 1-3,Fulham,12137,Philippe,0,0,0,37,0,0,0,12 May 15:00,0,0,47,0,Defender,0,0
+0,-78,Senderos,0,0,SWA(A) 3-0,Fulham,12138,Philippe,0,90,20,38,0,1,0,19 May 16:00,0,0,47,6,Defender,0,0
+0,0,Kasami,0,0,NOR(H) 5-0,Fulham,1351,Pajtim,0,17,5,1,0,0,0,18 Aug 15:00,0,0,45,1,Midfielder,0,0
+0,-44,Kasami,0,0,MUN(A) 2-3,Fulham,1352,Pajtim,0,0,0,2,0,0,0,25 Aug 15:00,0,0,45,0,Midfielder,0,0
+0,-198,Kasami,0,0,WHU(A) 0-3,Fulham,1353,Pajtim,0,0,0,3,0,0,0,01 Sep 12:45,0,0,45,0,Midfielder,0,0
+0,-112,Kasami,0,0,WBA(H) 3-0,Fulham,1354,Pajtim,0,7,-2,4,0,0,0,15 Sep 15:00,0,0,44,1,Midfielder,0,0
+0,-21,Kasami,0,0,WIG(A) 2-1,Fulham,1355,Pajtim,0,0,0,5,0,0,0,22 Sep 15:00,0,0,44,0,Midfielder,0,0
+0,-47,Kasami,0,0,MCI(H) 1-2,Fulham,1356,Pajtim,0,0,0,6,0,0,0,29 Sep 15:00,0,0,44,0,Midfielder,0,0
+0,-26,Kasami,0,0,SOU(A) 2-2,Fulham,1357,Pajtim,0,0,0,7,0,0,0,07 Oct 13:30,0,0,44,0,Midfielder,0,0
+0,-38,Kasami,0,0,AVL(H) 1-0,Fulham,1358,Pajtim,0,0,0,8,0,0,0,20 Oct 15:00,0,0,44,0,Midfielder,0,0
+0,1,Kasami,0,0,RDG(A) 3-3,Fulham,1359,Pajtim,0,0,0,9,0,0,0,27 Oct 15:00,0,0,43,0,Midfielder,0,0
+0,8,Kasami,0,0,EVE(H) 2-2,Fulham,13510,Pajtim,0,0,0,10,0,0,0,03 Nov 15:00,0,0,43,0,Midfielder,0,0
+0,-22,Kasami,0,0,ARS(A) 3-3,Fulham,13511,Pajtim,0,0,0,11,0,0,0,10 Nov 15:00,0,0,43,0,Midfielder,0,0
+0,-12,Kasami,0,0,SUN(H) 1-3,Fulham,13512,Pajtim,0,0,0,12,0,0,0,18 Nov 16:00,0,0,43,0,Midfielder,0,0
+0,-11,Kasami,0,0,STK(A) 0-1,Fulham,13513,Pajtim,0,0,0,13,0,0,0,24 Nov 15:00,0,0,43,0,Midfielder,0,0
+0,-10,Kasami,0,0,CHE(A) 0-0,Fulham,13514,Pajtim,0,0,0,14,0,0,0,28 Nov 19:45,0,0,43,0,Midfielder,0,0
+0,-14,Kasami,0,0,TOT(H) 0-3,Fulham,13515,Pajtim,0,0,0,15,0,0,0,01 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-30,Kasami,0,0,NEW(H) 2-1,Fulham,13516,Pajtim,0,0,0,16,0,0,0,10 Dec 20:00,0,0,43,0,Midfielder,0,0
+0,-23,Kasami,0,0,QPR(A) 1-2,Fulham,13517,Pajtim,0,0,0,17,0,0,0,15 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-11,Kasami,0,0,LIV(A) 0-4,Fulham,13518,Pajtim,0,0,0,18,0,0,0,22 Dec 17:30,0,0,43,0,Midfielder,0,0
+0,-8,Kasami,0,0,SOU(H) 1-1,Fulham,13519,Pajtim,0,0,0,19,0,0,0,26 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-16,Kasami,0,0,SWA(H) 1-2,Fulham,13520,Pajtim,0,0,0,20,0,0,0,29 Dec 15:00,0,0,42,0,Midfielder,0,0
+0,4,Kasami,0,0,WBA(A) 2-1,Fulham,13521,Pajtim,0,0,0,21,0,0,0,01 Jan 12:45,0,0,42,0,Midfielder,0,0
+0,22,Kasami,0,0,WIG(H) 1-1,Fulham,13522,Pajtim,0,0,0,22,0,0,0,12 Jan 15:00,0,0,42,0,Midfielder,0,0
+0,57,Kasami,0,0,MCI(A) 0-2,Fulham,13523,Pajtim,0,0,0,23,0,0,0,19 Jan 15:00,0,0,42,0,Midfielder,0,0
+0,53,Kasami,0,0,WHU(H) 3-1,Fulham,13524,Pajtim,0,0,0,24,0,0,0,30 Jan 20:00,0,0,42,0,Midfielder,0,0
+0,22,Kasami,0,0,MUN(H) 0-1,Fulham,13525,Pajtim,0,0,0,25,0,0,0,02 Feb 17:30,0,0,42,0,Midfielder,0,0
+0,1,Kasami,0,0,NOR(A) 0-0,Fulham,13526,Pajtim,0,0,0,26,0,0,0,09 Feb 15:00,0,0,42,0,Midfielder,0,0
+0,-50,Kasami,0,0,STK(H) 1-0,Fulham,13527,Pajtim,0,0,0,27,0,0,0,23 Feb 12:45,0,0,42,0,Midfielder,0,0
+0,-47,Kasami,0,0,SUN(A) 2-2,Fulham,13528,Pajtim,0,0,0,28,0,0,0,02 Mar 15:00,0,0,42,0,Midfielder,0,0
+0,-14,Kasami,0,0,TOT(A) 1-0,Fulham,13530,Pajtim,0,0,0,30,0,0,0,17 Mar 15:00,0,0,42,0,Midfielder,0,0
+0,-27,Kasami,0,0,QPR(H) 3-2,Fulham,13531,Pajtim,0,0,0,31,0,0,0,01 Apr 20:00,0,0,42,0,Midfielder,0,0
+0,-13,Kasami,0,0,NEW(A) 0-1,Fulham,13532,Pajtim,0,0,0,32,0,0,0,07 Apr 15:00,0,0,42,0,Midfielder,0,0
+0,-10,Kasami,0,0,CHE(H) 0-3,Fulham,13533,Pajtim,0,0,0,33,0,0,0,17 Apr 20:00,0,0,42,0,Midfielder,0,0
+0,-6,Kasami,0,0,ARS(H) 0-1,Fulham,13534,Pajtim,0,0,0,34,0,0,0,20 Apr 15:00,0,0,42,0,Midfielder,0,0
+0,-11,Kasami,0,0,EVE(A) 0-1,Fulham,13535,Pajtim,0,0,0,35,0,0,0,27 Apr 15:00,0,0,42,0,Midfielder,0,0
+0,-9,Kasami,0,0,RDG(H) 2-4,Fulham,13536,Pajtim,0,0,0,36,0,0,0,04 May 15:00,0,0,42,0,Midfielder,0,0
+0,-2,Kasami,0,0,LIV(H) 1-3,Fulham,13537,Pajtim,0,0,0,37,0,0,0,12 May 15:00,0,0,42,0,Midfielder,0,0
+0,-7,Kasami,0,0,SWA(A) 3-0,Fulham,13538,Pajtim,0,0,0,38,0,0,0,19 May 16:00,0,0,42,0,Midfielder,0,0
+0,0,Zabaleta,2,0,SOU(H) 3-2,Man City,1751,Pablo,0,90,13,1,0,0,0,19 Aug 16:00,0,0,60,1,Defender,0,0
+0,-103,Zabaleta,2,0,LIV(A) 2-2,Man City,1752,Pablo,0,90,8,2,0,0,0,26 Aug 16:00,0,0,60,1,Defender,0,0
+0,413,Zabaleta,1,0,QPR(H) 3-1,Man City,1753,Pablo,0,73,9,3,0,0,0,01 Sep 17:30,0,0,60,2,Defender,0,0
+0,-7064,Zabaleta,0,0,STK(A) 1-1,Man City,1754,Pablo,0,0,0,4,0,0,0,15 Sep 15:00,0,0,60,0,Defender,0,0
+0,-12059,Zabaleta,1,0,ARS(H) 1-1,Man City,1755,Pablo,0,90,7,5,0,0,0,23 Sep 16:00,0,0,59,2,Defender,0,0
+0,-5205,Zabaleta,1,0,FUL(A) 2-1,Man City,1756,Pablo,0,90,16,6,0,0,0,29 Sep 15:00,0,0,59,2,Defender,0,0
+0,-1437,Zabaleta,0,0,SUN(H) 3-0,Man City,1757,Pablo,0,90,20,7,0,1,0,06 Oct 12:45,0,0,59,6,Defender,0,0
+0,-399,Zabaleta,0,0,WBA(A) 2-1,Man City,1758,Pablo,0,0,0,8,0,0,0,20 Oct 15:00,0,0,59,0,Defender,0,0
+0,-9043,Zabaleta,0,0,SWA(H) 1-0,Man City,1759,Pablo,0,0,0,9,0,0,0,27 Oct 17:30,0,0,58,0,Defender,0,0
+0,-3524,Zabaleta,0,0,WHU(A) 0-0,Man City,17510,Pablo,0,0,0,10,0,0,0,03 Nov 17:30,0,0,57,0,Defender,0,0
+1,-1927,Zabaleta,1,0,TOT(H) 2-1,Man City,17511,Pablo,0,90,18,11,0,0,0,11 Nov 13:30,0,0,57,1,Defender,0,0
+0,954,Zabaleta,0,0,AVL(H) 5-0,Man City,17512,Pablo,0,0,0,12,0,0,0,17 Nov 15:00,0,0,57,0,Defender,0,0
+1,-3076,Zabaleta,0,0,CHE(A) 0-0,Man City,17513,Pablo,0,90,15,13,3,1,0,25 Nov 16:00,0,0,57,8,Defender,0,0
+0,1303,Zabaleta,0,0,WIG(A) 2-0,Man City,17514,Pablo,0,90,25,14,2,1,0,28 Nov 20:00,0,0,57,8,Defender,0,0
+1,2651,Zabaleta,1,0,EVE(H) 1-1,Man City,17515,Pablo,0,84,8,15,0,0,0,01 Dec 15:00,0,0,57,1,Defender,0,0
+0,-116,Zabaleta,3,0,MUN(H) 2-3,Man City,17516,Pablo,0,90,22,16,1,0,0,09 Dec 13:30,0,0,57,8,Defender,0,1
+0,7405,Zabaleta,1,0,NEW(A) 3-1,Man City,17517,Pablo,0,90,22,17,0,0,1,15 Dec 12:45,0,0,57,5,Defender,0,0
+0,37043,Zabaleta,0,0,RDG(H) 1-0,Man City,17518,Pablo,0,90,17,18,0,1,0,22 Dec 15:00,0,0,58,6,Defender,0,0
+0,15945,Zabaleta,1,0,SUN(A) 0-1,Man City,17519,Pablo,0,90,5,19,0,0,0,26 Dec 15:00,0,0,59,2,Defender,0,0
+0,5573,Zabaleta,3,0,NOR(A) 4-3,Man City,17520,Pablo,0,90,22,20,0,0,0,29 Dec 15:00,0,0,59,1,Defender,0,0
+0,142,Zabaleta,0,0,STK(H) 3-0,Man City,17521,Pablo,0,90,38,21,3,1,0,01 Jan 15:00,0,0,59,15,Defender,0,1
+0,46020,Zabaleta,0,0,ARS(A) 2-0,Man City,17522,Pablo,0,90,14,22,0,1,0,13 Jan 16:00,0,0,59,6,Defender,0,0
+0,43445,Zabaleta,0,0,FUL(H) 2-0,Man City,17523,Pablo,0,62,12,23,0,1,0,19 Jan 15:00,0,0,60,6,Defender,0,0
+1,35525,Zabaleta,0,0,QPR(A) 0-0,Man City,17524,Pablo,0,90,5,24,0,1,0,29 Jan 19:45,0,0,60,5,Defender,0,0
+0,44047,Zabaleta,2,0,LIV(H) 2-2,Man City,17525,Pablo,0,90,12,25,0,0,0,03 Feb 16:00,0,0,61,1,Defender,0,0
+0,4902,Zabaleta,3,0,SOU(A) 1-3,Man City,17526,Pablo,0,90,12,26,0,0,1,09 Feb 17:30,0,0,61,4,Defender,0,0
+1,5309,Zabaleta,0,0,CHE(H) 2-0,Man City,17527,Pablo,0,90,12,27,0,1,0,24 Feb 13:30,0,0,62,5,Defender,0,0
+0,4945,Zabaleta,0,0,AVL(A) 1-0,Man City,17528,Pablo,0,90,16,28,0,1,0,04 Mar 20:00,0,0,62,6,Defender,0,0
+0,2118,Zabaleta,2,0,EVE(A) 0-2,Man City,17530,Pablo,0,90,6,30,0,0,0,16 Mar 12:45,0,0,62,1,Defender,0,0
+0,-461,Zabaleta,0,0,NEW(H) 4-0,Man City,17531,Pablo,0,90,12,31,0,1,0,30 Mar 15:00,0,0,62,6,Defender,0,0
+1,2188,Zabaleta,1,0,MUN(A) 2-1,Man City,17532,Pablo,0,90,21,32,2,0,0,08 Apr 20:00,0,0,62,3,Defender,0,0
+0,2329,Zabaleta,0,0,WIG(H) 1-0,Man City,17533,Pablo,0,0,0,33,0,0,0,17 Apr 19:45,0,0,62,0,Defender,0,0
+0,1300,Zabaleta,3,0,TOT(A) 1-3,Man City,17534,Pablo,0,90,5,34,0,0,0,21 Apr 13:30,0,0,62,1,Defender,0,0
+1,9870,Zabaleta,1,0,WHU(H) 2-1,Man City,17535,Pablo,0,90,24,35,1,0,0,27 Apr 12:45,0,0,62,2,Defender,0,0
+0,38260,Zabaleta,0,0,WBA(H) 1-0,Man City,17536,Pablo,0,0,0,36,0,0,0,07 May 19:45,0,0,64,0,Defender,0,0
+0,2317,Zabaleta,0,0,RDG(A) 2-0,Man City,17537,Pablo,0,0,0,37,0,0,0,14 May 20:00,0,0,64,0,Defender,0,0
+0,-10227,Zabaleta,3,0,NOR(H) 2-3,Man City,17538,Pablo,0,90,7,38,0,0,0,19 May 16:00,0,0,64,1,Defender,0,0
+0,0,Jones,0,0,EVE(A) 0-1,Man Utd,1991,Phil,0,0,0,1,0,0,0,20 Aug 20:00,0,0,60,0,Defender,0,0
+0,-28682,Jones,0,0,FUL(H) 3-2,Man Utd,1992,Phil,0,0,0,2,0,0,0,25 Aug 15:00,0,0,59,0,Defender,0,0
+0,-15935,Jones,0,0,SOU(A) 3-2,Man Utd,1993,Phil,0,0,0,3,0,0,0,02 Sep 16:00,0,0,59,0,Defender,0,0
+0,-11384,Jones,0,0,WIG(H) 4-0,Man Utd,1994,Phil,0,0,0,4,0,0,0,15 Sep 15:00,0,0,58,0,Defender,0,0
+0,-4949,Jones,0,0,LIV(A) 2-1,Man Utd,1995,Phil,0,0,0,5,0,0,0,23 Sep 13:30,0,0,57,0,Defender,0,0
+0,-3024,Jones,0,0,TOT(H) 2-3,Man Utd,1996,Phil,0,0,0,6,0,0,0,29 Sep 17:30,0,0,57,0,Defender,0,0
+0,-1863,Jones,0,0,NEW(A) 3-0,Man Utd,1997,Phil,0,0,0,7,0,0,0,07 Oct 16:00,0,0,57,0,Defender,0,0
+0,-1452,Jones,0,0,STK(H) 4-2,Man Utd,1998,Phil,0,0,0,8,0,0,0,20 Oct 15:00,0,0,57,0,Defender,0,0
+0,-710,Jones,0,0,CHE(A) 3-2,Man Utd,1999,Phil,0,0,0,9,0,0,0,28 Oct 16:00,0,0,57,0,Defender,0,0
+0,-513,Jones,0,0,ARS(H) 2-1,Man Utd,19910,Phil,0,0,0,10,0,0,0,03 Nov 12:45,0,0,56,0,Defender,0,0
+0,-308,Jones,0,0,AVL(A) 3-2,Man Utd,19911,Phil,0,0,0,11,0,0,0,10 Nov 17:30,0,0,56,0,Defender,0,0
+0,-361,Jones,0,0,NOR(A) 0-1,Man Utd,19912,Phil,0,0,0,12,0,0,0,17 Nov 17:30,0,0,56,0,Defender,0,0
+0,1251,Jones,0,0,QPR(H) 3-1,Man Utd,19913,Phil,0,0,0,13,0,0,0,24 Nov 15:00,0,0,56,0,Defender,0,0
+0,-37,Jones,0,0,WHU(H) 1-0,Man Utd,19914,Phil,0,7,-2,14,0,0,0,28 Nov 20:00,0,0,56,1,Defender,0,0
+0,-117,Jones,0,0,RDG(A) 4-3,Man Utd,19915,Phil,0,46,7,15,0,0,0,01 Dec 17:30,0,0,56,1,Defender,0,0
+1,110,Jones,1,0,MCI(A) 3-2,Man Utd,19916,Phil,0,7,0,16,0,0,0,09 Dec 13:30,0,0,56,0,Defender,0,0
+0,-163,Jones,1,0,SUN(H) 3-1,Man Utd,19917,Phil,0,90,18,17,0,0,0,15 Dec 15:00,0,0,56,2,Defender,0,0
+1,1936,Jones,1,0,SWA(A) 1-1,Man Utd,19918,Phil,0,90,9,18,0,0,0,23 Dec 13:30,0,0,56,1,Defender,0,0
+0,2072,Jones,0,0,NEW(H) 4-3,Man Utd,19919,Phil,0,0,0,19,0,0,0,26 Dec 15:00,0,0,56,0,Defender,0,0
+0,-1855,Jones,0,0,WBA(H) 2-0,Man Utd,19920,Phil,0,0,0,20,0,0,0,29 Dec 15:00,0,0,56,0,Defender,0,0
+0,-1103,Jones,0,0,WIG(A) 4-0,Man Utd,19921,Phil,0,0,0,21,0,0,0,01 Jan 15:00,0,0,56,0,Defender,0,0
+0,-1530,Jones,0,0,LIV(H) 2-1,Man Utd,19922,Phil,0,14,2,22,0,0,0,13 Jan 13:30,0,0,56,1,Defender,0,0
+0,-532,Jones,1,0,TOT(A) 1-1,Man Utd,19923,Phil,0,90,29,23,2,0,0,20 Jan 16:00,0,0,56,4,Defender,0,0
+0,1373,Jones,1,0,SOU(H) 2-1,Man Utd,19924,Phil,0,90,16,24,0,0,0,30 Jan 20:00,0,0,56,2,Defender,0,0
+0,1002,Jones,0,0,FUL(A) 1-0,Man Utd,19925,Phil,0,0,0,25,0,0,0,02 Feb 17:30,0,0,56,0,Defender,0,0
+0,-1542,Jones,0,0,EVE(H) 2-0,Man Utd,19926,Phil,0,55,7,26,0,0,0,10 Feb 16:00,0,0,56,1,Defender,0,0
+0,-755,Jones,0,0,QPR(A) 2-0,Man Utd,19927,Phil,0,0,0,27,0,0,0,23 Feb 15:00,0,0,56,0,Defender,0,0
+0,-646,Jones,0,0,NOR(H) 4-0,Man Utd,19928,Phil,0,0,0,28,0,0,0,02 Mar 15:00,0,0,56,0,Defender,0,0
+0,-213,Jones,0,0,RDG(H) 1-0,Man Utd,19930,Phil,0,0,0,30,0,0,0,16 Mar 17:30,0,0,56,0,Defender,0,0
+0,-149,Jones,0,0,SUN(A) 1-0,Man Utd,19931,Phil,0,0,0,31,0,0,0,30 Mar 12:45,0,0,56,0,Defender,0,0
+0,215,Jones,2,0,MCI(H) 1-2,Man Utd,19932,Phil,0,90,5,32,0,0,1,08 Apr 20:00,0,0,56,4,Defender,0,0
+0,10631,Jones,2,0,WHU(A) 2-2,Man Utd,19933,Phil,0,90,5,33,0,0,0,17 Apr 19:45,0,0,56,1,Defender,0,0
+0,4659,Jones,0,0,AVL(H) 3-0,Man Utd,19934,Phil,0,90,15,34,0,1,0,22 Apr 20:00,0,0,56,6,Defender,0,0
+1,315,Jones,1,0,ARS(A) 1-1,Man Utd,19935,Phil,0,90,1,35,0,0,0,28 Apr 16:00,0,0,56,1,Defender,0,0
+1,-1418,Jones,1,0,CHE(H) 0-1,Man Utd,19936,Phil,1,90,3,36,0,0,0,05 May 16:00,0,0,56,-1,Defender,0,0
+0,9468,Jones,1,0,SWA(H) 2-1,Man Utd,19937,Phil,0,90,17,37,0,0,0,12 May 16:00,0,0,56,2,Defender,0,0
+0,1859,Jones,5,0,WBA(A) 5-5,Man Utd,19938,Phil,0,90,8,38,0,0,0,19 May 16:00,0,0,57,0,Defender,0,0
+0,0,Evra,1,0,EVE(A) 0-1,Man Utd,2031,Patrice,0,90,5,1,0,0,0,20 Aug 20:00,0,0,70,2,Defender,0,0
+0,-6012,Evra,2,0,FUL(H) 3-2,Man Utd,2032,Patrice,0,90,28,2,1,0,1,25 Aug 15:00,0,0,70,5,Defender,0,0
+0,-6664,Evra,2,0,SOU(A) 3-2,Man Utd,2033,Patrice,0,90,27,3,2,0,0,02 Sep 16:00,0,0,70,3,Defender,0,0
+0,-15832,Evra,0,0,WIG(H) 4-0,Man Utd,2034,Patrice,0,0,0,4,0,0,0,15 Sep 15:00,0,0,70,0,Defender,0,0
+0,-21770,Evra,1,0,LIV(A) 2-1,Man Utd,2035,Patrice,0,90,15,5,0,0,0,23 Sep 13:30,0,0,69,2,Defender,0,0
+0,-12754,Evra,3,0,TOT(H) 2-3,Man Utd,2036,Patrice,0,90,8,6,0,0,0,29 Sep 17:30,0,0,69,1,Defender,0,0
+0,-12778,Evra,0,0,NEW(A) 3-0,Man Utd,2037,Patrice,0,90,34,7,1,1,0,07 Oct 16:00,0,0,68,13,Defender,0,1
+0,794,Evra,2,0,STK(H) 4-2,Man Utd,2038,Patrice,0,90,12,8,0,0,0,20 Oct 15:00,0,0,68,1,Defender,0,0
+0,-4457,Evra,2,0,CHE(A) 3-2,Man Utd,2039,Patrice,0,90,14,9,0,0,0,28 Oct 16:00,0,0,68,1,Defender,0,0
+0,-4423,Evra,1,0,ARS(H) 2-1,Man Utd,20310,Patrice,0,90,32,10,2,0,0,03 Nov 12:45,0,0,68,10,Defender,0,1
+0,8123,Evra,2,0,AVL(A) 3-2,Man Utd,20311,Patrice,0,90,14,11,0,0,0,10 Nov 17:30,0,0,68,1,Defender,0,0
+0,3267,Evra,1,0,NOR(A) 0-1,Man Utd,20312,Patrice,0,90,2,12,0,0,0,17 Nov 17:30,0,0,68,2,Defender,0,0
+0,5162,Evra,1,0,QPR(H) 3-1,Man Utd,20313,Patrice,0,90,21,13,0,0,0,24 Nov 15:00,0,0,68,2,Defender,0,0
+0,-1385,Evra,0,0,WHU(H) 1-0,Man Utd,20314,Patrice,0,90,20,14,1,1,0,28 Nov 20:00,0,0,68,7,Defender,0,0
+0,2133,Evra,3,0,RDG(A) 4-3,Man Utd,20315,Patrice,0,90,24,15,1,0,1,01 Dec 17:30,0,0,68,5,Defender,0,0
+0,1029,Evra,2,0,MCI(A) 3-2,Man Utd,20316,Patrice,0,90,9,16,0,0,0,09 Dec 13:30,0,0,68,1,Defender,0,0
+0,3744,Evra,1,0,SUN(H) 3-1,Man Utd,20317,Patrice,0,90,14,17,0,0,0,15 Dec 15:00,0,0,68,2,Defender,0,0
+0,-516,Evra,1,0,SWA(A) 1-1,Man Utd,20318,Patrice,0,90,26,18,2,0,0,23 Dec 13:30,0,0,68,10,Defender,0,1
+0,7506,Evra,3,0,NEW(H) 4-3,Man Utd,20319,Patrice,0,90,42,19,3,0,0,26 Dec 15:00,0,0,68,10,Defender,0,1
+0,34396,Evra,0,0,WBA(H) 2-0,Man Utd,20320,Patrice,0,90,23,20,0,1,0,29 Dec 15:00,0,0,69,6,Defender,0,0
+0,16911,Evra,0,0,WIG(A) 4-0,Man Utd,20321,Patrice,0,90,27,21,1,1,1,01 Jan 15:00,0,0,70,10,Defender,0,0
+1,40846,Evra,1,0,LIV(H) 2-1,Man Utd,20322,Patrice,0,90,24,22,2,0,2,13 Jan 13:30,0,0,70,9,Defender,0,0
+1,34272,Evra,1,0,TOT(A) 1-1,Man Utd,20323,Patrice,0,90,6,23,0,0,0,20 Jan 16:00,0,0,71,1,Defender,0,0
+0,34111,Evra,1,0,SOU(H) 2-1,Man Utd,20324,Patrice,0,90,20,24,0,0,1,30 Jan 20:00,0,0,72,5,Defender,0,0
+0,15023,Evra,0,0,FUL(A) 1-0,Man Utd,20325,Patrice,0,90,17,25,0,1,0,02 Feb 17:30,0,0,72,6,Defender,0,0
+0,1991,Evra,0,0,EVE(H) 2-0,Man Utd,20326,Patrice,0,90,16,26,0,1,0,10 Feb 16:00,0,0,72,6,Defender,0,0
+0,16750,Evra,0,0,QPR(A) 2-0,Man Utd,20327,Patrice,0,90,18,27,0,1,0,23 Feb 15:00,0,0,73,6,Defender,0,0
+0,2613,Evra,0,0,NOR(H) 4-0,Man Utd,20328,Patrice,0,90,17,28,0,1,0,02 Mar 15:00,0,0,73,6,Defender,0,0
+0,10354,Evra,0,0,RDG(H) 1-0,Man Utd,20330,Patrice,0,0,0,30,0,0,0,16 Mar 17:30,0,0,73,0,Defender,0,0
+0,-625,Evra,0,0,SUN(A) 1-0,Man Utd,20331,Patrice,0,0,0,31,0,0,0,30 Mar 12:45,0,0,73,0,Defender,0,0
+0,-9592,Evra,2,0,MCI(H) 1-2,Man Utd,20332,Patrice,0,90,4,32,0,0,0,08 Apr 20:00,0,0,73,1,Defender,0,0
+0,22480,Evra,2,0,WHU(A) 2-2,Man Utd,20333,Patrice,0,90,7,33,0,0,0,17 Apr 19:45,0,0,73,1,Defender,0,0
+1,2627,Evra,0,0,AVL(H) 3-0,Man Utd,20334,Patrice,0,90,16,34,0,1,0,22 Apr 20:00,0,0,74,5,Defender,0,0
+0,-12380,Evra,1,0,ARS(A) 1-1,Man Utd,20335,Patrice,0,90,3,35,0,0,0,28 Apr 16:00,0,0,74,2,Defender,0,0
+0,-24154,Evra,1,0,CHE(H) 0-1,Man Utd,20336,Patrice,0,90,6,36,0,0,0,05 May 16:00,0,0,73,2,Defender,0,0
+0,586,Evra,1,0,SWA(H) 2-1,Man Utd,20337,Patrice,0,90,19,37,0,0,0,12 May 16:00,0,0,73,2,Defender,0,0
+0,-1175,Evra,0,0,WBA(A) 5-5,Man Utd,20338,Patrice,0,0,0,38,0,0,0,19 May 16:00,0,0,73,0,Defender,0,0
+1,0,Scholes,1,0,EVE(A) 0-1,Man Utd,2161,Paul,0,90,14,1,0,0,0,20 Aug 20:00,0,0,55,1,Midfielder,0,0
+0,-3307,Scholes,0,0,FUL(H) 3-2,Man Utd,2162,Paul,0,0,0,2,0,0,0,25 Aug 15:00,0,0,55,0,Midfielder,0,0
+0,-12503,Scholes,0,0,SOU(A) 3-2,Man Utd,2163,Paul,0,30,6,3,0,0,0,02 Sep 16:00,0,0,54,1,Midfielder,0,0
+0,-4881,Scholes,0,0,WIG(H) 4-0,Man Utd,2164,Paul,0,70,26,4,1,1,0,15 Sep 15:00,0,0,53,9,Midfielder,0,1
+1,5386,Scholes,1,0,LIV(A) 2-1,Man Utd,2165,Paul,0,45,9,5,0,0,0,23 Sep 13:30,0,0,53,0,Midfielder,0,0
+0,422,Scholes,3,0,TOT(H) 2-3,Man Utd,2166,Paul,0,90,10,6,0,0,0,29 Sep 17:30,0,0,53,2,Midfielder,0,0
+1,359,Scholes,0,0,NEW(A) 3-0,Man Utd,2167,Paul,0,12,1,7,0,0,0,07 Oct 16:00,0,0,53,0,Midfielder,0,0
+1,-3246,Scholes,2,0,STK(H) 4-2,Man Utd,2168,Paul,0,69,4,8,0,0,0,20 Oct 15:00,0,0,53,1,Midfielder,0,0
+0,-2755,Scholes,0,0,CHE(A) 3-2,Man Utd,2169,Paul,0,0,0,9,0,0,0,28 Oct 16:00,0,0,53,0,Midfielder,0,0
+0,-3311,Scholes,0,0,ARS(H) 2-1,Man Utd,21610,Paul,0,0,0,10,0,0,0,03 Nov 12:45,0,0,53,0,Midfielder,0,0
+0,-3293,Scholes,2,0,AVL(A) 3-2,Man Utd,21611,Paul,0,70,17,11,0,0,1,10 Nov 17:30,0,0,52,5,Midfielder,0,0
+0,-1009,Scholes,0,0,NOR(A) 0-1,Man Utd,21612,Paul,0,22,3,12,0,0,0,17 Nov 17:30,0,0,52,1,Midfielder,0,0
+1,-603,Scholes,1,0,QPR(H) 3-1,Man Utd,21613,Paul,0,58,12,13,0,0,0,24 Nov 15:00,0,0,52,0,Midfielder,0,0
+0,-3283,Scholes,0,0,WHU(H) 1-0,Man Utd,21614,Paul,0,0,0,14,0,0,0,28 Nov 20:00,0,0,52,0,Midfielder,0,0
+0,-1346,Scholes,0,0,RDG(A) 4-3,Man Utd,21615,Paul,0,0,0,15,0,0,0,01 Dec 17:30,0,0,52,0,Midfielder,0,0
+0,-1591,Scholes,0,0,MCI(A) 3-2,Man Utd,21616,Paul,0,0,0,16,0,0,0,09 Dec 13:30,0,0,52,0,Midfielder,0,0
+0,-1280,Scholes,1,0,SUN(H) 3-1,Man Utd,21617,Paul,0,45,13,17,0,0,0,15 Dec 15:00,0,0,52,1,Midfielder,0,0
+1,-1050,Scholes,0,0,SWA(A) 1-1,Man Utd,21618,Paul,0,6,0,18,0,0,0,23 Dec 13:30,0,0,52,0,Midfielder,0,0
+0,-647,Scholes,3,0,NEW(H) 4-3,Man Utd,21619,Paul,0,68,16,19,0,0,0,26 Dec 15:00,0,0,51,2,Midfielder,0,0
+0,-543,Scholes,0,0,WBA(H) 2-0,Man Utd,21620,Paul,0,9,-2,20,0,0,0,29 Dec 15:00,0,0,51,1,Midfielder,0,0
+0,-442,Scholes,0,0,WIG(A) 4-0,Man Utd,21621,Paul,0,0,0,21,0,0,0,01 Jan 15:00,0,0,51,0,Midfielder,0,0
+0,-1329,Scholes,0,0,LIV(H) 2-1,Man Utd,21622,Paul,0,0,0,22,0,0,0,13 Jan 13:30,0,0,51,0,Midfielder,0,0
+0,-643,Scholes,0,0,TOT(A) 1-1,Man Utd,21623,Paul,0,0,0,23,0,0,0,20 Jan 16:00,0,0,51,0,Midfielder,0,0
+0,-561,Scholes,0,0,SOU(H) 2-1,Man Utd,21624,Paul,0,0,0,24,0,0,0,30 Jan 20:00,0,0,50,0,Midfielder,0,0
+0,-293,Scholes,0,0,FUL(A) 1-0,Man Utd,21625,Paul,0,0,0,25,0,0,0,02 Feb 17:30,0,0,50,0,Midfielder,0,0
+0,-393,Scholes,0,0,EVE(H) 2-0,Man Utd,21626,Paul,0,0,0,26,0,0,0,10 Feb 16:00,0,0,50,0,Midfielder,0,0
+0,-692,Scholes,0,0,QPR(A) 2-0,Man Utd,21627,Paul,0,0,0,27,0,0,0,23 Feb 15:00,0,0,50,0,Midfielder,0,0
+0,-296,Scholes,0,0,NOR(H) 4-0,Man Utd,21628,Paul,0,0,0,28,0,0,0,02 Mar 15:00,0,0,50,0,Midfielder,0,0
+0,-179,Scholes,0,0,RDG(H) 1-0,Man Utd,21630,Paul,0,0,0,30,0,0,0,16 Mar 17:30,0,0,50,0,Midfielder,0,0
+0,-153,Scholes,0,0,SUN(A) 1-0,Man Utd,21631,Paul,0,0,0,31,0,0,0,30 Mar 12:45,0,0,50,0,Midfielder,0,0
+0,-112,Scholes,0,0,MCI(H) 1-2,Man Utd,21632,Paul,0,0,0,32,0,0,0,08 Apr 20:00,0,0,50,0,Midfielder,0,0
+0,-101,Scholes,0,0,WHU(A) 2-2,Man Utd,21633,Paul,0,0,0,33,0,0,0,17 Apr 19:45,0,0,50,0,Midfielder,0,0
+0,-73,Scholes,0,0,AVL(H) 3-0,Man Utd,21634,Paul,0,0,0,34,0,0,0,22 Apr 20:00,0,0,50,0,Midfielder,0,0
+0,-92,Scholes,0,0,ARS(A) 1-1,Man Utd,21635,Paul,0,0,0,35,0,0,0,28 Apr 16:00,0,0,50,0,Midfielder,0,0
+0,-71,Scholes,0,0,CHE(H) 0-1,Man Utd,21636,Paul,0,0,0,36,0,0,0,05 May 16:00,0,0,50,0,Midfielder,0,0
+0,495,Scholes,1,0,SWA(H) 2-1,Man Utd,21637,Paul,0,65,18,37,0,0,0,12 May 16:00,0,0,50,2,Midfielder,0,0
+1,406,Scholes,3,0,WBA(A) 5-5,Man Utd,21638,Paul,0,22,1,38,0,0,0,19 May 16:00,0,0,50,0,Midfielder,0,0
+0,0,Cisse,1,0,TOT(H) 2-1,Newcastle,2511,Papiss,0,90,8,1,0,0,0,18 Aug 17:30,0,0,95,2,Forward,0,0
+0,-5398,Cisse,2,0,CHE(A) 0-2,Newcastle,2512,Papiss,0,90,-4,2,0,0,0,25 Aug 17:30,0,0,95,2,Forward,0,0
+0,-9239,Cisse,1,0,AVL(H) 1-1,Newcastle,2513,Papiss,0,90,-1,3,0,0,0,02 Sep 16:00,0,0,95,2,Forward,0,0
+0,-51577,Cisse,1,0,EVE(A) 2-2,Newcastle,2514,Papiss,0,79,-4,4,0,0,0,17 Sep 20:00,0,0,94,2,Forward,0,0
+0,-27783,Cisse,0,0,NOR(H) 1-0,Newcastle,2515,Papiss,0,69,7,5,0,1,0,23 Sep 15:00,0,1,93,0,Forward,0,0
+0,-18673,Cisse,2,0,RDG(A) 2-2,Newcastle,2516,Papiss,0,68,-4,6,0,0,0,29 Sep 15:00,0,0,92,2,Forward,0,0
+0,-16164,Cisse,2,0,MUN(H) 0-3,Newcastle,2517,Papiss,0,62,4,7,0,0,0,07 Oct 16:00,0,0,90,2,Forward,0,0
+0,-9240,Cisse,0,0,SUN(A) 1-1,Newcastle,2518,Papiss,0,0,0,8,0,0,0,21 Oct 13:30,0,0,90,0,Forward,0,0
+0,-5909,Cisse,0,0,WBA(H) 2-1,Newcastle,2519,Papiss,0,30,22,9,1,0,0,28 Oct 15:00,0,0,89,6,Forward,0,1
+0,-1375,Cisse,1,0,LIV(A) 1-1,Newcastle,25110,Papiss,0,90,6,10,0,0,0,04 Nov 16:00,0,0,89,2,Forward,0,0
+0,-844,Cisse,1,0,WHU(H) 0-1,Newcastle,25111,Papiss,0,49,-3,11,0,0,0,11 Nov 15:00,0,0,89,1,Forward,0,0
+0,-5263,Cisse,0,0,SWA(H) 1-2,Newcastle,25112,Papiss,0,0,0,12,0,0,0,17 Nov 15:00,0,0,88,0,Forward,0,0
+0,-4174,Cisse,2,0,SOU(A) 0-2,Newcastle,25113,Papiss,0,90,-2,13,0,0,0,25 Nov 15:00,0,0,88,2,Forward,0,0
+0,-1224,Cisse,2,0,STK(A) 1-2,Newcastle,25114,Papiss,0,86,26,14,1,0,0,28 Nov 19:45,0,0,88,7,Forward,0,1
+0,257,Cisse,0,0,WIG(H) 3-0,Newcastle,25115,Papiss,0,90,19,15,0,1,1,03 Dec 20:00,0,0,88,5,Forward,0,0
+0,-150,Cisse,2,0,FUL(A) 1-2,Newcastle,25116,Papiss,0,90,4,16,0,0,0,10 Dec 20:00,0,0,88,2,Forward,0,0
+0,-1740,Cisse,3,0,MCI(H) 1-3,Newcastle,25117,Papiss,0,78,-1,17,0,0,0,15 Dec 12:45,0,0,88,2,Forward,0,0
+0,-1372,Cisse,0,0,QPR(H) 1-0,Newcastle,25118,Papiss,0,60,2,18,0,1,0,22 Dec 15:00,0,0,88,2,Forward,0,0
+1,-1076,Cisse,3,0,MUN(A) 3-4,Newcastle,25119,Papiss,0,78,22,19,0,0,0,26 Dec 15:00,0,0,88,5,Forward,0,1
+0,127,Cisse,7,0,ARS(A) 3-7,Newcastle,25120,Papiss,0,90,2,20,0,0,0,29 Dec 17:30,0,0,88,2,Forward,0,0
+1,-672,Cisse,2,0,EVE(H) 1-2,Newcastle,25121,Papiss,0,90,20,21,0,0,0,02 Jan 20:00,0,0,88,5,Forward,0,1
+0,3881,Cisse,0,0,NOR(A) 0-0,Newcastle,25122,Papiss,0,90,11,22,0,1,0,12 Jan 15:00,0,0,88,2,Forward,0,0
+0,2203,Cisse,2,0,RDG(H) 1-2,Newcastle,25123,Papiss,0,90,13,23,0,0,0,19 Jan 15:00,0,0,88,2,Forward,0,0
+0,-2348,Cisse,1,0,AVL(A) 2-1,Newcastle,25124,Papiss,0,90,26,24,2,0,0,29 Jan 19:45,0,0,88,8,Forward,0,1
+1,1019,Cisse,2,0,CHE(H) 3-2,Newcastle,25125,Papiss,0,90,15,25,0,0,0,02 Feb 15:00,0,0,88,1,Forward,0,0
+0,-489,Cisse,2,0,TOT(A) 1-2,Newcastle,25126,Papiss,0,90,-1,26,0,0,0,09 Feb 12:45,0,0,88,2,Forward,0,0
+0,15170,Cisse,2,0,SOU(H) 4-2,Newcastle,25127,Papiss,0,90,26,27,1,0,0,24 Feb 13:30,0,0,88,7,Forward,0,1
+0,3492,Cisse,1,0,SWA(A) 0-1,Newcastle,25128,Papiss,0,90,-10,28,0,0,0,02 Mar 15:00,0,0,88,2,Forward,0,0
+1,7868,Cisse,1,0,STK(H) 2-1,Newcastle,25129,Papiss,0,90,32,29,3,0,0,10 Mar 15:00,0,0,89,8,Forward,0,1
+0,-4654,Cisse,2,0,WIG(A) 1-2,Newcastle,25130,Papiss,0,90,-9,30,0,0,1,17 Mar 16:00,0,0,89,5,Forward,0,0
+0,-6983,Cisse,4,0,MCI(A) 0-4,Newcastle,25131,Papiss,0,90,0,31,0,0,0,30 Mar 15:00,0,0,88,2,Forward,0,0
+1,-45,Cisse,0,0,FUL(H) 1-0,Newcastle,25132,Papiss,0,90,18,32,0,1,0,07 Apr 15:00,0,0,88,5,Forward,0,1
+1,-1885,Cisse,3,0,SUN(H) 0-3,Newcastle,25133,Papiss,0,90,2,33,0,0,0,14 Apr 12:00,0,0,88,1,Forward,0,0
+0,-564,Cisse,1,0,WBA(A) 1-1,Newcastle,25134,Papiss,0,90,18,34,1,0,1,20 Apr 15:00,0,0,87,6,Forward,0,0
+0,3354,Cisse,6,0,LIV(H) 0-6,Newcastle,25135,Papiss,0,90,0,35,0,0,0,27 Apr 17:30,0,0,87,2,Forward,0,0
+0,-6649,Cisse,0,0,WHU(A) 0-0,Newcastle,25136,Papiss,0,90,3,36,0,1,0,04 May 15:00,0,0,87,2,Forward,0,0
+0,4048,Cisse,1,0,QPR(A) 2-1,Newcastle,25137,Papiss,0,90,19,37,1,0,0,12 May 15:00,0,0,87,3,Forward,0,0
+0,-2404,Cisse,1,0,ARS(H) 0-1,Newcastle,25138,Papiss,0,90,-6,38,0,0,0,19 May 16:00,0,0,87,2,Forward,0,0
+1,0,Pogrebnyak,2,0,CHE(A) 2-4,Reading,3321,Pavel,0,76,14,1,0,0,0,22 Aug 19:45,0,0,50,5,Forward,0,1
+0,-15799,Pogrebnyak,3,0,TOT(H) 1-3,Reading,3324,Pavel,0,82,3,4,0,0,0,16 Sep 16:00,0,0,49,2,Forward,0,0
+0,-33652,Pogrebnyak,0,0,WBA(A) 0-1,Reading,3325,Pavel,0,68,3,5,0,1,0,22 Sep 15:00,0,0,49,2,Forward,0,0
+0,-31039,Pogrebnyak,1,0,NEW(H) 2-2,Reading,3326,Pavel,0,76,7,6,0,0,0,29 Sep 15:00,0,0,48,2,Forward,0,0
+0,-16909,Pogrebnyak,2,0,SWA(A) 2-2,Reading,3327,Pavel,0,79,27,7,2,0,0,06 Oct 15:00,0,0,47,8,Forward,0,1
+0,1350,Pogrebnyak,1,0,LIV(A) 0-1,Reading,3328,Pavel,0,73,3,8,0,0,0,20 Oct 15:00,0,0,47,2,Forward,0,0
+0,237,Pogrebnyak,2,0,FUL(H) 3-3,Reading,3329,Pavel,0,79,2,9,0,0,0,27 Oct 15:00,0,0,47,2,Forward,0,0
+0,4160,Pogrebnyak,0,0,QPR(A) 1-1,Reading,33210,Pavel,0,0,0,10,0,0,0,04 Nov 13:30,0,0,47,0,Forward,0,0
+0,-255,Pogrebnyak,0,0,NOR(H) 0-0,Reading,33211,Pavel,0,31,-3,11,0,0,0,10 Nov 15:00,0,0,47,1,Forward,0,0
+0,-15848,Pogrebnyak,0,0,EVE(H) 2-1,Reading,33212,Pavel,0,0,0,12,0,0,0,17 Nov 15:00,0,0,47,0,Forward,0,0
+0,-18075,Pogrebnyak,1,0,WIG(A) 2-3,Reading,33213,Pavel,0,7,1,13,0,0,0,24 Nov 15:00,0,0,46,1,Forward,0,0
+0,-8574,Pogrebnyak,0,0,AVL(A) 0-1,Reading,33214,Pavel,0,0,0,14,0,0,0,27 Nov 20:00,0,0,45,0,Forward,0,0
+0,-8271,Pogrebnyak,0,0,MUN(H) 3-4,Reading,33215,Pavel,0,22,1,15,0,0,0,01 Dec 17:30,0,0,45,1,Forward,0,0
+0,-13017,Pogrebnyak,0,0,SUN(A) 0-3,Reading,33216,Pavel,0,0,0,16,0,0,0,11 Dec 19:45,0,0,44,0,Forward,0,0
+0,-10275,Pogrebnyak,4,0,ARS(H) 2-5,Reading,33217,Pavel,0,61,2,17,0,0,0,17 Dec 20:00,0,0,44,2,Forward,0,0
+0,-923,Pogrebnyak,1,0,MCI(A) 0-1,Reading,33218,Pavel,0,90,-1,18,0,0,0,22 Dec 15:00,0,0,43,2,Forward,0,0
+1,2597,Pogrebnyak,0,0,SWA(H) 0-0,Reading,33219,Pavel,0,60,3,19,0,1,0,26 Dec 15:00,0,0,43,1,Forward,0,0
+1,1430,Pogrebnyak,0,0,WHU(H) 1-0,Reading,33220,Pavel,0,90,31,20,3,1,0,29 Dec 15:00,0,0,43,8,Forward,0,1
+0,4572,Pogrebnyak,3,0,TOT(A) 1-3,Reading,33221,Pavel,0,83,20,21,0,0,0,01 Jan 15:00,0,0,43,6,Forward,0,1
+1,22404,Pogrebnyak,2,0,WBA(H) 3-2,Reading,33222,Pavel,0,90,33,22,2,0,0,12 Jan 15:00,0,0,43,7,Forward,0,1
+0,20106,Pogrebnyak,1,0,NEW(A) 2-1,Reading,33223,Pavel,0,90,4,23,0,0,0,19 Jan 15:00,0,0,43,2,Forward,0,0
+0,10435,Pogrebnyak,2,0,CHE(H) 2-2,Reading,33224,Pavel,0,90,8,24,0,0,0,30 Jan 20:00,0,0,44,2,Forward,0,0
+0,-2236,Pogrebnyak,1,0,SUN(H) 2-1,Reading,33225,Pavel,0,71,11,25,0,0,0,02 Feb 15:00,0,0,44,2,Forward,0,0
+0,-1352,Pogrebnyak,1,0,STK(A) 1-2,Reading,33226,Pavel,0,79,3,26,0,0,0,09 Feb 15:00,0,0,44,2,Forward,0,0
+0,5170,Pogrebnyak,3,0,WIG(H) 0-3,Reading,33227,Pavel,0,54,-5,27,0,0,0,23 Feb 15:00,0,0,44,-2,Forward,1,0
+0,-23264,Pogrebnyak,0,0,EVE(A) 1-3,Reading,33228,Pavel,0,0,0,28,0,0,0,02 Mar 15:00,0,0,44,0,Forward,0,0
+0,-21832,Pogrebnyak,0,0,AVL(H) 1-2,Reading,33229,Pavel,0,0,0,29,0,0,0,09 Mar 15:00,0,0,43,0,Forward,0,0
+0,-7240,Pogrebnyak,0,0,MUN(A) 0-1,Reading,33230,Pavel,0,0,0,30,0,0,0,16 Mar 17:30,0,0,43,0,Forward,0,0
+0,-2906,Pogrebnyak,2,0,ARS(A) 1-4,Reading,33231,Pavel,0,60,6,31,0,0,0,30 Mar 15:00,0,0,43,2,Forward,0,0
+0,-2106,Pogrebnyak,0,0,SOU(H) 0-2,Reading,33232,Pavel,0,0,0,32,0,0,0,06 Apr 12:45,0,0,43,0,Forward,0,0
+0,-4579,Pogrebnyak,0,0,LIV(H) 0-0,Reading,33233,Pavel,0,72,8,33,0,1,0,13 Apr 15:00,0,0,43,2,Forward,0,0
+0,-1469,Pogrebnyak,2,0,NOR(A) 1-2,Reading,33234,Pavel,0,90,-1,34,0,0,0,20 Apr 15:00,0,0,43,2,Forward,0,0
+0,4396,Pogrebnyak,0,0,QPR(H) 0-0,Reading,33235,Pavel,0,90,3,35,0,1,0,28 Apr 13:30,0,0,42,2,Forward,0,0
+0,835,Pogrebnyak,1,0,FUL(A) 4-2,Reading,33236,Pavel,0,70,15,36,0,0,0,04 May 15:00,0,0,42,2,Forward,0,0
+0,232,Pogrebnyak,1,0,MCI(H) 0-2,Reading,33237,Pavel,0,61,6,37,0,0,0,14 May 20:00,0,0,42,2,Forward,0,0
+0,1678,Pogrebnyak,2,0,WHU(A) 2-4,Reading,33238,Pavel,0,45,5,38,0,0,0,19 May 16:00,0,0,42,1,Forward,0,0
+0,0,Crouch,1,0,RDG(A) 1-1,Stoke City,3771,Peter,0,90,12,1,2,0,0,18 Aug 15:00,0,0,65,4,Forward,0,0
+0,-7102,Crouch,0,0,ARS(H) 0-0,Stoke City,3772,Peter,0,78,-6,2,0,1,0,26 Aug 13:30,0,0,65,2,Forward,0,0
+0,-10414,Crouch,2,0,WIG(A) 2-2,Stoke City,3773,Peter,0,90,27,3,3,0,1,01 Sep 15:00,0,0,65,12,Forward,0,1
+0,5787,Crouch,1,0,MCI(H) 1-1,Stoke City,3774,Peter,0,89,31,4,3,0,0,15 Sep 15:00,0,0,65,9,Forward,0,1
+0,29876,Crouch,0,0,CHE(A) 0-1,Stoke City,3775,Peter,0,74,-6,5,0,1,0,22 Sep 15:00,0,0,65,2,Forward,0,0
+0,14891,Crouch,0,0,SWA(H) 2-0,Stoke City,3776,Peter,0,85,49,6,3,1,0,29 Sep 15:00,0,0,65,13,Forward,0,2
+0,42035,Crouch,0,0,LIV(A) 0-0,Stoke City,3777,Peter,0,90,8,7,0,1,0,07 Oct 15:00,0,0,66,2,Forward,0,0
+0,9129,Crouch,4,0,MUN(A) 2-4,Stoke City,3778,Peter,0,90,8,8,0,0,0,20 Oct 15:00,0,0,67,2,Forward,0,0
+1,27798,Crouch,0,0,SUN(H) 0-0,Stoke City,3779,Peter,0,90,8,9,0,1,0,27 Oct 15:00,0,0,67,1,Forward,0,0
+0,10740,Crouch,1,0,NOR(A) 0-1,Stoke City,37710,Peter,0,90,-6,10,0,0,0,03 Nov 15:00,0,0,68,2,Forward,0,0
+0,23072,Crouch,0,0,QPR(H) 1-0,Stoke City,37711,Peter,0,73,10,11,0,1,1,10 Nov 15:00,0,0,68,5,Forward,0,0
+0,-21189,Crouch,1,0,WHU(A) 1-1,Stoke City,37712,Peter,0,90,12,12,0,0,0,19 Nov 20:00,0,0,69,2,Forward,0,0
+0,-25715,Crouch,0,0,FUL(H) 1-0,Stoke City,37713,Peter,0,76,21,13,2,1,1,24 Nov 15:00,0,0,68,7,Forward,0,0
+0,-4543,Crouch,0,0,NEW(H) 2-1,Stoke City,37714,Peter,0,39,6,14,0,0,0,28 Nov 19:45,0,0,67,1,Forward,0,0
+0,-33086,Crouch,0,0,WBA(A) 1-0,Stoke City,37715,Peter,0,0,0,15,0,0,0,01 Dec 15:00,0,0,66,0,Forward,0,0
+0,-41164,Crouch,0,0,AVL(A) 0-0,Stoke City,37716,Peter,0,16,1,16,0,0,0,08 Dec 15:00,0,0,64,1,Forward,0,0
+0,-8776,Crouch,0,0,EVE(H) 1-1,Stoke City,37717,Peter,0,14,-4,17,0,0,0,15 Dec 15:00,0,0,64,1,Forward,0,0
+0,-11571,Crouch,0,0,TOT(A) 0-0,Stoke City,37718,Peter,0,22,2,18,0,0,0,22 Dec 15:00,0,0,63,1,Forward,0,0
+0,-5193,Crouch,0,0,LIV(H) 3-1,Stoke City,37719,Peter,0,13,2,19,0,0,0,26 Dec 19:45,0,0,63,1,Forward,0,0
+0,-5375,Crouch,0,0,SOU(H) 3-3,Stoke City,37720,Peter,0,16,13,20,0,0,1,29 Dec 15:00,0,0,62,4,Forward,0,0
+0,-5629,Crouch,0,0,MCI(A) 0-3,Stoke City,37721,Peter,0,0,0,21,0,0,0,01 Jan 15:00,0,0,62,0,Forward,0,0
+0,-13634,Crouch,0,0,CHE(H) 0-4,Stoke City,37722,Peter,0,0,0,22,0,0,0,12 Jan 15:00,0,0,61,0,Forward,0,0
+0,-5235,Crouch,2,0,SWA(A) 1-3,Stoke City,37723,Peter,0,62,-1,23,0,0,0,19 Jan 15:00,0,0,60,2,Forward,0,0
+0,-1659,Crouch,2,0,WIG(H) 2-2,Stoke City,37724,Peter,0,85,25,24,2,0,0,29 Jan 19:45,0,0,60,8,Forward,0,1
+0,-505,Crouch,1,0,ARS(A) 0-1,Stoke City,37725,Peter,0,82,-1,25,0,0,0,02 Feb 15:00,0,0,60,2,Forward,0,0
+0,5795,Crouch,0,0,RDG(H) 2-1,Stoke City,37726,Peter,0,64,5,26,0,1,0,09 Feb 15:00,0,0,60,2,Forward,0,0
+0,-325,Crouch,1,0,FUL(A) 0-1,Stoke City,37727,Peter,0,69,-1,27,0,0,0,23 Feb 12:45,0,0,60,2,Forward,0,0
+0,902,Crouch,1,0,WHU(H) 0-1,Stoke City,37728,Peter,0,90,8,28,0,0,0,02 Mar 15:00,0,0,60,2,Forward,0,0
+0,-81,Crouch,1,0,NEW(A) 1-2,Stoke City,37729,Peter,0,83,13,29,0,0,0,10 Mar 15:00,0,0,60,2,Forward,0,0
+0,-2334,Crouch,0,0,WBA(H) 0-0,Stoke City,37730,Peter,0,62,-4,30,0,1,0,16 Mar 15:00,0,0,60,2,Forward,0,0
+0,-2994,Crouch,1,0,EVE(A) 0-1,Stoke City,37731,Peter,0,78,3,31,0,0,0,30 Mar 17:30,0,0,60,2,Forward,0,0
+0,-835,Crouch,0,0,AVL(H) 1-3,Stoke City,37732,Peter,0,0,0,32,0,0,0,06 Apr 15:00,0,0,60,0,Forward,0,0
+0,-2700,Crouch,0,0,MUN(H) 0-2,Stoke City,37733,Peter,0,7,0,33,0,0,0,14 Apr 14:05,0,0,60,1,Forward,0,0
+0,-1213,Crouch,0,0,QPR(A) 2-0,Stoke City,37734,Peter,0,89,41,34,3,1,1,20 Apr 15:00,0,0,60,12,Forward,0,1
+1,7910,Crouch,0,0,NOR(H) 1-0,Stoke City,37735,Peter,0,90,27,35,3,1,1,27 Apr 15:00,0,0,60,7,Forward,0,0
+0,-187,Crouch,1,0,SUN(A) 1-1,Stoke City,37736,Peter,0,90,7,36,0,0,0,06 May 20:00,0,0,60,2,Forward,0,0
+0,475,Crouch,1,0,TOT(H) 1-2,Stoke City,37737,Peter,0,56,2,37,0,0,0,12 May 13:30,0,0,60,1,Forward,0,0
+0,1629,Crouch,1,0,SOU(A) 1-1,Stoke City,37738,Peter,0,90,25,38,3,0,0,19 May 16:00,0,0,60,9,Forward,0,1
+0,0,Bardsley,0,0,ARS(A) 0-0,Sunderland,3841,Phil,0,0,0,1,0,0,0,18 Aug 15:00,0,0,50,0,Defender,0,0
+0,-738,Bardsley,0,0,SWA(A) 2-2,Sunderland,3843,Phil,0,0,0,3,0,0,0,01 Sep 15:00,0,0,49,0,Defender,0,0
+0,-387,Bardsley,0,0,LIV(H) 1-1,Sunderland,3844,Phil,0,0,0,4,0,0,0,15 Sep 17:30,0,0,49,0,Defender,0,0
+0,-164,Bardsley,0,0,WHU(A) 1-1,Sunderland,3845,Phil,0,0,0,5,0,0,0,22 Sep 15:00,0,0,49,0,Defender,0,0
+0,-143,Bardsley,0,0,WIG(H) 1-0,Sunderland,3846,Phil,0,0,0,6,0,0,0,29 Sep 15:00,0,0,48,0,Defender,0,0
+0,-85,Bardsley,0,0,MCI(A) 0-3,Sunderland,3847,Phil,0,0,0,7,0,0,0,06 Oct 12:45,0,0,48,0,Defender,0,0
+0,-56,Bardsley,0,0,NEW(H) 1-1,Sunderland,3848,Phil,0,0,0,8,0,0,0,21 Oct 13:30,0,0,48,0,Defender,0,0
+0,36,Bardsley,0,0,STK(A) 0-0,Sunderland,3849,Phil,0,8,1,9,0,0,0,27 Oct 15:00,0,0,48,1,Defender,0,0
+1,334,Bardsley,1,0,AVL(H) 0-1,Sunderland,38410,Phil,0,80,8,10,0,0,0,03 Nov 15:00,0,0,48,1,Defender,0,0
+0,69,Bardsley,0,0,EVE(A) 1-2,Sunderland,38411,Phil,0,0,0,11,0,0,0,10 Nov 15:00,0,0,48,0,Defender,0,0
+0,-114,Bardsley,1,0,FUL(A) 3-1,Sunderland,38412,Phil,0,90,22,12,0,0,0,18 Nov 16:00,0,0,48,2,Defender,0,0
+0,359,Bardsley,4,0,WBA(H) 2-4,Sunderland,38413,Phil,0,90,4,13,0,0,0,24 Nov 12:45,0,0,48,0,Defender,0,0
+0,212,Bardsley,0,0,QPR(H) 0-0,Sunderland,38414,Phil,0,90,5,14,0,1,0,27 Nov 19:45,0,0,48,6,Defender,0,0
+1,537,Bardsley,2,0,NOR(A) 1-2,Sunderland,38415,Phil,0,90,5,15,0,0,0,02 Dec 16:00,0,0,48,0,Defender,0,0
+0,1448,Bardsley,0,0,RDG(H) 3-0,Sunderland,38416,Phil,0,29,5,16,0,0,0,11 Dec 19:45,0,0,48,1,Defender,0,0
+0,-1292,Bardsley,0,0,MUN(A) 1-3,Sunderland,38417,Phil,0,0,0,17,0,0,0,15 Dec 15:00,0,0,48,0,Defender,0,0
+1,-648,Bardsley,0,0,SOU(A) 1-0,Sunderland,38418,Phil,0,21,3,18,0,0,0,22 Dec 15:00,0,0,48,0,Defender,0,0
+0,-224,Bardsley,0,0,MCI(H) 1-0,Sunderland,38419,Phil,0,3,0,19,0,0,0,26 Dec 15:00,0,0,48,1,Defender,0,0
+0,-133,Bardsley,0,0,TOT(H) 1-2,Sunderland,38420,Phil,0,0,0,20,0,0,0,29 Dec 12:45,0,0,47,0,Defender,0,0
+0,-121,Bardsley,0,0,LIV(A) 0-3,Sunderland,38421,Phil,0,0,0,21,0,0,0,02 Jan 19:45,0,0,47,0,Defender,0,0
+0,35,Bardsley,0,0,WHU(H) 3-0,Sunderland,38422,Phil,0,0,0,22,0,0,0,12 Jan 15:00,0,0,46,0,Defender,0,0
+0,-125,Bardsley,0,0,WIG(A) 3-2,Sunderland,38423,Phil,0,7,1,23,0,0,0,19 Jan 15:00,0,0,46,1,Defender,0,0
+0,-95,Bardsley,0,0,SWA(H) 0-0,Sunderland,38424,Phil,0,0,0,24,0,0,0,29 Jan 19:45,0,0,46,0,Defender,0,0
+0,-113,Bardsley,0,0,RDG(A) 1-2,Sunderland,38425,Phil,0,0,0,25,0,0,0,02 Feb 15:00,0,0,46,0,Defender,0,0
+0,-48,Bardsley,0,0,ARS(H) 0-1,Sunderland,38426,Phil,0,0,0,26,0,0,0,09 Feb 15:00,0,0,45,0,Defender,0,0
+0,-41,Bardsley,0,0,WBA(A) 1-2,Sunderland,38427,Phil,0,0,0,27,0,0,0,23 Feb 15:00,0,0,45,0,Defender,0,0
+0,-31,Bardsley,0,0,FUL(H) 2-2,Sunderland,38428,Phil,0,0,0,28,0,0,0,02 Mar 15:00,0,0,45,0,Defender,0,0
+0,-16,Bardsley,1,0,QPR(A) 1-3,Sunderland,38429,Phil,0,10,1,29,0,0,0,09 Mar 15:00,0,0,45,1,Defender,0,0
+0,-1,Bardsley,0,0,NOR(H) 1-1,Sunderland,38430,Phil,0,0,0,30,0,0,0,17 Mar 13:30,0,0,45,0,Defender,0,0
+1,-23,Bardsley,1,0,MUN(H) 0-1,Sunderland,38431,Phil,0,77,-11,31,0,0,0,30 Mar 12:45,0,0,45,1,Defender,0,0
+0,10,Bardsley,2,0,CHE(A) 1-2,Sunderland,38432,Phil,0,90,4,32,0,0,0,07 Apr 15:00,0,0,44,1,Defender,0,0
+0,21,Bardsley,0,0,NEW(A) 3-0,Sunderland,38433,Phil,0,53,13,33,0,0,0,14 Apr 12:00,0,0,44,1,Defender,0,0
+0,26,Bardsley,0,0,EVE(H) 1-0,Sunderland,38434,Phil,0,0,0,34,0,0,0,20 Apr 15:00,0,0,44,0,Defender,0,0
+1,3,Bardsley,6,0,AVL(A) 1-6,Sunderland,38435,Phil,0,90,4,35,0,0,0,29 Apr 20:00,0,0,44,-2,Defender,0,0
+0,10,Bardsley,0,0,STK(H) 1-1,Sunderland,38436,Phil,0,1,0,36,0,0,0,06 May 20:00,0,0,44,1,Defender,0,0
+0,37,Bardsley,1,0,SOU(H) 1-1,Sunderland,38437,Phil,0,90,22,37,1,0,0,12 May 15:00,0,0,44,9,Defender,0,1
+0,160,Bardsley,0,0,TOT(A) 0-1,Sunderland,38438,Phil,0,0,0,38,0,0,0,19 May 16:00,0,0,44,0,Defender,0,0
+0,0,Odemwingie,0,0,LIV(H) 3-0,West Brom,4851,Peter,0,90,31,1,3,1,0,18 Aug 15:00,0,0,70,9,Forward,0,1
+0,12350,Odemwingie,0,0,TOT(A) 1-1,West Brom,4852,Peter,0,0,0,2,0,0,0,25 Aug 15:00,0,0,70,0,Forward,0,0
+0,-12350,Odemwingie,0,0,EVE(H) 2-0,West Brom,4853,Peter,0,34,8,3,0,0,1,01 Sep 15:00,0,0,70,4,Forward,0,0
+0,-4256,Odemwingie,3,0,FUL(A) 0-3,West Brom,4854,Peter,0,37,3,4,0,0,0,15 Sep 15:00,0,0,70,-2,Forward,1,0
+0,-19912,Odemwingie,0,0,RDG(H) 1-0,West Brom,4855,Peter,0,0,0,5,0,0,0,22 Sep 15:00,0,0,69,0,Forward,0,0
+0,-7426,Odemwingie,0,0,AVL(A) 1-1,West Brom,4856,Peter,0,0,0,6,0,0,0,30 Sep 16:00,0,0,69,0,Forward,0,0
+0,-1824,Odemwingie,1,0,QPR(H) 3-2,West Brom,4857,Peter,0,61,11,7,0,0,0,06 Oct 15:00,0,0,69,2,Forward,0,0
+0,-1548,Odemwingie,2,0,MCI(H) 1-2,West Brom,4858,Peter,0,28,-3,8,0,0,1,20 Oct 15:00,0,0,69,4,Forward,0,0
+0,-663,Odemwingie,2,0,NEW(A) 1-2,West Brom,4859,Peter,0,90,3,9,0,0,0,28 Oct 15:00,0,0,69,2,Forward,0,0
+0,493,Odemwingie,0,0,SOU(H) 2-0,West Brom,48510,Peter,0,82,33,10,3,1,0,05 Nov 20:00,0,0,69,13,Forward,0,2
+0,9966,Odemwingie,0,0,WIG(A) 2-1,West Brom,48511,Peter,0,23,4,11,0,0,0,10 Nov 15:00,0,0,69,1,Forward,0,0
+0,-3762,Odemwingie,1,0,CHE(H) 2-1,West Brom,48512,Peter,0,90,34,12,2,0,0,17 Nov 15:00,0,0,69,8,Forward,0,1
+0,3432,Odemwingie,0,0,SUN(A) 4-2,West Brom,48513,Peter,0,68,14,13,0,1,1,24 Nov 12:45,0,0,69,5,Forward,0,0
+0,2466,Odemwingie,3,0,SWA(A) 1-3,West Brom,48514,Peter,0,90,-6,14,0,0,0,28 Nov 19:45,0,0,69,2,Forward,0,0
+0,3477,Odemwingie,1,0,STK(H) 0-1,West Brom,48515,Peter,0,27,9,15,0,0,0,01 Dec 15:00,0,0,69,1,Forward,0,0
+0,-3087,Odemwingie,1,0,ARS(A) 0-2,West Brom,48516,Peter,0,61,3,16,0,0,0,08 Dec 15:00,0,0,69,2,Forward,0,0
+0,-1507,Odemwingie,0,0,WHU(H) 0-0,West Brom,48517,Peter,0,90,11,17,0,1,0,16 Dec 16:00,0,0,69,2,Forward,0,0
+0,-1356,Odemwingie,1,0,NOR(H) 2-1,West Brom,48518,Peter,0,90,16,18,0,0,0,22 Dec 15:00,0,0,69,2,Forward,0,0
+0,-1249,Odemwingie,0,0,QPR(A) 2-1,West Brom,48519,Peter,0,0,0,19,0,0,0,26 Dec 15:00,0,0,69,0,Forward,0,0
+0,-3662,Odemwingie,2,0,MUN(A) 0-2,West Brom,48520,Peter,0,90,-15,20,0,0,0,29 Dec 15:00,0,0,69,2,Forward,0,0
+0,-738,Odemwingie,0,0,FUL(H) 1-2,West Brom,48521,Peter,0,26,1,21,0,0,0,01 Jan 12:45,0,0,69,1,Forward,0,0
+0,-3981,Odemwingie,0,0,RDG(A) 2-3,West Brom,48522,Peter,0,0,0,22,0,0,0,12 Jan 15:00,0,0,69,0,Forward,0,0
+0,-1987,Odemwingie,2,0,AVL(H) 2-2,West Brom,48523,Peter,0,90,9,23,0,0,0,19 Jan 17:30,0,0,69,6,Forward,0,1
+0,-866,Odemwingie,0,0,EVE(A) 1-2,West Brom,48524,Peter,0,0,0,24,0,0,0,30 Jan 19:45,0,0,69,0,Forward,0,0
+0,-1476,Odemwingie,0,0,TOT(H) 0-1,West Brom,48525,Peter,0,0,0,25,0,0,0,03 Feb 13:30,0,0,69,0,Forward,0,0
+0,-1045,Odemwingie,0,0,LIV(A) 2-0,West Brom,48526,Peter,0,0,0,26,0,0,0,11 Feb 20:00,0,0,69,0,Forward,0,0
+0,-367,Odemwingie,0,0,SUN(H) 2-1,West Brom,48527,Peter,0,4,-3,27,0,0,0,23 Feb 15:00,0,0,69,1,Forward,0,0
+1,-184,Odemwingie,0,0,CHE(A) 0-1,West Brom,48528,Peter,0,29,10,28,0,0,0,02 Mar 15:00,0,0,69,0,Forward,0,0
+0,45,Odemwingie,0,0,SWA(H) 2-1,West Brom,48529,Peter,0,11,-1,29,0,0,0,09 Mar 15:00,0,0,69,1,Forward,0,0
+0,-299,Odemwingie,0,0,STK(A) 0-0,West Brom,48530,Peter,0,24,13,30,2,0,0,16 Mar 15:00,0,0,69,3,Forward,0,0
+0,-204,Odemwingie,1,0,WHU(A) 1-3,West Brom,48531,Peter,0,20,-3,31,0,0,0,30 Mar 15:00,0,0,69,1,Forward,0,0
+0,-111,Odemwingie,0,0,ARS(H) 1-2,West Brom,48532,Peter,0,0,0,32,0,0,0,06 Apr 15:00,0,0,69,0,Forward,0,0
+0,-127,Odemwingie,0,0,NEW(H) 1-1,West Brom,48534,Peter,0,0,0,34,0,0,0,20 Apr 15:00,0,0,69,0,Forward,0,0
+0,-90,Odemwingie,0,0,SOU(A) 3-0,West Brom,48535,Peter,0,0,0,35,0,0,0,27 Apr 15:00,0,0,69,0,Forward,0,0
+0,-18,Odemwingie,0,0,MCI(A) 0-1,West Brom,48536,Peter,0,15,-8,36,0,0,0,07 May 19:45,0,0,69,1,Forward,0,0
+0,-39,Odemwingie,1,0,NOR(A) 0-4,West Brom,48537,Peter,0,11,0,37,0,0,0,12 May 15:00,0,0,69,1,Forward,0,0
+0,-12,Odemwingie,0,0,MUN(H) 5-5,West Brom,48538,Peter,0,0,0,38,0,0,0,19 May 16:00,0,0,69,0,Forward,0,0
+0,0,Gazzaniga,0,0,MCI(A) 2-3,Southampton,5341,Paulo,0,0,0,1,0,0,0,19 Aug 16:00,0,0,40,0,Goalkeeper,0,0
+0,-499,Gazzaniga,0,0,WIG(H) 0-2,Southampton,5342,Paulo,0,0,0,2,0,0,0,25 Aug 15:00,0,0,40,0,Goalkeeper,0,0
+0,-1140,Gazzaniga,0,0,MUN(H) 2-3,Southampton,5343,Paulo,0,0,0,3,0,0,0,02 Sep 16:00,0,0,40,0,Goalkeeper,0,0
+0,-818,Gazzaniga,0,0,ARS(A) 1-6,Southampton,5344,Paulo,0,0,0,4,0,0,0,15 Sep 15:00,0,0,40,0,Goalkeeper,0,0
+0,-1070,Gazzaniga,1,1,AVL(H) 4-1,Southampton,5345,Paulo,0,90,15,5,0,0,0,22 Sep 15:00,0,0,40,2,Goalkeeper,0,0
+0,1298,Gazzaniga,3,5,EVE(A) 1-3,Southampton,5346,Paulo,0,90,6,6,0,0,0,29 Sep 15:00,0,0,40,2,Goalkeeper,0,0
+0,2473,Gazzaniga,2,3,FUL(H) 2-2,Southampton,5347,Paulo,0,90,8,7,0,0,0,07 Oct 13:30,0,0,40,2,Goalkeeper,0,0
+0,2748,Gazzaniga,0,0,WHU(A) 1-4,Southampton,5348,Paulo,0,0,0,8,0,0,0,20 Oct 15:00,0,0,40,0,Goalkeeper,0,0
+0,330,Gazzaniga,0,0,TOT(H) 1-2,Southampton,5349,Paulo,0,0,0,9,0,0,0,28 Oct 15:00,0,0,40,0,Goalkeeper,0,0
+0,94,Gazzaniga,2,1,WBA(A) 0-2,Southampton,53410,Paulo,0,90,5,10,0,0,0,05 Nov 20:00,0,0,40,1,Goalkeeper,0,0
+0,1160,Gazzaniga,1,2,SWA(H) 1-1,Southampton,53411,Paulo,0,90,7,11,0,0,0,10 Nov 15:00,0,0,40,2,Goalkeeper,0,0
+0,2686,Gazzaniga,1,4,QPR(A) 3-1,Southampton,53412,Paulo,0,90,15,12,0,0,0,17 Nov 15:00,0,0,40,3,Goalkeeper,0,0
+0,3160,Gazzaniga,0,3,NEW(H) 2-0,Southampton,53413,Paulo,0,90,20,13,0,1,0,25 Nov 15:00,0,0,40,7,Goalkeeper,0,0
+0,3596,Gazzaniga,1,4,NOR(H) 1-1,Southampton,53414,Paulo,0,90,8,14,0,0,0,28 Nov 19:45,0,0,40,3,Goalkeeper,0,0
+0,4396,Gazzaniga,1,8,LIV(A) 0-1,Southampton,53415,Paulo,0,90,8,15,0,0,0,01 Dec 15:00,0,0,40,4,Goalkeeper,0,0
+0,5580,Gazzaniga,0,0,RDG(H) 1-0,Southampton,53416,Paulo,0,0,0,16,0,0,0,08 Dec 15:00,0,0,40,0,Goalkeeper,0,0
+0,557,Gazzaniga,0,0,SUN(H) 0-1,Southampton,53418,Paulo,0,0,0,18,0,0,0,22 Dec 15:00,0,0,40,0,Goalkeeper,0,0
+0,577,Gazzaniga,0,0,FUL(A) 1-1,Southampton,53419,Paulo,0,0,0,19,0,0,0,26 Dec 15:00,0,0,40,0,Goalkeeper,0,0
+0,906,Gazzaniga,0,0,STK(A) 3-3,Southampton,53420,Paulo,0,0,0,20,0,0,0,29 Dec 15:00,0,0,40,0,Goalkeeper,0,0
+0,344,Gazzaniga,0,0,ARS(H) 1-1,Southampton,53421,Paulo,0,0,0,21,0,0,0,01 Jan 17:30,0,0,40,0,Goalkeeper,0,0
+0,1424,Gazzaniga,0,0,CHE(A) 2-2,Southampton,53422,Paulo,0,0,0,22,0,0,0,16 Jan 19:45,0,0,40,0,Goalkeeper,0,0
+0,597,Gazzaniga,0,0,EVE(H) 0-0,Southampton,53423,Paulo,0,0,0,23,0,0,0,21 Jan 20:00,0,0,40,0,Goalkeeper,0,0
+0,1253,Gazzaniga,0,0,MUN(A) 1-2,Southampton,53424,Paulo,0,0,0,24,0,0,0,30 Jan 20:00,0,0,40,0,Goalkeeper,0,0
+0,314,Gazzaniga,0,0,WIG(A) 2-2,Southampton,53425,Paulo,0,0,0,25,0,0,0,02 Feb 15:00,0,0,40,0,Goalkeeper,0,0
+0,625,Gazzaniga,0,0,MCI(H) 3-1,Southampton,53426,Paulo,0,0,0,26,0,0,0,09 Feb 17:30,0,0,40,0,Goalkeeper,0,0
+0,818,Gazzaniga,0,0,NEW(A) 2-4,Southampton,53427,Paulo,0,0,0,27,0,0,0,24 Feb 13:30,0,0,40,0,Goalkeeper,0,0
+0,190,Gazzaniga,0,0,QPR(H) 1-2,Southampton,53428,Paulo,0,0,0,28,0,0,0,02 Mar 15:00,0,0,40,0,Goalkeeper,0,0
+0,-1425,Gazzaniga,0,0,NOR(A) 0-0,Southampton,53429,Paulo,0,0,0,29,0,0,0,09 Mar 15:00,0,0,40,0,Goalkeeper,0,0
+0,-509,Gazzaniga,0,0,LIV(H) 3-1,Southampton,53430,Paulo,0,0,0,30,0,0,0,16 Mar 15:00,0,0,40,0,Goalkeeper,0,0
+0,-470,Gazzaniga,0,0,CHE(H) 2-1,Southampton,53431,Paulo,0,0,0,31,0,0,0,30 Mar 15:00,0,0,40,0,Goalkeeper,0,0
+0,-355,Gazzaniga,0,0,RDG(A) 2-0,Southampton,53432,Paulo,0,0,0,32,0,0,0,06 Apr 12:45,0,0,40,0,Goalkeeper,0,0
+0,-466,Gazzaniga,0,0,WHU(H) 1-1,Southampton,53433,Paulo,0,0,0,33,0,0,0,13 Apr 15:00,0,0,40,0,Goalkeeper,0,0
+0,-340,Gazzaniga,0,0,SWA(A) 0-0,Southampton,53434,Paulo,0,0,0,34,0,0,0,20 Apr 15:00,0,0,40,0,Goalkeeper,0,0
+0,-307,Gazzaniga,0,0,WBA(H) 0-3,Southampton,53435,Paulo,0,0,0,35,0,0,0,27 Apr 15:00,0,0,40,0,Goalkeeper,0,0
+0,-260,Gazzaniga,0,0,TOT(A) 0-1,Southampton,53436,Paulo,0,0,0,36,0,0,0,04 May 15:00,0,0,40,0,Goalkeeper,0,0
+0,-185,Gazzaniga,0,0,SUN(A) 1-1,Southampton,53437,Paulo,0,0,0,37,0,0,0,12 May 15:00,0,0,40,0,Goalkeeper,0,0
+0,-78,Gazzaniga,0,0,STK(H) 1-1,Southampton,53438,Paulo,0,0,0,38,0,0,0,19 May 16:00,0,0,40,0,Goalkeeper,0,0
+0,1486,Hernandez,1,0,AVL(A) 0-2,Swansea,5924,Pablo,0,34,3,4,0,0,0,15 Sep 15:00,0,0,65,1,Midfielder,0,0
+0,55,Hernandez,2,0,EVE(H) 0-3,Swansea,5925,Pablo,0,45,-6,5,0,0,0,22 Sep 12:45,0,0,65,1,Midfielder,0,0
+0,-532,Hernandez,2,0,STK(A) 0-2,Swansea,5926,Pablo,0,62,0,6,0,0,0,29 Sep 15:00,0,0,63,2,Midfielder,0,0
+0,-147,Hernandez,0,0,RDG(H) 2-2,Swansea,5927,Pablo,0,29,-5,7,0,0,0,06 Oct 15:00,0,0,63,1,Midfielder,0,0
+0,-183,Hernandez,1,0,WIG(H) 2-1,Swansea,5928,Pablo,0,71,28,8,2,0,0,20 Oct 15:00,0,0,61,9,Midfielder,0,1
+0,259,Hernandez,1,0,MCI(A) 0-1,Swansea,5929,Pablo,0,76,3,9,0,0,0,27 Oct 17:30,0,0,61,2,Midfielder,0,0
+0,196,Hernandez,1,0,CHE(H) 1-1,Swansea,59210,Pablo,0,90,22,10,2,0,0,03 Nov 15:00,0,0,61,9,Midfielder,0,1
+0,11125,Hernandez,1,0,SOU(A) 1-1,Swansea,59211,Pablo,0,90,15,11,0,0,0,10 Nov 15:00,0,0,61,2,Midfielder,0,0
+0,-1258,Hernandez,1,0,NEW(A) 2-1,Swansea,59212,Pablo,0,90,36,12,3,0,1,17 Nov 15:00,0,0,61,8,Midfielder,0,0
+0,4735,Hernandez,0,0,LIV(H) 0-0,Swansea,59213,Pablo,0,90,6,13,0,1,0,25 Nov 13:30,0,0,61,3,Midfielder,0,0
+0,3741,Hernandez,1,0,WBA(H) 3-1,Swansea,59214,Pablo,0,73,27,14,0,0,2,28 Nov 19:45,0,0,61,8,Midfielder,0,0
+0,4148,Hernandez,0,0,ARS(A) 2-0,Swansea,59215,Pablo,0,0,0,15,0,0,0,01 Dec 15:00,0,0,61,0,Midfielder,0,0
+0,-5737,Hernandez,0,0,NOR(H) 3-4,Swansea,59216,Pablo,0,0,0,16,0,0,0,08 Dec 15:00,0,0,61,0,Midfielder,0,0
+0,-5095,Hernandez,0,0,TOT(A) 0-1,Swansea,59217,Pablo,0,0,0,17,0,0,0,16 Dec 13:30,0,0,61,0,Midfielder,0,0
+0,-3617,Hernandez,0,0,MUN(H) 1-1,Swansea,59218,Pablo,0,0,0,18,0,0,0,23 Dec 13:30,0,0,60,0,Midfielder,0,0
+0,-1047,Hernandez,0,0,RDG(A) 0-0,Swansea,59219,Pablo,0,0,0,19,0,0,0,26 Dec 15:00,0,0,59,0,Midfielder,0,0
+0,-578,Hernandez,1,0,FUL(A) 2-1,Swansea,59220,Pablo,0,65,18,20,0,0,1,29 Dec 15:00,0,0,59,5,Midfielder,0,0
+0,2597,Hernandez,2,0,AVL(H) 2-2,Swansea,59221,Pablo,0,90,10,21,0,0,1,01 Jan 15:00,0,0,59,5,Midfielder,0,0
+1,-322,Hernandez,0,0,EVE(A) 0-0,Swansea,59222,Pablo,0,72,10,22,0,1,0,12 Jan 15:00,0,0,59,2,Midfielder,0,0
+0,-988,Hernandez,0,0,STK(H) 3-1,Swansea,59223,Pablo,0,62,8,23,0,1,0,19 Jan 15:00,0,0,59,3,Midfielder,0,0
+0,-1190,Hernandez,0,0,SUN(A) 0-0,Swansea,59224,Pablo,0,65,7,24,0,1,0,29 Jan 19:45,0,0,59,3,Midfielder,0,0
+0,-805,Hernandez,1,0,WHU(A) 0-1,Swansea,59225,Pablo,0,90,9,25,0,0,0,02 Feb 15:00,0,0,59,2,Midfielder,0,0
+1,1153,Hernandez,5,0,LIV(A) 0-5,Swansea,59226,Pablo,0,75,2,26,0,0,0,17 Feb 15:00,0,0,59,1,Midfielder,0,0
+0,579,Hernandez,0,0,NEW(H) 1-0,Swansea,59228,Pablo,0,87,17,28,0,1,0,02 Mar 15:00,0,0,59,3,Midfielder,0,0
+0,1021,Hernandez,2,0,WBA(A) 1-2,Swansea,59229,Pablo,0,67,3,29,0,0,0,09 Mar 15:00,0,0,59,2,Midfielder,0,0
+0,-552,Hernandez,2,0,ARS(H) 0-2,Swansea,59230,Pablo,0,90,1,30,0,0,0,16 Mar 15:00,0,0,59,2,Midfielder,0,0
+0,-279,Hernandez,2,0,TOT(H) 1-2,Swansea,59231,Pablo,0,78,6,31,0,0,0,30 Mar 15:00,0,0,59,2,Midfielder,0,0
+0,-259,Hernandez,0,0,NOR(A) 2-2,Swansea,59232,Pablo,0,27,7,32,0,0,0,06 Apr 15:00,0,0,59,1,Midfielder,0,0
+0,-66,Hernandez,0,0,SOU(H) 0-0,Swansea,59234,Pablo,0,60,10,34,0,1,0,20 Apr 15:00,0,0,59,3,Midfielder,0,0
+0,-292,Hernandez,2,0,CHE(A) 0-2,Swansea,59235,Pablo,0,90,-2,35,0,0,0,28 Apr 15:00,0,0,59,2,Midfielder,0,0
+0,365,Hernandez,2,0,WIG(A) 3-2,Swansea,59236,Pablo,0,76,27,36,2,0,2,07 May 19:45,0,0,59,10,Midfielder,0,0
+0,541,Hernandez,1,0,MUN(A) 1-2,Swansea,59237,Pablo,0,86,9,37,0,0,0,12 May 16:00,0,0,59,2,Midfielder,0,0
+1,988,Hernandez,1,0,FUL(H) 0-3,Swansea,59238,Pablo,0,73,1,38,0,0,0,19 May 16:00,0,0,59,1,Midfielder,0,0
+0,0,Gulacsi,0,0,RDG(H) 1-0,Liverpool,6138,Peter,0,0,0,8,0,0,0,20 Oct 15:00,0,0,40,0,Goalkeeper,0,0
+0,233,Gulacsi,0,0,EVE(A) 2-2,Liverpool,6139,Peter,0,0,0,9,0,0,0,28 Oct 13:30,0,0,40,0,Goalkeeper,0,0
+0,126,Gulacsi,0,0,NEW(H) 1-1,Liverpool,61310,Peter,0,0,0,10,0,0,0,04 Nov 16:00,0,0,40,0,Goalkeeper,0,0
+0,81,Gulacsi,0,0,CHE(A) 1-1,Liverpool,61311,Peter,0,0,0,11,0,0,0,11 Nov 16:00,0,0,40,0,Goalkeeper,0,0
+0,50,Gulacsi,0,0,WIG(H) 3-0,Liverpool,61312,Peter,0,0,0,12,0,0,0,17 Nov 15:00,0,0,40,0,Goalkeeper,0,0
+0,67,Gulacsi,0,0,SWA(A) 0-0,Liverpool,61313,Peter,0,0,0,13,0,0,0,25 Nov 13:30,0,0,40,0,Goalkeeper,0,0
+0,20,Gulacsi,0,0,TOT(A) 1-2,Liverpool,61314,Peter,0,0,0,14,0,0,0,28 Nov 19:45,0,0,40,0,Goalkeeper,0,0
+0,19,Gulacsi,0,0,SOU(H) 1-0,Liverpool,61315,Peter,0,0,0,15,0,0,0,01 Dec 15:00,0,0,40,0,Goalkeeper,0,0
+0,30,Gulacsi,0,0,WHU(A) 3-2,Liverpool,61316,Peter,0,0,0,16,0,0,0,09 Dec 16:00,0,0,40,0,Goalkeeper,0,0
+0,33,Gulacsi,0,0,AVL(H) 1-3,Liverpool,61317,Peter,0,0,0,17,0,0,0,15 Dec 15:00,0,0,40,0,Goalkeeper,0,0
+0,26,Gulacsi,0,0,FUL(H) 4-0,Liverpool,61318,Peter,0,0,0,18,0,0,0,22 Dec 17:30,0,0,40,0,Goalkeeper,0,0
+0,13,Gulacsi,0,0,STK(A) 1-3,Liverpool,61319,Peter,0,0,0,19,0,0,0,26 Dec 19:45,0,0,40,0,Goalkeeper,0,0
+0,19,Gulacsi,0,0,QPR(A) 3-0,Liverpool,61320,Peter,0,0,0,20,0,0,0,30 Dec 16:00,0,0,40,0,Goalkeeper,0,0
+0,21,Gulacsi,0,0,SUN(H) 3-0,Liverpool,61321,Peter,0,0,0,21,0,0,0,02 Jan 19:45,0,0,40,0,Goalkeeper,0,0
+0,81,Gulacsi,0,0,MUN(A) 1-2,Liverpool,61322,Peter,0,0,0,22,0,0,0,13 Jan 13:30,0,0,40,0,Goalkeeper,0,0
+0,51,Gulacsi,0,0,NOR(H) 5-0,Liverpool,61323,Peter,0,0,0,23,0,0,0,19 Jan 15:00,0,0,40,0,Goalkeeper,0,0
+0,22,Gulacsi,0,0,ARS(A) 2-2,Liverpool,61324,Peter,0,0,0,24,0,0,0,30 Jan 19:45,0,0,40,0,Goalkeeper,0,0
+0,19,Gulacsi,0,0,MCI(A) 2-2,Liverpool,61325,Peter,0,0,0,25,0,0,0,03 Feb 16:00,0,0,40,0,Goalkeeper,0,0
+0,-9,Gulacsi,0,0,SWA(H) 5-0,Liverpool,61326,Peter,0,0,0,26,0,0,0,17 Feb 15:00,0,0,40,0,Goalkeeper,0,0
+0,11,Gulacsi,0,0,WIG(A) 4-0,Liverpool,61328,Peter,0,0,0,28,0,0,0,02 Mar 17:30,0,0,40,0,Goalkeeper,0,0
+0,-15,Gulacsi,0,0,TOT(H) 3-2,Liverpool,61329,Peter,0,0,0,29,0,0,0,10 Mar 16:00,0,0,40,0,Goalkeeper,0,0
+0,-9,Gulacsi,0,0,SOU(A) 1-3,Liverpool,61330,Peter,0,0,0,30,0,0,0,16 Mar 15:00,0,0,40,0,Goalkeeper,0,0
+0,-2,Gulacsi,0,0,AVL(A) 2-1,Liverpool,61331,Peter,0,0,0,31,0,0,0,31 Mar 13:30,0,0,40,0,Goalkeeper,0,0
+0,0,Gulacsi,0,0,WHU(H) 0-0,Liverpool,61332,Peter,0,0,0,32,0,0,0,07 Apr 13:30,0,0,40,0,Goalkeeper,0,0
+0,-1,Gulacsi,0,0,RDG(A) 0-0,Liverpool,61333,Peter,0,0,0,33,0,0,0,13 Apr 15:00,0,0,40,0,Goalkeeper,0,0
+0,-3,Gulacsi,0,0,CHE(H) 2-2,Liverpool,61334,Peter,0,0,0,34,0,0,0,21 Apr 16:00,0,0,40,0,Goalkeeper,0,0
+0,-5,Gulacsi,0,0,NEW(A) 6-0,Liverpool,61335,Peter,0,0,0,35,0,0,0,27 Apr 17:30,0,0,40,0,Goalkeeper,0,0
+0,3,Gulacsi,0,0,EVE(H) 0-0,Liverpool,61336,Peter,0,0,0,36,0,0,0,05 May 13:30,0,0,40,0,Goalkeeper,0,0
+0,-5,Gulacsi,0,0,FUL(A) 3-1,Liverpool,61337,Peter,0,0,0,37,0,0,0,12 May 15:00,0,0,40,0,Goalkeeper,0,0
+0,2,Gulacsi,0,0,QPR(H) 1-0,Liverpool,61338,Peter,0,0,0,38,0,0,0,19 May 16:00,0,0,40,0,Goalkeeper,0,0
+0,874,Coutinho,0,0,MCI(A) 2-2,Liverpool,67525,Phillippe,0,0,0,25,0,0,0,03 Feb 16:00,0,0,65,0,Midfielder,0,0
+0,1639,Coutinho,0,0,SWA(H) 5-0,Liverpool,67526,Phillippe,0,59,11,26,0,0,0,17 Feb 15:00,0,0,65,6,Midfielder,0,1
+0,4212,Coutinho,0,0,WIG(A) 4-0,Liverpool,67528,Phillippe,0,69,26,28,1,1,2,02 Mar 17:30,0,0,65,10,Midfielder,0,0
+0,52954,Coutinho,2,0,TOT(H) 3-2,Liverpool,67529,Phillippe,0,58,0,29,0,0,0,10 Mar 16:00,0,0,66,1,Midfielder,0,0
+0,9457,Coutinho,3,0,SOU(A) 1-3,Liverpool,67530,Phillippe,0,90,31,30,1,0,0,16 Mar 15:00,0,0,67,8,Midfielder,0,1
+0,37932,Coutinho,1,0,AVL(A) 2-1,Liverpool,67531,Phillippe,0,76,11,31,0,0,1,31 Mar 13:30,0,0,68,5,Midfielder,0,0
+0,27530,Coutinho,0,0,WHU(H) 0-0,Liverpool,67532,Phillippe,0,90,8,32,0,1,0,07 Apr 13:30,0,0,69,3,Midfielder,0,0
+0,-1907,Coutinho,0,0,RDG(A) 0-0,Liverpool,67533,Phillippe,0,90,-3,33,0,1,0,13 Apr 15:00,0,0,70,3,Midfielder,0,0
+0,-4479,Coutinho,1,0,CHE(H) 2-2,Liverpool,67534,Phillippe,0,45,-1,34,0,0,0,21 Apr 16:00,0,0,70,1,Midfielder,0,0
+0,-19350,Coutinho,0,0,NEW(A) 6-0,Liverpool,67535,Phillippe,0,83,33,35,1,1,2,27 Apr 17:30,0,0,67,10,Midfielder,0,0
+0,6568,Coutinho,0,0,EVE(H) 0-0,Liverpool,67536,Phillippe,0,90,5,36,0,1,0,05 May 13:30,0,0,67,3,Midfielder,0,0
+0,37389,Coutinho,1,0,FUL(A) 3-1,Liverpool,67537,Phillippe,0,87,24,37,1,0,2,12 May 15:00,0,0,68,9,Midfielder,0,0
+0,59999,Coutinho,0,0,QPR(H) 1-0,Liverpool,67538,Phillippe,0,73,22,38,2,1,0,19 May 16:00,0,0,71,10,Midfielder,0,1

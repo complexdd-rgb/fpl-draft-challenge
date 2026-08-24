@@ -1,0 +1,132 @@
+﻿yellow_cards,net_transfers,last_name,goals_conceded,saves,result,team_name_1,index,first_name,own_goals,minutes_played,EA_Spots_PPI,week,bonus,clean_sheets,assists,date,penalties_saved,penalties missed,value,points,position,red_cards,goals_scored
+0,-351,Anderson,0,0,WOL(A) 5-0,Man Utd,22129,Oliveira,0,0,0,29,0,0,0,18 March 13:30,0,0,57,0,Midfielder,0,0
+0,1759,Romeu,1,0,AVL(H) 1-3,Chelsea,50119,Oriol,0,56,6,19,0,0,0,31 Dec. 15:00,0,0,46,1,Midfielder,0,0
+0,-456,Romeu,0,0,MCI(A) 1-2,Chelsea,50129,Oriol,0,0,0,29,0,0,0,21 March 19:45,0,0,46,0,Midfielder,0,0
+0,5,Ozyakup,0,0,QPR(H) 1-0,Arsenal,54619,Oguzhan,0,0,0,19,0,0,0,31 Dec. 15:00,0,0,55,0,Midfielder,0,0
+0,-1,Ozyakup,0,0,EVE(A) 1-0,Arsenal,54629,Oguzhan,0,0,0,29,0,0,0,21 March 20:00,0,0,55,0,Midfielder,0,0
+0,0,Giroud,0,0,SUN(H) 0-0,Arsenal,321,Olivier,0,27,-6,1,0,0,0,18 Aug 15:00,0,0,90,1,Forward,0,0
+0,-3552,Giroud,0,0,STK(A) 0-0,Arsenal,322,Olivier,0,90,1,2,0,1,0,26 Aug 13:30,0,0,90,2,Forward,0,0
+0,-5519,Giroud,0,0,LIV(A) 2-0,Arsenal,323,Olivier,0,90,4,3,0,1,0,02 Sep 13:30,0,0,89,2,Forward,0,0
+0,-3372,Giroud,0,0,SOU(H) 6-1,Arsenal,324,Olivier,0,17,2,4,0,0,0,15 Sep 15:00,0,0,88,1,Forward,0,0
+0,-8505,Giroud,0,0,MCI(A) 1-1,Arsenal,325,Olivier,0,20,2,5,0,0,0,23 Sep 16:00,0,0,86,1,Forward,0,0
+0,-3210,Giroud,0,0,CHE(H) 1-2,Arsenal,326,Olivier,0,24,0,6,0,0,0,29 Sep 12:45,0,0,85,1,Forward,0,0
+0,-2021,Giroud,1,0,WHU(A) 3-1,Arsenal,327,Olivier,0,90,41,7,3,0,1,06 Oct 17:30,0,0,84,12,Forward,0,1
+0,12818,Giroud,1,0,NOR(A) 0-1,Arsenal,328,Olivier,0,90,6,8,0,0,0,20 Oct 17:30,0,0,84,2,Forward,0,0
+1,-531,Giroud,0,0,QPR(H) 1-0,Arsenal,329,Olivier,0,90,16,9,0,1,0,27 Oct 15:00,0,0,84,1,Forward,0,0
+0,-5328,Giroud,2,0,MUN(A) 1-2,Arsenal,3210,Olivier,0,90,-6,10,0,0,0,03 Nov 12:45,0,0,84,2,Forward,0,0
+0,9367,Giroud,2,0,TOT(H) 5-2,Arsenal,3212,Olivier,0,85,33,12,0,0,0,17 Nov 12:45,0,0,84,6,Forward,0,1
+0,22055,Giroud,0,0,AVL(A) 0-0,Arsenal,3213,Olivier,0,85,11,13,0,1,0,24 Nov 17:30,0,0,84,2,Forward,0,0
+0,-1879,Giroud,0,0,NEW(H) 7-3,Arsenal,3220,Olivier,0,17,33,20,0,0,0,29 Dec 17:30,0,0,78,9,Forward,0,2
+0,-5281,Giroud,0,0,MCI(H) 0-2,Arsenal,3222,Olivier,0,34,1,22,0,0,0,13 Jan 16:00,0,0,78,1,Forward,0,0
+0,13458,Giroud,1,0,WHU(H) 5-1,Arsenal,3223,Olivier,0,72,45,23,3,0,0,23 Jan 19:45,0,0,78,13,Forward,0,2
+0,-3840,Giroud,0,0,SWA(A) 2-0,Arsenal,3230,Olivier,0,90,17,30,0,1,1,16 Mar 15:00,0,0,75,5,Forward,0,0
+0,9855,Giroud,1,0,WBA(A) 2-1,Arsenal,3232,Olivier,0,90,5,32,0,0,0,06 Apr 15:00,0,0,76,2,Forward,0,0
+0,43935,Giroud,0,0,EVE(H) 0-0,Arsenal,3233,Olivier,0,90,-5,33,0,1,0,16 Apr 19:45,0,0,77,2,Forward,0,0
+0,0,Romeu,0,0,RDG(H) 4-2,Chelsea,821,Oriol,0,0,0,1,0,0,0,22 Aug 19:45,0,0,45,0,Midfielder,0,0
+0,-828,Romeu,0,0,NEW(H) 2-0,Chelsea,822,Oriol,0,0,0,2,0,0,0,25 Aug 17:30,0,0,45,0,Midfielder,0,0
+0,-59,Romeu,0,0,QPR(A) 0-0,Chelsea,824,Oriol,0,0,0,4,0,0,0,15 Sep 15:00,0,0,43,0,Midfielder,0,0
+0,6,Romeu,0,0,STK(H) 1-0,Chelsea,825,Oriol,0,0,0,5,0,0,0,22 Sep 15:00,0,0,43,0,Midfielder,0,0
+0,-36,Romeu,0,0,ARS(A) 2-1,Chelsea,826,Oriol,0,0,0,6,0,0,0,29 Sep 12:45,0,0,43,0,Midfielder,0,0
+0,-67,Romeu,0,0,NOR(H) 4-1,Chelsea,827,Oriol,0,9,-8,7,0,0,0,06 Oct 15:00,0,0,43,1,Midfielder,0,0
+0,-66,Romeu,0,0,TOT(A) 4-2,Chelsea,828,Oriol,0,0,0,8,0,0,0,20 Oct 12:45,0,0,43,0,Midfielder,0,0
+0,-150,Romeu,0,0,MUN(H) 2-3,Chelsea,829,Oriol,0,0,0,9,0,0,0,28 Oct 16:00,0,0,43,0,Midfielder,0,0
+0,-79,Romeu,0,0,SWA(A) 1-1,Chelsea,8210,Oriol,0,45,4,10,0,0,0,03 Nov 15:00,0,0,43,1,Midfielder,0,0
+0,2,Romeu,0,0,LIV(H) 1-1,Chelsea,8211,Oriol,0,0,0,11,0,0,0,11 Nov 16:00,0,0,43,0,Midfielder,0,0
+0,213,Romeu,2,0,WBA(A) 1-2,Chelsea,8212,Oriol,0,61,-2,12,0,0,0,17 Nov 15:00,0,0,42,2,Midfielder,0,0
+0,927,Romeu,0,0,MCI(H) 0-0,Chelsea,8213,Oriol,0,12,1,13,0,0,0,25 Nov 16:00,0,0,42,1,Midfielder,0,0
+1,366,Romeu,0,0,FUL(H) 0-0,Chelsea,8214,Oriol,0,90,14,14,0,1,0,28 Nov 19:45,0,0,42,2,Midfielder,0,0
+0,1187,Romeu,0,0,WHU(A) 1-3,Chelsea,8215,Oriol,0,0,0,15,0,0,0,01 Dec 12:45,0,0,42,0,Midfielder,0,0
+0,-46,Romeu,0,0,SUN(A) 3-1,Chelsea,8216,Oriol,0,19,4,16,0,0,0,08 Dec 15:00,0,0,42,1,Midfielder,0,0
+0,-709,Romeu,0,0,AVL(H) 8-0,Chelsea,8218,Oriol,0,0,0,18,0,0,0,23 Dec 16:00,0,0,42,0,Midfielder,0,0
+0,-360,Romeu,0,0,NOR(A) 1-0,Chelsea,8219,Oriol,0,0,0,19,0,0,0,26 Dec 15:00,0,0,42,0,Midfielder,0,0
+0,-377,Romeu,0,0,EVE(A) 2-1,Chelsea,8220,Oriol,0,0,0,20,0,0,0,30 Dec 13:30,0,0,42,0,Midfielder,0,0
+0,-213,Romeu,0,0,QPR(H) 0-1,Chelsea,8221,Oriol,0,0,0,21,0,0,0,02 Jan 19:45,0,0,42,0,Midfielder,0,0
+0,-744,Romeu,0,0,SOU(H) 2-2,Chelsea,8222,Oriol,0,0,0,22,0,0,0,16 Jan 19:45,0,0,42,0,Midfielder,0,0
+0,-258,Romeu,0,0,ARS(H) 2-1,Chelsea,8223,Oriol,0,0,0,23,0,0,0,20 Jan 13:30,0,0,42,0,Midfielder,0,0
+0,-224,Romeu,0,0,RDG(A) 2-2,Chelsea,8224,Oriol,0,0,0,24,0,0,0,30 Jan 20:00,0,0,42,0,Midfielder,0,0
+0,-104,Romeu,0,0,NEW(A) 2-3,Chelsea,8225,Oriol,0,0,0,25,0,0,0,02 Feb 15:00,0,0,42,0,Midfielder,0,0
+0,-74,Romeu,0,0,WIG(H) 4-1,Chelsea,8226,Oriol,0,0,0,26,0,0,0,09 Feb 15:00,0,0,42,0,Midfielder,0,0
+0,-91,Romeu,0,0,MCI(A) 0-2,Chelsea,8227,Oriol,0,0,0,27,0,0,0,24 Feb 13:30,0,0,42,0,Midfielder,0,0
+0,-25,Romeu,0,0,WBA(H) 1-0,Chelsea,8228,Oriol,0,0,0,28,0,0,0,02 Mar 15:00,0,0,41,0,Midfielder,0,0
+0,36,Romeu,0,0,WHU(H) 2-0,Chelsea,8230,Oriol,0,0,0,30,0,0,0,17 Mar 16:00,0,0,41,0,Midfielder,0,0
+0,15,Romeu,0,0,SOU(A) 1-2,Chelsea,8231,Oriol,0,0,0,31,0,0,0,30 Mar 15:00,0,0,41,0,Midfielder,0,0
+0,0,Romeu,0,0,SUN(H) 2-1,Chelsea,8232,Oriol,0,0,0,32,0,0,0,07 Apr 15:00,0,0,41,0,Midfielder,0,0
+0,1,Romeu,0,0,FUL(A) 3-0,Chelsea,8233,Oriol,0,0,0,33,0,0,0,17 Apr 20:00,0,0,41,0,Midfielder,0,0
+0,14,Romeu,0,0,LIV(A) 2-2,Chelsea,8234,Oriol,0,0,0,34,0,0,0,21 Apr 16:00,0,0,41,0,Midfielder,0,0
+0,-16,Romeu,0,0,SWA(H) 2-0,Chelsea,8235,Oriol,0,0,0,35,0,0,0,28 Apr 15:00,0,0,41,0,Midfielder,0,0
+0,-16,Romeu,0,0,TOT(H) 2-2,Chelsea,8236,Oriol,0,0,0,36,0,0,0,08 May 19:45,0,0,41,0,Midfielder,0,0
+0,-5,Romeu,0,0,AVL(A) 2-1,Chelsea,8237,Oriol,0,0,0,37,0,0,0,11 May 12:45,0,0,41,0,Midfielder,0,0
+0,6,Romeu,0,0,EVE(H) 2-1,Chelsea,8238,Oriol,0,0,0,38,0,0,0,19 May 16:00,0,0,41,0,Midfielder,0,0
+0,0,Anderson,0,0,EVE(A) 0-1,Man Utd,2081,Oliveira,0,6,-3,1,0,0,0,20 Aug 20:00,0,0,55,1,Midfielder,0,0
+0,-670,Anderson,2,0,FUL(H) 3-2,Man Utd,2082,Oliveira,0,80,16,2,0,0,0,25 Aug 15:00,0,0,55,2,Midfielder,0,0
+0,-297,Anderson,0,0,SOU(A) 3-2,Man Utd,2083,Oliveira,0,0,0,3,0,0,0,02 Sep 16:00,0,0,55,0,Midfielder,0,0
+0,-828,Anderson,0,0,WIG(H) 4-0,Man Utd,2084,Oliveira,0,0,0,4,0,0,0,15 Sep 15:00,0,0,54,0,Midfielder,0,0
+0,-575,Anderson,0,0,LIV(A) 2-1,Man Utd,2085,Oliveira,0,0,0,5,0,0,0,23 Sep 13:30,0,0,53,0,Midfielder,0,0
+0,-352,Anderson,0,0,TOT(H) 2-3,Man Utd,2086,Oliveira,0,0,0,6,0,0,0,29 Sep 17:30,0,0,52,0,Midfielder,0,0
+0,-211,Anderson,0,0,NEW(A) 3-0,Man Utd,2087,Oliveira,0,0,0,7,0,0,0,07 Oct 16:00,0,0,52,0,Midfielder,0,0
+0,-212,Anderson,0,0,STK(H) 4-2,Man Utd,2088,Oliveira,0,21,13,8,0,0,0,20 Oct 15:00,0,0,51,1,Midfielder,0,0
+0,-128,Anderson,0,0,CHE(A) 3-2,Man Utd,2089,Oliveira,0,0,0,9,0,0,0,28 Oct 16:00,0,0,51,0,Midfielder,0,0
+1,4,Anderson,1,0,ARS(H) 2-1,Man Utd,20810,Oliveira,0,30,1,10,0,0,0,03 Nov 12:45,0,0,51,0,Midfielder,0,0
+0,142,Anderson,0,0,AVL(A) 3-2,Man Utd,20811,Oliveira,0,12,2,11,0,0,0,10 Nov 17:30,0,0,51,1,Midfielder,0,0
+0,-77,Anderson,0,0,NOR(A) 0-1,Man Utd,20812,Oliveira,0,8,4,12,0,0,0,17 Nov 17:30,0,0,51,1,Midfielder,0,0
+0,-21,Anderson,0,0,QPR(H) 3-1,Man Utd,20813,Oliveira,0,32,13,13,0,0,1,24 Nov 15:00,0,0,51,4,Midfielder,0,0
+0,4365,Anderson,0,0,WHU(H) 1-0,Man Utd,20814,Oliveira,0,83,22,14,2,1,0,28 Nov 20:00,0,0,51,5,Midfielder,0,0
+0,1578,Anderson,3,0,RDG(A) 4-3,Man Utd,20815,Oliveira,0,44,27,15,2,0,0,01 Dec 17:30,0,0,51,8,Midfielder,0,1
+0,-3026,Anderson,0,0,MCI(A) 3-2,Man Utd,20816,Oliveira,0,0,0,16,0,0,0,09 Dec 13:30,0,0,51,0,Midfielder,0,0
+0,-1318,Anderson,0,0,SUN(H) 3-1,Man Utd,20817,Oliveira,0,0,0,17,0,0,0,15 Dec 15:00,0,0,51,0,Midfielder,0,0
+0,-769,Anderson,0,0,SWA(A) 1-1,Man Utd,20818,Oliveira,0,0,0,18,0,0,0,23 Dec 13:30,0,0,51,0,Midfielder,0,0
+0,-399,Anderson,0,0,NEW(H) 4-3,Man Utd,20819,Oliveira,0,0,0,19,0,0,0,26 Dec 15:00,0,0,51,0,Midfielder,0,0
+0,-458,Anderson,0,0,WBA(H) 2-0,Man Utd,20820,Oliveira,0,0,0,20,0,0,0,29 Dec 15:00,0,0,51,0,Midfielder,0,0
+0,-244,Anderson,0,0,WIG(A) 4-0,Man Utd,20821,Oliveira,0,0,0,21,0,0,0,01 Jan 15:00,0,0,51,0,Midfielder,0,0
+0,-217,Anderson,0,0,LIV(H) 2-1,Man Utd,20822,Oliveira,0,0,0,22,0,0,0,13 Jan 13:30,0,0,51,0,Midfielder,0,0
+0,27,Anderson,0,0,TOT(A) 1-1,Man Utd,20823,Oliveira,0,0,0,23,0,0,0,20 Jan 16:00,0,0,51,0,Midfielder,0,0
+0,155,Anderson,1,0,SOU(H) 2-1,Man Utd,20824,Oliveira,0,67,16,24,0,0,0,30 Jan 20:00,0,0,51,2,Midfielder,0,0
+0,121,Anderson,0,0,FUL(A) 1-0,Man Utd,20825,Oliveira,0,0,0,25,0,0,0,02 Feb 17:30,0,0,51,0,Midfielder,0,0
+0,-123,Anderson,0,0,EVE(H) 2-0,Man Utd,20826,Oliveira,0,0,0,26,0,0,0,10 Feb 16:00,0,0,51,0,Midfielder,0,0
+0,-30,Anderson,0,0,QPR(A) 2-0,Man Utd,20827,Oliveira,0,0,0,27,0,0,0,23 Feb 15:00,0,0,51,0,Midfielder,0,0
+0,-68,Anderson,0,0,NOR(H) 4-0,Man Utd,20828,Oliveira,0,73,14,28,0,1,0,02 Mar 15:00,0,0,51,3,Midfielder,0,0
+0,56,Anderson,0,0,RDG(H) 1-0,Man Utd,20830,Oliveira,0,84,15,30,0,1,0,16 Mar 17:30,0,0,51,3,Midfielder,0,0
+0,147,Anderson,0,0,SUN(A) 1-0,Man Utd,20831,Oliveira,0,83,15,31,0,1,0,30 Mar 12:45,0,0,51,3,Midfielder,0,0
+0,120,Anderson,0,0,MCI(H) 1-2,Man Utd,20832,Oliveira,0,0,0,32,0,0,0,08 Apr 20:00,0,0,51,0,Midfielder,0,0
+0,258,Anderson,0,0,WHU(A) 2-2,Man Utd,20833,Oliveira,0,0,0,33,0,0,0,17 Apr 19:45,0,0,51,0,Midfielder,0,0
+0,-241,Anderson,0,0,AVL(H) 3-0,Man Utd,20834,Oliveira,0,0,0,34,0,0,0,22 Apr 20:00,0,0,51,0,Midfielder,0,0
+0,-184,Anderson,0,0,ARS(A) 1-1,Man Utd,20835,Oliveira,0,18,2,35,0,0,0,28 Apr 16:00,0,0,51,1,Midfielder,0,0
+0,-110,Anderson,0,0,CHE(H) 0-1,Man Utd,20836,Oliveira,0,68,6,36,0,1,0,05 May 16:00,0,0,51,3,Midfielder,0,0
+0,40,Anderson,0,0,SWA(H) 2-1,Man Utd,20837,Oliveira,0,25,-4,37,0,0,0,12 May 16:00,0,0,51,1,Midfielder,0,0
+0,47,Anderson,5,0,WBA(A) 5-5,Man Utd,20838,Oliveira,0,90,11,38,0,0,0,19 May 16:00,0,0,51,2,Midfielder,0,0
+0,427,Assaidi,0,0,MCI(H) 2-2,Liverpool,5652,Oussama,0,0,0,2,0,0,0,26 Aug 16:00,0,0,65,0,Midfielder,0,0
+0,167,Assaidi,0,0,ARS(H) 0-2,Liverpool,5653,Oussama,0,0,0,3,0,0,0,02 Sep 13:30,0,0,65,0,Midfielder,0,0
+0,-189,Assaidi,0,0,SUN(A) 1-1,Liverpool,5654,Oussama,0,0,0,4,0,0,0,15 Sep 17:30,0,0,65,0,Midfielder,0,0
+0,-136,Assaidi,0,0,MUN(H) 1-2,Liverpool,5655,Oussama,0,0,0,5,0,0,0,23 Sep 13:30,0,0,63,0,Midfielder,0,0
+0,191,Assaidi,2,0,NOR(A) 5-2,Liverpool,5656,Oussama,0,32,2,6,0,0,0,29 Sep 15:00,0,0,63,1,Midfielder,0,0
+0,-185,Assaidi,0,0,STK(H) 0-0,Liverpool,5657,Oussama,0,12,1,7,0,0,0,07 Oct 15:00,0,0,63,1,Midfielder,0,0
+0,-103,Assaidi,0,0,RDG(H) 1-0,Liverpool,5658,Oussama,0,0,0,8,0,0,0,20 Oct 15:00,0,0,62,0,Midfielder,0,0
+0,5,Assaidi,0,0,EVE(A) 2-2,Liverpool,5659,Oussama,0,0,0,9,0,0,0,28 Oct 13:30,0,0,61,0,Midfielder,0,0
+0,-32,Assaidi,0,0,NEW(H) 1-1,Liverpool,56510,Oussama,0,0,0,10,0,0,0,04 Nov 16:00,0,0,61,0,Midfielder,0,0
+0,-70,Assaidi,0,0,CHE(A) 1-1,Liverpool,56511,Oussama,0,0,0,11,0,0,0,11 Nov 16:00,0,0,61,0,Midfielder,0,0
+0,-46,Assaidi,0,0,WIG(H) 3-0,Liverpool,56512,Oussama,0,0,0,12,0,0,0,17 Nov 15:00,0,0,60,0,Midfielder,0,0
+0,-50,Assaidi,0,0,SWA(A) 0-0,Liverpool,56513,Oussama,0,0,0,13,0,0,0,25 Nov 13:30,0,0,59,0,Midfielder,0,0
+0,-24,Assaidi,0,0,TOT(A) 1-2,Liverpool,56514,Oussama,0,13,1,14,0,0,0,28 Nov 19:45,0,0,59,1,Midfielder,0,0
+0,-11,Assaidi,0,0,SOU(H) 1-0,Liverpool,56515,Oussama,0,0,0,15,0,0,0,01 Dec 15:00,0,0,59,0,Midfielder,0,0
+0,-20,Assaidi,0,0,WHU(A) 3-2,Liverpool,56516,Oussama,0,0,0,16,0,0,0,09 Dec 16:00,0,0,58,0,Midfielder,0,0
+0,-26,Assaidi,0,0,AVL(H) 1-3,Liverpool,56517,Oussama,0,0,0,17,0,0,0,15 Dec 15:00,0,0,58,0,Midfielder,0,0
+0,-8,Assaidi,0,0,FUL(H) 4-0,Liverpool,56518,Oussama,0,0,0,18,0,0,0,22 Dec 17:30,0,0,58,0,Midfielder,0,0
+0,-18,Assaidi,0,0,STK(A) 1-3,Liverpool,56519,Oussama,0,0,0,19,0,0,0,26 Dec 19:45,0,0,58,0,Midfielder,0,0
+0,-12,Assaidi,0,0,QPR(A) 3-0,Liverpool,56520,Oussama,0,0,0,20,0,0,0,30 Dec 16:00,0,0,57,0,Midfielder,0,0
+0,-3,Assaidi,0,0,SUN(H) 3-0,Liverpool,56521,Oussama,0,0,0,21,0,0,0,02 Jan 19:45,0,0,57,0,Midfielder,0,0
+0,-13,Assaidi,0,0,MUN(A) 1-2,Liverpool,56522,Oussama,0,0,0,22,0,0,0,13 Jan 13:30,0,0,57,0,Midfielder,0,0
+0,-18,Assaidi,0,0,NOR(H) 5-0,Liverpool,56523,Oussama,0,0,0,23,0,0,0,19 Jan 15:00,0,0,57,0,Midfielder,0,0
+0,-11,Assaidi,0,0,ARS(A) 2-2,Liverpool,56524,Oussama,0,0,0,24,0,0,0,30 Jan 19:45,0,0,57,0,Midfielder,0,0
+0,-3,Assaidi,0,0,MCI(A) 2-2,Liverpool,56525,Oussama,0,0,0,25,0,0,0,03 Feb 16:00,0,0,57,0,Midfielder,0,0
+0,6,Assaidi,0,0,SWA(H) 5-0,Liverpool,56526,Oussama,0,0,0,26,0,0,0,17 Feb 15:00,0,0,57,0,Midfielder,0,0
+0,5,Assaidi,0,0,WIG(A) 4-0,Liverpool,56528,Oussama,0,0,0,28,0,0,0,02 Mar 17:30,0,0,57,0,Midfielder,0,0
+0,0,Assaidi,0,0,TOT(H) 3-2,Liverpool,56529,Oussama,0,0,0,29,0,0,0,10 Mar 16:00,0,0,57,0,Midfielder,0,0
+0,-8,Assaidi,0,0,SOU(A) 1-3,Liverpool,56530,Oussama,0,0,0,30,0,0,0,16 Mar 15:00,0,0,57,0,Midfielder,0,0
+0,-3,Assaidi,0,0,AVL(A) 2-1,Liverpool,56531,Oussama,0,0,0,31,0,0,0,31 Mar 13:30,0,0,57,0,Midfielder,0,0
+0,-3,Assaidi,0,0,WHU(H) 0-0,Liverpool,56532,Oussama,0,20,0,32,0,0,0,07 Apr 13:30,0,0,57,1,Midfielder,0,0
+0,2,Assaidi,0,0,RDG(A) 0-0,Liverpool,56533,Oussama,0,0,0,33,0,0,0,13 Apr 15:00,0,0,57,0,Midfielder,0,0
+0,1,Assaidi,0,0,CHE(H) 2-2,Liverpool,56534,Oussama,0,0,0,34,0,0,0,21 Apr 16:00,0,0,57,0,Midfielder,0,0
+0,-5,Assaidi,0,0,NEW(A) 6-0,Liverpool,56535,Oussama,0,0,0,35,0,0,0,27 Apr 17:30,0,0,57,0,Midfielder,0,0
+0,0,Assaidi,0,0,EVE(H) 0-0,Liverpool,56536,Oussama,0,0,0,36,0,0,0,05 May 13:30,0,0,57,0,Midfielder,0,0
+0,3,Assaidi,0,0,FUL(A) 3-1,Liverpool,56537,Oussama,0,0,0,37,0,0,0,12 May 15:00,0,0,57,0,Midfielder,0,0
+0,3,Assaidi,0,0,QPR(H) 1-0,Liverpool,56538,Oussama,0,0,0,38,0,0,0,19 May 16:00,0,0,57,0,Midfielder,0,0

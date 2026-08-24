@@ -1,0 +1,458 @@
+﻿yellow_cards,net_transfers,last_name,goals_conceded,saves,result,team_name_1,index,first_name,own_goals,minutes_played,EA_Spots_PPI,week,bonus,clean_sheets,assists,date,penalties_saved,penalties missed,value,points,position,red_cards,goals_scored
+0,-14649,Dzeko,0,0,CHE(H) 2-1,Man City,20329,Edin,0,15,-5,29,0,0,0,21 March 19:45,0,0,79,1,Forward,0,0
+0,-19,Boyce,0,0,MUN(H) 1-0,Wigan,43933,Emmerson,0,90,16,33,0,1,0,11 April 19:45,0,0,43,6,Defender,0,0
+0,-34,Bennett,0,0,FUL(H) 1-1,Norwich,49719,Elliott,0,11,12,19,0,0,1,31 Dec. 15:00,0,0,48,4,Midfielder,0,0
+1,-12,Bennett,1,0,NEW(A) 0-1,Norwich,49729,Elliott,0,90,13,29,0,0,0,18 March 16:00,0,0,48,1,Midfielder,0,0
+0,-46,Frimpong,0,0,MUN(H) 0-5,Wolves,52429,Emmanuel,0,0,0,29,0,0,0,18 March 13:30,0,0,51,0,Midfielder,0,0
+0,-4,Putnins,0,0,LIV(H) 3-2,QPR,60229,Elvijs,0,0,0,29,0,0,0,21 March 20:00,0,0,40,0,Goalkeeper,0,0
+0,-3,Fryers,0,0,TOT(A) 3-1,Man Utd,60527,Ezekiel,0,0,0,27,0,0,0,04 March 16:10,0,0,45,0,Defender,0,0
+0,-1,Fryers,0,0,WIG(A) 0-1,Man Utd,60533,Ezekiel,0,0,0,33,0,0,0,11 April 19:45,0,0,45,0,Defender,0,0
+0,-9,Jonsson,4,0,MUN(H) 0-5,Wolves,64129,Eggert,0,48,4,29,0,0,0,18 March 13:30,0,0,45,1,Midfielder,0,0
+0,0,Lichaj,0,0,WHU(A) 0-1,Aston Villa,421,Eric,0,0,0,1,0,0,0,18 Aug 15:00,0,0,45,0,Defender,0,0
+0,-391,Lichaj,0,0,EVE(H) 1-3,Aston Villa,422,Eric,0,32,3,2,0,0,1,25 Aug 15:00,0,0,45,4,Defender,0,0
+1,-76,Lichaj,1,0,NEW(A) 1-1,Aston Villa,423,Eric,0,90,6,3,0,0,0,02 Sep 16:00,0,0,45,1,Defender,0,0
+1,-84,Lichaj,0,0,SWA(H) 2-0,Aston Villa,424,Eric,0,90,22,4,0,1,0,15 Sep 15:00,0,0,45,5,Defender,0,0
+1,167,Lichaj,2,0,SOU(A) 1-4,Aston Villa,425,Eric,0,67,2,5,0,0,0,22 Sep 15:00,0,0,45,0,Defender,0,0
+0,-70,Lichaj,0,0,WBA(H) 1-1,Aston Villa,426,Eric,0,0,0,6,0,0,0,30 Sep 16:00,0,0,45,0,Defender,0,0
+0,-150,Lichaj,0,0,TOT(A) 0-2,Aston Villa,427,Eric,0,0,0,7,0,0,0,07 Oct 15:00,0,0,45,0,Defender,0,0
+1,-161,Lichaj,1,0,FUL(A) 0-1,Aston Villa,428,Eric,0,29,9,8,0,0,0,20 Oct 15:00,0,0,44,0,Defender,0,0
+0,-56,Lichaj,1,0,NOR(H) 1-1,Aston Villa,429,Eric,0,37,2,9,0,0,0,27 Oct 12:45,0,0,44,1,Defender,0,0
+1,-104,Lichaj,0,0,SUN(A) 1-0,Aston Villa,4210,Eric,0,60,13,10,0,1,0,03 Nov 15:00,0,0,44,5,Defender,0,0
+0,-28,Lichaj,3,0,WIG(H) 0-3,Aston Villa,4220,Eric,0,63,5,20,0,0,0,29 Dec 15:00,0,0,44,1,Defender,0,0
+0,-12,Lichaj,0,0,QPR(H) 3-2,Aston Villa,4230,Eric,0,0,0,30,0,0,0,16 Mar 15:00,0,0,43,0,Defender,0,0
+0,0,Stevens,0,0,WHU(A) 0-1,Aston Villa,431,Enda,0,0,0,1,0,0,0,18 Aug 15:00,0,0,40,0,Defender,0,0
+0,-505,Stevens,0,0,EVE(H) 1-3,Aston Villa,432,Enda,0,0,0,2,0,0,0,25 Aug 15:00,0,0,40,0,Defender,0,0
+0,-921,Stevens,0,0,NEW(A) 1-1,Aston Villa,433,Enda,0,0,0,3,0,0,0,02 Sep 16:00,0,0,40,0,Defender,0,0
+0,726,Stevens,0,0,SWA(H) 2-0,Aston Villa,434,Enda,0,0,0,4,0,0,0,15 Sep 15:00,0,0,39,0,Defender,0,0
+0,-16,Stevens,0,0,SOU(A) 1-4,Aston Villa,435,Enda,0,0,0,5,0,0,0,22 Sep 15:00,0,0,39,0,Defender,0,0
+0,-95,Stevens,0,0,WBA(H) 1-1,Aston Villa,436,Enda,0,0,0,6,0,0,0,30 Sep 16:00,0,0,39,0,Defender,0,0
+0,-380,Stevens,0,0,TOT(A) 0-2,Aston Villa,437,Enda,0,0,0,7,0,0,0,07 Oct 15:00,0,0,39,0,Defender,0,0
+0,-273,Stevens,0,0,FUL(A) 0-1,Aston Villa,438,Enda,0,0,0,8,0,0,0,20 Oct 15:00,0,0,39,0,Defender,0,0
+0,-153,Stevens,0,0,NOR(H) 1-1,Aston Villa,439,Enda,0,0,0,9,0,0,0,27 Oct 12:45,0,0,39,0,Defender,0,0
+0,-115,Stevens,0,0,SUN(A) 1-0,Aston Villa,4310,Enda,0,20,3,10,0,0,0,03 Nov 15:00,0,0,39,1,Defender,0,0
+0,-70,Stevens,0,0,WIG(H) 0-3,Aston Villa,4320,Enda,0,0,0,20,0,0,0,29 Dec 15:00,0,0,39,0,Defender,0,0
+0,-7,Stevens,0,0,QPR(H) 3-2,Aston Villa,4330,Enda,0,0,0,30,0,0,0,16 Mar 15:00,0,0,39,0,Defender,0,0
+0,0,Hazard,2,0,RDG(H) 4-2,Chelsea,851,Eden,0,90,21,1,0,0,3,22 Aug 19:45,0,0,95,11,Midfielder,0,0
+0,191586,Hazard,0,0,NEW(H) 2-0,Chelsea,852,Eden,0,90,32,2,2,1,1,25 Aug 17:30,0,0,97,13,Midfielder,0,1
+0,206320,Hazard,0,0,QPR(A) 0-0,Chelsea,854,Eden,0,90,4,4,0,1,0,15 Sep 15:00,0,0,102,3,Midfielder,0,0
+0,50780,Hazard,0,0,STK(H) 1-0,Chelsea,855,Eden,0,61,9,5,0,1,0,22 Sep 15:00,0,0,103,3,Midfielder,0,0
+0,-9515,Hazard,1,0,ARS(A) 2-1,Chelsea,856,Eden,0,90,16,6,0,0,0,29 Sep 12:45,0,0,103,2,Midfielder,0,0
+0,-21745,Hazard,1,0,NOR(H) 4-1,Chelsea,857,Eden,0,90,40,7,2,0,0,06 Oct 15:00,0,0,103,9,Midfielder,0,1
+0,-11036,Hazard,2,0,TOT(A) 4-2,Chelsea,858,Eden,0,89,29,8,1,0,2,20 Oct 12:45,0,0,103,9,Midfielder,0,0
+0,-6709,Hazard,3,0,MUN(H) 2-3,Chelsea,859,Eden,0,81,6,9,0,0,1,28 Oct 16:00,0,0,103,5,Midfielder,0,0
+0,5875,Hazard,1,0,SWA(A) 1-1,Chelsea,8510,Eden,0,90,17,10,0,0,0,03 Nov 15:00,0,0,103,2,Midfielder,0,0
+0,-19033,Hazard,1,0,LIV(H) 1-1,Chelsea,8511,Eden,0,90,8,11,0,0,0,11 Nov 16:00,0,0,103,2,Midfielder,0,0
+0,-36248,Hazard,2,0,WBA(A) 1-2,Chelsea,8512,Eden,0,90,20,12,0,0,0,17 Nov 15:00,0,0,102,7,Midfielder,0,1
+0,-14158,Hazard,0,0,MCI(H) 0-0,Chelsea,8513,Eden,0,70,7,13,0,1,0,25 Nov 16:00,0,0,101,3,Midfielder,0,0
+0,-10938,Hazard,0,0,FUL(H) 0-0,Chelsea,8514,Eden,0,81,0,14,0,1,0,28 Nov 19:45,0,0,101,3,Midfielder,0,0
+0,-53479,Hazard,1,0,WHU(A) 1-3,Chelsea,8515,Eden,0,72,1,15,0,0,0,01 Dec 12:45,0,0,99,2,Midfielder,0,0
+0,-66007,Hazard,1,0,SUN(A) 3-1,Chelsea,8516,Eden,0,78,24,16,0,0,1,08 Dec 15:00,0,0,98,5,Midfielder,0,0
+0,-8009,Hazard,0,0,AVL(H) 8-0,Chelsea,8518,Eden,0,90,37,18,2,1,1,23 Dec 16:00,0,0,95,13,Midfielder,0,1
+1,37766,Hazard,0,0,NOR(A) 1-0,Chelsea,8519,Eden,0,13,4,19,0,0,0,26 Dec 15:00,0,0,96,0,Midfielder,0,0
+0,-38382,Hazard,1,0,EVE(A) 2-1,Chelsea,8520,Eden,0,73,8,20,0,0,0,30 Dec 13:30,0,0,96,2,Midfielder,0,0
+0,-23086,Hazard,1,0,QPR(H) 0-1,Chelsea,8521,Eden,0,31,4,21,0,0,0,02 Jan 19:45,0,0,95,1,Midfielder,0,0
+0,-56068,Hazard,2,0,SOU(H) 2-2,Chelsea,8522,Eden,0,90,25,22,3,0,0,16 Jan 19:45,0,0,94,10,Midfielder,0,1
+0,-18744,Hazard,1,0,ARS(H) 2-1,Chelsea,8523,Eden,0,87,24,23,1,0,0,20 Jan 13:30,0,0,94,3,Midfielder,0,0
+0,-133877,Hazard,0,0,RDG(A) 2-2,Chelsea,8524,Eden,0,0,0,24,0,0,0,30 Jan 20:00,0,0,94,0,Midfielder,0,0
+0,-40368,Hazard,0,0,NEW(A) 2-3,Chelsea,8525,Eden,0,0,0,25,0,0,0,02 Feb 15:00,0,0,93,0,Midfielder,0,0
+0,-10616,Hazard,1,0,WIG(H) 4-1,Chelsea,8526,Eden,0,90,43,26,3,0,1,09 Feb 15:00,0,0,93,13,Midfielder,0,1
+0,10739,Hazard,1,0,MCI(A) 0-2,Chelsea,8527,Eden,0,67,9,27,0,0,0,24 Feb 13:30,0,0,93,2,Midfielder,0,0
+1,1723,Hazard,0,0,WBA(H) 1-0,Chelsea,8528,Eden,0,79,10,28,0,1,0,02 Mar 15:00,0,0,93,2,Midfielder,0,0
+0,9714,Hazard,0,0,WHU(H) 2-0,Chelsea,8530,Eden,0,90,54,30,3,1,1,17 Mar 16:00,0,0,93,14,Midfielder,0,1
+0,50019,Hazard,0,0,SOU(A) 1-2,Chelsea,8531,Eden,0,31,0,31,0,0,0,30 Mar 15:00,0,0,95,1,Midfielder,0,0
+0,46953,Hazard,1,0,SUN(H) 2-1,Chelsea,8532,Eden,0,83,18,32,0,0,0,07 Apr 15:00,0,0,96,2,Midfielder,0,0
+0,-17745,Hazard,0,0,FUL(A) 3-0,Chelsea,8533,Eden,0,68,21,33,0,1,1,17 Apr 20:00,0,0,96,6,Midfielder,0,0
+0,-35,Hazard,1,0,LIV(A) 2-2,Chelsea,8534,Eden,0,77,16,34,0,0,0,21 Apr 16:00,0,0,96,7,Midfielder,0,1
+0,12756,Hazard,0,0,SWA(H) 2-0,Chelsea,8535,Eden,0,90,25,35,1,1,0,28 Apr 15:00,0,0,96,4,Midfielder,0,0
+0,19115,Hazard,1,0,TOT(H) 2-2,Chelsea,8536,Eden,0,72,-6,36,0,0,0,08 May 19:45,0,0,97,2,Midfielder,0,0
+0,-40658,Hazard,1,0,AVL(A) 2-1,Chelsea,8537,Eden,0,90,32,37,2,0,2,11 May 12:45,0,0,97,10,Midfielder,0,0
+0,-52268,Hazard,0,0,EVE(H) 2-1,Chelsea,8538,Eden,0,0,0,38,0,0,0,19 May 16:00,0,0,96,0,Midfielder,0,0
+0,0,Dzeko,2,0,SOU(H) 3-2,Man City,1921,Edin,0,77,29,1,1,0,0,19 Aug 16:00,0,0,75,7,Forward,0,1
+0,15089,Dzeko,1,0,LIV(A) 2-2,Man City,1922,Edin,0,29,-10,2,0,0,0,26 Aug 16:00,0,0,75,1,Forward,0,0
+0,-6217,Dzeko,1,0,QPR(H) 3-1,Man City,1923,Edin,0,90,26,3,1,0,1,01 Sep 17:30,0,0,75,10,Forward,0,1
+0,10876,Dzeko,0,0,STK(A) 1-1,Man City,1924,Edin,0,1,-4,4,0,0,0,15 Sep 15:00,0,0,75,1,Forward,0,0
+0,-13155,Dzeko,0,0,ARS(H) 1-1,Man City,1925,Edin,0,67,10,5,0,1,0,23 Sep 16:00,0,0,75,2,Forward,0,0
+0,-6369,Dzeko,0,0,FUL(A) 2-1,Man City,1926,Edin,0,5,18,6,0,0,0,29 Sep 15:00,0,0,75,5,Forward,0,1
+0,-1215,Dzeko,0,0,SUN(H) 3-0,Man City,1927,Edin,0,0,0,7,0,0,0,06 Oct 12:45,0,0,75,0,Forward,0,0
+1,-8175,Dzeko,0,0,WBA(A) 2-1,Man City,1928,Edin,0,12,35,8,3,0,0,20 Oct 15:00,0,0,75,11,Forward,0,2
+0,17162,Dzeko,0,0,SWA(H) 1-0,Man City,1929,Edin,0,0,0,9,0,0,0,27 Oct 17:30,0,0,75,0,Forward,0,0
+0,-5547,Dzeko,0,0,WHU(A) 0-0,Man City,19210,Edin,0,90,3,10,0,1,0,03 Nov 17:30,0,0,75,2,Forward,0,0
+0,-3082,Dzeko,0,0,TOT(H) 2-1,Man City,19211,Edin,0,18,16,11,0,0,0,11 Nov 13:30,0,0,75,5,Forward,0,1
+0,7188,Dzeko,0,0,AVL(H) 5-0,Man City,19212,Edin,0,22,4,12,0,0,0,17 Nov 15:00,0,0,75,1,Forward,0,0
+0,-11074,Dzeko,0,0,CHE(A) 0-0,Man City,19213,Edin,0,68,5,13,0,1,0,25 Nov 16:00,0,0,75,2,Forward,0,0
+0,-2660,Dzeko,0,0,WIG(A) 2-0,Man City,19214,Edin,0,0,0,14,0,0,0,28 Nov 20:00,0,0,75,0,Forward,0,0
+0,-4174,Dzeko,1,0,EVE(H) 1-1,Man City,19215,Edin,0,79,13,15,0,0,1,01 Dec 15:00,0,0,74,5,Forward,0,0
+0,-839,Dzeko,1,0,MUN(H) 2-3,Man City,19216,Edin,0,7,0,16,0,0,0,09 Dec 13:30,0,0,74,1,Forward,0,0
+0,-3359,Dzeko,0,0,NEW(A) 3-1,Man City,19217,Edin,0,19,3,17,0,0,0,15 Dec 12:45,0,0,74,1,Forward,0,0
+0,-1362,Dzeko,0,0,RDG(H) 1-0,Man City,19218,Edin,0,33,2,18,0,0,0,22 Dec 15:00,0,0,73,1,Forward,0,0
+0,-1895,Dzeko,0,0,SUN(A) 0-1,Man City,19219,Edin,0,19,5,19,0,0,0,26 Dec 15:00,0,0,73,1,Forward,0,0
+0,-1120,Dzeko,3,0,NOR(A) 4-3,Man City,19220,Edin,0,80,46,20,3,0,1,29 Dec 15:00,0,0,73,16,Forward,0,2
+1,18413,Dzeko,0,0,STK(H) 3-0,Man City,19221,Edin,0,90,21,21,0,1,0,01 Jan 15:00,0,0,73,5,Forward,0,1
+0,19534,Dzeko,0,0,ARS(A) 2-0,Man City,19222,Edin,0,87,20,22,1,1,0,13 Jan 16:00,0,1,74,5,Forward,0,1
+0,38688,Dzeko,0,0,FUL(H) 2-0,Man City,19223,Edin,0,90,18,23,0,1,1,19 Jan 15:00,0,0,74,5,Forward,0,0
+0,17039,Dzeko,0,0,QPR(A) 0-0,Man City,19224,Edin,0,33,-1,24,0,0,0,29 Jan 19:45,0,0,75,1,Forward,0,0
+1,-27605,Dzeko,2,0,LIV(H) 2-2,Man City,19225,Edin,0,90,23,25,2,0,0,03 Feb 16:00,0,0,75,7,Forward,0,1
+0,16714,Dzeko,3,0,SOU(A) 1-3,Man City,19226,Edin,0,90,21,26,1,0,0,09 Feb 17:30,0,0,74,7,Forward,0,1
+0,25090,Dzeko,0,0,CHE(H) 2-0,Man City,19227,Edin,0,0,0,27,0,0,0,24 Feb 13:30,0,0,75,0,Forward,0,0
+0,-28205,Dzeko,0,0,AVL(A) 1-0,Man City,19228,Edin,0,66,10,28,0,1,1,04 Mar 20:00,0,0,75,5,Forward,0,0
+1,-5738,Dzeko,2,0,EVE(A) 0-2,Man City,19230,Edin,0,90,6,30,0,0,0,16 Mar 12:45,0,0,71,1,Forward,0,0
+0,-5361,Dzeko,0,0,NEW(H) 4-0,Man City,19231,Edin,0,90,23,31,0,1,0,30 Mar 15:00,0,0,71,2,Forward,0,0
+0,-6557,Dzeko,0,0,MUN(A) 2-1,Man City,19232,Edin,0,0,0,32,0,0,0,08 Apr 20:00,0,0,70,0,Forward,0,0
+0,-5688,Dzeko,0,0,WIG(H) 1-0,Man City,19233,Edin,0,45,13,33,0,0,0,17 Apr 19:45,0,0,69,1,Forward,0,0
+0,-2816,Dzeko,3,0,TOT(A) 1-3,Man City,19234,Edin,0,82,3,34,0,0,0,21 Apr 13:30,0,0,68,2,Forward,0,0
+0,2307,Dzeko,0,0,WHU(H) 2-1,Man City,19235,Edin,0,0,0,35,0,0,0,27 Apr 12:45,0,0,68,0,Forward,0,0
+0,-153,Dzeko,0,0,WBA(H) 1-0,Man City,19236,Edin,0,90,19,36,0,1,0,07 May 19:45,0,0,68,6,Forward,0,1
+0,6199,Dzeko,0,0,RDG(A) 2-0,Man City,19237,Edin,0,29,21,37,0,0,0,14 May 20:00,0,0,68,5,Forward,0,1
+0,12718,Dzeko,3,0,NOR(H) 2-3,Man City,19238,Edin,0,90,-6,38,0,0,1,19 May 16:00,0,0,68,5,Forward,0,0
+0,0,Adebayor,0,0,SOU(H) 3-2,Tottenham,1941,Emmanuel,0,0,0,1,0,0,0,19 Aug 16:00,0,0,95,0,Forward,0,0
+0,47337,Adebayor,1,0,WBA(H) 1-1,Tottenham,1942,Emmanuel,0,29,3,2,0,0,0,25 Aug 15:00,0,0,95,1,Forward,0,0
+0,18708,Adebayor,1,0,NOR(H) 1-1,Tottenham,1943,Emmanuel,0,35,4,3,0,0,0,01 Sep 15:00,0,0,96,1,Forward,0,0
+0,-38676,Adebayor,0,0,RDG(A) 3-1,Tottenham,1944,Emmanuel,0,0,0,4,0,0,0,16 Sep 16:00,0,0,95,0,Forward,0,0
+0,-32825,Adebayor,0,0,QPR(H) 2-1,Tottenham,1945,Emmanuel,0,0,0,5,0,0,0,23 Sep 16:00,0,0,93,0,Forward,0,0
+0,-11022,Adebayor,0,0,MUN(A) 3-2,Tottenham,1946,Emmanuel,0,0,0,6,0,0,0,29 Sep 17:30,0,0,91,0,Forward,0,0
+0,-4047,Adebayor,0,0,AVL(H) 2-0,Tottenham,1947,Emmanuel,0,23,11,7,0,0,0,07 Oct 15:00,0,0,90,1,Forward,0,0
+0,-1483,Adebayor,1,0,CHE(H) 2-4,Tottenham,1948,Emmanuel,0,17,1,8,0,0,0,20 Oct 12:45,0,0,90,1,Forward,0,0
+0,-920,Adebayor,0,0,SOU(A) 2-1,Tottenham,1949,Emmanuel,0,0,0,9,0,0,0,28 Oct 15:00,0,0,90,0,Forward,0,0
+0,-877,Adebayor,0,0,WIG(H) 0-1,Tottenham,19410,Emmanuel,0,34,2,10,0,0,0,03 Nov 15:00,0,0,90,1,Forward,0,0
+1,-417,Adebayor,1,0,MCI(A) 1-2,Tottenham,19411,Emmanuel,0,79,3,11,0,0,0,11 Nov 13:30,0,0,90,1,Forward,0,0
+0,429,Adebayor,5,0,ARS(A) 2-5,Tottenham,19412,Emmanuel,0,17,15,12,0,0,0,17 Nov 12:45,0,0,90,2,Forward,1,1
+0,-1248,Adebayor,0,0,WHU(H) 3-1,Tottenham,19413,Emmanuel,0,0,0,13,0,0,0,25 Nov 16:00,0,0,90,0,Forward,0,0
+0,-341,Adebayor,0,0,LIV(H) 2-1,Tottenham,19414,Emmanuel,0,0,0,14,0,0,0,28 Nov 19:45,0,0,90,0,Forward,0,0
+0,-261,Adebayor,0,0,FUL(A) 3-0,Tottenham,19415,Emmanuel,0,0,0,15,0,0,0,01 Dec 15:00,0,0,90,0,Forward,0,0
+0,89,Adebayor,2,0,EVE(A) 1-2,Tottenham,19416,Emmanuel,0,90,7,16,0,0,0,09 Dec 15:00,0,0,90,2,Forward,0,0
+0,476,Adebayor,0,0,SWA(H) 1-0,Tottenham,19417,Emmanuel,0,71,13,17,0,1,0,16 Dec 13:30,0,0,90,2,Forward,0,0
+0,-503,Adebayor,0,0,STK(H) 0-0,Tottenham,19418,Emmanuel,0,90,1,18,0,1,0,22 Dec 15:00,0,0,90,2,Forward,0,0
+0,26,Adebayor,0,0,AVL(A) 4-0,Tottenham,19419,Emmanuel,0,78,8,19,0,1,0,26 Dec 17:30,0,0,90,2,Forward,0,0
+0,-15,Adebayor,1,0,SUN(A) 2-1,Tottenham,19420,Emmanuel,0,90,22,20,2,0,0,29 Dec 12:45,0,0,90,4,Forward,0,0
+0,833,Adebayor,1,0,RDG(H) 3-1,Tottenham,19421,Emmanuel,0,87,26,21,1,0,0,01 Jan 15:00,0,0,90,7,Forward,0,1
+0,-476,Adebayor,0,0,QPR(A) 0-0,Tottenham,19422,Emmanuel,0,68,13,22,0,1,0,12 Jan 12:45,0,0,90,2,Forward,0,0
+0,-1410,Adebayor,0,0,MUN(H) 1-1,Tottenham,19423,Emmanuel,0,0,0,23,0,0,0,20 Jan 16:00,0,0,90,0,Forward,0,0
+0,-405,Adebayor,0,0,NOR(A) 1-1,Tottenham,19424,Emmanuel,0,0,0,24,0,0,0,30 Jan 19:45,0,0,90,0,Forward,0,0
+0,-97,Adebayor,0,0,WBA(A) 1-0,Tottenham,19425,Emmanuel,0,0,0,25,0,0,0,03 Feb 13:30,0,0,90,0,Forward,0,0
+0,493,Adebayor,0,0,NEW(H) 2-1,Tottenham,19426,Emmanuel,0,22,3,26,0,0,0,09 Feb 12:45,0,0,90,1,Forward,0,0
+0,1635,Adebayor,2,0,WHU(A) 3-2,Tottenham,19427,Emmanuel,0,90,22,27,0,0,0,25 Feb 20:00,0,0,90,2,Forward,0,0
+1,-173,Adebayor,1,0,ARS(H) 2-1,Tottenham,19428,Emmanuel,0,65,8,28,0,0,0,03 Mar 16:00,0,0,90,1,Forward,0,0
+0,-943,Adebayor,0,0,LIV(A) 2-3,Tottenham,19429,Emmanuel,0,0,0,29,0,0,0,10 Mar 16:00,0,0,90,0,Forward,0,0
+0,-509,Adebayor,1,0,FUL(H) 0-1,Tottenham,19430,Emmanuel,0,90,0,30,0,0,0,17 Mar 15:00,0,0,90,2,Forward,0,0
+1,-172,Adebayor,0,0,SWA(A) 2-1,Tottenham,19431,Emmanuel,0,60,15,31,0,1,0,30 Mar 15:00,0,0,90,1,Forward,0,0
+0,223,Adebayor,2,0,EVE(H) 2-2,Tottenham,19432,Emmanuel,0,90,30,32,2,0,1,07 Apr 14:05,0,0,90,11,Forward,0,1
+0,621,Adebayor,1,0,MCI(H) 3-1,Tottenham,19434,Emmanuel,0,70,10,34,0,0,0,21 Apr 13:30,0,0,90,2,Forward,0,0
+0,2015,Adebayor,0,0,WIG(A) 2-2,Tottenham,19435,Emmanuel,0,0,0,35,0,0,0,27 Apr 15:00,0,0,90,0,Forward,0,0
+0,-372,Adebayor,2,0,CHE(A) 2-2,Tottenham,19436,Emmanuel,0,90,28,36,3,0,1,08 May 19:45,0,0,90,12,Forward,0,1
+0,3102,Adebayor,1,0,STK(A) 2-1,Tottenham,19437,Emmanuel,0,90,28,37,2,0,0,12 May 13:30,0,0,90,8,Forward,0,1
+0,25292,Adebayor,0,0,SUN(H) 1-0,Tottenham,19438,Emmanuel,0,90,11,38,0,1,0,19 May 16:00,0,0,91,2,Forward,0,0
+0,0,Fryers,0,0,EVE(A) 0-1,Tottenham,2051,Ezekiel,0,0,0,1,0,0,0,20 Aug 20:00,0,0,40,0,Defender,0,0
+0,-354,Fryers,0,0,FUL(H) 3-2,Tottenham,2052,Ezekiel,0,0,0,2,0,0,0,25 Aug 15:00,0,0,40,0,Defender,0,0
+0,-608,Fryers,0,0,SOU(A) 3-2,Tottenham,2053,Ezekiel,0,0,0,3,0,0,0,02 Sep 16:00,0,0,40,0,Defender,0,0
+0,-12,Fryers,0,0,WIG(H) 4-0,Tottenham,2054,Ezekiel,0,0,0,4,0,0,0,15 Sep 15:00,0,0,39,0,Defender,0,0
+0,-424,Fryers,0,0,LIV(A) 2-1,Tottenham,2055,Ezekiel,0,0,0,5,0,0,0,23 Sep 13:30,0,0,39,0,Defender,0,0
+0,-393,Fryers,0,0,TOT(H) 2-3,Tottenham,2056,Ezekiel,0,0,0,6,0,0,0,29 Sep 17:30,0,0,39,0,Defender,0,0
+0,-226,Fryers,0,0,NEW(A) 3-0,Tottenham,2057,Ezekiel,0,0,0,7,0,0,0,07 Oct 16:00,0,0,39,0,Defender,0,0
+0,-252,Fryers,0,0,STK(H) 4-2,Tottenham,2058,Ezekiel,0,0,0,8,0,0,0,20 Oct 15:00,0,0,39,0,Defender,0,0
+0,-129,Fryers,0,0,CHE(A) 3-2,Tottenham,2059,Ezekiel,0,0,0,9,0,0,0,28 Oct 16:00,0,0,39,0,Defender,0,0
+0,-147,Fryers,0,0,ARS(H) 2-1,Tottenham,20510,Ezekiel,0,0,0,10,0,0,0,03 Nov 12:45,0,0,39,0,Defender,0,0
+0,-103,Fryers,0,0,AVL(A) 3-2,Tottenham,20511,Ezekiel,0,0,0,11,0,0,0,10 Nov 17:30,0,0,39,0,Defender,0,0
+0,-102,Fryers,0,0,NOR(A) 0-1,Tottenham,20512,Ezekiel,0,0,0,12,0,0,0,17 Nov 17:30,0,0,39,0,Defender,0,0
+0,-102,Fryers,0,0,QPR(H) 3-1,Tottenham,20513,Ezekiel,0,0,0,13,0,0,0,24 Nov 15:00,0,0,39,0,Defender,0,0
+0,-37,Fryers,0,0,WHU(H) 1-0,Tottenham,20514,Ezekiel,0,0,0,14,0,0,0,28 Nov 20:00,0,0,39,0,Defender,0,0
+0,-42,Fryers,0,0,RDG(A) 4-3,Tottenham,20515,Ezekiel,0,0,0,15,0,0,0,01 Dec 17:30,0,0,39,0,Defender,0,0
+0,-68,Fryers,0,0,MCI(A) 3-2,Tottenham,20516,Ezekiel,0,0,0,16,0,0,0,09 Dec 13:30,0,0,39,0,Defender,0,0
+0,-61,Fryers,0,0,SUN(H) 3-1,Tottenham,20517,Ezekiel,0,0,0,17,0,0,0,15 Dec 15:00,0,0,39,0,Defender,0,0
+0,-42,Fryers,0,0,SWA(A) 1-1,Tottenham,20518,Ezekiel,0,0,0,18,0,0,0,23 Dec 13:30,0,0,39,0,Defender,0,0
+0,-36,Fryers,0,0,NEW(H) 4-3,Tottenham,20519,Ezekiel,0,0,0,19,0,0,0,26 Dec 15:00,0,0,39,0,Defender,0,0
+0,-44,Fryers,0,0,WBA(H) 2-0,Tottenham,20520,Ezekiel,0,0,0,20,0,0,0,29 Dec 15:00,0,0,39,0,Defender,0,0
+0,-28,Fryers,0,0,WIG(A) 4-0,Tottenham,20521,Ezekiel,0,0,0,21,0,0,0,01 Jan 15:00,0,0,39,0,Defender,0,0
+0,191,Fryers,0,0,QPR(A) 0-0,Tottenham,20522,Ezekiel,0,0,0,22,0,0,0,12 Jan 12:45,0,0,39,0,Defender,0,0
+0,110,Fryers,0,0,MUN(H) 1-1,Tottenham,20523,Ezekiel,0,0,0,23,0,0,0,20 Jan 16:00,0,0,39,0,Defender,0,0
+0,123,Fryers,0,0,NOR(A) 1-1,Tottenham,20524,Ezekiel,0,0,0,24,0,0,0,30 Jan 19:45,0,0,39,0,Defender,0,0
+0,51,Fryers,0,0,WBA(A) 1-0,Tottenham,20525,Ezekiel,0,0,0,25,0,0,0,03 Feb 13:30,0,0,39,0,Defender,0,0
+0,5,Fryers,0,0,NEW(H) 2-1,Tottenham,20526,Ezekiel,0,0,0,26,0,0,0,09 Feb 12:45,0,0,39,0,Defender,0,0
+0,-38,Fryers,0,0,WHU(A) 3-2,Tottenham,20527,Ezekiel,0,0,0,27,0,0,0,25 Feb 20:00,0,0,39,0,Defender,0,0
+0,-8,Fryers,0,0,ARS(H) 2-1,Tottenham,20528,Ezekiel,0,0,0,28,0,0,0,03 Mar 16:00,0,0,39,0,Defender,0,0
+0,-44,Fryers,0,0,LIV(A) 2-3,Tottenham,20529,Ezekiel,0,0,0,29,0,0,0,10 Mar 16:00,0,0,39,0,Defender,0,0
+0,-16,Fryers,0,0,FUL(H) 0-1,Tottenham,20530,Ezekiel,0,0,0,30,0,0,0,17 Mar 15:00,0,0,39,0,Defender,0,0
+0,-12,Fryers,0,0,SWA(A) 2-1,Tottenham,20531,Ezekiel,0,0,0,31,0,0,0,30 Mar 15:00,0,0,39,0,Defender,0,0
+0,-11,Fryers,0,0,EVE(H) 2-2,Tottenham,20532,Ezekiel,0,0,0,32,0,0,0,07 Apr 14:05,0,0,39,0,Defender,0,0
+0,-3,Fryers,0,0,MCI(H) 3-1,Tottenham,20534,Ezekiel,0,0,0,34,0,0,0,21 Apr 13:30,0,0,39,0,Defender,0,0
+0,-9,Fryers,0,0,WIG(A) 2-2,Tottenham,20535,Ezekiel,0,0,0,35,0,0,0,27 Apr 15:00,0,0,39,0,Defender,0,0
+0,-3,Fryers,0,0,CHE(A) 2-2,Tottenham,20536,Ezekiel,0,0,0,36,0,0,0,08 May 19:45,0,0,39,0,Defender,0,0
+0,-2,Fryers,0,0,STK(A) 2-1,Tottenham,20537,Ezekiel,0,0,0,37,0,0,0,12 May 13:30,0,0,39,0,Defender,0,0
+0,1,Fryers,0,0,SUN(H) 1-0,Tottenham,20538,Ezekiel,0,0,0,38,0,0,0,19 May 16:00,0,0,39,0,Defender,0,0
+0,0,Ward,0,0,FUL(A) 0-5,Norwich,2571,Elliott,0,0,0,1,0,0,0,18 Aug 15:00,0,0,40,0,Defender,0,0
+0,-2560,Ward,0,0,QPR(H) 1-1,Norwich,2572,Elliott,0,0,0,2,0,0,0,25 Aug 15:00,0,0,40,0,Defender,0,0
+0,-2214,Ward,0,0,TOT(A) 1-1,Norwich,2573,Elliott,0,0,0,3,0,0,0,01 Sep 15:00,0,0,39,0,Defender,0,0
+0,-543,Ward,0,0,WHU(H) 0-0,Norwich,2574,Elliott,0,0,0,4,0,0,0,15 Sep 12:45,0,0,39,0,Defender,0,0
+0,-853,Ward,0,0,NEW(A) 0-1,Norwich,2575,Elliott,0,0,0,5,0,0,0,23 Sep 15:00,0,0,39,0,Defender,0,0
+0,-703,Ward,0,0,LIV(H) 2-5,Norwich,2576,Elliott,0,0,0,6,0,0,0,29 Sep 15:00,0,0,39,0,Defender,0,0
+0,-421,Ward,0,0,CHE(A) 1-4,Norwich,2577,Elliott,0,0,0,7,0,0,0,06 Oct 15:00,0,0,39,0,Defender,0,0
+0,-394,Ward,0,0,ARS(H) 1-0,Norwich,2578,Elliott,0,0,0,8,0,0,0,20 Oct 17:30,0,0,39,0,Defender,0,0
+0,-276,Ward,0,0,AVL(A) 1-1,Norwich,2579,Elliott,0,0,0,9,0,0,0,27 Oct 12:45,0,0,39,0,Defender,0,0
+0,-168,Ward,0,0,STK(H) 1-0,Norwich,25710,Elliott,0,0,0,10,0,0,0,03 Nov 15:00,0,0,38,0,Defender,0,0
+0,667,Ward,0,0,RDG(A) 0-0,Norwich,25711,Elliott,0,0,0,11,0,0,0,10 Nov 15:00,0,0,38,0,Defender,0,0
+0,65,Ward,0,0,MUN(H) 1-0,Norwich,25712,Elliott,0,0,0,12,0,0,0,17 Nov 17:30,0,0,38,0,Defender,0,0
+0,76,Ward,0,0,EVE(A) 1-1,Norwich,25713,Elliott,0,0,0,13,0,0,0,24 Nov 15:00,0,0,38,0,Defender,0,0
+0,-73,Ward,0,0,SOU(A) 1-1,Norwich,25714,Elliott,0,0,0,14,0,0,0,28 Nov 19:45,0,0,38,0,Defender,0,0
+0,-74,Ward,0,0,SUN(H) 2-1,Norwich,25715,Elliott,0,0,0,15,0,0,0,02 Dec 16:00,0,0,38,0,Defender,0,0
+0,-176,Ward,0,0,SWA(A) 4-3,Norwich,25716,Elliott,0,0,0,16,0,0,0,08 Dec 15:00,0,0,38,0,Defender,0,0
+0,-191,Ward,0,0,WIG(H) 2-1,Norwich,25717,Elliott,0,0,0,17,0,0,0,15 Dec 15:00,0,0,38,0,Defender,0,0
+0,-133,Ward,0,0,WBA(A) 1-2,Norwich,25718,Elliott,0,0,0,18,0,0,0,22 Dec 15:00,0,0,38,0,Defender,0,0
+0,-82,Ward,0,0,CHE(H) 0-1,Norwich,25719,Elliott,0,0,0,19,0,0,0,26 Dec 15:00,0,0,38,0,Defender,0,0
+0,-118,Ward,0,0,MCI(H) 3-4,Norwich,25720,Elliott,0,0,0,20,0,0,0,29 Dec 15:00,0,0,38,0,Defender,0,0
+0,-84,Ward,0,0,WHU(A) 1-2,Norwich,25721,Elliott,0,0,0,21,0,0,0,01 Jan 15:00,0,0,38,0,Defender,0,0
+0,299,Ward,0,0,NEW(H) 0-0,Norwich,25722,Elliott,0,0,0,22,0,0,0,12 Jan 15:00,0,0,38,0,Defender,0,0
+0,185,Ward,0,0,LIV(A) 0-5,Norwich,25723,Elliott,0,0,0,23,0,0,0,19 Jan 15:00,0,0,38,0,Defender,0,0
+0,466,Ward,0,0,TOT(H) 1-1,Norwich,25724,Elliott,0,0,0,24,0,0,0,30 Jan 19:45,0,0,38,0,Defender,0,0
+0,257,Ward,0,0,QPR(A) 0-0,Norwich,25725,Elliott,0,0,0,25,0,0,0,02 Feb 12:45,0,0,38,0,Defender,0,0
+0,-74,Ward,0,0,FUL(H) 0-0,Norwich,25726,Elliott,0,0,0,26,0,0,0,09 Feb 15:00,0,0,38,0,Defender,0,0
+0,-370,Ward,0,0,EVE(H) 2-1,Norwich,25727,Elliott,0,0,0,27,0,0,0,23 Feb 15:00,0,0,38,0,Defender,0,0
+0,-130,Ward,0,0,MUN(A) 0-4,Norwich,25728,Elliott,0,0,0,28,0,0,0,02 Mar 15:00,0,0,38,0,Defender,0,0
+0,-198,Ward,0,0,SOU(H) 0-0,Norwich,25729,Elliott,0,0,0,29,0,0,0,09 Mar 15:00,0,0,38,0,Defender,0,0
+0,-117,Ward,0,0,SUN(A) 1-1,Norwich,25730,Elliott,0,0,0,30,0,0,0,17 Mar 13:30,0,0,38,0,Defender,0,0
+0,-101,Ward,0,0,WIG(A) 0-1,Norwich,25731,Elliott,0,0,0,31,0,0,0,30 Mar 15:00,0,0,38,0,Defender,0,0
+0,-65,Ward,0,0,SWA(H) 2-2,Norwich,25732,Elliott,0,0,0,32,0,0,0,06 Apr 15:00,0,0,38,0,Defender,0,0
+0,-71,Ward,0,0,ARS(A) 1-3,Norwich,25733,Elliott,0,0,0,33,0,0,0,13 Apr 15:00,0,0,38,0,Defender,0,0
+0,-49,Ward,0,0,RDG(H) 2-1,Norwich,25734,Elliott,0,0,0,34,0,0,0,20 Apr 15:00,0,0,38,0,Defender,0,0
+0,-40,Ward,0,0,STK(A) 0-1,Norwich,25735,Elliott,0,0,0,35,0,0,0,27 Apr 15:00,0,0,38,0,Defender,0,0
+0,-34,Ward,0,0,AVL(H) 1-2,Norwich,25736,Elliott,0,0,0,36,0,0,0,04 May 15:00,0,0,38,0,Defender,0,0
+0,-23,Ward,0,0,WBA(H) 4-0,Norwich,25737,Elliott,0,0,0,37,0,0,0,12 May 15:00,0,0,38,0,Defender,0,0
+0,-15,Ward,0,0,MCI(A) 3-2,Norwich,25738,Elliott,0,0,0,38,0,0,0,19 May 16:00,0,0,38,0,Defender,0,0
+0,0,Bennett,2,0,FUL(A) 0-5,Norwich,2701,Elliott,0,35,1,1,0,0,0,18 Aug 15:00,0,0,50,1,Midfielder,0,0
+0,-356,Bennett,0,0,QPR(H) 1-1,Norwich,2702,Elliott,0,0,0,2,0,0,0,25 Aug 15:00,0,0,50,0,Midfielder,0,0
+0,-628,Bennett,0,0,TOT(A) 1-1,Norwich,2703,Elliott,0,0,0,3,0,0,0,01 Sep 15:00,0,0,49,0,Midfielder,0,0
+0,-480,Bennett,0,0,WHU(H) 0-0,Norwich,2704,Elliott,0,0,0,4,0,0,0,15 Sep 12:45,0,0,49,0,Midfielder,0,0
+0,-193,Bennett,0,0,NEW(A) 0-1,Norwich,2705,Elliott,0,0,0,5,0,0,0,23 Sep 15:00,0,0,48,0,Midfielder,0,0
+0,-117,Bennett,0,0,LIV(H) 2-5,Norwich,2706,Elliott,0,0,0,6,0,0,0,29 Sep 15:00,0,0,48,0,Midfielder,0,0
+0,-51,Bennett,4,0,CHE(A) 1-4,Norwich,2707,Elliott,0,90,4,7,0,0,0,06 Oct 15:00,0,0,48,2,Midfielder,0,0
+0,-29,Bennett,0,0,ARS(H) 1-0,Norwich,2708,Elliott,0,78,12,8,0,1,0,20 Oct 17:30,0,0,48,3,Midfielder,0,0
+0,-11,Bennett,1,0,AVL(A) 1-1,Norwich,2709,Elliott,0,63,4,9,0,0,0,27 Oct 12:45,0,0,48,2,Midfielder,0,0
+0,3,Bennett,0,0,STK(H) 1-0,Norwich,27010,Elliott,0,0,1,10,0,0,0,03 Nov 15:00,0,0,48,0,Midfielder,0,0
+0,-25,Bennett,0,0,RDG(A) 0-0,Norwich,27011,Elliott,0,5,0,11,0,0,0,10 Nov 15:00,0,0,48,1,Midfielder,0,0
+0,-32,Bennett,0,0,MUN(H) 1-0,Norwich,27012,Elliott,0,1,0,12,0,0,0,17 Nov 17:30,0,0,48,1,Midfielder,0,0
+0,-21,Bennett,0,0,EVE(A) 1-1,Norwich,27013,Elliott,0,0,0,13,0,0,0,24 Nov 15:00,0,0,48,0,Midfielder,0,0
+0,-16,Bennett,0,0,SOU(A) 1-1,Norwich,27014,Elliott,0,3,0,14,0,0,0,28 Nov 19:45,0,0,48,1,Midfielder,0,0
+0,-13,Bennett,0,0,SUN(H) 2-1,Norwich,27015,Elliott,0,14,2,15,0,0,0,02 Dec 16:00,0,0,48,1,Midfielder,0,0
+0,-19,Bennett,0,0,SWA(A) 4-3,Norwich,27016,Elliott,0,0,0,16,0,0,0,08 Dec 15:00,0,0,48,0,Midfielder,0,0
+0,-20,Bennett,0,0,WIG(H) 2-1,Norwich,27017,Elliott,0,1,0,17,0,0,0,15 Dec 15:00,0,0,47,1,Midfielder,0,0
+0,-3,Bennett,0,0,WBA(A) 1-2,Norwich,27018,Elliott,0,0,0,18,0,0,0,22 Dec 15:00,0,0,47,0,Midfielder,0,0
+0,-8,Bennett,0,0,CHE(H) 0-1,Norwich,27019,Elliott,0,3,0,19,0,0,0,26 Dec 15:00,0,0,47,1,Midfielder,0,0
+0,-10,Bennett,0,0,MCI(H) 3-4,Norwich,27020,Elliott,0,0,0,20,0,0,0,29 Dec 15:00,0,0,47,0,Midfielder,0,0
+0,-2,Bennett,0,0,WHU(A) 1-2,Norwich,27021,Elliott,0,21,2,21,0,0,0,01 Jan 15:00,0,0,47,1,Midfielder,0,0
+0,-17,Bennett,0,0,NEW(H) 0-0,Norwich,27022,Elliott,0,14,3,22,0,0,0,12 Jan 15:00,0,0,47,1,Midfielder,0,0
+0,-14,Bennett,3,0,LIV(A) 0-5,Norwich,27023,Elliott,0,64,4,23,0,0,0,19 Jan 15:00,0,0,47,2,Midfielder,0,0
+0,-6,Bennett,0,0,TOT(H) 1-1,Norwich,27024,Elliott,0,0,0,24,0,0,0,30 Jan 19:45,0,0,47,0,Midfielder,0,0
+0,-12,Bennett,0,0,QPR(A) 0-0,Norwich,27025,Elliott,0,67,-4,25,0,1,0,02 Feb 12:45,0,0,47,3,Midfielder,0,0
+1,-8,Bennett,0,0,FUL(H) 0-0,Norwich,27026,Elliott,0,75,-6,26,0,1,0,09 Feb 15:00,0,0,47,2,Midfielder,0,0
+0,-14,Bennett,0,0,EVE(H) 2-1,Norwich,27027,Elliott,0,0,0,27,0,0,0,23 Feb 15:00,0,0,47,0,Midfielder,0,0
+0,-9,Bennett,3,0,MUN(A) 0-4,Norwich,27028,Elliott,0,18,0,28,0,0,0,02 Mar 15:00,0,0,47,1,Midfielder,0,0
+0,1,Bennett,0,0,SOU(H) 0-0,Norwich,27029,Elliott,0,0,0,29,0,0,0,09 Mar 15:00,0,0,47,0,Midfielder,0,0
+0,-6,Bennett,1,0,SUN(A) 1-1,Norwich,27030,Elliott,0,90,-6,30,0,0,0,17 Mar 13:30,0,0,47,2,Midfielder,0,0
+1,-2,Bennett,1,0,WIG(A) 0-1,Norwich,27031,Elliott,0,90,-4,31,0,0,0,30 Mar 15:00,0,0,47,1,Midfielder,0,0
+0,-1,Bennett,2,0,SWA(H) 2-2,Norwich,27032,Elliott,0,90,29,32,2,0,2,06 Apr 15:00,0,0,47,10,Midfielder,0,0
+0,161,Bennett,0,0,ARS(A) 1-3,Norwich,27033,Elliott,0,0,0,33,0,0,0,13 Apr 15:00,0,0,47,0,Midfielder,0,0
+1,8,Bennett,1,0,RDG(H) 2-1,Norwich,27034,Elliott,0,79,19,34,0,0,0,20 Apr 15:00,0,0,47,6,Midfielder,0,1
+0,665,Bennett,0,0,STK(A) 0-1,Norwich,27035,Elliott,0,17,-5,35,0,0,0,27 Apr 15:00,0,0,47,1,Midfielder,0,0
+0,-17,Bennett,1,0,AVL(H) 1-2,Norwich,27036,Elliott,0,6,0,36,0,0,0,04 May 15:00,0,0,47,1,Midfielder,0,0
+0,-66,Bennett,0,0,WBA(H) 4-0,Norwich,27037,Elliott,0,14,2,37,0,0,0,12 May 15:00,0,0,47,1,Midfielder,0,0
+0,-80,Bennett,0,0,MCI(A) 3-2,Norwich,27038,Elliott,0,10,1,38,0,0,0,19 May 16:00,0,0,47,1,Midfielder,0,0
+0,0,Boyce,2,0,CHE(H) 0-2,Wigan,5141,Emmerson,0,90,2,1,0,0,0,19 Aug 13:30,0,0,50,1,Defender,0,0
+0,-176,Boyce,0,0,SOU(A) 2-0,Wigan,5142,Emmerson,0,90,19,2,0,1,0,25 Aug 15:00,0,0,50,6,Defender,0,0
+0,3157,Boyce,2,0,STK(H) 2-2,Wigan,5143,Emmerson,0,90,11,3,0,0,0,01 Sep 15:00,0,0,50,1,Defender,0,0
+1,-172,Boyce,4,0,MUN(A) 0-4,Wigan,5144,Emmerson,0,90,4,4,0,0,0,15 Sep 15:00,0,0,50,-1,Defender,0,0
+0,-384,Boyce,2,0,FUL(H) 1-2,Wigan,5145,Emmerson,0,76,2,5,0,0,0,22 Sep 15:00,0,0,50,1,Defender,0,0
+0,-808,Boyce,1,0,SUN(A) 0-1,Wigan,5146,Emmerson,0,84,10,6,0,0,0,29 Sep 15:00,0,0,50,2,Defender,0,0
+0,-502,Boyce,2,0,EVE(H) 2-2,Wigan,5147,Emmerson,0,90,9,7,0,0,0,06 Oct 15:00,0,0,50,1,Defender,0,0
+0,-535,Boyce,2,0,SWA(A) 1-2,Wigan,5148,Emmerson,0,90,22,8,1,0,0,20 Oct 15:00,0,0,50,8,Defender,0,1
+0,299,Boyce,1,0,WHU(H) 2-1,Wigan,5149,Emmerson,0,90,13,9,0,0,0,27 Oct 15:00,0,0,50,2,Defender,0,0
+0,-187,Boyce,0,0,TOT(A) 1-0,Wigan,51410,Emmerson,0,90,16,10,0,1,0,03 Nov 15:00,0,0,50,6,Defender,0,0
+0,1312,Boyce,2,0,WBA(H) 1-2,Wigan,51411,Emmerson,0,90,6,11,0,0,0,10 Nov 15:00,0,0,50,1,Defender,0,0
+0,-180,Boyce,3,0,LIV(A) 0-3,Wigan,51412,Emmerson,0,90,6,12,0,0,0,17 Nov 15:00,0,0,50,1,Defender,0,0
+0,192,Boyce,2,0,RDG(H) 3-2,Wigan,51413,Emmerson,0,90,19,13,0,0,0,24 Nov 15:00,0,0,50,1,Defender,0,0
+0,-595,Boyce,2,0,MCI(H) 0-2,Wigan,51414,Emmerson,0,90,3,14,0,0,0,28 Nov 20:00,0,0,50,1,Defender,0,0
+0,-543,Boyce,3,0,NEW(A) 0-3,Wigan,51415,Emmerson,0,90,5,15,0,0,0,03 Dec 20:00,0,0,50,1,Defender,0,0
+0,-63,Boyce,2,0,QPR(H) 2-2,Wigan,51416,Emmerson,0,90,7,16,0,0,0,08 Dec 15:00,0,0,50,1,Defender,0,0
+0,-508,Boyce,2,0,NOR(A) 1-2,Wigan,51417,Emmerson,0,90,2,17,0,0,0,15 Dec 15:00,0,0,50,1,Defender,0,0
+0,-371,Boyce,1,0,ARS(H) 0-1,Wigan,51418,Emmerson,0,90,7,18,0,0,0,22 Dec 12:45,0,0,49,2,Defender,0,0
+0,-255,Boyce,2,0,EVE(A) 1-2,Wigan,51419,Emmerson,0,90,5,19,0,0,0,26 Dec 15:00,0,0,49,1,Defender,0,0
+1,-86,Boyce,0,0,AVL(A) 3-0,Wigan,51420,Emmerson,0,90,34,20,1,1,0,29 Dec 15:00,0,0,48,12,Defender,0,1
+0,639,Boyce,4,0,MUN(H) 0-4,Wigan,51421,Emmerson,0,90,4,21,0,0,0,01 Jan 15:00,0,0,48,0,Defender,0,0
+0,763,Boyce,1,0,FUL(A) 1-1,Wigan,51422,Emmerson,0,90,6,22,0,0,0,12 Jan 15:00,0,0,48,2,Defender,0,0
+1,370,Boyce,3,0,SUN(H) 2-3,Wigan,51423,Emmerson,0,70,-1,23,0,0,0,19 Jan 15:00,0,0,48,0,Defender,0,0
+0,-414,Boyce,1,0,STK(A) 2-2,Wigan,51424,Emmerson,0,48,3,24,0,0,0,29 Jan 19:45,0,0,48,1,Defender,0,0
+0,-852,Boyce,0,0,SOU(H) 2-2,Wigan,51425,Emmerson,0,0,0,25,0,0,0,02 Feb 15:00,0,0,48,0,Defender,0,0
+0,-690,Boyce,0,0,CHE(A) 1-4,Wigan,51426,Emmerson,0,0,0,26,0,0,0,09 Feb 15:00,0,0,48,0,Defender,0,0
+1,-454,Boyce,0,0,RDG(A) 3-0,Wigan,51427,Emmerson,0,82,11,27,0,1,0,23 Feb 15:00,0,0,47,5,Defender,0,0
+0,48,Boyce,4,0,LIV(H) 0-4,Wigan,51428,Emmerson,0,90,14,28,0,0,0,02 Mar 17:30,0,0,47,0,Defender,0,0
+0,223,Boyce,1,0,NEW(H) 2-1,Wigan,51430,Emmerson,0,90,15,30,0,0,0,17 Mar 16:00,0,0,47,2,Defender,0,0
+0,329,Boyce,0,0,NOR(H) 1-0,Wigan,51431,Emmerson,0,90,17,31,0,1,0,30 Mar 15:00,0,0,47,6,Defender,0,0
+0,361,Boyce,1,0,QPR(A) 1-1,Wigan,51432,Emmerson,0,90,8,32,0,0,0,07 Apr 16:10,0,0,47,2,Defender,0,0
+0,-72,Boyce,1,0,MCI(A) 0-1,Wigan,51433,Emmerson,0,90,7,33,0,0,0,17 Apr 19:45,0,0,47,2,Defender,0,0
+0,431,Boyce,2,0,WHU(A) 0-2,Wigan,51434,Emmerson,0,90,7,34,0,0,0,20 Apr 15:00,0,0,47,1,Defender,0,0
+0,699,Boyce,2,0,TOT(H) 2-2,Wigan,51435,Emmerson,1,90,24,35,3,0,0,27 Apr 15:00,0,0,47,8,Defender,0,1
+0,16627,Boyce,3,0,SWA(H) 2-3,Wigan,51436,Emmerson,0,85,3,36,0,0,0,07 May 19:45,0,0,47,1,Defender,0,0
+0,-1380,Boyce,4,0,ARS(A) 1-4,Wigan,51437,Emmerson,0,90,2,37,0,0,0,14 May 19:45,0,0,47,0,Defender,0,0
+1,-932,Boyce,2,0,AVL(H) 2-2,Wigan,51438,Emmerson,0,87,15,38,0,0,0,19 May 16:00,0,0,47,6,Defender,0,1
+0,0,Oscar,0,0,RDG(H) 4-2,Chelsea,5391,Emboaba,0,34,9,1,0,0,0,22 Aug 19:45,0,0,85,1,Midfielder,0,0
+0,-12296,Oscar,0,0,NEW(H) 2-0,Chelsea,5392,Emboaba,0,0,0,2,0,0,0,25 Aug 17:30,0,0,84,0,Midfielder,0,0
+0,-3955,Oscar,0,0,QPR(A) 0-0,Chelsea,5394,Emboaba,0,0,0,4,0,0,0,15 Sep 15:00,0,0,79,0,Midfielder,0,0
+1,7060,Oscar,0,0,STK(H) 1-0,Chelsea,5395,Emboaba,0,90,14,5,0,1,0,22 Sep 15:00,0,0,78,2,Midfielder,0,0
+1,3863,Oscar,1,0,ARS(A) 2-1,Chelsea,5396,Emboaba,0,72,3,6,0,0,0,29 Sep 12:45,0,0,78,1,Midfielder,0,0
+0,1312,Oscar,1,0,NOR(H) 4-1,Chelsea,5397,Emboaba,0,90,25,7,0,0,0,06 Oct 15:00,0,0,78,2,Midfielder,0,0
+0,-1484,Oscar,2,0,TOT(A) 4-2,Chelsea,5398,Emboaba,0,82,28,8,0,0,1,20 Oct 12:45,0,0,78,5,Midfielder,0,0
+0,1574,Oscar,2,0,MUN(H) 2-3,Chelsea,5399,Emboaba,0,65,13,9,0,0,1,28 Oct 16:00,0,0,78,5,Midfielder,0,0
+0,9602,Oscar,0,0,SWA(A) 1-1,Chelsea,53910,Emboaba,0,78,4,10,0,1,0,03 Nov 15:00,0,0,78,3,Midfielder,0,0
+0,1243,Oscar,1,0,LIV(H) 1-1,Chelsea,53911,Emboaba,0,76,5,11,0,0,0,11 Nov 16:00,0,0,78,2,Midfielder,0,0
+0,-490,Oscar,0,0,WBA(A) 1-2,Chelsea,53912,Emboaba,0,29,4,12,0,0,0,17 Nov 15:00,0,0,78,1,Midfielder,0,0
+0,-3212,Oscar,0,0,MCI(H) 0-0,Chelsea,53913,Emboaba,0,90,8,13,0,1,0,25 Nov 16:00,0,0,78,3,Midfielder,0,0
+0,524,Oscar,0,0,FUL(H) 0-0,Chelsea,53914,Emboaba,0,90,13,14,0,1,0,28 Nov 19:45,0,0,78,3,Midfielder,0,0
+0,-2583,Oscar,2,0,WHU(A) 1-3,Chelsea,53915,Emboaba,0,18,-3,15,0,0,0,01 Dec 12:45,0,0,78,1,Midfielder,0,0
+0,-5661,Oscar,1,0,SUN(A) 3-1,Chelsea,53916,Emboaba,0,71,5,16,0,0,0,08 Dec 15:00,0,0,78,2,Midfielder,0,0
+0,-479,Oscar,0,0,AVL(H) 8-0,Chelsea,53918,Emboaba,0,24,23,18,0,0,2,23 Dec 16:00,0,0,78,12,Midfielder,0,1
+0,1987,Oscar,0,0,NOR(A) 1-0,Chelsea,53919,Emboaba,0,90,25,19,2,1,1,26 Dec 15:00,0,0,78,8,Midfielder,0,0
+0,1936,Oscar,0,0,EVE(A) 2-1,Chelsea,53920,Emboaba,0,6,-3,20,0,0,0,30 Dec 13:30,0,0,78,1,Midfielder,0,0
+0,-422,Oscar,1,0,QPR(H) 0-1,Chelsea,53921,Emboaba,0,90,5,21,0,0,0,02 Jan 19:45,0,0,78,2,Midfielder,0,0
+0,2427,Oscar,2,0,SOU(H) 2-2,Chelsea,53922,Emboaba,0,90,10,22,0,0,1,16 Jan 19:45,0,0,78,5,Midfielder,0,0
+0,-6580,Oscar,1,0,ARS(H) 2-1,Chelsea,53923,Emboaba,0,71,8,23,0,0,0,20 Jan 13:30,0,0,78,2,Midfielder,0,0
+0,-1184,Oscar,2,0,RDG(A) 2-2,Chelsea,53924,Emboaba,0,90,9,24,0,0,0,30 Jan 20:00,0,0,78,2,Midfielder,0,0
+0,-900,Oscar,3,0,NEW(A) 2-3,Chelsea,53925,Emboaba,0,90,3,25,0,0,0,02 Feb 15:00,0,0,78,2,Midfielder,0,0
+0,-1261,Oscar,1,0,WIG(H) 4-1,Chelsea,53926,Emboaba,0,76,15,26,0,0,0,09 Feb 15:00,0,0,78,2,Midfielder,0,0
+0,-650,Oscar,1,0,MCI(A) 0-2,Chelsea,53927,Emboaba,0,23,1,27,0,0,0,24 Feb 13:30,0,0,78,1,Midfielder,0,0
+0,-646,Oscar,0,0,WBA(H) 1-0,Chelsea,53928,Emboaba,0,90,24,28,3,1,0,02 Mar 15:00,0,0,78,6,Midfielder,0,0
+0,575,Oscar,0,0,WHU(H) 2-0,Chelsea,53930,Emboaba,0,21,7,30,0,0,0,17 Mar 16:00,0,0,78,1,Midfielder,0,0
+0,903,Oscar,2,0,SOU(A) 1-2,Chelsea,53931,Emboaba,0,75,10,31,0,0,0,30 Mar 15:00,0,0,78,2,Midfielder,0,0
+0,777,Oscar,1,0,SUN(H) 2-1,Chelsea,53932,Emboaba,0,90,19,32,0,0,1,07 Apr 15:00,0,0,78,5,Midfielder,0,0
+0,-310,Oscar,0,0,FUL(A) 3-0,Chelsea,53933,Emboaba,0,22,4,33,0,0,0,17 Apr 20:00,0,0,78,1,Midfielder,0,0
+0,-417,Oscar,1,0,LIV(A) 2-2,Chelsea,53934,Emboaba,0,82,16,34,0,0,0,21 Apr 16:00,0,0,78,7,Midfielder,0,1
+0,1933,Oscar,0,0,SWA(H) 2-0,Chelsea,53935,Emboaba,0,90,34,35,3,1,0,28 Apr 15:00,0,0,78,11,Midfielder,0,1
+0,13900,Oscar,2,0,TOT(H) 2-2,Chelsea,53936,Emboaba,0,83,28,36,3,0,0,08 May 19:45,0,0,78,10,Midfielder,0,1
+0,27707,Oscar,0,0,AVL(A) 2-1,Chelsea,53937,Emboaba,0,0,0,37,0,0,0,11 May 12:45,0,0,79,0,Midfielder,0,0
+0,-5863,Oscar,1,0,EVE(H) 2-1,Chelsea,53938,Emboaba,0,87,12,38,0,0,0,19 May 16:00,0,0,79,2,Midfielder,0,0
+0,1395,Granero,2,0,MCI(A) 1-3,QPR,5813,Esteban,0,84,8,3,0,0,0,01 Sep 17:30,0,0,55,2,Midfielder,0,0
+0,2137,Granero,0,0,CHE(H) 0-0,QPR,5814,Esteban,0,90,3,4,0,1,0,15 Sep 15:00,0,0,55,3,Midfielder,0,0
+1,623,Granero,2,0,TOT(A) 1-2,QPR,5815,Esteban,0,90,1,5,0,0,0,23 Sep 16:00,0,0,55,1,Midfielder,0,0
+0,571,Granero,2,0,WHU(H) 1-2,QPR,5816,Esteban,0,90,7,6,0,0,0,01 Oct 20:00,0,0,55,2,Midfielder,0,0
+0,-412,Granero,3,0,WBA(A) 2-3,QPR,5817,Esteban,0,90,24,7,0,0,1,06 Oct 15:00,0,0,55,10,Midfielder,0,1
+1,2963,Granero,1,0,EVE(H) 1-1,QPR,5818,Esteban,0,90,8,8,0,0,0,21 Oct 16:00,0,0,55,1,Midfielder,0,0
+1,577,Granero,1,0,ARS(A) 0-1,QPR,5819,Esteban,0,90,3,9,0,0,0,27 Oct 15:00,0,0,55,1,Midfielder,0,0
+0,2515,Granero,1,0,RDG(H) 1-1,QPR,58110,Esteban,0,90,5,10,0,0,0,04 Nov 13:30,0,0,55,2,Midfielder,0,0
+1,-348,Granero,1,0,STK(A) 0-1,QPR,58111,Esteban,0,90,5,11,0,0,0,10 Nov 15:00,0,0,55,1,Midfielder,0,0
+0,23,Granero,3,0,SOU(H) 1-3,QPR,58112,Esteban,0,90,-1,12,0,0,0,17 Nov 15:00,0,0,55,2,Midfielder,0,0
+0,-2021,Granero,0,0,MUN(A) 1-3,QPR,58113,Esteban,0,7,2,13,0,0,0,24 Nov 15:00,0,0,55,1,Midfielder,0,0
+0,-875,Granero,0,0,SUN(A) 0-0,QPR,58114,Esteban,0,90,20,14,2,1,0,27 Nov 19:45,0,0,55,5,Midfielder,0,0
+0,1343,Granero,1,0,AVL(H) 1-1,QPR,58115,Esteban,0,45,5,15,0,0,0,01 Dec 15:00,0,0,55,1,Midfielder,0,0
+0,-1386,Granero,0,0,WIG(A) 2-2,QPR,58116,Esteban,0,14,2,16,0,0,0,08 Dec 15:00,0,0,55,1,Midfielder,0,0
+0,-1245,Granero,0,0,FUL(H) 2-1,QPR,58117,Esteban,0,0,0,17,0,0,0,15 Dec 15:00,0,0,55,0,Midfielder,0,0
+0,-1473,Granero,0,0,NEW(A) 0-1,QPR,58118,Esteban,0,55,8,18,0,0,0,22 Dec 15:00,0,0,55,1,Midfielder,0,0
+0,-622,Granero,0,0,WBA(H) 1-2,QPR,58119,Esteban,0,0,0,19,0,0,0,26 Dec 15:00,0,0,55,0,Midfielder,0,0
+0,-678,Granero,0,0,LIV(H) 0-3,QPR,58120,Esteban,0,28,-2,20,0,0,0,30 Dec 16:00,0,0,55,1,Midfielder,0,0
+0,-471,Granero,0,0,CHE(A) 1-0,QPR,58121,Esteban,0,89,19,21,0,1,0,02 Jan 19:45,0,0,54,3,Midfielder,0,0
+0,-520,Granero,0,0,TOT(H) 0-0,QPR,58122,Esteban,0,0,0,22,0,0,0,12 Jan 12:45,0,0,53,0,Midfielder,0,0
+0,-450,Granero,0,0,WHU(A) 1-1,QPR,58123,Esteban,0,0,0,23,0,0,0,19 Jan 15:00,0,0,53,0,Midfielder,0,0
+1,-382,Granero,0,0,MCI(H) 0-0,QPR,58124,Esteban,0,88,4,24,0,1,0,29 Jan 19:45,0,0,52,2,Midfielder,0,0
+0,3,Granero,0,0,NOR(H) 0-0,QPR,58125,Esteban,0,0,0,25,0,0,0,02 Feb 12:45,0,0,52,0,Midfielder,0,0
+0,-149,Granero,2,0,SWA(A) 1-4,QPR,58126,Esteban,0,45,-1,26,0,0,0,09 Feb 15:00,0,0,52,1,Midfielder,0,0
+0,-116,Granero,1,0,MUN(H) 0-2,QPR,58127,Esteban,0,45,-1,27,0,0,0,23 Feb 15:00,0,0,52,1,Midfielder,0,0
+0,-82,Granero,1,0,SOU(A) 2-1,QPR,58128,Esteban,0,52,8,28,0,0,0,02 Mar 15:00,0,0,52,1,Midfielder,0,0
+0,59,Granero,0,0,SUN(H) 3-1,QPR,58129,Esteban,0,0,0,29,0,0,0,09 Mar 15:00,0,0,52,0,Midfielder,0,0
+0,-54,Granero,0,0,AVL(A) 2-3,QPR,58130,Esteban,0,0,0,30,0,0,0,16 Mar 15:00,0,0,52,0,Midfielder,0,0
+0,-75,Granero,0,0,FUL(A) 2-3,QPR,58131,Esteban,0,0,0,31,0,0,0,01 Apr 20:00,0,0,52,0,Midfielder,0,0
+0,-25,Granero,0,0,WIG(H) 1-1,QPR,58132,Esteban,0,0,0,32,0,0,0,07 Apr 16:10,0,0,52,0,Midfielder,0,0
+1,-43,Granero,2,0,EVE(A) 0-2,QPR,58133,Esteban,0,73,7,33,0,0,0,13 Apr 15:00,0,0,52,1,Midfielder,0,0
+0,-10,Granero,0,0,STK(H) 0-2,QPR,58134,Esteban,0,0,0,34,0,0,0,20 Apr 15:00,0,0,52,0,Midfielder,0,0
+1,-14,Granero,0,0,RDG(A) 0-0,QPR,58135,Esteban,0,90,4,35,0,1,0,28 Apr 13:30,0,0,52,2,Midfielder,0,0
+0,-33,Granero,0,0,ARS(H) 0-1,QPR,58136,Esteban,0,0,0,36,0,0,0,04 May 17:30,0,0,52,0,Midfielder,0,0
+0,-6,Granero,0,0,NEW(H) 1-2,QPR,58137,Esteban,0,0,0,37,0,0,0,12 May 15:00,0,0,52,0,Midfielder,0,0
+0,-14,Granero,0,0,LIV(A) 0-1,QPR,58138,Esteban,0,45,8,38,0,0,0,19 May 16:00,0,0,52,1,Midfielder,0,0
+0,0,Mayuka,2,0,MUN(H) 2-3,Southampton,5853,Emmanuel,0,17,1,3,0,0,0,02 Sep 16:00,0,0,50,1,Forward,0,0
+0,153,Mayuka,0,0,ARS(A) 1-6,Southampton,5854,Emmanuel,0,0,0,4,0,0,0,15 Sep 15:00,0,0,50,0,Forward,0,0
+0,21,Mayuka,0,0,AVL(H) 4-1,Southampton,5855,Emmanuel,0,17,9,5,0,0,1,22 Sep 15:00,0,0,50,4,Forward,0,0
+0,28,Mayuka,0,0,EVE(A) 1-3,Southampton,5856,Emmanuel,0,10,0,6,0,0,0,29 Sep 15:00,0,0,50,1,Forward,0,0
+0,3,Mayuka,0,0,FUL(H) 2-2,Southampton,5857,Emmanuel,0,0,0,7,0,0,0,07 Oct 13:30,0,0,50,0,Forward,0,0
+0,-4,Mayuka,2,0,WHU(A) 1-4,Southampton,5858,Emmanuel,0,26,6,8,0,0,0,20 Oct 15:00,0,0,50,1,Forward,0,0
+0,-13,Mayuka,0,0,TOT(H) 1-2,Southampton,5859,Emmanuel,0,33,2,9,0,0,0,28 Oct 15:00,0,0,50,1,Forward,0,0
+0,1,Mayuka,0,0,WBA(A) 0-2,Southampton,58510,Emmanuel,0,15,1,10,0,0,0,05 Nov 20:00,0,0,50,1,Forward,0,0
+0,-12,Mayuka,0,0,SWA(H) 1-1,Southampton,58511,Emmanuel,0,0,0,11,0,0,0,10 Nov 15:00,0,0,50,0,Forward,0,0
+0,-3,Mayuka,0,0,QPR(A) 3-1,Southampton,58512,Emmanuel,0,0,0,12,0,0,0,17 Nov 15:00,0,0,49,0,Forward,0,0
+0,-14,Mayuka,0,0,NEW(H) 2-0,Southampton,58513,Emmanuel,0,0,0,13,0,0,0,25 Nov 15:00,0,0,49,0,Forward,0,0
+0,-7,Mayuka,0,0,NOR(H) 1-1,Southampton,58514,Emmanuel,0,0,0,14,0,0,0,28 Nov 19:45,0,0,49,0,Forward,0,0
+0,-4,Mayuka,0,0,LIV(A) 0-1,Southampton,58515,Emmanuel,0,0,0,15,0,0,0,01 Dec 15:00,0,0,49,0,Forward,0,0
+0,-12,Mayuka,0,0,RDG(H) 1-0,Southampton,58516,Emmanuel,0,0,0,16,0,0,0,08 Dec 15:00,0,0,48,0,Forward,0,0
+0,10,Mayuka,1,0,SUN(H) 0-1,Southampton,58518,Emmanuel,0,54,10,18,0,0,0,22 Dec 15:00,0,0,48,1,Forward,0,0
+0,11,Mayuka,0,0,FUL(A) 1-1,Southampton,58519,Emmanuel,0,0,0,19,0,0,0,26 Dec 15:00,0,0,48,0,Forward,0,0
+0,-4,Mayuka,0,0,STK(A) 3-3,Southampton,58520,Emmanuel,0,0,0,20,0,0,0,29 Dec 15:00,0,0,48,0,Forward,0,0
+0,-5,Mayuka,0,0,ARS(H) 1-1,Southampton,58521,Emmanuel,0,0,0,21,0,0,0,01 Jan 17:30,0,0,48,0,Forward,0,0
+0,-21,Mayuka,0,0,CHE(A) 2-2,Southampton,58522,Emmanuel,0,0,0,22,0,0,0,16 Jan 19:45,0,0,48,0,Forward,0,0
+0,-21,Mayuka,0,0,EVE(H) 0-0,Southampton,58523,Emmanuel,0,0,0,23,0,0,0,21 Jan 20:00,0,0,48,0,Forward,0,0
+0,-12,Mayuka,0,0,MUN(A) 1-2,Southampton,58524,Emmanuel,0,0,0,24,0,0,0,30 Jan 20:00,0,0,48,0,Forward,0,0
+0,-5,Mayuka,0,0,WIG(A) 2-2,Southampton,58525,Emmanuel,0,0,0,25,0,0,0,02 Feb 15:00,0,0,48,0,Forward,0,0
+0,4,Mayuka,0,0,MCI(H) 3-1,Southampton,58526,Emmanuel,0,0,0,26,0,0,0,09 Feb 17:30,0,0,48,0,Forward,0,0
+0,8,Mayuka,0,0,NEW(A) 2-4,Southampton,58527,Emmanuel,0,0,0,27,0,0,0,24 Feb 13:30,0,0,48,0,Forward,0,0
+0,24,Mayuka,0,0,QPR(H) 1-2,Southampton,58528,Emmanuel,0,0,0,28,0,0,0,02 Mar 15:00,0,0,48,0,Forward,0,0
+0,9,Mayuka,0,0,NOR(A) 0-0,Southampton,58529,Emmanuel,0,0,0,29,0,0,0,09 Mar 15:00,0,0,48,0,Forward,0,0
+0,-1,Mayuka,0,0,LIV(H) 3-1,Southampton,58530,Emmanuel,0,0,0,30,0,0,0,16 Mar 15:00,0,0,48,0,Forward,0,0
+0,-6,Mayuka,0,0,CHE(H) 2-1,Southampton,58531,Emmanuel,0,0,0,31,0,0,0,30 Mar 15:00,0,0,48,0,Forward,0,0
+0,-1,Mayuka,0,0,RDG(A) 2-0,Southampton,58532,Emmanuel,0,0,0,32,0,0,0,06 Apr 12:45,0,0,48,0,Forward,0,0
+0,1,Mayuka,0,0,WHU(H) 1-1,Southampton,58533,Emmanuel,0,0,0,33,0,0,0,13 Apr 15:00,0,0,48,0,Forward,0,0
+0,-2,Mayuka,0,0,SWA(A) 0-0,Southampton,58534,Emmanuel,0,3,5,34,0,0,0,20 Apr 15:00,0,0,48,1,Forward,0,0
+0,11,Mayuka,1,0,WBA(H) 0-3,Southampton,58535,Emmanuel,0,22,-3,35,0,0,0,27 Apr 15:00,0,0,48,1,Forward,0,0
+0,9,Mayuka,1,0,TOT(A) 0-1,Southampton,58536,Emmanuel,0,26,-4,36,0,0,0,04 May 15:00,0,0,48,1,Forward,0,0
+0,0,Mayuka,0,0,SUN(A) 1-1,Southampton,58537,Emmanuel,0,0,0,37,0,0,0,12 May 15:00,0,0,48,0,Forward,0,0
+0,20,Mayuka,0,0,STK(H) 1-1,Southampton,58538,Emmanuel,0,10,-4,38,0,0,0,19 May 16:00,0,0,48,1,Forward,0,0
+0,0,Lee,0,0,NOR(H) 2-1,West Ham,64321,Elliott,0,0,0,21,0,0,0,01 Jan 15:00,0,0,45,0,Forward,0,0
+0,114,Lee,0,0,SUN(A) 0-3,West Ham,64322,Elliott,0,0,0,22,0,0,0,12 Jan 15:00,0,0,45,0,Forward,0,0
+0,2,Lee,0,0,ARS(A) 1-5,West Ham,64323,Elliott,0,0,0,23,0,0,0,23 Jan 19:45,0,0,45,0,Forward,0,0
+0,1,Lee,0,0,FUL(A) 1-3,West Ham,64324,Elliott,0,0,0,24,0,0,0,30 Jan 20:00,0,0,45,0,Forward,0,0
+0,10,Lee,0,0,SWA(H) 1-0,West Ham,64325,Elliott,0,0,0,25,0,0,0,02 Feb 15:00,0,0,45,0,Forward,0,0
+0,16,Lee,0,0,AVL(A) 1-2,West Ham,64326,Elliott,0,0,0,26,0,0,0,10 Feb 13:30,0,0,45,0,Forward,0,0
+0,35,Lee,0,0,TOT(H) 2-3,West Ham,64327,Elliott,0,0,0,27,0,0,0,25 Feb 20:00,0,0,45,0,Forward,0,0
+0,14,Lee,0,0,STK(A) 1-0,West Ham,64328,Elliott,0,0,0,28,0,0,0,02 Mar 15:00,0,0,45,0,Forward,0,0
+0,0,Lee,0,0,CHE(A) 0-2,West Ham,64330,Elliott,0,0,0,30,0,0,0,17 Mar 16:00,0,0,45,0,Forward,0,0
+0,2,Lee,0,0,WBA(H) 3-1,West Ham,64331,Elliott,0,0,0,31,0,0,0,30 Mar 15:00,0,0,45,0,Forward,0,0
+0,3,Lee,0,0,LIV(A) 0-0,West Ham,64332,Elliott,0,0,0,32,0,0,0,07 Apr 13:30,0,0,45,0,Forward,0,0
+0,-12,Lee,0,0,MUN(H) 2-2,West Ham,64333,Elliott,0,0,0,33,0,0,0,17 Apr 19:45,0,0,45,0,Forward,0,0
+0,3,Lee,0,0,WIG(H) 2-0,West Ham,64334,Elliott,0,0,0,34,0,0,0,20 Apr 15:00,0,0,45,0,Forward,0,0
+0,0,Lee,0,0,MCI(A) 1-2,West Ham,64335,Elliott,0,0,0,35,0,0,0,27 Apr 12:45,0,0,45,0,Forward,0,0
+0,3,Lee,0,0,NEW(H) 0-0,West Ham,64336,Elliott,0,0,0,36,0,0,0,04 May 15:00,0,0,45,0,Forward,0,0
+0,0,Lee,0,0,EVE(A) 0-2,West Ham,64337,Elliott,0,0,0,37,0,0,0,12 May 15:00,0,0,45,0,Forward,0,0
+0,7,Lee,0,0,RDG(H) 4-2,West Ham,64338,Elliott,0,0,0,38,0,0,0,19 May 16:00,0,0,45,0,Forward,0,0
+0,0,Frimpong,0,0,WHU(H) 5-1,Fulham,65823,Emmanuel,0,0,0,23,0,0,0,23 Jan 19:45,0,0,45,0,Midfielder,0,0
+0,386,Frimpong,0,0,WHU(H) 3-1,Fulham,65824,Emmanuel,0,0,0,24,0,0,0,30 Jan 20:00,0,0,45,0,Midfielder,0,0
+0,273,Frimpong,0,0,MUN(H) 0-1,Fulham,65825,Emmanuel,0,0,0,25,0,0,0,02 Feb 17:30,0,0,45,0,Midfielder,0,0
+1,22,Frimpong,0,0,NOR(A) 0-0,Fulham,65826,Emmanuel,0,63,6,26,0,1,0,09 Feb 15:00,0,0,45,2,Midfielder,0,0
+0,66,Frimpong,0,0,STK(H) 1-0,Fulham,65827,Emmanuel,0,0,0,27,0,0,0,23 Feb 12:45,0,0,45,0,Midfielder,0,0
+0,-62,Frimpong,1,0,SUN(A) 2-2,Fulham,65828,Emmanuel,0,27,7,28,0,0,0,02 Mar 15:00,0,0,45,1,Midfielder,0,0
+0,-28,Frimpong,0,0,TOT(A) 1-0,Fulham,65830,Emmanuel,0,0,0,30,0,0,0,17 Mar 15:00,0,0,45,0,Midfielder,0,0
+0,-13,Frimpong,0,0,QPR(H) 3-2,Fulham,65831,Emmanuel,0,11,5,31,0,0,0,01 Apr 20:00,0,0,45,1,Midfielder,0,0
+0,-6,Frimpong,1,0,NEW(A) 0-1,Fulham,65832,Emmanuel,0,41,2,32,0,0,0,07 Apr 15:00,0,0,45,1,Midfielder,0,0
+0,43,Frimpong,0,0,CHE(H) 0-3,Fulham,65833,Emmanuel,0,15,1,33,0,0,0,17 Apr 20:00,0,0,45,1,Midfielder,0,0
+0,-55,Frimpong,0,0,ARS(H) 0-1,Fulham,65834,Emmanuel,0,0,0,34,0,0,0,20 Apr 15:00,0,0,45,0,Midfielder,0,0
+0,-12,Frimpong,0,0,EVE(A) 0-1,Fulham,65835,Emmanuel,0,0,0,35,0,0,0,27 Apr 15:00,0,0,45,0,Midfielder,0,0
+0,-17,Frimpong,0,0,RDG(H) 2-4,Fulham,65836,Emmanuel,0,0,0,36,0,0,0,04 May 15:00,0,0,45,0,Midfielder,0,0
+0,-8,Frimpong,0,0,LIV(H) 1-3,Fulham,65837,Emmanuel,0,0,0,37,0,0,0,12 May 15:00,0,0,45,0,Midfielder,0,0
+0,10,Frimpong,0,0,SWA(A) 3-0,Fulham,65838,Emmanuel,0,66,18,38,0,1,1,19 May 16:00,0,0,45,6,Midfielder,0,0
+0,0,Pogatetz,0,0,FUL(A) 1-3,West Ham,66524,Emanuel,0,0,0,24,0,0,0,30 Jan 20:00,0,0,45,0,Defender,0,0
+0,142,Pogatetz,0,0,SWA(H) 1-0,West Ham,66525,Emanuel,0,1,0,25,0,0,0,02 Feb 15:00,0,0,45,1,Defender,0,0
+1,18,Pogatetz,2,0,AVL(A) 1-2,West Ham,66526,Emanuel,0,90,-2,26,0,0,0,10 Feb 13:30,0,0,45,0,Defender,0,0
+0,28,Pogatetz,2,0,TOT(H) 2-3,West Ham,66527,Emanuel,0,19,0,27,0,0,0,25 Feb 20:00,0,0,45,0,Defender,0,0
+0,-10,Pogatetz,0,0,STK(A) 1-0,West Ham,66528,Emanuel,0,8,1,28,0,0,0,02 Mar 15:00,0,0,45,1,Defender,0,0
+0,-8,Pogatetz,0,0,CHE(A) 0-2,West Ham,66530,Emanuel,0,0,0,30,0,0,0,17 Mar 16:00,0,0,44,0,Defender,0,0
+0,-1,Pogatetz,0,0,WBA(H) 3-1,West Ham,66531,Emanuel,0,0,0,31,0,0,0,30 Mar 15:00,0,0,44,0,Defender,0,0
+0,-8,Pogatetz,0,0,LIV(A) 0-0,West Ham,66532,Emanuel,0,8,1,32,0,0,0,07 Apr 13:30,0,0,43,1,Defender,0,0
+0,8,Pogatetz,0,0,MUN(H) 2-2,West Ham,66533,Emanuel,0,0,0,33,0,0,0,17 Apr 19:45,0,0,43,0,Defender,0,0
+0,0,Pogatetz,0,0,WIG(H) 2-0,West Ham,66534,Emanuel,0,0,0,34,0,0,0,20 Apr 15:00,0,0,43,0,Defender,0,0
+0,1,Pogatetz,0,0,MCI(A) 1-2,West Ham,66535,Emanuel,0,0,0,35,0,0,0,27 Apr 12:45,0,0,43,0,Defender,0,0
+0,0,Pogatetz,0,0,NEW(H) 0-0,West Ham,66536,Emanuel,0,0,0,36,0,0,0,04 May 15:00,0,0,43,0,Defender,0,0
+0,-2,Pogatetz,0,0,EVE(A) 0-2,West Ham,66537,Emanuel,0,0,0,37,0,0,0,12 May 15:00,0,0,43,0,Defender,0,0
+0,5,Pogatetz,0,0,RDG(H) 4-2,West Ham,66538,Emanuel,0,0,0,38,0,0,0,19 May 16:00,0,0,43,0,Defender,0,0
+0,17,Enoh,0,0,MUN(H) 0-1,Fulham,67325,Eyong,0,0,0,25,0,0,0,02 Feb 17:30,0,0,50,0,Midfielder,0,0
+0,3,Enoh,0,0,NOR(A) 0-0,Fulham,67326,Eyong,0,0,0,26,0,0,0,09 Feb 15:00,0,0,50,0,Midfielder,0,0
+0,9,Enoh,0,0,STK(H) 1-0,Fulham,67327,Eyong,0,0,0,27,0,0,0,23 Feb 12:45,0,0,50,0,Midfielder,0,0
+0,2,Enoh,0,0,SUN(A) 2-2,Fulham,67328,Eyong,0,0,0,28,0,0,0,02 Mar 15:00,0,0,50,0,Midfielder,0,0
+0,1,Enoh,0,0,TOT(A) 1-0,Fulham,67330,Eyong,0,14,2,30,0,0,0,17 Mar 15:00,0,0,50,1,Midfielder,0,0
+0,-3,Enoh,0,0,QPR(H) 3-2,Fulham,67331,Eyong,0,0,0,31,0,0,0,01 Apr 20:00,0,0,50,0,Midfielder,0,0
+0,-3,Enoh,0,0,NEW(A) 0-1,Fulham,67332,Eyong,0,49,2,32,0,0,0,07 Apr 15:00,0,0,50,1,Midfielder,0,0
+0,4,Enoh,3,0,CHE(H) 0-3,Fulham,67333,Eyong,0,90,13,33,0,0,0,17 Apr 20:00,0,0,50,2,Midfielder,0,0
+0,2,Enoh,1,0,ARS(H) 0-1,Fulham,67334,Eyong,0,90,4,34,0,0,0,20 Apr 15:00,0,0,50,2,Midfielder,0,0
+1,1,Enoh,1,0,EVE(A) 0-1,Fulham,67335,Eyong,0,90,3,35,0,0,0,27 Apr 15:00,0,0,50,1,Midfielder,0,0
+1,-2,Enoh,4,0,RDG(H) 2-4,Fulham,67336,Eyong,0,90,3,36,0,0,0,04 May 15:00,0,0,50,1,Midfielder,0,0
+0,6,Enoh,3,0,LIV(H) 1-3,Fulham,67337,Eyong,0,90,6,37,0,0,0,12 May 15:00,0,0,50,2,Midfielder,0,0
+0,4,Enoh,0,0,SWA(A) 3-0,Fulham,67338,Eyong,0,90,15,38,0,1,0,19 May 16:00,0,0,50,3,Midfielder,0,0

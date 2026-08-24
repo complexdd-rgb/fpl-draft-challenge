@@ -1,0 +1,307 @@
+﻿yellow_cards,net_transfers,last_name,goals_conceded,saves,result,team_name_1,index,first_name,own_goals,minutes_played,EA_Spots_PPI,week,bonus,clean_sheets,assists,date,penalties_saved,penalties missed,value,points,position,red_cards,goals_scored
+0,-54,Benayoun,0,0,EVE(A) 1-0,Arsenal,10329,Yossi,0,0,0,29,0,0,0,21 March 20:00,0,0,69,0,Midfielder,0,0
+0,0,Zhirkov,0,0,MCI(A) 1-2,Chelsea,10829,Yury,0,0,0,29,0,0,0,21 March 19:45,0,0,65,0,Midfielder,0,0
+0,0,Kaboul,3,0,MUN(A) 0-3,Tottenham,3892,Younes,0,90,10,2,0,0,0,22 Aug. 20:00,0,0,55,1,Defender,0,0
+0,78,Mulumbu,0,0,CHE(H) 1-0,West Brom,42827,Youssouf,0,90,13,27,0,1,0,03 March 15:00,0,0,59,3,Midfielder,0,0
+0,-30,Mulumbu,4,0,MCI(A) 0-4,West Brom,42833,Youssouf,0,67,3,33,0,0,0,11 April 19:45,0,0,59,2,Midfielder,0,0
+0,-79,Gervinho,0,0,WOL(A) 3-0,Arsenal,48033,Yao,0,0,0,33,0,0,0,11 April 19:45,0,0,89,0,Forward,0,0
+0,0,Gervinho,0,0,SUN(H) 0-0,Arsenal,241,Yao,0,90,7,1,0,1,0,18 Aug 15:00,0,0,75,3,Midfielder,0,0
+0,670,Gervinho,0,0,STK(A) 0-0,Arsenal,242,Yao,0,71,4,2,0,1,0,26 Aug 13:30,0,0,75,3,Midfielder,0,0
+0,-4690,Gervinho,0,0,LIV(A) 2-0,Arsenal,243,Yao,0,0,0,3,0,0,0,02 Sep 13:30,0,0,75,0,Midfielder,0,0
+0,-6704,Gervinho,1,0,SOU(H) 6-1,Arsenal,244,Yao,0,73,40,4,3,0,0,15 Sep 15:00,0,0,73,15,Midfielder,0,2
+0,20006,Gervinho,1,0,MCI(A) 1-1,Arsenal,245,Yao,0,90,-4,5,0,0,0,23 Sep 16:00,0,0,73,2,Midfielder,0,0
+0,9967,Gervinho,2,0,CHE(H) 1-2,Arsenal,246,Yao,0,90,20,6,1,0,0,29 Sep 12:45,0,0,73,8,Midfielder,0,1
+1,86662,Gervinho,1,0,WHU(A) 3-1,Arsenal,247,Yao,0,60,9,7,0,0,0,06 Oct 17:30,0,0,75,1,Midfielder,0,0
+0,34057,Gervinho,1,0,NOR(A) 0-1,Arsenal,248,Yao,0,90,4,8,0,0,0,20 Oct 17:30,0,0,75,2,Midfielder,0,0
+0,3600,Gervinho,0,0,QPR(H) 1-0,Arsenal,249,Yao,0,10,-2,9,0,0,0,27 Oct 15:00,0,0,76,1,Midfielder,0,0
+0,-102224,Gervinho,0,0,MUN(A) 1-2,Arsenal,2410,Yao,0,0,0,10,0,0,0,03 Nov 12:45,0,0,74,0,Midfielder,0,0
+0,-792,Gervinho,0,0,NEW(H) 7-3,Arsenal,2420,Yao,0,0,0,20,0,0,0,29 Dec 17:30,0,0,68,0,Midfielder,0,0
+0,-16,Gervinho,0,0,SWA(A) 2-0,Arsenal,2430,Yao,0,20,25,30,1,0,0,16 Mar 15:00,0,0,68,7,Midfielder,0,1
+0,0,Benayoun,0,0,RDG(H) 4-2,Chelsea,861,Yossi,0,0,0,1,0,0,0,22 Aug 19:45,0,0,65,0,Midfielder,0,0
+0,-751,Benayoun,0,0,NEW(H) 2-0,Chelsea,862,Yossi,0,0,0,2,0,0,0,25 Aug 17:30,0,0,64,0,Midfielder,0,0
+0,-475,Benayoun,0,0,FUL(H) 3-0,Chelsea,863,Yossi,0,0,0,3,0,0,0,01 Sep 12:45,0,0,63,0,Midfielder,0,0
+0,74,Benayoun,0,0,NOR(A) 0-0,Chelsea,864,Yossi,0,5,1,4,0,0,0,15 Sep 12:45,0,0,63,1,Midfielder,0,0
+0,-130,Benayoun,0,0,SUN(H) 1-1,Chelsea,865,Yossi,0,34,3,5,0,0,0,22 Sep 15:00,0,0,63,1,Midfielder,0,0
+0,-174,Benayoun,0,0,QPR(A) 2-1,Chelsea,866,Yossi,0,0,0,6,0,0,0,01 Oct 20:00,0,0,62,0,Midfielder,0,0
+0,-178,Benayoun,0,0,ARS(H) 1-3,Chelsea,867,Yossi,0,0,0,7,0,0,0,06 Oct 17:30,0,0,62,0,Midfielder,0,0
+0,-140,Benayoun,1,0,SOU(H) 4-1,Chelsea,868,Yossi,0,90,21,8,0,0,1,20 Oct 15:00,0,0,62,5,Midfielder,0,0
+0,206,Benayoun,1,0,WIG(A) 1-2,Chelsea,869,Yossi,0,45,2,9,0,0,0,27 Oct 15:00,0,0,61,1,Midfielder,0,0
+1,-65,Benayoun,0,0,MCI(H) 0-0,Chelsea,8610,Yossi,0,90,7,10,0,1,0,03 Nov 17:30,0,0,61,2,Midfielder,0,0
+0,49,Benayoun,0,0,NEW(A) 1-0,Chelsea,8611,Yossi,0,51,3,11,0,0,0,11 Nov 15:00,0,0,61,1,Midfielder,0,0
+0,-32,Benayoun,0,0,STK(H) 1-1,Chelsea,8612,Yossi,0,0,0,12,0,0,0,19 Nov 20:00,0,0,61,0,Midfielder,0,0
+0,-201,Benayoun,0,0,TOT(A) 1-3,Chelsea,8613,Yossi,0,0,0,13,0,0,0,25 Nov 16:00,0,0,61,0,Midfielder,0,0
+0,-124,Benayoun,0,0,MUN(A) 0-1,Chelsea,8614,Yossi,0,0,0,14,0,0,0,28 Nov 20:00,0,0,61,0,Midfielder,0,0
+0,-107,Benayoun,0,0,CHE(H) 3-1,Chelsea,8615,Yossi,0,0,0,15,0,0,0,01 Dec 12:45,0,0,61,0,Midfielder,0,0
+0,-50,Benayoun,0,0,LIV(H) 2-3,Chelsea,8616,Yossi,0,0,0,16,0,0,0,09 Dec 16:00,0,0,61,0,Midfielder,0,0
+0,-63,Benayoun,0,0,WBA(A) 0-0,Chelsea,8617,Yossi,0,0,0,17,0,0,0,16 Dec 16:00,0,0,61,0,Midfielder,0,0
+0,-64,Benayoun,0,0,EVE(H) 1-2,Chelsea,8618,Yossi,0,0,0,18,0,0,0,22 Dec 15:00,0,0,61,0,Midfielder,0,0
+0,-29,Benayoun,0,0,RDG(A) 0-1,Chelsea,8620,Yossi,0,0,0,20,0,0,0,29 Dec 15:00,0,0,61,0,Midfielder,0,0
+0,-35,Benayoun,0,0,NOR(H) 2-1,Chelsea,8621,Yossi,0,0,0,21,0,0,0,01 Jan 15:00,0,0,61,0,Midfielder,0,0
+0,-88,Benayoun,0,0,SOU(H) 2-2,Chelsea,8622,Yossi,0,0,0,22,0,0,0,16 Jan 19:45,0,0,61,0,Midfielder,0,0
+0,-50,Benayoun,0,0,ARS(H) 2-1,Chelsea,8623,Yossi,0,0,0,23,0,0,0,20 Jan 13:30,0,0,61,0,Midfielder,0,0
+0,-39,Benayoun,2,0,RDG(A) 2-2,Chelsea,8624,Yossi,0,14,2,24,0,0,0,30 Jan 20:00,0,0,61,1,Midfielder,0,0
+0,-1,Benayoun,0,0,NEW(A) 2-3,Chelsea,8625,Yossi,0,0,0,25,0,0,0,02 Feb 15:00,0,0,61,0,Midfielder,0,0
+0,-7,Benayoun,0,0,WIG(H) 4-1,Chelsea,8626,Yossi,0,3,1,26,0,0,0,09 Feb 15:00,0,0,61,1,Midfielder,0,0
+0,-3,Benayoun,0,0,MCI(A) 0-2,Chelsea,8627,Yossi,0,0,0,27,0,0,0,24 Feb 13:30,0,0,61,0,Midfielder,0,0
+0,-5,Benayoun,0,0,WBA(H) 1-0,Chelsea,8628,Yossi,0,0,0,28,0,0,0,02 Mar 15:00,0,0,61,0,Midfielder,0,0
+0,0,Benayoun,0,0,WHU(H) 2-0,Chelsea,8630,Yossi,0,0,0,30,0,0,0,17 Mar 16:00,0,0,61,0,Midfielder,0,0
+0,-6,Benayoun,0,0,SOU(A) 1-2,Chelsea,8631,Yossi,0,15,1,31,0,0,0,30 Mar 15:00,0,0,61,1,Midfielder,0,0
+0,2,Benayoun,0,0,SUN(H) 2-1,Chelsea,8632,Yossi,0,7,1,32,0,0,0,07 Apr 15:00,0,0,61,1,Midfielder,0,0
+0,1,Benayoun,0,0,FUL(A) 3-0,Chelsea,8633,Yossi,0,0,0,33,0,0,0,17 Apr 20:00,0,0,61,0,Midfielder,0,0
+0,-5,Benayoun,1,0,LIV(A) 2-2,Chelsea,8634,Yossi,0,13,1,34,0,0,0,21 Apr 16:00,0,0,61,1,Midfielder,0,0
+0,0,Benayoun,0,0,SWA(H) 2-0,Chelsea,8635,Yossi,0,0,0,35,0,0,0,28 Apr 15:00,0,0,61,0,Midfielder,0,0
+0,3,Benayoun,0,0,TOT(H) 2-2,Chelsea,8636,Yossi,0,7,1,36,0,0,0,08 May 19:45,0,0,61,1,Midfielder,0,0
+0,-2,Benayoun,0,0,AVL(A) 2-1,Chelsea,8637,Yossi,0,0,0,37,0,0,0,11 May 12:45,0,0,61,0,Midfielder,0,0
+0,13,Benayoun,0,0,EVE(H) 2-1,Chelsea,8638,Yossi,0,0,0,38,0,0,0,19 May 16:00,0,0,61,0,Midfielder,0,0
+0,0,Yaya Toure,2,0,SOU(H) 3-2,Man City,1841,Yaya,0,90,35,1,2,0,1,19 Aug 16:00,0,0,80,7,Midfielder,0,0
+0,49,Yaya Toure,2,0,LIV(A) 2-2,Man City,1842,Yaya,0,90,27,2,2,0,0,26 Aug 16:00,0,0,80,9,Midfielder,0,1
+0,63708,Yaya Toure,1,0,QPR(H) 3-1,Man City,1843,Yaya,0,90,31,3,2,0,0,01 Sep 17:30,0,0,81,9,Midfielder,0,1
+0,76326,Yaya Toure,1,0,STK(A) 1-1,Man City,1844,Yaya,0,90,14,4,0,0,0,15 Sep 15:00,0,0,82,2,Midfielder,0,0
+0,40852,Yaya Toure,1,0,ARS(H) 1-1,Man City,1845,Yaya,0,90,-8,5,0,0,0,23 Sep 16:00,0,0,83,2,Midfielder,0,0
+0,11432,Yaya Toure,1,0,FUL(A) 2-1,Man City,1846,Yaya,0,90,20,6,0,0,0,29 Sep 15:00,0,0,83,2,Midfielder,0,0
+0,-39783,Yaya Toure,0,0,SUN(H) 3-0,Man City,1847,Yaya,0,90,27,7,1,1,0,06 Oct 12:45,0,0,83,4,Midfielder,0,0
+1,-33383,Yaya Toure,1,0,WBA(A) 2-1,Man City,1848,Yaya,0,90,7,8,0,0,0,20 Oct 15:00,0,0,82,1,Midfielder,0,0
+0,-45309,Yaya Toure,0,0,SWA(H) 1-0,Man City,1849,Yaya,0,90,24,9,2,1,0,27 Oct 17:30,0,0,81,5,Midfielder,0,0
+0,-42842,Yaya Toure,0,0,WHU(A) 0-0,Man City,18410,Yaya,0,90,0,10,0,1,0,03 Nov 17:30,0,0,80,3,Midfielder,0,0
+0,-62925,Yaya Toure,1,0,TOT(H) 2-1,Man City,18411,Yaya,0,90,19,11,0,0,1,11 Nov 13:30,0,0,79,5,Midfielder,0,0
+0,-24635,Yaya Toure,0,0,AVL(H) 5-0,Man City,18412,Yaya,0,90,26,12,0,1,0,17 Nov 15:00,0,0,79,3,Midfielder,0,0
+0,-30059,Yaya Toure,0,0,CHE(A) 0-0,Man City,18413,Yaya,0,90,15,13,3,1,0,25 Nov 16:00,0,0,79,6,Midfielder,0,0
+0,-4827,Yaya Toure,0,0,WIG(A) 2-0,Man City,18414,Yaya,0,90,17,14,0,1,0,28 Nov 20:00,0,0,78,3,Midfielder,0,0
+0,-22331,Yaya Toure,1,0,EVE(H) 1-1,Man City,18415,Yaya,0,90,12,15,0,0,0,01 Dec 15:00,0,0,78,2,Midfielder,0,0
+1,-42199,Yaya Toure,2,0,MUN(H) 2-3,Man City,18416,Yaya,0,83,22,16,1,0,0,09 Dec 13:30,0,0,77,7,Midfielder,0,1
+0,7134,Yaya Toure,1,0,NEW(A) 3-1,Man City,18417,Yaya,0,90,32,17,3,0,0,15 Dec 12:45,0,0,77,10,Midfielder,0,1
+1,165136,Yaya Toure,0,0,RDG(H) 1-0,Man City,18418,Yaya,0,90,19,18,1,1,0,22 Dec 15:00,0,0,80,3,Midfielder,0,0
+1,-3227,Yaya Toure,1,0,SUN(A) 0-1,Man City,18419,Yaya,0,90,8,19,0,0,0,26 Dec 15:00,0,0,81,1,Midfielder,0,0
+0,-35677,Yaya Toure,3,0,NOR(A) 4-3,Man City,18420,Yaya,0,90,16,20,0,0,1,29 Dec 15:00,0,0,80,5,Midfielder,0,0
+0,-38374,Yaya Toure,0,0,STK(H) 3-0,Man City,18421,Yaya,0,90,10,21,0,1,0,01 Jan 15:00,0,0,80,3,Midfielder,0,0
+0,-190777,Yaya Toure,0,0,ARS(A) 2-0,Man City,18422,Yaya,0,0,0,22,0,0,0,13 Jan 16:00,0,0,79,0,Midfielder,0,0
+0,-104636,Yaya Toure,0,0,FUL(H) 2-0,Man City,18423,Yaya,0,0,0,23,0,0,0,19 Jan 15:00,0,0,78,0,Midfielder,0,0
+0,-38466,Yaya Toure,0,0,QPR(A) 0-0,Man City,18424,Yaya,0,0,0,24,0,0,0,29 Jan 19:45,0,0,77,0,Midfielder,0,0
+0,-10917,Yaya Toure,0,0,LIV(H) 2-2,Man City,18425,Yaya,0,0,0,25,0,0,0,03 Feb 16:00,0,0,77,0,Midfielder,0,0
+1,-1697,Yaya Toure,3,0,SOU(A) 1-3,Man City,18426,Yaya,0,90,0,26,0,0,0,09 Feb 17:30,0,0,77,1,Midfielder,0,0
+0,3867,Yaya Toure,0,0,CHE(H) 2-0,Man City,18427,Yaya,0,90,31,27,3,1,0,24 Feb 13:30,0,0,77,11,Midfielder,0,1
+0,26746,Yaya Toure,0,0,AVL(A) 1-0,Man City,18428,Yaya,0,90,17,28,0,1,0,04 Mar 20:00,0,0,78,3,Midfielder,0,0
+0,5926,Yaya Toure,0,0,EVE(A) 0-2,Man City,18430,Yaya,0,0,0,30,0,0,0,16 Mar 12:45,0,0,78,0,Midfielder,0,0
+0,18970,Yaya Toure,0,0,NEW(H) 4-0,Man City,18431,Yaya,0,90,26,31,1,1,1,30 Mar 15:00,0,0,78,7,Midfielder,0,0
+0,10475,Yaya Toure,1,0,MUN(A) 2-1,Man City,18432,Yaya,0,90,15,32,0,0,1,08 Apr 20:00,0,0,79,5,Midfielder,0,0
+0,8970,Yaya Toure,0,0,WIG(H) 1-0,Man City,18433,Yaya,0,90,10,33,0,1,0,17 Apr 19:45,0,0,79,3,Midfielder,0,0
+1,15001,Yaya Toure,3,0,TOT(A) 1-3,Man City,18434,Yaya,0,90,6,34,0,0,0,21 Apr 13:30,0,0,80,1,Midfielder,0,0
+0,8297,Yaya Toure,1,0,WHU(H) 2-1,Man City,18435,Yaya,0,90,41,35,3,0,0,27 Apr 12:45,0,0,80,10,Midfielder,0,1
+0,68473,Yaya Toure,0,0,WBA(H) 1-0,Man City,18436,Yaya,0,0,0,36,0,0,0,07 May 19:45,0,0,83,0,Midfielder,0,0
+0,-32866,Yaya Toure,0,0,RDG(A) 2-0,Man City,18437,Yaya,0,90,24,37,0,1,0,14 May 20:00,0,0,83,3,Midfielder,0,0
+0,-11139,Yaya Toure,3,0,NOR(H) 2-3,Man City,18438,Yaya,0,90,10,38,0,0,1,19 May 16:00,0,0,82,5,Midfielder,0,0
+1,0,Cabaye,0,0,TOT(H) 2-1,Newcastle,2421,Yohan,0,70,10,1,0,1,0,18 Aug 17:30,0,0,70,2,Midfielder,0,0
+0,-12539,Cabaye,2,0,CHE(A) 0-2,Newcastle,2422,Yohan,0,76,4,2,0,0,0,25 Aug 17:30,0,0,70,2,Midfielder,0,0
+0,-17023,Cabaye,1,0,AVL(H) 1-1,Newcastle,2423,Yohan,0,90,9,3,0,0,0,02 Sep 16:00,0,0,70,2,Midfielder,0,0
+0,-18119,Cabaye,2,0,EVE(A) 2-2,Newcastle,2424,Yohan,0,90,18,4,0,0,1,17 Sep 20:00,0,0,69,5,Midfielder,0,0
+0,-2493,Cabaye,0,0,NOR(H) 1-0,Newcastle,2425,Yohan,0,90,3,5,0,1,0,23 Sep 15:00,0,0,69,3,Midfielder,0,0
+0,-9859,Cabaye,0,0,RDG(A) 2-2,Newcastle,2426,Yohan,0,0,0,6,0,0,0,29 Sep 15:00,0,0,68,0,Midfielder,0,0
+0,-12956,Cabaye,3,0,MUN(H) 0-3,Newcastle,2427,Yohan,0,90,6,7,0,0,0,07 Oct 16:00,0,0,68,2,Midfielder,0,0
+1,-4167,Cabaye,1,0,SUN(A) 1-1,Newcastle,2428,Yohan,0,90,29,8,3,0,0,21 Oct 13:30,0,0,68,9,Midfielder,0,1
+1,8962,Cabaye,1,0,WBA(H) 2-1,Newcastle,2429,Yohan,0,90,8,9,0,0,0,28 Oct 15:00,0,0,68,1,Midfielder,0,0
+0,-2162,Cabaye,1,0,LIV(A) 1-1,Newcastle,24210,Yohan,0,67,18,10,2,0,0,04 Nov 16:00,0,0,68,9,Midfielder,0,1
+0,7178,Cabaye,1,0,WHU(H) 0-1,Newcastle,24211,Yohan,0,90,18,11,0,0,0,11 Nov 15:00,0,0,68,2,Midfielder,0,0
+0,-9198,Cabaye,0,0,SWA(H) 1-2,Newcastle,24212,Yohan,0,0,0,12,0,0,0,17 Nov 15:00,0,0,68,0,Midfielder,0,0
+0,-20193,Cabaye,0,0,SOU(A) 0-2,Newcastle,24213,Yohan,0,0,0,13,0,0,0,25 Nov 15:00,0,0,68,0,Midfielder,0,0
+0,-6241,Cabaye,0,0,STK(A) 1-2,Newcastle,24214,Yohan,0,0,0,14,0,0,0,28 Nov 19:45,0,0,67,0,Midfielder,0,0
+0,-4943,Cabaye,0,0,WIG(H) 3-0,Newcastle,24215,Yohan,0,0,0,15,0,0,0,03 Dec 20:00,0,0,67,0,Midfielder,0,0
+0,-4860,Cabaye,0,0,FUL(A) 1-2,Newcastle,24216,Yohan,0,0,0,16,0,0,0,10 Dec 20:00,0,0,67,0,Midfielder,0,0
+0,-2987,Cabaye,0,0,MCI(H) 1-3,Newcastle,24217,Yohan,0,0,0,17,0,0,0,15 Dec 12:45,0,0,67,0,Midfielder,0,0
+0,-2123,Cabaye,0,0,QPR(H) 1-0,Newcastle,24218,Yohan,0,0,0,18,0,0,0,22 Dec 15:00,0,0,66,0,Midfielder,0,0
+0,-1109,Cabaye,0,0,MUN(A) 3-4,Newcastle,24219,Yohan,0,0,0,19,0,0,0,26 Dec 15:00,0,0,66,0,Midfielder,0,0
+0,-928,Cabaye,0,0,ARS(A) 3-7,Newcastle,24220,Yohan,0,0,0,20,0,0,0,29 Dec 17:30,0,0,66,0,Midfielder,0,0
+0,-758,Cabaye,0,0,EVE(H) 1-2,Newcastle,24221,Yohan,0,0,0,21,0,0,0,02 Jan 20:00,0,0,66,0,Midfielder,0,0
+0,-1486,Cabaye,0,0,NOR(A) 0-0,Newcastle,24222,Yohan,0,34,2,22,0,0,0,12 Jan 15:00,0,0,66,1,Midfielder,0,0
+0,1187,Cabaye,1,0,RDG(H) 1-2,Newcastle,24223,Yohan,0,73,25,23,2,0,0,19 Jan 15:00,0,0,66,9,Midfielder,0,1
+0,1210,Cabaye,1,0,AVL(A) 2-1,Newcastle,24224,Yohan,0,90,28,24,3,0,0,29 Jan 19:45,0,0,66,10,Midfielder,0,1
+0,12902,Cabaye,2,0,CHE(H) 3-2,Newcastle,24225,Yohan,0,90,16,25,0,0,0,02 Feb 15:00,0,0,66,2,Midfielder,0,0
+1,605,Cabaye,2,0,TOT(A) 1-2,Newcastle,24226,Yohan,0,90,-15,26,0,0,0,09 Feb 12:45,0,0,66,1,Midfielder,0,0
+0,3139,Cabaye,2,0,SOU(H) 4-2,Newcastle,24227,Yohan,0,76,25,27,0,0,0,24 Feb 13:30,0,0,66,7,Midfielder,0,1
+1,305,Cabaye,1,0,SWA(A) 0-1,Newcastle,24228,Yohan,0,90,16,28,0,0,0,02 Mar 15:00,0,0,66,1,Midfielder,0,0
+0,17838,Cabaye,1,0,STK(H) 2-1,Newcastle,24229,Yohan,0,90,17,29,0,0,0,10 Mar 15:00,0,0,66,7,Midfielder,0,1
+0,-3524,Cabaye,0,0,WIG(A) 1-2,Newcastle,24230,Yohan,0,0,0,30,0,0,0,17 Mar 16:00,0,0,66,0,Midfielder,0,0
+1,-4788,Cabaye,4,0,MCI(A) 0-4,Newcastle,24231,Yohan,0,73,-7,31,0,0,0,30 Mar 15:00,0,0,66,1,Midfielder,0,0
+0,2649,Cabaye,0,0,FUL(H) 1-0,Newcastle,24232,Yohan,0,90,20,32,2,1,1,07 Apr 15:00,0,0,66,8,Midfielder,0,0
+0,-87,Cabaye,1,0,SUN(H) 0-3,Newcastle,24233,Yohan,0,61,4,33,0,0,0,14 Apr 12:00,0,0,66,2,Midfielder,0,0
+1,-1779,Cabaye,1,0,WBA(A) 1-1,Newcastle,24234,Yohan,0,90,8,34,0,0,0,20 Apr 15:00,0,0,66,1,Midfielder,0,0
+0,-3138,Cabaye,6,0,LIV(H) 0-6,Newcastle,24235,Yohan,0,90,13,35,0,0,0,27 Apr 17:30,0,0,66,2,Midfielder,0,0
+0,-6056,Cabaye,0,0,WHU(A) 0-0,Newcastle,24236,Yohan,0,90,0,36,0,1,0,04 May 15:00,0,0,65,3,Midfielder,0,0
+1,1651,Cabaye,1,0,QPR(A) 2-1,Newcastle,24237,Yohan,0,90,-2,37,0,0,0,12 May 15:00,0,0,65,1,Midfielder,0,0
+0,-1642,Cabaye,1,0,ARS(H) 0-1,Newcastle,24238,Yohan,0,56,7,38,0,0,0,19 May 16:00,0,0,65,1,Midfielder,0,0
+0,0,Kaboul,2,0,NEW(A) 1-2,Tottenham,4371,Younes,0,90,-2,1,0,0,0,18 Aug 17:30,0,0,55,1,Defender,0,0
+0,-9581,Kaboul,0,0,WBA(H) 1-1,Tottenham,4372,Younes,0,0,0,2,0,0,0,25 Aug 15:00,0,0,55,0,Defender,0,0
+0,-28947,Kaboul,0,0,NOR(H) 1-1,Tottenham,4373,Younes,0,0,0,3,0,0,0,01 Sep 15:00,0,0,54,0,Defender,0,0
+0,-17770,Kaboul,0,0,RDG(A) 3-1,Tottenham,4374,Younes,0,0,0,4,0,0,0,16 Sep 16:00,0,0,53,0,Defender,0,0
+0,-5895,Kaboul,0,0,QPR(H) 2-1,Tottenham,4375,Younes,0,0,0,5,0,0,0,23 Sep 16:00,0,0,52,0,Defender,0,0
+0,-3645,Kaboul,0,0,MUN(A) 3-2,Tottenham,4376,Younes,0,0,0,6,0,0,0,29 Sep 17:30,0,0,52,0,Defender,0,0
+0,-2234,Kaboul,0,0,AVL(H) 2-0,Tottenham,4377,Younes,0,0,0,7,0,0,0,07 Oct 15:00,0,0,51,0,Defender,0,0
+0,-1728,Kaboul,0,0,CHE(H) 2-4,Tottenham,4378,Younes,0,0,0,8,0,0,0,20 Oct 12:45,0,0,51,0,Defender,0,0
+0,-862,Kaboul,0,0,SOU(A) 2-1,Tottenham,4379,Younes,0,0,0,9,0,0,0,28 Oct 15:00,0,0,51,0,Defender,0,0
+0,-762,Kaboul,0,0,WIG(H) 0-1,Tottenham,43710,Younes,0,0,0,10,0,0,0,03 Nov 15:00,0,0,51,0,Defender,0,0
+0,-569,Kaboul,0,0,MCI(A) 1-2,Tottenham,43711,Younes,0,0,0,11,0,0,0,11 Nov 13:30,0,0,51,0,Defender,0,0
+0,-521,Kaboul,0,0,ARS(A) 2-5,Tottenham,43712,Younes,0,0,0,12,0,0,0,17 Nov 12:45,0,0,51,0,Defender,0,0
+0,-515,Kaboul,0,0,WHU(H) 3-1,Tottenham,43713,Younes,0,0,0,13,0,0,0,25 Nov 16:00,0,0,51,0,Defender,0,0
+0,-215,Kaboul,0,0,LIV(H) 2-1,Tottenham,43714,Younes,0,0,0,14,0,0,0,28 Nov 19:45,0,0,51,0,Defender,0,0
+0,-259,Kaboul,0,0,FUL(A) 3-0,Tottenham,43715,Younes,0,0,0,15,0,0,0,01 Dec 15:00,0,0,51,0,Defender,0,0
+0,-336,Kaboul,0,0,EVE(A) 1-2,Tottenham,43716,Younes,0,0,0,16,0,0,0,09 Dec 15:00,0,0,51,0,Defender,0,0
+0,-261,Kaboul,0,0,SWA(H) 1-0,Tottenham,43717,Younes,0,0,0,17,0,0,0,16 Dec 13:30,0,0,51,0,Defender,0,0
+0,-212,Kaboul,0,0,STK(H) 0-0,Tottenham,43718,Younes,0,0,0,18,0,0,0,22 Dec 15:00,0,0,50,0,Defender,0,0
+0,-139,Kaboul,0,0,AVL(A) 4-0,Tottenham,43719,Younes,0,0,0,19,0,0,0,26 Dec 17:30,0,0,50,0,Defender,0,0
+0,-125,Kaboul,0,0,SUN(A) 2-1,Tottenham,43720,Younes,0,0,0,20,0,0,0,29 Dec 12:45,0,0,50,0,Defender,0,0
+0,-112,Kaboul,0,0,RDG(H) 3-1,Tottenham,43721,Younes,0,0,0,21,0,0,0,01 Jan 15:00,0,0,50,0,Defender,0,0
+0,-351,Kaboul,0,0,QPR(A) 0-0,Tottenham,43722,Younes,0,0,0,22,0,0,0,12 Jan 12:45,0,0,50,0,Defender,0,0
+0,-133,Kaboul,0,0,MUN(H) 1-1,Tottenham,43723,Younes,0,0,0,23,0,0,0,20 Jan 16:00,0,0,50,0,Defender,0,0
+0,-178,Kaboul,0,0,NOR(A) 1-1,Tottenham,43724,Younes,0,0,0,24,0,0,0,30 Jan 19:45,0,0,50,0,Defender,0,0
+0,-65,Kaboul,0,0,WBA(A) 1-0,Tottenham,43725,Younes,0,0,0,25,0,0,0,03 Feb 13:30,0,0,50,0,Defender,0,0
+0,-92,Kaboul,0,0,NEW(H) 2-1,Tottenham,43726,Younes,0,0,0,26,0,0,0,09 Feb 12:45,0,0,50,0,Defender,0,0
+0,-83,Kaboul,0,0,WHU(A) 3-2,Tottenham,43727,Younes,0,0,0,27,0,0,0,25 Feb 20:00,0,0,50,0,Defender,0,0
+0,-52,Kaboul,0,0,ARS(H) 2-1,Tottenham,43728,Younes,0,0,0,28,0,0,0,03 Mar 16:00,0,0,50,0,Defender,0,0
+0,-45,Kaboul,0,0,LIV(A) 2-3,Tottenham,43729,Younes,0,0,0,29,0,0,0,10 Mar 16:00,0,0,50,0,Defender,0,0
+0,-45,Kaboul,0,0,FUL(H) 0-1,Tottenham,43730,Younes,0,0,0,30,0,0,0,17 Mar 15:00,0,0,50,0,Defender,0,0
+0,-38,Kaboul,0,0,SWA(A) 2-1,Tottenham,43731,Younes,0,0,0,31,0,0,0,30 Mar 15:00,0,0,50,0,Defender,0,0
+0,-15,Kaboul,0,0,EVE(H) 2-2,Tottenham,43732,Younes,0,0,0,32,0,0,0,07 Apr 14:05,0,0,50,0,Defender,0,0
+0,-7,Kaboul,0,0,MCI(H) 3-1,Tottenham,43734,Younes,0,0,0,34,0,0,0,21 Apr 13:30,0,0,50,0,Defender,0,0
+0,-20,Kaboul,0,0,WIG(A) 2-2,Tottenham,43735,Younes,0,0,0,35,0,0,0,27 Apr 15:00,0,0,50,0,Defender,0,0
+0,-10,Kaboul,0,0,CHE(A) 2-2,Tottenham,43736,Younes,0,0,0,36,0,0,0,08 May 19:45,0,0,50,0,Defender,0,0
+0,-6,Kaboul,0,0,STK(A) 2-1,Tottenham,43737,Younes,0,0,0,37,0,0,0,12 May 13:30,0,0,50,0,Defender,0,0
+0,0,Kaboul,0,0,SUN(H) 1-0,Tottenham,43738,Younes,0,0,0,38,0,0,0,19 May 16:00,0,0,50,0,Defender,0,0
+0,0,Falque,0,0,NEW(A) 1-2,Tottenham,4531,Yago,0,0,0,1,0,0,0,18 Aug 17:30,0,0,50,0,Midfielder,0,0
+0,-105,Falque,0,0,WBA(H) 1-1,Tottenham,4532,Yago,0,0,0,2,0,0,0,25 Aug 15:00,0,0,50,0,Midfielder,0,0
+0,-125,Falque,0,0,NOR(H) 1-1,Tottenham,4533,Yago,0,0,0,3,0,0,0,01 Sep 15:00,0,0,49,0,Midfielder,0,0
+0,-74,Falque,0,0,RDG(A) 3-1,Tottenham,4534,Yago,0,0,0,4,0,0,0,16 Sep 16:00,0,0,48,0,Midfielder,0,0
+0,-24,Falque,0,0,QPR(H) 2-1,Tottenham,4535,Yago,0,0,0,5,0,0,0,23 Sep 16:00,0,0,47,0,Midfielder,0,0
+0,-11,Falque,0,0,MUN(A) 3-2,Tottenham,4536,Yago,0,0,0,6,0,0,0,29 Sep 17:30,0,0,47,0,Midfielder,0,0
+0,-17,Falque,0,0,AVL(H) 2-0,Tottenham,4537,Yago,0,0,0,7,0,0,0,07 Oct 15:00,0,0,47,0,Midfielder,0,0
+0,-5,Falque,0,0,CHE(H) 2-4,Tottenham,4538,Yago,0,0,0,8,0,0,0,20 Oct 12:45,0,0,47,0,Midfielder,0,0
+0,0,Falque,0,0,SOU(A) 2-1,Tottenham,4539,Yago,0,0,0,9,0,0,0,28 Oct 15:00,0,0,46,0,Midfielder,0,0
+0,39,Falque,0,0,WIG(H) 0-1,Tottenham,45310,Yago,0,0,0,10,0,0,0,03 Nov 15:00,0,0,46,0,Midfielder,0,0
+0,-10,Falque,0,0,MCI(A) 1-2,Tottenham,45311,Yago,0,0,0,11,0,0,0,11 Nov 13:30,0,0,46,0,Midfielder,0,0
+0,1,Falque,0,0,ARS(A) 2-5,Tottenham,45312,Yago,0,0,0,12,0,0,0,17 Nov 12:45,0,0,46,0,Midfielder,0,0
+0,-4,Falque,0,0,WHU(H) 3-1,Tottenham,45313,Yago,0,0,0,13,0,0,0,25 Nov 16:00,0,0,46,0,Midfielder,0,0
+0,-5,Falque,0,0,LIV(H) 2-1,Tottenham,45314,Yago,0,0,0,14,0,0,0,28 Nov 19:45,0,0,46,0,Midfielder,0,0
+0,-6,Falque,0,0,FUL(A) 3-0,Tottenham,45315,Yago,0,0,0,15,0,0,0,01 Dec 15:00,0,0,46,0,Midfielder,0,0
+0,-7,Falque,2,0,EVE(A) 1-2,Tottenham,45316,Yago,0,6,1,16,0,0,0,09 Dec 15:00,0,0,46,1,Midfielder,0,0
+0,-13,Falque,0,0,SWA(H) 1-0,Tottenham,45317,Yago,0,0,0,17,0,0,0,16 Dec 13:30,0,0,46,0,Midfielder,0,0
+0,-6,Falque,0,0,STK(H) 0-0,Tottenham,45318,Yago,0,0,0,18,0,0,0,22 Dec 15:00,0,0,46,0,Midfielder,0,0
+0,-3,Falque,0,0,AVL(A) 4-0,Tottenham,45319,Yago,0,0,0,19,0,0,0,26 Dec 17:30,0,0,46,0,Midfielder,0,0
+0,-11,Falque,0,0,SUN(A) 2-1,Tottenham,45320,Yago,0,0,0,20,0,0,0,29 Dec 12:45,0,0,46,0,Midfielder,0,0
+0,-2,Falque,0,0,RDG(H) 3-1,Tottenham,45321,Yago,0,0,0,21,0,0,0,01 Jan 15:00,0,0,46,0,Midfielder,0,0
+0,-10,Falque,0,0,QPR(A) 0-0,Tottenham,45322,Yago,0,0,0,22,0,0,0,12 Jan 12:45,0,0,46,0,Midfielder,0,0
+0,-4,Falque,0,0,MUN(H) 1-1,Tottenham,45323,Yago,0,0,0,23,0,0,0,20 Jan 16:00,0,0,46,0,Midfielder,0,0
+0,-11,Falque,0,0,NOR(A) 1-1,Tottenham,45324,Yago,0,0,0,24,0,0,0,30 Jan 19:45,0,0,46,0,Midfielder,0,0
+0,-10,Falque,0,0,WBA(A) 1-0,Tottenham,45325,Yago,0,0,0,25,0,0,0,03 Feb 13:30,0,0,46,0,Midfielder,0,0
+0,-9,Falque,0,0,NEW(H) 2-1,Tottenham,45326,Yago,0,0,0,26,0,0,0,09 Feb 12:45,0,0,46,0,Midfielder,0,0
+0,-5,Falque,0,0,WHU(A) 3-2,Tottenham,45327,Yago,0,0,0,27,0,0,0,25 Feb 20:00,0,0,46,0,Midfielder,0,0
+0,-4,Falque,0,0,ARS(H) 2-1,Tottenham,45328,Yago,0,0,0,28,0,0,0,03 Mar 16:00,0,0,46,0,Midfielder,0,0
+0,-2,Falque,0,0,LIV(A) 2-3,Tottenham,45329,Yago,0,0,0,29,0,0,0,10 Mar 16:00,0,0,46,0,Midfielder,0,0
+0,-5,Falque,0,0,FUL(H) 0-1,Tottenham,45330,Yago,0,0,0,30,0,0,0,17 Mar 15:00,0,0,46,0,Midfielder,0,0
+0,-2,Falque,0,0,SWA(A) 2-1,Tottenham,45331,Yago,0,0,0,31,0,0,0,30 Mar 15:00,0,0,46,0,Midfielder,0,0
+0,-5,Falque,0,0,EVE(H) 2-2,Tottenham,45332,Yago,0,0,0,32,0,0,0,07 Apr 14:05,0,0,46,0,Midfielder,0,0
+0,-1,Falque,0,0,MCI(H) 3-1,Tottenham,45334,Yago,0,0,0,34,0,0,0,21 Apr 13:30,0,0,46,0,Midfielder,0,0
+0,-1,Falque,0,0,WIG(A) 2-2,Tottenham,45335,Yago,0,0,0,35,0,0,0,27 Apr 15:00,0,0,46,0,Midfielder,0,0
+0,-1,Falque,0,0,CHE(A) 2-2,Tottenham,45336,Yago,0,0,0,36,0,0,0,08 May 19:45,0,0,46,0,Midfielder,0,0
+0,-1,Falque,0,0,STK(A) 2-1,Tottenham,45337,Yago,0,0,0,37,0,0,0,12 May 13:30,0,0,46,0,Midfielder,0,0
+0,-2,Falque,0,0,SUN(H) 1-0,Tottenham,45338,Yago,0,0,0,38,0,0,0,19 May 16:00,0,0,46,0,Midfielder,0,0
+0,0,Mulumbu,0,0,LIV(H) 3-0,West Brom,4781,Youssouf,0,90,3,1,0,1,0,18 Aug 15:00,0,0,55,3,Midfielder,0,0
+1,-982,Mulumbu,1,0,TOT(A) 1-1,West Brom,4782,Youssouf,0,90,11,2,0,0,0,25 Aug 15:00,0,0,55,1,Midfielder,0,0
+0,-1841,Mulumbu,0,0,EVE(H) 2-0,West Brom,4783,Youssouf,0,90,18,3,0,1,0,01 Sep 15:00,0,0,55,3,Midfielder,0,0
+0,-1045,Mulumbu,3,0,FUL(A) 0-3,West Brom,4784,Youssouf,0,90,2,4,0,0,0,15 Sep 15:00,0,0,54,2,Midfielder,0,0
+0,-619,Mulumbu,0,0,RDG(H) 1-0,West Brom,4785,Youssouf,0,90,12,5,0,1,0,22 Sep 15:00,0,0,54,3,Midfielder,0,0
+0,-418,Mulumbu,1,0,AVL(A) 1-1,West Brom,4786,Youssouf,0,90,5,6,0,0,0,30 Sep 16:00,0,0,54,2,Midfielder,0,0
+1,-363,Mulumbu,2,0,QPR(H) 3-2,West Brom,4787,Youssouf,0,90,26,7,0,0,0,06 Oct 15:00,0,0,54,6,Midfielder,0,1
+0,-382,Mulumbu,2,0,MCI(H) 1-2,West Brom,4788,Youssouf,0,90,1,8,0,0,0,20 Oct 15:00,0,0,54,2,Midfielder,0,0
+1,-219,Mulumbu,2,0,NEW(A) 1-2,West Brom,4789,Youssouf,0,90,3,9,0,0,0,28 Oct 15:00,0,0,54,1,Midfielder,0,0
+0,26,Mulumbu,0,0,SOU(H) 2-0,West Brom,47810,Youssouf,0,90,26,10,2,1,1,05 Nov 20:00,0,0,54,8,Midfielder,0,0
+0,1105,Mulumbu,1,0,WIG(A) 2-1,West Brom,47811,Youssouf,0,90,10,11,0,0,0,10 Nov 15:00,0,0,54,2,Midfielder,0,0
+0,-556,Mulumbu,1,0,CHE(H) 2-1,West Brom,47812,Youssouf,0,90,11,12,0,0,0,17 Nov 15:00,0,0,54,2,Midfielder,0,0
+0,-864,Mulumbu,0,0,SUN(A) 4-2,West Brom,47813,Youssouf,0,0,0,13,0,0,0,24 Nov 12:45,0,0,54,0,Midfielder,0,0
+0,-874,Mulumbu,3,0,SWA(A) 1-3,West Brom,47814,Youssouf,0,90,5,14,0,0,0,28 Nov 19:45,0,0,54,2,Midfielder,0,0
+0,-12,Mulumbu,1,0,STK(H) 0-1,West Brom,47815,Youssouf,0,90,1,15,0,0,0,01 Dec 15:00,0,0,53,2,Midfielder,0,0
+0,-291,Mulumbu,2,0,ARS(A) 0-2,West Brom,47816,Youssouf,0,90,5,16,0,0,0,08 Dec 15:00,0,0,53,2,Midfielder,0,0
+1,-166,Mulumbu,0,0,WHU(H) 0-0,West Brom,47817,Youssouf,0,90,-1,17,0,1,0,16 Dec 16:00,0,0,53,2,Midfielder,0,0
+0,-1024,Mulumbu,0,0,NOR(H) 2-1,West Brom,47818,Youssouf,0,0,0,18,0,0,0,22 Dec 15:00,0,0,53,0,Midfielder,0,0
+0,-141,Mulumbu,1,0,QPR(A) 2-1,West Brom,47819,Youssouf,0,90,13,19,0,0,0,26 Dec 15:00,0,0,53,2,Midfielder,0,0
+0,-346,Mulumbu,0,0,MUN(A) 0-2,West Brom,47820,Youssouf,0,0,0,20,0,0,0,29 Dec 15:00,0,0,53,0,Midfielder,0,0
+0,-404,Mulumbu,2,0,FUL(H) 1-2,West Brom,47821,Youssouf,0,90,-4,21,0,0,0,01 Jan 12:45,0,0,53,2,Midfielder,0,0
+0,-348,Mulumbu,0,0,RDG(A) 2-3,West Brom,47822,Youssouf,0,0,0,22,0,0,0,12 Jan 15:00,0,0,53,0,Midfielder,0,0
+0,-566,Mulumbu,0,0,AVL(H) 2-2,West Brom,47823,Youssouf,0,0,0,23,0,0,0,19 Jan 17:30,0,0,53,0,Midfielder,0,0
+0,-369,Mulumbu,0,0,EVE(A) 1-2,West Brom,47824,Youssouf,0,0,0,24,0,0,0,30 Jan 19:45,0,0,53,0,Midfielder,0,0
+0,-97,Mulumbu,0,0,TOT(H) 0-1,West Brom,47825,Youssouf,0,0,0,25,0,0,0,03 Feb 13:30,0,0,53,0,Midfielder,0,0
+0,-138,Mulumbu,0,0,LIV(A) 2-0,West Brom,47826,Youssouf,0,90,24,26,2,1,0,11 Feb 20:00,0,0,53,5,Midfielder,0,0
+0,335,Mulumbu,1,0,SUN(H) 2-1,West Brom,47827,Youssouf,0,90,15,27,0,0,0,23 Feb 15:00,0,0,53,2,Midfielder,0,0
+0,13,Mulumbu,1,0,CHE(A) 0-1,West Brom,47828,Youssouf,0,90,-1,28,0,0,0,02 Mar 15:00,0,0,53,2,Midfielder,0,0
+0,229,Mulumbu,1,0,SWA(H) 2-1,West Brom,47829,Youssouf,0,90,16,29,0,0,0,09 Mar 15:00,0,0,53,2,Midfielder,0,0
+0,-22,Mulumbu,0,0,STK(A) 0-0,West Brom,47830,Youssouf,0,90,9,30,0,1,0,16 Mar 15:00,0,0,53,3,Midfielder,0,0
+0,21,Mulumbu,3,0,WHU(A) 1-3,West Brom,47831,Youssouf,0,90,-3,31,0,0,0,30 Mar 15:00,0,0,53,-1,Midfielder,1,0
+0,-356,Mulumbu,0,0,ARS(H) 1-2,West Brom,47832,Youssouf,0,0,0,32,0,0,0,06 Apr 15:00,0,0,53,0,Midfielder,0,0
+0,-74,Mulumbu,0,0,NEW(H) 1-1,West Brom,47834,Youssouf,0,0,0,34,0,0,0,20 Apr 15:00,0,0,53,0,Midfielder,0,0
+0,-89,Mulumbu,0,0,SOU(A) 3-0,West Brom,47835,Youssouf,0,0,0,35,0,0,0,27 Apr 15:00,0,0,53,0,Midfielder,0,0
+0,125,Mulumbu,1,0,MCI(A) 0-1,West Brom,47836,Youssouf,0,90,2,36,0,0,0,07 May 19:45,0,0,53,2,Midfielder,0,0
+0,33,Mulumbu,4,0,NOR(A) 0-4,West Brom,47837,Youssouf,0,90,3,37,0,0,0,12 May 15:00,0,0,53,2,Midfielder,0,0
+0,-16,Mulumbu,5,0,MUN(H) 5-5,West Brom,47838,Youssouf,0,90,32,38,1,0,1,19 May 16:00,0,0,53,11,Midfielder,0,1
+0,0,El Ghanassy,0,0,LIV(H) 3-0,West Brom,4841,Yassine,0,0,0,1,0,0,0,18 Aug 15:00,0,0,50,0,Midfielder,0,0
+0,-615,El Ghanassy,0,0,TOT(A) 1-1,West Brom,4842,Yassine,0,0,0,2,0,0,0,25 Aug 15:00,0,0,49,0,Midfielder,0,0
+0,-694,El Ghanassy,0,0,EVE(H) 2-0,West Brom,4843,Yassine,0,0,0,3,0,0,0,01 Sep 15:00,0,0,48,0,Midfielder,0,0
+0,-369,El Ghanassy,0,0,FUL(A) 0-3,West Brom,4844,Yassine,0,0,0,4,0,0,0,15 Sep 15:00,0,0,47,0,Midfielder,0,0
+0,-166,El Ghanassy,0,0,RDG(H) 1-0,West Brom,4845,Yassine,0,0,0,5,0,0,0,22 Sep 15:00,0,0,46,0,Midfielder,0,0
+0,-147,El Ghanassy,0,0,AVL(A) 1-1,West Brom,4846,Yassine,0,0,0,6,0,0,0,30 Sep 16:00,0,0,45,0,Midfielder,0,0
+0,-52,El Ghanassy,0,0,QPR(H) 3-2,West Brom,4847,Yassine,0,0,0,7,0,0,0,06 Oct 15:00,0,0,45,0,Midfielder,0,0
+0,-69,El Ghanassy,0,0,MCI(H) 1-2,West Brom,4848,Yassine,0,0,0,8,0,0,0,20 Oct 15:00,0,0,45,0,Midfielder,0,0
+0,-35,El Ghanassy,0,0,NEW(A) 1-2,West Brom,4849,Yassine,0,0,0,9,0,0,0,28 Oct 15:00,0,0,44,0,Midfielder,0,0
+0,-32,El Ghanassy,0,0,SOU(H) 2-0,West Brom,48410,Yassine,0,0,0,10,0,0,0,05 Nov 20:00,0,0,44,0,Midfielder,0,0
+0,-33,El Ghanassy,0,0,WIG(A) 2-1,West Brom,48411,Yassine,0,0,0,11,0,0,0,10 Nov 15:00,0,0,44,0,Midfielder,0,0
+0,-26,El Ghanassy,0,0,CHE(H) 2-1,West Brom,48412,Yassine,0,0,0,12,0,0,0,17 Nov 15:00,0,0,44,0,Midfielder,0,0
+0,2,El Ghanassy,0,0,SUN(A) 4-2,West Brom,48413,Yassine,0,0,0,13,0,0,0,24 Nov 12:45,0,0,44,0,Midfielder,0,0
+0,-5,El Ghanassy,0,0,SWA(A) 1-3,West Brom,48414,Yassine,0,0,0,14,0,0,0,28 Nov 19:45,0,0,44,0,Midfielder,0,0
+0,-12,El Ghanassy,0,0,STK(H) 0-1,West Brom,48415,Yassine,0,0,0,15,0,0,0,01 Dec 15:00,0,0,44,0,Midfielder,0,0
+0,-21,El Ghanassy,0,0,ARS(A) 0-2,West Brom,48416,Yassine,0,0,0,16,0,0,0,08 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-9,El Ghanassy,0,0,WHU(H) 0-0,West Brom,48417,Yassine,0,0,0,17,0,0,0,16 Dec 16:00,0,0,43,0,Midfielder,0,0
+0,-9,El Ghanassy,0,0,NOR(H) 2-1,West Brom,48418,Yassine,0,0,0,18,0,0,0,22 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-9,El Ghanassy,0,0,QPR(A) 2-1,West Brom,48419,Yassine,0,0,0,19,0,0,0,26 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-2,El Ghanassy,0,0,MUN(A) 0-2,West Brom,48420,Yassine,0,0,0,20,0,0,0,29 Dec 15:00,0,0,43,0,Midfielder,0,0
+0,-3,El Ghanassy,0,0,FUL(H) 1-2,West Brom,48421,Yassine,0,0,0,21,0,0,0,01 Jan 12:45,0,0,43,0,Midfielder,0,0
+0,32,El Ghanassy,0,0,RDG(A) 2-3,West Brom,48422,Yassine,0,0,0,22,0,0,0,12 Jan 15:00,0,0,43,0,Midfielder,0,0
+0,-8,El Ghanassy,0,0,AVL(H) 2-2,West Brom,48423,Yassine,0,0,0,23,0,0,0,19 Jan 17:30,0,0,43,0,Midfielder,0,0
+0,-15,El Ghanassy,0,0,EVE(A) 1-2,West Brom,48424,Yassine,0,0,0,24,0,0,0,30 Jan 19:45,0,0,43,0,Midfielder,0,0
+0,-21,El Ghanassy,0,0,TOT(H) 0-1,West Brom,48425,Yassine,0,0,0,25,0,0,0,03 Feb 13:30,0,0,43,0,Midfielder,0,0
+0,-46,El Ghanassy,0,0,LIV(A) 2-0,West Brom,48426,Yassine,0,0,0,26,0,0,0,11 Feb 20:00,0,0,43,0,Midfielder,0,0
+0,-33,El Ghanassy,0,0,SUN(H) 2-1,West Brom,48427,Yassine,0,0,0,27,0,0,0,23 Feb 15:00,0,0,43,0,Midfielder,0,0
+0,-15,El Ghanassy,0,0,CHE(A) 0-1,West Brom,48428,Yassine,0,0,0,28,0,0,0,02 Mar 15:00,0,0,43,0,Midfielder,0,0
+0,-8,El Ghanassy,0,0,SWA(H) 2-1,West Brom,48429,Yassine,0,0,0,29,0,0,0,09 Mar 15:00,0,0,43,0,Midfielder,0,0
+0,-8,El Ghanassy,0,0,STK(A) 0-0,West Brom,48430,Yassine,0,0,0,30,0,0,0,16 Mar 15:00,0,0,43,0,Midfielder,0,0
+0,-8,El Ghanassy,0,0,WHU(A) 1-3,West Brom,48431,Yassine,0,0,0,31,0,0,0,30 Mar 15:00,0,0,43,0,Midfielder,0,0
+0,-10,El Ghanassy,0,0,ARS(H) 1-2,West Brom,48432,Yassine,0,0,0,32,0,0,0,06 Apr 15:00,0,0,43,0,Midfielder,0,0
+0,-2,El Ghanassy,0,0,NEW(H) 1-1,West Brom,48434,Yassine,0,0,0,34,0,0,0,20 Apr 15:00,0,0,43,0,Midfielder,0,0
+0,-3,El Ghanassy,0,0,SOU(A) 3-0,West Brom,48435,Yassine,0,0,0,35,0,0,0,27 Apr 15:00,0,0,43,0,Midfielder,0,0
+0,-8,El Ghanassy,0,0,MCI(A) 0-1,West Brom,48436,Yassine,0,0,0,36,0,0,0,07 May 19:45,0,0,43,0,Midfielder,0,0
+0,1,El Ghanassy,0,0,NOR(A) 0-4,West Brom,48437,Yassine,0,0,0,37,0,0,0,12 May 15:00,0,0,43,0,Midfielder,0,0
+0,-3,El Ghanassy,0,0,MUN(H) 5-5,West Brom,48438,Yassine,0,0,0,38,0,0,0,19 May 16:00,0,0,43,0,Midfielder,0,0
+0,1434,Gouffran,1,0,AVL(A) 2-1,Newcastle,65924,Yoan,0,73,8,24,0,0,0,29 Jan 19:45,0,0,70,2,Forward,0,0
+0,292,Gouffran,2,0,CHE(H) 3-2,Newcastle,65925,Yoan,0,83,26,25,0,0,1,02 Feb 15:00,0,0,70,5,Forward,0,0
+0,1534,Gouffran,1,0,TOT(A) 1-2,Newcastle,65926,Yoan,0,57,20,26,0,0,0,09 Feb 12:45,0,0,70,5,Forward,0,1
+0,1511,Gouffran,2,0,SOU(H) 4-2,Newcastle,65927,Yoan,0,86,19,27,0,0,1,24 Feb 13:30,0,0,70,5,Forward,0,0
+0,2158,Gouffran,1,0,SWA(A) 0-1,Newcastle,65928,Yoan,0,90,6,28,0,0,0,02 Mar 15:00,0,0,70,2,Forward,0,0
+0,3620,Gouffran,1,0,STK(H) 2-1,Newcastle,65929,Yoan,0,85,8,29,0,0,0,10 Mar 15:00,0,0,70,2,Forward,0,0
+0,-2593,Gouffran,1,0,WIG(A) 1-2,Newcastle,65930,Yoan,0,66,-2,30,0,0,0,17 Mar 16:00,0,0,70,2,Forward,0,0
+0,-2515,Gouffran,3,0,MCI(A) 0-4,Newcastle,65931,Yoan,0,62,3,31,0,0,0,30 Mar 15:00,0,0,70,2,Forward,0,0
+0,-973,Gouffran,0,0,FUL(H) 1-0,Newcastle,65932,Yoan,0,68,2,32,0,1,0,07 Apr 15:00,0,0,69,2,Forward,0,0
+1,-893,Gouffran,1,0,SUN(H) 0-3,Newcastle,65933,Yoan,0,45,1,33,0,0,0,14 Apr 12:00,0,0,66,0,Forward,0,0
+0,-548,Gouffran,1,0,WBA(A) 1-1,Newcastle,65934,Yoan,0,68,28,34,3,0,0,20 Apr 15:00,0,0,64,9,Forward,0,1
+0,195,Gouffran,4,0,LIV(H) 0-6,Newcastle,65935,Yoan,0,45,7,35,0,0,0,27 Apr 17:30,0,0,64,1,Forward,0,0
+0,-475,Gouffran,0,0,WHU(A) 0-0,Newcastle,65936,Yoan,0,75,2,36,0,1,0,04 May 15:00,0,0,63,2,Forward,0,0
+0,125,Gouffran,1,0,QPR(A) 2-1,Newcastle,65937,Yoan,0,76,31,37,3,0,0,12 May 15:00,0,0,62,9,Forward,0,1
+0,592,Gouffran,1,0,ARS(H) 0-1,Newcastle,65938,Yoan,0,63,1,38,0,0,0,19 May 16:00,0,0,62,2,Forward,0,0
+1,159,Sylla,1,0,EVE(A) 3-3,Aston Villa,66925,Yacouba,0,12,0,25,0,0,0,02 Feb 15:00,0,0,45,0,Midfielder,0,0
+0,52,Sylla,1,0,WHU(H) 2-1,Aston Villa,66926,Yacouba,0,6,1,26,0,0,0,10 Feb 13:30,0,0,45,1,Midfielder,0,0
+0,-24,Sylla,0,0,ARS(A) 1-2,Aston Villa,66927,Yacouba,0,0,0,27,0,0,0,23 Feb 15:00,0,0,44,0,Midfielder,0,0
+0,-18,Sylla,0,0,MCI(H) 0-1,Aston Villa,66928,Yacouba,0,0,0,28,0,0,0,04 Mar 20:00,0,0,43,0,Midfielder,0,0
+0,-13,Sylla,1,0,RDG(A) 2-1,Aston Villa,66929,Yacouba,0,90,9,29,0,0,0,09 Mar 15:00,0,0,42,2,Midfielder,0,0
+1,125,Sylla,1,0,QPR(H) 3-2,Aston Villa,66930,Yacouba,0,57,11,30,0,0,0,16 Mar 15:00,0,0,42,0,Midfielder,0,0
+0,46,Sylla,2,0,LIV(H) 1-2,Aston Villa,66931,Yacouba,0,75,4,31,0,0,0,31 Mar 13:30,0,0,42,2,Midfielder,0,0
+0,28,Sylla,1,0,STK(A) 3-1,Aston Villa,66932,Yacouba,0,17,3,32,0,0,0,06 Apr 15:00,0,0,42,1,Midfielder,0,0
+1,11,Sylla,0,0,FUL(H) 1-1,Aston Villa,66933,Yacouba,0,23,2,33,0,0,0,13 Apr 15:00,0,0,42,0,Midfielder,0,0
+0,5,Sylla,0,0,MUN(A) 0-3,Aston Villa,66934,Yacouba,0,0,0,34,0,0,0,22 Apr 20:00,0,0,42,0,Midfielder,0,0
+0,-6,Sylla,1,0,SUN(H) 6-1,Aston Villa,66935,Yacouba,0,90,16,35,0,0,0,29 Apr 20:00,0,0,42,2,Midfielder,0,0
+0,20,Sylla,1,0,NOR(A) 2-1,Aston Villa,66936,Yacouba,0,77,15,36,0,0,0,04 May 15:00,0,0,42,2,Midfielder,0,0
+0,23,Sylla,2,0,CHE(H) 1-2,Aston Villa,66937,Yacouba,0,90,5,37,0,0,1,11 May 12:45,0,0,42,5,Midfielder,0,0
+0,169,Sylla,2,0,WIG(A) 2-2,Aston Villa,66938,Yacouba,0,58,5,38,0,0,0,19 May 16:00,0,0,42,1,Midfielder,0,0
