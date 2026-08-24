@@ -85,6 +85,31 @@ function bestMatch(target, statRows) {
   return candidates.length === 1 ? candidates[0] : { ambiguous: candidates };
 }
 
+function levenshtein(a, b) {
+  a = norm(a); b = norm(b);
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i += 1) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j += 1) {
+      cur[j] = Math.min(cur[j-1] + 1, prev[j] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    }
+    for (let j = 0; j < cur.length; j += 1) prev[j] = cur[j];
+  }
+  return prev[b.length];
+}
+
+function closestCandidates(target, statRows) {
+  const wantedClub = normClub(target.record.club);
+  const wantedPosition = { GK: 'goalkeeper', DEF: 'defender', MID: 'midfielder', FWD: 'forward' }[target.record.position] || '';
+  const pool = statRows.filter(r => normClub(r.club) === wantedClub && (!wantedPosition || norm(r.position) === wantedPosition));
+  return pool.map(r => ({
+    player: r.player, club: r.club, position: r.position,
+    distance: levenshtein(target.player.name, r.player),
+    total: r.total, goals: r.goals, assists: r.assists,
+    yellowEvents: r.yellowEvents, redYellow: r.redYellow, straightRed: r.straightRed
+  })).sort((a,b) => a.distance - b.distance || a.player.localeCompare(b.player)).slice(0, 3);
+}
+
 const requestHeaders = {
   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0 Safari/537.36',
   'accept': 'text/html,application/xhtml+xml',
@@ -122,8 +147,6 @@ for (const [season, cfg] of Object.entries(seasons)) {
   for (const target of targets) {
     const match = bestMatch(target, statRows);
     if (match && !match.ambiguous) {
-      // Existing project convention from the 2011/12 StatBunker cross-check:
-      // Yellow Card includes the second yellow in a second-yellow dismissal, so subtract Red+Yellow for the FPL-style yellow-card total.
       const yellowCards = Math.max(0, match.yellowEvents - match.redYellow);
       const redCards = match.redYellow + match.straightRed;
       if (match.redYellow) correctedSecondYellow += 1;
@@ -131,7 +154,8 @@ for (const [season, cfg] of Object.entries(seasons)) {
       matched += 1;
     } else {
       const count = match?.ambiguous?.length || 0;
-      report.unresolved.push({ season, playerId: target.player.playerId, name: target.player.name, club: target.record.club, reason: count ? 'ambiguous-name-match' : 'no-name-match', candidates: (match?.ambiguous || []).map(r => `${r.player} — ${r.club}`) });
+      const suggestions = closestCandidates(target, statRows);
+      report.unresolved.push({ season, playerId: target.player.playerId, name: target.player.name, club: target.record.club, position: target.record.position, minutes: target.record.minutes, goals: target.record.goals, assists: target.record.assists, reason: count ? 'ambiguous-name-match' : 'no-name-match', candidates: (match?.ambiguous || []).map(r => `${r.player} — ${r.club}`), suggestions });
       if (count) ambiguous += 1; else missing += 1;
     }
   }
@@ -145,8 +169,8 @@ console.log(JSON.stringify(report.seasons, null, 2));
 console.log(`Total recovered: ${report.recoveries.length}`);
 console.log(`Total unresolved: ${report.unresolved.length}`);
 if (report.unresolved.length) {
-  console.log('UNRESOLVED');
-  for (const row of report.unresolved) console.log(`${row.season}\t${row.playerId}\t${row.name}\t${row.club}\t${row.reason}\t${row.candidates.join(' | ')}`);
+  console.log('UNRESOLVED WITH CLOSEST SAME-CLUB/POSITION SUGGESTIONS');
+  for (const row of report.unresolved) console.log(`${row.season}\t${row.playerId}\t${row.name}\t${row.club}\t${row.position}\tmins=${row.minutes}\t${row.reason}\t${row.suggestions.map(s => `${s.player}[d=${s.distance},P=${s.total},G=${s.goals},A=${s.assists},Y=${s.yellowEvents},RY=${s.redYellow},R=${s.straightRed}]`).join(' | ')}`);
 }
 console.log('SECOND-YELLOW ADJUSTMENT SAMPLE');
 for (const row of report.recoveries.filter(r => r.redYellow).slice(0, 20)) console.log(`${row.season}\t${row.name}\tY=${row.yellowEvents}\tRY=${row.redYellow}\tFPL-yellow=${row.yellowCards}\tred=${row.redCards}`);
