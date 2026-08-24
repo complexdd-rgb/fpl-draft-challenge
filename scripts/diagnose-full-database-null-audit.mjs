@@ -2,8 +2,28 @@ import fs from "node:fs";
 import vm from "node:vm";
 
 const source = fs.readFileSync(new URL("../players.js", import.meta.url), "utf8");
-globalThis.window = {};
+globalThis.window = {
+  addEventListener() {},
+  removeEventListener() {},
+  dispatchEvent() {},
+  location: { pathname: "/admin.html" },
+  setTimeout,
+  clearTimeout
+};
 window.window = window;
+globalThis.document = {
+  readyState: "complete",
+  querySelector() { return null; },
+  querySelectorAll() { return []; },
+  getElementById() { return null; },
+  addEventListener() {},
+  removeEventListener() {},
+  createElement() { return { style: {}, dataset: {}, classList: { add() {}, remove() {} }, appendChild() {}, setAttribute() {}, addEventListener() {} }; },
+  head: { appendChild() {} },
+  body: { appendChild() {} }
+};
+globalThis.CustomEvent = class CustomEvent { constructor(type, init = {}) { this.type = type; this.detail = init.detail; } };
+globalThis.Event = class Event { constructor(type, init = {}) { this.type = type; this.bubbles = Boolean(init.bubbles); } };
 vm.runInThisContext(source, { filename: "players.js" });
 
 const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
