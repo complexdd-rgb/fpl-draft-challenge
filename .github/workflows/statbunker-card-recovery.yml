@@ -21,6 +21,8 @@ jobs:
         run: node scripts/diagnose-murphy-zaha-records.mjs
       - name: Probe StatBunker access routes
         run: node scripts/probe-statbunker-access.mjs
+      - name: Probe StatBunker save endpoints
+        run: node scripts/probe-statbunker-saves.mjs
       - name: Recover 2012/13 and 2013/14 cards from StatBunker
         run: node scripts/recover-statbunker-cards-2012-14.mjs
       - name: Upload recovery report
