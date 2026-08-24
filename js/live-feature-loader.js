@@ -43,6 +43,11 @@
     if (config.enabled && config.allTimeLeaderboard) loadModule("js/leaderboard-all-time.js", "data-leaderboard-all-time");
     if (config.enabled && config.playerProfile && config.accounts?.enabled) loadModule("js/player-profile.js", "data-player-profile");
   };
-  window.addEventListener("fpl:leaderboard-visible", loadLeaderboardExtras, { once: true });
   window.FPL_LOAD_LEADERBOARD_EXTRAS = loadLeaderboardExtras;
+
+  // The feature loader itself is asynchronous. If the leaderboard activated before this
+  // script finished loading, its one-shot visibility event has already fired. Catch up from
+  // the client's durable active flag so team sheets and the other deferred extras still load.
+  if (window.FPL_LEADERBOARD_ACTIVE) loadLeaderboardExtras();
+  else window.addEventListener("fpl:leaderboard-visible", loadLeaderboardExtras, { once: true });
 })();
