@@ -91,12 +91,30 @@ const requestHeaders = {
   'accept-language': 'en-GB,en;q=0.9',
   'referer': 'https://www.statbunker.com/'
 };
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchStatBunker(url, season) {
+  let lastStatus = 0;
+  for (let attempt = 1; attempt <= 10; attempt += 1) {
+    const separator = url.includes('?') ? '&' : '?';
+    const attemptUrl = `${url}${separator}_fpl_audit=${Date.now()}_${attempt}`;
+    try {
+      const response = await fetch(attemptUrl, { headers: requestHeaders, redirect: 'follow' });
+      lastStatus = response.status;
+      const html = await response.text();
+      console.log(`${season} fetch attempt ${attempt}: HTTP ${response.status}, ${html.length} bytes, final=${response.url}`);
+      if (response.ok && html.length > 100000) return { response, html };
+    } catch (error) {
+      console.log(`${season} fetch attempt ${attempt}: ${error.message}`);
+    }
+    if (attempt < 10) await sleep(1800);
+  }
+  throw new Error(`${season} StatBunker fetch failed after retries; last HTTP status ${lastStatus}`);
+}
 
 const report = { generatedAt: new Date().toISOString(), source: 'StatBunker PlayerStandings', seasons: {}, recoveries: [], unresolved: [] };
 for (const [season, cfg] of Object.entries(seasons)) {
-  const response = await fetch(cfg.url, { headers: requestHeaders, redirect: 'follow' });
-  if (!response.ok) throw new Error(`${season} StatBunker fetch failed: ${response.status}`);
-  const html = await response.text();
+  const { response, html } = await fetchStatBunker(cfg.url, season);
   const statRows = parseStandings(html);
   if (statRows.length < 400) throw new Error(`${season} StatBunker parse returned only ${statRows.length} player rows`);
   const targets = players.flatMap(player => (player.seasons || []).filter(record => record.season === season && (record.yellowCards === null || record.yellowCards === undefined || record.yellowCards === '')).map(record => ({ player, record })));
