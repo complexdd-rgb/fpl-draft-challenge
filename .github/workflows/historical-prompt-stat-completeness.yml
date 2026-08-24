@@ -1,0 +1,23 @@
+name: Historical prompt-stat completeness
+
+on:
+  pull_request:
+    paths:
+      - 'players.js'
+      - 'players-live.js'
+      - 'scripts/audit-prompt-stat-completeness.mjs'
+      - '.github/workflows/historical-prompt-stat-completeness.yml'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit historical prompt-stat completeness
+        run: node scripts/audit-prompt-stat-completeness.mjs
