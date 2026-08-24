@@ -17,10 +17,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Probe StatBunker access routes
+        run: node scripts/probe-statbunker-access.mjs
       - name: Recover 2012/13 and 2013/14 cards from StatBunker
         run: node scripts/recover-statbunker-cards-2012-14.mjs
       - name: Upload recovery report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: statbunker-card-recovery-2012-14
           path: reports/statbunker-card-recovery-2012-14.json
+          if-no-files-found: ignore
