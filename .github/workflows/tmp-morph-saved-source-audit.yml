@@ -31,16 +31,14 @@ jobs:
           rm -rf tmp/morph-saved-source-audit
           mkdir -p tmp/morph-saved-source-audit/chunks
           python - <<'PY'
-          import csv, json, re, unicodedata
+          import csv, json, unicodedata
           from collections import defaultdict
           from pathlib import Path
 
           src=Path('/tmp/morph.csv')
           out=Path('tmp/morph-saved-source-audit')
           with src.open(encoding='utf-8-sig',newline='') as f:
-              rd=csv.DictReader(f)
-              headers=rd.fieldnames
-              rows=list(rd)
+              rd=csv.DictReader(f); headers=rd.fieldnames; rows=list(rd)
 
           def get(r,*names):
               for n in names:
@@ -50,28 +48,19 @@ jobs:
               try:return int(float(str(v or 0).strip()))
               except:return 0
           def full(r):
-              first=get(r,'first_name','First Name')
-              last=get(r,'last_name','Last Name','Player')
-              return ' '.join(x for x in [first,last] if x).strip()
+              return ' '.join(x for x in [get(r,'first_name','First Name'),get(r,'last_name','Last Name','Player')] if x).strip()
+          def team(r): return get(r,'team_name_1','team_name','Team')
           def initial(name):
               s=unicodedata.normalize('NFKD',name or '')
               s=''.join(c for c in s if not unicodedata.combining(c)).strip().upper()
-              c=s[0] if s else '_'
-              return c if 'A'<=c<='Z' else '_'
+              c=s[0] if s else '_'; return c if 'A'<=c<='Z' else '_'
 
           grouped=defaultdict(list)
-          for r in rows: grouped[(full(r),get(r,'team_name','Team'))].append(r)
+          for r in rows: grouped[(full(r),team(r))].append(r)
           idx=[]
-          for (name,team),rr in grouped.items():
+          for (name,club),rr in grouped.items():
               weeks=sorted({asint(get(x,'week','Week')) for x in rr})
-              idx.append({
-                  'player':name,'team':team,'rows':len(rr),
-                  'minutes_sum':sum(asint(get(x,'minutes_played','Minutes')) for x in rr),
-                  'assists_sum':sum(asint(get(x,'assists','Assists')) for x in rr),
-                  'points_sum':sum(asint(get(x,'points','FPL Points')) for x in rr),
-                  'weeks':' '.join(map(str,weeks)),
-                  'dates':' | '.join(sorted({get(x,'date','Date') for x in rr})),
-              })
+              idx.append({'player':name,'team':club,'rows':len(rr),'minutes_sum':sum(asint(get(x,'minutes_played','Minutes')) for x in rr),'assists_sum':sum(asint(get(x,'assists','Assists')) for x in rr),'points_sum':sum(asint(get(x,'points','FPL Points')) for x in rr),'weeks':' '.join(map(str,weeks)),'dates':' | '.join(sorted({get(x,'date','Date') for x in rr}))})
           idx.sort(key=lambda x:(x['player'].lower(),x['team'].lower()))
           with (out/'player_team_index.csv').open('w',encoding='utf-8-sig',newline='') as f:
               fields=list(idx[0]); w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(idx)
@@ -79,9 +68,8 @@ jobs:
           buckets=defaultdict(list)
           for r in rows: buckets[initial(full(r))].append(r)
           for key,rr in buckets.items():
-              fields=headers
               with (out/'chunks'/f'{key}.csv').open('w',encoding='utf-8-sig',newline='') as f:
-                  w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(rr)
+                  w=csv.DictWriter(f,fieldnames=headers); w.writeheader(); w.writerows(rr)
 
           audit={'rows':len(rows),'headers':headers,'player_team_groups':len(idx),'chunk_counts':{k:len(v) for k,v in sorted(buckets.items())},'warning':'Original scraper key was player-slot ID + gameweek without season. This is a mixed preserved-row archive; season totals require positive 2010/11 identification/completeness checks.'}
           (out/'audit.json').write_text(json.dumps(audit,indent=2)+'\n',encoding='utf-8')
