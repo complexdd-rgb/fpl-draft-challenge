@@ -41,6 +41,7 @@ run("js/certification-approved-null-policy.js");
 document.readyState = "complete";
 run("js/career-shape-validation-bridge.js");
 run("js/prompt-library-legacy-additions-20260814.js");
+run("js/prompt-era-range-wording.js");
 
 // Reproduce the approved-library path used by Career Overlap Wording before the
 // four-star analyser performs any additional cached rejection pass.
@@ -77,5 +78,4 @@ for (const season of targetSeasons) {
 }
 
 console.log(`\nApproved-library failure summary: ${failedSeasons}/${targetSeasons.length} target seasons failed.`);
-// Diagnostic only: keep the workflow green so the log remains available even when the
-// browser-reproduced approved library exposes failures we are investigating.
+if (failedSeasons) process.exitCode = 1;
