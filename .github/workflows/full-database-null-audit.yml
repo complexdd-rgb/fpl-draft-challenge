@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - diagnostics/full-database-null-audit-20260824
+  pull_request:
   workflow_dispatch:
 
 jobs:
