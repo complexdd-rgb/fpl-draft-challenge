@@ -1,11 +1,13 @@
-name: StatBunker card recovery audit
+name: StatBunker prompt-stat recovery
 
 on:
   push:
     branches:
       - data/statbunker-2012-14-card-save-recovery
-  pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   recover:
@@ -13,19 +15,31 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: data/statbunker-2012-14-card-save-recovery
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Diagnose unresolved identities
-        run: node scripts/diagnose-murphy-zaha-records.mjs
-      - name: Probe StatBunker access routes
-        run: node scripts/probe-statbunker-access.mjs
-      - name: Probe StatBunker save endpoints
-        run: node scripts/probe-statbunker-saves.mjs
-      - name: Recover 2012/13 and 2013/14 cards from StatBunker
-        run: node scripts/recover-statbunker-cards-2012-14.mjs
-      - name: Upload recovery report
+      - name: Recover and load 2012/13–2013/14 prompt stats
+        run: node scripts/import-prompt-stats-2012-14.mjs
+      - name: Rebuild player-facing database
+        run: node scripts/build-live-players.mjs
+      - name: Audit prompt-stat completeness
+        run: node scripts/audit-prompt-stat-completeness.mjs
+      - name: Commit recovered database rows
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add players.js players-live.js
+          if git diff --cached --quiet; then
+            echo "Database already contains the audited recovery."
+          else
+            git commit -m "Load StatBunker card and verified save recovery"
+            git push origin HEAD:data/statbunker-2012-14-card-save-recovery
+          fi
+      - name: Upload StatBunker recovery report
         if: always()
         uses: actions/upload-artifact@v4
         with:
