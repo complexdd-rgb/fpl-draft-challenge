@@ -17,6 +17,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Diagnose unresolved identities
+        run: node scripts/diagnose-murphy-zaha-records.mjs
       - name: Probe StatBunker access routes
         run: node scripts/probe-statbunker-access.mjs
       - name: Recover 2012/13 and 2013/14 cards from StatBunker
