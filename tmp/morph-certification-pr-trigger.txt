@@ -1,2 +1,2 @@
 Temporary trigger file for the 2010/11 Morph certification runner. Safe to delete with the temporary branch.
-Retry: pinned canonical source selection enabled.
+Retry: drift-safe 210 frontier enabled; final promotion remains gated to frozen v8 209.
