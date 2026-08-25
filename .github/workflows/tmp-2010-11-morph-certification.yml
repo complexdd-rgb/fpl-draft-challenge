@@ -45,7 +45,7 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/BrenPatF/item_category_optimization_oracle/af18698aad5a5084aa9e11709900e1571b04b03b/fantasy_premier_league_player_stats.csv -o /tmp/fpl2010-frontier/morph.csv
           curl -fsSL https://raw.githubusercontent.com/footballcsv/england/master/2010s/2010-11/eng.1.csv -o /tmp/fpl2010-frontier/fixtures.csv
 
-      - name: Rebuild drift-safe current frontier
+      - name: Rebuild current matching scaffold
         shell: bash
         run: |
           set -euo pipefail
@@ -58,17 +58,17 @@ jobs:
           import csv
           p='tmp/2010-11-frontier-output/unresolved_209.csv'
           rows=list(csv.DictReader(open(p,encoding='utf-8-sig')))
-          print('drift-safe unresolved rows=',len(rows))
-          if len(rows)!=210: raise SystemExit(f'Expected 210 after one-row source drift, got {len(rows)}')
+          print('current scaffold unresolved rows=',len(rows))
+          if len(rows)!=214: raise SystemExit(f'Expected current scaffold 214, got {len(rows)}')
           PY
 
-      - name: Certify Morph archive
+      - name: Classify Morph archive against 2010-11 fixtures
         shell: bash
         run: |
           set -euo pipefail
           rm -rf tmp/morph-2010-11-certification
           cp tmp/certify_morph_2010_11.py /tmp/certify-current.py
-          sed -i "s/if len(frontier)!=209:/if len(frontier)!=210:/" /tmp/certify-current.py
+          sed -i "s/if len(frontier)!=209:/if len(frontier)!=214:/" /tmp/certify-current.py
           python /tmp/certify-current.py
           cp /tmp/fpl2010-frontier/canonical-source.txt tmp/morph-2010-11-certification/canonical-source.txt
 
@@ -80,5 +80,5 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add tmp/2010-11-frontier-output tmp/morph-2010-11-certification
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'tmp: store drift-safe 2010-11 Morph certification results'
+          git commit -m 'tmp: store 2010-11 Morph fixture-classification results'
           git push origin HEAD:${{ github.head_ref }}
