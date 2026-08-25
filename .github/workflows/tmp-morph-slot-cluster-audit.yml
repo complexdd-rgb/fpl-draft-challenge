@@ -1,0 +1,126 @@
+name: Temporary Morph slot-cluster audit
+
+on:
+  push:
+    branches:
+      - tmp/2010-11-unresolved-frontier-20260823
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp/2010-11-unresolved-frontier-20260823
+
+      - name: Fetch preserved FPL archive and canonical 2010-11 scaffold
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/BrenPatF/item_category_optimization_oracle/af18698aad5a5084aa9e11709900e1571b04b03b/fantasy_premier_league_player_stats.csv -o /tmp/morph.csv
+          curl -fsSL https://raw.githubusercontent.com/imadeddine-belkat/Premier-League-Stats/main/pl_stats/_merged/players/2010-11_players_stats.csv -o /tmp/canonical.csv
+
+      - name: Build player-slot clusters and exact-minute candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf tmp/morph-slot-audit
+          mkdir -p tmp/morph-slot-audit/candidates
+          python - <<'PY'
+          import csv, json, re, unicodedata
+          from collections import defaultdict
+          from difflib import SequenceMatcher
+          from pathlib import Path
+
+          def norm(s):
+              s=unicodedata.normalize('NFKD',str(s or ''))
+              s=''.join(c for c in s if not unicodedata.combining(c)).lower()
+              s=s.replace('&',' and ')
+              s=re.sub(r'[^a-z0-9]+',' ',s)
+              return ' '.join(s.split())
+          def asint(v):
+              try:return int(float(str(v or 0).strip()))
+              except:return 0
+          def get(r,*names):
+              for n in names:
+                  if n in r:return r.get(n,'')
+              return ''
+          def morph_name(r):
+              first=get(r,'first_name','First Name').strip()
+              last=get(r,'last_name','Last Name','Player').strip()
+              # exported web-name often appends the first initial: "Davies K".
+              parts=last.split()
+              if len(parts)>=2 and len(parts[-1].strip('.'))==1 and first and parts[-1].strip('.').lower()==first[0].lower():
+                  last=' '.join(parts[:-1])
+              return ' '.join(x for x in [first,last] if x).strip()
+          def slot_id(r):
+              idx=str(get(r,'index')).strip(); wk=str(asint(get(r,'week','Week')))
+              return idx[:-len(wk)] if wk and idx.endswith(wk) else idx
+
+          with open('/tmp/canonical.csv',encoding='utf-8-sig',newline='') as f:
+              canon=[r for r in csv.DictReader(f) if asint(r.get('timePlayed'))>0]
+          bynorm=defaultdict(list)
+          for r in canon:bynorm[norm(r['playerName'])].append(r)
+
+          with open('/tmp/morph.csv',encoding='utf-8-sig',newline='') as f:
+              mrows=list(csv.DictReader(f))
+          clusters=defaultdict(list)
+          for r in mrows:
+              clusters[(morph_name(r),slot_id(r))].append(r)
+
+          out=[]
+          unmatched=[]
+          for (name,slot),rr in clusters.items():
+              n=norm(name); matches=bynorm.get(n,[]); method='EXACT'
+              if len(matches)!=1:
+                  # strict fuzzy fallback for spelling/accent differences; candidates still need manual gate.
+                  scored=sorted(((SequenceMatcher(None,n,norm(c['playerName'])).ratio(),c) for c in canon),key=lambda x:x[0],reverse=True)
+                  if scored and scored[0][0]>=.94 and (len(scored)==1 or scored[0][0]-scored[1][0]>=.08):
+                      matches=[scored[0][1]]; method='FUZZY_STRICT'
+                  else:
+                      unmatched.append({'morph_name':name,'slot_id':slot,'rows':len(rr)})
+                      continue
+              c=matches[0]
+              mins=sum(asint(x.get('minutes_played')) for x in rr)
+              weeks=sorted({asint(x.get('week')) for x in rr})
+              clubs=sorted({str(x.get('team_name_1') or '').strip() for x in rr if str(x.get('team_name_1') or '').strip()})
+              fixtures=' | '.join(f"GW{asint(x.get('week'))}:{x.get('result','')}:{x.get('date','')}" for x in sorted(rr,key=lambda z:(asint(z.get('week')),str(z.get('date','')))))
+              rec={
+                  'canonical_playerId':c['playerId'],'canonical_name':c['playerName'],'canonical_minutes':asint(c['timePlayed']),
+                  'morph_name':name,'slot_id':slot,'match_method':method,'clubs':' | '.join(clubs),'rows':len(rr),
+                  'weeks':' '.join(map(str,weeks)),'minutes_sum':mins,'minutes_delta':mins-asint(c['timePlayed']),
+                  'assists_sum':sum(asint(x.get('assists')) for x in rr),'goals_sum':sum(asint(x.get('goals_scored')) for x in rr),
+                  'bonus_sum':sum(asint(x.get('bonus')) for x in rr),'points_sum':sum(asint(x.get('points')) for x in rr),
+                  'clean_sheets_sum':sum(asint(x.get('clean_sheets')) for x in rr),'yellow_sum':sum(asint(x.get('yellow_cards')) for x in rr),
+                  'fixtures':fixtures,
+              }
+              out.append(rec)
+
+          out.sort(key=lambda r:(abs(r['minutes_delta']),-r['canonical_minutes'],r['canonical_name'],r['slot_id']))
+          fields=list(out[0].keys())
+          with open('tmp/morph-slot-audit/all_matched_clusters.csv','w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(out)
+          exact=[r for r in out if r['minutes_delta']==0 and r['minutes_sum']>0]
+          with open('tmp/morph-slot-audit/exact_minute_candidates.csv','w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(exact)
+          near=[r for r in out if r['minutes_sum']>0 and abs(r['minutes_delta'])<=180 and r['minutes_delta']!=0]
+          with open('tmp/morph-slot-audit/near_minute_candidates.csv','w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(near)
+          audit={'canonical_positive_minutes':len(canon),'morph_rows':len(mrows),'slot_clusters':len(clusters),'matched_clusters':len(out),'exact_minute_candidates':len(exact),'near_within_180':len(near),'rule':'Exact-minute equality is candidate evidence only. Each candidate must still be checked against the v8 unresolved frontier and its fixtures must identify the 2010/11 season before certification.'}
+          Path('tmp/morph-slot-audit/audit.json').write_text(json.dumps(audit,indent=2)+'\n',encoding='utf-8')
+          PY
+
+      - name: Commit audit outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tmp/morph-slot-audit
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'tmp: cluster Morph rows by historical FPL slot'
+          git push origin HEAD:tmp/2010-11-unresolved-frontier-20260823
