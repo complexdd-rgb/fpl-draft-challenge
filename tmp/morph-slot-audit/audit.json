@@ -1,0 +1,9 @@
+{
+  "canonical_positive_minutes": 545,
+  "morph_rows": 22831,
+  "slot_clusters": 1092,
+  "matched_clusters": 543,
+  "exact_minute_candidates": 2,
+  "near_within_180": 40,
+  "rule": "Exact-minute equality is candidate evidence only. Each candidate must still be checked against the v8 unresolved frontier and its fixtures must identify the 2010/11 season before certification."
+}
