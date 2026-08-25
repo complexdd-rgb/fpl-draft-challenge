@@ -1,0 +1,69 @@
+name: Temporary Morph 2010-11 marker audit
+
+on:
+  push:
+    branches:
+      - tmp/2010-11-unresolved-frontier-20260823
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp/2010-11-unresolved-frontier-20260823
+      - shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/BrenPatF/item_category_optimization_oracle/af18698aad5a5084aa9e11709900e1571b04b03b/fantasy_premier_league_player_stats.csv -o /tmp/morph.csv
+          rm -rf tmp/morph-2010-marker-audit
+          mkdir -p tmp/morph-2010-marker-audit
+          python - <<'PY'
+          import csv,re,json
+          from collections import defaultdict,Counter
+          from pathlib import Path
+          def geti(r,k):
+              try:return int(float(str(r.get(k,0) or 0)))
+              except:return 0
+          def name(r):
+              first=(r.get('first_name') or '').strip(); last=(r.get('last_name') or '').strip(); p=last.split()
+              if len(p)>=2 and len(p[-1].strip('.'))==1 and first and p[-1].strip('.').lower()==first[0].lower(): last=' '.join(p[:-1])
+              return ' '.join(x for x in [first,last] if x).strip()
+          def slot(r):
+              idx=str(r.get('index','')).strip(); w=str(geti(r,'week')); return idx[:-len(w)] if w and idx.endswith(w) else idx
+          def opp(r):
+              m=re.match(r'\s*([A-Z]{2,4})\s*\(',str(r.get('result',''))); return m.group(1) if m else ''
+          with open('/tmp/morph.csv',encoding='utf-8-sig',newline='') as f: rows=list(csv.DictReader(f))
+          groups=defaultdict(list)
+          for r in rows: groups[(name(r),slot(r),r.get('team_name_1',''))].append(r)
+          pref=Counter(opp(r) for r in rows if opp(r))
+          summaries=[]
+          for (nm,sl,club),rr in groups.items():
+              os=sorted(set(opp(x) for x in rr if opp(x)))
+              marker = club in {'Birmingham','Blackpool'} or bool({'BIR','BLP','BPL'} & set(os))
+              if not marker: continue
+              summaries.append({
+                'player':nm,'slot_id':sl,'club':club,'rows':len(rr),'weeks':' '.join(map(str,sorted({geti(x,'week') for x in rr}))),
+                'minutes':sum(geti(x,'minutes_played') for x in rr),'assists':sum(geti(x,'assists') for x in rr),'goals':sum(geti(x,'goals_scored') for x in rr),'bonus':sum(geti(x,'bonus') for x in rr),'points':sum(geti(x,'points') for x in rr),
+                'opponents':' '.join(os),'marker_reason':('CLUB' if club in {'Birmingham','Blackpool'} else 'OPPONENT'),
+                'fixtures':' | '.join(f"GW{geti(x,'week')} {x.get('result','')} {x.get('date','')} min={geti(x,'minutes_played')} ast={geti(x,'assists')} pts={geti(x,'points')}" for x in sorted(rr,key=lambda z:(geti(z,'week'),str(z.get('date','')))))
+              })
+          summaries.sort(key=lambda x:(-x['rows'],-x['minutes'],x['player']))
+          fields=list(summaries[0].keys()) if summaries else ['player']
+          with open('tmp/morph-2010-marker-audit/marker_clusters.csv','w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(summaries)
+          Path('tmp/morph-2010-marker-audit/opponent_codes.json').write_text(json.dumps(pref,indent=2,sort_keys=True)+'\n')
+          Path('tmp/morph-2010-marker-audit/audit.json').write_text(json.dumps({'marker_clusters':len(summaries),'club_birmingham_blackpool':sum(1 for x in summaries if x['club'] in {'Birmingham','Blackpool'}),'note':'Birmingham/Blackpool club rows or BIR/BLP/BPL opponent rows are season-identifying for 2010/11 in this archive.'},indent=2)+'\n')
+          PY
+      - shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tmp/morph-2010-marker-audit
+          git commit -m 'tmp: identify Morph 2010-11 marker clusters' || exit 0
+          git push origin HEAD:tmp/2010-11-unresolved-frontier-20260823
