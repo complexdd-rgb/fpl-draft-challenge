@@ -1,0 +1,18 @@
+{
+  "morph_rows_total": 22831,
+  "fixture_classified_rows": 63,
+  "frontier_players_with_classified_rows": 0,
+  "exact_complete_frontier_players": 0,
+  "exact_overlap_current20": 0,
+  "new_exact_beyond_current20": 0,
+  "partial_frontier_players": 0,
+  "unresolved_morph_name_groups": 63,
+  "known20_validation_rows": 0,
+  "known20_validation_all_assists_match": null,
+  "rejected": {
+    "fixture_no_match": 17174,
+    "opponent": 5594
+  },
+  "certification_rule": "Exact only when Morph row matches a 2010/11 fixture by date/team/opponent/venue/final score AND summed classified Morph minutes equal canonical 2010/11 minutes.",
+  "safety": "Do not promote PARTIAL rows as final FPL assists."
+}
