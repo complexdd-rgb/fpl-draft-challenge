@@ -1,0 +1,65 @@
+name: Temporary 2010-11 Morph certification
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  certify:
+    if: github.head_ref == 'tmp/2010-11-unresolved-frontier-20260823'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Fetch frozen recovery inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/fpl2010-frontier
+          mkdir -p /tmp/fpl2010-frontier/official /tmp/fpl2010-frontier/vaastav
+
+          git -C /tmp/fpl2010-frontier/official init -q
+          git -C /tmp/fpl2010-frontier/official remote add origin https://github.com/elie222/Fantasy-Football-AI.git
+          git -C /tmp/fpl2010-frontier/official sparse-checkout init --cone
+          git -C /tmp/fpl2010-frontier/official sparse-checkout set 20_5_2013
+          git -C /tmp/fpl2010-frontier/official fetch -q --depth 1 --filter=blob:none origin a607e4eb7a3002432cc39b20e0650af33dc334da
+          git -C /tmp/fpl2010-frontier/official checkout -q FETCH_HEAD
+
+          git -C /tmp/fpl2010-frontier/vaastav init -q
+          git -C /tmp/fpl2010-frontier/vaastav remote add origin https://github.com/vaastav/Fantasy-Premier-League.git
+          git -C /tmp/fpl2010-frontier/vaastav sparse-checkout init --cone
+          git -C /tmp/fpl2010-frontier/vaastav sparse-checkout set data/2016-17/players data/2017-18/players
+          git -C /tmp/fpl2010-frontier/vaastav fetch -q --depth 1 --filter=blob:none origin c2add969e11ec19002a091f8aa60164c9a255854
+          git -C /tmp/fpl2010-frontier/vaastav checkout -q FETCH_HEAD
+
+          curl -fsSL https://raw.githubusercontent.com/imadeddine-belkat/Premier-League-Stats/main/pl_stats/_merged/players/2010-11_players_stats.csv -o /tmp/fpl2010-frontier/canonical.csv
+          curl -fsSL https://raw.githubusercontent.com/BrenPatF/item_category_optimization_oracle/af18698aad5a5084aa9e11709900e1571b04b03b/fantasy_premier_league_player_stats.csv -o /tmp/fpl2010-frontier/morph.csv
+          curl -fsSL https://raw.githubusercontent.com/footballcsv/england/master/2010s/2010-11/eng.1.csv -o /tmp/fpl2010-frontier/fixtures.csv
+
+      - name: Rebuild original unresolved frontier
+        run: |
+          rm -rf tmp/2010-11-frontier-output
+          python tmp/reconcile_2010_11_frontier.py
+
+      - name: Certify Morph archive
+        run: |
+          rm -rf tmp/morph-2010-11-certification
+          python tmp/certify_morph_2010_11.py
+
+      - name: Commit result files to temporary branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tmp/2010-11-frontier-output tmp/morph-2010-11-certification
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'tmp: store 2010-11 Morph certification results'
+          git push origin HEAD:${{ github.head_ref }}
