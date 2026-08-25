@@ -39,7 +39,36 @@ jobs:
           git -C /tmp/fpl2010-frontier/vaastav fetch -q --depth 1 --filter=blob:none origin c2add969e11ec19002a091f8aa60164c9a255854
           git -C /tmp/fpl2010-frontier/vaastav checkout -q FETCH_HEAD
 
-          curl -fsSL https://raw.githubusercontent.com/imadeddine-belkat/Premier-League-Stats/main/pl_stats/_merged/players/2010-11_players_stats.csv -o /tmp/fpl2010-frontier/canonical.csv
+          python - <<'PY'
+          import csv, urllib.request
+          from pathlib import Path
+          candidates = [
+              '30cceaff2264a2d6a6757a080e94f41293818b90',
+              '9810ee3436c7627741026ba600bda019c0fa3f29',
+              'ae21b05d3d8e17c8c2f7c378e8a1eb3f0be6fd25',
+          ]
+          root=Path('/tmp/fpl2010-frontier')
+          selected=None
+          counts={}
+          for sha in candidates:
+              url=f'https://raw.githubusercontent.com/imadeddine-belkat/Premier-League-Stats/{sha}/pl_stats/_merged/players/2010-11_players_stats.csv'
+              p=root/f'canonical-{sha[:8]}.csv'
+              urllib.request.urlretrieve(url,p)
+              with p.open(encoding='utf-8-sig',newline='') as f:
+                  rows=list(csv.DictReader(f))
+              count=sum(1 for r in rows if float(r.get('timePlayed') or 0)>0)
+              counts[sha]=count
+              print(f'{sha} positive-minute count={count}')
+              if selected is None and count==544:
+                  selected=(sha,p)
+          if selected is None:
+              raise RuntimeError(f'No pinned canonical candidate reproduced 544: {counts}')
+          sha,p=selected
+          (root/'canonical.csv').write_bytes(p.read_bytes())
+          (root/'canonical-source.txt').write_text(sha+'\n',encoding='utf-8')
+          print(f'Selected frozen canonical source: {sha}')
+          PY
+
           curl -fsSL https://raw.githubusercontent.com/BrenPatF/item_category_optimization_oracle/af18698aad5a5084aa9e11709900e1571b04b03b/fantasy_premier_league_player_stats.csv -o /tmp/fpl2010-frontier/morph.csv
           curl -fsSL https://raw.githubusercontent.com/footballcsv/england/master/2010s/2010-11/eng.1.csv -o /tmp/fpl2010-frontier/fixtures.csv
 
@@ -47,11 +76,13 @@ jobs:
         run: |
           rm -rf tmp/2010-11-frontier-output
           python tmp/reconcile_2010_11_frontier.py
+          cp /tmp/fpl2010-frontier/canonical-source.txt tmp/2010-11-frontier-output/canonical-source.txt
 
       - name: Certify Morph archive
         run: |
           rm -rf tmp/morph-2010-11-certification
           python tmp/certify_morph_2010_11.py
+          cp /tmp/fpl2010-frontier/canonical-source.txt tmp/morph-2010-11-certification/canonical-source.txt
 
       - name: Commit result files to temporary branch
         shell: bash
