@@ -15,6 +15,8 @@
 
   // Core live presentation compatibility entrypoint; active presentation startup lives in live-ui-bootstrap.js.
   loadModule("js/ui-cleanup.js", "data-ui-cleanup");
+  // Mobile Results/Ranks compactness, collapsible cards and sticky-overlap finishing pass.
+  loadModule("js/mobile-results-cleanup.js", "data-mobile-results-cleanup");
 
   // Results are deferred until there is something to show.
   const loadResultsV2 = () => {
