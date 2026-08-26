@@ -64,6 +64,63 @@ Only begin 2009/10 once the 2010/11 checkpoint is in a controlled state and the 
 
 ---
 
+## Standard historical workbook model for all future seasons
+
+Use this as the default structure whenever a season is rebuilt, consolidated or expanded.
+
+### One active workbook per season
+Maintain one canonical active workbook for each season, for example:
+
+- `FPL_2011-12_MASTER.xlsx`
+- `FPL_2010-11_MASTER.xlsx`
+- `FPL_2009-10_MASTER.xlsx`
+
+The active workbook should contain one main visible sheet with the complete player-season dataset in one filterable table. Avoid accumulating version-after-version worksheets such as `v8`, `v9`, `v10` inside the same workbook.
+
+### One row per player-season
+Keep all relevant data for that player-season on the same row. The table should include, where available:
+
+- identity: player ID, player name, club, position
+- normal statistical fields: minutes, goals, clean sheets, saves, goals conceded and other prompt-relevant fields
+- FPL-native fields: FPL assists, bonus and total FPL points
+- prices: starting price and final price where useful
+- nationality, league position and other prompt-engine fields
+- source/provenance columns beside important recovered fields, such as `assists_source`, `bonus_source`, `points_source` and `price_source`
+- confidence / review status where required
+- `unresolved_fields`
+- notes
+- last-updated information where useful
+
+### Working method
+Use the master table as the single destination for research:
+
+`find a missing value → fill the field → record the source → clear that item from unresolved_fields`
+
+Do not create a new worksheet or workbook version for every research pass unless there is a genuine temporary processing need.
+
+### Workbook presentation
+Keep the active master simple and practical:
+
+- Excel table / filters enabled
+- frozen header row
+- sensible column widths
+- conditional formatting for missing or review-needed fields
+- a simple status such as `COMPLETE`, `PARTIAL` or `NEEDS REVIEW`
+
+### Archive policy
+Old recovery workbooks, staging workbooks and superseded versions should live outside the active workbook as archived provenance. Do not delete or archive an older workbook until every unique value, evidence note and source reference has either been carried into the canonical master or explicitly preserved in the archive index.
+
+The aim is to finish each season with one clean master dataset rather than a chain of active workbook versions.
+
+### Consolidation order
+Use 2011/12 as the first template season because its 539-player recovery is the most mature. Once the structure is proven, apply exactly the same master format to 2010/11 and then every earlier season.
+
+For future historical expansion, the preferred sequence is:
+
+`consolidate existing workbooks → freeze the master baseline → harvest bulk sources → fill master-table blanks → run residual player-by-player research → certify season`
+
+---
+
 ## Working rules for the roadmap
 
 - Avoid broad architecture rewrites unless a real blocker appears.
@@ -73,3 +130,4 @@ Only begin 2009/10 once the 2010/11 checkpoint is in a controlled state and the 
 - Record every genuinely new source tried, including no-hit / exhausted routes.
 - Do not substitute conventional football assists for historical FPL assists.
 - Missing optional historical fields should disable only the relevant prompt family rather than block an otherwise valid season where appropriate.
+- Use the single-sheet canonical master workbook model above for all future season recovery work.
