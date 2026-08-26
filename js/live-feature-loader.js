@@ -17,6 +17,8 @@
   loadModule("js/ui-cleanup.js", "data-ui-cleanup");
   // Cleaner professional challenge header: date/title, formation, database, streak and next challenge only.
   loadModule("js/top-header-polish.js", "data-top-header-polish");
+  // Draft-board card hierarchy plus a hard autocomplete/error layering fix.
+  loadModule("js/draft-board-polish.js", "data-draft-board-polish");
   // Mobile Results/Ranks compactness, collapsible cards and sticky-overlap finishing pass.
   loadModule("js/mobile-results-cleanup.js", "data-mobile-results-cleanup");
 
