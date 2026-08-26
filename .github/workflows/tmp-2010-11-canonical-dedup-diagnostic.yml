@@ -1,0 +1,34 @@
+name: Temporary 2010-11 canonical dedup diagnostic
+
+on:
+  push:
+    branches:
+      - tmp/2010-11-unresolved-frontier-20260823
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect positive-minute duplicate identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/imadeddine-belkat/Premier-League-Stats/main/pl_stats/_merged/players/2010-11_players_stats.csv -o /tmp/canonical.csv
+          python - <<'PY'
+          import csv, collections, json
+          rows=list(csv.DictReader(open('/tmp/canonical.csv',encoding='utf-8-sig',newline='')))
+          pos=[r for r in rows if float(r.get('timePlayed') or 0)>0]
+          by_id=collections.defaultdict(list)
+          for r in pos: by_id[str(r.get('playerId'))].append(r)
+          dups={k:v for k,v in by_id.items() if len(v)>1}
+          print('positive_rows',len(pos))
+          print('unique_player_ids',len(by_id))
+          print('duplicate_player_ids',len(dups))
+          for k, rs in dups.items():
+              print('DUP',k,[(r.get('playerName'),r.get('team_name'),r.get('timePlayed'),r.get('gamesPlayed')) for r in rs])
+          names=collections.defaultdict(list)
+          for r in pos: names[(r.get('playerName') or '').strip().lower()].append(r)
+          for n,rs in names.items():
+              if len(rs)>1 and len({r.get('playerId') for r in rs})>1:
+                  print('SAME_NAME_DISTINCT_IDS',n,[(r.get('playerId'),r.get('team_name'),r.get('position'),r.get('timePlayed')) for r in rs])
+          PY
