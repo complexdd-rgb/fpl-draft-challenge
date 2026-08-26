@@ -71,8 +71,7 @@
       .top-challenge-stat{min-width:0;padding:12px 13px;border:1px solid rgba(255,255,255,.085);border-radius:14px;background:rgba(0,0,0,.13)}
       .top-challenge-stat span{display:block;color:#8fa99a;font-size:.55rem;font-weight:950;letter-spacing:.1em;text-transform:uppercase}
       .top-challenge-stat strong{display:block;margin-top:5px;color:#f7fff9;font-size:.82rem;line-height:1.35;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .top-challenge-stat.database strong{color:#dff7e8}
-      #topHeaderDatabaseValue.pill{padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;min-height:0!important;font-size:.82rem!important;color:#dff7e8!important;font-weight:850!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .top-challenge-stat.database #dbStatus{display:block!important;margin-top:5px!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;min-height:0!important;color:#dff7e8!important;font-size:.82rem!important;font-weight:850!important;line-height:1.35!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       #topHeaderCountdown{font-variant-numeric:tabular-nums;color:var(--vo-cyan,#5fe5ff)}
 
       @media(max-width:700px){
@@ -81,7 +80,7 @@
         .top-challenge-stats{grid-template-columns:1fr 1fr}
         .top-challenge-stat.database{grid-column:1/-1}
         .top-challenge-stat{padding:11px}
-        .top-challenge-stat strong,#topHeaderDatabaseValue.pill{font-size:.76rem!important}
+        .top-challenge-stat strong,.top-challenge-stat.database #dbStatus{font-size:.76rem!important}
       }
       @media(max-width:430px){
         .top-challenge-brand{font-size:1.55rem}
@@ -89,7 +88,7 @@
         .top-challenge-stats{grid-template-columns:1fr 1fr;gap:7px}
         .top-challenge-stat{padding:10px 9px}
         .top-challenge-stat span{font-size:.51rem}
-        .top-challenge-stat strong,#topHeaderDatabaseValue.pill{font-size:.7rem!important}
+        .top-challenge-stat strong,.top-challenge-stat.database #dbStatus{font-size:.7rem!important}
       }
     `;
     document.head.appendChild(style);
@@ -125,10 +124,7 @@
     }
 
     const databaseSlot = document.getElementById("topHeaderDatabaseSlot");
-    if (databaseSlot && dbStatus.parentElement !== databaseSlot) {
-      databaseSlot.replaceWith(dbStatus);
-      dbStatus.id = "topHeaderDatabaseValue";
-    }
+    if (databaseSlot && !dbStatus.closest(".top-challenge-stat.database")) databaseSlot.replaceWith(dbStatus);
 
     const streakValue = currentStreak();
     const streakEl = document.getElementById("topHeaderStreak");
