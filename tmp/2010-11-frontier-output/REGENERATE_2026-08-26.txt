@@ -1,0 +1,1 @@
+Regenerate the 2010/11 unresolved frontier from the current corrected workflow. The authoritative target is 544 canonical positive-exposure rows = 335 recovered FPL-native histories + 209 unresolved. Do not use the stale committed 545/325/214 audit as authority.
