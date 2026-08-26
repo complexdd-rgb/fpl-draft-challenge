@@ -49,6 +49,8 @@
       #leaderboardAccount .leaderboard-account-compact-label span{margin-top:2px;color:var(--muted);font-size:.58rem}
       #leaderboardAccount.is-account-collapsed > :not(.leaderboard-account-compact-label):not(.leaderboard-account-collapse-toggle){display:none!important}
       #leaderboardAccount.is-account-collapsed .leaderboard-account-compact-label{display:block}
+      #liveLeaderboardPanel.account-controls-hidden > .leaderboard-toolbar,
+      #liveLeaderboardPanel.account-controls-hidden > #leaderboardSubmitCard{display:none!important}
 
       @media(max-width:700px){
         body.fpl-visual-overhaul-body .app{padding-bottom:calc(158px + env(safe-area-inset-bottom))!important}
@@ -159,6 +161,16 @@
     return Boolean(host.querySelector("#leaderboardAccountSignOut")) || /syncing is on/i.test(host.textContent || "");
   }
 
+  function syncAccountControls() {
+    const panel = document.getElementById("liveLeaderboardPanel");
+    const host = document.getElementById("leaderboardAccount");
+    if (!panel || !host) return;
+    const complete = document.body.classList.contains("mobile-ui-complete");
+    const state = panel.querySelector("#leaderboardState")?.dataset.state || "";
+    const submitted = state === "accepted" || state === "duplicate";
+    panel.classList.toggle("account-controls-hidden", host.classList.contains("is-account-collapsed") && (!complete || submitted));
+  }
+
   function setAccountCollapsed(host, collapsed, persist = false) {
     const value = Boolean(collapsed);
     host.classList.toggle("is-account-collapsed", value);
@@ -171,6 +183,7 @@
       if (icon) icon.textContent = value ? "▾" : "▴";
     }
     if (persist) writePreference(ACCOUNT_COLLAPSE_KEY, value);
+    syncAccountControls();
   }
 
   function decorateAccount() {
@@ -216,6 +229,7 @@
     const progress = String(document.getElementById("dockProgress")?.textContent || "").replace(/\s/g, "");
     const complete = /^11\/11$/.test(progress) || !document.getElementById("results")?.classList.contains("hidden");
     document.body.classList.toggle("mobile-ui-complete", complete);
+    syncAccountControls();
   }
 
   function installCompletionObserver() {
@@ -260,6 +274,7 @@
     }
     window.addEventListener("fpl:challenge-completed", syncCompletionChrome);
     window.addEventListener("fpl:account-auth-changed", scheduleDecorate);
+    window.addEventListener("fpl:leaderboard-updated", syncAccountControls);
   };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
