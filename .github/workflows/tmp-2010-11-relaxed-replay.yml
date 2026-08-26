@@ -1,0 +1,69 @@
+name: Temporary 2010-11 relaxed frontier replay
+
+on:
+  push:
+    branches:
+      - tmp/2010-11-unresolved-frontier-20260823
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp/2010-11-unresolved-frontier-20260823
+
+      - name: Fetch frozen recovery sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/fpl2010-frontier
+          mkdir -p /tmp/fpl2010-frontier/official /tmp/fpl2010-frontier/vaastav
+          git -C /tmp/fpl2010-frontier/official init -q
+          git -C /tmp/fpl2010-frontier/official remote add origin https://github.com/elie222/Fantasy-Football-AI.git
+          git -C /tmp/fpl2010-frontier/official sparse-checkout init --cone
+          git -C /tmp/fpl2010-frontier/official sparse-checkout set 20_5_2013
+          git -C /tmp/fpl2010-frontier/official fetch -q --depth 1 --filter=blob:none origin a607e4eb7a3002432cc39b20e0650af33dc334da
+          git -C /tmp/fpl2010-frontier/official checkout -q FETCH_HEAD
+          git -C /tmp/fpl2010-frontier/vaastav init -q
+          git -C /tmp/fpl2010-frontier/vaastav remote add origin https://github.com/vaastav/Fantasy-Premier-League.git
+          git -C /tmp/fpl2010-frontier/vaastav sparse-checkout init --cone
+          git -C /tmp/fpl2010-frontier/vaastav sparse-checkout set data/2016-17/players data/2017-18/players
+          git -C /tmp/fpl2010-frontier/vaastav fetch -q --depth 1 --filter=blob:none origin c2add969e11ec19002a091f8aa60164c9a255854
+          git -C /tmp/fpl2010-frontier/vaastav checkout -q FETCH_HEAD
+          curl -fsSL https://raw.githubusercontent.com/imadeddine-belkat/Premier-League-Stats/main/pl_stats/_merged/players/2010-11_players_stats.csv -o /tmp/fpl2010-frontier/canonical.csv
+
+      - name: Replay corrected mapper with live-count gate relaxed
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import textwrap
+          p=Path('.github/workflows/tmp-2010-11-frontier.yml')
+          text=p.read_text(encoding='utf-8')
+          marker="          python - <<'PY'\n"
+          start=text.index(marker)+len(marker)
+          end=text.index("\n          PY", start)
+          code=textwrap.dedent(text[start:end])
+          old="""if len(canonical) != 544:\n    raise RuntimeError(f'Canonical positive-minute count {len(canonical)} != 544')"""
+          new="""if len(canonical) != 544:\n    print(f'RELAXED LIVE COUNT: canonical positive-minute count {len(canonical)}; frozen v8 authority remains 544')"""
+          if old not in code:
+              raise RuntimeError('Expected live-count gate not found in embedded mapper')
+          code=code.replace(old,new,1)
+          exec(compile(code,'relaxed_frontier_mapper.py','exec'), {'__name__':'__main__'})
+          PY
+          echo '--- relaxed audit ---'
+          cat tmp/2010-11-frontier-output/audit.json
+          echo '--- unresolved count ---'
+          wc -l tmp/2010-11-frontier-output/unresolved_209.csv
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: relaxed-frontier-output
+          path: tmp/2010-11-frontier-output/
+          retention-days: 2
