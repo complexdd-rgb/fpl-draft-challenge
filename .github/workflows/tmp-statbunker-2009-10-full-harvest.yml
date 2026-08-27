@@ -11,7 +11,7 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch StatBunker 2009-10 pages via text proxy
+      - name: Fetch StatBunker 2009-10 bulk pages via text proxy
         shell: bash
         run: |
           set -e
@@ -19,8 +19,6 @@ jobs:
           curl -L --fail --retry 3 'https://r.jina.ai/http://m.statbunker.com/competitions/PlayerStandings?comp_id=279' -o statbunker_2009_10/player_standings.txt
           curl -L --fail --retry 3 'https://r.jina.ai/http://m.statbunker.com/competitions/SeasonAppearances?comp_id=279' -o statbunker_2009_10/season_appearances.txt
           curl -L --fail --retry 3 'https://r.jina.ai/http://po.statbunker.com/competitions/TopYellowCards?comp_id=279' -o statbunker_2009_10/yellow_cards.txt
-          curl -L --fail --retry 3 'https://r.jina.ai/http://www.statbunker.com/competitions/Top10KeepersCleanSheets?comp_id=279' -o statbunker_2009_10/keeper_clean_sheets.txt
-          curl -L --fail --retry 3 'https://r.jina.ai/http://tripadvisor4biz.statbunker.com/competitions/FantasyFootballPlayersStats?comp_id=279' -o statbunker_2009_10/fantasy_stats.txt
           wc -c statbunker_2009_10/*
       - name: Upload pages
         uses: actions/upload-artifact@v4
