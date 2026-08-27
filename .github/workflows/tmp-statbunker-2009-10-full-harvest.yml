@@ -11,17 +11,45 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch StatBunker 2009-10 bulk pages via text proxy
+      - name: Fetch 20 StatBunker 2009-10 club standings
         shell: bash
         run: |
           set -e
-          mkdir -p statbunker_2009_10
-          curl -L --fail --retry 3 'https://r.jina.ai/http://m.statbunker.com/competitions/PlayerStandings?comp_id=279' -o statbunker_2009_10/player_standings.txt
-          curl -L --fail --retry 3 'https://r.jina.ai/http://m.statbunker.com/competitions/SeasonAppearances?comp_id=279' -o statbunker_2009_10/season_appearances.txt
-          curl -L --fail --retry 3 'https://r.jina.ai/http://po.statbunker.com/competitions/TopYellowCards?comp_id=279' -o statbunker_2009_10/yellow_cards.txt
-          wc -c statbunker_2009_10/*
+          mkdir -p statbunker_2009_10/clubs
+          cat > /tmp/clubs.tsv <<'EOF'
+          5	Arsenal
+          24	Aston_Villa
+          48	Birmingham_City
+          34	Blackburn_Rovers
+          29	Bolton_Wanderers
+          54	Burnley
+          8	Chelsea
+          10	Everton
+          55	Fulham
+          752	Hull_City
+          4	Liverpool
+          14	Manchester_City
+          3	Manchester_United
+          59	Portsmouth
+          187	Stoke_City
+          23	Sunderland
+          19	Tottenham_Hotspur
+          21	West_Ham_United
+          85	Wigan_Athletic
+          63	Wolverhampton_Wanderers
+          EOF
+          export -f true 2>/dev/null || true
+          while IFS=$'\t' read -r cid slug; do
+            echo "$cid $slug"
+          done < /tmp/clubs.tsv | xargs -n2 -P6 bash -c '
+            cid="$0"; slug="$1";
+            curl -L --fail --retry 3 --connect-timeout 20 --max-time 90 \
+              "https://r.jina.ai/http://m.statbunker.com/competitions/PlayerStandings?comp_id=279%26club_id=${cid}" \
+              -o "statbunker_2009_10/clubs/${slug}_${cid}_player_standings.txt"
+          '
+          wc -c statbunker_2009_10/clubs/*
       - name: Upload pages
         uses: actions/upload-artifact@v4
         with:
-          name: statbunker-2009-10-full-harvest
-          path: statbunker_2009_10/
+          name: statbunker-2009-10-club-standings
+          path: statbunker_2009_10/clubs/
