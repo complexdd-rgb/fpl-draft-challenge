@@ -1,4 +1,4 @@
-name: Temporary 2010-11 recovered source union export
+name: Temporary 2010-11 official 314 export
 
 on:
   push:
@@ -17,215 +17,85 @@ jobs:
         with:
           ref: tmp/2010-11-unresolved-frontier-20260823
 
-      - name: Fetch frozen FPL recovery sources
+      - name: Fetch frozen official FPL source
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/fpl2010-union
-          mkdir -p /tmp/fpl2010-union/official /tmp/fpl2010-union/vaastav
+          rm -rf /tmp/fpl2010-official
+          mkdir -p /tmp/fpl2010-official
+          git -C /tmp/fpl2010-official init -q
+          git -C /tmp/fpl2010-official remote add origin https://github.com/elie222/Fantasy-Football-AI.git
+          git -C /tmp/fpl2010-official sparse-checkout init --cone
+          git -C /tmp/fpl2010-official sparse-checkout set 20_5_2013
+          git -C /tmp/fpl2010-official fetch -q --depth 1 --filter=blob:none origin a607e4eb7a3002432cc39b20e0650af33dc334da
+          git -C /tmp/fpl2010-official checkout -q FETCH_HEAD
 
-          git -C /tmp/fpl2010-union/official init -q
-          git -C /tmp/fpl2010-union/official remote add origin https://github.com/elie222/Fantasy-Football-AI.git
-          git -C /tmp/fpl2010-union/official sparse-checkout init --cone
-          git -C /tmp/fpl2010-union/official sparse-checkout set 20_5_2013
-          git -C /tmp/fpl2010-union/official fetch -q --depth 1 --filter=blob:none origin a607e4eb7a3002432cc39b20e0650af33dc334da
-          git -C /tmp/fpl2010-union/official checkout -q FETCH_HEAD
-
-          git -C /tmp/fpl2010-union/vaastav init -q
-          git -C /tmp/fpl2010-union/vaastav remote add origin https://github.com/vaastav/Fantasy-Premier-League.git
-          git -C /tmp/fpl2010-union/vaastav sparse-checkout init --cone
-          git -C /tmp/fpl2010-union/vaastav sparse-checkout set data/2016-17/players data/2017-18/players
-          git -C /tmp/fpl2010-union/vaastav fetch -q --depth 1 --filter=blob:none origin c2add969e11ec19002a091f8aa60164c9a255854
-          git -C /tmp/fpl2010-union/vaastav checkout -q FETCH_HEAD
-
-      - name: Build exact recovered union from full FPL history fingerprints
+      - name: Export 314 positive-minute 2010-11 histories
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf tmp/2010-11-source-union-output
-          mkdir -p tmp/2010-11-source-union-output
+          rm -rf tmp/2010-11-official-output
+          mkdir -p tmp/2010-11-official-output
           python - <<'PY'
-          import csv, json, re, unicodedata
-          from collections import defaultdict
+          import csv, json
           from pathlib import Path
 
-          ROOT = Path('/tmp/fpl2010-union')
-          OUT = Path('tmp/2010-11-source-union-output')
-          OFFICIAL_COMMIT = 'a607e4eb7a3002432cc39b20e0650af33dc334da'
-          CARRIER_COMMIT = 'c2add969e11ec19002a091f8aa60164c9a255854'
+          src = Path('/tmp/fpl2010-official/20_5_2013')
+          out = Path('tmp/2010-11-official-output')
+          commit = 'a607e4eb7a3002432cc39b20e0650af33dc334da'
 
-          # Audited v8 recovered-name -> canonical display-name aliases.
-          ALIASES = {
-              'Vassiriki Diaby':'Abou Diaby', 'Carlos Alberto Vela':'Carlos Vela',
-              'Josh McEachran':'Joshua McEachran', 'Nascimento Ramires':'Ramires',
-              'Mikel':'Mikel John Obi', 'Johnny Heitinga':'John Heitinga',
-              'Phil Jagielka':'Philip Jagielka', 'Mousa Dembele':'Moussa Dembele',
-              'Jose Reina':'Pepe Reina', 'Sanchez Jose Enrique':'Jose Enrique',
-              'Leiva Lucas':'Lucas Leiva', 'Antonio Valencia':'Luis Antonio Valencia',
-              'Luis Nani':'Nani', 'Oliveira Anderson':'Anderson', 'Rob Green':'Robert Green',
-              'Phil Bardsley':'Philip Bardsley', 'Raniere Sandro':'Sandro',
-              'Dos Santos Giovani':'Giovani Dos Santos', 'Gonzalo Jara Reyes':'Gonzalo Jara',
-              'Youssouf Mulumbu':'Youssuf Mulumbu', 'Michael Pollitt':'Mike Pollitt',
-              'Adrian Lopez':'Piscu', 'David Hoilett':'Junior Hoilett',
-              'Matthew Jarvis':'Matt Jarvis', 'Steven Nzonzi':"Steven N'Zonzi",
-              'Jordon Mutch':'Jordan Mutch', 'Mame Biram Diouf':'Mame Diouf',
-              'Cesc Fàbregas':'Francesc Fabregas', 'Jonathan Hogg':'Jonathon Hogg',
+          aliases = {
+              'Vassiriki Diaby':'Abou Diaby','Carlos Alberto Vela':'Carlos Vela','Josh McEachran':'Joshua McEachran',
+              'Nascimento Ramires':'Ramires','Mikel':'Mikel John Obi','Johnny Heitinga':'John Heitinga',
+              'Phil Jagielka':'Philip Jagielka','Mousa Dembele':'Moussa Dembele','Jose Reina':'Pepe Reina',
+              'Sanchez Jose Enrique':'Jose Enrique','Leiva Lucas':'Lucas Leiva','Antonio Valencia':'Luis Antonio Valencia',
+              'Luis Nani':'Nani','Oliveira Anderson':'Anderson','Rob Green':'Robert Green','Phil Bardsley':'Philip Bardsley',
+              'Raniere Sandro':'Sandro','Dos Santos Giovani':'Giovani Dos Santos','Gonzalo Jara Reyes':'Gonzalo Jara',
+              'Youssouf Mulumbu':'Youssuf Mulumbu','Michael Pollitt':'Mike Pollitt','Adrian Lopez':'Piscu',
+              'David Hoilett':'Junior Hoilett','Matthew Jarvis':'Matt Jarvis','Steven Nzonzi':"Steven N'Zonzi",
+              'Jordon Mutch':'Jordan Mutch','Mame Biram Diouf':'Mame Diouf','Cesc Fàbregas':'Francesc Fabregas',
+              'Jonathan Hogg':'Jonathon Hogg'
           }
 
-          def num(v, integer=True):
-              try:
-                  x = float(v or 0)
-                  return int(x) if integer else x
-              except Exception:
-                  return 0 if integer else 0.0
+          def n(v):
+              try: return int(float(v or 0))
+              except: return 0
 
-          def norm(s):
-              s = unicodedata.normalize('NFKD', str(s or '')).encode('ascii','ignore').decode('ascii')
-              return re.sub(r'[^a-z0-9]+','',s.lower())
-
-          def display(name):
-              return ALIASES.get(name, name)
-
-          stable = ['minutes','goals','assists','clean_sheets','goals_conceded','own_goals',
-                    'penalties_saved','penalties_missed','yellow_cards','red_cards','saves','bonus','total_points']
-          def fp(rec):
-              return tuple(rec[k] for k in stable)
-
-          official = []
-          official_dir = ROOT/'official'/'20_5_2013'
-          for p in sorted((x for x in official_dir.iterdir() if x.name.isdigit()), key=lambda x: int(x.name)):
-              obj = json.loads(p.read_text(encoding='utf-8'))
-              rows = [r for r in obj.get('season_history', []) if r and r[0] == '2010/11' and num(r[1]) > 0]
-              if not rows:
-                  continue
-              r = rows[0]
-              source_name = ' '.join(x for x in [obj.get('first_name',''), obj.get('second_name','')] if x).strip()
-              official.append({
-                  'player': display(source_name),
-                  'recovered_name': source_name,
-                  'source_identity_code': str(obj.get('code') or '').strip(),
+          rows=[]
+          for p in sorted((x for x in src.iterdir() if x.name.isdigit()), key=lambda x:int(x.name)):
+              obj=json.loads(p.read_text(encoding='utf-8'))
+              hist=[r for r in obj.get('season_history',[]) if r and r[0]=='2010/11' and n(r[1])>0]
+              if not hist: continue
+              r=hist[0]
+              recovered=' '.join(x for x in [obj.get('first_name',''),obj.get('second_name','')] if x).strip()
+              rows.append({
+                  'player': aliases.get(recovered,recovered),
+                  'recovered_name': recovered,
+                  'source_identity_code': str(obj.get('code') or ''),
                   'official_archive_id': p.name,
-                  'minutes': num(r[1]), 'goals': num(r[2]), 'assists': num(r[3]),
-                  'clean_sheets': num(r[4]), 'goals_conceded': num(r[5]), 'own_goals': num(r[6]),
-                  'penalties_saved': num(r[7]), 'penalties_missed': num(r[8]),
-                  'yellow_cards': num(r[9]), 'red_cards': num(r[10]), 'saves': num(r[11]),
-                  'bonus': num(r[12]), 'start_price_m': '',
-                  'end_price_m': num(r[14], integer=False) / 10.0,
-                  'total_points': num(r[15]),
-                  'fpl_native_source_class': 'OFFICIAL_MAY2013_API',
-                  'source_reference': f'20_5_2013/{p.name}',
-                  'source_url': f'https://github.com/elie222/Fantasy-Football-AI/blob/{OFFICIAL_COMMIT}/20_5_2013/{p.name}',
+                  'minutes':n(r[1]),'goals':n(r[2]),'assists':n(r[3]),'clean_sheets':n(r[4]),
+                  'goals_conceded':n(r[5]),'own_goals':n(r[6]),'penalties_saved':n(r[7]),
+                  'penalties_missed':n(r[8]),'yellow_cards':n(r[9]),'red_cards':n(r[10]),
+                  'saves':n(r[11]),'bonus':n(r[12]),'start_price_m':'',
+                  'end_price_m':float(r[14])/10 if r[14] not in (None,'') else '',
+                  'total_points':n(r[15]),
+                  'fpl_native_source_class':'OFFICIAL MAY-2013 API',
+                  'source_reference':f'element {p.name}',
+                  'source_url':f'https://github.com/elie222/Fantasy-Football-AI/blob/{commit}/20_5_2013/{p.name}',
+                  'recovery_note':'Exact 2010/11 season_history from frozen May-2013 official FPL archive.'
               })
-          if len(official) != 314:
-              raise RuntimeError(f'Official positive histories {len(official)} != 314')
-
-          carrier = {}
-          conflicts = []
-          headers_seen = set()
-          for season_dir in ['2016-17','2017-18']:
-              base = ROOT/'vaastav'/'data'/season_dir/'players'
-              for hist in base.glob('*/history.csv'):
-                  with hist.open(encoding='utf-8-sig', newline='') as f:
-                      reader = csv.DictReader(f)
-                      headers_seen.add(tuple(reader.fieldnames or []))
-                      for row in reader:
-                          if row.get('season_name') != '2010/11' or num(row.get('minutes')) <= 0:
-                              continue
-                          code = str(row.get('element_code') or '').strip()
-                          if not code:
-                              continue
-                          source_name = hist.parent.name.replace('_',' ')
-                          rec = {
-                              'player': display(source_name), 'recovered_name': source_name,
-                              'source_identity_code': code, 'official_archive_id': '',
-                              'minutes': num(row.get('minutes')), 'goals': num(row.get('goals_scored')),
-                              'assists': num(row.get('assists')), 'clean_sheets': num(row.get('clean_sheets')),
-                              'goals_conceded': num(row.get('goals_conceded')), 'own_goals': num(row.get('own_goals')),
-                              'penalties_saved': num(row.get('penalties_saved')), 'penalties_missed': num(row.get('penalties_missed')),
-                              'yellow_cards': num(row.get('yellow_cards')), 'red_cards': num(row.get('red_cards')),
-                              'saves': num(row.get('saves')), 'bonus': num(row.get('bonus')),
-                              'start_price_m': (num(row.get('start_cost'), integer=False) / 10.0) if str(row.get('start_cost') or '').strip() else '',
-                              'end_price_m': (num(row.get('end_cost'), integer=False) / 10.0) if str(row.get('end_cost') or '').strip() else '',
-                              'total_points': num(row.get('total_points')),
-                              'fpl_native_source_class': 'VAASTAV_LATER_HISTORY_CARRIER',
-                              'source_reference': str(hist.relative_to(ROOT/'vaastav')),
-                              'source_url': f'https://github.com/vaastav/Fantasy-Premier-League/blob/{CARRIER_COMMIT}/' + str(hist.relative_to(ROOT/'vaastav')).replace('\\','/'),
-                          }
-                          if code in carrier:
-                              if fp(carrier[code]) != fp(rec):
-                                  conflicts.append({'code':code,'old':carrier[code],'new':rec})
-                          else:
-                              carrier[code] = rec
-          if conflicts:
-              raise RuntimeError(f'Carrier source conflicts: {len(conflicts)}')
-          if len(carrier) != 135:
-              raise RuntimeError(f'Carrier unique positive histories {len(carrier)} != 135')
-
-          official_by_fp = defaultdict(list)
-          for rec in official:
-              official_by_fp[fp(rec)].append(rec)
-
-          overlaps = []
-          carrier_only = []
-          ambiguous = []
-          for code, c in carrier.items():
-              cands = official_by_fp.get(fp(c), [])
-              if len(cands) == 1:
-                  overlaps.append((cands[0], c, 'UNIQUE_FULL_FPL_HISTORY_FINGERPRINT'))
-                  continue
-              if len(cands) > 1:
-                  same_name = [o for o in cands if norm(o['player']) == norm(c['player']) or norm(o['recovered_name']) == norm(c['recovered_name'])]
-                  if len(same_name) == 1:
-                      overlaps.append((same_name[0], c, 'FULL_FPL_HISTORY_FINGERPRINT_PLUS_NAME'))
-                  else:
-                      ambiguous.append({'carrier':c, 'official_candidates':cands})
-                  continue
-              carrier_only.append(c)
-
-          # The audited v8 partition establishes these source counts.
-          if ambiguous:
-              (OUT/'ambiguous.json').write_text(json.dumps(ambiguous, indent=2, ensure_ascii=False), encoding='utf-8')
-              raise RuntimeError(f'Ambiguous full-history matches {len(ambiguous)} != 0')
-          if len(overlaps) != 114:
-              raise RuntimeError(f'Official/carrier exact-history overlap {len(overlaps)} != 114')
-          if len(carrier_only) != 21:
-              raise RuntimeError(f'Carrier-only exact histories {len(carrier_only)} != 21')
-
-          union = official + carrier_only
-          if len(union) != 335:
-              raise RuntimeError(f'Recovered union {len(union)} != 335')
-
-          fields = ['player','recovered_name','source_identity_code','official_archive_id','minutes','goals','assists',
-                    'clean_sheets','goals_conceded','own_goals','penalties_saved','penalties_missed','yellow_cards',
-                    'red_cards','saves','bonus','start_price_m','end_price_m','total_points','fpl_native_source_class',
-                    'source_reference','source_url']
-          with (OUT/'recovered_union_335.csv').open('w', encoding='utf-8-sig', newline='') as f:
-              w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(union)
-          with (OUT/'carrier_only_21.csv').open('w', encoding='utf-8-sig', newline='') as f:
-              w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(carrier_only)
-          with (OUT/'overlap_114.csv').open('w', encoding='utf-8-sig', newline='') as f:
-              w=csv.writer(f); w.writerow(['official_player','official_recovered_name','carrier_player','carrier_recovered_name','match_rule'])
-              for o,c,rule in overlaps:
-                  w.writerow([o['player'],o['recovered_name'],c['player'],c['recovered_name'],rule])
-
-          audit = {
-              'official_positive_histories':len(official),
-              'carrier_unique_positive_histories':len(carrier),
-              'official_carrier_exact_history_overlap':len(overlaps),
-              'carrier_only_histories':len(carrier_only),
-              'recovered_union':len(union),
-              'ambiguous_matches':len(ambiguous),
-              'carrier_conflicts':len(conflicts),
-              'official_source_commit':OFFICIAL_COMMIT,
-              'carrier_source_commit':CARRIER_COMMIT,
-              'carrier_header_variants':[list(x) for x in sorted(headers_seen)],
-          }
-          (OUT/'audit.json').write_text(json.dumps(audit,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-          print(json.dumps(audit,indent=2,ensure_ascii=False))
+          if len(rows)!=314:
+              raise RuntimeError(f'official histories {len(rows)} != 314')
+          fields=list(rows[0].keys())
+          with (out/'official_314.csv').open('w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(rows)
+          audit={'official_positive_histories':len(rows),'source_commit':commit,'alias_map_count':len(aliases)}
+          (out/'audit.json').write_text(json.dumps(audit,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(audit,indent=2))
           PY
 
       - uses: actions/upload-artifact@v4
         with:
-          name: recovered-source-union-335
-          path: tmp/2010-11-source-union-output/
+          name: official-2010-11-314
+          path: tmp/2010-11-official-output/
           retention-days: 2
