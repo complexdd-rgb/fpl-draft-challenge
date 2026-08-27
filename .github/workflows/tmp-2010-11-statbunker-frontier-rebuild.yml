@@ -1,0 +1,121 @@
+name: Temporary 2010-11 StatBunker frontier rebuild
+
+on:
+  push:
+    branches:
+      - tmp/2010-11-unresolved-frontier-20260823
+
+permissions:
+  contents: read
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install parser dependencies
+        run: python -m pip install -q pandas lxml requests
+      - name: Rebuild audited identity universe and unresolved frontier
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf tmp/2010-11-statbunker-frontier
+          mkdir -p tmp/2010-11-statbunker-frontier /tmp/fpl2010-official
+          git -C /tmp/fpl2010-official init -q
+          git -C /tmp/fpl2010-official remote add origin https://github.com/elie222/Fantasy-Football-AI.git
+          git -C /tmp/fpl2010-official sparse-checkout init --cone
+          git -C /tmp/fpl2010-official sparse-checkout set 20_5_2013
+          git -C /tmp/fpl2010-official fetch -q --depth 1 --filter=blob:none origin a607e4eb7a3002432cc39b20e0650af33dc334da
+          git -C /tmp/fpl2010-official checkout -q FETCH_HEAD
+          python - <<'PY'
+          import csv, json, re, unicodedata
+          from pathlib import Path
+          import pandas as pd
+          import requests
+
+          URL='https://www.statbunker.com/competitions/SeasonAppearances?comp_id=323'
+          OUT=Path('tmp/2010-11-statbunker-frontier')
+          ALIASES={
+            'Vassiriki Diaby':'Abou Diaby','Carlos Alberto Vela':'Carlos Vela','Josh McEachran':'Joshua McEachran',
+            'Nascimento Ramires':'Ramires','Mikel':'Mikel John Obi','Johnny Heitinga':'John Heitinga',
+            'Phil Jagielka':'Philip Jagielka','Mousa Dembele':'Moussa Dembele','Jose Reina':'Pepe Reina',
+            'Sanchez Jose Enrique':'Jose Enrique','Leiva Lucas':'Lucas Leiva','Antonio Valencia':'Luis Antonio Valencia',
+            'Luis Nani':'Nani','Oliveira Anderson':'Anderson','Rob Green':'Robert Green','Phil Bardsley':'Philip Bardsley',
+            'Raniere Sandro':'Sandro','Dos Santos Giovani':'Giovani Dos Santos','Gonzalo Jara Reyes':'Gonzalo Jara',
+            'Youssouf Mulumbu':'Youssuf Mulumbu','Michael Pollitt':'Mike Pollitt','Adrian Lopez':'Piscu',
+            'David Hoilett':'Junior Hoilett','Matthew Jarvis':'Matt Jarvis','Steven Nzonzi':"Steven N'Zonzi",
+            'Jordon Mutch':'Jordan Mutch','Mame Biram Diouf':'Mame Diouf','Cesc Fàbregas':'Francesc Fabregas',
+            'Jonathan Hogg':'Jonathon Hogg',
+          }
+          CARRIER_NAMES=['Jordon Mutch','Sam Vokes','Chung-yong Lee','Valon Behrami','Paul Robinson','Curtis Davies',
+            'Stephen Ward','Alex Baptiste','Mame Biram Diouf','Scott Dann','Cesc Fàbregas','Martin Olsson','Craig Cathcart',
+            'Matt Phillips','Adlène Guédioura','Junior Stanislas','Marcos Alonso','Wayne Hennessey','Chris Wood','Grant Hanley','Jonathan Hogg']
+          def norm(s):
+            s=unicodedata.normalize('NFKD',str(s or '')).encode('ascii','ignore').decode('ascii').lower()
+            return re.sub(r'[^a-z0-9]+','',s)
+          def disp(s): return ALIASES.get(s,s)
+
+          html=requests.get(URL,headers={'User-Agent':'Mozilla/5.0'},timeout=30).text
+          html_path=OUT/'statbunker.html'; html_path.write_text(html,encoding='utf-8')
+          tables=pd.read_html(html)
+          table=None
+          for t in tables:
+            cols=[str(c).strip() for c in t.columns]
+            if 'Players' in cols and 'Clubs' in cols and 'Total' in cols:
+              table=t.copy(); break
+          if table is None: raise RuntimeError('SeasonAppearances table not found')
+          table.columns=[str(c).strip() for c in table.columns]
+          table['Total_num']=pd.to_numeric(table['Total'].replace('-',0),errors='coerce').fillna(0).astype(int)
+          pos=table[table['Total_num']>0].copy()
+          pos=pos[pos['Clubs'].astype(str).str.strip()!='Reading'].copy()
+          pos['source_order']=range(1,len(pos)+1)
+          pos['norm_name']=pos['Players'].map(norm)
+          pos['identity_key']=pos.apply(lambda r: norm(r['Players'])+'|'+norm(r['Clubs']) if norm(r['Players'])=='paulrobinson' else norm(r['Players']),axis=1)
+          # Collapse transfer duplicates, retaining the first/highest-appearance row. Paul Robinson club identities remain separate.
+          universe=pos.drop_duplicates('identity_key',keep='first').copy().reset_index(drop=True)
+          universe['appearance_universe_rank']=range(1,len(universe)+1)
+
+          official=[]
+          for p in sorted((x for x in Path('/tmp/fpl2010-official/20_5_2013').iterdir() if x.name.isdigit()),key=lambda x:int(x.name)):
+            o=json.loads(p.read_text(encoding='utf-8'))
+            hist=[r for r in o.get('season_history',[]) if r and r[0]=='2010/11' and int(float(r[1] or 0))>0]
+            if not hist: continue
+            nm=' '.join(x for x in [o.get('first_name',''),o.get('second_name','')] if x).strip()
+            official.append(disp(nm))
+          if len(official)!=314: raise RuntimeError(f'official count {len(official)}')
+          recovered=[*official,*[disp(n) for n in CARRIER_NAMES]]
+          if len(recovered)!=335: raise RuntimeError(f'recovered input count {len(recovered)}')
+          recovered_norm={norm(n) for n in recovered if norm(n)!='paulrobinson'}
+
+          def is_recovered(row):
+            n=norm(row['Players']); club=str(row['Clubs']).strip()
+            if n=='paulrobinson':
+              return club=='Blackburn Rovers'
+            return n in recovered_norm
+          universe['recovered']=universe.apply(is_recovered,axis=1)
+          frontier=universe[~universe['recovered']].copy().reset_index(drop=True)
+          frontier['frontier_rank']=range(1,len(frontier)+1)
+          frontier['identity_qualifier']=frontier.apply(lambda r:'Bolton Wanderers defender' if norm(r['Players'])=='paulrobinson' and str(r['Clubs']).strip()=='Bolton Wanderers' else '',axis=1)
+          frontier['research_priority_band']=frontier['frontier_rank'].map(lambda x:'A — HIGH APPEARANCE EXPOSURE' if x<=37 else ('B — MATERIAL APPEARANCE EXPOSURE' if x<=90 else ('C — MEDIUM APPEARANCE EXPOSURE' if x<=150 else 'D — LOW APPEARANCE EXPOSURE')))
+
+          audit={
+            'statbunker_positive_rows_after_reading_exclusion':int(len(pos)),
+            'identity_universe_after_transfer_collapse':int(len(universe)),
+            'recovered_matches':int(universe['recovered'].sum()),
+            'unresolved_frontier':int(len(frontier)),
+            'duplicate_identity_rows_collapsed':int(len(pos)-len(universe)),
+            'paul_robinson_rows':universe[universe['norm_name']=='paulrobinson'][['Players','Clubs','Total_num','appearance_universe_rank','recovered']].to_dict('records'),
+          }
+          print(json.dumps(audit,indent=2,ensure_ascii=False))
+          (OUT/'audit.json').write_text(json.dumps(audit,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          universe.to_csv(OUT/'identity_universe.csv',index=False,encoding='utf-8-sig')
+          cols=['frontier_rank','Players','identity_qualifier','appearance_universe_rank','research_priority_band','Clubs','Total_num','Start','Sub','CO','Off','Goals']
+          frontier[cols].to_csv(OUT/'unresolved_frontier.csv',index=False,encoding='utf-8-sig')
+          if len(universe)!=544 or int(universe['recovered'].sum())!=335 or len(frontier)!=209:
+            raise RuntimeError(f'checkpoint mismatch: {audit}')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: statbunker-frontier-209
+          path: tmp/2010-11-statbunker-frontier/
+          retention-days: 2
