@@ -11,31 +11,17 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch StatBunker 2009-10 pages
+      - name: Fetch StatBunker 2009-10 pages via text proxy
         shell: bash
         run: |
-          set +e
+          set -e
           mkdir -p statbunker_2009_10
-          urls=(
-            "https://m.statbunker.com/competitions/PlayerStandings?comp_id=279|player_standings.html"
-            "https://m.statbunker.com/competitions/SeasonAppearances?comp_id=279|season_appearances.html"
-            "https://po.statbunker.com/competitions/TopYellowCards?comp_id=279|yellow_cards.html"
-            "https://tripadvisor4biz.statbunker.com/competitions/FantasyFootballPlayersStats?comp_id=279|fantasy_stats.html"
-            "https://www.statbunker.com/competitions/Top10KeepersCleanSheets?comp_id=279|keeper_clean_sheets.html"
-          )
-          for pair in "${urls[@]}"; do
-            url="${pair%%|*}"
-            file="${pair##*|}"
-            echo "FETCH $url"
-            code=$(curl -L -sS --retry 2 --connect-timeout 20 --max-time 60 \
-              -A 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1' \
-              -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
-              -H 'Accept-Language: en-GB,en;q=0.9' \
-              -H 'Referer: https://www.google.com/' \
-              -w '%{http_code}' "$url" -o "statbunker_2009_10/$file")
-            echo "$file HTTP=$code bytes=$(wc -c < statbunker_2009_10/$file 2>/dev/null || echo 0)"
-          done
-          ls -lh statbunker_2009_10
+          curl -L --fail --retry 3 'https://r.jina.ai/http://m.statbunker.com/competitions/PlayerStandings?comp_id=279' -o statbunker_2009_10/player_standings.txt
+          curl -L --fail --retry 3 'https://r.jina.ai/http://m.statbunker.com/competitions/SeasonAppearances?comp_id=279' -o statbunker_2009_10/season_appearances.txt
+          curl -L --fail --retry 3 'https://r.jina.ai/http://po.statbunker.com/competitions/TopYellowCards?comp_id=279' -o statbunker_2009_10/yellow_cards.txt
+          curl -L --fail --retry 3 'https://r.jina.ai/http://www.statbunker.com/competitions/Top10KeepersCleanSheets?comp_id=279' -o statbunker_2009_10/keeper_clean_sheets.txt
+          curl -L --fail --retry 3 'https://r.jina.ai/http://tripadvisor4biz.statbunker.com/competitions/FantasyFootballPlayersStats?comp_id=279' -o statbunker_2009_10/fantasy_stats.txt
+          wc -c statbunker_2009_10/*
       - name: Upload pages
         uses: actions/upload-artifact@v4
         with:
