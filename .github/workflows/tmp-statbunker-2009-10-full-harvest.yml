@@ -38,13 +38,12 @@ jobs:
           85	Wigan_Athletic
           63	Wolverhampton_Wanderers
           EOF
-          export -f true 2>/dev/null || true
           while IFS=$'\t' read -r cid slug; do
             echo "$cid $slug"
           done < /tmp/clubs.tsv | xargs -n2 -P6 bash -c '
             cid="$0"; slug="$1";
             curl -L --fail --retry 3 --connect-timeout 20 --max-time 90 \
-              "https://r.jina.ai/http://m.statbunker.com/competitions/PlayerStandings?comp_id=279%26club_id=${cid}" \
+              "https://r.jina.ai/http://m.statbunker.com/competitions/PlayerStandings?comp_id=279&club_id=${cid}" \
               -o "statbunker_2009_10/clubs/${slug}_${cid}_player_standings.txt"
           '
           wc -c statbunker_2009_10/clubs/*
