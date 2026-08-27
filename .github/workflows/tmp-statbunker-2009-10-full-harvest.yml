@@ -11,20 +11,48 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch remaining club standings
+      - name: Build 545-player StatBunker ID list
         shell: bash
         run: |
           set -e
-          mkdir -p remaining
-          curl -L --fail --retry 3 --connect-timeout 20 --max-time 120 \
-            'https://r.jina.ai/http://www.statbunker.com/competitions/PlayerStandings?comp_id=279&club_id=3' \
-            -o remaining/Manchester_United_3_player_standings.txt
-          curl -L --fail --retry 3 --connect-timeout 20 --max-time 120 \
-            'https://r.jina.ai/http://www.statbunker.com/competitions/PlayerStandings?comp_id=279&club_id=187' \
-            -o remaining/Stoke_City_187_player_standings.txt
-          wc -c remaining/*
-      - name: Upload pages
+          mkdir -p histories
+          curl -L --fail --retry 3 \
+            'https://r.jina.ai/http://m.statbunker.com/competitions/SeasonAppearances?comp_id=279' \
+            -o season_appearances.txt
+          python - <<'PY'
+          import re
+          text=open('season_appearances.txt',encoding='utf-8').read()
+          pat=re.compile(r'^\| \[.*?\) (.+?)\]\(http.*?player_id=(\d+).*?\) \| \[(.+?)\]\(http.*?club_id=(\d+).*?\) \| ([^|]+) \|', re.M)
+          seen={}
+          for name,pid,club,cid,total in pat.findall(text):
+              t=total.strip()
+              n=0 if t=='-' else int(t)
+              seen[pid]=seen.get(pid,0)+n
+          ids=sorted((int(pid) for pid,total in seen.items() if total>0))
+          assert len(ids)==545, len(ids)
+          open('player_ids.txt','w').write('\n'.join(map(str,ids))+'\n')
+          print('positive player ids', len(ids))
+          PY
+      - name: Fetch exact 2009-10 player history rows
+        shell: bash
+        run: |
+          set +e
+          cat player_ids.txt | xargs -n1 -P32 bash -c '
+            pid="$0"
+            url="https://r.jina.ai/http://www.statbunker.com/players/GetHistoryStats?comps_id=279&comps_type=EPL&player_id=${pid}"
+            if curl -L -sS --fail --retry 1 --connect-timeout 15 --max-time 60 "$url" -o "histories/${pid}.txt"; then
+              echo "$pid OK"
+            else
+              echo "$pid FAIL" >&2
+              rm -f "histories/${pid}.txt"
+              touch "histories/${pid}.failed"
+            fi
+          '
+          echo "txt=$(find histories -name '*.txt' | wc -l) failed=$(find histories -name '*.failed' | wc -l)"
+      - name: Upload histories
         uses: actions/upload-artifact@v4
         with:
-          name: statbunker-2009-10-remaining-clubs
-          path: remaining/
+          name: statbunker-2009-10-player-histories
+          path: |
+            histories/
+            player_ids.txt
