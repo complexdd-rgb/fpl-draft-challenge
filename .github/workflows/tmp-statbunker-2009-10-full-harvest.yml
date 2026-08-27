@@ -11,44 +11,20 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch 20 StatBunker 2009-10 club standings
+      - name: Fetch remaining club standings
         shell: bash
         run: |
           set -e
-          mkdir -p statbunker_2009_10/clubs
-          cat > /tmp/clubs.tsv <<'EOF'
-          5	Arsenal
-          24	Aston_Villa
-          48	Birmingham_City
-          34	Blackburn_Rovers
-          29	Bolton_Wanderers
-          54	Burnley
-          8	Chelsea
-          10	Everton
-          55	Fulham
-          752	Hull_City
-          4	Liverpool
-          14	Manchester_City
-          3	Manchester_United
-          59	Portsmouth
-          187	Stoke_City
-          23	Sunderland
-          19	Tottenham_Hotspur
-          21	West_Ham_United
-          85	Wigan_Athletic
-          63	Wolverhampton_Wanderers
-          EOF
-          while IFS=$'\t' read -r cid slug; do
-            echo "$cid $slug"
-          done < /tmp/clubs.tsv | xargs -n2 -P6 bash -c '
-            cid="$0"; slug="$1";
-            curl -L --fail --retry 3 --connect-timeout 20 --max-time 90 \
-              "https://r.jina.ai/http://m.statbunker.com/competitions/PlayerStandings?comp_id=279&club_id=${cid}" \
-              -o "statbunker_2009_10/clubs/${slug}_${cid}_player_standings.txt"
-          '
-          wc -c statbunker_2009_10/clubs/*
+          mkdir -p remaining
+          curl -L --fail --retry 3 --connect-timeout 20 --max-time 120 \
+            'https://r.jina.ai/http://www.statbunker.com/competitions/PlayerStandings?comp_id=279&club_id=3' \
+            -o remaining/Manchester_United_3_player_standings.txt
+          curl -L --fail --retry 3 --connect-timeout 20 --max-time 120 \
+            'https://r.jina.ai/http://www.statbunker.com/competitions/PlayerStandings?comp_id=279&club_id=187' \
+            -o remaining/Stoke_City_187_player_standings.txt
+          wc -c remaining/*
       - name: Upload pages
         uses: actions/upload-artifact@v4
         with:
-          name: statbunker-2009-10-club-standings
-          path: statbunker_2009_10/clubs/
+          name: statbunker-2009-10-remaining-clubs
+          path: remaining/
