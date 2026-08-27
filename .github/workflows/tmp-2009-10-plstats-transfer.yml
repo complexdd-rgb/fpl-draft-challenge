@@ -1,0 +1,22 @@
+name: Temporary 2009-10 PL Stats Transfer
+
+on:
+  push:
+    paths:
+      - '.github/workflows/tmp-2009-10-plstats-transfer.yml'
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download exact 2009-10 merged player stats
+        run: |
+          curl -L --fail --retry 3 'https://raw.githubusercontent.com/imadeddine-belkat/Premier-League-Stats/main/pl_stats/_merged/players/2009-10_players_stats.csv' -o 2009-10_players_stats.csv
+          wc -c 2009-10_players_stats.csv
+          sha256sum 2009-10_players_stats.csv
+      - name: Upload source artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plstats-2009-10-source
+          path: 2009-10_players_stats.csv
+          if-no-files-found: error
