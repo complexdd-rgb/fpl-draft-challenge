@@ -77,8 +77,6 @@ globalThis.NodeFilter = { SHOW_TEXT: 4 };
 globalThis.MutationObserver = class MutationObserver { constructor() {} observe() {} disconnect() {} };
 globalThis.confirm = () => true;
 
-globalThis.navigator = { clipboard: { writeText: async () => {} } };
-
 run("players.js");
 run("js/career-context.js");
 run("js/career-shape-rules.js");
