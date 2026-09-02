@@ -41,7 +41,7 @@ jobs:
           node --check js/validation-engine.js
           node --check js/admin-batch-calendar.js
           grep -q 'js/certification-approved-null-policy.js?v=1.0.0' admin.html
-          grep -q 'js/admin-batch-calendar.js?v=3.0.3' admin.html
+          grep -q 'js/admin-batch-calendar.js?v=3.0.4' admin.html
           git diff --check
       - name: Publish generated Studio wiring
         if: github.event_name == 'push'
