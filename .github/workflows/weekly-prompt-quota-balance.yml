@@ -1,0 +1,43 @@
+name: Weekly prompt quota balance patch
+
+on:
+  push:
+    branches: [weekly-prompt-quota-balancing]
+    paths:
+      - 'scripts/apply-weekly-prompt-quota-balance.mjs'
+      - '.github/workflows/weekly-prompt-quota-balance.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: weekly-prompt-quota-balancing
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply quota balance patch
+        run: node scripts/apply-weekly-prompt-quota-balance.mjs
+      - name: Syntax check
+        run: node --check js/admin-batch-calendar.js
+      - name: Static quota assertions
+        run: |
+          grep -q 'DAILY_PROMPT_MIX_TARGET' js/admin-batch-calendar.js
+          grep -q 'nationality: 1, stats: 4, context: 2, maxName: 2' js/admin-batch-calendar.js
+          grep -q 'promptMixQuotaRelaxed' js/admin-batch-calendar.js
+          grep -q 'quotaCandidates' js/admin-batch-calendar.js
+      - name: Commit patched generator
+        run: |
+          if git diff --quiet -- js/admin-batch-calendar.js; then
+            echo 'No generator changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add js/admin-batch-calendar.js
+          git commit -m 'Balance weekly prompt family quotas'
+          git push origin HEAD:weekly-prompt-quota-balancing
