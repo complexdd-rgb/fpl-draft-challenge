@@ -42,6 +42,18 @@
     "promoted", "relegated", "bottom-half", "bottomhalf", "mid-table", "league-position",
     "top-four", "survival"
   ]);
+  const MIX_STAT_TAGS = new Set([
+    "points", "goals", "assists", "goal-involvements", "minutes", "clean-sheets", "saves",
+    "bonus", "cards", "discipline", "budget", "starting-price", "final-price", "exact-stat",
+    "penalties-saved", "penalties-missed", "age", "young", "veteran"
+  ]);
+  const MIX_CONTEXT_TAGS = new Set([
+    "relegated", "promoted", "bottom-half", "bottomhalf", "mid-table", "survival",
+    "outside-big-six", "outside-top-four", "manager", "teammate", "club-season",
+    "season-rule", "season-exact", "season-before", "season-after", "season-between",
+    "career-total", "career-seasons", "career-clubs", "career-overlap", "returned-club", "played-for-both"
+  ]);
+  const DAILY_PROMPT_MIX_TARGET = Object.freeze({ nationality: 1, stats: 4, context: 2, maxName: 2 });
   const ROTATION_POLICY_VERSION = 1;
   const FORBIDDEN_COST = 1_000_000;
   const LONDON_TIMEZONE = "Europe/London";
@@ -272,6 +284,7 @@
         setStatus(`Generating ${dayIndex + 1}/${DAYS_IN_BATCH} · ${friendlyDate(date)} · exact rotation + ${settings.cooldownChallenges}-day family cooldown…`, "working");
         await yieldToBrowser();
 
+        const promptMixPlan = buildPromptMixQuotaPlan({ basePools, exactPlan, familyPlan });
         const generated = await generateCandidateForDay({
           basePools,
           settings,
@@ -279,6 +292,7 @@
           formationSlots,
           exactPlan,
           familyPlan,
+          promptMixPlan,
           weeklyLeaderDays,
           dayIndex,
           date,
@@ -322,7 +336,7 @@
           perfectScore: perfect.score,
           prompts
         };
-        const validation = validateChallenge(challenge, perfect, settings, exactPlan, familyPlan);
+        const validation = validateChallenge(challenge, perfect, settings, exactPlan, familyPlan, promptMixPlan, generated.quotaRelaxed);
         const source = buildChallengeSource(challenge);
 
         const result = {
@@ -330,6 +344,9 @@
           promptIds: prompts.map(prompt => prompt.id),
           promptFamilies: prompts.map(promptFamily),
           antiMetaCount: prompts.filter(isAntiMeta).length,
+          promptMix: promptMixCounts(prompts),
+          promptMixTarget: { ...promptMixPlan },
+          promptMixQuotaRelaxed: Boolean(generated.quotaRelaxed),
           familyCooldownRelaxedPositions: [...familyPlan.relaxedPositions],
           perfect,
           source,
@@ -395,6 +412,62 @@
       pools[prompt.position].push(prompt);
     }
     return pools;
+  }
+
+  function promptTags(prompt) {
+    return Array.isArray(prompt?.tags) ? prompt.tags : [];
+  }
+
+  function isNationalityPrompt(prompt) {
+    const family = String(prompt?.family || "").toLowerCase();
+    return family.includes("nationality") || promptTags(prompt).some(tag => tag === "nationality" || String(tag).startsWith("country-"));
+  }
+
+  function isNameRulePrompt(prompt) {
+    const family = String(prompt?.family || "").toLowerCase();
+    return family.includes("name:") || promptTags(prompt).some(tag => FAMILY_NAME_TAGS.has(tag));
+  }
+
+  function isStatMixPrompt(prompt) {
+    const tags = promptTags(prompt);
+    if (tags.some(tag => MIX_STAT_TAGS.has(tag))) return true;
+    const family = String(promptFamily(prompt) || "").toLowerCase();
+    return [...MIX_STAT_TAGS].some(tag => family.includes(tag));
+  }
+
+  function isContextMixPrompt(prompt) {
+    const tags = promptTags(prompt);
+    if (tags.some(tag => MIX_CONTEXT_TAGS.has(tag))) return true;
+    const family = String(promptFamily(prompt) || "").toLowerCase();
+    return family.includes("season:") || family.includes("career:") || family.includes("manager") || family.includes("teammate");
+  }
+
+  function promptMixCounts(prompts) {
+    return {
+      nationality: prompts.filter(isNationalityPrompt).length,
+      stats: prompts.filter(isStatMixPrompt).length,
+      context: prompts.filter(isContextMixPrompt).length,
+      name: prompts.filter(isNameRulePrompt).length
+    };
+  }
+
+  function promptMixMeets(counts, plan) {
+    return counts.nationality >= plan.nationality && counts.stats >= plan.stats && counts.context >= plan.context && counts.name <= plan.maxName;
+  }
+
+  function buildPromptMixQuotaPlan({ basePools, exactPlan, familyPlan }) {
+    const eligible = Object.values(basePools).flat().filter(prompt => exactPlanAllows(prompt, exactPlan) && familyPlanAllows(prompt, familyPlan));
+    const nationalityAvailable = eligible.filter(isNationalityPrompt).length;
+    const statAvailable = eligible.filter(isStatMixPrompt).length;
+    const contextAvailable = eligible.filter(isContextMixPrompt).length;
+    const nonNameAvailable = eligible.filter(prompt => !isNameRulePrompt(prompt)).length;
+    return {
+      nationality: Math.min(DAILY_PROMPT_MIX_TARGET.nationality, nationalityAvailable),
+      stats: Math.min(DAILY_PROMPT_MIX_TARGET.stats, statAvailable),
+      context: Math.min(DAILY_PROMPT_MIX_TARGET.context, contextAvailable),
+      maxName: nonNameAvailable >= 9 ? DAILY_PROMPT_MIX_TARGET.maxName : 11,
+      eligible: eligible.length
+    };
   }
 
   function promptFamily(prompt) {
@@ -565,7 +638,7 @@
     return true;
   }
 
-  async function generateCandidateForDay({ basePools, settings, requiredFormation, formationSlots, exactPlan, familyPlan, weeklyLeaderDays, dayIndex, date, token }) {
+  async function generateCandidateForDay({ basePools, settings, requiredFormation, formationSlots, exactPlan, familyPlan, promptMixPlan, weeklyLeaderDays, dayIndex, date, token }) {
     const availability = Object.fromEntries(
       Object.keys(requiredFormation).map(position => [
         position,
@@ -588,7 +661,7 @@
         const options = basePools[position].filter(prompt =>
           exactPlanAllows(prompt, exactPlan) && familyPlanAllows(prompt, familyPlan) && !used.has(prompt.id)
         );
-        const choice = weightedPick(options, draft, settings, familyPlan, weeklyLeaderDays);
+        const choice = weightedPick(options, draft, settings, familyPlan, promptMixPlan, weeklyLeaderDays);
         if (!choice) break;
         draft.push(choice);
         used.add(choice.id);
@@ -602,7 +675,7 @@
       signatures.add(signature);
       candidates.push({
         prompts: draft,
-        balance: scoreDraft(draft, settings, weeklyLeaderDays),
+        balance: scoreDraft(draft, settings, promptMixPlan, weeklyLeaderDays),
         naiveScore: naivePerfectUpperBound(draft)
       });
 
@@ -614,26 +687,29 @@
 
     if (!candidates.length) return { ok: false, reason: "No complete XI could be generated with the current restrictions." };
     candidates.sort((left, right) => left.balance - right.balance || left.naiveScore - right.naiveScore);
+    const quotaCandidates = candidates.filter(candidate => promptMixMeets(promptMixCounts(candidate.prompts), promptMixPlan));
+    const rankedCandidates = quotaCandidates.length ? quotaCandidates : candidates;
+    const quotaRelaxed = quotaCandidates.length === 0;
 
     if (settings.maxPerfectScore <= 0) {
-      for (const candidate of candidates.slice(0, 35)) {
+      for (const candidate of rankedCandidates.slice(0, 35)) {
         const perfect = calculatePerfectXI(candidate.prompts);
-        if (perfect.possible) return { ok: true, prompts: candidate.prompts, perfect };
+        if (perfect.possible) return { ok: true, prompts: candidate.prompts, perfect, quotaRelaxed };
       }
       return { ok: false, reason: "The optimiser could not find a valid unique-player XI for the strongest candidates." };
     }
 
     // If the simple per-slot upper bound is already below the ceiling, the exact unique-player
     // score must also be below it. This usually lets the batch generator calculate only one exact XI.
-    const definitelyUnderCap = candidates.filter(candidate => candidate.naiveScore <= settings.maxPerfectScore);
+    const definitelyUnderCap = rankedCandidates.filter(candidate => candidate.naiveScore <= settings.maxPerfectScore);
     for (const candidate of definitelyUnderCap.slice(0, 25)) {
       const perfect = calculatePerfectXI(candidate.prompts);
       if (perfect.possible && perfect.score <= settings.maxPerfectScore) {
-        return { ok: true, prompts: candidate.prompts, perfect };
+        return { ok: true, prompts: candidate.prompts, perfect, quotaRelaxed };
       }
     }
 
-    const closest = [...candidates]
+    const closest = [...rankedCandidates]
       .sort((left, right) => Math.abs(left.naiveScore - settings.maxPerfectScore) - Math.abs(right.naiveScore - settings.maxPerfectScore) || left.balance - right.balance)
       .slice(0, MAX_EXACT_CAP_CHECKS);
 
@@ -643,7 +719,7 @@
       const perfect = calculatePerfectXI(candidate.prompts);
       if (perfect.possible) {
         lowestExact = Math.min(lowestExact, perfect.score);
-        if (perfect.score <= settings.maxPerfectScore) return { ok: true, prompts: candidate.prompts, perfect };
+        if (perfect.score <= settings.maxPerfectScore) return { ok: true, prompts: candidate.prompts, perfect, quotaRelaxed };
       }
       if (index > 0 && index % 12 === 0) {
         setStatus(`Generating ${dayIndex + 1}/${DAYS_IN_BATCH} · ${friendlyDate(date)} · exact score checks ${index + 1}/${closest.length} · lowest ${Number.isFinite(lowestExact) ? lowestExact.toLocaleString() : "—"}`, "working");
@@ -755,7 +831,7 @@
     }
   }
 
-  function weightedPick(options, currentDraft, settings, familyPlan, weeklyLeaderDays) {
+  function weightedPick(options, currentDraft, settings, familyPlan, promptMixPlan, weeklyLeaderDays) {
     if (!options.length) return null;
     const usedFamilies = new Set(currentDraft.map(promptFamily));
     const familyFreshOptions = options.filter(prompt => !usedFamilies.has(promptFamily(prompt)));
@@ -769,9 +845,14 @@
       currentDraft.flatMap(prompt => (prompt.tags || []).filter(tag => DIVERSITY_TAGS.has(tag)))
     );
 
+    const currentMix = promptMixCounts(currentDraft);
     const weighted = options.map(prompt => {
       const difficultyDistance = Math.abs((DIFFICULTY_VALUE[prompt.difficulty] || 2) - target);
       let weight = Math.max(1, Number(prompt.rating) || 3) * (1 / (1 + difficultyDistance));
+      if (currentMix.nationality < promptMixPlan.nationality && isNationalityPrompt(prompt)) weight *= 7;
+      if (currentMix.stats < promptMixPlan.stats && isStatMixPrompt(prompt)) weight *= 2.8;
+      if (currentMix.context < promptMixPlan.context && isContextMixPrompt(prompt)) weight *= 2.4;
+      if (currentMix.name >= promptMixPlan.maxName && isNameRulePrompt(prompt)) weight /= 18;
       if (antiNeeded >= remainingSlots && isAntiMeta(prompt)) weight *= 8;
       else if (antiNeeded > 0 && isAntiMeta(prompt)) weight *= 2;
       const repeatedThemeCount = (prompt.tags || []).filter(tag => DIVERSITY_TAGS.has(tag) && tagsAlreadyUsed.has(tag)).length;
@@ -798,7 +879,7 @@
     return weighted[weighted.length - 1].prompt;
   }
 
-  function scoreDraft(draft, settings, weeklyLeaderDays) {
+  function scoreDraft(draft, settings, promptMixPlan, weeklyLeaderDays) {
     const target = difficultyTargetValue(settings.difficultyTarget);
     const averageDifficulty = draft.reduce((sum, prompt) => sum + (DIFFICULTY_VALUE[prompt.difficulty] || 2), 0) / draft.length;
     let score = Math.abs(averageDifficulty - target) * 20;
@@ -815,6 +896,11 @@
       score += Math.abs(Math.log(Math.max(answerCount, 1)) - Math.log(25)) * 0.8;
     }
     for (const count of tagCounts.values()) if (count > 2) score += (count - 2) * 14;
+    const mix = promptMixCounts(draft);
+    score += Math.max(0, promptMixPlan.nationality - mix.nationality) * 280;
+    score += Math.max(0, promptMixPlan.stats - mix.stats) * 120;
+    score += Math.max(0, promptMixPlan.context - mix.context) * 110;
+    score += Math.max(0, mix.name - promptMixPlan.maxName) * 180;
     score += answerDiversityPenalty(draft);
     score += weeklyLeaderPenalty(draft, weeklyLeaderDays);
     return score + Math.random() * 0.25;
@@ -929,7 +1015,7 @@
     return [...assignment];
   }
 
-  function validateChallenge(challenge, perfect, settings, exactPlan, familyPlan) {
+  function validateChallenge(challenge, perfect, settings, exactPlan, familyPlan, promptMixPlan, quotaRelaxed) {
     const issues = [];
     const prompts = challenge.prompts || [];
     if (prompts.length !== 11) issues.push("Challenge does not contain 11 prompts.");
@@ -951,6 +1037,8 @@
     );
     if (familyConflicts.length) issues.push(`${familyConflicts.length} prompt(s) break the ${familyPlan.cooldownDays}-day prompt-family cooldown.`);
     if (prompts.filter(isAntiMeta).length < settings.minAntiMeta) issues.push("Minimum anti-meta prompt target was not met.");
+    const mix = promptMixCounts(prompts);
+    if (!quotaRelaxed && !promptMixMeets(mix, promptMixPlan)) issues.push("Prompt-family mix quota was not met.");
 
     for (const prompt of prompts) {
       const count = Number(core.getPromptStats(prompt)?.playerCount || 0);
@@ -1208,6 +1296,9 @@
         theme: result.theme,
         perfectScore: result.perfectScore,
         antiMetaCount: result.antiMetaCount,
+        promptMix: result.promptMix,
+        promptMixTarget: result.promptMixTarget,
+        promptMixQuotaRelaxed: result.promptMixQuotaRelaxed,
         promptIds: result.promptIds,
         status: result.status,
         issues: result.issues
@@ -1374,6 +1465,9 @@
       status: result.status,
       promptIds: [...(result.promptIds || [])],
       promptFamilies: [...(result.promptFamilies || [])],
+      promptMix: { ...(result.promptMix || {}) },
+      promptMixTarget: { ...(result.promptMixTarget || {}) },
+      promptMixQuotaRelaxed: Boolean(result.promptMixQuotaRelaxed),
       familyCooldownRelaxedPositions: [...(result.familyCooldownRelaxedPositions || [])]
     })),
     getManifest: () => batchManifest ? JSON.parse(JSON.stringify(batchManifest)) : null,
