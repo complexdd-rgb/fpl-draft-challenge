@@ -68,16 +68,29 @@
     return true;
   }
 
-  function loadScript(src, marker) {
-    if (document.querySelector(`script[${marker}]`)) return;
+  function loadScript(src, marker, done) {
+    const existing = document.querySelector(`script[${marker}]`);
+    if (existing) {
+      if (done) {
+        if (existing.dataset.loaded === "true") queueMicrotask(done);
+        else existing.addEventListener("load", done, { once:true });
+      }
+      return;
+    }
     const script = document.createElement("script");
     script.src = new URL(src, document.baseURI).toString();
     script.async = false;
     script.setAttribute(marker,"1");
+    script.addEventListener("load",()=>{
+      script.dataset.loaded = "true";
+      done?.();
+    },{once:true});
     document.head.appendChild(script);
   }
   function loadExtras() {
-    loadScript("js/prompt-nationality-context-pack-v1.js?v=1.0.0","data-nationality-context-prompt-pack-v1");
+    loadScript("nationality-enrichment.js?v=1.1.0","data-nationality-enrichment",()=>{
+      loadScript("js/prompt-nationality-context-pack-v1.js?v=1.0.0","data-nationality-context-prompt-pack-v1");
+    });
     loadScript("js/historical-season-field-manifest.js?v=1.0.0","data-historical-season-field-manifest");
     loadScript("js/historical-prompt-unlock-audit.js?v=1.0.0","data-historical-prompt-unlock-audit");
     loadScript("js/prompt-field-readiness-panel.js?v=1.1.0","data-prompt-field-readiness-panel");

@@ -454,7 +454,7 @@
   }
 
   function promptMixMeets(counts, plan) {
-    return counts.nationality >= plan.nationality && counts.stats >= plan.stats && counts.context >= plan.context && counts.name <= plan.maxName;
+    return counts.nationality === plan.nationality && counts.stats >= plan.stats && counts.context >= plan.context && counts.name <= plan.maxName;
   }
 
   function buildPromptMixQuotaPlan({ basePools, exactPlan, familyPlan }) {
@@ -739,24 +739,36 @@
   const ANSWER_DIVERSITY_POOL_SIZE = 16;
   const WEEKLY_LEADER_SOFT_CAP = 2;
   const WEEKLY_LEADER_BASE_PENALTY = 180;
+  const topAnswerRecordsCache = new Map();
+  const topAnswerPlayerIdsCache = new Map();
 
   function topAnswerRecords(prompt, limit = ANSWER_DIVERSITY_POOL_SIZE) {
+    const key = `${prompt?.id || ""}|${limit}`;
+    if (topAnswerRecordsCache.has(key)) return topAnswerRecordsCache.get(key);
     const stats = core.getPromptStats(prompt);
     const values = stats?.bestByPlayer?.values ? [...stats.bestByPlayer.values()] : [];
-    return values
+    const records = values
       .filter(Boolean)
       .sort((left, right) => Number(right.points || 0) - Number(left.points || 0) || String(left.name || "").localeCompare(String(right.name || "")))
       .slice(0, limit);
+    topAnswerRecordsCache.set(key, records);
+    return records;
   }
 
   function topAnswerPlayerIds(prompt, limit = ANSWER_DIVERSITY_POOL_SIZE) {
-    return new Set(topAnswerRecords(prompt, limit).map(record => record.playerId).filter(Boolean));
+    const key = `${prompt?.id || ""}|${limit}`;
+    if (topAnswerPlayerIdsCache.has(key)) return topAnswerPlayerIdsCache.get(key);
+    const ids = new Set(topAnswerRecords(prompt, limit).map(record => record.playerId).filter(Boolean));
+    topAnswerPlayerIdsCache.set(key, ids);
+    return ids;
   }
 
-  function answerOverlapWithDraft(prompt, currentDraft) {
-    if (!currentDraft.length) return 0;
+  function answerOverlapWithDraft(prompt, currentDraft, alreadyUsedTopAnswerIds) {
+    const alreadyUsed = alreadyUsedTopAnswerIds || new Set(
+      currentDraft.flatMap(item => [...topAnswerPlayerIds(item, 12)])
+    );
+    if (!alreadyUsed.size) return 0;
     const candidate = topAnswerPlayerIds(prompt, 12);
-    const alreadyUsed = new Set(currentDraft.flatMap(item => [...topAnswerPlayerIds(item, 12)]));
     let overlap = 0;
     for (const playerId of candidate) if (alreadyUsed.has(playerId)) overlap += 1;
     return overlap;
@@ -846,12 +858,16 @@
     const tagsAlreadyUsed = new Set(
       currentDraft.flatMap(prompt => (prompt.tags || []).filter(tag => DIVERSITY_TAGS.has(tag)))
     );
+    const alreadyUsedTopAnswerIds = new Set(
+      currentDraft.flatMap(prompt => [...topAnswerPlayerIds(prompt, 12)])
+    );
 
     const currentMix = promptMixCounts(currentDraft);
     const weighted = options.map(prompt => {
       const difficultyDistance = Math.abs((DIFFICULTY_VALUE[prompt.difficulty] || 2) - target);
       let weight = Math.max(1, Number(prompt.rating) || 3) * (1 / (1 + difficultyDistance));
       if (currentMix.nationality < promptMixPlan.nationality && isNationalityPrompt(prompt)) weight *= 7;
+      if (currentMix.nationality >= promptMixPlan.nationality && isNationalityPrompt(prompt)) weight /= 24;
       if (currentMix.stats < promptMixPlan.stats && isStatMixPrompt(prompt)) weight *= 2.8;
       if (currentMix.context < promptMixPlan.context && isContextMixPrompt(prompt)) weight *= 2.4;
       if (currentMix.name >= promptMixPlan.maxName && isNameRulePrompt(prompt)) weight /= 18;
@@ -866,7 +882,7 @@
         const excess = priorLeaderDays - WEEKLY_LEADER_SOFT_CAP + 1;
         weight /= 1 + excess * excess * 12;
       }
-      const answerOverlap = answerOverlapWithDraft(prompt, currentDraft);
+      const answerOverlap = answerOverlapWithDraft(prompt, currentDraft, alreadyUsedTopAnswerIds);
       weight /= 1 + answerOverlap * 0.65;
       if (familyPlan?.recentFamilies?.has(promptFamily(prompt))) weight /= 12;
       return { prompt, weight };
@@ -900,6 +916,7 @@
     for (const count of tagCounts.values()) if (count > 2) score += (count - 2) * 14;
     const mix = promptMixCounts(draft);
     score += Math.max(0, promptMixPlan.nationality - mix.nationality) * 280;
+    score += Math.max(0, mix.nationality - promptMixPlan.nationality) * 280;
     score += Math.max(0, promptMixPlan.stats - mix.stats) * 120;
     score += Math.max(0, promptMixPlan.context - mix.context) * 110;
     score += Math.max(0, mix.name - promptMixPlan.maxName) * 180;

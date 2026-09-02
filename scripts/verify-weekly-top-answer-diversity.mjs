@@ -6,7 +6,10 @@ const checks = [
   ['weekly counts are batch-local', 'const weeklyLeaderDays = new Map();'],
   ['candidate scoring includes weekly penalty', 'score += weeklyLeaderPenalty(draft, weeklyLeaderDays);'],
   ['weighted selection penalises leaders after cap', 'if (priorLeaderDays >= WEEKLY_LEADER_SOFT_CAP)'],
-  ['successful days commit leader usage', 'commitWeeklyLeaderDays(prompts, weeklyLeaderDays);']
+  ['successful days commit leader usage', 'commitWeeklyLeaderDays(prompts, weeklyLeaderDays);'],
+  ['top-answer records are cached', 'const topAnswerRecordsCache = new Map();'],
+  ['top-answer player ids are cached', 'const topAnswerPlayerIdsCache = new Map();'],
+  ['weighted selection reuses the current answer pool', 'answerOverlapWithDraft(prompt, currentDraft, alreadyUsedTopAnswerIds)']
 ];
 
 for (const [label, needle] of checks) {
