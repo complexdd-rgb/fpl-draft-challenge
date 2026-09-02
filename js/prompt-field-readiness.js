@@ -88,8 +88,8 @@
     document.head.appendChild(script);
   }
   function loadExtras() {
-    loadScript("nationality-enrichment.js?v=1.1.0","data-nationality-enrichment",()=>{
-      loadScript("js/prompt-nationality-context-pack-v1.js?v=1.0.0","data-nationality-context-prompt-pack-v1");
+    loadScript("nationality-enrichment.js?v=1.1.1","data-nationality-enrichment",()=>{
+      loadScript("js/prompt-nationality-context-pack-v1.js?v=1.0.2","data-nationality-context-prompt-pack-v1");
     });
     loadScript("js/historical-season-field-manifest.js?v=1.0.0","data-historical-season-field-manifest");
     loadScript("js/historical-prompt-unlock-audit.js?v=1.0.0","data-historical-prompt-unlock-audit");
