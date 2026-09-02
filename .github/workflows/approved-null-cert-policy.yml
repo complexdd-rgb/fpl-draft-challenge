@@ -9,8 +9,12 @@ on:
       - 'scripts/apply-approved-null-cert-policy.mjs'
       - 'scripts/apply-weekly-nationality-hard-reservation.mjs'
       - 'scripts/apply-weekly-certified-snapshot-race.mjs'
+      - 'scripts/apply-weekly-rotation-library-evolution.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
+      - 'scripts/verify-weekly-rotation-library-evolution.mjs'
+      - 'scripts/diagnose-certified-nationality-pool.mjs'
+      - 'scripts/diagnose-weekly-day-one.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
   push:
     branches: [main]
@@ -21,8 +25,12 @@ on:
       - 'scripts/apply-approved-null-cert-policy.mjs'
       - 'scripts/apply-weekly-nationality-hard-reservation.mjs'
       - 'scripts/apply-weekly-certified-snapshot-race.mjs'
+      - 'scripts/apply-weekly-rotation-library-evolution.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
+      - 'scripts/verify-weekly-rotation-library-evolution.mjs'
+      - 'scripts/diagnose-certified-nationality-pool.mjs'
+      - 'scripts/diagnose-weekly-day-one.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
 
 permissions:
@@ -48,9 +56,13 @@ jobs:
           node --check js/admin-batch-calendar.js
           node --check js/admin-daily-generator-guard.js
           grep -q 'js/certification-approved-null-policy.js?v=1.0.0' admin.html
-          grep -q 'js/admin-batch-calendar.js?v=3.0.5' admin.html
+          grep -q 'js/admin-batch-calendar.js?v=3.0.6' admin.html
           grep -q 'js/admin-daily-generator-guard.js?v=1.1.2' admin.html
           git diff --check
+      - name: Diagnose certified nationality pool
+        run: node scripts/diagnose-certified-nationality-pool.mjs
+      - name: Reproduce weekly day-one generation
+        run: node scripts/diagnose-weekly-day-one.mjs
       - name: Publish generated Studio wiring
         if: github.event_name == 'push'
         shell: bash

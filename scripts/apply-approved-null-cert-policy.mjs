@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process';
 // idempotent and are verified before admin.html is written or published.
 execFileSync(process.execPath, ['scripts/apply-weekly-nationality-hard-reservation.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/apply-weekly-certified-snapshot-race.mjs'], { stdio: 'inherit' });
+execFileSync(process.execPath, ['scripts/apply-weekly-rotation-library-evolution.mjs'], { stdio: 'inherit' });
 
 const path = 'admin.html';
 let source = fs.readFileSync(path, 'utf8');
@@ -27,7 +28,7 @@ updated = updated.replace(
 const enrichmentTag = '  <script data-nationality-enrichment data-loaded="true" src="nationality-enrichment.js?v=1.1.1"></script>';
 const contextTag = '  <script data-nationality-context-prompt-pack-v1 data-loaded="true" src="js/prompt-nationality-context-pack-v1.js?v=1.0.2"></script>';
 const gateTag = '  <script src="js/admin-weekly-nationality-readiness-gate.js?v=1.0.2"></script>';
-const batchTag = '  <script src="js/admin-batch-calendar.js?v=3.0.5"></script>';
+const batchTag = '  <script src="js/admin-batch-calendar.js?v=3.0.6"></script>';
 const quotaGuardTag = '  <script src="js/admin-weekly-nationality-quota-guard.js?v=1.0.0"></script>';
 const dailyGuardTag = '  <script data-admin-daily-generator-guard="1" src="js/admin-daily-generator-guard.js?v=1.1.2"></script>';
 
@@ -58,7 +59,7 @@ const requiredOnce = [
   'nationality-enrichment.js?v=1.1.1',
   'js/prompt-nationality-context-pack-v1.js?v=1.0.2',
   'js/admin-weekly-nationality-readiness-gate.js?v=1.0.2',
-  'js/admin-batch-calendar.js?v=3.0.5',
+  'js/admin-batch-calendar.js?v=3.0.6',
   'js/admin-weekly-nationality-quota-guard.js?v=1.0.0',
   'js/admin-daily-generator-guard.js?v=1.1.2'
 ];
@@ -71,7 +72,7 @@ const order = [
   updated.indexOf('nationality-enrichment.js?v=1.1.1'),
   updated.indexOf('js/prompt-nationality-context-pack-v1.js?v=1.0.2'),
   updated.indexOf('js/admin-weekly-nationality-readiness-gate.js?v=1.0.2'),
-  updated.indexOf('js/admin-batch-calendar.js?v=3.0.5'),
+  updated.indexOf('js/admin-batch-calendar.js?v=3.0.6'),
   updated.indexOf('js/admin-weekly-nationality-quota-guard.js?v=1.0.0'),
   updated.indexOf('js/admin-daily-generator-guard.js?v=1.1.2')
 ];
@@ -84,7 +85,7 @@ if (!updated.includes(weeklyButton)) {
 
 if (updated !== source) {
   fs.writeFileSync(path, updated);
-  console.log('Wired approved-null policy, weekly nationality guards and certified generation snapshot into admin.html.');
+  console.log('Wired approved-null policy, weekly nationality guards, certified snapshot and rotation replay into admin.html.');
 } else {
   console.log('Studio admin wiring is already current.');
 }
@@ -94,3 +95,4 @@ execFileSync(process.execPath, ['scripts/verify-weekly-nationality-generation-ga
 execFileSync(process.execPath, ['scripts/verify-weekly-nationality-quota-guard.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-weekly-nationality-hard-reservation.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-weekly-certified-snapshot-race.mjs'], { stdio: 'inherit' });
+execFileSync(process.execPath, ['scripts/verify-weekly-rotation-library-evolution.mjs'], { stdio: 'inherit' });
