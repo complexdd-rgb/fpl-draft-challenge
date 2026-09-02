@@ -56,6 +56,7 @@
   const DAILY_PROMPT_MIX_TARGET = Object.freeze({ nationality: 1, stats: 4, context: 2, maxName: 2 });
   const NATIONALITY_RESERVATION_POLICY_VERSION = 1;
   const CERTIFIED_PROMPT_POOL_ONLY_POLICY_VERSION = 1;
+  const CERTIFIED_SNAPSHOT_SOURCE_POLICY_VERSION = 1;
   const ROTATION_POLICY_VERSION = 1;
   const FORBIDDEN_COST = 1_000_000;
   const LONDON_TIMEZONE = "Europe/London";
@@ -205,13 +206,15 @@
       return;
     }
 
+    const generationSnapshot = Array.isArray(window.FPL_DAILY_GENERATION_PROMPT_POOL)
+      ? window.FPL_DAILY_GENERATION_PROMPT_POOL
+      : null;
     const apiLibrary = core.getPromptLibrary?.();
     const globalLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
-    // The Daily Challenge quality guard temporarily locks the Studio API library to the
-    // certified 4★+ pool. Never union the global library back in here, because doing so can
-    // reintroduce prompts the quality analyser deliberately excluded. The global collection
-    // is only a bootstrap fallback when the Studio API genuinely has no library.
-    const promptSource = Array.isArray(apiLibrary) ? apiLibrary : globalLibrary;
+    // Guarded Daily Challenge generation owns an immutable certified snapshot. Prefer it over
+    // every mutable Studio/global prompt collection so late prompt-pack events cannot change
+    // an in-progress week. Outside guarded generation, the Studio API remains authoritative.
+    const promptSource = generationSnapshot || (Array.isArray(apiLibrary) ? apiLibrary : globalLibrary);
     const promptLibrary = [...new Map(promptSource.filter(prompt => prompt?.id).map(prompt => [String(prompt.id), prompt])).values()];
     if (!promptLibrary.length) {
       setStatus("The prompt library is unavailable. Reload Studio before generating the week.", "fail");

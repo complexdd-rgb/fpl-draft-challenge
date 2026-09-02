@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.1.1
+/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.1.2
    Keeps seven-day generation aligned with the live server schedule and locks every generated
    week to the current certified 4★+ prompt pool. */
 (() => {
@@ -13,6 +13,7 @@
   const QUALITY_CACHE_KEY = "fplPromptFourStarFloorV1";
   const PROMPT_MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
   const QUALITY_DELETE_MIGRATION_KEY = "fplQualityFloorDeleteMigrationV1";
+  const CERTIFIED_GENERATION_SNAPSHOT_POLICY_VERSION = 1;
   const core = window.FPL_STUDIO_API;
   const generateButton = document.getElementById("generateWeekBtn");
   const startDateInput = document.getElementById("batchStartDate");
@@ -291,37 +292,49 @@
     return { ok: true };
   }
 
-  function lockLibraryToQualityPool() {
+  function createGenerationQualitySnapshot() {
     if (!(qualityIds instanceof Set) || qualityIds.size <= 0 || qualityIds.size !== certifiedPoolSize) return null;
     const library = core.getPromptLibrary?.();
     if (!Array.isArray(library)) return null;
-    const original = library.slice();
-    const certified = original.filter(prompt => qualityIds.has(String(prompt?.id || "")));
-    if (certified.length !== certifiedPoolSize) return null;
-    library.splice(0, library.length, ...certified);
-    core.invalidatePromptStats?.();
-    return () => {
-      library.splice(0, library.length, ...original);
-      core.invalidatePromptStats?.();
-    };
+    const activeIds = new Set(qualityIds);
+    const activeSize = certifiedPoolSize;
+    const certified = library.filter(prompt => activeIds.has(String(prompt?.id || "")));
+    if (certified.length !== activeSize) return null;
+    const prompts = Object.freeze(certified.slice());
+    window.FPL_DAILY_GENERATION_PROMPT_POOL = prompts;
+    return Object.freeze({
+      ids: activeIds,
+      size: activeSize,
+      prompts,
+      clear() {
+        if (window.FPL_DAILY_GENERATION_PROMPT_POOL === prompts) delete window.FPL_DAILY_GENERATION_PROMPT_POOL;
+      }
+    });
   }
 
-  function certifyGeneratedResults() {
+  function certifyGeneratedResults(activeIds) {
     const results = window.FPL_STUDIO_BATCH_CALENDAR?.getResults?.() || [];
-    if (!Array.isArray(results) || results.length !== DAYS_IN_BATCH) return false;
-    return results.every(result =>
-      result?.status === "PASS"
-      && Array.isArray(result.promptIds)
-      && result.promptIds.length === 11
-      && result.promptIds.every(id => qualityIds?.has(String(id)))
-    );
+    if (!Array.isArray(results)) return { ok: false, reason: "The generator did not expose a result list." };
+    if (results.length !== DAYS_IN_BATCH) {
+      const last = results[results.length - 1];
+      const detail = last?.issues?.[0] || (last?.status && last.status !== "PASS" ? "last result status " + last.status : "generation stopped before all seven days completed");
+      return { ok: false, reason: "Only " + results.length + "/" + DAYS_IN_BATCH + " days were produced: " + detail + "." };
+    }
+    for (const result of results) {
+      const day = result?.releaseDate || result?.date || "A generated day";
+      if (result?.status !== "PASS") return { ok: false, reason: day + " has status " + (result?.status || "missing") + ": " + (result?.issues?.[0] || "validation failed") + "." };
+      if (!Array.isArray(result.promptIds) || result.promptIds.length !== 11) return { ok: false, reason: day + " returned " + (Array.isArray(result?.promptIds) ? result.promptIds.length : 0) + "/11 prompt IDs." };
+      const uncertified = result.promptIds.filter(id => !activeIds?.has(String(id)));
+      if (uncertified.length) return { ok: false, reason: day + " contains " + uncertified.length + " prompt(s) outside the certified generation snapshot: " + uncertified.slice(0, 3).join(", ") + "." };
+    }
+    return { ok: true, reason: "" };
   }
 
   async function guardedGenerate() {
     if (generationRunning) return;
     generationRunning = true;
     generateButton.disabled = true;
-    let restoreLibrary = null;
+    let generationSnapshot = null;
     try {
       if (!await waitForQualityPool()) {
         setStatus(`Generation could not synchronise the certified 4★+ prompt pool within ${Math.round(QUALITY_WAIT_MS / 1000)} seconds (${qualityPoolDiagnostic()}). Reload Studio if the quality panel is still working, then try again.`, "fail");
@@ -339,9 +352,9 @@
         return;
       }
 
-      restoreLibrary = lockLibraryToQualityPool();
-      if (!restoreLibrary) {
-        setStatus(`Could not lock generation to the current ${certifiedPoolSize.toLocaleString("en-GB")} certified prompts. Reload Studio before generating a future week.`, "fail");
+      generationSnapshot = createGenerationQualitySnapshot();
+      if (!generationSnapshot) {
+        setStatus(`Could not snapshot the current ${certifiedPoolSize.toLocaleString("en-GB")} certified prompts. Reload Studio before generating a future week.`, "fail");
         return;
       }
 
@@ -352,9 +365,10 @@
       }
 
       await generator();
-      if (!certifyGeneratedResults()) {
+      const certification = certifyGeneratedResults(generationSnapshot.ids);
+      if (!certification.ok) {
         window.FPL_STUDIO_BATCH_CALENDAR?.clear?.();
-        setStatus(`Quality certification failed: every generated prompt must belong to the locked ${certifiedPoolSize.toLocaleString("en-GB")} prompt pool. The batch was cleared and cannot be published.`, "fail");
+        setStatus(`Quality certification failed: ${certification.reason} The batch was cleared and cannot be published.`, "fail");
         return;
       }
       updateGuardChip();
@@ -362,7 +376,7 @@
       console.error(error);
       setStatus(`Daily Challenge guard stopped generation: ${error instanceof Error ? error.message : String(error)}`, "fail");
     } finally {
-      try { restoreLibrary?.(); } catch (_) {}
+      try { generationSnapshot?.clear?.(); } catch (_) {}
       generationRunning = false;
       generateButton.disabled = false;
     }
@@ -380,6 +394,9 @@
   }
 
   function onPromptLibraryChanged() {
+    // An in-progress batch owns an immutable certified snapshot. Late prompt-pack events may
+    // refresh the shared Studio library, but they must not invalidate that active snapshot.
+    if (generationRunning) { updateGuardChip(); return; }
     qualityIds = null;
     certifiedPoolSize = 0;
     captureQualityPool();
