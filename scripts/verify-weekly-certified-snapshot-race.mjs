@@ -8,8 +8,8 @@ for (const token of [
   'window.FPL_DAILY_GENERATION_PROMPT_POOL = prompts;',
   'const certification = certifyGeneratedResults(generationSnapshot.ids);',
   'if (generationRunning) { updateGuardChip(); return; }',
-  'Only ${results.length}/${DAYS_IN_BATCH} days were produced',
-  'contains ${uncertified.length} prompt(s) outside the certified generation snapshot'
+  '"Only " + results.length + "/" + DAYS_IN_BATCH + " days were produced:',
+  '" prompt(s) outside the certified generation snapshot: "'
 ]) {
   if (!guard.includes(token)) throw new Error(`Daily Challenge guard is missing certified-snapshot race protection: ${token}`);
 }
