@@ -43,7 +43,12 @@ const simulatedDraft = [
 ];
 const countNationality = draft => draft.filter(prompt => prompt.nationality).length;
 if (countNationality(simulatedDraft) !== hardTarget) throw new Error('Reservation simulation did not produce exactly one nationality prompt.');
-const badDraft = [...simulatedDraft, { id: 'nationality-2', nationality: true }].slice(1);
+const badDraft = [
+  simulatedDraft[0],
+  { id: 'nationality-2', nationality: true },
+  ...simulatedDraft.slice(1, 10)
+];
+if (badDraft.length !== 11 || countNationality(badDraft) !== 2) throw new Error('Extra-nationality regression fixture is malformed.');
 if (countNationality(badDraft) === hardTarget) throw new Error('Reservation regression simulation failed to detect an extra nationality prompt.');
 
 console.log('Weekly hard nationality reservation verified: target cannot drop to zero, one slot is reserved, extra nationality slots are excluded, and arbitrary quota fallback is removed.');
