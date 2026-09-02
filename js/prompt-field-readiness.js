@@ -1,11 +1,11 @@
-/* FPL Draft Challenge — prompt field-readiness mapper v1.0.0
+/* FPL Draft Challenge — prompt field-readiness mapper v1.0.1
    Maps every prompt to the player-season fields it needs and labels whether the rule can
    work from historical core data or requires FPL-native recovery. This is metadata only;
    the existing missing-field guard remains the runtime authority. */
 (() => {
   "use strict";
   const FPL_NATIVE = new Set(["points","assists","bonus","startingPrice","endingPrice","price","saves","penaltiesSaved","penaltiesMissed"]);
-  const HISTORICAL_CORE = new Set(["name","club","position","minutes","goals","yellowCards","redCards","ownGoals","cleanSheets","goalsConceded","relegated","promoted","bottomHalf","topFour","champions","managers","ageAtSeasonStart","_career"]);
+  const HISTORICAL_CORE = new Set(["season","name","club","position","minutes","goals","yellowCards","redCards","ownGoals","cleanSheets","goalsConceded","relegated","promoted","bottomHalf","topFour","champions","managers","ageAtSeasonStart","_career"]);
 
   function library() {
     const api = window.FPL_STUDIO_API?.getPromptLibrary?.();
@@ -58,7 +58,7 @@
     }
     window.FPL_PROMPT_FIELD_READINESS = Object.freeze({
       ready:true,
-      version:"1.0.0",
+      version:"1.0.1",
       promptCount:prompts.length,
       tiers:Object.fromEntries([...counts.entries()].sort()),
       fieldUsage:Object.fromEntries([...fieldCounts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))),
