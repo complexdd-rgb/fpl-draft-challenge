@@ -38,7 +38,7 @@
       rating: 4,
       cooldown: 7,
       enabled: true,
-      test: p => p.saves >= 120 && p.startingPrice < 5
+      test: p => p.saves >= 120 && Number.isFinite(p.startingPrice) && p.startingPrice < 5
     },
     {
       id: "gk_age_25_under_100",
@@ -122,7 +122,7 @@
       rating: 4,
       cooldown: 7,
       enabled: true,
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && p.startingPrice <= 4.5 && p.cleanSheets >= 10
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && Number.isFinite(p.startingPrice) && p.startingPrice <= 4.5 && p.cleanSheets >= 10
     },
     {
       id: "def_promoted_80_points",
@@ -218,7 +218,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => p.startingPrice <= 4.5 && p.minutes >= 3000
+      test: p => Number.isFinite(p.startingPrice) && p.startingPrice <= 4.5 && p.minutes >= 3000
     },
     {
       id: "def_top_four_zero_goals_10cs",
@@ -338,7 +338,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && p.startingPrice < 6 && (p.goals + p.assists) >= 10
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && Number.isFinite(p.startingPrice) && p.startingPrice < 6 && (p.goals + p.assists) >= 10
     },
     {
       id: "mid_more_assists_than_goals_100",
@@ -458,7 +458,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => p.startingPrice <= 5.5 && p.points >= 120
+      test: p => Number.isFinite(p.startingPrice) && p.startingPrice <= 5.5 && p.points >= 120
     },
     {
       id: "mid_assists_gt_goals_6",
@@ -482,7 +482,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => p.topFour === true && p.startingPrice < 6 && p.points >= 100
+      test: p => p.topFour === true && Number.isFinite(p.startingPrice) && p.startingPrice < 6 && p.points >= 100
     },
     {
       id: "mid_13_17_8involvements",
@@ -578,7 +578,7 @@
       rating: 4,
       cooldown: 7,
       enabled: true,
-      test: p => p.startingPrice <= 6.5 && p.points >= 120
+      test: p => Number.isFinite(p.startingPrice) && p.startingPrice <= 6.5 && p.points >= 120
     },
     {
       id: "fwd_age_u23_10goals",
@@ -746,7 +746,7 @@
       rating: 4,
       cooldown: 7,
       enabled: true,
-      test: p => p.startingPrice <= 4.5 && p.bonus >= 10
+      test: p => Number.isFinite(p.startingPrice) && p.startingPrice <= 4.5 && p.bonus >= 10
     },
     {
       id: "gk_final_45_100",
@@ -758,7 +758,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => p.finalPrice <= 4.5 && p.points >= 100
+      test: p => Number.isFinite(p.finalPrice) && p.finalPrice <= 4.5 && p.points >= 100
     },
     {
       id: "gk_zero_yellows_100_saves",
@@ -914,7 +914,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => p.startingPrice <= 4 && p.minutes >= 1500
+      test: p => Number.isFinite(p.startingPrice) && p.startingPrice <= 4 && p.minutes >= 1500
     },
     {
       id: "def_final_45_2700",
@@ -926,7 +926,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => p.finalPrice <= 4.5 && p.minutes >= 2700
+      test: p => Number.isFinite(p.finalPrice) && p.finalPrice <= 4.5 && p.minutes >= 2700
     },
     {
       id: "def_zero_goals_5assists",
@@ -1394,7 +1394,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => p.startingPrice <= 5 && (p.goals + p.assists) >= 8
+      test: p => Number.isFinite(p.startingPrice) && p.startingPrice <= 5 && (p.goals + p.assists) >= 8
     },
     {
       id: "mid_final5_100",
@@ -1406,7 +1406,7 @@
       rating: 5,
       cooldown: 7,
       enabled: true,
-      test: p => p.finalPrice <= 5 && p.points >= 100
+      test: p => Number.isFinite(p.finalPrice) && p.finalPrice <= 5 && p.points >= 100
     },
     {
       id: "mid_top4_15gi",
@@ -1803,8 +1803,8 @@
     {
       id: "auto_def_league_1_4_1500",
       position: "DEF",
-      label: "Defender from a club finishing 1th–4th who played at least 1,500 minutes",
-      fail: "That defender's club must finish 1th–4th and the season must include at least 1,500 minutes.",
+      label: "Defender from a club finishing 1st–4th who played at least 1,500 minutes",
+      fail: "That defender's club must finish 1st–4th and the season must include at least 1,500 minutes.",
       difficulty: "easy",
       tags: ["auto-generated","league-position","minutes","anti-meta"],
       rating: 4,
@@ -2477,8 +2477,8 @@
     {
       id: "auto_fwd_league_1_4_1500",
       position: "FWD",
-      label: "Forward from a club finishing 1th–4th who played at least 1,500 minutes",
-      fail: "That forward's club must finish 1th–4th and the season must include at least 1,500 minutes.",
+      label: "Forward from a club finishing 1st–4th who played at least 1,500 minutes",
+      fail: "That forward's club must finish 1st–4th and the season must include at least 1,500 minutes.",
       difficulty: "medium",
       tags: ["auto-generated","league-position","minutes","anti-meta"],
       rating: 4,
@@ -19167,8 +19167,8 @@
     {
       id: "auto_gk_league_1_4_1500_excluding_alisson_becker",
       position: "GK",
-      label: "Goalkeeper from a club finishing 1th–4th who played at least 1,500 minutes — excluding Alisson Becker",
-      fail: "That goalkeeper's club must finish 1th–4th and the season must include at least 1,500 minutes. Excluding Alisson Becker.",
+      label: "Goalkeeper from a club finishing 1st–4th who played at least 1,500 minutes — excluding Alisson Becker",
+      fail: "That goalkeeper's club must finish 1st–4th and the season must include at least 1,500 minutes. Excluding Alisson Becker.",
       difficulty: "medium",
       tags: ["auto-generated","league-position","minutes","anti-meta","excludes-top"],
       rating: 4,
