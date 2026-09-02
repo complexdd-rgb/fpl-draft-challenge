@@ -44,7 +44,7 @@
   const enrichmentWaiters = [];
 
   const players = () => Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
-  const library = () => Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
+  const library = () => { const api = window.FPL_STUDIO_API?.getPromptLibrary?.(); return Array.isArray(api) ? api : (Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : []); };
   const slug = value => String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
   const hasNumber = value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));

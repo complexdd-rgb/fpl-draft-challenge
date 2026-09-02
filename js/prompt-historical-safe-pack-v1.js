@@ -17,7 +17,7 @@
   const LIMIT = 7;
 
   const players = () => Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
-  const library = () => Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : null;
+  const library = () => { const api = window.FPL_STUDIO_API?.getPromptLibrary?.(); return Array.isArray(api) ? api : (Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : null); };
   const numeric = (p,k) => p && p[k] !== null && p[k] !== undefined && p[k] !== "" && Number.isFinite(Number(p[k]));
   const known = (p,k) => p && p[k] !== null && p[k] !== undefined && p[k] !== "";
   const slug = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");

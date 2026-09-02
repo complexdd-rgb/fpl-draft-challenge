@@ -4,7 +4,7 @@
   "use strict";
   if(window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1?.ready)return;
   const POS=["GK","DEF","MID","FWD"],LOW={GK:"goalkeeper",DEF:"defender",MID:"midfielder",FWD:"forward"},RANGE={GK:[4,32],DEF:[7,70],MID:[7,70],FWD:[5,45]},GOALS={GK:[1],DEF:[1,2],MID:[2,4],FWD:[4,6]},LIMIT=3,BIG6=["Arsenal","Chelsea","Liverpool","Man City","Man Utd","Spurs"];
-  const players=()=>Array.isArray(window.FPL_PLAYERS)?window.FPL_PLAYERS:[],library=()=>Array.isArray(window.FPL_PROMPT_LIBRARY)?window.FPL_PROMPT_LIBRARY:null;
+  const players=()=>Array.isArray(window.FPL_PLAYERS)?window.FPL_PLAYERS:[],library=()=>{const api=window.FPL_STUDIO_API?.getPromptLibrary?.();return Array.isArray(api)?api:(Array.isArray(window.FPL_PROMPT_LIBRARY)?window.FPL_PROMPT_LIBRARY:null);};
   const num=(p,k)=>p&&p[k]!==null&&p[k]!==undefined&&p[k]!==""&&Number.isFinite(Number(p[k]));
   const slug=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
   const country=v=>({"Cote d’Ivoire":"Ivory Coast","Cote d'Ivoire":"Ivory Coast","United States":"USA","Republic of Ireland":"Ireland","Korea Republic":"South Korea","Czechia":"Czech Republic"}[String(v||"").trim()]||String(v||"").trim());
