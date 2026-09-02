@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "1.0.1";
+  const VERSION = "1.0.2";
   const POLL_MS = 100;
   const MAX_ATTEMPTS = 120;
   const MIN_READY_PROMPTS = 4;
