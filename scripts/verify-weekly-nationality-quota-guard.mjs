@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const admin = fs.readFileSync('admin.html', 'utf8');
-const batchIndex = admin.indexOf('js/admin-batch-calendar.js?v=3.0.4');
+const batchIndex = admin.indexOf('js/admin-batch-calendar.js?v=3.0.5');
 const guardIndex = admin.indexOf('js/admin-weekly-nationality-quota-guard.js?v=1.0.0');
 if (batchIndex < 0 || guardIndex <= batchIndex) {
   throw new Error('Weekly nationality quota guard is not loaded after the batch calendar.');

@@ -13,8 +13,7 @@ const required = [
   'const nationalityCandidates = candidates.filter(candidate =>',
   'The nationality quota is hard and was not relaxed.',
   'Exactly one nationality prompt is required in every generated day.',
-  'nationalityFreshnessFallback',
-  'const promptSource = Array.isArray(apiLibrary) ? apiLibrary : globalLibrary;'
+  'nationalityFreshnessFallback'
 ];
 for (const token of required) {
   if (!source.includes(token)) throw new Error(`Weekly generator is missing hard nationality/certified-pool marker: ${token}`);
@@ -30,21 +29,26 @@ if (source.includes('[...apiLibrary, ...globalLibrary]')) {
   throw new Error('Weekly generator can still union the unlocked global library back into a certified Studio API pool.');
 }
 
-const sourceSelectionStart = source.indexOf('const apiLibrary = core.getPromptLibrary?.();');
+const preSnapshotSource = 'const promptSource = Array.isArray(apiLibrary) ? apiLibrary : globalLibrary;';
+const snapshotSource = 'const promptSource = generationSnapshot || (Array.isArray(apiLibrary) ? apiLibrary : globalLibrary);';
+if (!source.includes(preSnapshotSource) && !source.includes(snapshotSource)) {
+  throw new Error('Weekly generator does not have a safe authoritative prompt-source selection.');
+}
+
+const sourceSelectionStart = source.includes(snapshotSource)
+  ? source.indexOf('const generationSnapshot = Array.isArray(window.FPL_DAILY_GENERATION_PROMPT_POOL)')
+  : source.indexOf('const apiLibrary = core.getPromptLibrary?.();');
 const sourceSelectionEnd = source.indexOf('if (!promptLibrary.length)', sourceSelectionStart);
 if (sourceSelectionStart < 0 || sourceSelectionEnd < sourceSelectionStart) {
   throw new Error('Certified prompt source-selection block is malformed.');
 }
 const sourceSelection = source.slice(sourceSelectionStart, sourceSelectionEnd);
-if (!sourceSelection.includes('Array.isArray(apiLibrary) ? apiLibrary : globalLibrary')) {
-  throw new Error('Studio API library is not authoritative when available.');
-}
 if (sourceSelection.includes('...globalLibrary')) {
-  throw new Error('Global prompt library is still being merged into the authoritative Studio API library.');
+  throw new Error('Global prompt library is still being merged into the authoritative generation source.');
 }
 
-// Regression model for the live failure: the quality guard exposes a locked Studio API
-// collection while the global collection still contains an uncertified nationality prompt.
+// Before the snapshot patch the Studio API is authoritative. After the snapshot patch the
+// immutable generation snapshot is authoritative while the Studio API remains the fallback.
 const certifiedApi = [
   { id: 'cert-nationality', certified: true, nationality: true },
   { id: 'cert-other', certified: true, nationality: false }
@@ -53,7 +57,9 @@ const unlockedGlobal = [
   ...certifiedApi,
   { id: 'uncert-nationality', certified: false, nationality: true }
 ];
-const selectedSource = Array.isArray(certifiedApi) ? certifiedApi : unlockedGlobal;
+const selectedSource = source.includes(snapshotSource)
+  ? certifiedApi
+  : (Array.isArray(certifiedApi) ? certifiedApi : unlockedGlobal);
 if (selectedSource.some(prompt => !prompt.certified)) {
   throw new Error('Certified-pool regression model allowed an uncertified global prompt into generation.');
 }
@@ -87,4 +93,4 @@ const badDraft = [
 if (badDraft.length !== 11 || countNationality(badDraft) !== 2) throw new Error('Extra-nationality regression fixture is malformed.');
 if (countNationality(badDraft) === hardTarget) throw new Error('Reservation regression simulation failed to detect an extra nationality prompt.');
 
-console.log('Weekly nationality generation verified: exactly one nationality prompt is reserved and the certified Studio API pool cannot be bypassed by the global prompt library.');
+console.log('Weekly nationality generation verified: exactly one nationality prompt is reserved and the global prompt library cannot bypass the authoritative certified source.');

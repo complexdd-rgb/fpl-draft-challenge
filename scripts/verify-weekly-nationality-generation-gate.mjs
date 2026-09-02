@@ -6,7 +6,7 @@ const expectedOrder = [
   'nationality-enrichment.js?v=1.1.1',
   'js/prompt-nationality-context-pack-v1.js?v=1.0.2',
   'js/admin-weekly-nationality-readiness-gate.js?v=1.0.2',
-  'js/admin-batch-calendar.js?v=3.0.4'
+  'js/admin-batch-calendar.js?v=3.0.5'
 ];
 let lastIndex = -1;
 for (const asset of expectedOrder) {

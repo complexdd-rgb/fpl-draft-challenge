@@ -5,18 +5,24 @@ on:
     paths:
       - 'js/certification-approved-null-policy.js'
       - 'js/admin-batch-calendar.js'
+      - 'js/admin-daily-generator-guard.js'
       - 'scripts/apply-approved-null-cert-policy.mjs'
       - 'scripts/apply-weekly-nationality-hard-reservation.mjs'
+      - 'scripts/apply-weekly-certified-snapshot-race.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
+      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
   push:
     branches: [main]
     paths:
       - 'js/certification-approved-null-policy.js'
       - 'js/admin-batch-calendar.js'
+      - 'js/admin-daily-generator-guard.js'
       - 'scripts/apply-approved-null-cert-policy.mjs'
       - 'scripts/apply-weekly-nationality-hard-reservation.mjs'
+      - 'scripts/apply-weekly-certified-snapshot-race.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
+      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
 
 permissions:
@@ -40,20 +46,22 @@ jobs:
           node --check js/certification-approved-null-policy.js
           node --check js/validation-engine.js
           node --check js/admin-batch-calendar.js
+          node --check js/admin-daily-generator-guard.js
           grep -q 'js/certification-approved-null-policy.js?v=1.0.0' admin.html
-          grep -q 'js/admin-batch-calendar.js?v=3.0.4' admin.html
+          grep -q 'js/admin-batch-calendar.js?v=3.0.5' admin.html
+          grep -q 'js/admin-daily-generator-guard.js?v=1.1.2' admin.html
           git diff --check
       - name: Publish generated Studio wiring
         if: github.event_name == 'push'
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -z "$(git status --porcelain -- admin.html js/admin-batch-calendar.js)" ]]; then
-            echo "Studio wiring and weekly generator are already current."
+          if [[ -z "$(git status --porcelain -- admin.html js/admin-batch-calendar.js js/admin-daily-generator-guard.js)" ]]; then
+            echo "Studio wiring, weekly generator and Daily Challenge guard are already current."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- admin.html js/admin-batch-calendar.js
+          git add -- admin.html js/admin-batch-calendar.js js/admin-daily-generator-guard.js
           git commit -m 'Wire Studio generation policies'
           git push
