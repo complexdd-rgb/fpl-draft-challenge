@@ -1,4 +1,4 @@
-/* FPL Draft Challenge — prompt field-readiness mapper v1.0.4
+/* FPL Draft Challenge — prompt field-readiness mapper v1.0.5
    Maps every prompt to the player-season fields it needs and labels whether the rule can
    work from historical core data or requires FPL-native recovery. This is metadata only;
    the existing missing-field guard remains the runtime authority. */
@@ -58,7 +58,7 @@
     }
     window.FPL_PROMPT_FIELD_READINESS = Object.freeze({
       ready:true,
-      version:"1.0.4",
+      version:"1.0.5",
       promptCount:prompts.length,
       tiers:Object.fromEntries([...counts.entries()].sort()),
       fieldUsage:Object.fromEntries([...fieldCounts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))),
@@ -79,6 +79,7 @@
   function loadExtras() {
     loadScript("js/prompt-nationality-context-pack-v1.js?v=1.0.0","data-nationality-context-prompt-pack-v1");
     loadScript("js/historical-season-field-manifest.js?v=1.0.0","data-historical-season-field-manifest");
+    loadScript("js/historical-prompt-unlock-audit.js?v=1.0.0","data-historical-prompt-unlock-audit");
     loadScript("js/prompt-field-readiness-panel.js?v=1.1.0","data-prompt-field-readiness-panel");
   }
 
