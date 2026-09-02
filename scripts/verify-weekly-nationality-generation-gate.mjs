@@ -4,9 +4,9 @@ import vm from 'node:vm';
 const admin = fs.readFileSync('admin.html', 'utf8');
 const expectedOrder = [
   'nationality-enrichment.js?v=1.1.1',
-  'js/prompt-nationality-context-pack-v1.js?v=1.0.1',
-  'js/admin-weekly-nationality-readiness-gate.js?v=1.0.0',
-  'js/admin-batch-calendar.js?v=3.0.1'
+  'js/prompt-nationality-context-pack-v1.js?v=1.0.2',
+  'js/admin-weekly-nationality-readiness-gate.js?v=1.0.2',
+  'js/admin-batch-calendar.js?v=3.0.2'
 ];
 let lastIndex = -1;
 for (const asset of expectedOrder) {
@@ -27,7 +27,9 @@ if (!admin.includes('data-nationality-context-prompt-pack-v1 data-loaded="true"'
 
 const source = fs.readFileSync('js/admin-weekly-nationality-readiness-gate.js', 'utf8');
 for (const token of [
-  'FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1?.ready === true',
+  'pack?.ready === true',
+  'availableCount',
+  'REQUIRED_POSITIONS',
   'button.disabled = true',
   'button.disabled = false',
   'fpl:prompt-library-changed',
@@ -79,17 +81,33 @@ if (button.disabled !== true || button.dataset.nationalityReady !== 'false') {
   throw new Error('Gate did not keep seven-day generation blocked while nationality pack was absent.');
 }
 
-window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1 = Object.freeze({ ready: true, version: '1.0.0' });
+window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1 = Object.freeze({
+  ready: true,
+  version: '1.0.2',
+  availableCount: 0,
+  positions: []
+});
+window.dispatchEvent({ type: 'fpl:prompt-library-changed' });
+if (button.disabled !== true) {
+  throw new Error('Gate incorrectly unlocked for a ready=true pack with zero usable nationality prompts.');
+}
+
+window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1 = Object.freeze({
+  ready: true,
+  version: '1.0.2',
+  availableCount: 7,
+  positions: ['DEF', 'MID', 'FWD']
+});
 window.dispatchEvent({ type: 'fpl:prompt-library-changed' });
 
 if (button.disabled !== false || button.dataset.nationalityReady !== 'true') {
-  throw new Error('Gate did not unlock seven-day generation after nationality pack became ready.');
+  throw new Error('Gate did not unlock seven-day generation after usable nationality prompts became ready.');
 }
 if (button.attrs.has('aria-busy')) {
   throw new Error('Gate left aria-busy set after nationality readiness.');
 }
 if (window.FPL_WEEKLY_NATIONALITY_READINESS_GATE?.ready?.() !== true) {
-  throw new Error('Gate readiness API does not reflect the durable nationality-pack ready flag.');
+  throw new Error('Gate readiness API does not reflect real usable nationality-pack readiness.');
 }
 
-console.log('Weekly nationality generation gate verified: blocked before readiness, unlocked after readiness, cache versions bumped.');
+console.log('Weekly nationality generation gate verified: empty ready packs remain blocked; real usable packs unlock; cache versions bumped.');
