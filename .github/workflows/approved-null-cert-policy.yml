@@ -12,6 +12,7 @@ on:
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/diagnose-certified-nationality-pool.mjs'
+      - 'scripts/diagnose-weekly-day-one.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
   push:
     branches: [main]
@@ -25,6 +26,7 @@ on:
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/diagnose-certified-nationality-pool.mjs'
+      - 'scripts/diagnose-weekly-day-one.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
 
 permissions:
@@ -55,6 +57,8 @@ jobs:
           git diff --check
       - name: Diagnose certified nationality pool
         run: node scripts/diagnose-certified-nationality-pool.mjs
+      - name: Reproduce weekly day-one generation
+        run: node scripts/diagnose-weekly-day-one.mjs
       - name: Publish generated Studio wiring
         if: github.event_name == 'push'
         shell: bash
