@@ -203,7 +203,9 @@
       return;
     }
 
-    const promptLibrary = core.getPromptLibrary?.() || [];
+    const apiLibrary = Array.isArray(core.getPromptLibrary?.()) ? core.getPromptLibrary() : [];
+    const globalLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
+    const promptLibrary = [...new Map([...apiLibrary, ...globalLibrary].filter(prompt => prompt?.id).map(prompt => [String(prompt.id), prompt])).values()];
     if (!promptLibrary.length) {
       setStatus("The prompt library is unavailable. Reload Studio before generating the week.", "fail");
       return;
