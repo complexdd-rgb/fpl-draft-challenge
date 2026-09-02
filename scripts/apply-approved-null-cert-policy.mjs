@@ -20,9 +20,9 @@ updated = updated.replace(
 );
 
 const enrichmentTag = '  <script data-nationality-enrichment data-loaded="true" src="nationality-enrichment.js?v=1.1.1"></script>';
-const contextTag = '  <script data-nationality-context-prompt-pack-v1 data-loaded="true" src="js/prompt-nationality-context-pack-v1.js?v=1.0.1"></script>';
-const gateTag = '  <script src="js/admin-weekly-nationality-readiness-gate.js?v=1.0.0"></script>';
-const batchTag = '  <script src="js/admin-batch-calendar.js?v=3.0.1"></script>';
+const contextTag = '  <script data-nationality-context-prompt-pack-v1 data-loaded="true" src="js/prompt-nationality-context-pack-v1.js?v=1.0.2"></script>';
+const gateTag = '  <script src="js/admin-weekly-nationality-readiness-gate.js?v=1.0.2"></script>';
+const batchTag = '  <script src="js/admin-batch-calendar.js?v=3.0.2"></script>';
 
 if (!updated.includes('js/admin-weekly-nationality-readiness-gate.js')) {
   const batchPattern = /\s*<script src="js\/admin-batch-calendar\.js\?v=[^"]+"><\/script>/;
@@ -39,9 +39,9 @@ if (!updated.includes('js/admin-weekly-nationality-readiness-gate.js')) {
 const requiredOnce = [
   'js/certification-approved-null-policy.js',
   'nationality-enrichment.js?v=1.1.1',
-  'js/prompt-nationality-context-pack-v1.js?v=1.0.1',
-  'js/admin-weekly-nationality-readiness-gate.js?v=1.0.0',
-  'js/admin-batch-calendar.js?v=3.0.1'
+  'js/prompt-nationality-context-pack-v1.js?v=1.0.2',
+  'js/admin-weekly-nationality-readiness-gate.js?v=1.0.2',
+  'js/admin-batch-calendar.js?v=3.0.2'
 ];
 for (const token of requiredOnce) {
   const count = updated.split(token).length - 1;
@@ -50,9 +50,9 @@ for (const token of requiredOnce) {
 
 const order = [
   updated.indexOf('nationality-enrichment.js?v=1.1.1'),
-  updated.indexOf('js/prompt-nationality-context-pack-v1.js?v=1.0.1'),
-  updated.indexOf('js/admin-weekly-nationality-readiness-gate.js?v=1.0.0'),
-  updated.indexOf('js/admin-batch-calendar.js?v=3.0.1')
+  updated.indexOf('js/prompt-nationality-context-pack-v1.js?v=1.0.2'),
+  updated.indexOf('js/admin-weekly-nationality-readiness-gate.js?v=1.0.2'),
+  updated.indexOf('js/admin-batch-calendar.js?v=3.0.2')
 ];
 if (order.some(index => index < 0) || order.some((index, i) => i > 0 && index <= order[i - 1])) {
   throw new Error('Weekly nationality readiness assets are not in a safe load order.');
@@ -68,4 +68,5 @@ if (updated !== source) {
   console.log('Studio admin wiring is already current.');
 }
 
+execFileSync(process.execPath, ['scripts/verify-weekly-nationality-readiness.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-weekly-nationality-generation-gate.mjs'], { stdio: 'inherit' });
