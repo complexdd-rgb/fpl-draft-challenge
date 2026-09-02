@@ -54,6 +54,7 @@
     "career-total", "career-seasons", "career-clubs", "career-overlap", "returned-club", "played-for-both"
   ]);
   const DAILY_PROMPT_MIX_TARGET = Object.freeze({ nationality: 1, stats: 4, context: 2, maxName: 2 });
+  const NATIONALITY_RESERVATION_POLICY_VERSION = 1;
   const ROTATION_POLICY_VERSION = 1;
   const FORBIDDEN_COST = 1_000_000;
   const LONDON_TIMEZONE = "Europe/London";
@@ -458,13 +459,19 @@
   }
 
   function buildPromptMixQuotaPlan({ basePools, exactPlan, familyPlan }) {
-    const eligible = Object.values(basePools).flat().filter(prompt => exactPlanAllows(prompt, exactPlan) && familyPlanAllows(prompt, familyPlan));
+    const exactEligible = Object.values(basePools).flat().filter(prompt => exactPlanAllows(prompt, exactPlan));
+    const eligible = exactEligible.filter(prompt => familyPlanAllows(prompt, familyPlan));
+    const nationalityExactAvailable = exactEligible.filter(isNationalityPrompt).length;
     const nationalityAvailable = eligible.filter(isNationalityPrompt).length;
     const statAvailable = eligible.filter(isStatMixPrompt).length;
     const contextAvailable = eligible.filter(isContextMixPrompt).length;
     const nonNameAvailable = eligible.filter(prompt => !isNameRulePrompt(prompt)).length;
     return {
-      nationality: Math.min(DAILY_PROMPT_MIX_TARGET.nationality, nationalityAvailable),
+      // Nationality is deliberately hard. Never lower the daily target to zero just because
+      // another soft constraint temporarily hides nationality options.
+      nationality: DAILY_PROMPT_MIX_TARGET.nationality,
+      nationalityAvailable,
+      nationalityExactAvailable,
       stats: Math.min(DAILY_PROMPT_MIX_TARGET.stats, statAvailable),
       context: Math.min(DAILY_PROMPT_MIX_TARGET.context, contextAvailable),
       maxName: nonNameAvailable >= 9 ? DAILY_PROMPT_MIX_TARGET.maxName : 11,
@@ -542,7 +549,18 @@
     const plan = {};
     for (const [position, required] of Object.entries(requiredFormation)) {
       const positionState = rotationState[position] || { cycle: 1, usedIds: new Set() };
-      const available = basePools[position].filter(prompt => !extraBlockedIds.has(prompt.id) && !futureReservedIds.has(prompt.id));
+      let available = basePools[position].filter(prompt => !extraBlockedIds.has(prompt.id) && !futureReservedIds.has(prompt.id));
+      // Browser/live freshness is a soft guard. If it removes every nationality option for a
+      // position, restore nationality prompts that are not reserved by a future scheduled day.
+      // Exact-cycle usage still remains hard because `unused` is calculated afterwards.
+      if (!available.some(isNationalityPrompt)) {
+        const nationalityFreshnessFallback = basePools[position].filter(prompt =>
+          isNationalityPrompt(prompt) && !futureReservedIds.has(prompt.id)
+        );
+        if (nationalityFreshnessFallback.length) {
+          available = [...new Map([...available, ...nationalityFreshnessFallback].map(prompt => [prompt.id, prompt])).values()];
+        }
+      }
       const unused = available.filter(prompt => !positionState.usedIds.has(prompt.id));
 
       if (unused.length >= required) {
@@ -641,6 +659,55 @@
   }
 
   async function generateCandidateForDay({ basePools, settings, requiredFormation, formationSlots, exactPlan, familyPlan, promptMixPlan, weeklyLeaderDays, dayIndex, date, token }) {
+    const exactNationality = Object.values(basePools).flat().filter(prompt =>
+      isNationalityPrompt(prompt)
+      && exactPlanAllows(prompt, exactPlan)
+      && Number(requiredFormation[prompt.position] || 0) > 0
+    );
+    if (!exactNationality.length) {
+      return { ok: false, reason: "Exact prompt rotation leaves no nationality prompt available for this day. The weekly nationality quota cannot be relaxed." };
+    }
+
+    const requiredNationality = exactNationality.filter(prompt =>
+      exactPlan[prompt.position]?.mustUseIds?.has(prompt.id)
+    );
+    if (requiredNationality.length > DAILY_PROMPT_MIX_TARGET.nationality) {
+      return { ok: false, reason: "Exact prompt rotation currently forces more than one nationality prompt into the same day. Regenerate from a later rotation point rather than relaxing the nationality quota." };
+    }
+    if (requiredNationality.length === 1 && !familyPlanAllows(requiredNationality[0], familyPlan)) {
+      const position = requiredNationality[0].position;
+      familyPlan.relaxedPositions.add(position);
+      familyPlan.allowedFamiliesByPosition[position] = null;
+    }
+
+    let nationalityOptions = requiredNationality.length
+      ? requiredNationality
+      : exactNationality.filter(prompt => familyPlanAllows(prompt, familyPlan));
+    if (!nationalityOptions.length) {
+      // Family cooldown is explicitly the soft rule in this generator. Relax it only because
+      // the hard one-nationality-per-day requirement otherwise has no candidate.
+      for (const position of new Set(exactNationality.map(prompt => prompt.position))) {
+        familyPlan.relaxedPositions.add(position);
+        familyPlan.allowedFamiliesByPosition[position] = null;
+      }
+      nationalityOptions = [...exactNationality];
+    }
+
+    nationalityOptions = nationalityOptions.filter(reserved => {
+      for (const [position, required] of Object.entries(requiredFormation)) {
+        const compatible = basePools[position].filter(prompt =>
+          exactPlanAllows(prompt, exactPlan)
+          && familyPlanAllows(prompt, familyPlan)
+          && (prompt.id === reserved.id || !isNationalityPrompt(prompt))
+        );
+        if (compatible.length < required) return false;
+      }
+      return true;
+    });
+    if (!nationalityOptions.length) {
+      return { ok: false, reason: "A nationality prompt is available, but reserving exactly one leaves too few non-nationality prompts for the selected formation." };
+    }
+
     const availability = Object.fromEntries(
       Object.keys(requiredFormation).map(position => [
         position,
@@ -658,17 +725,29 @@
       if (token !== generationToken) return { ok: false, reason: "Generation cancelled." };
       const used = new Set();
       const draft = [];
+      const nationalityChoice = nationalityOptions[attempt % nationalityOptions.length];
+      let nationalityPlaced = false;
 
       for (const position of formationSlots) {
-        const options = basePools[position].filter(prompt =>
-          exactPlanAllows(prompt, exactPlan) && familyPlanAllows(prompt, familyPlan) && !used.has(prompt.id)
-        );
-        const choice = weightedPick(options, draft, settings, familyPlan, promptMixPlan, weeklyLeaderDays);
-        if (!choice) break;
+        let choice = null;
+        if (!nationalityPlaced && position === nationalityChoice.position) {
+          choice = nationalityChoice;
+          nationalityPlaced = true;
+        } else {
+          const options = basePools[position].filter(prompt =>
+            exactPlanAllows(prompt, exactPlan)
+            && familyPlanAllows(prompt, familyPlan)
+            && !used.has(prompt.id)
+            && !isNationalityPrompt(prompt)
+          );
+          choice = weightedPick(options, draft, settings, familyPlan, promptMixPlan, weeklyLeaderDays);
+        }
+        if (!choice || used.has(choice.id)) break;
         draft.push(choice);
         used.add(choice.id);
       }
-      if (draft.length !== 11) continue;
+      if (draft.length !== 11 || !nationalityPlaced) continue;
+      if (promptMixCounts(draft).nationality !== DAILY_PROMPT_MIX_TARGET.nationality) continue;
       if (!satisfiesExactRotationRequirements(draft, exactPlan)) continue;
       if (draft.filter(isAntiMeta).length < settings.minAntiMeta) continue;
 
@@ -689,8 +768,15 @@
 
     if (!candidates.length) return { ok: false, reason: "No complete XI could be generated with the current restrictions." };
     candidates.sort((left, right) => left.balance - right.balance || left.naiveScore - right.naiveScore);
-    const quotaCandidates = candidates.filter(candidate => promptMixMeets(promptMixCounts(candidate.prompts), promptMixPlan));
-    const rankedCandidates = quotaCandidates.length ? quotaCandidates : candidates;
+    const nationalityCandidates = candidates.filter(candidate =>
+      promptMixCounts(candidate.prompts).nationality === DAILY_PROMPT_MIX_TARGET.nationality
+    );
+    if (!nationalityCandidates.length) {
+      return { ok: false, reason: "The optimiser could not build an XI with exactly one nationality prompt. The nationality quota is hard and was not relaxed." };
+    }
+    const quotaCandidates = nationalityCandidates.filter(candidate => promptMixMeets(promptMixCounts(candidate.prompts), promptMixPlan));
+    const rankedCandidates = quotaCandidates.length ? quotaCandidates : nationalityCandidates;
+    // Only the secondary stats/context/name mix may relax. Nationality remains exactly one.
     const quotaRelaxed = quotaCandidates.length === 0;
 
     if (settings.maxPerfectScore <= 0) {
@@ -1057,6 +1143,7 @@
     if (familyConflicts.length) issues.push(`${familyConflicts.length} prompt(s) break the ${familyPlan.cooldownDays}-day prompt-family cooldown.`);
     if (prompts.filter(isAntiMeta).length < settings.minAntiMeta) issues.push("Minimum anti-meta prompt target was not met.");
     const mix = promptMixCounts(prompts);
+    if (mix.nationality !== DAILY_PROMPT_MIX_TARGET.nationality) issues.push("Exactly one nationality prompt is required in every generated day.");
     if (!quotaRelaxed && !promptMixMeets(mix, promptMixPlan)) issues.push("Prompt-family mix quota was not met.");
 
     for (const prompt of prompts) {
