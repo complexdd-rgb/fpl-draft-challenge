@@ -169,7 +169,7 @@
         </div>
 
         <div class="button-row batch-actions">
-          <button id="generateWeekBtn" class="button primary" type="button">Generate next 7 days</button>
+          <button id="generateWeekBtn" class="button primary" type="button" disabled aria-busy="true">Generate next 7 days</button>
           <button id="downloadWeekBtn" class="button secondary" type="button" disabled>Download 7-day calendar ZIP</button>
           <button id="clearWeekBtn" class="button secondary" type="button">Clear batch</button>
         </div>
@@ -993,7 +993,10 @@
   <script src="challenges/manifest.js?v=2.0.0"></script>
   <script src="js/studio-zip.js?v=1.0.0"></script>
   <script src="js/admin-core.js?v=19.0.0"></script>
-  <script src="js/admin-batch-calendar.js?v=3.0.0"></script>
+  <script data-nationality-enrichment data-loaded="true" src="nationality-enrichment.js?v=1.1.1"></script>
+  <script data-nationality-context-prompt-pack-v1 data-loaded="true" src="js/prompt-nationality-context-pack-v1.js?v=1.0.1"></script>
+  <script src="js/admin-weekly-nationality-readiness-gate.js?v=1.0.0"></script>
+  <script src="js/admin-batch-calendar.js?v=3.0.1"></script>
 
   <script src="js/admin-import-tools.js?v=22.0.0"></script>
 
