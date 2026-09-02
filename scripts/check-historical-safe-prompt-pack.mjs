@@ -31,7 +31,8 @@ const requiredPackMarkers = [
   'clean-sheet-workhorse'
 ];
 for (const marker of requiredPackMarkers) if (!pack.includes(marker)) throw new Error(`Historical-safe pack missing marker: ${marker}`);
-if (!pack.includes('p.points !== null') || !pack.includes('p.goals !== null')) throw new Error('Historical-safe pack must explicitly reject null numeric fields.');
+if (!pack.includes('const k = f =>') || !pack.includes('!== null') || !pack.includes('Number.isFinite')) throw new Error('Historical-safe pack null/finite numeric guard helper is missing.');
+if (!pack.includes('k("points")') || !pack.includes('k("goals")') || !pack.includes('k("minutes")')) throw new Error('Historical-safe generated rules are not using the numeric guard helper for core fields.');
 if (!era.includes('FPL_HISTORICAL_ERA_PROMPT_PACK_V1') || !era.includes('era-scorer') || !era.includes('era-workhorse')) throw new Error('Historical era pack is incomplete.');
 if (!era.includes('p.goals!==null') || !era.includes('p.minutes!==null')) throw new Error('Historical era pack must explicitly reject null numeric fields.');
 if (!nationalityContext.includes('FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1') || !nationalityContext.includes('bottom-half-scorer') || !nationalityContext.includes('relegated-scorer') || !nationalityContext.includes('outside-big-six-scorer')) throw new Error('Nationality context pack is incomplete.');
