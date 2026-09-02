@@ -1,70 +1,80 @@
-/* FPL Draft Challenge — prompt field readiness v1.1.0 */
+/* FPL Draft Challenge — prompt field-readiness mapper v1.0.5
+   Maps every prompt to the player-season fields it needs and labels whether the rule can
+   work from historical core data or requires FPL-native recovery. This is metadata only;
+   the existing missing-field guard remains the runtime authority. */
 (() => {
   "use strict";
-  if (window.FPL_PROMPT_FIELD_GUARD?.version === "1.1.0") return;
+  const FPL_NATIVE = new Set(["points","assists","bonus","startingPrice","endingPrice","price","saves","penaltiesSaved","penaltiesMissed"]);
+  const HISTORICAL_CORE = new Set(["season","name","club","position","minutes","goals","yellowCards","redCards","ownGoals","cleanSheets","goalsConceded","relegated","promoted","bottomHalf","topFour","champions","managers","ageAtSeasonStart","_career"]);
 
-  const HISTORICAL_CORE = new Set(["season","name","club","position","minutes","goals","yellowCards","redCards","ownGoals","cleanSheets","goalsConceded","relegated","promoted","bottomHalf","topFour","champions","managers","ageAtSeasonStart","nationality"]);
-  const FPL_NATIVE = new Set(["points","assists","bonus","saves","startingPrice","finalPrice"]);
-
-  const library = () => {
+  function library() {
     const api = window.FPL_STUDIO_API?.getPromptLibrary?.();
     return Array.isArray(api) ? api : (Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : []);
-  };
-  const known = value => value !== null && value !== undefined && value !== "";
-  const requiredFields = prompt => Array.isArray(prompt?.requiredFields) ? prompt.requiredFields : [];
-
-  function seasonReady(record, field) {
-    if (!record || typeof record !== "object") return false;
-    if (field === "nationality") return Boolean(String(record?._career?.nationality || record?.nationality || "").trim());
-    return known(record[field]);
   }
 
-  function promptReadyForRecord(prompt, record) {
-    const fields = requiredFields(prompt);
-    if (!fields.length) return true;
-    return fields.every(field => seasonReady(record, field));
+  function fallbackDependencies(prompt) {
+    const fields = new Set(Array.isArray(prompt?.requiredFields) ? prompt.requiredFields : []);
+    const source = String(prompt?.testSource || prompt?.studioRule?.source || prompt?.test || "");
+    for (const match of source.matchAll(/\bp\.([A-Za-z_$][\w$]*)/g)) fields.add(match[1]);
+    const derived = {goalInvolvements:["goals","assists"],outsideBigSix:["club"],assistsMoreThanGoals:["assists","goals"],hasManager:["managers"],ageBetween:["ageAtSeasonStart"]};
+    for (const [token,deps] of Object.entries(derived)) if (source.includes(token)) deps.forEach(dep=>fields.add(dep));
+    return [...fields];
   }
 
-  function classifyField(field) {
-    if (HISTORICAL_CORE.has(field)) return "historical-core";
-    if (FPL_NATIVE.has(field)) return "fpl-native";
-    return "other";
-  }
-
-  function guardCollection(prompts = library()) {
-    if (!Array.isArray(prompts)) return prompts;
-    for (const prompt of prompts) {
-      if (!prompt || typeof prompt !== "object") continue;
-      const fields = requiredFields(prompt);
-      prompt.fieldReadiness = Object.freeze({
-        requiredFields: [...fields],
-        classes: [...new Set(fields.map(classifyField))],
-        historicalSafe: prompt.historicalSafe === true || fields.every(field => !FPL_NATIVE.has(field))
-      });
+  function dependencies(prompt) {
+    const guard = window.FPL_PROMPT_FIELD_GUARD;
+    if (guard?.promptDependencies) {
+      try { return [...new Set([...(prompt?.requiredFields || []), ...guard.promptDependencies(prompt)])]; }
+      catch (_) {}
     }
-    return prompts;
+    return fallbackDependencies(prompt);
+  }
+
+  function tier(fields) {
+    if (!fields.length) return "IDENTITY_OR_NAME_ONLY";
+    const fpl = fields.filter(field => FPL_NATIVE.has(field));
+    const unknown = fields.filter(field => !FPL_NATIVE.has(field) && !HISTORICAL_CORE.has(field));
+    if (fpl.length && unknown.length) return "MIXED_FPL_NATIVE_AND_OTHER";
+    if (fpl.length) return "REQUIRES_FPL_NATIVE";
+    if (unknown.length) return "REQUIRES_ADDITIONAL_RECOVERY";
+    return "HISTORICAL_CORE_ELIGIBLE";
   }
 
   function apply() {
     const prompts = library();
     if (!prompts.length) return false;
-    guardCollection(prompts);
-    window.FPL_PROMPT_FIELD_GUARD = Object.freeze({
-      version: "1.1.0",
-      promptReadyForRecord,
-      guardCollection,
-      requiredFields,
-      classifyField
+    const counts = new Map();
+    const fieldCounts = new Map();
+    for (const prompt of prompts) {
+      const fields = dependencies(prompt);
+      const readiness = tier(fields);
+      try {
+        if (!Array.isArray(prompt.requiredFields) || !prompt.requiredFields.length) prompt.requiredFields = fields;
+        prompt.historicalReadiness = readiness;
+        prompt.tags = [...new Set([...(prompt.tags || []), readiness === "HISTORICAL_CORE_ELIGIBLE" ? "historical-core-eligible" : readiness === "REQUIRES_FPL_NATIVE" ? "requires-fpl-native" : "requires-extra-recovery"])];
+      } catch (_) {}
+      counts.set(readiness,(counts.get(readiness)||0)+1);
+      fields.forEach(field=>fieldCounts.set(field,(fieldCounts.get(field)||0)+1));
+    }
+    window.FPL_PROMPT_FIELD_READINESS = Object.freeze({
+      ready:true,
+      version:"1.0.5",
+      promptCount:prompts.length,
+      tiers:Object.fromEntries([...counts.entries()].sort()),
+      fieldUsage:Object.fromEntries([...fieldCounts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))),
+      classify:prompt=>({requiredFields:dependencies(prompt),historicalReadiness:tier(dependencies(prompt))})
     });
-    window.dispatchEvent(new CustomEvent("fpl:prompt-field-readiness-ready", { detail: { prompts: prompts.length } }));
+    window.dispatchEvent(new CustomEvent("fpl:prompt-field-readiness-ready",{detail:window.FPL_PROMPT_FIELD_READINESS}));
     return true;
   }
 
   function loadScript(src, marker, done) {
     const existing = document.querySelector(`script[${marker}]`);
     if (existing) {
-      if (existing.dataset.loaded === "true") done?.();
-      else existing.addEventListener("load", () => done?.(), { once: true });
+      if (done) {
+        if (existing.dataset.loaded === "true") queueMicrotask(done);
+        else existing.addEventListener("load", done, { once:true });
+      }
       return;
     }
     const script = document.createElement("script");
