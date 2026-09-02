@@ -1,5 +1,6 @@
 name: Historical safe prompt checks
 
+# Branch verification workflow for historical prompt expansion.
 on:
   pull_request:
     paths:
