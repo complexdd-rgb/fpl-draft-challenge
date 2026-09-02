@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
+// Keep the generated weekly calendar engine aligned with the Studio wiring. This patch is
+// idempotent and is verified before admin.html is written or published.
+execFileSync(process.execPath, ['scripts/apply-weekly-nationality-hard-reservation.mjs'], { stdio: 'inherit' });
+
 const path = 'admin.html';
 let source = fs.readFileSync(path, 'utf8');
 let updated = source;
@@ -22,7 +26,7 @@ updated = updated.replace(
 const enrichmentTag = '  <script data-nationality-enrichment data-loaded="true" src="nationality-enrichment.js?v=1.1.1"></script>';
 const contextTag = '  <script data-nationality-context-prompt-pack-v1 data-loaded="true" src="js/prompt-nationality-context-pack-v1.js?v=1.0.2"></script>';
 const gateTag = '  <script src="js/admin-weekly-nationality-readiness-gate.js?v=1.0.2"></script>';
-const batchTag = '  <script src="js/admin-batch-calendar.js?v=3.0.2"></script>';
+const batchTag = '  <script src="js/admin-batch-calendar.js?v=3.0.3"></script>';
 const quotaGuardTag = '  <script src="js/admin-weekly-nationality-quota-guard.js?v=1.0.0"></script>';
 
 if (!updated.includes('js/admin-weekly-nationality-readiness-gate.js')) {
@@ -47,7 +51,7 @@ const requiredOnce = [
   'nationality-enrichment.js?v=1.1.1',
   'js/prompt-nationality-context-pack-v1.js?v=1.0.2',
   'js/admin-weekly-nationality-readiness-gate.js?v=1.0.2',
-  'js/admin-batch-calendar.js?v=3.0.2',
+  'js/admin-batch-calendar.js?v=3.0.3',
   'js/admin-weekly-nationality-quota-guard.js?v=1.0.0'
 ];
 for (const token of requiredOnce) {
@@ -59,7 +63,7 @@ const order = [
   updated.indexOf('nationality-enrichment.js?v=1.1.1'),
   updated.indexOf('js/prompt-nationality-context-pack-v1.js?v=1.0.2'),
   updated.indexOf('js/admin-weekly-nationality-readiness-gate.js?v=1.0.2'),
-  updated.indexOf('js/admin-batch-calendar.js?v=3.0.2'),
+  updated.indexOf('js/admin-batch-calendar.js?v=3.0.3'),
   updated.indexOf('js/admin-weekly-nationality-quota-guard.js?v=1.0.0')
 ];
 if (order.some(index => index < 0) || order.some((index, i) => i > 0 && index <= order[i - 1])) {
@@ -79,3 +83,4 @@ if (updated !== source) {
 execFileSync(process.execPath, ['scripts/verify-weekly-nationality-readiness.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-weekly-nationality-generation-gate.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-weekly-nationality-quota-guard.mjs'], { stdio: 'inherit' });
+execFileSync(process.execPath, ['scripts/verify-weekly-nationality-hard-reservation.mjs'], { stdio: 'inherit' });
