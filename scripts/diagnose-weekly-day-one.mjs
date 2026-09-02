@@ -165,9 +165,7 @@ window.FPL_STUDIO_PHASE3 = Object.freeze({
 });
 
 // Deterministic random stream so CI reproduces the same candidate search every run.
-let seed = 0x5ept2026;
-// Hex literals cannot contain letters outside A-F; derive an equivalent stable integer instead.
-seed = 0x5e9f2026;
+let seed = 0x5e9f2026;
 const nativeRandom = Math.random;
 Math.random = () => {
   seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
