@@ -1,4 +1,4 @@
-/* FPL Draft Challenge — prompt field-readiness mapper v1.0.1
+/* FPL Draft Challenge — prompt field-readiness mapper v1.0.2
    Maps every prompt to the player-season fields it needs and labels whether the rule can
    work from historical core data or requires FPL-native recovery. This is metadata only;
    the existing missing-field guard remains the runtime authority. */
@@ -58,7 +58,7 @@
     }
     window.FPL_PROMPT_FIELD_READINESS = Object.freeze({
       ready:true,
-      version:"1.0.1",
+      version:"1.0.2",
       promptCount:prompts.length,
       tiers:Object.fromEntries([...counts.entries()].sort()),
       fieldUsage:Object.fromEntries([...fieldCounts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))),
@@ -68,9 +68,18 @@
     return true;
   }
 
+  function loadPanel() {
+    if (document.querySelector('script[data-prompt-field-readiness-panel]')) return;
+    const script = document.createElement("script");
+    script.src = new URL("js/prompt-field-readiness-panel.js?v=1.0.0", document.baseURI).toString();
+    script.async = false;
+    script.dataset.promptFieldReadinessPanel = "1";
+    document.head.appendChild(script);
+  }
+
   let attempts=0;
-  function boot(){if(apply())return;if(++attempts<80)setTimeout(boot,100);}
+  function boot(){if(apply()){loadPanel();return;}if(++attempts<80)setTimeout(boot,100);}
   boot();
   window.addEventListener("fpl:prompt-library-changed",apply);
-  window.addEventListener("fpl:prompt-tools-ready",apply);
+  window.addEventListener("fpl:prompt-tools-ready",()=>{apply();loadPanel();});
 })();
