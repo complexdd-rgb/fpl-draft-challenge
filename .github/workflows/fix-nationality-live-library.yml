@@ -1,0 +1,40 @@
+name: Fix nationality live library
+
+on:
+  push:
+    branches: [fix-nationality-weekly-library]
+    paths:
+      - 'scripts/fix-nationality-live-library.mjs'
+      - '.github/workflows/fix-nationality-live-library.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-nationality-weekly-library
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply live-library bridge
+        run: node scripts/fix-nationality-live-library.mjs
+      - name: Syntax check patched files
+        run: |
+          node --check js/prompt-nationality-context-pack-v1.js
+          node --check js/prompt-historical-safe-pack-v1.js
+          node --check js/prompt-nationality-family-generator.js
+      - name: Commit patched files
+        run: |
+          if git diff --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add js/prompt-nationality-context-pack-v1.js js/prompt-historical-safe-pack-v1.js js/prompt-nationality-family-generator.js
+          git commit -m 'Fix nationality prompts in weekly generator library'
+          git push
