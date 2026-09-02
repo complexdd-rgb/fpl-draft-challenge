@@ -763,8 +763,11 @@
     return ids;
   }
 
-  function answerOverlapWithPlayerIds(prompt, alreadyUsed) {
-    if (!alreadyUsed?.size) return 0;
+  function answerOverlapWithDraft(prompt, currentDraft, alreadyUsedTopAnswerIds) {
+    const alreadyUsed = alreadyUsedTopAnswerIds || new Set(
+      currentDraft.flatMap(item => [...topAnswerPlayerIds(item, 12)])
+    );
+    if (!alreadyUsed.size) return 0;
     const candidate = topAnswerPlayerIds(prompt, 12);
     let overlap = 0;
     for (const playerId of candidate) if (alreadyUsed.has(playerId)) overlap += 1;
@@ -879,7 +882,7 @@
         const excess = priorLeaderDays - WEEKLY_LEADER_SOFT_CAP + 1;
         weight /= 1 + excess * excess * 12;
       }
-      const answerOverlap = answerOverlapWithPlayerIds(prompt, alreadyUsedTopAnswerIds);
+      const answerOverlap = answerOverlapWithDraft(prompt, currentDraft, alreadyUsedTopAnswerIds);
       weight /= 1 + answerOverlap * 0.65;
       if (familyPlan?.recentFamilies?.has(promptFamily(prompt))) weight /= 12;
       return { prompt, weight };

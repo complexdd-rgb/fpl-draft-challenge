@@ -9,7 +9,7 @@ const checks = [
   ['successful days commit leader usage', 'commitWeeklyLeaderDays(prompts, weeklyLeaderDays);'],
   ['top-answer records are cached', 'const topAnswerRecordsCache = new Map();'],
   ['top-answer player ids are cached', 'const topAnswerPlayerIdsCache = new Map();'],
-  ['weighted selection reuses the current answer pool', 'answerOverlapWithPlayerIds(prompt, alreadyUsedTopAnswerIds)']
+  ['weighted selection reuses the current answer pool', 'answerOverlapWithDraft(prompt, currentDraft, alreadyUsedTopAnswerIds)']
 ];
 
 for (const [label, needle] of checks) {
