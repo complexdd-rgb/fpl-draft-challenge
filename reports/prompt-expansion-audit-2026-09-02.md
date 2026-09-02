@@ -33,16 +33,18 @@ Families included:
 - clean-sheet workhorse for GK/DEF;
 - nationality scorer.
 
-Each installed prompt carries:
+Each installed prompt carries `requiredFields`, `historicalSafe: true`, measured field coverage/answer-pool metadata and historical-safe/partial-data-safe/anti-meta tags. Its test source explicitly checks for null/unknown values.
 
-- `requiredFields`;
-- `historicalSafe: true`;
-- measured `fieldCoverage`;
-- measured `answerPool`;
-- `historical-safe` / `partial-data-safe` / anti-meta tags;
-- a self-contained test source with explicit null checks.
+### `js/prompt-historical-era-pack-v1.js`
 
-The pack deliberately avoids inventing or modelling FPL-native facts. Existing exact-data packs remain responsible for bonus, price, FPL assists and similar fields.
+Adds era-specific prompts that do **not** depend on FPL points. Four-season windows are derived from whatever seasons are currently present in `FPL_PLAYERS`, so the pack automatically expands backwards as 2010/11, 2009/10 and earlier seasons are imported.
+
+Families included:
+
+- era scorer — season window + goals;
+- era workhorse — season window + minutes.
+
+This removes an important blocker in the existing V3 era approach, where era prompts were primarily points-led and therefore unsuitable for most pre-FPL seasons.
 
 ### `js/prompt-field-readiness.js`
 
@@ -53,16 +55,16 @@ Maps every prompt to its required player-season fields and classifies it as:
 - `REQUIRES_ADDITIONAL_RECOVERY`;
 - mixed/identity-only where applicable.
 
-This gives the project a direct bridge from the season-recovery checklist to prompt eligibility. Adding a partially recovered historical season no longer requires an all-or-nothing decision about its prompt library.
+`season` is explicitly treated as historical-core data. This gives the project a direct bridge from the season-recovery checklist to prompt eligibility. Adding a partially recovered historical season no longer requires an all-or-nothing decision about its prompt library.
 
 ### Loader and CI
 
-Both tools are wired into the Prompt Studio quality-tool bootstrap. A static check script and GitHub Actions workflow verify syntax, loader wiring, null-safety markers and the readiness tiers.
+All new tools are wired into the Prompt Studio quality-tool bootstrap. A static check script and GitHub Actions workflow verify syntax, loader wiring, null-safety markers, era-pack markers and readiness tiers.
 
 ## Historical prompt policy going forward
 
 1. Never require a season to be globally complete before using fields that are independently certified.
-2. Unknown/null fields must make a player-season ineligible for that specific prompt, not ineligible for every prompt.
+2. Unknown/null fields make a player-season ineligible for that specific prompt, not ineligible for every prompt.
 3. Nationality is a normal recoverable prompt field, not a blocker to completing the historical database.
 4. Exact historical values, inferred values and future modelled prices remain distinct.
 5. StatBunker support fields must not masquerade as FPL-native assists, points, bonus or prices.
@@ -71,9 +73,8 @@ Both tools are wired into the Prompt Studio quality-tool bootstrap. A static che
 
 ## Next useful prompt work
 
-- Surface the field-readiness tier and required fields in the Admin Prompt Explorer/Quality Analyser UI.
+- Surface field-readiness tier and required fields in the Admin Prompt Explorer/Quality Analyser UI.
 - Let historical season import/certification emit a compact field-availability manifest so Prompt Studio can report exactly which prompt families unlock for that season.
 - Add nationality + club-context families once older-season nationality is materialised in the game database.
-- Add era-specific historical prompt families once pre-2011 seasons enter `FPL_PLAYERS`.
 - Re-run Rule Tester and Prompt Quality Analyser on the expanded live library after merge.
 - Keep formation-aware generation deferred until the core historical prompt pool is broad enough.
