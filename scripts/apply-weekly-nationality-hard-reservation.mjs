@@ -62,5 +62,25 @@ if (!source.includes(marker)) {
   console.log('Weekly hard nationality reservation policy is already applied.');
 }
 
+const certifiedPoolMarker = 'const CERTIFIED_PROMPT_POOL_ONLY_POLICY_VERSION = 1;';
+if (!source.includes(certifiedPoolMarker)) {
+  const markerCount = source.split(marker).length - 1;
+  if (markerCount !== 1) throw new Error(`Certified-pool marker anchor: expected one nationality marker, found ${markerCount}.`);
+  source = source.replace(
+    `  ${marker}\n`,
+    `  ${marker}\n  ${certifiedPoolMarker}\n`
+  );
+
+  const before = '    const apiLibrary = Array.isArray(core.getPromptLibrary?.()) ? core.getPromptLibrary() : [];\n    const globalLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];\n    const promptLibrary = [...new Map([...apiLibrary, ...globalLibrary].filter(prompt => prompt?.id).map(prompt => [String(prompt.id), prompt])).values()];';
+  const after = '    const apiLibrary = core.getPromptLibrary?.();\n    const globalLibrary = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];\n    // The Daily Challenge quality guard temporarily locks the Studio API library to the\n    // certified 4★+ pool. Never union the global library back in here, because doing so can\n    // reintroduce prompts the quality analyser deliberately excluded. The global collection\n    // is only a bootstrap fallback when the Studio API genuinely has no library.\n    const promptSource = Array.isArray(apiLibrary) ? apiLibrary : globalLibrary;\n    const promptLibrary = [...new Map(promptSource.filter(prompt => prompt?.id).map(prompt => [String(prompt.id), prompt])).values()];';
+  const count = source.split(before).length - 1;
+  if (count !== 1) throw new Error(`Certified-pool source selection: expected one patch anchor, found ${count}.`);
+  source = source.replace(before, after);
+  fs.writeFileSync(path, source);
+  console.log('Applied certified-prompt-pool-only weekly source selection.');
+} else {
+  console.log('Certified-prompt-pool-only weekly source selection is already applied.');
+}
+
 execFileSync(process.execPath, ['--check', path], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-weekly-nationality-hard-reservation.mjs'], { stdio: 'inherit' });
