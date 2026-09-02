@@ -57,6 +57,7 @@
   const NATIONALITY_RESERVATION_POLICY_VERSION = 1;
   const CERTIFIED_PROMPT_POOL_ONLY_POLICY_VERSION = 1;
   const CERTIFIED_SNAPSHOT_SOURCE_POLICY_VERSION = 1;
+  const EXACT_ROTATION_REPLAY_POLICY_VERSION = 2;
   const ROTATION_POLICY_VERSION = 1;
   const FORBIDDEN_COST = 1_000_000;
   const LONDON_TIMEZONE = "Europe/London";
@@ -534,10 +535,17 @@
         const position = prompt?.position;
         if (!position || !state[position] || !poolIds[position].has(promptId)) continue;
         const positionState = state[position];
-        if (positionState.usedIds.size >= poolIds[position].size) {
+
+        // The current library can be larger than the library that existed when old challenges
+        // were generated. A repeat before every current ID has appeared proves that the old
+        // rotation already rolled over under that earlier pool. Treat the repeat as the start
+        // of the next reconstructed cycle; otherwise newly-added prompts become a false backlog
+        // and can all be forced into one day at the bridge boundary.
+        if (positionState.usedIds.has(promptId)) {
           positionState.cycle += 1;
           positionState.usedIds.clear();
         }
+
         positionState.usedIds.add(promptId);
         if (positionState.usedIds.size >= poolIds[position].size) {
           positionState.cycle += 1;
@@ -1570,7 +1578,8 @@
     generate: generateSevenDayBatch,
     clear: clearBatch,
     getResults: () => batchResults.map(result => ({
-      date: result.releaseDate,
+      date: result.releaseDate || result.date,
+      releaseDate: result.releaseDate || result.date,
       id: result.id,
       number: result.number,
       formation: result.formation,
@@ -1578,6 +1587,7 @@
       theme: result.theme,
       perfectScore: result.perfectScore,
       status: result.status,
+      issues: Array.isArray(result.issues) ? [...result.issues] : [],
       promptIds: [...(result.promptIds || [])],
       promptFamilies: [...(result.promptFamilies || [])],
       promptMix: { ...(result.promptMix || {}) },
