@@ -8,12 +8,12 @@ const requireText = (source, token, label) => {
 
 const providerSource = read('js/prompt-career-evolution-family-generator.js');
 for (const [token, label] of [
-  ['career-evolution:season-improvement', 'season-to-season improvement family'],
-  ['career-evolution:career-streak', 'career streak family'],
-  ['career-evolution:position-journey', 'position journey family'],
-  ['career-evolution:club-status-journey', 'club/status journey family'],
-  ['career-evolution:nationality-career', 'nationality × career family'],
-  ['career-evolution:manager-journey', 'manager journey family'],
+  ['"season-improvement"', 'season-to-season improvement family'],
+  ['"career-streak"', 'career streak family'],
+  ['"position-journey"', 'position journey family'],
+  ['"club-status-journey"', 'club/status journey family'],
+  ['"nationality-career"', 'nationality × career family'],
+  ['"manager-journey"', 'manager journey family'],
   ['maxClubSwitchPointsGain', 'club-switch success metric'],
   ['bounceBack120After70', 'bounce-back metric'],
   ['sameManagerDifferentClubs', 'same-manager different-club metric']
@@ -77,6 +77,8 @@ const sandbox = {
   location: { pathname: '/test.html' },
   setTimeout: () => 0,
   clearTimeout: () => {},
+  addEventListener: () => {},
+  dispatchEvent: () => true,
   CustomEvent: class CustomEvent { constructor(type, init = {}) { this.type = type; this.detail = init.detail; } },
   Event: class Event { constructor(type) { this.type = type; } }
 };
