@@ -25,7 +25,7 @@
     document.head.appendChild(script);
   };
 
-  load("js/prompt-studio-loader.js", "data-prompt-studio-loader", () => {
+  load("js/prompt-studio-loader.js?v=1.1.0-targetsurvivor", "data-prompt-studio-loader", () => {
     load("js/career-shape-validation-bridge.js", "data-career-shape-validation-bridge");
   });
 })();

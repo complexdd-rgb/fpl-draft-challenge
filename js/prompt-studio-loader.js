@@ -28,6 +28,7 @@
     document.documentElement.dataset.promptToolsLoading = "true";
 
     load("js/admin-import-tools-base.js?v=16.1.0-familymix", () => {
+      load("js/prompt-target-survivor-generator.js?v=1.0.0");
       const afterRules = () => {
         load("js/career-shape-studio.js?v=1.0.0", () => {
           load("js/career-shape-workspace-repair.js?v=1.0.0", () => {
