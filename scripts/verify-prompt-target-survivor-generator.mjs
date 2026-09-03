@@ -4,6 +4,9 @@ const read = path => fs.readFileSync(path, 'utf8');
 const requireText = (source, token, label) => {
   if (!source.includes(token)) throw new Error(`Missing ${label}: ${token}`);
 };
+const requirePattern = (source, pattern, label) => {
+  if (!pattern.test(source)) throw new Error(`Missing ${label}: ${pattern}`);
+};
 
 const target = read('js/prompt-target-survivor-generator.js');
 for (const [token, label] of [
@@ -53,14 +56,16 @@ if (theoreticalMinimum !== 19 || retentionRecommended !== 26) {
   throw new Error(`Unexpected cycle-budget regression: theoretical=${theoreticalMinimum}, recommended=${retentionRecommended}`);
 }
 
+// Verify module relationships rather than one historical cache label. Career Evolution and later
+// packs are allowed to advance these query strings without invalidating survivor-target behaviour.
 const loader = read('js/prompt-studio-loader.js');
-requireText(loader, 'js/prompt-target-survivor-generator.js?v=1.0.0', 'target-survivor lazy load');
-requireText(loader, 'js/prompt-target-auto-explorer.js?v=1.0.0', 'target auto-explorer lazy load');
+requirePattern(loader, /js\/prompt-target-survivor-generator\.js\?v=[^"']+/, 'target-survivor lazy load');
+requirePattern(loader, /js\/prompt-target-auto-explorer\.js\?v=[^"']+/, 'target auto-explorer lazy load');
 
 const compatibility = read('js/admin-import-tools.js');
-requireText(compatibility, 'js/prompt-studio-loader.js?v=1.2.0-targetexplore', 'Prompt Studio loader cache bust');
+requirePattern(compatibility, /js\/prompt-studio-loader\.js\?v=[^"']+/, 'Prompt Studio compatibility loader');
 
 const admin = read('admin.html');
-requireText(admin, 'js/admin-import-tools.js?v=22.2.0-targetexplore', 'admin compatibility cache bust');
+requirePattern(admin, /js\/admin-import-tools\.js\?v=[^"']+/, 'admin compatibility loader');
 
-console.log('Prompt target-survivor verifier passed: target floor, 4★+ enforcement, reachable cycle budgets, safe auto-exploration, duplicate protection and cache wiring are intact.');
+console.log('Prompt target-survivor verifier passed: target floor, 4★+ enforcement, reachable cycle budgets, safe auto-exploration, duplicate protection and loader wiring are intact.');

@@ -24,10 +24,13 @@ const replaceOnce = (source, from, to, label) => {
   const oldTag = '  <script src="js/admin-stage-one.js?v=1.0.0"></script>\n';
   const newTag = '  <script src="js/admin-stage-one.js?v=1.1.0-fastboot"></script>\n';
   if (updated.includes(oldTag)) updated = updated.replace(oldTag, '');
-  else if (updated.includes(newTag)) updated = updated.replace(newTag, '');
-  else throw new Error('admin-stage-one script tag was not found in admin.html.');
 
-  updated = replaceOnce(updated, '  </main>\n\n', '  </main>\n\n' + newTag + '\n', 'early Stage One script');
+  // Once the fast-boot tag is already in its early position, leave it untouched. The previous
+  // implementation removed and reinserted the same tag on every run, leaving one extra blank
+  // line each time even though the runtime wiring itself was unchanged.
+  if (!updated.includes(newTag)) {
+    updated = replaceOnce(updated, '  </main>\n\n', '  </main>\n\n' + newTag + '\n', 'early Stage One script');
+  }
   write(path, source, updated);
 }
 
