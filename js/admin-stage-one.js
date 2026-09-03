@@ -4,6 +4,7 @@
 
   const STORAGE_KEY = "fpl-studio-stage-one-workspace";
   const COLLAPSE_KEY = "fpl-studio-stage-one-collapsed";
+  const SCROLL_KEY = "fpl-studio-stage-one-scroll-v1";
 
   const workspaceDefinitions = [
     {
@@ -303,6 +304,32 @@
     });
   }
 
+  function readScrollState() {
+    try {
+      const value = JSON.parse(sessionStorage.getItem(SCROLL_KEY) || "null");
+      return value && typeof value.workspace === "string" && Number.isFinite(Number(value.y)) ? value : null;
+    } catch (_) { return null; }
+  }
+
+  function activeWorkspaceId() {
+    return document.querySelector('.studio-workspace:not([hidden])')?.dataset.workspace || "";
+  }
+
+  function saveScrollState() {
+    const workspace = activeWorkspaceId();
+    if (!workspace) return;
+    try {
+      sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ workspace, y: Math.max(0, Math.round(window.scrollY || 0)) }));
+    } catch (_) {}
+  }
+
+  function restoreScrollState(workspaceId) {
+    const state = readScrollState();
+    if (!state || state.workspace !== workspaceId) return;
+    const restore = () => window.scrollTo({ top: Math.max(0, Number(state.y) || 0), behavior: "auto" });
+    requestAnimationFrame(() => requestAnimationFrame(restore));
+  }
+
   function updateHero() {
     document.title = "FPL Challenge Studio";
     const hero = document.querySelector(".studio-hero");
@@ -547,6 +574,13 @@
       // Use the dashboard when storage is unavailable.
     }
     activateWorkspace(initialWorkspace, "", true);
+    restoreScrollState(initialWorkspace);
+    window.addEventListener("pagehide", saveScrollState);
+    if (initialWorkspace === "prompts") {
+      window.addEventListener("fpl:prompt-tools-ready", () => restoreScrollState("prompts"), { once: true });
+    }
+    document.documentElement.classList.remove("studio-preboot");
+    document.documentElement.dataset.studioStageReady = "true";
 
     const watchedIds = [
       "auditStatusTop", "auditCriticalCount", "auditInfoCount",
@@ -561,7 +595,12 @@
     updateDynamicStatus();
   }
 
-  if (document.readyState === "loading") {
+  // admin-stage-one.js is loaded immediately after </main>, so the complete Studio markup
+  // already exists even while document.readyState is still "loading". Build the modern
+  // workspace immediately instead of waiting for every heavy script and DOMContentLoaded.
+  if (document.querySelector("main.studio-shell")) {
+    initialise();
+  } else if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initialise, { once: true });
   } else {
     initialise();

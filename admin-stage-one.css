@@ -1,6 +1,31 @@
 
 /* FPL Challenge Studio — Stage One visual and navigation cleanup */
 
+/* Studio refresh fast boot: never paint the retired long-form layout. */
+html.studio-preboot body {
+  min-height: 100vh;
+  background: #06110d;
+}
+
+html.studio-preboot .studio-shell {
+  visibility: hidden;
+}
+
+html.studio-preboot body::before {
+  content: "Loading FPL Challenge Studio…";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #06110d;
+  color: #9bb7a8;
+  font: 800 .82rem/1.4 system-ui, sans-serif;
+  letter-spacing: .02em;
+}
+
+
 body.stage-one-enabled {
   --stage-bg: #06110d;
   --stage-surface: #0b1d16;
