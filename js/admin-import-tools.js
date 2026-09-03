@@ -25,7 +25,7 @@
     document.head.appendChild(script);
   };
 
-  load("js/prompt-studio-loader.js?v=1.2.0-targetexplore", "data-prompt-studio-loader", () => {
+  load("js/prompt-studio-loader.js?v=1.3.0-careerevolution", "data-prompt-studio-loader", () => {
     load("js/career-shape-validation-bridge.js", "data-career-shape-validation-bridge");
   });
 })();

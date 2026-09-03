@@ -27,9 +27,9 @@
     started = true;
     document.documentElement.dataset.promptToolsLoading = "true";
 
-    load("js/admin-import-tools-base.js?v=16.1.0-familymix", () => {
-      load("js/prompt-target-survivor-generator.js?v=1.0.0", () => {
-        load("js/prompt-target-auto-explorer.js?v=1.0.0");
+    load("js/admin-import-tools-base.js?v=16.2.0-careerevolution", () => {
+      load("js/prompt-target-survivor-generator.js?v=1.0.1-careerevolution", () => {
+        load("js/prompt-target-auto-explorer.js?v=1.0.1-careerevolution");
       });
       const afterRules = () => {
         load("js/career-shape-studio.js?v=1.0.0", () => {
