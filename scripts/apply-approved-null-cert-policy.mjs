@@ -6,7 +6,16 @@ import { execFileSync } from 'node:child_process';
 execFileSync(process.execPath, ['scripts/apply-weekly-nationality-hard-reservation.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/apply-weekly-certified-snapshot-race.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/apply-weekly-rotation-library-evolution.mjs'], { stdio: 'inherit' });
-execFileSync(process.execPath, ['scripts/apply-unified-prompt-family-generator.mjs'], { stdio: 'inherit' });
+
+// Career Evolution extends the already-unified Quality/Nationality generator. Once that newer
+// integration is present, rerunning the older two-family patcher can match superseded markup and
+// create duplicate declarations. Keep the legacy patch available only for pre-upgrade trees.
+const generatorBase = fs.readFileSync('js/admin-import-tools-base.js', 'utf8');
+if (!generatorBase.includes('includeCareerEvolutionFamilies')) {
+  execFileSync(process.execPath, ['scripts/apply-unified-prompt-family-generator.mjs'], { stdio: 'inherit' });
+} else {
+  console.log('Unified Quality/Nationality family wiring is already superseded by Career Evolution; legacy patch step skipped.');
+}
 
 const path = 'admin.html';
 let source = fs.readFileSync(path, 'utf8');
