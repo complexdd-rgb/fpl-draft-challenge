@@ -6,7 +6,9 @@ on:
       - 'js/certification-approved-null-policy.js'
       - 'js/admin-batch-calendar.js'
       - 'js/admin-daily-generator-guard.js'
+      - 'js/admin-import-tools.js'
       - 'js/admin-import-tools-base.js'
+      - 'js/prompt-target-survivor-generator.js'
       - 'js/prompt-quality-family-generator.js'
       - 'js/prompt-nationality-family-generator.js'
       - 'js/prompt-studio-loader.js'
@@ -17,10 +19,12 @@ on:
       - 'scripts/apply-weekly-certified-snapshot-race.mjs'
       - 'scripts/apply-weekly-rotation-library-evolution.mjs'
       - 'scripts/apply-unified-prompt-family-generator.mjs'
+      - 'scripts/apply-prompt-target-survivor-generator.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/verify-weekly-rotation-library-evolution.mjs'
       - 'scripts/verify-unified-prompt-family-generator.mjs'
+      - 'scripts/verify-prompt-target-survivor-generator.mjs'
       - 'scripts/diagnose-certified-nationality-pool.mjs'
       - 'scripts/diagnose-weekly-day-one.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
@@ -30,7 +34,9 @@ on:
       - 'js/certification-approved-null-policy.js'
       - 'js/admin-batch-calendar.js'
       - 'js/admin-daily-generator-guard.js'
+      - 'js/admin-import-tools.js'
       - 'js/admin-import-tools-base.js'
+      - 'js/prompt-target-survivor-generator.js'
       - 'js/prompt-quality-family-generator.js'
       - 'js/prompt-nationality-family-generator.js'
       - 'js/prompt-studio-loader.js'
@@ -41,10 +47,12 @@ on:
       - 'scripts/apply-weekly-certified-snapshot-race.mjs'
       - 'scripts/apply-weekly-rotation-library-evolution.mjs'
       - 'scripts/apply-unified-prompt-family-generator.mjs'
+      - 'scripts/apply-prompt-target-survivor-generator.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/verify-weekly-rotation-library-evolution.mjs'
       - 'scripts/verify-unified-prompt-family-generator.mjs'
+      - 'scripts/verify-prompt-target-survivor-generator.mjs'
       - 'scripts/diagnose-certified-nationality-pool.mjs'
       - 'scripts/diagnose-weekly-day-one.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
@@ -67,19 +75,25 @@ jobs:
       - name: Wire policy into Studio
         run: |
           node scripts/apply-approved-null-cert-policy.mjs
+          node scripts/apply-prompt-target-survivor-generator.mjs
           node --check js/certification-approved-null-policy.js
           node --check js/validation-engine.js
           node --check js/admin-batch-calendar.js
           node --check js/admin-daily-generator-guard.js
+          node --check js/admin-import-tools.js
           node --check js/admin-import-tools-base.js
+          node --check js/prompt-target-survivor-generator.js
           node --check js/prompt-quality-family-generator.js
           node --check js/prompt-nationality-family-generator.js
           grep -q 'js/certification-approved-null-policy.js?v=1.0.0' admin.html
           grep -q 'js/admin-batch-calendar.js?v=3.0.6' admin.html
           grep -q 'js/admin-daily-generator-guard.js?v=1.1.2' admin.html
+          grep -q 'js/admin-import-tools.js?v=22.1.0-targetsurvivor' admin.html
           grep -q 'factoryIncludeQualityFamilies' admin.html
           grep -q 'factoryIncludeNationalityFamily' admin.html
           grep -q 'js/admin-import-tools-base.js?v=16.1.0-familymix' js/prompt-studio-loader.js
+          grep -q 'js/prompt-target-survivor-generator.js?v=1.0.0' js/prompt-studio-loader.js
+          grep -q 'js/prompt-studio-loader.js?v=1.1.0-targetsurvivor' js/admin-import-tools.js
           git diff --check
       - name: Diagnose certified nationality pool
         run: node scripts/diagnose-certified-nationality-pool.mjs
@@ -94,6 +108,7 @@ jobs:
             admin.html
             js/admin-batch-calendar.js
             js/admin-daily-generator-guard.js
+            js/admin-import-tools.js
             js/admin-import-tools-base.js
             js/prompt-quality-family-generator.js
             js/prompt-nationality-family-generator.js
@@ -102,7 +117,7 @@ jobs:
             js/studio-feature-loader.js
           )
           if [[ -z "$(git status --porcelain -- "${generated_files[@]}")" ]]; then
-            echo "Studio generation policies and unified prompt-family wiring are already current."
+            echo "Studio generation policies, unified prompt-family wiring and target-survivor generation are already current."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
