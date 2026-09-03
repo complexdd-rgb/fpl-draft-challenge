@@ -51,6 +51,7 @@ jobs:
           node --check js/career-context.js
           node --check js/career-overlap-wording.js
           node --check js/prompt-four-star-enforcer.js
+          node --check js/prompt-refinement-incubator.js
           node --check js/career-shape-rules.js
           node --check js/career-shape-studio.js
           node --check js/career-shape-unified-generator.js
@@ -194,7 +195,7 @@ jobs:
             'js/challenge-archive.js?v=2.0.0',
             'js/prompt-helpers.js?v=1.0.0',
             'players-live.js?v=1.0.0',
-            'js/career-context.js?v=1.4.0',
+            'js/career-context.js?v=1.5.0',
             'js/game-engine.js?v=1.0.0'
           ].map(item => html.indexOf(item));
           if (!order.every(index => index >= 0) || !order.every((index, i) => i === 0 || index > order[i - 1])) throw new Error('Live bootstrap load order changed');
@@ -218,7 +219,7 @@ jobs:
           node - <<'NODE'
           const fs = require('node:fs');
           const html = fs.readFileSync('index.html', 'utf8');
-          const career = html.indexOf('js/career-context.js?v=1.4.0');
+          const career = html.indexOf('js/career-context.js?v=1.5.0');
           const engine = html.indexOf('js/game-engine.js?v=1.0.0');
           const visual = html.indexOf('js/live-visual-enhancements.js?v=1.0.0');
           if (!(career >= 0 && engine > career && visual > engine)) throw new Error('Core engine load order changed');
