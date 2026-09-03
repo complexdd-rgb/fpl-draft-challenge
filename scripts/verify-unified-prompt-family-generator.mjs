@@ -28,11 +28,16 @@ const nationality = read('js/prompt-nationality-family-generator.js');
 requireText(nationality, 'window.FPL_NATIONALITY_FAMILY_GENERATOR = Object.freeze({', 'Nationality Family provider API');
 requireText(nationality, 'document.getElementById("factoryIncludeNationalityFamily")', 'Nationality Family standalone suppression');
 
+// The unified Quality/Nationality wiring predates Career Evolution. Verify that the main
+// generator is still loaded, but do not pin this legacy verifier to one cache label: newer
+// feature packs legitimately advance that URL while preserving the same provider contract.
 const loader = read('js/prompt-studio-loader.js');
-requireText(loader, 'js/admin-import-tools-base.js?v=16.1.0-familymix', 'main generator cache bust');
+if (!/js\/admin-import-tools-base\.js\?v=[^"']+/.test(loader)) {
+  throw new Error('Missing main generator loader URL for unified prompt-family integration.');
+}
 
 const wording = read('js/career-overlap-wording.js');
 requireText(wording, 'js/prompt-quality-family-generator.js?v=1.1.0', 'quality family cache bust');
 requireText(wording, 'js/prompt-nationality-family-generator.js?v=1.1.1', 'nationality family cache bust');
 
-console.log('Unified prompt-family generator verified: Quality Families and Nationality Family are selectable sources inside the main checked batch generator.');
+console.log('Unified prompt-family generator verified: Quality Families and Nationality Family remain selectable sources inside the main checked batch generator.');
