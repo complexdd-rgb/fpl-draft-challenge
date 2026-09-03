@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 execFileSync(process.execPath, ['scripts/apply-weekly-nationality-hard-reservation.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/apply-weekly-certified-snapshot-race.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/apply-weekly-rotation-library-evolution.mjs'], { stdio: 'inherit' });
+execFileSync(process.execPath, ['scripts/apply-unified-prompt-family-generator.mjs'], { stdio: 'inherit' });
 
 const path = 'admin.html';
 let source = fs.readFileSync(path, 'utf8');
@@ -85,7 +86,7 @@ if (!updated.includes(weeklyButton)) {
 
 if (updated !== source) {
   fs.writeFileSync(path, updated);
-  console.log('Wired approved-null policy, weekly nationality guards, certified snapshot and rotation replay into admin.html.');
+  console.log('Wired approved-null policy, weekly nationality guards, certified snapshot, rotation replay and unified prompt-family generation into admin.html.');
 } else {
   console.log('Studio admin wiring is already current.');
 }
@@ -96,3 +97,4 @@ execFileSync(process.execPath, ['scripts/verify-weekly-nationality-quota-guard.m
 execFileSync(process.execPath, ['scripts/verify-weekly-nationality-hard-reservation.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-weekly-certified-snapshot-race.mjs'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-weekly-rotation-library-evolution.mjs'], { stdio: 'inherit' });
+execFileSync(process.execPath, ['scripts/verify-unified-prompt-family-generator.mjs'], { stdio: 'inherit' });
