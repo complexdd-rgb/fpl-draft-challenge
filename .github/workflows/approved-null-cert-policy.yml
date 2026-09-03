@@ -11,6 +11,7 @@ on:
       - 'js/admin-stage-one.js'
       - 'admin-stage-one.css'
       - 'js/prompt-target-survivor-generator.js'
+      - 'js/prompt-target-auto-explorer.js'
       - 'js/prompt-quality-family-generator.js'
       - 'js/prompt-nationality-family-generator.js'
       - 'js/prompt-studio-loader.js'
@@ -43,6 +44,7 @@ on:
       - 'js/admin-stage-one.js'
       - 'admin-stage-one.css'
       - 'js/prompt-target-survivor-generator.js'
+      - 'js/prompt-target-auto-explorer.js'
       - 'js/prompt-quality-family-generator.js'
       - 'js/prompt-nationality-family-generator.js'
       - 'js/prompt-studio-loader.js'
@@ -93,18 +95,20 @@ jobs:
           node --check js/admin-import-tools-base.js
           node --check js/admin-stage-one.js
           node --check js/prompt-target-survivor-generator.js
+          node --check js/prompt-target-auto-explorer.js
           node --check js/prompt-quality-family-generator.js
           node --check js/prompt-nationality-family-generator.js
           grep -q 'js/certification-approved-null-policy.js?v=1.0.0' admin.html
           grep -q 'js/admin-batch-calendar.js?v=3.0.6' admin.html
           grep -q 'js/admin-daily-generator-guard.js?v=1.1.2' admin.html
-          grep -q 'js/admin-import-tools.js?v=22.1.0-targetsurvivor' admin.html
+          grep -q 'js/admin-import-tools.js?v=22.2.0-targetexplore' admin.html
           grep -q 'js/admin-stage-one.js?v=1.1.0-fastboot' admin.html
           grep -q 'factoryIncludeQualityFamilies' admin.html
           grep -q 'factoryIncludeNationalityFamily' admin.html
           grep -q 'js/admin-import-tools-base.js?v=16.1.0-familymix' js/prompt-studio-loader.js
           grep -q 'js/prompt-target-survivor-generator.js?v=1.0.0' js/prompt-studio-loader.js
-          grep -q 'js/prompt-studio-loader.js?v=1.1.0-targetsurvivor' js/admin-import-tools.js
+          grep -q 'js/prompt-target-auto-explorer.js?v=1.0.0' js/prompt-studio-loader.js
+          grep -q 'js/prompt-studio-loader.js?v=1.2.0-targetexplore' js/admin-import-tools.js
           node scripts/verify-studio-refresh-fastboot.mjs
           git diff --check
       - name: Diagnose certified nationality pool
@@ -131,7 +135,7 @@ jobs:
             js/studio-feature-loader.js
           )
           if [[ -z "$(git status --porcelain -- "${generated_files[@]}")" ]]; then
-            echo "Studio generation policies, unified prompt-family wiring, target-survivor generation and refresh fast boot are already current."
+            echo "Studio generation policies, unified prompt-family wiring, target-survivor generation, auto-exploration and refresh fast boot are already current."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
