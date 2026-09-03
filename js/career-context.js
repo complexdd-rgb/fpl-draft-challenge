@@ -1,4 +1,4 @@
-/* FPL career relationship context · v1.4.5
+/* FPL career relationship context · v1.5.0
    Derived at runtime from verified player-season rows. Seasons with zero minutes
    do not contribute to any career or relationship rule. */
 (() => {
@@ -248,6 +248,144 @@
     publicSummaries.push(publicSummary);
   }
 
+
+  const careerEvolutionByKey = new Map();
+  const sourcePlayerByKey = new Map(players.filter(Boolean).map(player => [String(player.playerId), player]));
+  const knownNumber = value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+  const tableBand = value => {
+    const position = Number(value);
+    if (!Number.isFinite(position)) return "";
+    if (position <= 4) return "1-4";
+    if (position <= 8) return "5-8";
+    if (position <= 12) return "9-12";
+    if (position <= 17) return "13-17";
+    return "18-20";
+  };
+  const maxConsecutive = (sequence, predicate) => {
+    let best = 0, run = 0, previousYear = null;
+    for (const row of sequence) {
+      const qualifies = Boolean(predicate(row));
+      if (!qualifies) run = 0;
+      else run = previousYear != null && row.year === previousYear + 1 ? run + 1 : 1;
+      best = Math.max(best, run);
+      previousYear = row.year;
+    }
+    return best;
+  };
+
+  for (const player of players) {
+    if (!player || player.playerId == null) continue;
+    const positive = (Array.isArray(player.seasons) ? player.seasons : [])
+      .filter(isPositiveSeason)
+      .map(record => ({ record, year: seasonStart(record.season), clubKey: normalise(record.club), position: String(record.position || "") }))
+      .filter(row => Number.isFinite(row.year))
+      .sort((a, b) => a.year - b.year);
+
+    const byYear = new Map();
+    for (const row of positive) {
+      if (!byYear.has(row.year)) byYear.set(row.year, {
+        year: row.year,
+        clubs: new Set(), positions: new Set(), managers: new Set(),
+        minutes: 0, goals: 0, goalsKnown: false, points: 0, pointsKnown: false
+      });
+      const year = byYear.get(row.year);
+      if (row.clubKey) year.clubs.add(row.clubKey);
+      if (row.position) year.positions.add(row.position);
+      year.minutes += Number(row.record.minutes) || 0;
+      if (knownNumber(row.record.goals)) { year.goals += Number(row.record.goals); year.goalsKnown = true; }
+      if (knownNumber(row.record.points)) { year.points += Number(row.record.points); year.pointsKnown = true; }
+      for (const manager of Array.isArray(row.record.managers) ? row.record.managers : []) {
+        const key = normalise(manager);
+        if (key) year.managers.add(key);
+      }
+    }
+    const sequence = [...byYear.values()].sort((a, b) => a.year - b.year);
+    const positions = new Set(positive.map(row => row.position).filter(Boolean));
+    const tableBands = new Set(positive.map(row => tableBand(row.record.leaguePosition)).filter(Boolean));
+    const managerClubs = new Map();
+    for (const row of positive) {
+      if (!row.clubKey) continue;
+      for (const manager of Array.isArray(row.record.managers) ? row.record.managers : []) {
+        const key = normalise(manager);
+        if (!key) continue;
+        if (!managerClubs.has(key)) managerClubs.set(key, new Set());
+        managerClubs.get(key).add(row.clubKey);
+      }
+    }
+
+    let maxPointsGain = -Infinity;
+    let maxGoalsGain = -Infinity;
+    let maxMinutesGain = -Infinity;
+    let maxClubSwitchPointsGain = -Infinity;
+    let maxClubSwitchGoalsGain = -Infinity;
+    let bounceBack120After70 = false;
+    let bounceBack2500After1500 = false;
+    let midToFwd = false, defToMid = false, fwdToMid = false, midToDef = false;
+
+    for (let index = 1; index < sequence.length; index += 1) {
+      const previous = sequence[index - 1];
+      const current = sequence[index];
+      if (current.year !== previous.year + 1) continue;
+      if (previous.pointsKnown && current.pointsKnown) {
+        const gain = current.points - previous.points;
+        maxPointsGain = Math.max(maxPointsGain, gain);
+        if (previous.points < 70 && current.points >= 120) bounceBack120After70 = true;
+      }
+      if (previous.goalsKnown && current.goalsKnown) maxGoalsGain = Math.max(maxGoalsGain, current.goals - previous.goals);
+      maxMinutesGain = Math.max(maxMinutesGain, current.minutes - previous.minutes);
+      if (previous.minutes < 1500 && current.minutes >= 2500) bounceBack2500After1500 = true;
+
+      const sharedClub = [...previous.clubs].some(club => current.clubs.has(club));
+      const switchedClub = previous.clubs.size > 0 && current.clubs.size > 0 && !sharedClub;
+      if (switchedClub && previous.pointsKnown && current.pointsKnown) maxClubSwitchPointsGain = Math.max(maxClubSwitchPointsGain, current.points - previous.points);
+      if (switchedClub && previous.goalsKnown && current.goalsKnown) maxClubSwitchGoalsGain = Math.max(maxClubSwitchGoalsGain, current.goals - previous.goals);
+
+      if (previous.positions.has('MID') && current.positions.has('FWD')) midToFwd = true;
+      if (previous.positions.has('DEF') && current.positions.has('MID')) defToMid = true;
+      if (previous.positions.has('FWD') && current.positions.has('MID')) fwdToMid = true;
+      if (previous.positions.has('MID') && current.positions.has('DEF')) midToDef = true;
+    }
+
+    const evolution = Object.freeze({
+      playerId: player.playerId,
+      positionCount: positions.size,
+      positions: freezeArray(positions),
+      changedPosition: positions.size >= 2,
+      midToFwd, defToMid, fwdToMid, midToDef,
+      maxPointsGain: Number.isFinite(maxPointsGain) ? maxPointsGain : null,
+      maxGoalsGain: Number.isFinite(maxGoalsGain) ? maxGoalsGain : null,
+      maxMinutesGain: Number.isFinite(maxMinutesGain) ? maxMinutesGain : null,
+      maxClubSwitchPointsGain: Number.isFinite(maxClubSwitchPointsGain) ? maxClubSwitchPointsGain : null,
+      maxClubSwitchGoalsGain: Number.isFinite(maxClubSwitchGoalsGain) ? maxClubSwitchGoalsGain : null,
+      bounceBack120After70,
+      bounceBack2500After1500,
+      maxConsecutive2000Minutes: maxConsecutive(sequence, row => row.minutes >= 2000),
+      maxConsecutive100Points: maxConsecutive(sequence, row => row.pointsKnown && row.points >= 100),
+      maxConsecutiveScoringSeasons: maxConsecutive(sequence, row => row.goalsKnown && row.goals >= 1),
+      maxConsecutive8Goals: maxConsecutive(sequence, row => row.goalsKnown && row.goals >= 8),
+      everPromotedClub: positive.some(row => row.record.promoted === true),
+      everRelegatedClub: positive.some(row => row.record.relegated === true),
+      everChampion: positive.some(row => row.record.champions === true),
+      everTopFour: positive.some(row => row.record.topFour === true),
+      everBottomHalf: positive.some(row => row.record.bottomHalf === true),
+      tableBandCount: tableBands.size,
+      tableBands: freezeArray(tableBands),
+      sameManagerDifferentClubs: [...managerClubs.values()].some(clubs => clubs.size >= 2),
+      maxClubsWithSameManager: Math.max(0, ...[...managerClubs.values()].map(clubs => clubs.size))
+    });
+    careerEvolutionByKey.set(String(player.playerId), evolution);
+    for (const record of Array.isArray(player.seasons) ? player.seasons : []) {
+      try { Object.defineProperty(record, '_careerEvolution', { value: evolution, configurable: true, enumerable: true, writable: false }); }
+      catch (_) { record._careerEvolution = evolution; }
+    }
+  }
+
+  window.FPL_CAREER_EVOLUTION_CONTEXT = Object.freeze({
+    version: '1.0.0',
+    getPlayer: playerId => careerEvolutionByKey.get(String(playerId)) || null,
+    nationalityForPlayer: playerId => String(sourcePlayerByKey.get(String(playerId))?.bio?.nationality || '').trim()
+  });
+
   for (const player of players) {
     if (!player || player.playerId == null) continue;
     const summary = summariesByKey.get(String(player.playerId))?.publicSummary;
@@ -300,7 +438,7 @@
   });
 
   window.FPL_CAREER_CONTEXT = Object.freeze({
-    version: "1.4.5",
+    version: "1.5.0",
     coverage,
     normalise,
     seasonStart,

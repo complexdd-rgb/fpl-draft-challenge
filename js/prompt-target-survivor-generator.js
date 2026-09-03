@@ -90,6 +90,7 @@
       enable: el("factoryEnablePrompts"),
       includeQualityFamilies: el("factoryIncludeQualityFamilies"),
       includeNationalityFamily: el("factoryIncludeNationalityFamily"),
+      includeCareerEvolutionFamilies: el("factoryIncludeCareerEvolutionFamilies"),
       generate: el("generatePromptBatchBtn"),
       add: el("addPromptBatchBtn"),
       preview: el("promptFactoryPreview")
@@ -110,7 +111,8 @@
       includeNames: elements.includeNames?.checked !== false,
       avoidPools: elements.avoidPools?.checked !== false,
       includeQualityFamilies: elements.includeQualityFamilies?.checked !== false,
-      includeNationalityFamily: elements.includeNationalityFamily?.checked !== false
+      includeNationalityFamily: elements.includeNationalityFamily?.checked !== false,
+      includeCareerEvolutionFamilies: elements.includeCareerEvolutionFamilies?.checked !== false
     };
   }
 
@@ -128,6 +130,7 @@
     if (elements.avoidPools && settings.avoidPools != null) elements.avoidPools.checked = Boolean(settings.avoidPools);
     if (elements.includeQualityFamilies && settings.includeQualityFamilies != null) elements.includeQualityFamilies.checked = Boolean(settings.includeQualityFamilies);
     if (elements.includeNationalityFamily && settings.includeNationalityFamily != null) elements.includeNationalityFamily.checked = Boolean(settings.includeNationalityFamily);
+    if (elements.includeCareerEvolutionFamilies && settings.includeCareerEvolutionFamilies != null) elements.includeCareerEvolutionFamilies.checked = Boolean(settings.includeCareerEvolutionFamilies);
     if (elements.enable) elements.enable.checked = true;
   }
 

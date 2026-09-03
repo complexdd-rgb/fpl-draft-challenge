@@ -58,7 +58,8 @@
       includeNames: el("factoryIncludeNameRules"),
       avoidPools: el("factoryAvoidSimilarPools"),
       includeQualityFamilies: el("factoryIncludeQualityFamilies"),
-      includeNationalityFamily: el("factoryIncludeNationalityFamily")
+      includeNationalityFamily: el("factoryIncludeNationalityFamily"),
+      includeCareerEvolutionFamilies: el("factoryIncludeCareerEvolutionFamilies")
     };
   }
 
@@ -76,7 +77,8 @@
       includeNames: c.includeNames?.checked !== false,
       avoidPools: c.avoidPools?.checked !== false,
       includeQualityFamilies: c.includeQualityFamilies?.checked !== false,
-      includeNationalityFamily: c.includeNationalityFamily?.checked !== false
+      includeNationalityFamily: c.includeNationalityFamily?.checked !== false,
+      includeCareerEvolutionFamilies: c.includeCareerEvolutionFamilies?.checked !== false
     };
   }
 
@@ -94,6 +96,7 @@
     if (c.avoidPools) c.avoidPools.checked = true;
     if (c.includeQualityFamilies && settings.includeQualityFamilies != null) c.includeQualityFamilies.checked = Boolean(settings.includeQualityFamilies);
     if (c.includeNationalityFamily && settings.includeNationalityFamily != null) c.includeNationalityFamily.checked = Boolean(settings.includeNationalityFamily);
+    if (c.includeCareerEvolutionFamilies && settings.includeCareerEvolutionFamilies != null) c.includeCareerEvolutionFamilies.checked = Boolean(settings.includeCareerEvolutionFamilies);
   }
 
   function recommendedCycleCap(target, current, retention = DEFAULT_RETENTION) {
@@ -119,7 +122,7 @@
       settings.position, settings.difficulty, settings.seasonMode, settings.careerMode,
       settings.relationship, settings.exclusion, Boolean(settings.includeNames),
       Boolean(settings.avoidPools), Boolean(settings.includeQualityFamilies),
-      Boolean(settings.includeNationalityFamily), settings.minimum, settings.maximum
+      Boolean(settings.includeNationalityFamily), Boolean(settings.includeCareerEvolutionFamilies), settings.minimum, settings.maximum
     ]);
   }
 

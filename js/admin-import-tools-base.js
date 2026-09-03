@@ -63,6 +63,7 @@
       enable: document.querySelector("#factoryEnablePrompts"),
       includeQualityFamilies: document.querySelector("#factoryIncludeQualityFamilies"),
       includeNationalityFamily: document.querySelector("#factoryIncludeNationalityFamily"),
+      includeCareerEvolutionFamilies: document.querySelector("#factoryIncludeCareerEvolutionFamilies"),
       generateBtn: document.querySelector("#generatePromptBatchBtn"),
       selectBtn: document.querySelector("#selectPromptBatchBtn"),
       addBtn: document.querySelector("#addPromptBatchBtn"),
@@ -86,10 +87,12 @@
     const exclusionMode = ["none", "mix", "top1", "top2"].includes(elements.exclusion?.value) ? elements.exclusion.value : "mix";
     const includeQualityFamilies = elements.includeQualityFamilies?.checked !== false;
     const includeNationalityFamily = elements.includeNationalityFamily?.checked !== false;
+    const includeCareerEvolutionFamilies = elements.includeCareerEvolutionFamilies?.checked !== false;
 
     const missingProviders = [];
     if (includeQualityFamilies && !window.FPL_QUALITY_FAMILY_GENERATOR?.buildBatch) missingProviders.push("Quality Families");
     if (includeNationalityFamily && !window.FPL_NATIONALITY_FAMILY_GENERATOR?.buildBatch) missingProviders.push("Nationality Family");
+    if (includeCareerEvolutionFamilies && !window.FPL_CAREER_EVOLUTION_FAMILY_GENERATOR?.buildBatch) missingProviders.push("Career Evolution");
     if (missingProviders.length) {
       elements.status.textContent = "Loading " + missingProviders.join(" + ") + " into the main generator…";
       ensureIntegratedFamilyProviders(() => generateBatch(elements, core));
@@ -932,6 +935,7 @@
     const wanted = [];
     if (!window.FPL_QUALITY_FAMILY_GENERATOR?.buildBatch) wanted.push(["js/prompt-quality-family-generator.js?v=1.1.0", "FPL_QUALITY_FAMILY_GENERATOR"]);
     if (!window.FPL_NATIONALITY_FAMILY_GENERATOR?.buildBatch) wanted.push(["js/prompt-nationality-family-generator.js?v=1.1.1", "FPL_NATIONALITY_FAMILY_GENERATOR"]);
+    if (!window.FPL_CAREER_EVOLUTION_FAMILY_GENERATOR?.buildBatch) wanted.push(["js/prompt-career-evolution-family-generator.js?v=1.0.0", "FPL_CAREER_EVOLUTION_FAMILY_GENERATOR"]);
     if (!wanted.length) return done();
     let remaining = wanted.length;
     const finish = () => { remaining -= 1; if (remaining <= 0) done(); };
@@ -950,10 +954,11 @@
     }
   }
 
-  function appendIntegratedFamilyCandidates({ core, evaluated, rejected, seenCandidatePools, familyCounts, familyLimit, minimum, maximum, difficultyMode, enable, avoidPools, includeQualityFamilies, includeNationalityFamily }) {
+  function appendIntegratedFamilyCandidates({ core, evaluated, rejected, seenCandidatePools, familyCounts, familyLimit, minimum, maximum, difficultyMode, enable, avoidPools, includeQualityFamilies, includeNationalityFamily, includeCareerEvolutionFamilies }) {
     const providers = [];
     if (includeQualityFamilies && window.FPL_QUALITY_FAMILY_GENERATOR?.buildBatch) providers.push(window.FPL_QUALITY_FAMILY_GENERATOR);
     if (includeNationalityFamily && window.FPL_NATIONALITY_FAMILY_GENERATOR?.buildBatch) providers.push(window.FPL_NATIONALITY_FAMILY_GENERATOR);
+    if (includeCareerEvolutionFamilies && window.FPL_CAREER_EVOLUTION_FAMILY_GENERATOR?.buildBatch) providers.push(window.FPL_CAREER_EVOLUTION_FAMILY_GENERATOR);
     const pendingIds = new Set(evaluated.map(prompt => String(prompt.id || "")));
 
     for (const provider of providers) {
@@ -1057,7 +1062,8 @@
       <article><span>Teammate rules</span><strong>${currentBatch.filter(item => item.tags.includes("teammate")).length}</strong></article>
       <article><span>Top-answer exclusions</span><strong>${currentBatch.filter(item => item.tags.includes("excludes-top")).length}</strong></article>
       <article><span>Quality families</span><strong>${currentBatch.filter(item => item.tags.includes("quality-family")).length}</strong></article>
-      <article><span>Nationality family</span><strong>${currentBatch.filter(item => item.tags.includes("nationality")).length}</strong></article>`;
+      <article><span>Nationality family</span><strong>${currentBatch.filter(item => item.tags.includes("nationality")).length}</strong></article>
+      <article><span>Career Evolution</span><strong>${currentBatch.filter(item => item.tags.includes("career-evolution")).length}</strong></article>`;
     elements.summary.classList.remove("hidden");
 
     elements.preview.innerHTML = currentBatch.map((prompt, index) => {
@@ -1080,6 +1086,7 @@
             ${prompt.tags.includes("teammate") ? '<span class="relation">Teammate rule</span>' : ""}
             ${prompt.tags.includes("quality-family") ? '<span class="relation">Quality family</span>' : ""}
             ${prompt.tags.includes("nationality") ? '<span class="relation">Nationality</span>' : ""}
+            ${prompt.tags.includes("career-evolution") ? '<span class="relation">Career evolution</span>' : ""}
             ${prompt.tags.includes("excludes-top") ? '<span class="exclude">Top answer excluded</span>' : ""}
           </div>
         </div>
