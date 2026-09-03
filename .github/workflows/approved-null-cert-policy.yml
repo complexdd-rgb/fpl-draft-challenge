@@ -27,6 +27,7 @@ on:
       - 'scripts/apply-unified-prompt-family-generator.mjs'
       - 'scripts/apply-prompt-target-survivor-generator.mjs'
       - 'scripts/apply-career-evolution-prompt-families.mjs'
+      - 'scripts/apply-career-evolution-cache-wiring.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
@@ -34,6 +35,7 @@ on:
       - 'scripts/verify-unified-prompt-family-generator.mjs'
       - 'scripts/verify-prompt-target-survivor-generator.mjs'
       - 'scripts/verify-career-evolution-prompt-families.mjs'
+      - 'scripts/verify-career-evolution-cache-wiring.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/diagnose-certified-nationality-pool.mjs'
       - 'scripts/diagnose-weekly-day-one.mjs'
@@ -65,6 +67,7 @@ on:
       - 'scripts/apply-unified-prompt-family-generator.mjs'
       - 'scripts/apply-prompt-target-survivor-generator.mjs'
       - 'scripts/apply-career-evolution-prompt-families.mjs'
+      - 'scripts/apply-career-evolution-cache-wiring.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
@@ -72,6 +75,7 @@ on:
       - 'scripts/verify-unified-prompt-family-generator.mjs'
       - 'scripts/verify-prompt-target-survivor-generator.mjs'
       - 'scripts/verify-career-evolution-prompt-families.mjs'
+      - 'scripts/verify-career-evolution-cache-wiring.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/diagnose-certified-nationality-pool.mjs'
       - 'scripts/diagnose-weekly-day-one.mjs'
@@ -96,7 +100,12 @@ jobs:
         run: |
           node scripts/apply-approved-null-cert-policy.mjs
           node scripts/apply-prompt-target-survivor-generator.mjs
-          node scripts/apply-career-evolution-prompt-families.mjs
+          if ! grep -q 'includeCareerEvolutionFamilies' js/admin-import-tools-base.js; then
+            node scripts/apply-career-evolution-prompt-families.mjs
+          else
+            echo 'Career Evolution generator wiring is already installed; patch step skipped.'
+          fi
+          node scripts/apply-career-evolution-cache-wiring.mjs
           node scripts/apply-studio-refresh-fastboot.mjs
           node --check js/certification-approved-null-policy.js
           node --check js/validation-engine.js
@@ -114,17 +123,18 @@ jobs:
           grep -q 'js/certification-approved-null-policy.js?v=1.0.0' admin.html
           grep -q 'js/admin-batch-calendar.js?v=3.0.6' admin.html
           grep -q 'js/admin-daily-generator-guard.js?v=1.1.2' admin.html
-          grep -q 'js/admin-import-tools.js?v=22.2.0-targetexplore' admin.html
+          grep -q 'js/admin-import-tools.js?v=22.3.0-careerevolution' admin.html
           grep -q 'js/admin-stage-one.js?v=1.1.0-fastboot' admin.html
           grep -q 'js/career-context.js?v=1.5.0' admin.html
           grep -q 'factoryIncludeQualityFamilies' admin.html
           grep -q 'factoryIncludeNationalityFamily' admin.html
           grep -q 'factoryIncludeCareerEvolutionFamilies' admin.html
-          grep -q 'js/admin-import-tools-base.js?v=16.1.0-familymix' js/prompt-studio-loader.js
-          grep -q 'js/prompt-target-survivor-generator.js?v=1.0.0' js/prompt-studio-loader.js
-          grep -q 'js/prompt-target-auto-explorer.js?v=1.0.0' js/prompt-studio-loader.js
-          grep -q 'js/prompt-studio-loader.js?v=1.2.0-targetexplore' js/admin-import-tools.js
+          grep -q 'js/admin-import-tools-base.js?v=16.2.0-careerevolution' js/prompt-studio-loader.js
+          grep -q 'js/prompt-target-survivor-generator.js?v=1.0.1-careerevolution' js/prompt-studio-loader.js
+          grep -q 'js/prompt-target-auto-explorer.js?v=1.0.1-careerevolution' js/prompt-studio-loader.js
+          grep -q 'js/prompt-studio-loader.js?v=1.3.0-careerevolution' js/admin-import-tools.js
           node scripts/verify-career-evolution-prompt-families.mjs
+          node scripts/verify-career-evolution-cache-wiring.mjs
           node scripts/verify-studio-refresh-fastboot.mjs
           git diff --check
       - name: Diagnose certified nationality pool
@@ -155,7 +165,7 @@ jobs:
             js/studio-feature-loader.js
           )
           if [[ -z "$(git status --porcelain -- "${generated_files[@]}")" ]]; then
-            echo "Studio generation policies, unified prompt-family wiring, Career Evolution, target-survivor generation, auto-exploration and refresh fast boot are already current."
+            echo "Studio generation policies, prompt-family wiring, Career Evolution cache wiring, target-survivor generation, auto-exploration and refresh fast boot are already current."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
