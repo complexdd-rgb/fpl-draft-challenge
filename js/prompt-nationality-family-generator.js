@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Nationality Family Generator v1.1.0
+/* FPL Challenge Studio — Nationality Family Generator v1.1.1
    Uses bio.nationality when available and falls back to verified FPL regionId values.
    Generated prompt tests are self-contained player-id membership rules. */
 (() => {
@@ -283,8 +283,15 @@
     add.disabled = false;
   }
 
+  window.FPL_NATIONALITY_FAMILY_GENERATOR = Object.freeze({
+    version: "1.1.0",
+    buildBatch: () => buildBatch(),
+    serialise: item => serialise(item)
+  });
+
   function install() {
     if (installed) return;
+    if (document.getElementById("factoryIncludeNationalityFamily")) { installed = true; return; }
     const factory = document.getElementById("automaticPromptFactory");
     if (!factory || !players().length) return;
     installed = true;

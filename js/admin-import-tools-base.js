@@ -61,6 +61,8 @@
       includeNames: document.querySelector("#factoryIncludeNameRules"),
       avoidPools: document.querySelector("#factoryAvoidSimilarPools"),
       enable: document.querySelector("#factoryEnablePrompts"),
+      includeQualityFamilies: document.querySelector("#factoryIncludeQualityFamilies"),
+      includeNationalityFamily: document.querySelector("#factoryIncludeNationalityFamily"),
       generateBtn: document.querySelector("#generatePromptBatchBtn"),
       selectBtn: document.querySelector("#selectPromptBatchBtn"),
       addBtn: document.querySelector("#addPromptBatchBtn"),
@@ -82,6 +84,17 @@
     const careerMode = ["none", "mix", "only"].includes(elements.careerMode?.value) ? elements.careerMode.value : "mix";
     const relationshipMode = ["none", "mix", "only"].includes(elements.relationship?.value) ? elements.relationship.value : "mix";
     const exclusionMode = ["none", "mix", "top1", "top2"].includes(elements.exclusion?.value) ? elements.exclusion.value : "mix";
+    const includeQualityFamilies = elements.includeQualityFamilies?.checked !== false;
+    const includeNationalityFamily = elements.includeNationalityFamily?.checked !== false;
+
+    const missingProviders = [];
+    if (includeQualityFamilies && !window.FPL_QUALITY_FAMILY_GENERATOR?.buildBatch) missingProviders.push("Quality Families");
+    if (includeNationalityFamily && !window.FPL_NATIONALITY_FAMILY_GENERATOR?.buildBatch) missingProviders.push("Nationality Family");
+    if (missingProviders.length) {
+      elements.status.textContent = "Loading " + missingProviders.join(" + ") + " into the main generator…";
+      ensureIntegratedFamilyProviders(() => generateBatch(elements, core));
+      return;
+    }
 
     const onlyModes = [
       ["season", seasonMode],
@@ -173,6 +186,12 @@
             rejected.broken += 1;
           }
         }
+
+        appendIntegratedFamilyCandidates({
+          core, evaluated, rejected, seenCandidatePools, familyCounts, familyLimit,
+          minimum, maximum, difficultyMode, enable: elements.enable.checked,
+          avoidPools: elements.avoidPools.checked, includeQualityFamilies, includeNationalityFamily
+        });
 
         currentBatch = chooseBalancedBatch(evaluated, requested, positionMode, difficultyMode);
         renderBatch(elements, requested, rejected);
@@ -909,6 +928,72 @@
     };
   }
 
+  function ensureIntegratedFamilyProviders(done) {
+    const wanted = [];
+    if (!window.FPL_QUALITY_FAMILY_GENERATOR?.buildBatch) wanted.push(["js/prompt-quality-family-generator.js?v=1.1.0", "FPL_QUALITY_FAMILY_GENERATOR"]);
+    if (!window.FPL_NATIONALITY_FAMILY_GENERATOR?.buildBatch) wanted.push(["js/prompt-nationality-family-generator.js?v=1.1.1", "FPL_NATIONALITY_FAMILY_GENERATOR"]);
+    if (!wanted.length) return done();
+    let remaining = wanted.length;
+    const finish = () => { remaining -= 1; if (remaining <= 0) done(); };
+    for (const [src, apiName] of wanted) {
+      const existing = [...document.scripts].find(script => script.src && script.src.includes(src.split("?")[0]));
+      if (existing) {
+        if (window[apiName]?.buildBatch) finish();
+        else existing.addEventListener("load", finish, { once: true });
+        continue;
+      }
+      const script = document.createElement("script");
+      script.src = src;
+      script.async = false;
+      script.addEventListener("load", finish, { once: true });
+      document.head.appendChild(script);
+    }
+  }
+
+  function appendIntegratedFamilyCandidates({ core, evaluated, rejected, seenCandidatePools, familyCounts, familyLimit, minimum, maximum, difficultyMode, enable, avoidPools, includeQualityFamilies, includeNationalityFamily }) {
+    const providers = [];
+    if (includeQualityFamilies && window.FPL_QUALITY_FAMILY_GENERATOR?.buildBatch) providers.push(window.FPL_QUALITY_FAMILY_GENERATOR);
+    if (includeNationalityFamily && window.FPL_NATIONALITY_FAMILY_GENERATOR?.buildBatch) providers.push(window.FPL_NATIONALITY_FAMILY_GENERATOR);
+    const pendingIds = new Set(evaluated.map(prompt => String(prompt.id || "")));
+
+    for (const provider of providers) {
+      let candidates = [];
+      try { candidates = provider.buildBatch() || []; } catch (_) { rejected.broken += 1; continue; }
+      for (const item of candidates) {
+        try {
+          const prompt = provider.serialise(item);
+          if (!prompt || pendingIds.has(String(prompt.id || ""))) { rejected.duplicate += 1; continue; }
+          prompt.family = item.family || prompt.family || "quality-family";
+          prompt.test = item.test || prompt.test;
+          prompt.tags = Array.isArray(prompt.tags) ? [...prompt.tags] : [];
+          prompt.rating = 5;
+          prompt.enabled = enable;
+          prompt.selected = true;
+          const stats = core.getPromptStats(prompt);
+          if (stats.playerCount < minimum || stats.playerCount > maximum) { rejected.answerRange += 1; continue; }
+          prompt.difficulty = item.difficulty || classifyDifficulty(stats.playerCount);
+          if (difficultyMode !== "balanced" && prompt.difficulty !== difficultyMode) continue;
+
+          const labelKey = normaliseLabel(prompt.label);
+          if (existingLabelTokens.some(existing => existing.position === prompt.position && labelSimilarity(labelKey, existing.key) >= 0.86)) { rejected.duplicate += 1; continue; }
+          const signature = poolSignature(stats);
+          const poolKey = prompt.position + "|" + signature;
+          if (!signature || existingPoolIndex.has(poolKey) || seenCandidatePools.has(poolKey)) { rejected.duplicate += 1; continue; }
+          if (avoidPools && hasNearPoolDuplicate(prompt.position, stats, existingPoolIndex, seenCandidatePools)) { rejected.similar += 1; continue; }
+          const familyUsed = familyCounts.get(prompt.family) || 0;
+          if (familyUsed >= familyLimit) continue;
+
+          prompt.stats = stats;
+          prompt.poolSignature = signature;
+          evaluated.push(prompt);
+          pendingIds.add(String(prompt.id || ""));
+          familyCounts.set(prompt.family, familyUsed + 1);
+          seenCandidatePools.set(poolKey, stats.bestByPlayer);
+        } catch (_) { rejected.broken += 1; }
+      }
+    }
+  }
+
   function chooseBalancedBatch(candidates, requested, positionMode, difficultyMode) {
     if (candidates.length <= requested) return candidates.slice();
     const chosen = [];
@@ -970,7 +1055,9 @@
       <article><span>Both-club rules</span><strong>${currentBatch.filter(item => item.tags.includes("played-for-both")).length}</strong></article>
       <article><span>Returned-club rules</span><strong>${currentBatch.filter(item => item.tags.includes("returned-club")).length}</strong></article>
       <article><span>Teammate rules</span><strong>${currentBatch.filter(item => item.tags.includes("teammate")).length}</strong></article>
-      <article><span>Top-answer exclusions</span><strong>${currentBatch.filter(item => item.tags.includes("excludes-top")).length}</strong></article>`;
+      <article><span>Top-answer exclusions</span><strong>${currentBatch.filter(item => item.tags.includes("excludes-top")).length}</strong></article>
+      <article><span>Quality families</span><strong>${currentBatch.filter(item => item.tags.includes("quality-family")).length}</strong></article>
+      <article><span>Nationality family</span><strong>${currentBatch.filter(item => item.tags.includes("nationality")).length}</strong></article>`;
     elements.summary.classList.remove("hidden");
 
     elements.preview.innerHTML = currentBatch.map((prompt, index) => {
@@ -991,6 +1078,8 @@
             ${prompt.tags.includes("played-for-both") ? '<span class="relation">Played for both</span>' : ""}
             ${prompt.tags.includes("returned-club") ? '<span class="relation">Returned club</span>' : ""}
             ${prompt.tags.includes("teammate") ? '<span class="relation">Teammate rule</span>' : ""}
+            ${prompt.tags.includes("quality-family") ? '<span class="relation">Quality family</span>' : ""}
+            ${prompt.tags.includes("nationality") ? '<span class="relation">Nationality</span>' : ""}
             ${prompt.tags.includes("excludes-top") ? '<span class="exclude">Top answer excluded</span>' : ""}
           </div>
         </div>

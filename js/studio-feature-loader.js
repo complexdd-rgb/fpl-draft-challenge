@@ -35,7 +35,7 @@
       // so those prompts enter the library with parser-safe between-season wording.
       loadModule("js/prompt-era-range-wording.js?v=1.0.0", "data-prompt-era-range-wording", { async: false }, () => {
         loadModule("js/admin-studio-finish.js?v=1.0.1", "data-admin-studio-finish");
-        loadModule("js/career-overlap-wording.js?v=1.0.0", "data-career-overlap-wording");
+        loadModule("js/career-overlap-wording.js?v=1.0.25", "data-career-overlap-wording");
       });
     });
   };

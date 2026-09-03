@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Quality Family Generator v1.0.0
+/* FPL Challenge Studio — Quality Family Generator v1.1.0
    Adds V1/V2/V3-style family generation inside the existing Automatic Creator.
    Every generated candidate is tested against the current database and only 5-star
    position-aware answer pools survive. No prompt is saved until the user approves it. */
@@ -328,8 +328,15 @@
     setTimeout(() => location.reload(), 550);
   }
 
+  window.FPL_QUALITY_FAMILY_GENERATOR = Object.freeze({
+    version: "1.1.0",
+    buildBatch: () => buildBatch(),
+    serialise: item => serialise(item)
+  });
+
   function install() {
     if (installed) return;
+    if (document.getElementById("factoryIncludeQualityFamilies")) { installed = true; return; }
     const factory = document.getElementById("automaticPromptFactory");
     if (!factory || !window.FPL_QUALITY_PROMPT_BASELINE?.ready) return;
     installed = true;
