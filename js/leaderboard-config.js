@@ -106,9 +106,19 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.accou
 // Non-critical environment features live in named loaders instead of this configuration file.
 const featureLoader = document.createElement("script");
 featureLoader.src = new URL(
-  window.FPL_IS_STUDIO ? "js/studio-feature-loader.js" : "js/live-feature-loader.js",
+  window.FPL_IS_STUDIO ? "js/studio-feature-loader.js?v=1.0.1-refinement" : "js/live-feature-loader.js",
   document.baseURI
 ).toString();
 featureLoader.async = !window.FPL_IS_STUDIO;
 featureLoader.dataset.fplFeatureLoader = window.FPL_IS_STUDIO ? "studio" : "live";
 document.head.appendChild(featureLoader);
+
+// The Refinement Incubator is Studio-only and deliberately self-waits for Quality Enforcement
+// v2, so it can be loaded here without joining the already-large prompt-tool dependency chain.
+if (window.FPL_IS_STUDIO) {
+  const refinementIncubator = document.createElement("script");
+  refinementIncubator.src = new URL("js/prompt-refinement-incubator.js?v=1.0.0", document.baseURI).toString();
+  refinementIncubator.async = false;
+  refinementIncubator.dataset.promptRefinementIncubator = "1";
+  document.head.appendChild(refinementIncubator);
+}
