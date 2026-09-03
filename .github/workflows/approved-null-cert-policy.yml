@@ -3,6 +3,8 @@ name: Approved-null certification policy
 on:
   pull_request:
     paths:
+      - 'index.html'
+      - 'js/career-context.js'
       - 'js/certification-approved-null-policy.js'
       - 'js/admin-batch-calendar.js'
       - 'js/admin-daily-generator-guard.js'
@@ -14,6 +16,7 @@ on:
       - 'js/prompt-target-auto-explorer.js'
       - 'js/prompt-quality-family-generator.js'
       - 'js/prompt-nationality-family-generator.js'
+      - 'js/prompt-career-evolution-family-generator.js'
       - 'js/prompt-studio-loader.js'
       - 'js/career-overlap-wording.js'
       - 'js/studio-feature-loader.js'
@@ -23,12 +26,14 @@ on:
       - 'scripts/apply-weekly-rotation-library-evolution.mjs'
       - 'scripts/apply-unified-prompt-family-generator.mjs'
       - 'scripts/apply-prompt-target-survivor-generator.mjs'
+      - 'scripts/apply-career-evolution-prompt-families.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/verify-weekly-rotation-library-evolution.mjs'
       - 'scripts/verify-unified-prompt-family-generator.mjs'
       - 'scripts/verify-prompt-target-survivor-generator.mjs'
+      - 'scripts/verify-career-evolution-prompt-families.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/diagnose-certified-nationality-pool.mjs'
       - 'scripts/diagnose-weekly-day-one.mjs'
@@ -36,6 +41,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'index.html'
+      - 'js/career-context.js'
       - 'js/certification-approved-null-policy.js'
       - 'js/admin-batch-calendar.js'
       - 'js/admin-daily-generator-guard.js'
@@ -47,6 +54,7 @@ on:
       - 'js/prompt-target-auto-explorer.js'
       - 'js/prompt-quality-family-generator.js'
       - 'js/prompt-nationality-family-generator.js'
+      - 'js/prompt-career-evolution-family-generator.js'
       - 'js/prompt-studio-loader.js'
       - 'js/career-overlap-wording.js'
       - 'js/studio-feature-loader.js'
@@ -56,12 +64,14 @@ on:
       - 'scripts/apply-weekly-rotation-library-evolution.mjs'
       - 'scripts/apply-unified-prompt-family-generator.mjs'
       - 'scripts/apply-prompt-target-survivor-generator.mjs'
+      - 'scripts/apply-career-evolution-prompt-families.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/verify-weekly-rotation-library-evolution.mjs'
       - 'scripts/verify-unified-prompt-family-generator.mjs'
       - 'scripts/verify-prompt-target-survivor-generator.mjs'
+      - 'scripts/verify-career-evolution-prompt-families.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/diagnose-certified-nationality-pool.mjs'
       - 'scripts/diagnose-weekly-day-one.mjs'
@@ -86,6 +96,7 @@ jobs:
         run: |
           node scripts/apply-approved-null-cert-policy.mjs
           node scripts/apply-prompt-target-survivor-generator.mjs
+          node scripts/apply-career-evolution-prompt-families.mjs
           node scripts/apply-studio-refresh-fastboot.mjs
           node --check js/certification-approved-null-policy.js
           node --check js/validation-engine.js
@@ -94,21 +105,26 @@ jobs:
           node --check js/admin-import-tools.js
           node --check js/admin-import-tools-base.js
           node --check js/admin-stage-one.js
+          node --check js/career-context.js
           node --check js/prompt-target-survivor-generator.js
           node --check js/prompt-target-auto-explorer.js
           node --check js/prompt-quality-family-generator.js
           node --check js/prompt-nationality-family-generator.js
+          node --check js/prompt-career-evolution-family-generator.js
           grep -q 'js/certification-approved-null-policy.js?v=1.0.0' admin.html
           grep -q 'js/admin-batch-calendar.js?v=3.0.6' admin.html
           grep -q 'js/admin-daily-generator-guard.js?v=1.1.2' admin.html
           grep -q 'js/admin-import-tools.js?v=22.2.0-targetexplore' admin.html
           grep -q 'js/admin-stage-one.js?v=1.1.0-fastboot' admin.html
+          grep -q 'js/career-context.js?v=1.5.0' admin.html
           grep -q 'factoryIncludeQualityFamilies' admin.html
           grep -q 'factoryIncludeNationalityFamily' admin.html
+          grep -q 'factoryIncludeCareerEvolutionFamilies' admin.html
           grep -q 'js/admin-import-tools-base.js?v=16.1.0-familymix' js/prompt-studio-loader.js
           grep -q 'js/prompt-target-survivor-generator.js?v=1.0.0' js/prompt-studio-loader.js
           grep -q 'js/prompt-target-auto-explorer.js?v=1.0.0' js/prompt-studio-loader.js
           grep -q 'js/prompt-studio-loader.js?v=1.2.0-targetexplore' js/admin-import-tools.js
+          node scripts/verify-career-evolution-prompt-families.mjs
           node scripts/verify-studio-refresh-fastboot.mjs
           git diff --check
       - name: Diagnose certified nationality pool
@@ -121,13 +137,17 @@ jobs:
         run: |
           set -euo pipefail
           generated_files=(
+            index.html
             admin.html
             admin-stage-one.css
+            js/career-context.js
             js/admin-stage-one.js
             js/admin-batch-calendar.js
             js/admin-daily-generator-guard.js
             js/admin-import-tools.js
             js/admin-import-tools-base.js
+            js/prompt-target-survivor-generator.js
+            js/prompt-target-auto-explorer.js
             js/prompt-quality-family-generator.js
             js/prompt-nationality-family-generator.js
             js/prompt-studio-loader.js
@@ -135,7 +155,7 @@ jobs:
             js/studio-feature-loader.js
           )
           if [[ -z "$(git status --porcelain -- "${generated_files[@]}")" ]]; then
-            echo "Studio generation policies, unified prompt-family wiring, target-survivor generation, auto-exploration and refresh fast boot are already current."
+            echo "Studio generation policies, unified prompt-family wiring, Career Evolution, target-survivor generation, auto-exploration and refresh fast boot are already current."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
