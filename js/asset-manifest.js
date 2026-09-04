@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.4.1-certification-gate"
+      "version": "1.4.2-repository-pool"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -74,7 +74,7 @@
     },
     "adminStudioFinish": {
       "path": "js/admin-studio-finish.js",
-      "version": "1.0.2-certification-gate"
+      "version": "1.0.3-repository-pool"
     },
     "careerOverlapWording": {
       "path": "js/career-overlap-wording.js",
@@ -118,11 +118,15 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "1.1.2"
+      "version": "1.1.3-repository-pool"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
       "version": "5.1.0-studio-bootstrap"
+    },
+    "repositoryCertifiedPromptPool": {
+      "path": "js/repository-certified-prompt-pool.js",
+      "version": "1.0.0"
     }
   };
   const assets = Object.freeze(Object.fromEntries(
@@ -137,7 +141,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "1.4.1-certification-gate",
+    version: "1.4.2-repository-pool",
     assets,
     get,
     url

@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — finishing layer v1.0.2
+/* FPL Challenge Studio — finishing layer v1.0.3
    Adds management visibility without changing game, scoring, prompt or database rules. */
 (() => {
   "use strict";
@@ -165,33 +165,14 @@
   function certifiedPromptPoolState() {
     const snapshot = window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;
     if (Array.isArray(snapshot)) {
-      return { ready:true, prompts:snapshot, expected:snapshot.length, actual:snapshot.length, reason:"Certification snapshot active." };
+      return { ready:true, prompts:snapshot, expected:snapshot.length, total:snapshot.length, actual:snapshot.length, reason:"Certification snapshot active." };
     }
-
-    const meta = window.FPL_FOUR_STAR_LIBRARY;
-    const library = liveCertificationPromptLibrary();
-    const expected = Number(meta?.total);
-    if (!meta?.ready) {
-      return { ready:false, prompts:[], expected:0, actual:library.length, reason:"Quality Enforcement v2 is still finalising the certified prompt library." };
+    const pool = window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL;
+    if (!pool?.getState) {
+      const library = liveCertificationPromptLibrary();
+      return { ready:false, prompts:[], expected:851, total:0, actual:library.length, reason:"Repository-certified prompt pool runtime is still loading." };
     }
-    if (!Number.isInteger(expected) || expected <= 0) {
-      return { ready:false, prompts:[], expected:0, actual:library.length, reason:"Certified prompt-library metadata is incomplete." };
-    }
-
-    const ids = library.map(prompt => String(prompt?.id || "")).filter(Boolean);
-    const uniqueIds = new Set(ids);
-    if (ids.length !== library.length || uniqueIds.size !== library.length) {
-      return { ready:false, prompts:[], expected, actual:library.length, reason:"The live prompt library has missing or duplicate IDs." };
-    }
-    if (library.length !== expected) {
-      return { ready:false, prompts:[], expected, actual:library.length, reason:`Certified metadata expects ${expected.toLocaleString("en-GB")} prompts but the live library currently has ${library.length.toLocaleString("en-GB")}.` };
-    }
-
-    const belowFloor = library.filter(prompt => Number(prompt?.rating || 0) < 4).length;
-    if (belowFloor) {
-      return { ready:false, prompts:[], expected, actual:library.length, reason:`${belowFloor.toLocaleString("en-GB")} prompt(s) are still below the 4★ certification floor.` };
-    }
-    return { ready:true, prompts:library.slice(), expected, actual:library.length, reason:"Certified 4★+ prompt library ready." };
+    return pool.getState();
   }
 
   function requestCertificationPromptTools() {
@@ -209,11 +190,12 @@
     return await new Promise(resolve => {
       let settled = false;
       const events = [
-        "fpl:four-star-library-ready",
-        "fpl:prompt-quality-enforcement-v2-ready",
+        "fpl:repository-certified-prompt-pool-ready",
         "fpl:prompt-tools-ready",
         "fpl:approved-prompt-baseline-ready",
-        "fpl:refinement-survivor-pack-ready"
+        "fpl:quality-prompt-baseline-ready",
+        "fpl:refinement-survivor-pack-ready",
+        "fpl:prompt-library-changed"
       ];
       const cleanup = () => {
         clearInterval(timer);
@@ -229,20 +211,10 @@
       const refresh = () => {
         if (certificationCancelled) return finish({ ...certifiedPromptPoolState(), cancelled:true });
         requestCertificationPromptTools();
+        window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL?.refresh?.();
         current = certifiedPromptPoolState();
         if (current.ready) return finish(current);
-
-        const progress = window.FPL_FOUR_STAR_LIBRARY_PROGRESS;
-        if (progress?.state === "fail") {
-          return finish({ ...current, failed:true, reason:String(progress.message || current.reason) });
-        }
-        if (status) {
-          const hasProgress = Number(progress?.total) > 0 && Number.isFinite(Number(progress?.percent));
-          const progressText = hasProgress
-            ? ` · ${Math.round(Number(progress.percent))}% (${Number(progress.current || 0).toLocaleString("en-GB")} / ${Number(progress.total || 0).toLocaleString("en-GB")})`
-            : "";
-          status.textContent = `Finalising the certified 4★+ prompt library before season certification${progressText}. Certification has not started yet.`;
-        }
+        if (status) status.textContent = `Preparing the repository-certified 851-prompt pool. ${current.reason} Certification has not started yet.`;
       };
       const timer = setInterval(refresh, 250);
       const timeout = setTimeout(() => finish({ ...certifiedPromptPoolState(), timedOut:true }), CERTIFICATION_POOL_WAIT_MS);
@@ -257,7 +229,7 @@
     const seasons = engine.getAllSeasonLabels();
     const poolState = certifiedPromptPoolState();
     if (!poolState.ready) {
-      return { state:"warn", title:"Prompt pool pending", detail:`${poolState.reason} Current loading library: ${poolState.actual.toLocaleString("en-GB")} prompts.`, fresh:0, total:seasons.length };
+      return { state:"warn", title:"Prompt pool pending", detail:`${poolState.reason} Current browser library: ${poolState.actual.toLocaleString("en-GB")} prompts.`, fresh:0, total:seasons.length };
     }
     const cache = loadCertCache();
     let fresh = 0;
@@ -402,7 +374,7 @@
     const poolState = certifiedPromptPoolState();
     if (!poolState.ready) {
       grid.innerHTML = "";
-      status.textContent = `Waiting for the certified 4★+ prompt library. ${poolState.reason} Current loading library: ${poolState.actual.toLocaleString("en-GB")} prompts. Certify All Seasons will wait automatically.`;
+      status.textContent = `Waiting for the certified 4★+ prompt library. ${poolState.reason} Current browser library: ${poolState.actual.toLocaleString("en-GB")} prompts. Certify All Seasons will wait automatically.`;
       renderPreflight();
       return;
     }
