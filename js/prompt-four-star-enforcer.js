@@ -11,8 +11,8 @@
   // Keep the legacy guard set too so an older cached copy cannot start a second pass.
   window.__FPL_FOUR_STAR_ENFORCER_V1__ = true;
 
-  const CACHE_VERSION = "2.0.0";
-  const SCRIPT_VERSION = "2.0.0";
+  const CACHE_VERSION = "2.1.0-survivors";
+  const SCRIPT_VERSION = "2.1.0-survivors";
   const CACHE_KEY = "fplPromptFourStarFloorV1";
   const INCUBATOR_KEY = "fplPromptQualityIncubatorV2";
   const MINIMUM_RATING = 4;
@@ -350,10 +350,11 @@
   async function enforce() {
     if (running) return true;
     const baseline = window.FPL_APPROVED_PROMPT_BASELINE;
+    const survivorPack = window.FPL_REFINEMENT_SURVIVOR_PACK_V1;
     const engine = window.FPL_PROMPT_QUALITY_ENGINE;
     const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
     const items = library();
-    if (!baseline?.ready || typeof engine?.analyseLibrary !== "function" || !players.length || !items.length) {
+    if (!baseline?.ready || !survivorPack?.ready || typeof engine?.analyseLibrary !== "function" || !players.length || !items.length) {
       publishProgress(0, 0, "working");
       return false;
     }
@@ -453,5 +454,6 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", retry, { once: true });
   else retry();
   window.addEventListener("fpl:approved-prompt-baseline-ready", retry);
+  window.addEventListener("fpl:refinement-survivor-pack-ready", retry);
   window.addEventListener("fpl:prompt-tools-ready", retry);
 })();

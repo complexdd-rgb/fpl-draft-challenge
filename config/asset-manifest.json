@@ -1,7 +1,7 @@
 {
-  "manifestVersion": "1.2.0-native-validation",
+  "manifestVersion": "1.3.0-refinement-survivors",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "1.2.0-native-validation" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "1.3.0-refinement-survivors" },
     "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "1.0.0" },
     "adminImportTools": { "path": "js/admin-import-tools.js", "version": "23.0.0-bootstrap" },
     "studioFeatureLoader": { "path": "js/studio-feature-loader.js", "version": "1.1.0-bootstrap-shim" },
@@ -19,8 +19,10 @@
     "careerShapeValidationBridge": { "path": "js/career-shape-validation-bridge.js", "version": "1.0.0" },
     "promptEraRangeWording": { "path": "js/prompt-era-range-wording.js", "version": "1.0.0" },
     "adminStudioFinish": { "path": "js/admin-studio-finish.js", "version": "1.0.1" },
-    "careerOverlapWording": { "path": "js/career-overlap-wording.js", "version": "1.0.25" },
-    "promptRefinementIncubator": { "path": "js/prompt-refinement-incubator.js", "version": "1.0.0" },
+    "careerOverlapWording": { "path": "js/career-overlap-wording.js", "version": "1.0.26" },
+    "promptRefinementIncubator": { "path": "js/prompt-refinement-incubator.js", "version": "1.1.1" },
+    "promptRefinementSurvivors": { "path": "js/prompt-refinement-survivors-v1.js", "version": "1.0.0" },
+    "promptFourStarEnforcer": { "path": "js/prompt-four-star-enforcer.js", "version": "2.1.0-survivors" },
     "adminDailyPublish": { "path": "js/admin-daily-publish.js", "version": null },
     "liveFeatureLoader": { "path": "js/live-feature-loader.js", "version": null },
     "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.3.0-native-validation" },

@@ -1,0 +1,178 @@
+{
+  "generatedAt": "2026-09-04T07:21:30.227Z",
+  "source": {
+    "enabledPrompts": 851,
+    "players": 3392,
+    "approvedBaseline": {
+      "ready": true,
+      "version": "1.0.3",
+      "sourceApprovedExpected": 937,
+      "approvedExpected": 903,
+      "approvedPresent": 810,
+      "total": 842,
+      "removed": 9,
+      "removedDisabled": 0,
+      "disabledDeleted": 34,
+      "minimumRating": 4,
+      "fourStar": 608,
+      "fiveStar": 234,
+      "disabled": 0
+    },
+    "nationalityPack": {
+      "ready": true,
+      "version": "1.0.2",
+      "ids": [
+        "nationality_context_v1_def_england_relegated_g2",
+        "nationality_context_v1_def_spain_outside_g1",
+        "nationality_context_v1_def_ireland_bottom_g1",
+        "nationality_context_v1_mid_england_relegated_g4",
+        "nationality_context_v1_mid_france_bottom_g2",
+        "nationality_context_v1_mid_netherlands_outside_g2",
+        "nationality_context_v1_fwd_england_relegated_g4",
+        "nationality_context_v1_fwd_france_outside_g4",
+        "nationality_context_v1_fwd_nigeria_bottom_g4"
+      ],
+      "installedCount": 9,
+      "availableCount": 9,
+      "positions": [
+        "DEF",
+        "MID",
+        "FWD"
+      ],
+      "audit": [
+        {
+          "id": "nationality_context_v1_def_england_relegated_g2",
+          "country": "England",
+          "position": "DEF",
+          "answerPool": 17,
+          "seasonAnswers": 21
+        },
+        {
+          "id": "nationality_context_v1_def_spain_outside_g1",
+          "country": "Spain",
+          "position": "DEF",
+          "answerPool": 20,
+          "seasonAnswers": 27
+        },
+        {
+          "id": "nationality_context_v1_def_ireland_bottom_g1",
+          "country": "Ireland",
+          "position": "DEF",
+          "answerPool": 14,
+          "seasonAnswers": 29
+        },
+        {
+          "id": "nationality_context_v1_mid_england_relegated_g4",
+          "country": "England",
+          "position": "MID",
+          "answerPool": 17,
+          "seasonAnswers": 17
+        },
+        {
+          "id": "nationality_context_v1_mid_france_bottom_g2",
+          "country": "France",
+          "position": "MID",
+          "answerPool": 17,
+          "seasonAnswers": 27
+        },
+        {
+          "id": "nationality_context_v1_mid_netherlands_outside_g2",
+          "country": "Netherlands",
+          "position": "MID",
+          "answerPool": 19,
+          "seasonAnswers": 27
+        },
+        {
+          "id": "nationality_context_v1_fwd_england_relegated_g4",
+          "country": "England",
+          "position": "FWD",
+          "answerPool": 21,
+          "seasonAnswers": 22
+        },
+        {
+          "id": "nationality_context_v1_fwd_france_outside_g4",
+          "country": "France",
+          "position": "FWD",
+          "answerPool": 13,
+          "seasonAnswers": 23
+        },
+        {
+          "id": "nationality_context_v1_fwd_nigeria_bottom_g4",
+          "country": "Nigeria",
+          "position": "FWD",
+          "answerPool": 8,
+          "seasonAnswers": 10
+        }
+      ]
+    },
+    "survivorPack": {
+      "ready": true,
+      "version": "1.0.0",
+      "parentIds": [
+        "quality_v2_mid_price_6_gi_15",
+        "quality_v3_fwd_manager_david_moyes_p55"
+      ],
+      "ids": [
+        "refinement_survivor_v1_mid_price_6_5_gi_15",
+        "refinement_survivor_v1_fwd_manager_david_moyes_p75"
+      ],
+      "removedParents": 0,
+      "parentsPresentAfter": 0,
+      "added": 2
+    }
+  },
+  "reference": {
+    "previousIncubatorCount": 144,
+    "currentIncubatorCount": 0,
+    "delta": -144
+  },
+  "decisions": {
+    "certified": 848,
+    "rescued": 3
+  },
+  "survivors": {
+    "total": 2,
+    "byState": {
+      "certified": 2
+    },
+    "items": [
+      {
+        "id": "refinement_survivor_v1_mid_price_6_5_gi_15",
+        "position": "MID",
+        "label": "Midfielder who started at £6.5m or less with 15+ goal involvements",
+        "state": "certified",
+        "rawRating": 4,
+        "rawScore": 84,
+        "adjustedScore": 86,
+        "playerCount": 74,
+        "overlap": 0,
+        "issues": []
+      },
+      {
+        "id": "refinement_survivor_v1_fwd_manager_david_moyes_p75",
+        "position": "FWD",
+        "label": "Forward managed by David Moyes who scored 75+ FPL points",
+        "state": "certified",
+        "rawRating": 4,
+        "rawScore": 78,
+        "adjustedScore": 84,
+        "playerCount": 14,
+        "overlap": 0,
+        "issues": []
+      }
+    ]
+  },
+  "incubator": {
+    "total": 0,
+    "byPosition": {},
+    "byFamily": {},
+    "byTunability": {},
+    "byAnswerBand": {},
+    "byOverlapBand": {},
+    "nearRescue": 0,
+    "safelyTunable": 0,
+    "structurallyStuck": 0,
+    "plannedVariantCount": 0
+  },
+  "items": []
+}
