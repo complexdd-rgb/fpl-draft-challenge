@@ -262,7 +262,7 @@ Every remaining patch/build script must stay repeat-safe.
 
 Studio asset/cache versions are centralised in `config/asset-manifest.json`.
 
-It owns the runtime manifest version, Validation Engine, Studio finishing layer, Studio bootstrap, Stage One/native-workspace version, compatibility entrypoints, Prompt Studio lazy modules and leaderboard configuration.
+The certification-gate slice is versioned as manifest `1.4.1-certification-gate`; the manifest owns the Validation Engine cache tag (`1.7.1-certification-snapshot`) and Studio finishing-layer tag (`1.0.2-certification-gate`) alongside the existing bootstrap, Stage One, compatibility, Prompt Studio and leaderboard assets.
 
 `js/asset-manifest.js`, Admin static cache tags, lazy module URLs, generated wiring and CI consume this source of truth.
 
