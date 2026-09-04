@@ -77,6 +77,8 @@ admin.html
       ├─ Prompt Studio V2 compatibility controller
       ├─ Prompt Studio V3 clean-room controller
       ├─ V3 family registry
+      ├─ V3 safe rule builder + database tester
+      ├─ V3 advisory quality evidence
       ├─ Prompt Studio heavy-tool lazy loader
       ├─ legacy production certification/quality chain
       ├─ legacy Refinement Incubator
@@ -90,6 +92,8 @@ Main modules:
 - `js/admin-stage-one.js` — native shell activation and remaining legacy re-parenting.
 - `js/prompt-studio-v3-clean-room.js` — isolated V3 Draft/Test/Quality/Review workflow.
 - `js/prompt-family-registry-v3.js` — V3 family catalogue and coverage source.
+- `js/prompt-studio-v3-rule-tester.js` — parser-safe structured rule builder and real player-database Test evidence.
+- `js/prompt-studio-v3-quality-advisor.js` — advisory answer breadth, concentration, V3 overlap and family-coverage evidence; never a review authority.
 - `js/prompt-studio-redesign.js` — V2 compatibility presentation while the old production pipeline still exists.
 - `js/prompt-library-canonical-state.js` — V2 visible census/enabled policy; not V3 authority.
 - `js/repository-certified-prompt-pool.js` — existing production membership boundary.
@@ -120,7 +124,8 @@ The existing 851-prompt production library remains frozen and continues to power
 
 ```text
 Draft
-→ Test
+→ real database Test
+→ advisory Quality evidence
 → Human quality review
 → Review
 → Human approval for future V3
@@ -138,17 +143,26 @@ Library
 → total = disabled during the clean-room phase
 
 Create
-→ manual prompt draft
+→ safe structured rule builder for parser-supported rules
+→ generated wording must parse back to exactly the chosen rule fields
+→ manual wording remains a fallback for families not covered yet
 → choose family + position + difficulty
 → always saves disabled
 
 Test
-→ record technical/answer-pool evidence
-→ automated rule execution to be wired in a later slice
+→ executes the shared Validation Engine against the loaded FPL_PLAYERS database
+→ calculates unique valid players, season breadth, club breadth, runtime errors and zero-minute violations
+→ technical PASS requires safe mapping, at least one answer, zero runtime errors and zero accepted zero-minute records
+→ technical evidence cannot rate or approve a prompt
 
 Quality
-→ quality is advisory
-→ human chooses quality rating and writes review notes
+→ automated evidence is advisory only
+→ calculates answer breadth and concentration signals
+→ calculates traditional-Big-Six concentration as an obviousness signal
+→ compares answer-set overlap only against compatible technically-passing V3 peers
+→ reports V3 family coverage and nearest overlaps
+→ human may explicitly copy overlap/obviousness evidence into the review form
+→ human still chooses quality rating and review decision
 → difficulty remains a separate property
 
 Review
@@ -175,9 +189,28 @@ V3 must not automatically:
 - delete a prompt;
 - approve a prompt.
 
-Automated tools may later provide evidence and suggestions. Only explicit human review changes V3 review status.
+Automated tools may provide evidence and suggestions. Only explicit human review changes V3 review status.
 
 Technical impossibilities such as a broken rule/runtime failure may block approval, but they still do not silently delete material.
+
+### V3 advisory-quality boundary
+
+`js/prompt-studio-v3-quality-advisor.js` owns a separate evidence key:
+
+`fplPromptStudioV3QualityAdvisoryEvidence`
+
+Its outputs are deliberately non-authoritative. It may calculate:
+
+- answer-pool breadth;
+- season and club concentration;
+- traditional Big Six share;
+- obviousness-risk signals;
+- highest overlap against compatible technically-passing V3 prompts;
+- same-family V3 coverage.
+
+Overlap uses the established smaller-answer-set convention: common valid player IDs divided by the smaller answer set. This makes near-subset prompts visible as high overlap rather than hiding them behind a low union/Jaccard score.
+
+The advisor may populate a human form field only after an explicit **Copy** click. It must never write `qualityReview`, a star rating, a review decision, lifecycle status or production state itself.
 
 ### V3 family registry
 
@@ -311,7 +344,7 @@ Dedicated verifiers include:
 - `scripts/verify-prompt-studio-v3.mjs`
 - `scripts/verify-all-season-certification-gate.mjs`
 
-The V3 verifier explicitly proves zero-start isolation, disabled-by-default drafts, human quality review, non-live approval and the absence of automatic V3 promotion/removal logic.
+The V3 verifier explicitly proves zero-start isolation, disabled-by-default drafts, parser-safe structured rule mapping, real database Test evidence, advisory-only quality evidence, human quality review, non-live approval and the absence of automatic V3 promotion/removal logic.
 
 ---
 
@@ -319,12 +352,14 @@ The V3 verifier explicitly proves zero-start isolation, disabled-by-default draf
 
 `config/asset-manifest.json` is the source of truth.
 
-Current V3 foundation slice:
+Current V3 quality slice:
 
-- manifest/runtime: `1.6.0-prompt-studio-v3-foundation`
-- Studio bootstrap: `1.2.0-prompt-studio-v3`
+- manifest/runtime: `1.8.0-prompt-studio-v3-quality`
+- Studio bootstrap: `1.4.0-prompt-studio-v3-quality`
 - Prompt Studio V3: `3.0.0`
 - Prompt family registry V3: `3.0.0`
+- V3 safe rule builder/database tester: `3.1.1`
+- V3 advisory quality evidence: `3.2.0`
 - Stage One: `1.5.0-native-prompts`
 - legacy Prompt Studio redesign: `2.0.0`
 - legacy repository-certified prompt pool: `1.1.0`
@@ -345,13 +380,13 @@ Do not one-shot rewrite these:
 - remaining legacy workspaces in `admin.html`;
 - accumulated Studio CSS layers.
 
-Next Prompt Studio V3 order:
+Prompt Studio V3 progress/order:
 
-1. Keep the 851-prompt legacy production pool frozen and green.
-2. Establish V3 clean-room storage/UI/family coverage at zero prompts.
-3. Wire the safe rule builder and real validation engine into V3 Test without importing the old working library.
-4. Build advisory Quality evidence with **no automatic state mutation**.
-5. Add deliberate candidate generation by family/target answer-pool size; generated material enters Draft/Review only.
+1. **Complete** — keep the 851-prompt legacy production pool frozen and green.
+2. **Complete** — establish V3 clean-room storage/UI/family coverage at zero prompts.
+3. **Complete** — wire the safe rule builder and real validation engine into V3 Test without importing the old working library.
+4. **Complete** — build advisory Quality evidence with no automatic state mutation.
+5. **Next** — add deliberate candidate generation by family/target answer-pool size; generated material enters Draft only and must pass the same Test/Quality lifecycle.
 6. Build V3 candidate all-season certification that reports evidence without approving prompts.
 7. Grow an initial high-quality V3 set using Family Coverage rather than a fixed prompt-count target.
 8. Simulate seven-day calendars against approved V3 candidates.
