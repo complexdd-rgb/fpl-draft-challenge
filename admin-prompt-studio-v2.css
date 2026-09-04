@@ -1,0 +1,687 @@
+/* Prompt Studio v2 — focused Library / Create / Quality / Review workspace */
+
+#workspace-prompts.prompt-studio-v2 {
+  --prompt-card-bg: rgba(6, 27, 19, .78);
+  --prompt-card-border: rgba(111, 255, 177, .14);
+  --prompt-muted: #9db6a7;
+  --prompt-accent: #65f29f;
+  --prompt-accent-2: #89ff5c;
+  --prompt-danger: #ff9cad;
+  --prompt-warning: #ffd27a;
+}
+
+#workspace-prompts.prompt-studio-v2 > .workspace-heading {
+  margin-bottom: 16px;
+}
+
+#workspace-prompts .prompt-studio-redesign {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+#workspace-prompts .prompt-studio-legacy-heading {
+  display: none;
+}
+
+#workspace-prompts .prompt-studio-redesign > .manager-count-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+#workspace-prompts .prompt-studio-redesign > .manager-count-grid article {
+  min-height: 92px;
+  border: 1px solid var(--prompt-card-border);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(14, 43, 31, .92), rgba(8, 30, 22, .88));
+  padding: 15px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#workspace-prompts .prompt-studio-redesign > .manager-count-grid article span {
+  color: var(--prompt-muted);
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+#workspace-prompts .prompt-studio-redesign > .manager-count-grid article strong {
+  color: var(--prompt-accent);
+  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  line-height: 1;
+}
+
+#workspace-prompts .prompt-studio-tabs {
+  position: sticky;
+  top: 68px;
+  z-index: 24;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 8px;
+  border: 1px solid rgba(98, 242, 159, .13);
+  border-radius: 18px;
+  background: rgba(4, 20, 14, .94);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+}
+
+#workspace-prompts .prompt-studio-tabs button {
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: transparent;
+  color: #adc1b5;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+#workspace-prompts .prompt-studio-tabs button:hover,
+#workspace-prompts .prompt-studio-tabs button:focus-visible {
+  border-color: rgba(101, 242, 159, .23);
+  outline: none;
+}
+
+#workspace-prompts .prompt-studio-tabs button.active {
+  color: #06140e;
+  background: linear-gradient(120deg, var(--prompt-accent), var(--prompt-accent-2));
+  border-color: transparent;
+}
+
+#workspace-prompts .prompt-studio-tabs button span {
+  font-size: .9rem;
+  font-weight: 900;
+}
+
+#workspace-prompts .prompt-studio-tabs button small {
+  font-size: .66rem;
+  line-height: 1.25;
+  opacity: .78;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#workspace-prompts .prompt-studio-tabs button strong {
+  font: inherit;
+}
+
+#workspace-prompts .prompt-studio-context-bar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 16px;
+  padding: 11px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(120, 210, 163, .12);
+  background: rgba(8, 29, 21, .68);
+}
+
+#workspace-prompts .prompt-studio-context-bar > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 105px;
+}
+
+#workspace-prompts .prompt-studio-context-bar span,
+#workspace-prompts .prompt-studio-context-bar p {
+  color: var(--prompt-muted);
+  font-size: .7rem;
+  margin: 0;
+}
+
+#workspace-prompts .prompt-studio-context-bar strong {
+  color: #eefcf4;
+  font-size: .86rem;
+}
+
+#workspace-prompts .prompt-studio-view-host {
+  min-width: 0;
+}
+
+#workspace-prompts .prompt-studio-view[hidden] {
+  display: none !important;
+}
+
+#workspace-prompts .prompt-studio-view {
+  min-width: 0;
+  border: 1px solid var(--prompt-card-border);
+  border-radius: 20px;
+  background: rgba(5, 24, 17, .64);
+  padding: 18px;
+}
+
+#workspace-prompts .prompt-view-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-end;
+  padding: 0 2px 15px;
+  border-bottom: 1px solid rgba(130, 219, 171, .1);
+  margin-bottom: 16px;
+}
+
+#workspace-prompts .prompt-view-heading .eyebrow {
+  margin: 0 0 4px;
+  color: var(--prompt-accent);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+#workspace-prompts .prompt-view-heading h2 {
+  margin: 0;
+  color: #f3fbf6;
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+}
+
+#workspace-prompts .prompt-view-heading p:last-child {
+  max-width: 760px;
+  margin: 5px 0 0;
+  color: var(--prompt-muted);
+  font-size: .78rem;
+  line-height: 1.55;
+}
+
+#workspace-prompts .prompt-studio-view-library .manager-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(130px, 1fr));
+  gap: 9px;
+  margin: 0 0 12px;
+}
+
+#workspace-prompts .prompt-studio-view-library .manager-toolbar > * {
+  min-width: 0;
+}
+
+#workspace-prompts .prompt-studio-view-library .manager-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0 0 10px;
+}
+
+#workspace-prompts .prompt-studio-view-library .prompt-create-primary {
+  min-width: 150px;
+}
+
+#workspace-prompts .prompt-library-utilities {
+  position: relative;
+}
+
+#workspace-prompts .prompt-library-utilities > summary,
+#workspace-prompts .prompt-quality-advanced > summary {
+  list-style: none;
+  cursor: pointer;
+  border: 1px solid rgba(126, 210, 165, .18);
+  border-radius: 12px;
+  background: rgba(13, 38, 28, .78);
+  padding: 10px 13px;
+  color: #c8d7ce;
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+#workspace-prompts .prompt-library-utilities > summary::-webkit-details-marker,
+#workspace-prompts .prompt-quality-advanced > summary::-webkit-details-marker {
+  display: none;
+}
+
+#workspace-prompts .prompt-library-utility-actions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(126, 210, 165, .12);
+  background: rgba(4, 18, 13, .96);
+}
+
+#workspace-prompts .prompt-studio-view-library #managerStatus {
+  margin: 8px 0 12px;
+}
+
+#workspace-prompts .prompt-studio-view-library .library-list-heading {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(126, 210, 165, .1);
+}
+
+#workspace-prompts .prompt-manager-list {
+  display: grid;
+  gap: 10px;
+}
+
+#workspace-prompts .prompt-manager-card,
+#workspace-prompts .library-prompt-card {
+  border-radius: 14px !important;
+  border-color: rgba(113, 218, 164, .13) !important;
+  background: rgba(8, 31, 22, .78) !important;
+  box-shadow: none !important;
+}
+
+#workspace-prompts .prompt-studio-view-create #automaticPromptFactory,
+#workspace-prompts .prompt-studio-view-create #promptEditor,
+#workspace-prompts .prompt-studio-view-quality #promptQualityAnalyser {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#workspace-prompts .prompt-studio-view-create #promptEditor:not(.hidden) {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(116, 219, 164, .12);
+}
+
+#workspace-prompts .prompt-factory-head,
+#workspace-prompts .prompt-quality-head,
+#workspace-prompts .prompt-editor-head {
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+#workspace-prompts .prompt-factory-settings,
+#workspace-prompts .prompt-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+#workspace-prompts .prompt-factory-settings label,
+#workspace-prompts .prompt-editor-grid label,
+#workspace-prompts .quality-run-row label,
+#workspace-prompts .prompt-quality-filters label {
+  min-width: 0;
+}
+
+#workspace-prompts .prompt-factory-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+#workspace-prompts .prompt-policy-lock {
+  opacity: .78;
+}
+
+#workspace-prompts .prompt-policy-lock input {
+  accent-color: var(--prompt-accent);
+}
+
+#workspace-prompts .factory-rule-note {
+  margin: 12px 0;
+}
+
+#workspace-prompts .prompt-factory-actions,
+#workspace-prompts .quality-run-row,
+#workspace-prompts .quality-actions {
+  gap: 8px;
+}
+
+#workspace-prompts .prompt-quality-scope-lock {
+  opacity: .72;
+}
+
+#workspace-prompts .prompt-quality-filters {
+  display: grid;
+  grid-template-columns: minmax(180px, 2fr) repeat(4, minmax(120px, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+#workspace-prompts .prompt-quality-advanced {
+  margin: 14px 0;
+}
+
+#workspace-prompts .prompt-quality-advanced[open] > summary {
+  border-color: rgba(101, 242, 159, .26);
+  color: #effcf4;
+}
+
+#workspace-prompts .prompt-quality-advanced-body {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid rgba(126, 210, 165, .12);
+  border-radius: 14px;
+  background: rgba(3, 16, 11, .5);
+}
+
+#workspace-prompts .quality-bulk-disable,
+#workspace-prompts .quality-bulk-delete {
+  margin: 0;
+}
+
+#workspace-prompts .prompt-quality-list {
+  display: grid;
+  gap: 10px;
+}
+
+#workspace-prompts .prompt-review-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+#workspace-prompts .prompt-review-summary article {
+  padding: 12px 13px;
+  border: 1px solid rgba(119, 215, 164, .13);
+  border-radius: 14px;
+  background: rgba(10, 34, 25, .76);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#workspace-prompts .prompt-review-summary span {
+  color: var(--prompt-muted);
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+#workspace-prompts .prompt-review-summary strong {
+  color: #eafbf1;
+  font-size: 1.35rem;
+}
+
+#workspace-prompts .prompt-review-policy {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(102, 242, 159, .15);
+  border-radius: 14px;
+  background: rgba(70, 160, 107, .07);
+  padding: 12px 14px;
+}
+
+#workspace-prompts .prompt-review-policy strong {
+  color: var(--prompt-accent);
+  font-size: .78rem;
+}
+
+#workspace-prompts .prompt-review-policy span {
+  color: var(--prompt-muted);
+  font-size: .72rem;
+  line-height: 1.5;
+}
+
+#workspace-prompts .prompt-review-list {
+  display: grid;
+  gap: 10px;
+}
+
+#workspace-prompts .prompt-review-card {
+  border: 1px solid rgba(119, 215, 164, .13);
+  border-radius: 16px;
+  background: var(--prompt-card-bg);
+  padding: 13px;
+}
+
+#workspace-prompts .prompt-review-card-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+#workspace-prompts .prompt-review-position {
+  min-width: 40px;
+  text-align: center;
+  border-radius: 9px;
+  background: rgba(101, 242, 159, .12);
+  color: var(--prompt-accent);
+  padding: 6px 7px;
+  font-size: .68rem;
+  font-weight: 900;
+}
+
+#workspace-prompts .prompt-review-card h3 {
+  margin: 0;
+  color: #f3fbf6;
+  font-size: .86rem;
+  line-height: 1.35;
+}
+
+#workspace-prompts .prompt-review-card-head p {
+  margin: 3px 0 0;
+  color: #738d7d;
+  font-size: .61rem;
+  overflow-wrap: anywhere;
+}
+
+#workspace-prompts .prompt-review-state {
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: rgba(127, 157, 140, .1);
+  color: #a9b8af;
+  font-size: .62rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+#workspace-prompts .prompt-review-state.ready {
+  color: var(--prompt-accent);
+  background: rgba(101, 242, 159, .09);
+}
+
+#workspace-prompts .prompt-review-state.warning {
+  color: var(--prompt-warning);
+  background: rgba(255, 210, 122, .08);
+}
+
+#workspace-prompts .prompt-review-state.danger {
+  color: var(--prompt-danger);
+  background: rgba(255, 105, 130, .08);
+}
+
+#workspace-prompts .prompt-review-metrics,
+#workspace-prompts .prompt-review-tags,
+#workspace-prompts .prompt-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+#workspace-prompts .prompt-review-metrics {
+  margin: 10px 0 7px;
+}
+
+#workspace-prompts .prompt-review-metrics span,
+#workspace-prompts .prompt-review-tags span {
+  border-radius: 999px;
+  background: rgba(129, 190, 158, .08);
+  color: #a7b9ad;
+  padding: 5px 8px;
+  font-size: .62rem;
+  font-weight: 750;
+}
+
+#workspace-prompts .prompt-review-issues {
+  margin: 0 0 8px;
+  color: #9eb2a5;
+  font-size: .7rem;
+  line-height: 1.45;
+}
+
+#workspace-prompts .prompt-review-actions {
+  margin-top: 10px;
+}
+
+#workspace-prompts .prompt-review-actions .button {
+  padding: 8px 10px;
+  min-height: 36px;
+  font-size: .68rem;
+}
+
+#workspace-prompts .prompt-review-actions .prompt-promotion-state:disabled {
+  opacity: .75;
+  color: #9ab3a4;
+}
+
+#workspace-prompts .prompt-review-footer {
+  margin: 12px 0 0;
+  color: #809889;
+  font-size: .68rem;
+  text-align: center;
+}
+
+#workspace-prompts .prompt-review-empty {
+  min-height: 150px;
+  border: 1px dashed rgba(116, 218, 164, .18);
+  border-radius: 16px;
+  display: grid;
+  place-content: center;
+  gap: 5px;
+  text-align: center;
+  color: #879d90;
+}
+
+#workspace-prompts .prompt-review-empty strong {
+  color: #eaf8ef;
+}
+
+@media (max-width: 900px) {
+  #workspace-prompts .prompt-studio-redesign > .manager-count-grid,
+  #workspace-prompts .prompt-review-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #workspace-prompts .prompt-studio-view-library .manager-toolbar,
+  #workspace-prompts .prompt-quality-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #workspace-prompts .prompt-studio-view-library .manager-toolbar > :first-child,
+  #workspace-prompts .prompt-quality-filters > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  #workspace-prompts.prompt-studio-v2 > .workspace-heading {
+    margin-bottom: 10px;
+  }
+
+  #workspace-prompts .prompt-studio-redesign > .manager-count-grid {
+    gap: 8px;
+  }
+
+  #workspace-prompts .prompt-studio-redesign > .manager-count-grid article {
+    min-height: 78px;
+    border-radius: 15px;
+    padding: 12px;
+  }
+
+  #workspace-prompts .prompt-studio-redesign > .manager-count-grid article strong {
+    font-size: 1.5rem;
+  }
+
+  #workspace-prompts .prompt-studio-tabs {
+    top: 56px;
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    border-radius: 14px;
+    padding: 6px;
+    scrollbar-width: none;
+  }
+
+  #workspace-prompts .prompt-studio-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  #workspace-prompts .prompt-studio-tabs button {
+    flex: 0 0 auto;
+    min-width: 100px;
+    padding: 9px 10px;
+  }
+
+  #workspace-prompts .prompt-studio-tabs button small {
+    max-width: 110px;
+  }
+
+  #workspace-prompts .prompt-studio-context-bar {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+
+  #workspace-prompts .prompt-studio-context-bar p {
+    line-height: 1.45;
+  }
+
+  #workspace-prompts .prompt-studio-view {
+    border-radius: 16px;
+    padding: 13px;
+  }
+
+  #workspace-prompts .prompt-view-heading {
+    margin-bottom: 12px;
+    padding-bottom: 11px;
+  }
+
+  #workspace-prompts .prompt-view-heading p:last-child {
+    font-size: .72rem;
+  }
+
+  #workspace-prompts .prompt-studio-view-library .manager-toolbar,
+  #workspace-prompts .prompt-quality-filters,
+  #workspace-prompts .prompt-factory-settings,
+  #workspace-prompts .prompt-editor-grid,
+  #workspace-prompts .prompt-factory-options {
+    grid-template-columns: 1fr;
+  }
+
+  #workspace-prompts .prompt-studio-view-library .manager-toolbar > :first-child,
+  #workspace-prompts .prompt-quality-filters > :first-child {
+    grid-column: auto;
+  }
+
+  #workspace-prompts .prompt-library-utility-actions,
+  #workspace-prompts .prompt-review-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  #workspace-prompts .prompt-library-utility-actions .button,
+  #workspace-prompts .prompt-library-utility-actions .file-button,
+  #workspace-prompts .prompt-review-actions .button {
+    width: 100%;
+  }
+
+  #workspace-prompts .prompt-review-card-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  #workspace-prompts .prompt-review-state {
+    grid-column: 1 / -1;
+    width: max-content;
+  }
+
+  #workspace-prompts .prompt-review-summary article {
+    padding: 10px 11px;
+  }
+}
