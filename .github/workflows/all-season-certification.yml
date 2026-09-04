@@ -16,8 +16,8 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Diagnose approved Studio prompt baseline
-        run: node scripts/diagnose-approved-library-certification.mjs
+      - name: Verify browser certified-library gate
+        run: node scripts/verify-all-season-certification-gate.mjs
 
-      - name: Run Studio all-season certification
-        run: node scripts/diagnose-all-season-certification.mjs
+      - name: Certify every season against the approved 4-star library
+        run: node scripts/diagnose-approved-library-certification.mjs
