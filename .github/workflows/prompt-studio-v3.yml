@@ -1,7 +1,8 @@
 name: Prompt Studio V3
 
-# V3 generation is Draft-only. Automatic and deliberate generators may create candidate batches,
-# but Test / Quality / Review / Approval remain explicit human-controlled stages.
+# V3 generation is Draft-only. The restored requested-count automatic batch generator and the
+# deliberate family generator may create candidates, but Test / Quality / Review / Approval
+# remain explicit human-controlled stages.
 on:
   pull_request:
     paths:
