@@ -5,12 +5,22 @@ const root = new URL("../", import.meta.url);
 const read = path => fs.readFileSync(new URL(path, root), "utf8");
 const run = path => vm.runInThisContext(read(path), { filename: path });
 
+const listeners = new Map();
+const addListener = (type, handler) => {
+  if (!listeners.has(type)) listeners.set(type, new Set());
+  listeners.get(type).add(handler);
+};
+const dispatch = event => {
+  for (const handler of [...(listeners.get(event?.type) || [])]) handler(event);
+};
+
 globalThis.window = {
   location: { pathname: "/admin.html" },
   setTimeout,
   clearTimeout,
-  addEventListener() {},
-  dispatchEvent() {},
+  addEventListener: addListener,
+  removeEventListener(type, handler) { listeners.get(type)?.delete(handler); },
+  dispatchEvent: dispatch,
   requestAnimationFrame(callback) { return setTimeout(callback, 0); }
 };
 window.window = window;
@@ -63,6 +73,24 @@ if (!window.FPL_REFINEMENT_SURVIVOR_PACK_V1?.ready) {
 
 const engine = window.ValidationEngine;
 const library = engine.getPromptLibrary();
+window.FPL_STUDIO_API = {
+  getPromptLibrary: () => library,
+  invalidatePromptStats() {}
+};
+
+// The real Studio restores its deterministic nationality-context prompts after the
+// approved baseline has removed transient/non-approved material. Reproduce that
+// post-baseline state so CI certifies the same effective library as the browser.
+run("nationality-enrichment.js");
+run("js/prompt-nationality-context-pack-v1.js");
+await new Promise(resolve => setTimeout(resolve, 25));
+dispatch(new CustomEvent("fpl:prompt-tools-ready"));
+await new Promise(resolve => setTimeout(resolve, 25));
+
+if (!window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1?.ready) {
+  throw new Error("Nationality context prompt pack did not initialise in the headless Studio harness.");
+}
+
 const prompts = library.filter(prompt => prompt?.enabled !== false);
 const ids = prompts.map(prompt => String(prompt?.id || "")).filter(Boolean);
 const uniqueIds = new Set(ids);
@@ -76,10 +104,14 @@ if (belowFloor.length) {
 if (window.FPL_REFINEMENT_SURVIVOR_PACK_V1.parentsPresentAfter !== 0) {
   throw new Error("A weak Refinement Incubator parent survived the durable survivor promotion.");
 }
+if (prompts.length !== 851 || library.length !== 851) {
+  throw new Error(`Certified-library parity failed: expected 851 prompts, found ${prompts.length} enabled / ${library.length} total.`);
+}
 
 console.log(`Approved Studio library: ${prompts.length.toLocaleString("en-GB")} enabled 4★+ prompts (${library.length.toLocaleString("en-GB")} total).`);
 console.log(`Baseline metadata: ${JSON.stringify(window.FPL_APPROVED_PROMPT_BASELINE)}`);
 console.log(`Survivor metadata: ${JSON.stringify(window.FPL_REFINEMENT_SURVIVOR_PACK_V1)}`);
+console.log(`Nationality context metadata: ${JSON.stringify(window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1)}`);
 
 const targetSeasons = engine.getAllSeasonLabels();
 let failedSeasons = 0;
