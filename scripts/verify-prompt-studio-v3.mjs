@@ -30,6 +30,9 @@ assert(tester.includes('const TEST_DETAIL_KEY = "fplPromptStudioV3TestDetails"')
 assert(tester.includes('validation.evaluatePrompt(entry.player, entry.season, prompt.label)'), 'V3 Test does not execute the shared Validation Engine against the real database.');
 assert(tester.includes('Array.isArray(window.FPL_PLAYERS)'), 'V3 Test is not grounded in the loaded player database.');
 assert(tester.includes('Safe mapping confirmed'), 'V3 safe builder does not prove generated wording maps back to its selected rules.');
+assert(tester.includes('const verb = def.type === "career" ? "had" : "recorded"'), 'V3 numeric/career wording is not generated as natural English.');
+assert(tester.includes('had a ${def.noun} of £${value}m or less'), 'V3 price wording is not generated as natural English.');
+assert(tester.includes('if (type === "price") return [["lte", "At most"]]'), 'V3 safe builder exposes price operators that do not have a clean parser-safe wording contract.');
 assert(tester.includes('baseForm.hidden = true'), 'Manual V3 test evidence inputs are still exposed instead of database-calculated evidence.');
 assert(tester.includes('runtimeErrors === 0 && zeroMinuteAccepted === 0 && byPlayer.size > 0'), 'V3 technical PASS does not enforce runtime, zero-minute and answer-count safeguards.');
 assert(tester.includes('seasonSet.size') && tester.includes('clubSet.size'), 'V3 Test does not calculate real season and club breadth.');
@@ -48,9 +51,10 @@ assert(manifest.manifestVersion === '1.7.0-prompt-studio-v3-testing', 'Central m
 assert(manifest.assets.promptStudioV3?.path === 'js/prompt-studio-v3-clean-room.js', 'V3 runtime is not manifest-owned.');
 assert(manifest.assets.promptFamilyRegistryV3?.path === 'js/prompt-family-registry-v3.js', 'V3 family registry is not manifest-owned.');
 assert(manifest.assets.promptStudioV3RuleTester?.path === 'js/prompt-studio-v3-rule-tester.js', 'V3 safe builder/database tester is not manifest-owned.');
+assert(manifest.assets.promptStudioV3RuleTester?.version === '3.1.1', 'V3 safe builder/database tester cache version is stale.');
 assert(bootstrap.includes('function ensurePromptV3()'), 'Studio bootstrap does not own V3 loading.');
 assert(bootstrap.includes('loadAsset("promptFamilyRegistryV3"'), 'V3 registry is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3"'), 'V3 runtime is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3RuleTester"'), 'V3 safe builder/database tester is not loaded by bootstrap.');
 
-console.log(`Prompt Studio V3 verification passed: zero-start isolation, ${familyCount} families, safe rule mapping, real database testing, manual quality/approval, and frozen legacy production remain separate.`);
+console.log(`Prompt Studio V3 verification passed: zero-start isolation, ${familyCount} families, natural safe rule mapping, real database testing, manual quality/approval, and frozen legacy production remain separate.`);
