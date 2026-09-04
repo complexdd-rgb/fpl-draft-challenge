@@ -82,7 +82,8 @@ if (state.ignoredBrowserPrompts !== 2072) throw new Error(`Expected 2072 ignored
 if (state.prompts.some(item => String(item.id).startsWith('browser_custom_'))) throw new Error('Browser custom prompt leaked into repository certified pool.');
 
 window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL.refresh();
-if (!/851 certified live/.test(statusNode.textContent) || !/2072 local custom/.test(statusNode.textContent)) {
+const compactStatus = statusNode.textContent.replaceAll(',', '');
+if (!/851 certified live/.test(compactStatus) || !/2072 local custom/.test(compactStatus)) {
   throw new Error(`Library status did not distinguish certified and browser-local counts: ${statusNode.textContent}`);
 }
 
