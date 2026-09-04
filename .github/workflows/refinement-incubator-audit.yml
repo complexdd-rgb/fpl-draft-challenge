@@ -17,6 +17,7 @@ on:
       - 'scripts/audit-refinement-incubator.mjs'
       - 'scripts/trial-refinement-survivors.mjs'
       - 'scripts/refinement-survivor-appendix.inc.mjs'
+      - 'scripts/upgrade-refinement-metric-priority.mjs'
       - '.github/workflows/refinement-incubator-audit.yml'
   pull_request:
     paths:
@@ -32,6 +33,7 @@ on:
       - 'scripts/audit-refinement-incubator.mjs'
       - 'scripts/trial-refinement-survivors.mjs'
       - 'scripts/refinement-survivor-appendix.inc.mjs'
+      - 'scripts/upgrade-refinement-metric-priority.mjs'
       - '.github/workflows/refinement-incubator-audit.yml'
 
 permissions:
@@ -54,6 +56,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Apply semantic refinement metric priority
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/upgrade-refinement-metric-priority.mjs
+          cp js/prompt-refinement-incubator.js /tmp/refinement-runtime-first.js
+          cp scripts/audit-refinement-incubator.mjs /tmp/refinement-audit-first.mjs
+          node scripts/upgrade-refinement-metric-priority.mjs
+          cmp /tmp/refinement-runtime-first.js js/prompt-refinement-incubator.js
+          cmp /tmp/refinement-audit-first.mjs scripts/audit-refinement-incubator.mjs
+          node --check js/prompt-refinement-incubator.js
+          node --check scripts/audit-refinement-incubator.mjs
 
       - name: Run deterministic Incubator audit
         run: node scripts/audit-refinement-incubator.mjs
@@ -81,6 +96,7 @@ jobs:
           node --check scripts/audit-refinement-incubator.mjs
           node --check scripts/trial-refinement-survivors.mjs
           node --check scripts/refinement-survivor-appendix.inc.mjs
+          node --check scripts/upgrade-refinement-metric-priority.mjs
 
       - name: Reject whitespace errors
         run: git diff --check
@@ -91,6 +107,8 @@ jobs:
         run: |
           set -euo pipefail
           git add \
+            js/prompt-refinement-incubator.js \
+            scripts/audit-refinement-incubator.mjs \
             reports/refinement-incubator-audit.json \
             reports/refinement-incubator-audit.csv \
             reports/refinement-incubator-audit.md \
@@ -102,5 +120,5 @@ jobs:
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Record Refinement Incubator survivor trial'
+          git commit -m 'Apply refinement metric priority and record survivor trial'
           git push origin "HEAD:${GITHUB_REF_NAME}"
