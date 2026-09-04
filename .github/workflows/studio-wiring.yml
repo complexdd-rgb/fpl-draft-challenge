@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - refactor/studio-asset-bootstrap
+      - 'refactor/**'
     paths:
       - 'config/asset-manifest.json'
       - 'js/studio-bootstrap.js'
@@ -20,6 +20,7 @@ on:
       - 'scripts/verify-studio-wiring.mjs'
       - 'scripts/build-native-studio-shell.mjs'
       - 'scripts/verify-native-studio-shell.mjs'
+      - 'scripts/verify-native-validation-workspace.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/apply-career-evolution-cache-wiring.mjs'
@@ -41,6 +42,7 @@ on:
       - 'scripts/verify-studio-wiring.mjs'
       - 'scripts/build-native-studio-shell.mjs'
       - 'scripts/verify-native-studio-shell.mjs'
+      - 'scripts/verify-native-validation-workspace.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/apply-career-evolution-cache-wiring.mjs'
@@ -100,6 +102,9 @@ jobs:
       - name: Verify native Studio shell
         run: node scripts/verify-native-studio-shell.mjs
 
+      - name: Verify native Validation workspace
+        run: node scripts/verify-native-validation-workspace.mjs
+
       - name: Verify Studio wiring architecture
         run: node scripts/verify-studio-wiring.mjs
 
@@ -115,6 +120,7 @@ jobs:
           node --check scripts/build-studio-cache-tags.mjs
           node --check scripts/build-native-studio-shell.mjs
           node --check scripts/build-studio-wiring.mjs
+          node --check scripts/verify-native-validation-workspace.mjs
 
       - name: Reject whitespace errors
         run: git diff --check

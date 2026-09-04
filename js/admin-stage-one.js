@@ -478,6 +478,15 @@
     }
     shell.appendChild(layout);
 
+    // Panels authored directly inside native workspaces never pass through originalChildren.
+    // Apply the same shared panel metadata/collapse behaviour before legacy panels are moved.
+    workspaces.forEach((workspace, workspaceId) => {
+      [...workspace.children].forEach(element => {
+        if (element.matches(".workspace-heading, .studio-hero, .safety-banner, .status-grid")) return;
+        if (!element.classList.contains("stage-one-tool-panel")) labelToolPanel(element, workspaceId);
+      });
+    });
+
     originalChildren.forEach(element => {
       const workspaceId = classifyElement(element);
       if (workspaceId === "retired") {
