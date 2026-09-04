@@ -220,7 +220,7 @@ Certify all seasons requested
 
 `js/validation-engine.js` gives `FPL_VALIDATION_CERTIFICATION_PROMPT_POOL` precedence only while that snapshot is active. Normal Validation Lab operations fall back to the live Studio library afterwards.
 
-This prevents a loading race where the in-page Regression Suite could previously start while the larger pre-enforcement prompt population was still present. Certification fingerprints and cached results are therefore derived from the final certified prompt state rather than a transient loader state.
+This prevents a loading race where the in-page Regression Suite could previously start while the larger pre-enforcement prompt population was still present. Certification fingerprints and cached results are therefore derived from the final certified prompt state rather than a transient loader state. Old browser results produced from the transient library no longer match the final certified-library fingerprint and are treated as stale rather than current evidence about a season.
 
 CI mirrors the same policy: `scripts/diagnose-approved-library-certification.mjs` now certifies every supported season against the repository-owned approved 4★+ library plus durable refinement survivors. The older duplicate all-season harness has been removed.
 
