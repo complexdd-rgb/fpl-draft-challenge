@@ -17,6 +17,8 @@ on:
       - 'js/studio-feature-loader.js'
       - 'js/prompt-studio-loader.js'
       - 'js/prompt-studio-redesign.js'
+      - 'js/prompt-studio-v3-clean-room.js'
+      - 'js/prompt-family-registry-v3.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
       - 'admin.css'
@@ -35,6 +37,7 @@ on:
       - 'scripts/verify-native-validation-workspace.mjs'
       - 'scripts/verify-native-daily-workspace.mjs'
       - 'scripts/verify-native-prompt-workspace.mjs'
+      - 'scripts/verify-prompt-studio-v3.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/apply-career-evolution-cache-wiring.mjs'
@@ -52,6 +55,8 @@ on:
       - 'js/studio-feature-loader.js'
       - 'js/prompt-studio-loader.js'
       - 'js/prompt-studio-redesign.js'
+      - 'js/prompt-studio-v3-clean-room.js'
+      - 'js/prompt-family-registry-v3.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
       - 'admin.css'
@@ -70,6 +75,7 @@ on:
       - 'scripts/verify-native-validation-workspace.mjs'
       - 'scripts/verify-native-daily-workspace.mjs'
       - 'scripts/verify-native-prompt-workspace.mjs'
+      - 'scripts/verify-prompt-studio-v3.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/apply-career-evolution-cache-wiring.mjs'
@@ -154,6 +160,9 @@ jobs:
       - name: Verify native Prompt Studio workspace
         run: node scripts/verify-native-prompt-workspace.mjs
 
+      - name: Verify Prompt Studio V3 clean-room policy
+        run: node scripts/verify-prompt-studio-v3.mjs
+
       - name: Verify all-season certified-library gate
         run: node scripts/verify-all-season-certification-gate.mjs
 
@@ -171,6 +180,8 @@ jobs:
           node --check js/studio-feature-loader.js
           node --check js/prompt-studio-loader.js
           node --check js/prompt-studio-redesign.js
+          node --check js/prompt-studio-v3-clean-room.js
+          node --check js/prompt-family-registry-v3.js
           node --check js/leaderboard-config.js
           node --check scripts/apply-all-season-certification-gate.mjs
           node --check scripts/verify-all-season-certification-gate.mjs
@@ -182,6 +193,7 @@ jobs:
           node --check scripts/verify-native-validation-workspace.mjs
           node --check scripts/verify-native-daily-workspace.mjs
           node --check scripts/verify-native-prompt-workspace.mjs
+          node --check scripts/verify-prompt-studio-v3.mjs
 
       - name: Reject whitespace errors
         run: git diff --check
