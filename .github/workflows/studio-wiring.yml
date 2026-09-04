@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - 'refactor/**'
+      - 'redesign/**'
     paths:
       - 'config/asset-manifest.json'
       - 'js/studio-bootstrap.js'
@@ -15,9 +16,13 @@ on:
       - 'js/validation-engine.js'
       - 'js/studio-feature-loader.js'
       - 'js/prompt-studio-loader.js'
+      - 'js/prompt-studio-redesign.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
+      - 'admin.css'
+      - 'admin-prompt-studio-v2.css'
       - 'fragments/admin-daily-workspace.html'
+      - 'fragments/admin-prompt-workspace.html'
       - 'scripts/apply-all-season-certification-gate.mjs'
       - 'scripts/verify-all-season-certification-gate.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
@@ -25,9 +30,11 @@ on:
       - 'scripts/verify-studio-wiring.mjs'
       - 'scripts/build-native-studio-shell.mjs'
       - 'scripts/build-native-daily-workspace.mjs'
+      - 'scripts/build-native-prompt-workspace.mjs'
       - 'scripts/verify-native-studio-shell.mjs'
       - 'scripts/verify-native-validation-workspace.mjs'
       - 'scripts/verify-native-daily-workspace.mjs'
+      - 'scripts/verify-native-prompt-workspace.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/apply-career-evolution-cache-wiring.mjs'
@@ -44,9 +51,13 @@ on:
       - 'js/validation-engine.js'
       - 'js/studio-feature-loader.js'
       - 'js/prompt-studio-loader.js'
+      - 'js/prompt-studio-redesign.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
+      - 'admin.css'
+      - 'admin-prompt-studio-v2.css'
       - 'fragments/admin-daily-workspace.html'
+      - 'fragments/admin-prompt-workspace.html'
       - 'scripts/apply-all-season-certification-gate.mjs'
       - 'scripts/verify-all-season-certification-gate.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
@@ -54,9 +65,11 @@ on:
       - 'scripts/verify-studio-wiring.mjs'
       - 'scripts/build-native-studio-shell.mjs'
       - 'scripts/build-native-daily-workspace.mjs'
+      - 'scripts/build-native-prompt-workspace.mjs'
       - 'scripts/verify-native-studio-shell.mjs'
       - 'scripts/verify-native-validation-workspace.mjs'
       - 'scripts/verify-native-daily-workspace.mjs'
+      - 'scripts/verify-native-prompt-workspace.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/apply-career-evolution-cache-wiring.mjs'
@@ -96,6 +109,9 @@ jobs:
       - name: Build native Daily workspace
         run: node scripts/build-native-daily-workspace.mjs
 
+      - name: Build native Prompt Studio workspace
+        run: node scripts/build-native-prompt-workspace.mjs
+
       - name: Build manifest-driven Studio wiring
         run: node scripts/build-studio-wiring.mjs
 
@@ -106,6 +122,7 @@ jobs:
           files=(
             admin.html
             fragments/admin-daily-workspace.html
+            fragments/admin-prompt-workspace.html
             js/asset-manifest.js
             js/admin-stage-one.js
             js/admin-import-tools.js
@@ -120,6 +137,7 @@ jobs:
           node scripts/build-studio-cache-tags.mjs
           node scripts/build-native-studio-shell.mjs
           node scripts/build-native-daily-workspace.mjs
+          node scripts/build-native-prompt-workspace.mjs
           node scripts/build-studio-wiring.mjs
           sha256sum "${files[@]}" > /tmp/studio-architecture-second.sha
           diff -u /tmp/studio-architecture-first.sha /tmp/studio-architecture-second.sha
@@ -132,6 +150,9 @@ jobs:
 
       - name: Verify native Daily workspace
         run: node scripts/verify-native-daily-workspace.mjs
+
+      - name: Verify native Prompt Studio workspace
+        run: node scripts/verify-native-prompt-workspace.mjs
 
       - name: Verify all-season certified-library gate
         run: node scripts/verify-all-season-certification-gate.mjs
@@ -149,15 +170,18 @@ jobs:
           node --check js/validation-engine.js
           node --check js/studio-feature-loader.js
           node --check js/prompt-studio-loader.js
+          node --check js/prompt-studio-redesign.js
           node --check js/leaderboard-config.js
           node --check scripts/apply-all-season-certification-gate.mjs
           node --check scripts/verify-all-season-certification-gate.mjs
           node --check scripts/build-studio-cache-tags.mjs
           node --check scripts/build-native-studio-shell.mjs
           node --check scripts/build-native-daily-workspace.mjs
+          node --check scripts/build-native-prompt-workspace.mjs
           node --check scripts/build-studio-wiring.mjs
           node --check scripts/verify-native-validation-workspace.mjs
           node --check scripts/verify-native-daily-workspace.mjs
+          node --check scripts/verify-native-prompt-workspace.mjs
 
       - name: Reject whitespace errors
         run: git diff --check
@@ -170,6 +194,7 @@ jobs:
           git add \
             admin.html \
             fragments/admin-daily-workspace.html \
+            fragments/admin-prompt-workspace.html \
             js/asset-manifest.js \
             js/admin-stage-one.js \
             js/admin-import-tools.js \

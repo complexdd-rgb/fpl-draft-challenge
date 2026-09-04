@@ -9,20 +9,35 @@ const write = (path, before, after) => {
   return true;
 };
 
+function numericVersion(value) {
+  const match = String(value || '').match(/^(\d+)\.(\d+)\.(\d+)/);
+  return match ? match.slice(1).map(Number) : [0, 0, 0];
+}
+
+function atLeast(current, required) {
+  const left = numericVersion(current);
+  const right = numericVersion(required);
+  for (let index = 0; index < 3; index += 1) {
+    if (left[index] !== right[index]) return left[index] > right[index];
+  }
+  return true;
+}
+
+function ensureAsset(manifest, key, path, minimumVersion) {
+  const current = manifest.assets?.[key] || {};
+  manifest.assets[key] = {
+    ...current,
+    path,
+    version: atLeast(current.version, minimumVersion) ? current.version : minimumVersion
+  };
+}
+
 {
   const path = 'config/asset-manifest.json';
   const before = read(path);
   const manifest = JSON.parse(before);
-  manifest.manifestVersion = '1.4.3-canonical-library';
-  manifest.assets.assetManifestRuntime.version = '1.4.3-canonical-library';
-  manifest.assets.repositoryCertifiedPromptPool = {
-    path: 'js/repository-certified-prompt-pool.js',
-    version: '1.1.0'
-  };
-  manifest.assets.promptLibraryCanonicalState = {
-    path: 'js/prompt-library-canonical-state.js',
-    version: '1.0.0'
-  };
+  ensureAsset(manifest, 'repositoryCertifiedPromptPool', 'js/repository-certified-prompt-pool.js', '1.1.0');
+  ensureAsset(manifest, 'promptLibraryCanonicalState', 'js/prompt-library-canonical-state.js', '1.0.0');
   const after = JSON.stringify(manifest, null, 2) + '\n';
   write(path, before, after);
 }

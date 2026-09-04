@@ -1,0 +1,48 @@
+name: Prompt Studio v2
+
+on:
+  pull_request:
+    paths:
+      - 'admin.html'
+      - 'admin.css'
+      - 'admin-prompt-studio-v2.css'
+      - 'config/asset-manifest.json'
+      - 'fragments/admin-prompt-workspace.html'
+      - 'js/admin-stage-one.js'
+      - 'js/prompt-studio-redesign.js'
+      - 'js/prompt-library-canonical-state.js'
+      - 'js/repository-certified-prompt-pool.js'
+      - 'js/studio-bootstrap.js'
+      - 'scripts/build-native-prompt-workspace.mjs'
+      - 'scripts/verify-native-prompt-workspace.mjs'
+      - 'scripts/verify-prompt-studio-redesign-policy.mjs'
+      - '.github/workflows/prompt-studio-redesign.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify native Prompt Studio
+        run: node scripts/verify-native-prompt-workspace.mjs
+
+      - name: Verify redesign policy
+        run: node scripts/verify-prompt-studio-redesign-policy.mjs
+
+      - name: Check redesign syntax
+        run: |
+          node --check js/prompt-studio-redesign.js
+          node --check scripts/build-native-prompt-workspace.mjs
+          node --check scripts/verify-native-prompt-workspace.mjs
+          node --check scripts/verify-prompt-studio-redesign-policy.mjs
+          git diff --check
