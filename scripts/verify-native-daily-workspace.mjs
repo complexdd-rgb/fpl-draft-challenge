@@ -56,8 +56,10 @@ const redundantClassifier = 'if (/challenge settings|review the generated xi|tes
 assert(!stageOne.includes(redundantClassifier), 'Redundant Daily title classifier still exists in admin-stage-one.js.');
 assert(stageOne.includes('return "challenge";'), 'Stage One fallback workspace classification was removed unexpectedly.');
 
-assert(manifest.manifestVersion === '1.4.0-native-daily', 'Unexpected Studio manifest version for native Daily migration.');
-assert(manifest.assets?.adminStageOne?.version === '1.4.0-native-daily', 'Admin Stage One cache version was not bumped for native Daily migration.');
+const stageAsset = manifest.assets?.adminStageOne;
+assert(stageAsset?.path === 'js/admin-stage-one.js', 'Central manifest no longer owns Admin Stage One.');
+assert(Boolean(stageAsset.version), 'Admin Stage One must keep a cache version.');
+assert(html.includes(`${stageAsset.path}?v=${stageAsset.version}`), 'admin.html is not using the manifest-owned Admin Stage One cache version.');
 
 assert(count(html, 'js/admin-batch-calendar.js') === 1, 'admin-batch-calendar.js should still load exactly once.');
 assert(count(html, 'js/admin-daily-generator-guard.js') === 1, 'admin-daily-generator-guard.js should still load exactly once.');
