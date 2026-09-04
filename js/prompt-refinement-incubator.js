@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Prompt Refinement Incubator v1.0.0
+/* FPL Challenge Studio — Prompt Refinement Incubator v1.1.0
    Takes promising 3★ prompts preserved by Quality Enforcement v2, creates controlled
    threshold variants, pre-scores them with the existing Quality Analyser, then persists
    one best candidate per parent for the normal full-library 4★+ enforcement pass. */
@@ -8,7 +8,7 @@
   if (window.__FPL_PROMPT_REFINEMENT_INCUBATOR_V1__) return;
   window.__FPL_PROMPT_REFINEMENT_INCUBATOR_V1__ = true;
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
   const MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
   const INCUBATOR_KEY = "fplPromptQualityIncubatorV2";
   const RUN_KEY = "fplPromptRefinementIncubatorRunV1";
@@ -47,6 +47,16 @@
   });
 
   const SOURCE_FIELDS = Object.freeze(Object.keys(FIELD_STEPS).sort((a, b) => b.length - a.length));
+  // Prefer story-defining thresholds over generic eligibility guards such as minutes > 0.
+  const SOURCE_FIELD_PRIORITY = Object.freeze({
+    points: 0, goals: 0, assists: 0, goalInvolvements: 0, cleanSheets: 0, bonus: 0, saves: 0,
+    goalsConceded: 0, startingPrice: 0, finalPrice: 0, yellowCards: 0, redCards: 0,
+    maxPointsGain: 1, maxGoalsGain: 1, maxClubSwitchPointsGain: 1, maxClubSwitchGoalsGain: 1,
+    maxConsecutive2000Minutes: 1, maxConsecutive100Points: 1, maxConsecutiveScoringSeasons: 1,
+    maxConsecutive8Goals: 1, tableBandCount: 1, maxClubsWithSameManager: 1, maxMinutesGain: 1,
+    careerSeasonCount: 2, careerClubCount: 2, ageAtSeasonStart: 2, fullNameLength: 2,
+    firstNameLength: 2, surnameLength: 2, nameWordCount: 2, leaguePosition: 3, minutes: 5
+  });
   let busy = false;
   let installed = false;
 
@@ -367,14 +377,27 @@
     return variants;
   }
 
+  function sourceMetricPriority(field, operator, value) {
+    let priority = Number(SOURCE_FIELD_PRIORITY[field] ?? 2);
+    // Positive-minute checks are eligibility sentinels; mutate them only as a last resort.
+    if (field === "minutes" && [">", ">="].includes(operator) && Number(value) <= 0) priority += 100;
+    return priority;
+  }
+
   function sourceMetricMatch(source) {
+    const matches = [];
     for (const field of SOURCE_FIELDS) {
       const escaped = field.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const pattern = new RegExp(`((?:Number\\()?p\\.(?:_careerEvolution\\?\\.)?${escaped}(?:\\))?\\s*)(>=|<=|>|<)\\s*(-?\\d+(?:\\.\\d+)?)`);
       const match = pattern.exec(source);
-      if (match) return { field, pattern, match };
+      if (!match) continue;
+      matches.push({
+        field, pattern, match, sourceIndex: Number(match.index) || 0,
+        priority: sourceMetricPriority(field, match[2], Number(match[3]))
+      });
     }
-    return null;
+    matches.sort((a, b) => a.priority - b.priority || a.sourceIndex - b.sourceIndex || a.field.localeCompare(b.field));
+    return matches[0] || null;
   }
 
   function sourceVariants(parent, reserved) {

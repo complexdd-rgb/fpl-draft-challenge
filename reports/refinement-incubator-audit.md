@@ -1,6 +1,6 @@
 # Refinement Incubator audit
 
-Generated: 2026-09-04T06:28:04.576Z
+Generated: 2026-09-04T07:08:30.470Z
 
 ## Headline
 
@@ -42,7 +42,7 @@ Generated: 2026-09-04T06:28:04.576Z
 | ID | Pos | Score | Adj | Answers | Overlap | Family | Tune route | Near rescue |
 |---|---:|---:|---:|---:|---:|---|---|---|
 | quality_v2_mid_price_6_gi_15 | MID | 68 | 70 | 55 | 0.000 | anti-meta | builder-threshold:startingPrice | yes |
-| quality_v3_fwd_manager_david_moyes_p55 | FWD | 63 | 69 | 17 | 0.000 | manager | source-threshold:minutes | yes |
+| quality_v3_fwd_manager_david_moyes_p55 | FWD | 63 | 69 | 17 | 0.000 | manager | source-threshold:points | yes |
 
 ## Near-rescue parents
 

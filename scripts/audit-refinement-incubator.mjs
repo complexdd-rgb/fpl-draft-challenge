@@ -144,6 +144,15 @@ const NUMBER_FIELDS = new Set([
   "careerClubCount", "fullNameLength", "firstNameLength", "surnameLength", "nameWordCount"
 ]);
 const SOURCE_FIELDS = Object.freeze(Object.keys(FIELD_STEPS).sort((a, b) => b.length - a.length));
+const SOURCE_FIELD_PRIORITY = Object.freeze({
+  points: 0, goals: 0, assists: 0, goalInvolvements: 0, cleanSheets: 0, bonus: 0, saves: 0,
+  goalsConceded: 0, startingPrice: 0, finalPrice: 0, yellowCards: 0, redCards: 0,
+  maxPointsGain: 1, maxGoalsGain: 1, maxClubSwitchPointsGain: 1, maxClubSwitchGoalsGain: 1,
+  maxConsecutive2000Minutes: 1, maxConsecutive100Points: 1, maxConsecutiveScoringSeasons: 1,
+  maxConsecutive8Goals: 1, tableBandCount: 1, maxClubsWithSameManager: 1, maxMinutesGain: 1,
+  careerSeasonCount: 2, careerClubCount: 2, ageAtSeasonStart: 2, fullNameLength: 2,
+  firstNameLength: 2, surnameLength: 2, nameWordCount: 2, leaguePosition: 3, minutes: 5
+});
 
 const tagsOf = prompt => Array.isArray(prompt?.tags) ? prompt.tags.map(tag => String(tag).toLowerCase()) : [];
 function issueCodes(result) {
@@ -184,14 +193,26 @@ function decision(prompt, result) {
   if (rawRating === 3 && rawScore >= 58) return { state: "incubator", rawRating, rawScore, adjustedScore, bonus, playerCount, overlap, issues };
   return { state: "rejected", rawRating, rawScore, adjustedScore, bonus, playerCount, overlap, issues };
 }
+function sourceMetricPriority(field, operator, value) {
+  let priority = Number(SOURCE_FIELD_PRIORITY[field] ?? 2);
+  if (field === "minutes" && [">", ">="].includes(operator) && Number(value) <= 0) priority += 100;
+  return priority;
+}
+
 function sourceMetricMatch(sourceText) {
+  const matches = [];
   for (const field of SOURCE_FIELDS) {
     const escaped = field.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const pattern = new RegExp(`((?:Number\\()?p\\.(?:_careerEvolution\\?\\.)?${escaped}(?:\\))?\\s*)(>=|<=|>|<)\\s*(-?\\d+(?:\\.\\d+)?)`);
     const match = pattern.exec(sourceText);
-    if (match) return { field, operator: match[2], value: Number(match[3]) };
+    if (!match) continue;
+    matches.push({
+      field, pattern, match, sourceIndex: Number(match.index) || 0,
+      priority: sourceMetricPriority(field, match[2], Number(match[3]))
+    });
   }
-  return null;
+  matches.sort((a, b) => a.priority - b.priority || a.sourceIndex - b.sourceIndex || a.field.localeCompare(b.field));
+  return matches[0] || null;
 }
 function answerBand(position, count) {
   const range = RANGES[position] || RANGES.MID;
