@@ -1,8 +1,8 @@
 # FPL Draft Challenge — Architecture Map
 
-Updated: 3 September 2026
+Updated: 4 September 2026
 
-This document describes the current repository architecture as it exists after the September Prompt Studio, Career Evolution, Quality Enforcement v2 and Refinement Incubator work. It also records the intended cleanup direction so temporary compatibility layers are not mistaken for permanent design.
+This document describes the current repository architecture after the September Prompt Studio, Career Evolution, Quality Enforcement v2, Refinement Incubator and Studio architecture cleanup. It also records the remaining migration direction so temporary compatibility layers are not mistaken for permanent design.
 
 ## 1. System boundaries
 
@@ -42,7 +42,7 @@ challenge-manifest-bootstrap
 - `players-live.js` — live player-season database.
 - `js/career-context.js` — reusable cross-season/career facts. Career Evolution facts are attached here so Studio-generated career rules also work in live play.
 - `js/game-engine.js` — core challenge gameplay/scoring/reveal behaviour.
-- `js/leaderboard-config.js` — public leaderboard configuration plus the environment feature-loader bridge.
+- `js/leaderboard-config.js` — public leaderboard configuration. On live pages it also starts the deferred `js/live-feature-loader.js`; it no longer owns any Studio feature chain.
 - `js/live-feature-loader.js` — non-critical live feature loading.
 
 ### Protected invariant
@@ -55,61 +55,74 @@ challenge-manifest-bootstrap
 
 Primary page: `admin.html`
 
-The current Studio is functional but still contains architectural debt. The HTML is historically a long-form sequence of panels. `js/admin-stage-one.js` builds the current workspace/navigation presentation and restores the saved workspace. The September fast-boot work hides the old raw layout before first paint and runs Stage One early, but the current workspace structure is **not yet fully native HTML**.
+The Studio now has a central asset/version manifest and one runtime bootstrap owner. The current navigation/topbar/workspace shell is authored in `admin.html` as `#studioNativeWorkspaceTemplate`; `js/admin-stage-one.js` clones that native shell, restores the selected workspace and currently re-parents the remaining legacy tool panels into it. The old JS constructors are retained only as a cache-safe fallback during the migration.
 
 Current high-level boot:
 
 ```text
 admin.html
-→ admin-stage-one.js (workspace construction / restore)
+→ asset-manifest.js
+→ admin-stage-one.js (native shell activation / workspace restore)
 → players.js
 → career-context.js
 → prompt-library.js
 → validation-engine.js
 → admin-core.js
 → weekly/daily guard layers
-→ admin-import-tools.js compatibility entrypoint
+→ admin-import-tools.js compatibility shim
+   → studio-bootstrap.js
+      ├─ Prompt Studio lazy loader
+      ├─ certification/quality finishing chain
+      ├─ Refinement Incubator
+      └─ publishing support when configuration is ready
 → leaderboard-config.js
-→ studio-feature-loader.js
+   └─ dispatches Studio configuration readiness; no separate Studio loader chain
 ```
 
 ### Main Studio modules
 
+- `config/asset-manifest.json` — authoritative Studio asset paths and cache versions.
+- `js/asset-manifest.js` — generated browser-safe runtime view of the central manifest.
+- `js/studio-bootstrap.js` — single Studio runtime feature/bootstrap owner.
 - `js/admin-core.js` — large multi-phase Studio core. Currently owns more responsibilities than one permanent module should.
-- `js/admin-stage-one.js` — workspace shell, navigation, panel re-parenting and refresh-position restoration.
+- `js/admin-stage-one.js` — activates the native workspace shell, restores navigation/scroll state and re-parents legacy tool panels during the migration.
 - `js/admin-batch-calendar.js` — seven-day challenge generator.
 - `js/admin-daily-generator-guard.js` — certified-prompt-pool lock/snapshot and final generation guard.
 - `js/admin-daily-publish.js` — publishing/download support.
 - `js/validation-engine.js` and `js/validation-lab.js` — prompt/data validation.
 
-### Temporary compatibility layer
+### Temporary compatibility layers
 
-`js/admin-import-tools.js` is explicitly a **legacy compatibility entrypoint**. Its active responsibilities have moved to `js/prompt-studio-loader.js` and the Career Shape validation bridge. It should be removed once callers are migrated to the real loader directly.
+`js/admin-import-tools.js` remains only as a **legacy compatibility shim**. Normal execution delegates to `js/studio-bootstrap.js`; an old Prompt Studio loader URL is retained only as an emergency cache-safe fallback if the bootstrap itself cannot load.
+
+`js/studio-feature-loader.js` is also retired as an architectural owner. It remains as a compatibility shim for stale cached callers and redirects them to `js/studio-bootstrap.js`.
+
+Both files should disappear after the migration has proved stable and no supported caller needs them.
 
 ---
 
-## 4. Prompt Studio lazy-loading chain
+## 4. Prompt Studio loading and Studio bootstrap
 
-`js/prompt-studio-loader.js` is the main lazy entrypoint for heavy prompt-generation tooling.
+`js/studio-bootstrap.js` is now the single owner for Studio-only feature loading. Heavy prompt-generation tooling remains lazy through `js/prompt-studio-loader.js`.
 
-Current chain:
+Prompt Studio lazy chain:
 
 ```text
-prompt-studio-loader
-→ admin-import-tools-base
-   ├─ main automatic prompt generator
-   ├─ Prompt Quality Analyser
-   └─ browser-library persistence helpers
-→ prompt-target-survivor-generator
-→ prompt-target-auto-explorer
-→ Career Shape rule/studio/repair/unified modules
+studio-bootstrap
+→ prompt-studio-loader
+   → admin-import-tools-base
+      ├─ main automatic prompt generator
+      ├─ Prompt Quality Analyser
+      └─ browser-library persistence helpers
+   → prompt-target-survivor-generator
+   → prompt-target-auto-explorer
+   → Career Shape rule/studio/repair/unified modules
 ```
 
-A separate Studio feature path currently loads quality/certification helpers through:
+Certification/quality finishing chain:
 
 ```text
-leaderboard-config
-→ studio-feature-loader
+studio-bootstrap
 → legacy prompt additions
 → career-shape-validation-bridge
 → prompt-era-range-wording
@@ -118,11 +131,11 @@ leaderboard-config
 → quality packs / analyser stars / 4★ enforcer
 ```
 
-The **Refinement Incubator** is Studio-only and is currently loaded separately from `leaderboard-config.js`, then waits for Quality Enforcement v2 to become ready.
+The **Refinement Incubator** is also loaded by `studio-bootstrap` and continues to wait for Quality Enforcement v2 before doing refinement work. `leaderboard-config.js` no longer carries a separate Incubator load path.
 
-### Cleanup target
+### Architectural rule
 
-These overlapping dependency chains should eventually become one explicit Studio bootstrap/registry rather than multiple modules dynamically discovering one another.
+New Studio-only runtime dependencies should join `studio-bootstrap` or a clearly owned lazy sub-chain. Do not create another top-level loader that discovers the same modules independently.
 
 ---
 
@@ -204,50 +217,49 @@ Historical prompt availability is further controlled by field-readiness/certific
 
 ---
 
-## 8. Generated wiring and patch scripts
+## 8. Generated wiring and build scripts
 
-The repository currently contains many `scripts/apply-*.mjs` and matching `verify-*.mjs` files. These were useful for introducing features safely and idempotently, but they have become an architectural layer of their own.
+The repository still contains historical `scripts/apply-*.mjs` and matching `verify-*.mjs` files. Those remain useful regression fixtures, but Studio architecture is now moving to manifest-driven builders rather than accumulating another patch layer.
 
-Current examples cover:
+Current architecture builders:
 
-- weekly nationality reservation;
-- immutable certified snapshots;
-- library-expansion rotation;
-- unified prompt families;
-- survivor-target generation;
-- Career Evolution;
-- Studio refresh fast boot;
-- cache wiring.
+```text
+config/asset-manifest.json
+→ scripts/build-studio-cache-tags.mjs
+→ scripts/build-native-studio-shell.mjs
+→ scripts/build-studio-wiring.mjs
+→ generated runtime files
+→ verification
+```
+
+The `Studio Architecture Build` workflow runs the builders twice and compares hashes. A second pass must be byte-identical.
+
+Historical patch scripts that still touch cache or fast-boot wiring now read the central manifest rather than owning competing version literals.
 
 ### Current rule
 
-Every patch script that remains must be **repeat-safe**. Running the same generated-wiring sequence twice must not duplicate declarations, markup or script tags.
-
-### Target
-
-Replace the growing patch chain with one manifest-driven Studio wiring/build step, for example:
-
-```text
-scripts/build-studio-wiring.mjs
-```
-
-Desired contract:
-
-1. read desired asset/module manifest;
-2. write/update wiring once;
-3. validate dependency order;
-4. run twice in CI;
-5. second run produces zero diff.
+Every remaining patch/build script must be **repeat-safe**. Running the same generated-wiring sequence twice must not duplicate declarations, markup or script tags.
 
 ---
 
 ## 9. Cache/version ownership
 
-Cache query versions are currently scattered across HTML, loaders, patchers and CI assertions. This has already produced false CI failures when a runtime asset moved from one version to another but a literal regression assertion did not.
+Studio asset/cache versions are now centralised in `config/asset-manifest.json`.
 
-### Target
+The manifest owns, among other things:
 
-Create one Studio/live asset-version manifest and have loaders, generated wiring and CI consume it. CI should prefer behavioural/order assertions over hard-coded version strings unless the version itself is the behaviour under test.
+- runtime manifest version;
+- Studio bootstrap version;
+- Stage One/native-shell version;
+- compatibility entrypoint version;
+- Prompt Studio lazy-loader/module versions;
+- Studio leaderboard configuration version.
+
+`js/asset-manifest.js`, Admin static cache tags, lazy module URLs, generated wiring and relevant CI verification consume this source of truth.
+
+### Rule
+
+Do not add a new Studio cache version literal to an unrelated patcher or verifier when the asset belongs in the central manifest. CI should prefer behavioural/order assertions and manifest lookups over frozen historical version strings.
 
 ---
 
@@ -258,12 +270,14 @@ These files deserve decomposition planning, but **not one-shot rewrites**:
 - `js/admin-core.js` — very large multi-phase Studio core;
 - `js/admin-import-tools-base.js` — generator, analyser, UI and persistence responsibilities are coupled;
 - `js/admin-batch-calendar.js` — substantial weekly engine;
-- `admin.html` — still contains the legacy long-form panel structure;
+- `admin.html` — native workspace shell exists, but most tool panels still originate in the legacy long-form sequence and are re-parented at startup;
 - Studio CSS — multiple generations of base/overhaul/mobile/prompt-specific overrides.
 
 ### Safe extraction order
 
-Extract low-risk pure/helper logic first, then UI/persistence boundaries, then change boot ownership. Keep generator/certification behaviour protected by existing regression suites throughout.
+Continue moving one workspace at a time into its native `admin.html` section. Keep `admin-stage-one.js` fallback/re-parenting behaviour until each migrated workspace is verified, then remove only the code made unnecessary by that migration.
+
+Extract low-risk pure/helper logic before changing generator/certification behaviour. Keep existing regression suites around every boundary.
 
 ---
 
@@ -280,12 +294,13 @@ FPL Draft Challenge
 │   └── leaderboard/account features
 │
 ├── Studio
+│   ├── central asset manifest
 │   ├── studio-bootstrap
-│   ├── Daily Challenge workspace
-│   ├── Prompt Studio workspace
-│   ├── Database workspace
-│   ├── Validation workspace
-│   └── Publishing workspace
+│   ├── native Daily Challenge workspace
+│   ├── native Prompt Studio workspace
+│   ├── native Database workspace
+│   ├── native Validation workspace
+│   └── publishing support
 │
 ├── Prompt Engine
 │   ├── family providers
@@ -309,7 +324,7 @@ FPL Draft Challenge
 │   └── field readiness / certification
 │
 ├── Build / Wiring
-│   └── one repeat-safe manifest-driven builder
+│   └── repeat-safe manifest-driven builders
 │
 └── CI
     ├── syntax/static checks
@@ -323,17 +338,15 @@ FPL Draft Challenge
 
 ## 12. Cleanup order
 
-Use this order for structural work:
+Structural work should now continue in this order:
 
-1. keep `main` green and remove stale CI assertions;
-2. resolve superseded/open wiring PRs;
-3. make every remaining generated patch repeat-safe;
-4. centralise asset/cache versions;
-5. make the current Stage One workspace layout native in `admin.html`, one workspace at a time;
-6. collapse overlapping Studio loader chains into one bootstrap owner;
-7. retire `admin-import-tools.js` compatibility entrypoint;
-8. split large modules along tested responsibility boundaries;
-9. consolidate CSS without redesigning the UI;
-10. preserve weekly/certification invariants after every step.
+1. keep `main` green and preserve the weekly/certification invariants;
+2. treat `config/asset-manifest.json` as the single Studio cache/version authority;
+3. keep `studio-bootstrap.js` as the single top-level Studio feature owner;
+4. migrate the current workspace content into native `admin.html` sections one workspace at a time;
+5. retire the `admin-import-tools.js` and `studio-feature-loader.js` compatibility shims after supported callers no longer need them;
+6. split large modules along tested responsibility boundaries;
+7. consolidate CSS without redesigning the UI;
+8. resume prompt-quality work — the 144-prompt Refinement Incubator audit and survivor-library growth — on top of the cleaner architecture.
 
 This document should be updated whenever a compatibility layer is added or retired so future cleanup can distinguish intentional temporary wiring from permanent architecture.
