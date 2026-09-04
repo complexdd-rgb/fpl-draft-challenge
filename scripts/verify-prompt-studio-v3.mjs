@@ -5,6 +5,7 @@ const studio = read('js/prompt-studio-v3-clean-room.js');
 const tester = read('js/prompt-studio-v3-rule-tester.js');
 const advisor = read('js/prompt-studio-v3-quality-advisor.js');
 const generator = read('js/prompt-studio-v3-candidate-generator.js');
+const certification = read('js/prompt-studio-v3-candidate-certification.js');
 const registry = read('js/prompt-family-registry-v3.js');
 const manifest = JSON.parse(read('config/asset-manifest.json'));
 const bootstrap = read('js/studio-bootstrap.js');
@@ -72,6 +73,19 @@ assert(!generator.includes('prompt.status = "approved"'), 'V3 candidate generato
 assert(!generator.includes('qualityReview ='), 'V3 candidate generator must never write human quality state.');
 assert(!generator.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL'), 'V3 candidate generator must not mutate or depend on the production pool.');
 
+assert(certification.includes('const VERSION = "3.4.0"'), 'V3 candidate certification version is missing.');
+assert(certification.includes('const EVIDENCE_KEY = "fplPromptStudioV3CandidateAllSeasonEvidence"'), 'V3 candidate certification does not own isolated evidence storage.');
+assert(certification.includes('validation.getAllSeasonLabels()'), 'V3 candidate certification does not enumerate every supported season.');
+assert(certification.includes('validation.evaluatePrompt(player, season, prompt.label)'), 'V3 candidate certification is not grounded in the shared Validation Engine.');
+assert(certification.includes('test.technical !== "pass"'), 'V3 candidate certification does not require the real database Test first.');
+assert(certification.includes('NO MATCH is not a technical failure'), 'V3 all-season evidence does not distinguish natural no-match seasons from technical failure.');
+assert(certification.includes('runtimeErrors === 0') && certification.includes('zeroMinuteAccepted === 0'), 'V3 candidate certification does not enforce runtime/zero-minute technical safety.');
+assert(certification.includes('evidence.fingerprint !== fingerprint(prompt)'), 'V3 candidate certification does not detect stale evidence.');
+assert(!certification.includes('qualityReview ='), 'V3 candidate certification must never write human quality review state.');
+assert(!certification.includes('prompt.status ='), 'V3 candidate certification must never change prompt lifecycle state.');
+assert(!certification.includes('prompt.enabled = true'), 'V3 candidate certification must never enable a prompt.');
+assert(!certification.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL'), 'V3 candidate certification must not mutate or depend on the production pool.');
+
 const supportedBlock = generator.match(/const SUPPORTED_FAMILIES = Object\.freeze\(new Set\(\[([\s\S]*?)\]\)\);/);
 const supportedFamilyCount = supportedBlock ? (supportedBlock[1].match(/"[a-z0-9-]+"/g) || []).length : 0;
 assert(supportedFamilyCount >= 15, `V3 deliberate generator supports too few families (${supportedFamilyCount}); expected at least 15.`);
@@ -82,7 +96,7 @@ for (const family of ['league-position','career-consistency','career-peak','come
   assert(registry.includes(`"${family}"`), `V3 family registry is missing ${family}.`);
 }
 
-assert(manifest.manifestVersion === '1.9.0-prompt-studio-v3-candidates', 'Central manifest is not on the V3 deliberate-candidate version.');
+assert(manifest.manifestVersion === '1.10.0-prompt-studio-v3-certification', 'Central manifest is not on the V3 candidate-certification version.');
 assert(manifest.assets.promptStudioV3?.path === 'js/prompt-studio-v3-clean-room.js', 'V3 runtime is not manifest-owned.');
 assert(manifest.assets.promptFamilyRegistryV3?.path === 'js/prompt-family-registry-v3.js', 'V3 family registry is not manifest-owned.');
 assert(manifest.assets.promptStudioV3RuleTester?.path === 'js/prompt-studio-v3-rule-tester.js', 'V3 safe builder/database tester is not manifest-owned.');
@@ -91,11 +105,14 @@ assert(manifest.assets.promptStudioV3QualityAdvisor?.path === 'js/prompt-studio-
 assert(manifest.assets.promptStudioV3QualityAdvisor?.version === '3.2.0', 'V3 quality advisor cache version is stale.');
 assert(manifest.assets.promptStudioV3CandidateGenerator?.path === 'js/prompt-studio-v3-candidate-generator.js', 'V3 candidate generator is not manifest-owned.');
 assert(manifest.assets.promptStudioV3CandidateGenerator?.version === '3.3.0', 'V3 candidate generator cache version is stale.');
+assert(manifest.assets.promptStudioV3CandidateCertification?.path === 'js/prompt-studio-v3-candidate-certification.js', 'V3 candidate certification is not manifest-owned.');
+assert(manifest.assets.promptStudioV3CandidateCertification?.version === '3.4.0', 'V3 candidate certification cache version is stale.');
 assert(bootstrap.includes('function ensurePromptV3()'), 'Studio bootstrap does not own V3 loading.');
 assert(bootstrap.includes('loadAsset("promptFamilyRegistryV3"'), 'V3 registry is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3"'), 'V3 runtime is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3RuleTester"'), 'V3 safe builder/database tester is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3QualityAdvisor"'), 'V3 advisory quality layer is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3CandidateGenerator"'), 'V3 deliberate candidate generator is not loaded by bootstrap.');
+assert(bootstrap.includes('loadAsset("promptStudioV3CandidateCertification"'), 'V3 candidate all-season certification is not loaded by bootstrap.');
 
-console.log(`Prompt Studio V3 verification passed: zero-start isolation, ${familyCount} registered families, ${supportedFamilyCount} deliberate generator families, natural safe rule mapping, real database testing, advisory-only quality evidence, manual quality/approval, and frozen legacy production remain separate.`);
+console.log(`Prompt Studio V3 verification passed: zero-start isolation, ${familyCount} registered families, ${supportedFamilyCount} deliberate generator families, natural safe rule mapping, real database testing, advisory-only quality evidence, read-only all-season candidate certification, manual quality/approval, and frozen legacy production remain separate.`);
