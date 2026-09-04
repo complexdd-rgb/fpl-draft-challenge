@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const root = new URL('../', import.meta.url);
 const pathUrl = path => new URL(path, root);
@@ -119,7 +120,7 @@ for (const path of [
   'js/studio-feature-loader.js',
   'js/leaderboard-config.js'
 ]) {
-  execFileSync(process.execPath, ['--check', new URL(path, root)], { stdio: 'inherit' });
+  execFileSync(process.execPath, ['--check', fileURLToPath(new URL(path, root))], { stdio: 'inherit' });
 }
 
-execFileSync(process.execPath, [new URL('scripts/verify-studio-wiring.mjs', root)], { stdio: 'inherit' });
+execFileSync(process.execPath, [fileURLToPath(new URL('scripts/verify-studio-wiring.mjs', root))], { stdio: 'inherit' });
