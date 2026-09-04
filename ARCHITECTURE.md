@@ -79,6 +79,7 @@ admin.html
       ├─ V3 family registry
       ├─ V3 safe rule builder + database tester
       ├─ V3 advisory quality evidence
+      ├─ V3 deliberate family/answer-pool candidate generator
       ├─ Prompt Studio heavy-tool lazy loader
       ├─ legacy production certification/quality chain
       ├─ legacy Refinement Incubator
@@ -94,6 +95,7 @@ Main modules:
 - `js/prompt-family-registry-v3.js` — V3 family catalogue and coverage source.
 - `js/prompt-studio-v3-rule-tester.js` — parser-safe structured rule builder and real player-database Test evidence.
 - `js/prompt-studio-v3-quality-advisor.js` — advisory answer breadth, concentration, V3 overlap and family-coverage evidence; never a review authority.
+- `js/prompt-studio-v3-candidate-generator.js` — deliberate family + target-answer-pool shortlist generator; never auto-saves or promotes candidates.
 - `js/prompt-studio-redesign.js` — V2 compatibility presentation while the old production pipeline still exists.
 - `js/prompt-library-canonical-state.js` — V2 visible census/enabled policy; not V3 authority.
 - `js/repository-certified-prompt-pool.js` — existing production membership boundary.
@@ -145,6 +147,10 @@ Library
 Create
 → safe structured rule builder for parser-supported rules
 → generated wording must parse back to exactly the chosen rule fields
+→ deliberate candidate generator chooses family + position + target answer-pool range
+→ candidate recipes are parser-checked and measured against the real database
+→ the generator returns a temporary shortlist only
+→ each candidate requires an explicit Add as disabled Draft click
 → manual wording remains a fallback for families not covered yet
 → choose family + position + difficulty
 → always saves disabled
@@ -211,6 +217,23 @@ Its outputs are deliberately non-authoritative. It may calculate:
 Overlap uses the established smaller-answer-set convention: common valid player IDs divided by the smaller answer set. This makes near-subset prompts visible as high overlap rather than hiding them behind a low union/Jaccard score.
 
 The advisor may populate a human form field only after an explicit **Copy** click. It must never write `qualityReview`, a star rating, a review decision, lifecycle status or production state itself.
+
+### V3 deliberate-candidate boundary
+
+`js/prompt-studio-v3-candidate-generator.js` is a shortlist tool, not a library authority.
+
+The user chooses:
+
+- a supported V3 family;
+- a position or Any;
+- a minimum and maximum desired unique-player answer count;
+- shortlist size.
+
+The generator enumerates a bounded set of parser-safe family recipes, validates their wording through the V3 rule tester, executes them against the real player database, and ranks only candidates whose measured answer pools fall inside the requested range.
+
+A generated candidate is **temporary** until the user explicitly clicks **Add as disabled Draft**. There is no bulk auto-save, no automatic Test pass, no quality rating, no approval and no production membership change. Once added, the candidate must follow the normal V3 lifecycle from Draft onward.
+
+The first slice supports 16 families with safe recipes: season stats, combined stats, exact/bands, club + stat, position + stat, league position/status, promoted clubs, relegated clubs, champions, career longevity, club count, manager, anti-meta, starting-price value, minutes/role and composite/story prompts. Unsupported registered families remain visible in Family Coverage and can gain recipes later without changing the authority model.
 
 ### V3 family registry
 
@@ -344,7 +367,7 @@ Dedicated verifiers include:
 - `scripts/verify-prompt-studio-v3.mjs`
 - `scripts/verify-all-season-certification-gate.mjs`
 
-The V3 verifier explicitly proves zero-start isolation, disabled-by-default drafts, parser-safe structured rule mapping, real database Test evidence, advisory-only quality evidence, human quality review, non-live approval and the absence of automatic V3 promotion/removal logic.
+The V3 verifier explicitly proves zero-start isolation, disabled-by-default drafts, parser-safe structured rule mapping, real database Test evidence, advisory-only quality evidence, deliberate temporary candidate generation, human quality review, non-live approval and the absence of automatic V3 promotion/removal logic.
 
 ---
 
@@ -352,14 +375,15 @@ The V3 verifier explicitly proves zero-start isolation, disabled-by-default draf
 
 `config/asset-manifest.json` is the source of truth.
 
-Current V3 quality slice:
+Current V3 candidate-generation slice:
 
-- manifest/runtime: `1.8.0-prompt-studio-v3-quality`
-- Studio bootstrap: `1.4.0-prompt-studio-v3-quality`
+- manifest/runtime: `1.9.0-prompt-studio-v3-candidates`
+- Studio bootstrap: `1.5.0-prompt-studio-v3-candidates`
 - Prompt Studio V3: `3.0.0`
 - Prompt family registry V3: `3.0.0`
 - V3 safe rule builder/database tester: `3.1.1`
 - V3 advisory quality evidence: `3.2.0`
+- V3 deliberate candidate generator: `3.3.0`
 - Stage One: `1.5.0-native-prompts`
 - legacy Prompt Studio redesign: `2.0.0`
 - legacy repository-certified prompt pool: `1.1.0`
@@ -386,8 +410,8 @@ Prompt Studio V3 progress/order:
 2. **Complete** — establish V3 clean-room storage/UI/family coverage at zero prompts.
 3. **Complete** — wire the safe rule builder and real validation engine into V3 Test without importing the old working library.
 4. **Complete** — build advisory Quality evidence with no automatic state mutation.
-5. **Next** — add deliberate candidate generation by family/target answer-pool size; generated material enters Draft only and must pass the same Test/Quality lifecycle.
-6. Build V3 candidate all-season certification that reports evidence without approving prompts.
+5. **Complete** — add deliberate candidate generation by family/target answer-pool size; generated material remains temporary until explicitly added as a disabled Draft.
+6. **Next** — build V3 candidate all-season certification that reports evidence without approving prompts.
 7. Grow an initial high-quality V3 set using Family Coverage rather than a fixed prompt-count target.
 8. Simulate seven-day calendars against approved V3 candidates.
 9. Design and separately approve the eventual production cutover.
