@@ -13,28 +13,34 @@ const replaceExactlyOne = (source, pattern, replacement, label) => {
   if (matches.length !== 1) throw new Error(`${label} match count was ${matches.length}, expected 1.`);
   return source.replace(pattern, replacement);
 };
+const manifest = fs.existsSync('config/asset-manifest.json')
+  ? JSON.parse(read('config/asset-manifest.json'))
+  : null;
+const assetUrl = (key, fallback) => {
+  const asset = manifest?.assets?.[key];
+  if (!asset?.path) return fallback;
+  return asset.version ? `${asset.path}?v=${asset.version}` : asset.path;
+};
 
 {
   const path = 'js/prompt-studio-loader.js';
   const source = read(path);
   let updated = source;
-  updated = replaceExactlyOne(updated, /js\/admin-import-tools-base\.js\?v=[^"']+/g, 'js/admin-import-tools-base.js?v=16.2.0-careerevolution', 'main generator cache URL');
-  updated = replaceExactlyOne(updated, /js\/prompt-target-survivor-generator\.js\?v=[^"']+/g, 'js/prompt-target-survivor-generator.js?v=1.0.1-careerevolution', 'target survivor cache URL');
-  updated = replaceExactlyOne(updated, /js\/prompt-target-auto-explorer\.js\?v=[^"']+/g, 'js/prompt-target-auto-explorer.js?v=1.0.1-careerevolution', 'target explorer cache URL');
-  write(path, source, updated);
-}
-
-{
-  const path = 'js/admin-import-tools.js';
-  const source = read(path);
-  const updated = replaceExactlyOne(source, /js\/prompt-studio-loader\.js\?v=[^"']+/g, 'js/prompt-studio-loader.js?v=1.3.0-careerevolution', 'Prompt Studio loader cache URL');
+  updated = replaceExactlyOne(updated, /js\/admin-import-tools-base\.js\?v=[^"']+/g, assetUrl('adminImportToolsBase', 'js/admin-import-tools-base.js?v=16.2.0-careerevolution'), 'main generator cache URL');
+  updated = replaceExactlyOne(updated, /js\/prompt-target-survivor-generator\.js\?v=[^"']+/g, assetUrl('promptTargetSurvivorGenerator', 'js/prompt-target-survivor-generator.js?v=1.0.1-careerevolution'), 'target survivor cache URL');
+  updated = replaceExactlyOne(updated, /js\/prompt-target-auto-explorer\.js\?v=[^"']+/g, assetUrl('promptTargetAutoExplorer', 'js/prompt-target-auto-explorer.js?v=1.0.1-careerevolution'), 'target explorer cache URL');
   write(path, source, updated);
 }
 
 {
   const path = 'admin.html';
   const source = read(path);
-  const updated = replaceExactlyOne(source, /js\/admin-import-tools\.js\?v=[^"']+/g, 'js/admin-import-tools.js?v=22.3.0-careerevolution', 'admin compatibility loader cache URL');
+  const updated = replaceExactlyOne(
+    source,
+    /js\/admin-import-tools\.js\?v=[^"']+/g,
+    assetUrl('adminImportTools', 'js/admin-import-tools.js?v=22.3.0-careerevolution'),
+    'admin compatibility loader cache URL'
+  );
   write(path, source, updated);
 }
 
