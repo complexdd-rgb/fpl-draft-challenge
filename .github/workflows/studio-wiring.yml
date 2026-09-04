@@ -15,12 +15,15 @@ on:
       - 'js/prompt-studio-loader.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
+      - 'fragments/admin-daily-workspace.html'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-studio-wiring.mjs'
       - 'scripts/verify-studio-wiring.mjs'
       - 'scripts/build-native-studio-shell.mjs'
+      - 'scripts/build-native-daily-workspace.mjs'
       - 'scripts/verify-native-studio-shell.mjs'
       - 'scripts/verify-native-validation-workspace.mjs'
+      - 'scripts/verify-native-daily-workspace.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/apply-career-evolution-cache-wiring.mjs'
@@ -37,12 +40,15 @@ on:
       - 'js/prompt-studio-loader.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
+      - 'fragments/admin-daily-workspace.html'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-studio-wiring.mjs'
       - 'scripts/verify-studio-wiring.mjs'
       - 'scripts/build-native-studio-shell.mjs'
+      - 'scripts/build-native-daily-workspace.mjs'
       - 'scripts/verify-native-studio-shell.mjs'
       - 'scripts/verify-native-validation-workspace.mjs'
+      - 'scripts/verify-native-daily-workspace.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/apply-career-evolution-cache-wiring.mjs'
@@ -76,6 +82,9 @@ jobs:
       - name: Build native Studio shell
         run: node scripts/build-native-studio-shell.mjs
 
+      - name: Build native Daily workspace
+        run: node scripts/build-native-daily-workspace.mjs
+
       - name: Build manifest-driven Studio wiring
         run: node scripts/build-studio-wiring.mjs
 
@@ -85,6 +94,7 @@ jobs:
           set -euo pipefail
           files=(
             admin.html
+            fragments/admin-daily-workspace.html
             js/asset-manifest.js
             js/admin-stage-one.js
             js/admin-import-tools.js
@@ -95,6 +105,7 @@ jobs:
           sha256sum "${files[@]}" > /tmp/studio-architecture-first.sha
           node scripts/build-studio-cache-tags.mjs
           node scripts/build-native-studio-shell.mjs
+          node scripts/build-native-daily-workspace.mjs
           node scripts/build-studio-wiring.mjs
           sha256sum "${files[@]}" > /tmp/studio-architecture-second.sha
           diff -u /tmp/studio-architecture-first.sha /tmp/studio-architecture-second.sha
@@ -104,6 +115,9 @@ jobs:
 
       - name: Verify native Validation workspace
         run: node scripts/verify-native-validation-workspace.mjs
+
+      - name: Verify native Daily workspace
+        run: node scripts/verify-native-daily-workspace.mjs
 
       - name: Verify Studio wiring architecture
         run: node scripts/verify-studio-wiring.mjs
@@ -119,8 +133,10 @@ jobs:
           node --check js/leaderboard-config.js
           node --check scripts/build-studio-cache-tags.mjs
           node --check scripts/build-native-studio-shell.mjs
+          node --check scripts/build-native-daily-workspace.mjs
           node --check scripts/build-studio-wiring.mjs
           node --check scripts/verify-native-validation-workspace.mjs
+          node --check scripts/verify-native-daily-workspace.mjs
 
       - name: Reject whitespace errors
         run: git diff --check
@@ -132,6 +148,7 @@ jobs:
           set -euo pipefail
           git add \
             admin.html \
+            fragments/admin-daily-workspace.html \
             js/asset-manifest.js \
             js/admin-stage-one.js \
             js/admin-import-tools.js \
