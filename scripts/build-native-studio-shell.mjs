@@ -20,6 +20,65 @@ const stageAsset = manifest.assets?.adminStageOne;
 if (!stageAsset?.path) throw new Error('Central asset manifest is missing adminStageOne.');
 const stageUrl = stageAsset.version ? `${stageAsset.path}?v=${stageAsset.version}` : stageAsset.path;
 
+const VALIDATION_PANEL_START = '<section class="panel validation-lab-panel" id="validationLabPanel"';
+const VALIDATION_MARKER_START = '<!-- STUDIO_NATIVE_VALIDATION_PANEL_START -->';
+const VALIDATION_MARKER_END = '<!-- STUDIO_NATIVE_VALIDATION_PANEL_END -->';
+
+function dedent(block) {
+  const lines = String(block || '').replace(/^\n+|\n+$/g, '').split('\n');
+  const indents = lines.filter(line => line.trim()).map(line => line.match(/^\s*/)?.[0].length || 0);
+  const min = indents.length ? Math.min(...indents) : 0;
+  return lines.map(line => line.slice(Math.min(min, line.length))).join('\n');
+}
+
+function indent(block, spaces) {
+  const prefix = ' '.repeat(spaces);
+  return dedent(block).split('\n').map(line => line ? prefix + line : '').join('\n');
+}
+
+function extractValidationPanel(html) {
+  const markerPattern = new RegExp(`${VALIDATION_MARKER_START}\\n([\\s\\S]*?)\\n\\s*${VALIDATION_MARKER_END}`);
+  const marked = html.match(markerPattern);
+  if (marked) return dedent(marked[1]);
+
+  const mainClose = html.indexOf('\n  </main>');
+  const start = html.indexOf(VALIDATION_PANEL_START);
+  if (mainClose < 0 || start < 0 || start > mainClose) {
+    throw new Error('Could not locate the legacy Validation Lab panel before </main>.');
+  }
+  if (html.indexOf(VALIDATION_PANEL_START, start + 1) >= 0) {
+    throw new Error('Validation Lab panel appears more than once before native migration.');
+  }
+
+  const closing = '\n    </section>';
+  const endStart = html.lastIndexOf(closing, mainClose);
+  if (endStart < start) throw new Error('Could not locate the Validation Lab panel closing section.');
+  return dedent(html.slice(start, endStart + closing.length));
+}
+
+function removeLegacyValidationPanel(html) {
+  const mainClose = html.indexOf('\n  </main>');
+  const start = html.indexOf(VALIDATION_PANEL_START);
+  if (mainClose < 0 || start < 0 || start > mainClose) return html;
+
+  const closing = '\n    </section>';
+  const endStart = html.lastIndexOf(closing, mainClose);
+  if (endStart < start) throw new Error('Could not remove the legacy Validation Lab panel safely.');
+  const end = endStart + closing.length;
+
+  let removalStart = start;
+  while (removalStart > 0 && html[removalStart - 1] === ' ') removalStart -= 1;
+  if (removalStart > 0 && html[removalStart - 1] === '\n') removalStart -= 1;
+
+  let removalEnd = end;
+  while (html[removalEnd] === '\n') removalEnd += 1;
+  return html.slice(0, removalStart) + '\n' + html.slice(removalEnd);
+}
+
+const sourceHtml = read('admin.html');
+const validationPanel = extractValidationPanel(sourceHtml);
+const validationPanelMarkup = `${' '.repeat(12)}${VALIDATION_MARKER_START}\n${indent(validationPanel, 12)}\n${' '.repeat(12)}${VALIDATION_MARKER_END}`;
+
 const nativeTemplate = `  <!-- STUDIO_NATIVE_WORKSPACE_TEMPLATE_START -->
   <template id="studioNativeWorkspaceTemplate">
     <div class="studio-stage-one-layout" data-native-studio-layout="true">
@@ -82,6 +141,7 @@ const nativeTemplate = `  <!-- STUDIO_NATIVE_WORKSPACE_TEMPLATE_START -->
           </section>
           <section class="studio-workspace" data-workspace="validation" id="workspace-validation" hidden aria-hidden="true" aria-labelledby="workspace-validation-title">
             <header class="workspace-heading"><div><p class="eyebrow">FPL Challenge Studio</p><h1 id="workspace-validation-title">Validation Lab</h1><p>Inspect players, trace prompt rules and certify historical seasons.</p></div><a class="workspace-live-link" href="./">Open live game</a></header>
+${validationPanelMarkup}
           </section>
           <section class="studio-workspace" data-workspace="database" id="workspace-database" hidden aria-hidden="true" aria-labelledby="workspace-database-title">
             <header class="workspace-heading"><div><p class="eyebrow">FPL Challenge Studio</p><h1 id="workspace-database-title">Database Health</h1><p>Run the read-only database audit and review anything that still needs research.</p></div><a class="workspace-live-link" href="./">Open live game</a></header>
@@ -100,8 +160,8 @@ const nativeTemplate = `  <!-- STUDIO_NATIVE_WORKSPACE_TEMPLATE_START -->
 
 {
   const path = 'admin.html';
-  const before = read(path);
-  let after = before;
+  const before = sourceHtml;
+  let after = removeLegacyValidationPanel(before);
 
   const stagePattern = /  <script src="js\/admin-stage-one\.js(?:\?v=[^"]+)?"><\/script>/;
   const desiredStageTag = `  <script src="${stageUrl}"></script>`;
@@ -132,8 +192,15 @@ const nativeTemplate = `  <!-- STUDIO_NATIVE_WORKSPACE_TEMPLATE_START -->
   const newLayout = `    const layout = nativeLayout || document.createElement("div");\n    layout.classList.add("studio-stage-one-layout");\n    if (!nativeLayout) {\n      mainColumn.append(topbar, workspaceHost);\n      layout.append(sidebar, mainColumn);\n    }\n    shell.appendChild(layout);`;
   after = replaceOnce(after, oldLayout, newLayout, 'native layout activation');
 
+  const legacyMoveMarker = `    shell.appendChild(layout);\n\n    originalChildren.forEach(element => {`;
+  const nativePanelLabelling = `    shell.appendChild(layout);\n\n    // Panels authored directly inside native workspaces never pass through originalChildren.\n    // Apply the same shared panel metadata/collapse behaviour before legacy panels are moved.\n    workspaces.forEach((workspace, workspaceId) => {\n      [...workspace.children].forEach(element => {\n        if (element.matches(".workspace-heading, .studio-hero, .safety-banner, .status-grid")) return;\n        if (!element.classList.contains("stage-one-tool-panel")) labelToolPanel(element, workspaceId);\n      });\n    });\n\n    originalChildren.forEach(element => {`;
+  after = replaceOnce(after, legacyMoveMarker, nativePanelLabelling, 'native workspace panel labelling');
+
   write(path, before, after);
 }
 
 execFileSync(process.execPath, ['--check', 'js/admin-stage-one.js'], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-native-studio-shell.mjs'], { stdio: 'inherit' });
+if (fs.existsSync('scripts/verify-native-validation-workspace.mjs')) {
+  execFileSync(process.execPath, ['scripts/verify-native-validation-workspace.mjs'], { stdio: 'inherit' });
+}
