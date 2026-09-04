@@ -80,6 +80,7 @@ admin.html
       ├─ V3 safe rule builder + database tester
       ├─ V3 advisory quality evidence
       ├─ V3 deliberate family/answer-pool candidate generator
+      ├─ V3 read-only candidate all-season certification
       ├─ Prompt Studio heavy-tool lazy loader
       ├─ legacy production certification/quality chain
       ├─ legacy Refinement Incubator
@@ -96,6 +97,7 @@ Main modules:
 - `js/prompt-studio-v3-rule-tester.js` — parser-safe structured rule builder and real player-database Test evidence.
 - `js/prompt-studio-v3-quality-advisor.js` — advisory answer breadth, concentration, V3 overlap and family-coverage evidence; never a review authority.
 - `js/prompt-studio-v3-candidate-generator.js` — deliberate family + target-answer-pool shortlist generator; never auto-saves or promotes candidates.
+- `js/prompt-studio-v3-candidate-certification.js` — read-only season-by-season candidate evidence; never mutates V3 review/approval or production membership.
 - `js/prompt-studio-redesign.js` — V2 compatibility presentation while the old production pipeline still exists.
 - `js/prompt-library-canonical-state.js` — V2 visible census/enabled policy; not V3 authority.
 - `js/repository-certified-prompt-pool.js` — existing production membership boundary.
@@ -127,6 +129,7 @@ The existing 851-prompt production library remains frozen and continues to power
 ```text
 Draft
 → real database Test
+→ read-only candidate all-season evidence
 → advisory Quality evidence
 → Human quality review
 → Review
@@ -159,7 +162,10 @@ Test
 → executes the shared Validation Engine against the loaded FPL_PLAYERS database
 → calculates unique valid players, season breadth, club breadth, runtime errors and zero-minute violations
 → technical PASS requires safe mapping, at least one answer, zero runtime errors and zero accepted zero-minute records
-→ technical evidence cannot rate or approve a prompt
+→ candidate all-season certification then runs the same prompt across every supported season
+→ season evidence reports answers, clubs, runtime errors and zero-minute answers per season
+→ NO MATCH is evidence, not a technical failure; only runtime/zero-minute problems fail candidate certification
+→ all-season evidence is read-only and cannot rate, approve or enable a prompt
 
 Quality
 → automated evidence is advisory only
@@ -234,6 +240,28 @@ The generator enumerates a bounded set of parser-safe family recipes, validates 
 A generated candidate is **temporary** until the user explicitly clicks **Add as disabled Draft**. There is no bulk auto-save, no automatic Test pass, no quality rating, no approval and no production membership change. Once added, the candidate must follow the normal V3 lifecycle from Draft onward.
 
 The first slice supports 16 families with safe recipes: season stats, combined stats, exact/bands, club + stat, position + stat, league position/status, promoted clubs, relegated clubs, champions, career longevity, club count, manager, anti-meta, starting-price value, minutes/role and composite/story prompts. Unsupported registered families remain visible in Family Coverage and can gain recipes later without changing the authority model.
+
+### V3 candidate-certification boundary
+
+`js/prompt-studio-v3-candidate-certification.js` owns separate read-only evidence under:
+
+`fplPromptStudioV3CandidateAllSeasonEvidence`
+
+A prompt must first pass the real V3 database Test. Candidate certification then evaluates that exact prompt against every supported season and records:
+
+- player rows available in the season;
+- unique valid answers in the season;
+- clubs represented by valid answers;
+- runtime errors;
+- accepted zero-minute answers;
+- ACTIVE / NO MATCH / FAIL season status;
+- total active-season coverage and unique players across all seasons.
+
+`NO MATCH` is deliberately not treated as a technical failure because season-specific and sparse prompts may correctly have no valid answers in many seasons. Candidate technical certification fails only for runtime errors, accepted zero-minute answers or no valid answer anywhere.
+
+Evidence carries a fingerprint of prompt ID, position, wording and the underlying real-Test timestamp. Human quality/review edits do not invalidate it; a changed prompt definition or rerun Test does.
+
+Candidate certification must never write a quality rating, review decision, lifecycle status, approval state, enabled state or production membership.
 
 ### V3 family registry
 
@@ -340,7 +368,7 @@ Certify all seasons requested
 → release snapshot after completion/cancellation
 ```
 
-V3 will get its own candidate-certification workflow later, before any production cutover. That future candidate certification must remain read-only with respect to V3 approval state.
+V3 candidate all-season certification is separate from this production gate. It evaluates one V3 candidate at a time for evidence only and never changes production or V3 approval state.
 
 ---
 
@@ -367,7 +395,7 @@ Dedicated verifiers include:
 - `scripts/verify-prompt-studio-v3.mjs`
 - `scripts/verify-all-season-certification-gate.mjs`
 
-The V3 verifier explicitly proves zero-start isolation, disabled-by-default drafts, parser-safe structured rule mapping, real database Test evidence, advisory-only quality evidence, deliberate temporary candidate generation, human quality review, non-live approval and the absence of automatic V3 promotion/removal logic.
+The V3 verifier explicitly proves zero-start isolation, disabled-by-default drafts, parser-safe structured rule mapping, real database Test evidence, advisory-only quality evidence, deliberate temporary candidate generation, read-only candidate all-season certification, human quality review, non-live approval and the absence of automatic V3 promotion/removal logic.
 
 ---
 
@@ -375,15 +403,16 @@ The V3 verifier explicitly proves zero-start isolation, disabled-by-default draf
 
 `config/asset-manifest.json` is the source of truth.
 
-Current V3 candidate-generation slice:
+Current V3 candidate-certification slice:
 
-- manifest/runtime: `1.9.0-prompt-studio-v3-candidates`
-- Studio bootstrap: `1.5.0-prompt-studio-v3-candidates`
+- manifest/runtime: `1.10.0-prompt-studio-v3-certification`
+- Studio bootstrap: `1.6.0-prompt-studio-v3-certification`
 - Prompt Studio V3: `3.0.0`
 - Prompt family registry V3: `3.0.0`
 - V3 safe rule builder/database tester: `3.1.1`
 - V3 advisory quality evidence: `3.2.0`
 - V3 deliberate candidate generator: `3.3.0`
+- V3 candidate all-season certification: `3.4.0`
 - Stage One: `1.5.0-native-prompts`
 - legacy Prompt Studio redesign: `2.0.0`
 - legacy repository-certified prompt pool: `1.1.0`
@@ -411,8 +440,8 @@ Prompt Studio V3 progress/order:
 3. **Complete** — wire the safe rule builder and real validation engine into V3 Test without importing the old working library.
 4. **Complete** — build advisory Quality evidence with no automatic state mutation.
 5. **Complete** — add deliberate candidate generation by family/target answer-pool size; generated material remains temporary until explicitly added as a disabled Draft.
-6. **Next** — build V3 candidate all-season certification that reports evidence without approving prompts.
-7. Grow an initial high-quality V3 set using Family Coverage rather than a fixed prompt-count target.
+6. **Complete** — build read-only V3 candidate all-season certification with season-by-season answer and technical evidence.
+7. **Next** — grow an initial high-quality V3 set using Family Coverage rather than a fixed prompt-count target.
 8. Simulate seven-day calendars against approved V3 candidates.
 9. Design and separately approve the eventual production cutover.
 10. Only after cutover, retire/archive the old automatic quality/refinement chain.
