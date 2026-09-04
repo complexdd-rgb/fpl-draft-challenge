@@ -12,6 +12,11 @@ const forbidText = (source, text, label) => {
 };
 
 const config = JSON.parse(read('config/asset-manifest.json'));
+const assetUrl = key => {
+  const asset = config.assets?.[key];
+  if (!asset?.path) throw new Error(`Central asset manifest is missing ${key}.`);
+  return asset.version ? `${asset.path}?v=${asset.version}` : asset.path;
+};
 const runtimeManifest = read('js/asset-manifest.js');
 const admin = read('admin.html');
 const bootstrap = read('js/studio-bootstrap.js');
@@ -20,17 +25,23 @@ const retiredFeatureLoader = read('js/studio-feature-loader.js');
 const promptLoader = read('js/prompt-studio-loader.js');
 const leaderboard = read('js/leaderboard-config.js');
 
-if (config.manifestVersion !== '1.0.0') throw new Error('Unexpected Studio manifest version.');
+if (!config.manifestVersion) throw new Error('Studio manifest version is missing.');
+if (config.assets?.assetManifestRuntime?.version !== config.manifestVersion) {
+  throw new Error('assetManifestRuntime.version must match manifestVersion so every manifest edit can be cache-busted deliberately.');
+}
 for (const [key, asset] of Object.entries(config.assets || {})) {
   requireText(runtimeManifest, `"${key}"`, `runtime manifest key ${key}`);
   requireText(runtimeManifest, `"path": "${asset.path}"`, `runtime manifest path ${key}`);
   if (asset.version) requireText(runtimeManifest, `"version": "${asset.version}"`, `runtime manifest version ${key}`);
 }
 
-const manifestTag = `js/asset-manifest.js?v=${config.manifestVersion}`;
+const manifestTag = assetUrl('assetManifestRuntime');
+const compatibilityTag = assetUrl('adminImportTools');
+const leaderboardTag = assetUrl('leaderboardConfig');
 requireText(admin, manifestTag, 'admin manifest bootstrap');
-requireText(admin, 'js/admin-import-tools.js?v=22.3.0-careerevolution', 'legacy compatibility entrypoint preserved during migration');
-if (admin.indexOf(manifestTag) > admin.indexOf('js/admin-import-tools.js?v=22.3.0-careerevolution')) {
+requireText(admin, compatibilityTag, 'Studio compatibility entrypoint cache tag');
+requireText(admin, leaderboardTag, 'Studio leaderboard configuration cache tag');
+if (admin.indexOf(manifestTag) > admin.indexOf(compatibilityTag)) {
   throw new Error('Asset manifest must load before the Studio compatibility entrypoint.');
 }
 
@@ -49,7 +60,7 @@ for (const token of [
 ]) requireText(bootstrap, token, 'single Studio bootstrap');
 
 requireText(compatibility, 'studio-bootstrap.js', 'compatibility shim delegates to bootstrap');
-requireText(compatibility, 'js/prompt-studio-loader.js?v=1.3.0-careerevolution', 'legacy prompt fallback remains available');
+requireText(compatibility, 'js/prompt-studio-loader.js?v=', 'cache-safe legacy prompt fallback remains available');
 forbidText(compatibility, 'career-shape-validation-bridge.js', 'compatibility shim');
 
 requireText(retiredFeatureLoader, 'studio-bootstrap.js', 'retired feature-loader shim delegates to bootstrap');
@@ -90,4 +101,4 @@ for (const path of [
   execFileSync(process.execPath, [fileURLToPath(new URL(path, root))], { stdio: 'inherit' });
 }
 
-console.log('Studio wiring verification passed.');
+console.log(`Studio wiring verification passed against central manifest ${config.manifestVersion}.`);
