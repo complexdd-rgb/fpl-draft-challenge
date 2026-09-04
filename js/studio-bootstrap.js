@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v1.6.0.
+/* FPL Challenge Studio — single runtime bootstrap owner v1.7.0.
    Owns Studio-only feature loading. Specialist modules remain separate, but no longer
    discover and start overlapping loader chains independently. */
 (() => {
@@ -77,7 +77,9 @@
         loadAsset("promptStudioV3RuleTester", "data-prompt-studio-v3-rule-tester", { async: false }, () => {
           loadAsset("promptStudioV3QualityAdvisor", "data-prompt-studio-v3-quality-advisor", { async: false }, () => {
             loadAsset("promptStudioV3CandidateGenerator", "data-prompt-studio-v3-candidate-generator", { async: false }, () => {
-              loadAsset("promptStudioV3CandidateCertification", "data-prompt-studio-v3-candidate-certification", { async: false });
+              loadAsset("promptStudioV3AutoBatchGenerator", "data-prompt-studio-v3-auto-batch-generator", { async: false }, () => {
+                loadAsset("promptStudioV3CandidateCertification", "data-prompt-studio-v3-candidate-certification", { async: false });
+              });
             });
           });
         });
@@ -145,7 +147,7 @@
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "1.6.0",
+    version: "1.7.0",
     start,
     loadScript,
     loadAsset,
