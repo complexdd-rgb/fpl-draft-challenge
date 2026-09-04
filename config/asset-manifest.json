@@ -1,13 +1,13 @@
 {
-  "manifestVersion": "1.5.0-prompt-studio-v2",
+  "manifestVersion": "1.10.0-prompt-studio-v3-certification",
   "assets": {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.5.0-prompt-studio-v2"
+      "version": "1.10.0-prompt-studio-v3-certification"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "1.1.0-prompt-redesign"
+      "version": "1.6.0-prompt-studio-v3-certification"
     },
     "adminImportTools": {
       "path": "js/admin-import-tools.js",
@@ -24,6 +24,30 @@
     "promptStudioRedesign": {
       "path": "js/prompt-studio-redesign.js",
       "version": "2.0.0"
+    },
+    "promptFamilyRegistryV3": {
+      "path": "js/prompt-family-registry-v3.js",
+      "version": "3.0.0"
+    },
+    "promptStudioV3": {
+      "path": "js/prompt-studio-v3-clean-room.js",
+      "version": "3.0.0"
+    },
+    "promptStudioV3RuleTester": {
+      "path": "js/prompt-studio-v3-rule-tester.js",
+      "version": "3.1.1"
+    },
+    "promptStudioV3QualityAdvisor": {
+      "path": "js/prompt-studio-v3-quality-advisor.js",
+      "version": "3.2.0"
+    },
+    "promptStudioV3CandidateGenerator": {
+      "path": "js/prompt-studio-v3-candidate-generator.js",
+      "version": "3.3.0"
+    },
+    "promptStudioV3CandidateCertification": {
+      "path": "js/prompt-studio-v3-candidate-certification.js",
+      "version": "3.4.0"
     },
     "adminImportToolsBase": {
       "path": "js/admin-import-tools-base.js",
