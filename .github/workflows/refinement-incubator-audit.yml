@@ -15,6 +15,7 @@ on:
       - 'js/career-shape-validation-bridge.js'
       - 'js/validation-engine.js'
       - 'scripts/audit-refinement-incubator.mjs'
+      - 'scripts/trial-refinement-survivors.mjs'
       - '.github/workflows/refinement-incubator-audit.yml'
   pull_request:
     paths:
@@ -28,6 +29,7 @@ on:
       - 'js/career-shape-validation-bridge.js'
       - 'js/validation-engine.js'
       - 'scripts/audit-refinement-incubator.mjs'
+      - 'scripts/trial-refinement-survivors.mjs'
       - '.github/workflows/refinement-incubator-audit.yml'
 
 permissions:
@@ -69,8 +71,13 @@ jobs:
           }
           NODE
 
+      - name: Run full-library survivor trial
+        run: node scripts/trial-refinement-survivors.mjs
+
       - name: Check audit script syntax
-        run: node --check scripts/audit-refinement-incubator.mjs
+        run: |
+          node --check scripts/audit-refinement-incubator.mjs
+          node --check scripts/trial-refinement-survivors.mjs
 
       - name: Reject whitespace errors
         run: git diff --check
@@ -80,12 +87,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git add reports/refinement-incubator-audit.json reports/refinement-incubator-audit.csv reports/refinement-incubator-audit.md
+          git add \
+            reports/refinement-incubator-audit.json \
+            reports/refinement-incubator-audit.csv \
+            reports/refinement-incubator-audit.md \
+            reports/refinement-survivor-trial.json \
+            reports/refinement-survivor-trial.md
           if git diff --cached --quiet; then
             echo 'Refinement Incubator audit is already current.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Record Refinement Incubator audit'
+          git commit -m 'Record Refinement Incubator survivor trial'
           git push origin "HEAD:${GITHUB_REF_NAME}"
