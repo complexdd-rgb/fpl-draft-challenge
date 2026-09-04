@@ -90,8 +90,11 @@ function loadCanonicalPrompt(html) {
 function removeLegacyPrompt(html) {
   const legacy = locateLegacyPrompt(html);
   if (!legacy) return html;
+
   let start = legacy.start;
+  while (start > 0 && html[start - 1] === ' ') start -= 1;
   if (start > 0 && html[start - 1] === '\n') start -= 1;
+
   let end = legacy.end;
   while (html[end] === '\n') end += 1;
   return html.slice(0, start) + '\n' + html.slice(end);
