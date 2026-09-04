@@ -15,12 +15,15 @@ on:
       - 'js/prompt-studio-loader.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
+      - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-studio-wiring.mjs'
       - 'scripts/verify-studio-wiring.mjs'
       - 'scripts/build-native-studio-shell.mjs'
       - 'scripts/verify-native-studio-shell.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
+      - 'scripts/apply-career-evolution-cache-wiring.mjs'
+      - 'scripts/verify-career-evolution-cache-wiring.mjs'
       - '.github/workflows/studio-wiring.yml'
   pull_request:
     paths:
@@ -33,12 +36,15 @@ on:
       - 'js/prompt-studio-loader.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
+      - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-studio-wiring.mjs'
       - 'scripts/verify-studio-wiring.mjs'
       - 'scripts/build-native-studio-shell.mjs'
       - 'scripts/verify-native-studio-shell.mjs'
       - 'scripts/apply-studio-refresh-fastboot.mjs'
       - 'scripts/verify-studio-refresh-fastboot.mjs'
+      - 'scripts/apply-career-evolution-cache-wiring.mjs'
+      - 'scripts/verify-career-evolution-cache-wiring.mjs'
       - '.github/workflows/studio-wiring.yml'
 
 permissions:
@@ -62,6 +68,9 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Apply manifest-owned Admin cache tags
+        run: node scripts/build-studio-cache-tags.mjs
+
       - name: Build native Studio shell
         run: node scripts/build-native-studio-shell.mjs
 
@@ -82,6 +91,7 @@ jobs:
             js/leaderboard-config.js
           )
           sha256sum "${files[@]}" > /tmp/studio-architecture-first.sha
+          node scripts/build-studio-cache-tags.mjs
           node scripts/build-native-studio-shell.mjs
           node scripts/build-studio-wiring.mjs
           sha256sum "${files[@]}" > /tmp/studio-architecture-second.sha
@@ -102,6 +112,9 @@ jobs:
           node --check js/studio-feature-loader.js
           node --check js/prompt-studio-loader.js
           node --check js/leaderboard-config.js
+          node --check scripts/build-studio-cache-tags.mjs
+          node --check scripts/build-native-studio-shell.mjs
+          node --check scripts/build-studio-wiring.mjs
 
       - name: Reject whitespace errors
         run: git diff --check
