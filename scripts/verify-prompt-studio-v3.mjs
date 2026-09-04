@@ -3,6 +3,7 @@ import fs from 'node:fs';
 const read = file => fs.readFileSync(file, 'utf8');
 const studio = read('js/prompt-studio-v3-clean-room.js');
 const tester = read('js/prompt-studio-v3-rule-tester.js');
+const advisor = read('js/prompt-studio-v3-quality-advisor.js');
 const registry = read('js/prompt-family-registry-v3.js');
 const manifest = JSON.parse(read('config/asset-manifest.json'));
 const bootstrap = read('js/studio-bootstrap.js');
@@ -41,20 +42,38 @@ assert(!tester.includes('prompt.status = "approved"'), 'V3 rule tester must neve
 assert(!tester.includes('qualityReview ='), 'V3 rule tester must not write human quality review decisions.');
 assert(!tester.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL.add'), 'V3 rule tester must not mutate the production pool.');
 
+assert(advisor.includes('const EVIDENCE_KEY = "fplPromptStudioV3QualityAdvisoryEvidence"'), 'V3 advisory evidence does not use isolated storage.');
+assert(advisor.includes('validation.evaluatePrompt(entry.player, entry.season, prompt.label)'), 'V3 advisory evidence is not grounded in the real Validation Engine/database.');
+assert(advisor.includes('return common / smaller.size'), 'V3 overlap evidence does not use the established smaller-answer-set overlap convention.');
+assert(advisor.includes('breadthSignal('), 'V3 advisory layer does not calculate answer breadth.');
+assert(advisor.includes('obviousnessSignal('), 'V3 advisory layer does not calculate obviousness indicators.');
+assert(advisor.includes('familySignal('), 'V3 advisory layer does not calculate family coverage.');
+assert(advisor.includes('data-v3-copy-advisory-overlap'), 'Advisory overlap cannot be explicitly copied into the human form.');
+assert(advisor.includes('data-v3-copy-advisory-obviousness'), 'Advisory obviousness cannot be explicitly copied into the human form.');
+assert(!advisor.includes('qualityReview ='), 'V3 advisor must never write human quality review state.');
+assert(!advisor.includes('prompt.status ='), 'V3 advisor must never change prompt lifecycle state.');
+assert(!advisor.includes('prompt.enabled = true'), 'V3 advisor must never enable a prompt.');
+assert(!advisor.includes('rating:'), 'V3 advisor must never persist an automatic star rating.');
+assert(!advisor.includes('decision:'), 'V3 advisor must never persist an automatic review decision.');
+assert(!advisor.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL'), 'V3 advisor must not mutate or depend on the production prompt pool.');
+
 const familyCount = (registry.match(/^    \["/gm) || []).length;
 assert(familyCount >= 30, `V3 family registry is too small (${familyCount}); expected at least 30 families.`);
 for (const family of ['league-position','career-consistency','career-peak','comeback','one-club','one-season-wonder','era-crossover','premium-disappointment','cross-season-achievement','composite-story']) {
   assert(registry.includes(`"${family}"`), `V3 family registry is missing ${family}.`);
 }
 
-assert(manifest.manifestVersion === '1.7.0-prompt-studio-v3-testing', 'Central manifest is not on the V3 database-testing version.');
+assert(manifest.manifestVersion === '1.8.0-prompt-studio-v3-quality', 'Central manifest is not on the V3 advisory-quality version.');
 assert(manifest.assets.promptStudioV3?.path === 'js/prompt-studio-v3-clean-room.js', 'V3 runtime is not manifest-owned.');
 assert(manifest.assets.promptFamilyRegistryV3?.path === 'js/prompt-family-registry-v3.js', 'V3 family registry is not manifest-owned.');
 assert(manifest.assets.promptStudioV3RuleTester?.path === 'js/prompt-studio-v3-rule-tester.js', 'V3 safe builder/database tester is not manifest-owned.');
 assert(manifest.assets.promptStudioV3RuleTester?.version === '3.1.1', 'V3 safe builder/database tester cache version is stale.');
+assert(manifest.assets.promptStudioV3QualityAdvisor?.path === 'js/prompt-studio-v3-quality-advisor.js', 'V3 quality advisor is not manifest-owned.');
+assert(manifest.assets.promptStudioV3QualityAdvisor?.version === '3.2.0', 'V3 quality advisor cache version is stale.');
 assert(bootstrap.includes('function ensurePromptV3()'), 'Studio bootstrap does not own V3 loading.');
 assert(bootstrap.includes('loadAsset("promptFamilyRegistryV3"'), 'V3 registry is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3"'), 'V3 runtime is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3RuleTester"'), 'V3 safe builder/database tester is not loaded by bootstrap.');
+assert(bootstrap.includes('loadAsset("promptStudioV3QualityAdvisor"'), 'V3 advisory quality layer is not loaded by bootstrap.');
 
-console.log(`Prompt Studio V3 verification passed: zero-start isolation, ${familyCount} families, natural safe rule mapping, real database testing, manual quality/approval, and frozen legacy production remain separate.`);
+console.log(`Prompt Studio V3 verification passed: zero-start isolation, ${familyCount} families, natural safe rule mapping, real database testing, advisory-only quality evidence, manual quality/approval, and frozen legacy production remain separate.`);
