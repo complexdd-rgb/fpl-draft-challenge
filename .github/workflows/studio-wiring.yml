@@ -18,6 +18,7 @@ on:
       - 'js/prompt-studio-loader.js'
       - 'js/prompt-studio-redesign.js'
       - 'js/prompt-studio-v3-clean-room.js'
+      - 'js/prompt-studio-v3-rule-tester.js'
       - 'js/prompt-family-registry-v3.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
@@ -56,6 +57,7 @@ on:
       - 'js/prompt-studio-loader.js'
       - 'js/prompt-studio-redesign.js'
       - 'js/prompt-studio-v3-clean-room.js'
+      - 'js/prompt-studio-v3-rule-tester.js'
       - 'js/prompt-family-registry-v3.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
@@ -181,6 +183,7 @@ jobs:
           node --check js/prompt-studio-loader.js
           node --check js/prompt-studio-redesign.js
           node --check js/prompt-studio-v3-clean-room.js
+          node --check js/prompt-studio-v3-rule-tester.js
           node --check js/prompt-family-registry-v3.js
           node --check js/leaderboard-config.js
           node --check scripts/apply-all-season-certification-gate.mjs
