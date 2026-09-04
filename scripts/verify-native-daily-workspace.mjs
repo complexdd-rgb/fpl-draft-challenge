@@ -29,15 +29,20 @@ const legacyMain = html.slice(mainStart, mainEnd);
 
 const challengeStart = html.indexOf('<section class="studio-workspace" data-workspace="challenge" id="workspace-challenge"');
 const promptStart = html.indexOf('<section class="studio-workspace" data-workspace="prompts" id="workspace-prompts"', challengeStart + 1);
+const validationStart = html.indexOf('<section class="studio-workspace" data-workspace="validation" id="workspace-validation"', promptStart + 1);
 assert(challengeStart >= 0 && promptStart > challengeStart, 'Native Daily/Prompt workspace boundaries were not found.');
 const challengeWorkspace = html.slice(challengeStart, promptStart);
+const promptWorkspace = validationStart > promptStart ? html.slice(promptStart, validationStart) : '';
 
 assert(count(html, '<!-- STUDIO_NATIVE_DAILY_WORKSPACE_START -->') === 1, 'Expected exactly one native Daily workspace start marker.');
 assert(count(html, '<!-- STUDIO_NATIVE_DAILY_WORKSPACE_END -->') === 1, 'Expected exactly one native Daily workspace end marker.');
 assert(challengeWorkspace.includes('<h2>Challenge settings</h2>'), 'Challenge settings are not authored inside the native Daily workspace.');
 assert(!legacyMain.includes('<h2>Challenge settings</h2>'), 'Legacy <main> still contains Challenge settings.');
 assert(!challengeWorkspace.includes('id="libraryManagerPanel"'), 'Prompt Library Manager leaked into the Daily workspace.');
-assert(legacyMain.includes('id="libraryManagerPanel"'), 'Prompt Library Manager no longer remains in the legacy source area before its own migration.');
+if (html.includes('<!-- STUDIO_NATIVE_PROMPT_WORKSPACE_START -->')) {
+  assert(promptWorkspace.includes('id="libraryManagerPanel"'), 'Prompt Library Manager is not inside the native Prompt Studio workspace.');
+  assert(!legacyMain.includes('id="libraryManagerPanel"'), 'Legacy <main> still contains Prompt Library Manager after native migration.');
+}
 
 requiredIds.forEach(id => {
   const token = `id="${id}"`;
