@@ -6,11 +6,11 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.8.0-prompt-studio-v3-quality"
+      "version": "1.9.0-prompt-studio-v3-candidates"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "1.4.0-prompt-studio-v3-quality"
+      "version": "1.5.0-prompt-studio-v3-candidates"
     },
     "adminImportTools": {
       "path": "js/admin-import-tools.js",
@@ -43,6 +43,10 @@
     "promptStudioV3QualityAdvisor": {
       "path": "js/prompt-studio-v3-quality-advisor.js",
       "version": "3.2.0"
+    },
+    "promptStudioV3CandidateGenerator": {
+      "path": "js/prompt-studio-v3-candidate-generator.js",
+      "version": "3.3.0"
     },
     "adminImportToolsBase": {
       "path": "js/admin-import-tools-base.js",
@@ -165,7 +169,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "1.8.0-prompt-studio-v3-quality",
+    version: "1.9.0-prompt-studio-v3-candidates",
     assets,
     get,
     url
