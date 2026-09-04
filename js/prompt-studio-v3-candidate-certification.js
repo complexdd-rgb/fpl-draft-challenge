@@ -59,7 +59,7 @@
 
   function fingerprint(prompt) {
     const test = tester()?.getTestDetail?.(prompt.id);
-    return `${prompt.id}|${prompt.label}|${prompt.updatedAt || ""}|${test?.testedAt || ""}`;
+    return `${prompt.id}|${prompt.position || "ANY"}|${prompt.label}|${test?.testedAt || ""}`;
   }
 
   function seasonPlayers(season) {
@@ -103,7 +103,7 @@
     const stale = evidence.fingerprint !== fingerprint(prompt);
     const rows = evidence.seasons || [];
     host.innerHTML = `<div class="prompt-v3-candidate-cert-result">
-      <div class="prompt-v3-note"><strong>${stale ? "Evidence is stale — rerun required" : evidence.technical === "pass" ? "Candidate technical certification PASS" : "Candidate technical certification FAIL"}</strong><br>${esc(stale ? "The prompt wording or its real Test changed after this evidence was calculated." : `Read-only evidence calculated ${new Date(evidence.calculatedAt).toLocaleString("en-GB")}. No prompt state was changed.`)}</div>
+      <div class="prompt-v3-note"><strong>${stale ? "Evidence is stale — rerun required" : evidence.technical === "pass" ? "Candidate technical certification PASS" : "Candidate technical certification FAIL"}</strong><br>${esc(stale ? "The prompt wording, position or its real Test changed after this evidence was calculated." : `Read-only evidence calculated ${new Date(evidence.calculatedAt).toLocaleString("en-GB")}. No prompt state was changed.`)}</div>
       <div class="prompt-v3-test-metrics">
         <article><span>Supported seasons</span><strong>${Number(evidence.totalSeasons || 0).toLocaleString("en-GB")}</strong></article>
         <article><span>Active seasons</span><strong>${Number(evidence.activeSeasons || 0).toLocaleString("en-GB")}</strong></article>
@@ -186,7 +186,9 @@
         seasonIndex += 1;
       }
       const activeSeasons = seasonResults.filter(row => row.answers > 0).length;
-      const technical = totalRuntimeErrors === 0 && totalZeroMinuteAccepted === 0 && uniquePlayers.size > 0 ? "pass" : "fail";
+      const runtimeErrors = totalRuntimeErrors;
+      const zeroMinuteAccepted = totalZeroMinuteAccepted;
+      const technical = runtimeErrors === 0 && zeroMinuteAccepted === 0 && uniquePlayers.size > 0 ? "pass" : "fail";
       evidenceStore[prompt.id] = {
         version:VERSION,
         promptId:prompt.id,
@@ -197,8 +199,8 @@
         activeSeasons,
         noMatchSeasons:seasonResults.length - activeSeasons,
         uniquePlayers:uniquePlayers.size,
-        runtimeErrors:totalRuntimeErrors,
-        zeroMinuteAccepted:totalZeroMinuteAccepted,
+        runtimeErrors,
+        zeroMinuteAccepted,
         seasons:seasonResults,
         calculatedAt:new Date().toISOString()
       };
