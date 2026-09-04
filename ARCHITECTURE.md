@@ -10,11 +10,11 @@ The repository has five main runtime areas:
 
 1. **Live game** — public daily challenge, player search, scoring, results and leaderboard.
 2. **Challenge Studio** — admin-only generation, prompt management, validation, database auditing and publishing.
-3. **Prompt engine** — prompt families, generation, quality analysis, 4★+ enforcement, refinement and survivor targeting.
+3. **Prompt engine** — prompt families, generation, quality analysis and prompt review.
 4. **Weekly engine** — seven-day generation, certified prompt snapshot, family quotas, exact rotation, nationality reservation and answer diversity.
 5. **Historical data/certification** — player-season data, career context, field readiness and season certification.
 
-Core rule: **Studio may build and analyse candidate material, but live generation and certification consume only repository-certified prompt/data state**.
+Core rule: **candidate-building tools must never silently change production prompt membership. Live generation and certification consume only explicit repository-certified state.**
 
 ---
 
@@ -49,9 +49,13 @@ Native workspaces:
 
 - **Validation Lab** — `workspace-validation`.
 - **Daily Challenge** — `workspace-challenge`, including settings, seven-day generation, XI review, Test Mode, download output and history.
-- **Prompt Studio** — `workspace-prompts`, including Library, Create, Quality and Review/Promote views.
+- **Prompt Studio** — `workspace-prompts`.
 
-These workspaces no longer originate in the legacy long-form `<main>` or require title-based Stage One re-parenting.
+Prompt Studio is now in a deliberate transition:
+
+- the old V2 runtime remains available only to protect the existing live/certification pipeline;
+- the human-facing Prompt Studio is being rebuilt as **V3 clean-room state starting from zero prompts**;
+- V3 never mutates the legacy production library.
 
 ```text
 admin.html
@@ -70,10 +74,12 @@ admin.html
 → weekly/daily guards
 → admin-import-tools.js compatibility shim
    → studio-bootstrap.js
-      ├─ Prompt Studio v2 controller
+      ├─ Prompt Studio V2 compatibility controller
+      ├─ Prompt Studio V3 clean-room controller
+      ├─ V3 family registry
       ├─ Prompt Studio heavy-tool lazy loader
-      ├─ certification/quality finishing chain
-      ├─ Refinement Incubator
+      ├─ legacy production certification/quality chain
+      ├─ legacy Refinement Incubator
       └─ publishing support
 ```
 
@@ -82,12 +88,14 @@ Main modules:
 - `config/asset-manifest.json` — authoritative Studio asset paths/cache versions.
 - `js/studio-bootstrap.js` — single Studio feature/bootstrap owner.
 - `js/admin-stage-one.js` — native shell activation and remaining legacy re-parenting.
-- `js/prompt-studio-redesign.js` — Prompt Studio Library/Create/Quality/Review presentation and workflow controller.
-- `js/prompt-library-canonical-state.js` — single visible Prompt Studio census and enabled/disabled policy.
-- `js/repository-certified-prompt-pool.js` — immutable production membership boundary.
+- `js/prompt-studio-v3-clean-room.js` — isolated V3 Draft/Test/Quality/Review workflow.
+- `js/prompt-family-registry-v3.js` — V3 family catalogue and coverage source.
+- `js/prompt-studio-redesign.js` — V2 compatibility presentation while the old production pipeline still exists.
+- `js/prompt-library-canonical-state.js` — V2 visible census/enabled policy; not V3 authority.
+- `js/repository-certified-prompt-pool.js` — existing production membership boundary.
 - `js/admin-core.js` — large multi-phase core; still a decomposition target.
 - `js/admin-batch-calendar.js` — seven-day generator.
-- `js/admin-daily-generator-guard.js` — certified-prompt generation snapshot/final guard.
+- `js/admin-daily-generator-guard.js` — production-certified prompt generation snapshot/final guard.
 - `js/admin-studio-finish.js` — preflight and all-season certification orchestration.
 - `js/validation-engine.js` / `js/validation-lab.js` — validation behaviour.
 
@@ -100,63 +108,143 @@ Retire them only when all supported callers have migrated.
 
 ---
 
-## 4. Prompt Studio and quality ownership
+## 4. Prompt Studio V3 clean-room model
 
-Prompt Studio v2 is organised around four jobs rather than one long vertical tool stack:
+V3 deliberately starts with **zero prompts** and owns a separate browser state key:
+
+`fplPromptStudioV3CleanRoom`
+
+The existing 851-prompt production library remains frozen and continues to power the public game and certification until an explicit future V3 cutover.
+
+### V3 lifecycle
+
+```text
+Draft
+→ Test
+→ Human quality review
+→ Review
+→ Human approval for future V3
+→ explicit repository cutover later
+```
+
+Important distinction: **V3 approval is not the same as production enablement.** During the clean-room build every V3 prompt remains production-disabled, including approved prompts.
+
+### V3 work areas
 
 ```text
 Library
-→ browse/search canonical library
-→ live prompts = enabled repository-certified prompts
-→ working prompts = disabled until promoted or deleted
+→ one isolated V3 list
+→ starts at 0
+→ total = disabled during the clean-room phase
 
 Create
-→ manual safe rule builder
-→ automatic/career generators
-→ new candidates enter disabled review state
+→ manual prompt draft
+→ choose family + position + difficulty
+→ always saves disabled
+
+Test
+→ record technical/answer-pool evidence
+→ automated rule execution to be wired in a later slice
 
 Quality
-→ one full canonical-library analyser population
-→ stale results hidden after membership changes
-→ ratings / repair / bulk actions remain explicit
+→ quality is advisory
+→ human chooses quality rating and writes review notes
+→ difficulty remains a separate property
 
-Review & Promote
-→ disabled candidate queue
-→ analyser evidence + issues + answer breadth
-→ repository promotion gate
-→ no self-promotion from browser state
+Review
+→ explicit human decision
+→ approve / keep for refinement / delete
+→ no automatic production promotion
+
+Families
+→ coverage across the V3 family registry
+→ growth is driven by missing/weak families, not an arbitrary total
 ```
 
-Heavy prompt tooling remains lazy through `js/prompt-studio-loader.js`.
+### No automatic Quality Enforcement in V3
 
-```text
-studio-bootstrap
-→ prompt-studio-redesign
-→ prompt-studio-loader
-   → admin-import-tools-base
-   → survivor-target generator / auto-explorer
-   → Career Shape modules
+The legacy production pipeline still contains `prompt-four-star-enforcer.js` and related Quality Enforcement v2 logic because the frozen 851-prompt library currently depends on it. **V3 does not consume those decisions.**
 
-certification/quality finishing
-→ approved baseline
-→ refinement survivor pack
-→ quality baseline finalizer
-→ Prompt Quality Analyser
-→ Quality Enforcement v2
-→ repository-certified 4★+ pool
-```
+V3 must not automatically:
 
-Current production membership is exactly **851 repository-certified prompts**. The working Studio library may contain additional candidates, but every non-production prompt is disabled until deliberately promoted or deleted.
+- change a star rating;
+- rescue a 3★ prompt to 4★;
+- apply a family-diversity bonus to promotion;
+- enable a prompt;
+- disable a prompt because of subjective quality;
+- delete a prompt;
+- approve a prompt.
 
-The September Refinement Incubator audit is complete: **848 directly certified + 3 family/diversity rescued + 0 incubated + 0 rejected**, with two durable survivors replacing weak parents.
+Automated tools may later provide evidence and suggestions. Only explicit human review changes V3 review status.
+
+Technical impossibilities such as a broken rule/runtime failure may block approval, but they still do not silently delete material.
+
+### V3 family registry
+
+The initial registry contains **33 families**, including core families and new priority areas:
+
+- season stats;
+- combined stats;
+- exact values/bands;
+- club + stat;
+- position + stat;
+- nationality + stat;
+- league position;
+- promoted clubs;
+- relegated clubs;
+- champions;
+- career totals;
+- career longevity;
+- club journey;
+- Premier League club count;
+- return journey;
+- career consistency;
+- career peak;
+- rise/fall;
+- comeback;
+- one-club career;
+- one-season wonder;
+- era crossover;
+- manager relationship;
+- manager journey;
+- teammate relationship;
+- name/identity;
+- anti-meta;
+- starting-price value;
+- premium disappointment;
+- minutes/role;
+- cross-season achievement;
+- club-status journey;
+- composite/story prompts.
+
+The family count is not a target by itself. V3 should favour genuinely different answer pools, recognisable football stories and coverage across eras/positions/clubs over raw prompt volume.
 
 ---
 
-## 5. Weekly generation
+## 5. Frozen legacy production prompt pipeline
+
+Until V3 is deliberately cut over, the current public pipeline remains unchanged.
+
+Current production membership is exactly **851 repository-certified prompts**. The existing production reconstruction includes the approved baseline, quality packs, durable survivors and nationality-context prompts.
+
+```text
+legacy approved/quality sources
+→ legacy quality/refinement chain
+→ repository-certified 851-prompt pool
+→ immutable generation/certification snapshot
+```
+
+The September Refinement Incubator audit remains historical evidence for that frozen production pool: **848 directly certified + 3 family/diversity rescued**, with two durable survivors replacing weak parents.
+
+This legacy automatic enforcement must not be copied into V3.
+
+---
+
+## 6. Weekly generation
 
 ```text
 nationality pack readiness
-→ repository-certified 851-prompt pool ready
+→ repository-certified 851-prompt legacy pool ready
 → immutable certified prompt snapshot
 → formation-aware selection
 → exactly one nationality prompt per day
@@ -169,9 +257,10 @@ nationality pack readiness
 → ZIP eligibility
 ```
 
-Protected invariants:
+Protected invariants during the V3 rebuild:
 
-- repository-certified Studio prompts only;
+- V3 prompts cannot leak into production generation;
+- repository-certified legacy prompts only;
 - immutable snapshot for each run;
 - exactly one nationality prompt per generated day;
 - safe exact rotation;
@@ -181,30 +270,25 @@ Protected invariants:
 
 ---
 
-## 6. All-season certification readiness gate
+## 7. All-season certification readiness gate
 
-The in-page Regression Suite must not certify against the browser working library or a transient pre-enforcement library.
+The in-page Regression Suite must not certify against V3 drafts, browser working prompts or transient loading sets.
 
 ```text
 Certify all seasons requested
-→ load Prompt Studio quality tools if needed
 → wait for FPL_REPOSITORY_CERTIFIED_PROMPT_POOL
-→ require exactly 851 prompt IDs
-→ require unique IDs and 4★+ definitions
+→ require exactly 851 legacy production prompt IDs
+→ require unique IDs and valid 4★+ definitions
 → freeze FPL_VALIDATION_CERTIFICATION_PROMPT_POOL
 → certify every supported season against that snapshot
 → release snapshot after completion/cancellation
 ```
 
-`js/validation-engine.js` prioritises the frozen certification snapshot only while it is active, then returns to its normal Studio inspection state.
-
-This prevents both previously observed browser mismatches: certification against the transient **1,191-prompt** loading set and against larger Prompt Studio working libraries. Browser extras never become certification evidence merely by being present or enabled locally.
-
-CI reconstructs the same repository-owned production pool, including the durable Refinement survivors and nine nationality-context prompts, and asserts **851 prompts before all 15 seasons are certified**.
+V3 will get its own candidate-certification workflow later, before any production cutover. That future candidate certification must remain read-only with respect to V3 approval state.
 
 ---
 
-## 7. Generated wiring
+## 8. Generated wiring and verification
 
 ```text
 config/asset-manifest.json
@@ -217,77 +301,61 @@ config/asset-manifest.json
 → verification
 ```
 
-The architecture build runs the chain twice; the second pass must be byte-identical.
+The architecture build runs the generated chain twice; the second pass must be byte-identical.
 
-Dedicated verifiers:
+Dedicated verifiers include:
 
 - `scripts/verify-native-validation-workspace.mjs`
 - `scripts/verify-native-daily-workspace.mjs`
 - `scripts/verify-native-prompt-workspace.mjs`
+- `scripts/verify-prompt-studio-v3.mjs`
 - `scripts/verify-all-season-certification-gate.mjs`
 
-Canonical native markup:
-
-- Daily Challenge: `fragments/admin-daily-workspace.html`
-- Prompt Studio: `fragments/admin-prompt-workspace.html`
+The V3 verifier explicitly proves zero-start isolation, disabled-by-default drafts, human quality review, non-live approval and the absence of automatic V3 promotion/removal logic.
 
 ---
 
-## 8. Cache/version ownership
+## 9. Cache/version ownership
 
 `config/asset-manifest.json` is the source of truth.
 
-Current Prompt Studio v2 slice:
+Current V3 foundation slice:
 
-- manifest/runtime: `1.5.0-prompt-studio-v2`
-- Studio bootstrap: `1.1.0-prompt-redesign`
+- manifest/runtime: `1.6.0-prompt-studio-v3-foundation`
+- Studio bootstrap: `1.2.0-prompt-studio-v3`
+- Prompt Studio V3: `3.0.0`
+- Prompt family registry V3: `3.0.0`
 - Stage One: `1.5.0-native-prompts`
-- Prompt Studio redesign: `2.0.0`
-- repository-certified prompt pool: `1.1.0`
-- canonical Prompt Studio state: `1.0.0`
+- legacy Prompt Studio redesign: `2.0.0`
+- legacy repository-certified prompt pool: `1.1.0`
 - Validation Engine: `1.7.1-certification-snapshot`
 
-Admin static cache tags, lazy module URLs, generated wiring and CI consume this manifest. Do not add competing version literals where the manifest can own them.
+Do not add competing version literals where the manifest can own them.
 
 ---
 
-## 9. Current hotspots
+## 10. Current hotspots and next order
 
 Do not one-shot rewrite these:
 
 - `js/admin-core.js`
 - `js/admin-import-tools-base.js`
 - `js/admin-batch-calendar.js`
-- remaining legacy workspaces in `admin.html`
-- accumulated Studio CSS layers
+- the legacy V2 prompt-generation/quality chain while it is still production-critical;
+- remaining legacy workspaces in `admin.html`;
+- accumulated Studio CSS layers.
 
-Migration pattern:
+Next Prompt Studio V3 order:
 
-```text
-canonical markup
-→ native workspace
-→ stable existing IDs
-→ focused presentation/controller
-→ remove legacy source copy
-→ remove proven-redundant classifier/loader residue
-→ dedicated verifier
-→ protected regression suite
-```
+1. Keep the 851-prompt legacy production pool frozen and green.
+2. Establish V3 clean-room storage/UI/family coverage at zero prompts.
+3. Wire the safe rule builder and real validation engine into V3 Test without importing the old working library.
+4. Build advisory Quality evidence with **no automatic state mutation**.
+5. Add deliberate candidate generation by family/target answer-pool size; generated material enters Draft/Review only.
+6. Build V3 candidate all-season certification that reports evidence without approving prompts.
+7. Grow an initial high-quality V3 set using Family Coverage rather than a fixed prompt-count target.
+8. Simulate seven-day calendars against approved V3 candidates.
+9. Design and separately approve the eventual production cutover.
+10. Only after cutover, retire/archive the old automatic quality/refinement chain.
 
-Remove only code proven redundant by migrated ownership or tests.
-
----
-
-## 10. Target / cleanup order
-
-1. Keep `main` green and preserve weekly/certification invariants.
-2. Keep the central manifest and `studio-bootstrap.js` as single owners.
-3. Finish and validate the **Prompt Studio v2** native redesign.
-4. Migrate Database Health, then Leaderboard and Historical Imports.
-5. Re-sweep Validation, Daily and Prompt Studio once all legacy re-parenting dependencies are gone.
-6. Retire the two compatibility shims.
-7. Split large modules along tested responsibility boundaries.
-8. Consolidate accumulated CSS after dependency checks prove which older layers are redundant.
-9. Resume survivor-library/new-family growth on the cleaner architecture.
-
-Update this map when a compatibility layer is added/retired or a workspace becomes fully native.
+Update this map whenever V3 gains a new authority boundary or a legacy production dependency is retired.
