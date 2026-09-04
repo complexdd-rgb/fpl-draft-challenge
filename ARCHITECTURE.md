@@ -14,7 +14,7 @@ The repository has five main runtime areas:
 4. **Weekly engine** — seven-day generation, certified prompt snapshot, family quotas, exact rotation, nationality reservation and answer diversity.
 5. **Historical data/certification** — player-season data, career context, field readiness and season certification.
 
-The key architectural rule is unchanged: **Studio may build and analyse candidate material, but the live Daily Challenge must consume only certified prompt/data state**.
+The key architectural rule is unchanged: **Studio may build and analyse candidate material, but the live Daily Challenge and certification workflows must consume only certified prompt/data state**.
 
 ---
 
@@ -93,6 +93,7 @@ Main Studio modules:
 - `js/admin-batch-calendar.js` — seven-day challenge generator.
 - `js/admin-daily-generator-guard.js` — certified-prompt snapshot/final generation guard.
 - `js/admin-daily-publish.js` — publishing/download support.
+- `js/admin-studio-finish.js` — Studio preflight and all-season certification orchestration.
 - `js/validation-engine.js` / `js/validation-lab.js` — validation behaviour.
 
 ### Temporary compatibility layers
@@ -130,7 +131,7 @@ studio-bootstrap
 → prompt-era-range-wording
 → admin-studio-finish
 → career-overlap-wording
-→ quality packs / analyser stars / 4★ enforcer
+→ quality packs / approved baseline / survivor pack / analyser stars / 4★ enforcer
 ```
 
 New Studio-only dependencies should join `studio-bootstrap` or a clearly owned lazy sub-chain. Do not create another top-level loader for the same modules.
@@ -193,13 +194,35 @@ The native Daily migration changes UI ownership only. It does not alter this sel
 
 ---
 
-## 7. Historical data and career context
+## 7. Historical data and all-season certification
 
 Historical player-season data lives primarily in `players.js` / `players-live.js`.
 
 `js/career-context.js` is the shared derivation layer for multi-season facts so Studio-generated career rules evaluate identically in live play.
 
 Field-readiness/certification logic should disable only affected historical prompt families when FPL-native data is missing rather than invalidate otherwise usable seasons.
+
+### Certified prompt readiness gate
+
+All-season certification must not start against the transient pre-enforcement Studio library. The browser flow now follows the same safety principle as seven-day generation:
+
+```text
+Certify all seasons requested
+→ request/load Prompt Studio quality tools if needed
+→ wait for FPL_FOUR_STAR_LIBRARY.ready
+→ require live library size === certified metadata total
+→ require unique prompt IDs
+→ require every prompt at 4★+
+→ freeze FPL_VALIDATION_CERTIFICATION_PROMPT_POOL
+→ certify every supported season against that immutable snapshot
+→ release snapshot when the run finishes or is cancelled
+```
+
+`js/validation-engine.js` gives `FPL_VALIDATION_CERTIFICATION_PROMPT_POOL` precedence only while that snapshot is active. Normal Validation Lab operations fall back to the live Studio library afterwards.
+
+This prevents a loading race where the in-page Regression Suite could previously start while the larger pre-enforcement prompt population was still present. Certification fingerprints and cached results are therefore derived from the final certified prompt state rather than a transient loader state.
+
+CI mirrors the same policy: `scripts/diagnose-approved-library-certification.mjs` now certifies every supported season against the repository-owned approved 4★+ library plus durable refinement survivors. The older duplicate all-season harness has been removed.
 
 ---
 
@@ -209,6 +232,8 @@ Studio architecture uses repeat-safe builders rather than ad-hoc duplicated load
 
 ```text
 config/asset-manifest.json
+→ scripts/apply-all-season-certification-gate.mjs
+   └─ browser readiness gate + frozen validation snapshot support
 → scripts/build-studio-cache-tags.mjs
 → scripts/build-native-studio-shell.mjs
    └─ native shell + Validation workspace
@@ -223,10 +248,11 @@ Canonical Daily markup is retained in `fragments/admin-daily-workspace.html` so 
 
 The `Studio Architecture Build` workflow runs the full builder chain twice and compares hashes. The second pass must be byte-identical.
 
-Dedicated structural verifiers:
+Dedicated structural/behavioural verifiers:
 
 - `scripts/verify-native-validation-workspace.mjs`
 - `scripts/verify-native-daily-workspace.mjs`
+- `scripts/verify-all-season-certification-gate.mjs`
 
 Every remaining patch/build script must stay repeat-safe.
 
@@ -236,7 +262,7 @@ Every remaining patch/build script must stay repeat-safe.
 
 Studio asset/cache versions are centralised in `config/asset-manifest.json`.
 
-It owns the runtime manifest version, Studio bootstrap, Stage One/native-workspace version, compatibility entrypoints, Prompt Studio lazy modules and leaderboard configuration.
+It owns the runtime manifest version, Validation Engine, Studio finishing layer, Studio bootstrap, Stage One/native-workspace version, compatibility entrypoints, Prompt Studio lazy modules and leaderboard configuration.
 
 `js/asset-manifest.js`, Admin static cache tags, lazy module URLs, generated wiring and CI consume this source of truth.
 
@@ -308,11 +334,12 @@ FPL Draft Challenge
 │   ├── exact rotation
 │   └── answer diversity
 │
-├── Historical Data
+├── Historical Data / Certification
 │   ├── player-season data
 │   ├── nationality / identity
 │   ├── career derivations
-│   └── field readiness / certification
+│   ├── field readiness
+│   └── frozen certified-prompt snapshot
 │
 ├── Build / Wiring
 │   └── repeat-safe manifest-driven builders
@@ -321,7 +348,7 @@ FPL Draft Challenge
     ├── syntax/static checks
     ├── prompt-engine behaviour
     ├── weekly-generation behaviour
-    ├── historical/all-season certification
+    ├── approved-library all-season certification
     └── Studio architecture/regression checks
 ```
 
