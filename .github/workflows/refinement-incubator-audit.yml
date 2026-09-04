@@ -8,32 +8,36 @@ on:
       - 'players.js'
       - 'prompt-library.js'
       - 'nationality-enrichment.js'
+      - 'config/asset-manifest.json'
       - 'js/prompt-*.js'
+      - 'js/career-overlap-wording.js'
       - 'js/admin-import-tools-base.js'
       - 'js/career-context.js'
       - 'js/career-shape-rules.js'
       - 'js/career-shape-validation-bridge.js'
       - 'js/validation-engine.js'
       - 'scripts/audit-refinement-incubator.mjs'
-      - 'scripts/trial-refinement-survivors.mjs'
-      - 'scripts/refinement-survivor-appendix.inc.mjs'
       - 'scripts/upgrade-refinement-metric-priority.mjs'
+      - 'scripts/promote-refinement-survivors.mjs'
+      - 'scripts/verify-refinement-survivors.mjs'
       - '.github/workflows/refinement-incubator-audit.yml'
   pull_request:
     paths:
       - 'players.js'
       - 'prompt-library.js'
       - 'nationality-enrichment.js'
+      - 'config/asset-manifest.json'
       - 'js/prompt-*.js'
+      - 'js/career-overlap-wording.js'
       - 'js/admin-import-tools-base.js'
       - 'js/career-context.js'
       - 'js/career-shape-rules.js'
       - 'js/career-shape-validation-bridge.js'
       - 'js/validation-engine.js'
       - 'scripts/audit-refinement-incubator.mjs'
-      - 'scripts/trial-refinement-survivors.mjs'
-      - 'scripts/refinement-survivor-appendix.inc.mjs'
       - 'scripts/upgrade-refinement-metric-priority.mjs'
+      - 'scripts/promote-refinement-survivors.mjs'
+      - 'scripts/verify-refinement-survivors.mjs'
       - '.github/workflows/refinement-incubator-audit.yml'
 
 permissions:
@@ -67,8 +71,36 @@ jobs:
           node scripts/upgrade-refinement-metric-priority.mjs
           cmp /tmp/refinement-runtime-first.js js/prompt-refinement-incubator.js
           cmp /tmp/refinement-audit-first.mjs scripts/audit-refinement-incubator.mjs
-          node --check js/prompt-refinement-incubator.js
-          node --check scripts/audit-refinement-incubator.mjs
+
+      - name: Apply durable survivor promotion
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/promote-refinement-survivors.mjs
+          sha256sum \
+            js/prompt-refinement-survivors-v1.js \
+            js/prompt-refinement-incubator.js \
+            js/prompt-quality-baseline-finalizer.js \
+            js/prompt-four-star-enforcer.js \
+            js/career-overlap-wording.js \
+            config/asset-manifest.json \
+            scripts/audit-refinement-incubator.mjs > /tmp/survivor-first.sha
+          node scripts/promote-refinement-survivors.mjs
+          sha256sum \
+            js/prompt-refinement-survivors-v1.js \
+            js/prompt-refinement-incubator.js \
+            js/prompt-quality-baseline-finalizer.js \
+            js/prompt-four-star-enforcer.js \
+            js/career-overlap-wording.js \
+            config/asset-manifest.json \
+            scripts/audit-refinement-incubator.mjs > /tmp/survivor-second.sha
+          cmp /tmp/survivor-first.sha /tmp/survivor-second.sha
+
+      - name: Refresh manifest-owned Studio wiring
+        run: |
+          node scripts/build-studio-cache-tags.mjs
+          node scripts/build-native-studio-shell.mjs
+          node scripts/build-studio-wiring.mjs
 
       - name: Run deterministic Incubator audit
         run: node scripts/audit-refinement-incubator.mjs
@@ -88,37 +120,46 @@ jobs:
           }
           NODE
 
-      - name: Run full-library survivor trial
-        run: node scripts/trial-refinement-survivors.mjs
+      - name: Verify durable refinement survivors
+        run: node scripts/verify-refinement-survivors.mjs
 
-      - name: Check audit script syntax
+      - name: Check audit and runtime syntax
         run: |
+          node --check js/prompt-refinement-incubator.js
+          node --check js/prompt-refinement-survivors-v1.js
+          node --check js/prompt-quality-baseline-finalizer.js
+          node --check js/prompt-four-star-enforcer.js
+          node --check js/career-overlap-wording.js
           node --check scripts/audit-refinement-incubator.mjs
-          node --check scripts/trial-refinement-survivors.mjs
-          node --check scripts/refinement-survivor-appendix.inc.mjs
           node --check scripts/upgrade-refinement-metric-priority.mjs
+          node --check scripts/promote-refinement-survivors.mjs
+          node --check scripts/verify-refinement-survivors.mjs
 
       - name: Reject whitespace errors
         run: git diff --check
 
-      - name: Commit generated audit on branch pushes
+      - name: Commit generated promotion on branch pushes
         if: github.event_name == 'push'
         shell: bash
         run: |
           set -euo pipefail
           git add \
+            config/asset-manifest.json \
+            js/asset-manifest.js \
+            js/career-overlap-wording.js \
             js/prompt-refinement-incubator.js \
+            js/prompt-refinement-survivors-v1.js \
+            js/prompt-quality-baseline-finalizer.js \
+            js/prompt-four-star-enforcer.js \
             scripts/audit-refinement-incubator.mjs \
             reports/refinement-incubator-audit.json \
             reports/refinement-incubator-audit.csv \
-            reports/refinement-incubator-audit.md \
-            reports/refinement-survivor-trial.json \
-            reports/refinement-survivor-trial.md
+            reports/refinement-incubator-audit.md
           if git diff --cached --quiet; then
-            echo 'Refinement Incubator audit is already current.'
+            echo 'Refinement survivor promotion is already current.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Apply refinement metric priority and record survivor trial'
+          git commit -m 'Promote certified refinement survivors'
           git push origin "HEAD:${GITHUB_REF_NAME}"
