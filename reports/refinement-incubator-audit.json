@@ -1,0 +1,216 @@
+{
+  "generatedAt": "2026-09-04T06:21:48.128Z",
+  "source": {
+    "enabledPrompts": 851,
+    "players": 3392,
+    "approvedBaseline": {
+      "ready": true,
+      "version": "1.0.3",
+      "sourceApprovedExpected": 937,
+      "approvedExpected": 903,
+      "approvedPresent": 811,
+      "total": 842,
+      "removed": 9,
+      "removedDisabled": 0,
+      "disabledDeleted": 34,
+      "minimumRating": 4,
+      "fourStar": 606,
+      "fiveStar": 236,
+      "disabled": 0
+    },
+    "nationalityPack": {
+      "ready": true,
+      "version": "1.0.2",
+      "ids": [
+        "nationality_context_v1_def_england_relegated_g2",
+        "nationality_context_v1_def_spain_outside_g1",
+        "nationality_context_v1_def_ireland_bottom_g1",
+        "nationality_context_v1_mid_england_relegated_g4",
+        "nationality_context_v1_mid_france_bottom_g2",
+        "nationality_context_v1_mid_netherlands_outside_g2",
+        "nationality_context_v1_fwd_england_relegated_g4",
+        "nationality_context_v1_fwd_france_outside_g4",
+        "nationality_context_v1_fwd_nigeria_bottom_g4"
+      ],
+      "installedCount": 9,
+      "availableCount": 9,
+      "positions": [
+        "DEF",
+        "MID",
+        "FWD"
+      ],
+      "audit": [
+        {
+          "id": "nationality_context_v1_def_england_relegated_g2",
+          "country": "England",
+          "position": "DEF",
+          "answerPool": 17,
+          "seasonAnswers": 21
+        },
+        {
+          "id": "nationality_context_v1_def_spain_outside_g1",
+          "country": "Spain",
+          "position": "DEF",
+          "answerPool": 20,
+          "seasonAnswers": 27
+        },
+        {
+          "id": "nationality_context_v1_def_ireland_bottom_g1",
+          "country": "Ireland",
+          "position": "DEF",
+          "answerPool": 14,
+          "seasonAnswers": 29
+        },
+        {
+          "id": "nationality_context_v1_mid_england_relegated_g4",
+          "country": "England",
+          "position": "MID",
+          "answerPool": 17,
+          "seasonAnswers": 17
+        },
+        {
+          "id": "nationality_context_v1_mid_france_bottom_g2",
+          "country": "France",
+          "position": "MID",
+          "answerPool": 17,
+          "seasonAnswers": 27
+        },
+        {
+          "id": "nationality_context_v1_mid_netherlands_outside_g2",
+          "country": "Netherlands",
+          "position": "MID",
+          "answerPool": 19,
+          "seasonAnswers": 27
+        },
+        {
+          "id": "nationality_context_v1_fwd_england_relegated_g4",
+          "country": "England",
+          "position": "FWD",
+          "answerPool": 21,
+          "seasonAnswers": 22
+        },
+        {
+          "id": "nationality_context_v1_fwd_france_outside_g4",
+          "country": "France",
+          "position": "FWD",
+          "answerPool": 13,
+          "seasonAnswers": 23
+        },
+        {
+          "id": "nationality_context_v1_fwd_nigeria_bottom_g4",
+          "country": "Nigeria",
+          "position": "FWD",
+          "answerPool": 8,
+          "seasonAnswers": 10
+        }
+      ]
+    }
+  },
+  "reference": {
+    "previousIncubatorCount": 144,
+    "currentIncubatorCount": 2,
+    "delta": -142
+  },
+  "decisions": {
+    "certified": 845,
+    "rescued": 4,
+    "incubator": 2
+  },
+  "incubator": {
+    "total": 2,
+    "byPosition": {
+      "FWD": 1,
+      "MID": 1
+    },
+    "byFamily": {
+      "anti-meta": 1,
+      "manager": 1
+    },
+    "byTunability": {
+      "builder-threshold": 1,
+      "source-threshold": 1
+    },
+    "byAnswerBand": {
+      "ideal": 2
+    },
+    "byOverlapBand": {
+      "low": 2
+    },
+    "nearRescue": 2,
+    "safelyTunable": 2,
+    "structurallyStuck": 0,
+    "plannedVariantCount": 6
+  },
+  "items": [
+    {
+      "id": "quality_v2_mid_price_6_gi_15",
+      "position": "MID",
+      "label": "Midfielder who started at £6.0m or less with 15+ goal involvements",
+      "family": "quality-pack-v2:budget-attacker",
+      "dominantFamily": "anti-meta",
+      "tags": [
+        "quality-pack",
+        "quality-pack-v2",
+        "checked",
+        "anti-meta",
+        "midfielder",
+        "budget",
+        "starting-price",
+        "goal-involvements"
+      ],
+      "state": "incubator",
+      "rawRating": 3,
+      "rawScore": 68,
+      "adjustedScore": 70,
+      "familyBonus": 2,
+      "playerCount": 55,
+      "answerBand": "ideal",
+      "overlap": 0,
+      "overlapBand": "low",
+      "issues": [],
+      "tunability": "builder-threshold",
+      "tunableField": "startingPrice",
+      "tunableOperator": "lte",
+      "tunableValue": 6,
+      "plannedVariants": 3,
+      "nearRescue": true,
+      "rescueRawGap": 0,
+      "rescueAdjustedGap": 2,
+      "rescueOverlapBlocked": false
+    },
+    {
+      "id": "quality_v3_fwd_manager_david_moyes_p55",
+      "position": "FWD",
+      "label": "Forward managed by David Moyes who scored 55+ FPL points",
+      "family": "quality-pack-v3:manager-performer",
+      "dominantFamily": "manager",
+      "tags": [
+        "quality-pack",
+        "quality-pack-v3",
+        "checked",
+        "anti-meta",
+        "manager",
+        "points"
+      ],
+      "state": "incubator",
+      "rawRating": 3,
+      "rawScore": 63,
+      "adjustedScore": 69,
+      "familyBonus": 6,
+      "playerCount": 17,
+      "answerBand": "ideal",
+      "overlap": 0,
+      "overlapBand": "low",
+      "issues": [],
+      "tunability": "source-threshold",
+      "tunableField": "minutes",
+      "tunableOperator": ">",
+      "tunableValue": 0,
+      "plannedVariants": 3,
+      "nearRescue": true,
+      "rescueRawGap": 3,
+      "rescueAdjustedGap": 3,
+      "rescueOverlapBlocked": false
+    }
+  ]
+}
