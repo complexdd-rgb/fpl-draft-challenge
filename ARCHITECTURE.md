@@ -55,7 +55,9 @@ challenge-manifest-bootstrap
 
 Primary page: `admin.html`
 
-The Studio now has a central asset/version manifest and one runtime bootstrap owner. The current navigation/topbar/workspace shell is authored in `admin.html` as `#studioNativeWorkspaceTemplate`; `js/admin-stage-one.js` clones that native shell, restores the selected workspace and currently re-parents the remaining legacy tool panels into it. The old JS constructors are retained only as a cache-safe fallback during the migration.
+The Studio has a central asset/version manifest and one runtime bootstrap owner. The navigation/topbar/workspace shell is authored in `admin.html` as `#studioNativeWorkspaceTemplate`; `js/admin-stage-one.js` clones that native shell and restores the selected workspace.
+
+**Validation Lab is now the first complete workspace migrated into the native template.** Its real panel markup lives directly inside `workspace-validation`, so it no longer exists in the legacy long-form `<main>` or needs re-parenting at startup. Stage One applies the same shared panel metadata/collapse behaviour to native-authored panels before it moves the remaining legacy panels. The old JS shell constructors remain only as a cache-safe fallback during the migration.
 
 Current high-level boot:
 
@@ -63,6 +65,8 @@ Current high-level boot:
 admin.html
 → asset-manifest.js
 → admin-stage-one.js (native shell activation / workspace restore)
+   ├─ activates native Validation Lab
+   └─ re-parents remaining legacy workspace panels
 → players.js
 → career-context.js
 → prompt-library.js
@@ -85,11 +89,11 @@ admin.html
 - `js/asset-manifest.js` — generated browser-safe runtime view of the central manifest.
 - `js/studio-bootstrap.js` — single Studio runtime feature/bootstrap owner.
 - `js/admin-core.js` — large multi-phase Studio core. Currently owns more responsibilities than one permanent module should.
-- `js/admin-stage-one.js` — activates the native workspace shell, restores navigation/scroll state and re-parents legacy tool panels during the migration.
+- `js/admin-stage-one.js` — activates the native workspace shell, restores navigation/scroll state, applies shared behaviour to native panels and re-parents only the workspaces that have not yet migrated.
 - `js/admin-batch-calendar.js` — seven-day challenge generator.
 - `js/admin-daily-generator-guard.js` — certified-prompt-pool lock/snapshot and final generation guard.
 - `js/admin-daily-publish.js` — publishing/download support.
-- `js/validation-engine.js` and `js/validation-lab.js` — prompt/data validation.
+- `js/validation-engine.js` and `js/validation-lab.js` — prompt/data validation. Validation Lab's UI markup is native in `admin.html`; its behaviour remains in `js/validation-lab.js`.
 
 ### Temporary compatibility layers
 
@@ -103,7 +107,7 @@ Both files should disappear after the migration has proved stable and no support
 
 ## 4. Prompt Studio loading and Studio bootstrap
 
-`js/studio-bootstrap.js` is now the single owner for Studio-only feature loading. Heavy prompt-generation tooling remains lazy through `js/prompt-studio-loader.js`.
+`js/studio-bootstrap.js` is the single owner for Studio-only feature loading. Heavy prompt-generation tooling remains lazy through `js/prompt-studio-loader.js`.
 
 Prompt Studio lazy chain:
 
@@ -219,7 +223,7 @@ Historical prompt availability is further controlled by field-readiness/certific
 
 ## 8. Generated wiring and build scripts
 
-The repository still contains historical `scripts/apply-*.mjs` and matching `verify-*.mjs` files. Those remain useful regression fixtures, but Studio architecture is now moving to manifest-driven builders rather than accumulating another patch layer.
+The repository still contains historical `scripts/apply-*.mjs` and matching `verify-*.mjs` files. Those remain useful regression fixtures, but Studio architecture is moving to manifest-driven builders rather than accumulating another patch layer.
 
 Current architecture builders:
 
@@ -227,14 +231,15 @@ Current architecture builders:
 config/asset-manifest.json
 → scripts/build-studio-cache-tags.mjs
 → scripts/build-native-studio-shell.mjs
+   └─ native Validation Lab workspace
 → scripts/build-studio-wiring.mjs
 → generated runtime files
 → verification
 ```
 
-The `Studio Architecture Build` workflow runs the builders twice and compares hashes. A second pass must be byte-identical.
+The `Studio Architecture Build` workflow runs the builders twice and compares hashes. A second pass must be byte-identical. Native workspace slices also receive dedicated structural verification; Validation Lab is checked by `scripts/verify-native-validation-workspace.mjs`.
 
-Historical patch scripts that still touch cache or fast-boot wiring now read the central manifest rather than owning competing version literals.
+Historical patch scripts that still touch cache or fast-boot wiring read the central manifest rather than owning competing version literals.
 
 ### Current rule
 
@@ -244,13 +249,13 @@ Every remaining patch/build script must be **repeat-safe**. Running the same gen
 
 ## 9. Cache/version ownership
 
-Studio asset/cache versions are now centralised in `config/asset-manifest.json`.
+Studio asset/cache versions are centralised in `config/asset-manifest.json`.
 
 The manifest owns, among other things:
 
 - runtime manifest version;
 - Studio bootstrap version;
-- Stage One/native-shell version;
+- Stage One/native-workspace version;
 - compatibility entrypoint version;
 - Prompt Studio lazy-loader/module versions;
 - Studio leaderboard configuration version.
@@ -270,12 +275,12 @@ These files deserve decomposition planning, but **not one-shot rewrites**:
 - `js/admin-core.js` — very large multi-phase Studio core;
 - `js/admin-import-tools-base.js` — generator, analyser, UI and persistence responsibilities are coupled;
 - `js/admin-batch-calendar.js` — substantial weekly engine;
-- `admin.html` — native workspace shell exists, but most tool panels still originate in the legacy long-form sequence and are re-parented at startup;
+- `admin.html` — native shell and Validation Lab are now authored in the native template, while the remaining tool panels still originate in the legacy long-form sequence and are re-parented at startup;
 - Studio CSS — multiple generations of base/overhaul/mobile/prompt-specific overrides.
 
 ### Safe extraction order
 
-Continue moving one workspace at a time into its native `admin.html` section. Keep `admin-stage-one.js` fallback/re-parenting behaviour until each migrated workspace is verified, then remove only the code made unnecessary by that migration.
+Continue moving one workspace at a time into its native `admin.html` section. Validation Lab proves the migration pattern: authored panel in the template → stable IDs → Stage One shared labelling → no legacy source copy → dedicated verifier. Keep fallback/re-parenting behaviour only for workspaces that have not yet migrated.
 
 Extract low-risk pure/helper logic before changing generator/certification behaviour. Keep existing regression suites around every boundary.
 
@@ -296,10 +301,10 @@ FPL Draft Challenge
 ├── Studio
 │   ├── central asset manifest
 │   ├── studio-bootstrap
-│   ├── native Daily Challenge workspace
-│   ├── native Prompt Studio workspace
-│   ├── native Database workspace
-│   ├── native Validation workspace
+│   ├── Daily Challenge workspace       (migration pending)
+│   ├── Prompt Studio workspace         (migration pending)
+│   ├── Database workspace              (migration pending)
+│   ├── Validation workspace            (native)
 │   └── publishing support
 │
 ├── Prompt Engine
@@ -343,10 +348,10 @@ Structural work should now continue in this order:
 1. keep `main` green and preserve the weekly/certification invariants;
 2. treat `config/asset-manifest.json` as the single Studio cache/version authority;
 3. keep `studio-bootstrap.js` as the single top-level Studio feature owner;
-4. migrate the current workspace content into native `admin.html` sections one workspace at a time;
+4. continue migrating workspace content into native `admin.html` sections one workspace at a time — Validation Lab is complete;
 5. retire the `admin-import-tools.js` and `studio-feature-loader.js` compatibility shims after supported callers no longer need them;
 6. split large modules along tested responsibility boundaries;
 7. consolidate CSS without redesigning the UI;
 8. resume prompt-quality work — the 144-prompt Refinement Incubator audit and survivor-library growth — on top of the cleaner architecture.
 
-This document should be updated whenever a compatibility layer is added or retired so future cleanup can distinguish intentional temporary wiring from permanent architecture.
+This document should be updated whenever a compatibility layer is added, retired or fully migrated so future cleanup can distinguish intentional temporary wiring from permanent architecture.
