@@ -4,6 +4,10 @@ const reportPath = 'reports/refinement-incubator-audit.json';
 if (!fs.existsSync(reportPath)) throw new Error('Missing refinement incubator audit report.');
 const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
 
+const expectedParents = new Set([
+  'quality_v2_mid_price_6_gi_15',
+  'quality_v3_fwd_manager_david_moyes_p55'
+]);
 const expected = new Map([
   ['refinement_survivor_v1_mid_price_6_5_gi_15', {
     label: 'Midfielder who started at £6.5m or less with 15+ goal involvements',
@@ -21,7 +25,12 @@ const expected = new Map([
 
 const pack = report?.source?.survivorPack;
 if (!pack?.ready) throw new Error('Refinement survivor pack is not ready in the deterministic audit.');
-if (Number(pack.removedParents) !== 2) throw new Error(`Expected 2 weak parents to be removed; got ${pack.removedParents}.`);
+const advertisedParents = new Set(Array.isArray(pack.parentIds) ? pack.parentIds.map(String) : []);
+if (advertisedParents.size !== expectedParents.size || [...expectedParents].some(id => !advertisedParents.has(id))) {
+  throw new Error(`Survivor pack parent set is wrong: ${[...advertisedParents].join(', ') || 'none'}.`);
+}
+// removedParents is telemetry for the specific installation pass. An idempotent/rebuilt
+// library can legitimately report 0 here; the invariant is that no weak parent survives.
 if (Number(pack.parentsPresentAfter) !== 0) throw new Error(`Weak refinement parents remain in the effective library: ${pack.parentsPresentAfter}.`);
 if (Number(pack.added) !== expected.size) throw new Error(`Expected ${expected.size} durable survivors; got ${pack.added}.`);
 
@@ -52,6 +61,7 @@ for (const row of survivors) {
 if (expected.size) throw new Error(`Missing durable survivors: ${[...expected.keys()].join(', ')}.`);
 
 console.log(`Refinement survivor verification passed: ${survivors.length} durable survivors, 0 unresolved Incubator prompts.`);
+console.log(`Survivor pack removal telemetry for this run: ${Number(pack.removedParents || 0)} parent(s) removed directly; end state has 0 weak parents.`);
 for (const row of survivors) {
   console.log(`${row.id}: ${row.state}; raw=${row.rawScore}; adjusted=${row.adjustedScore}; answers=${row.playerCount}; overlap=${Number(row.overlap).toFixed(3)}`);
 }
