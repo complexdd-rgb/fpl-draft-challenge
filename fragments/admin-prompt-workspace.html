@@ -1,0 +1,315 @@
+<section class="panel" id="libraryManagerPanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 6</p>
+          <h2>Prompt Library Manager</h2>
+          <p class="section-copy">Create prompts manually or in checked automatic batches, edit ratings, disable weak prompts, delete unwanted prompts, and download a replacement <code>prompt-library.js</code> when you are satisfied.</p>
+        </div>
+        <span class="phase-chip ready-chip">Browser workspace</span>
+      </div>
+
+      <div class="manager-count-grid" aria-label="Prompt library totals">
+        <article><span>Total prompts</span><strong id="managerLibraryCount">0</strong></article>
+        <article><span>Enabled</span><strong id="managerEnabledCount">0</strong></article>
+        <article><span>Disabled</span><strong id="managerDisabledCount">0</strong></article>
+        <article><span>Custom prompts</span><strong id="managerCustomCount">0</strong></article>
+      </div>
+
+      <div class="manager-toolbar">
+        <input id="promptManagerSearch" type="search" placeholder="Search prompt wording, ID or tag" aria-label="Search prompt library">
+        <select id="promptManagerPosition" aria-label="Filter by position">
+          <option value="all">All positions</option>
+          <option value="GK">Goalkeepers</option>
+          <option value="DEF">Defenders</option>
+          <option value="MID">Midfielders</option>
+          <option value="FWD">Forwards</option>
+        </select>
+        <select id="promptManagerDifficulty" aria-label="Filter by difficulty">
+          <option value="all">All difficulties</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <select id="promptManagerStatusFilter" aria-label="Filter by status">
+          <option value="all">All prompts</option>
+          <option value="enabled">Enabled</option>
+          <option value="disabled">Disabled</option>
+          <option value="custom">Custom</option>
+          <option value="built-in">Built-in</option>
+        </select>
+      </div>
+
+      <div class="button-row manager-actions">
+        <button id="newPromptBtn" class="button primary" type="button">Create custom prompt</button>
+        <button id="downloadLibraryBtn" class="button secondary" type="button">Download prompt-library.js</button>
+        <button id="downloadPromptBackupBtn" class="button secondary" type="button">Download manager backup</button>
+        <label class="button secondary file-button" for="importPromptBackupInput">Import backup</label>
+        <input id="importPromptBackupInput" class="visually-hidden" type="file" accept="application/json,.json">
+        <button id="resetPromptManagerBtn" class="button danger-button" type="button">Reset browser edits</button>
+      </div>
+      <p id="managerStatus" class="action-status" role="status"></p>
+
+      <section id="automaticPromptFactory" class="prompt-factory" aria-labelledby="promptFactoryTitle">
+        <div class="prompt-factory-head">
+          <div>
+            <p class="eyebrow">Automatic creator</p>
+            <h3 id="promptFactoryTitle">Generate a checked batch of new prompts</h3>
+            <p>Creates rule-built prompts, tests them against the full database, rejects duplicates and saves nothing until you approve the preview.</p>
+          </div>
+          <span class="phase-chip">20 recommended · 50 maximum</span>
+        </div>
+
+        <div class="prompt-factory-settings">
+          <label>How many prompts
+            <input id="factoryPromptCount" type="number" min="1" max="50" value="20">
+            <small>For the best variety and easiest review, create 10–25 at a time.</small>
+          </label>
+          <label>Position mix
+            <select id="factoryPositionMix">
+              <option value="balanced" selected>Balanced across positions</option>
+              <option value="GK">Goalkeepers only</option>
+              <option value="DEF">Defenders only</option>
+              <option value="MID">Midfielders only</option>
+              <option value="FWD">Forwards only</option>
+            </select>
+          </label>
+          <label>Difficulty mix
+            <select id="factoryDifficultyMix">
+              <option value="balanced" selected>Balanced difficulty</option>
+              <option value="easy">Easy only</option>
+              <option value="medium">Medium only</option>
+              <option value="hard">Hard only</option>
+            </select>
+          </label>
+          <label>Minimum valid players
+            <input id="factoryMinPlayers" type="number" min="3" max="100" value="6">
+          </label>
+          <label>Maximum valid players
+            <input id="factoryMaxPlayers" type="number" min="6" max="250" value="100">
+          </label>
+          <label>Default cooldown
+            <input id="factoryCooldown" type="number" min="0" max="50" value="10">
+          </label>
+          <label>Season played rules
+            <select id="factorySeasonMode">
+              <option value="mix" selected>Mix in season prompts</option>
+              <option value="none">Do not use season rules</option>
+              <option value="only">Season prompts only</option>
+            </select>
+            <small>Creates exact-season, before-season, after-season and between-season prompts.</small>
+          </label>
+          <label>Career total rules
+            <select id="factoryCareerMode">
+              <option value="mix" selected>Mix in career-total prompts</option>
+              <option value="none">Do not use career totals</option>
+              <option value="only">Career totals only</option>
+            </select>
+            <small>Counts unique positive-minute seasons and clubs currently recorded in the database.</small>
+          </label>
+          <label>Relationship rules
+            <select id="factoryRelationshipMode">
+              <option value="mix" selected>Mix in relationship prompts</option>
+              <option value="none">Do not use relationship rules</option>
+              <option value="only">Relationship prompts only</option>
+            </select>
+            <small>Creates played-for-both-clubs, returned-to-former-club, career-overlap and teammate prompts from positive-minute career records.</small>
+          </label>
+          <label>Obvious-answer exclusions
+            <select id="factoryExclusionMode">
+              <option value="mix" selected>Mix in top-answer exclusions</option>
+              <option value="none">Do not exclude answers</option>
+              <option value="top1">Exclude the highest-scoring valid player</option>
+              <option value="top2">Exclude the two highest-scoring valid players</option>
+            </select>
+            <small>Excluded players are named openly in the prompt wording.</small>
+          </label>
+        </div>
+
+        <div class="prompt-factory-options">
+          <label class="check-label"><input id="factoryIncludeNameRules" type="checkbox" checked> Include first-name and surname rules</label>
+          <label class="check-label"><input id="factoryAvoidSimilarPools" type="checkbox" checked> Reject prompts with nearly identical answer pools</label>
+          <label class="check-label"><input id="factoryEnablePrompts" type="checkbox"> Enable immediately after adding</label>
+          <label class="check-label"><input id="factoryIncludeQualityFamilies" type="checkbox" checked> Include Quality Families (5★ V1 / V2 / V3 + inverse anti-meta)</label>
+          <label class="check-label"><input id="factoryIncludeNationalityFamily" type="checkbox" checked> Include Nationality Family (nationality + stats)</label>
+          <label class="check-label"><input id="factoryIncludeCareerEvolutionFamilies" type="checkbox" checked> Include Career Evolution (change, streak, position, status, nationality-career + manager journeys)</label>
+        </div>
+        <div class="factory-rule-note">
+          <strong>Prompt Engine 2</strong>
+          <span>The Auto Prompt Generator can mix season rules, career totals and career relationships alongside standard and anti-obvious prompts. Career rules only use seasons and clubs with recorded minutes.</span>
+        </div>
+
+        <div class="button-row prompt-factory-actions">
+          <button id="generatePromptBatchBtn" class="button primary" type="button">Generate checked batch</button>
+          <button id="selectPromptBatchBtn" class="button secondary" type="button" disabled>Select all</button>
+          <button id="addPromptBatchBtn" class="button secondary" type="button" disabled>Add selected to browser library</button>
+          <button id="clearPromptBatchBtn" class="button secondary" type="button" disabled>Clear preview</button>
+        </div>
+        <p id="promptFactoryStatus" class="action-status" role="status">Nothing has been generated yet.</p>
+
+        <div id="promptFactorySummary" class="prompt-factory-summary hidden"></div>
+        <div id="promptFactoryPreview" class="prompt-factory-preview hidden"></div>
+      </section>
+
+      <section id="promptQualityAnalyser" class="prompt-quality-analyser" aria-labelledby="promptQualityTitle">
+        <div class="prompt-quality-head">
+          <div>
+            <p class="eyebrow">Quality control</p>
+            <h3 id="promptQualityTitle">Prompt Quality Analyser</h3>
+            <p>Scores every prompt for answer breadth, season and club variety, obvious answers, Big Six reliance, overlap, difficulty accuracy and rule health.</p>
+          </div>
+          <span class="phase-chip">Read-only until approved</span>
+        </div>
+
+        <div class="quality-run-row">
+          <label>Analysis scope
+            <select id="qualityScope">
+              <option value="all" selected>All prompts</option>
+              <option value="enabled">Enabled prompts only</option>
+            </select>
+          </label>
+          <div class="button-row compact-row">
+            <button id="runPromptQualityBtn" class="button primary" type="button">Run full quality analysis</button>
+            <button id="cancelPromptQualityBtn" class="button secondary" type="button" disabled>Cancel analysis</button>
+          </div>
+        </div>
+        <p id="promptQualityStatus" class="action-status" role="status">The analyser is loading.</p>
+        <div id="qualityProgressWrap" class="quality-progress hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div><span id="qualityProgressBar"></span></div>
+          <p id="qualityProgressText">Waiting…</p>
+        </div>
+
+        <div id="promptQualitySummary" class="prompt-quality-summary hidden"></div>
+
+        <div id="promptQualityFilters" class="prompt-quality-filters hidden">
+          <label>Search<input id="qualitySearch" type="search" placeholder="Prompt, ID or issue"></label>
+          <label>Position<select id="qualityPosition"><option value="all">All positions</option><option>GK</option><option>DEF</option><option>MID</option><option>FWD</option></select></label>
+          <label>Quality<select id="qualityBand"><option value="all">All quality bands</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="review">Needs review</option><option value="poor">Poor</option><option value="broken">Broken</option></select></label>
+          <label>Issue<select id="qualityIssue">
+            <option value="all">All issues</option>
+            <option value="broken-rule">Broken rule</option>
+            <option value="no-answers">No answers</option>
+            <option value="too-narrow">Too narrow</option>
+            <option value="too-broad">Too broad</option>
+            <option value="high-overlap">High overlap</option>
+            <option value="similar-wording">Similar wording</option>
+            <option value="too-obvious">Obvious leader</option>
+            <option value="repeated-leader">Repeated leader</option>
+            <option value="club-dominated">Club dominated</option>
+            <option value="big-six-heavy">Big Six heavy</option>
+            <option value="low-season-spread">Low season spread</option>
+            <option value="difficulty-mismatch">Difficulty mismatch</option>
+          </select></label>
+          <label>Sort<select id="qualitySort">
+            <option value="score-asc" selected>Lowest score first</option>
+            <option value="score-desc">Highest score first</option>
+            <option value="quality">Quality band</option>
+            <option value="players-asc">Fewest answers</option>
+            <option value="players-desc">Most answers</option>
+            <option value="overlap-desc">Highest overlap</option>
+            <option value="position">Position and name</option>
+          </select></label>
+        </div>
+
+        <div class="quality-bulk-disable">
+          <label>Bulk-disable rule
+            <select id="qualityDisableMode" disabled>
+              <option value="recommended">Analyser recommendations</option>
+              <option value="broken">Broken only</option>
+              <option value="poor">Poor or worse</option>
+              <option value="review" selected>Needs review or worse</option>
+              <option value="fair">Fair or worse</option>
+              <option value="filtered">Every enabled prompt currently shown</option>
+            </select>
+            <small>Use the current filters first when choosing “currently shown”. Every change remains browser-only until you download the library.</small>
+          </label>
+          <button id="disableQualityPromptsBtn" class="button danger-button" type="button" disabled>Disable matching prompts</button>
+        </div>
+        <div class="quality-bulk-delete">
+          <label>Bulk-delete rule
+            <select id="qualityDeleteMode" disabled>
+              <option value="recommended">Analyser recommendations</option>
+              <option value="broken">Broken only</option>
+              <option value="poor" selected>Poor or worse</option>
+              <option value="review">Needs review or worse</option>
+              <option value="fair">Fair or worse</option>
+              <option value="filtered">Every prompt currently shown</option>
+            </select>
+            <small>Deletion removes prompts from the browser collection and from the next downloaded <code>prompt-library.js</code>. Prompts in the current XI are protected.</small>
+          </label>
+          <button id="deleteQualityPromptsBtn" class="button danger-button" type="button" disabled>Delete matching prompts</button>
+        </div>
+        <div class="button-row quality-actions">
+          <button id="applyQualityRatingsBtn" class="button secondary" type="button" disabled>Apply suggested ratings</button>
+          <button id="downloadQualityJsonBtn" class="button secondary" type="button" disabled>Download JSON report</button>
+          <button id="downloadQualityCsvBtn" class="button secondary" type="button" disabled>Download CSV report</button>
+        </div>
+        <p class="quality-safety-note">Suggested changes stay in the browser workspace. They only become permanent after downloading and uploading a new <code>prompt-library.js</code>.</p>
+        <strong id="promptQualityListSummary" class="quality-list-summary"></strong>
+        <div id="promptQualityList" class="prompt-quality-list"></div>
+      </section>
+
+      <section id="promptEditor" class="prompt-editor hidden" aria-labelledby="promptEditorTitle">
+        <div class="prompt-editor-head">
+          <div>
+            <p class="eyebrow">Prompt editor</p>
+            <h3 id="promptEditorTitle">Create a custom prompt</h3>
+          </div>
+          <button id="cancelPromptEditBtn" class="editor-close" type="button">Close</button>
+        </div>
+        <p id="promptEditorNotice" class="editor-notice"></p>
+
+        <div class="prompt-editor-grid">
+          <label>Prompt ID<input id="promptEditorId" type="text" placeholder="e.g. def_midtable_assists"></label>
+          <label>Position<select id="promptEditorPosition"><option>GK</option><option>DEF</option><option>MID</option><option>FWD</option></select></label>
+          <label class="wide-field">Prompt wording<input id="promptEditorLabel" type="text" maxlength="150"></label>
+          <label class="wide-field">Invalid-answer message<input id="promptEditorFail" type="text" maxlength="180"></label>
+          <label>Difficulty<select id="promptEditorDifficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></label>
+          <label>Rating<input id="promptEditorRating" type="number" min="1" max="5" value="4"></label>
+          <label>Cooldown<input id="promptEditorCooldown" type="number" min="0" max="50" value="7"></label>
+          <label class="wide-field">Tags<input id="promptEditorTags" type="text" placeholder="anti-meta, mid-table, assists"></label>
+          <label class="check-label editor-enabled"><input id="promptEditorEnabled" type="checkbox" checked> Enabled for generation</label>
+        </div>
+
+        <div class="rule-builder">
+          <div class="rule-builder-head">
+            <div>
+              <h4>Safe rule builder</h4>
+              <p>Conditions are converted into the same JavaScript tests used by the game. Supports exact, before, after and between-season rules plus recorded career season and club totals.</p>
+            </div>
+            <label>Match<select id="promptRuleJoin"><option value="all">All conditions</option><option value="any">Any condition</option></select></label>
+          </div>
+          <div class="name-rule-presets" aria-label="Name rule starters">
+            <div>
+              <strong>Name rule starters</strong>
+              <span>Choose the position above first, then use a starter and change the letter or wording as needed.</span>
+            </div>
+            <div class="name-preset-buttons">
+              <button type="button" data-name-preset="surname-starts">Surname starts with</button>
+              <button type="button" data-name-preset="first-starts">First name starts with</button>
+              <button type="button" data-name-preset="surname-son">Surname ends in “son”</button>
+              <button type="button" data-name-preset="same-initials">Same initials</button>
+              <button type="button" data-name-preset="hyphenated">Hyphenated surname</button>
+            </div>
+          </div>
+          <div id="promptRuleRows" class="rule-rows"></div>
+          <button id="addPromptConditionBtn" class="button secondary small-button" type="button">Add condition</button>
+        </div>
+
+        <div class="button-row">
+          <button id="testPromptBtn" class="button secondary" type="button">Test against player database</button>
+          <button id="savePromptBtn" class="button primary" type="button">Save browser draft</button>
+          <button id="duplicatePromptBtn" class="button secondary hidden" type="button">Duplicate as custom</button>
+        </div>
+        <div id="promptTestResults" class="prompt-test-results" aria-live="polite"></div>
+      </section>
+
+      <div class="library-list-heading">
+        <strong id="promptListSummary">0 prompts</strong>
+        <div class="library-pagination">
+          <button id="promptPreviousPageBtn" type="button">Previous</button>
+          <span id="promptPageLabel">Page 1 of 1</span>
+          <button id="promptNextPageBtn" type="button">Next</button>
+        </div>
+      </div>
+      <div id="promptManagerList" class="prompt-manager-list"></div>
+    </section>

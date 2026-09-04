@@ -82,7 +82,6 @@
     const title = normaliseText(getToolTitle(element));
 
     if (/validation lab|player inspector|rule tester|prompt explorer|season health/.test(title)) return "validation";
-    if (/prompt library|prompt quality|prompt studio/.test(title)) return "prompts";
     if (/leaderboard backend|leaderboard health|supabase/.test(title)) return "leaderboard";
     if (/historical database import|official fpl archive import|archive import|identity consolidation/.test(title)) return "imports";
     if (/player database auditor|database health/.test(title)) return "database";

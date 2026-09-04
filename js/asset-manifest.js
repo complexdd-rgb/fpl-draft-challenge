@@ -6,11 +6,11 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.4.3-canonical-library"
+      "version": "1.5.0-prompt-studio-v2"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "1.0.0"
+      "version": "1.1.0-prompt-redesign"
     },
     "adminImportTools": {
       "path": "js/admin-import-tools.js",
@@ -23,6 +23,10 @@
     "promptStudioLoader": {
       "path": "js/prompt-studio-loader.js",
       "version": "1.4.0-manifest"
+    },
+    "promptStudioRedesign": {
+      "path": "js/prompt-studio-redesign.js",
+      "version": "2.0.0"
     },
     "adminImportToolsBase": {
       "path": "js/admin-import-tools-base.js",
@@ -106,7 +110,7 @@
     },
     "adminStageOne": {
       "path": "js/admin-stage-one.js",
-      "version": "1.4.0-native-daily"
+      "version": "1.5.0-native-prompts"
     },
     "careerContext": {
       "path": "js/career-context.js",
@@ -145,7 +149,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "1.4.3-canonical-library",
+    version: "1.5.0-prompt-studio-v2",
     assets,
     get,
     url
