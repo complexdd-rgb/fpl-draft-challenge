@@ -1,6 +1,6 @@
 name: Prompt Studio V3
 
-# Candidate generation is shortlist-only; all-season candidate certification is read-only evidence and never changes V3 state.
+# Candidate generation is shortlist-only. Single-add and confirmed Add all both create disabled Drafts only; all-season candidate certification is read-only evidence and never changes V3 state.
 on:
   pull_request:
     paths:
