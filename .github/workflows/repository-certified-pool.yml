@@ -1,0 +1,111 @@
+name: Repository certified prompt pool
+
+on:
+  push:
+    branches:
+      - 'refactor/**'
+    paths:
+      - 'admin.html'
+      - 'config/asset-manifest.json'
+      - 'js/repository-certified-prompt-pool.js'
+      - 'js/admin-studio-finish.js'
+      - 'js/admin-daily-generator-guard.js'
+      - 'scripts/apply-repository-certified-pool-isolation.mjs'
+      - 'scripts/verify-repository-certified-prompt-pool.mjs'
+      - 'scripts/build-studio-cache-tags.mjs'
+      - 'scripts/build-studio-wiring.mjs'
+      - '.github/workflows/repository-certified-pool.yml'
+  pull_request:
+    paths:
+      - 'admin.html'
+      - 'config/asset-manifest.json'
+      - 'js/repository-certified-prompt-pool.js'
+      - 'js/admin-studio-finish.js'
+      - 'js/admin-daily-generator-guard.js'
+      - 'scripts/apply-repository-certified-pool-isolation.mjs'
+      - 'scripts/verify-repository-certified-prompt-pool.mjs'
+      - 'scripts/build-studio-cache-tags.mjs'
+      - 'scripts/build-studio-wiring.mjs'
+      - '.github/workflows/repository-certified-pool.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repository-certified-pool-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Apply repository-certified pool isolation
+        run: node scripts/apply-repository-certified-pool-isolation.mjs
+
+      - name: Refresh manifest-owned cache tags
+        run: node scripts/build-studio-cache-tags.mjs
+
+      - name: Refresh manifest runtime wiring
+        run: node scripts/build-studio-wiring.mjs
+
+      - name: Prove isolation builders are repeat-safe
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            admin.html
+            config/asset-manifest.json
+            js/asset-manifest.js
+            js/admin-studio-finish.js
+            js/admin-daily-generator-guard.js
+            scripts/build-studio-cache-tags.mjs
+          )
+          sha256sum "${files[@]}" > /tmp/repository-pool-first.sha
+          node scripts/apply-repository-certified-pool-isolation.mjs
+          node scripts/build-studio-cache-tags.mjs
+          node scripts/build-studio-wiring.mjs
+          sha256sum "${files[@]}" > /tmp/repository-pool-second.sha
+          diff -u /tmp/repository-pool-first.sha /tmp/repository-pool-second.sha
+
+      - name: Verify browser customs cannot enter production pool
+        run: node scripts/verify-repository-certified-prompt-pool.mjs
+
+      - name: Check runtime syntax
+        run: |
+          node --check js/repository-certified-prompt-pool.js
+          node --check js/admin-studio-finish.js
+          node --check js/admin-daily-generator-guard.js
+          node --check scripts/apply-repository-certified-pool-isolation.mjs
+          node --check scripts/verify-repository-certified-prompt-pool.mjs
+          git diff --check
+
+      - name: Commit generated isolation wiring on branch pushes
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add \
+            admin.html \
+            config/asset-manifest.json \
+            js/asset-manifest.js \
+            js/admin-studio-finish.js \
+            js/admin-daily-generator-guard.js \
+            scripts/build-studio-cache-tags.mjs
+          if git diff --cached --quiet; then
+            echo 'Repository certified-pool wiring is already current.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Build repository-certified prompt pool isolation'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
