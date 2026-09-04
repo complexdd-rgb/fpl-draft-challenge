@@ -39,10 +39,12 @@ function upgradeRuntime() {
   const before = fs.readFileSync(path, 'utf8');
   let after = before;
 
-  if (after.includes('/* FPL Challenge Studio — Prompt Refinement Incubator v1.0.0')) {
-    after = after.replace('/* FPL Challenge Studio — Prompt Refinement Incubator v1.0.0', '/* FPL Challenge Studio — Prompt Refinement Incubator v1.1.0');
+  for (const version of ['1.0.0', '1.1.0']) {
+    if (after.includes(`/* FPL Challenge Studio — Prompt Refinement Incubator v${version}`)) {
+      after = after.replace(`/* FPL Challenge Studio — Prompt Refinement Incubator v${version}`, '/* FPL Challenge Studio — Prompt Refinement Incubator v1.1.1');
+    }
+    if (after.includes(`const VERSION = "${version}";`)) after = after.replace(`const VERSION = "${version}";`, 'const VERSION = "1.1.1";');
   }
-  if (after.includes('const VERSION = "1.0.0";')) after = after.replace('const VERSION = "1.0.0";', 'const VERSION = "1.1.0";');
 
   const sourceFieldsLine = '  const SOURCE_FIELDS = Object.freeze(Object.keys(FIELD_STEPS).sort((a, b) => b.length - a.length));';
   if (!after.includes('const SOURCE_FIELD_PRIORITY = Object.freeze({')) {
@@ -63,11 +65,18 @@ function upgradeRuntime() {
     after = after.slice(0, start) + runtimeFunction + after.slice(end);
   }
 
+  const oldNumberFunction = `  function replaceFirstNumber(text, oldValue, newValue) {\n    const source = String(text || "");\n    const oldText = String(oldValue);\n    const escaped = oldText.replace(/[.*+?^\${}()|[\\]\\\\]/g, "\\\\$&");\n    const pattern = new RegExp(\`(^|[^0-9.])\${escaped}(?=$|[^0-9.])\`);\n    return source.replace(pattern, (_, prefix) => \`\${prefix}\${newValue}\`);\n  }`;
+  const newNumberFunction = `  function replaceFirstNumber(text, oldValue, newValue) {\n    const source = String(text || "");\n    const target = Number(oldValue);\n    if (!Number.isFinite(target)) return source;\n    let replaced = false;\n    return source.replace(/-?\\d+(?:\\.\\d+)?/g, token => {\n      if (replaced || Number(token) !== target) return token;\n      replaced = true;\n      const decimals = token.includes(".") ? token.split(".")[1].length : 0;\n      const next = Number(newValue);\n      return Number.isFinite(next) ? (decimals ? next.toFixed(decimals) : String(next)) : String(newValue);\n    });\n  }`;
+  if (!after.includes('const decimals = token.includes(".")')) {
+    if (!after.includes(oldNumberFunction)) throw new Error('Runtime replaceFirstNumber replacement marker not found.');
+    after = after.replace(oldNumberFunction, newNumberFunction);
+  }
+
   if (after !== before) {
     fs.writeFileSync(path, after);
-    console.log('Updated js/prompt-refinement-incubator.js to semantic source-threshold priority.');
+    console.log('Updated js/prompt-refinement-incubator.js to semantic threshold priority and exact wording sync.');
   } else {
-    console.log('Runtime refinement metric priority is already current.');
+    console.log('Runtime refinement metric priority and wording are already current.');
   }
 }
 
