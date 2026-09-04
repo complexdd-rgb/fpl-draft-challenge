@@ -12,7 +12,7 @@ const path = 'admin.html';
 const before = read(path);
 let after = before;
 
-for (const key of ['adminStageOne', 'adminImportTools', 'leaderboardConfig']) {
+for (const key of ['assetManifestRuntime', 'validationEngine', 'adminStageOne', 'adminImportTools', 'leaderboardConfig']) {
   const asset = manifest.assets[key];
   const pattern = new RegExp(`${asset.path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\?v=[^\"']+)?`, 'g');
   const matches = after.match(pattern) || [];
