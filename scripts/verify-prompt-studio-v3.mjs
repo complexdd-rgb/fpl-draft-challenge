@@ -1,3 +1,4 @@
+// Bulk candidate import must remain an explicit, confirmed Draft-only action.
 import fs from 'node:fs';
 
 const read = file => fs.readFileSync(file, 'utf8');
