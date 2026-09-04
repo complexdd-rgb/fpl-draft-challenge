@@ -29,7 +29,7 @@ on:
       - '.github/workflows/repository-certified-pool.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: repository-certified-pool-${{ github.ref }}
@@ -77,6 +77,18 @@ jobs:
           sha256sum "${files[@]}" > /tmp/repository-pool-second.sha
           diff -u /tmp/repository-pool-first.sha /tmp/repository-pool-second.sha
 
+      - name: Verify generated isolation wiring is checked in
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- \
+            admin.html \
+            config/asset-manifest.json \
+            js/asset-manifest.js \
+            js/admin-studio-finish.js \
+            js/admin-daily-generator-guard.js \
+            scripts/build-studio-cache-tags.mjs
+
       - name: Verify browser customs cannot enter production pool
         run: node scripts/verify-repository-certified-prompt-pool.mjs
 
@@ -88,24 +100,3 @@ jobs:
           node --check scripts/apply-repository-certified-pool-isolation.mjs
           node --check scripts/verify-repository-certified-prompt-pool.mjs
           git diff --check
-
-      - name: Commit generated isolation wiring on branch pushes
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git add \
-            admin.html \
-            config/asset-manifest.json \
-            js/asset-manifest.js \
-            js/admin-studio-finish.js \
-            js/admin-daily-generator-guard.js \
-            scripts/build-studio-cache-tags.mjs
-          if git diff --cached --quiet; then
-            echo 'Repository certified-pool wiring is already current.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Build repository-certified prompt pool isolation'
-          git push origin "HEAD:${GITHUB_REF_NAME}"
