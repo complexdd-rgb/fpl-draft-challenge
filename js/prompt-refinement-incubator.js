@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Prompt Refinement Incubator v1.1.0
+/* FPL Challenge Studio — Prompt Refinement Incubator v1.1.1
    Takes promising 3★ prompts preserved by Quality Enforcement v2, creates controlled
    threshold variants, pre-scores them with the existing Quality Analyser, then persists
    one best candidate per parent for the normal full-library 4★+ enforcement pass. */
@@ -8,7 +8,7 @@
   if (window.__FPL_PROMPT_REFINEMENT_INCUBATOR_V1__) return;
   window.__FPL_PROMPT_REFINEMENT_INCUBATOR_V1__ = true;
 
-  const VERSION = "1.1.0";
+  const VERSION = "1.1.1";
   const MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
   const INCUBATOR_KEY = "fplPromptQualityIncubatorV2";
   const RUN_KEY = "fplPromptRefinementIncubatorRunV1";
@@ -167,10 +167,16 @@
 
   function replaceFirstNumber(text, oldValue, newValue) {
     const source = String(text || "");
-    const oldText = String(oldValue);
-    const escaped = oldText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const pattern = new RegExp(`(^|[^0-9.])${escaped}(?=$|[^0-9.])`);
-    return source.replace(pattern, (_, prefix) => `${prefix}${newValue}`);
+    const target = Number(oldValue);
+    if (!Number.isFinite(target)) return source;
+    let replaced = false;
+    return source.replace(/-?\d+(?:\.\d+)?/g, token => {
+      if (replaced || Number(token) !== target) return token;
+      replaced = true;
+      const decimals = token.includes(".") ? token.split(".")[1].length : 0;
+      const next = Number(newValue);
+      return Number.isFinite(next) ? (decimals ? next.toFixed(decimals) : String(next)) : String(newValue);
+    });
   }
 
   function slugify(value) {

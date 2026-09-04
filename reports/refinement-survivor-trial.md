@@ -1,6 +1,6 @@
 # Refinement survivor trial
 
-Generated: 2026-09-04T07:08:35.267Z
+Generated: 2026-09-04T07:10:19.333Z
 
 ## Result
 
@@ -16,9 +16,9 @@ Generated: 2026-09-04T07:08:35.267Z
 
 ### quality_v2_mid_price_6_gi_15
 
-- `quality_v2_mid_price_6_gi_15_refined_1_6_5` — certified; raw 90, adjusted 92, answers 74, overlap 0.000 — **selected**
-- `quality_v2_mid_price_6_gi_15_refined_2_5` — certified; raw 76, adjusted 78, answers 10, overlap 0.000
-- `quality_v2_mid_price_6_gi_15_refined_3_5_5` — certified; raw 88, adjusted 90, answers 36, overlap 0.000
+- `quality_v2_mid_price_6_gi_15_refined_1_6_5` — certified; raw 96, adjusted 98, answers 74, overlap 0.000 — **selected**
+- `quality_v2_mid_price_6_gi_15_refined_2_5` — certified; raw 82, adjusted 84, answers 10, overlap 0.000
+- `quality_v2_mid_price_6_gi_15_refined_3_5_5` — certified; raw 94, adjusted 96, answers 36, overlap 0.000
 
 ### quality_v3_fwd_manager_david_moyes_p55
 
@@ -32,7 +32,7 @@ Generated: 2026-09-04T07:08:35.267Z
 
 - Parent: `quality_v2_mid_price_6_gi_15`
 - Position: MID
-- Label: Midfielder who started at £6.0m or less with 15+ goal involvements
+- Label: Midfielder who started at £6.5m or less with 15+ goal involvements
 - Full-library state: **certified**
 - Raw score: 84
 - Adjusted score: 86
