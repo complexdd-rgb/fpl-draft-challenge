@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'js/prompt-studio-v3-clean-room.js'
+      - 'js/prompt-studio-v3-rule-tester.js'
       - 'js/prompt-family-registry-v3.js'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
@@ -14,6 +15,7 @@ on:
       - 'refactor/prompt-studio-v3-clean-room'
     paths:
       - 'js/prompt-studio-v3-clean-room.js'
+      - 'js/prompt-studio-v3-rule-tester.js'
       - 'js/prompt-family-registry-v3.js'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
@@ -41,6 +43,7 @@ jobs:
         run: |
           node --check js/prompt-family-registry-v3.js
           node --check js/prompt-studio-v3-clean-room.js
+          node --check js/prompt-studio-v3-rule-tester.js
           node --check js/studio-bootstrap.js
           node --check scripts/verify-prompt-studio-v3.mjs
       - name: Reject whitespace errors
