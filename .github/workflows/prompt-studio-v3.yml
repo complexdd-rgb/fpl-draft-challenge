@@ -1,5 +1,6 @@
 name: Prompt Studio V3
 
+# Candidate generation is shortlist-only: one explicit human click creates one disabled V3 Draft.
 on:
   pull_request:
     paths:
