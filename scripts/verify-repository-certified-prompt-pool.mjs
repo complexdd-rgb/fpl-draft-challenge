@@ -5,6 +5,7 @@ const source = fs.readFileSync('js/repository-certified-prompt-pool.js', 'utf8')
 const listeners = new Map();
 const statusNode = { textContent:'', title:'' };
 const store = new Map();
+const appendedScripts = [];
 
 const approved = Array.from({ length: 810 }, (_, index) => `approved_${index}`);
 const baseQuality = Array.from({ length: 10 }, (_, index) => `quality_base_${index}`);
@@ -36,7 +37,10 @@ window.window = window;
 
 globalThis.document = {
   readyState: 'complete',
+  head: { appendChild(node) { appendedScripts.push(node); } },
   addEventListener() {},
+  querySelector() { return null; },
+  createElement(tag) { return { tagName:String(tag).toUpperCase(), dataset:{}, async:true, src:'' }; },
   getElementById(id) { return id === 'libraryStatus' ? statusNode : null; }
 };
 globalThis.localStorage = {
@@ -49,6 +53,9 @@ globalThis.CustomEvent = class CustomEvent {
 };
 
 vm.runInThisContext(source, { filename:'js/repository-certified-prompt-pool.js' });
+if (appendedScripts.length !== 1 || !/prompt-library-canonical-state\.js\?v=1\.0\.0/.test(appendedScripts[0].src)) {
+  throw new Error('Repository pool did not request the canonical Prompt Studio state runtime.');
+}
 
 const liveLibrary = window.FPL_PROMPT_LIBRARY;
 liveLibrary.push(...runtimeQuality.map(id => prompt(id, ['quality-pack-v1'])));
