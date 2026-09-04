@@ -1,4 +1,4 @@
-/* FPL Draft Challenge — Prompt Studio V3 safe rule builder + database tester v3.1.0.
+/* FPL Draft Challenge — Prompt Studio V3 safe rule builder + database tester v3.1.1.
    This module is advisory/testing infrastructure only. It cannot rate, approve, enable,
    delete, promote or publish a V3 prompt. Production remains on the frozen certified pool. */
 (() => {
@@ -6,7 +6,7 @@
 
   if (window.FPL_PROMPT_STUDIO_V3_RULE_TESTER?.ready) return;
 
-  const VERSION = "3.1.0";
+  const VERSION = "3.1.1";
   const RULE_STORE_KEY = "fplPromptStudioV3RuleDefinitions";
   const TEST_DETAIL_KEY = "fplPromptStudioV3TestDetails";
   const POSITION_LABELS = Object.freeze({ ANY:"Player", GK:"Goalkeeper", DEF:"Defender", MID:"Midfielder", FWD:"Forward" });
@@ -114,6 +114,7 @@
     const type = FIELD_DEFS[rule.field]?.type;
     if (type === "flag" || type === "club" || type === "manager") return [["is", "Is"]];
     if (type === "season") return [["equals","In season"],["before","Before"],["after","After"],["between","Between"]];
+    if (type === "price") return [["lte", "At most"]];
     return NUMERIC_OPERATORS;
   }
 
@@ -140,17 +141,13 @@
       return `played in the ${value} season`;
     }
     if (!value) return "";
-    if (def.type === "price") {
-      if (rule.operator === "between") return value2 ? `${def.noun} between ${value} and ${value2}` : "";
-      if (rule.operator === "lte") return `${def.noun} of £${value}m or less`;
-      if (rule.operator === "gte") return `at least ${value} ${def.noun}`;
-      return `exactly ${value} ${def.noun}`;
-    }
+    if (def.type === "price") return `had a ${def.noun} of £${value}m or less`;
     const noun = def.noun;
-    if (rule.operator === "between") return value2 ? `between ${value} and ${value2} ${noun}` : "";
-    if (rule.operator === "lte") return `at most ${value} ${noun}`;
-    if (rule.operator === "eq") return `exactly ${value} ${noun}`;
-    return `at least ${value} ${noun}`;
+    const verb = def.type === "career" ? "had" : "recorded";
+    if (rule.operator === "between") return value2 ? `${verb} between ${value} and ${value2} ${noun}` : "";
+    if (rule.operator === "lte") return `${verb} at most ${value} ${noun}`;
+    if (rule.operator === "eq") return `${verb} exactly ${value} ${noun}`;
+    return `${verb} at least ${value} ${noun}`;
   }
 
   function buildWording(position, rules) {
