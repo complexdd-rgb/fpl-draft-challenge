@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.0.0"
+      "version": "1.1.0-native-shell"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -14,11 +14,11 @@
     },
     "adminImportTools": {
       "path": "js/admin-import-tools.js",
-      "version": "22.3.0-careerevolution"
+      "version": "23.0.0-bootstrap"
     },
     "studioFeatureLoader": {
       "path": "js/studio-feature-loader.js",
-      "version": "1.0.1-refinement"
+      "version": "1.1.0-bootstrap-shim"
     },
     "promptStudioLoader": {
       "path": "js/prompt-studio-loader.js",
@@ -94,7 +94,7 @@
     },
     "adminStageOne": {
       "path": "js/admin-stage-one.js",
-      "version": "1.1.0-fastboot"
+      "version": "1.2.0-native-shell"
     },
     "careerContext": {
       "path": "js/career-context.js",
@@ -110,7 +110,7 @@
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
-      "version": "5.0.5"
+      "version": "5.1.0-studio-bootstrap"
     }
   };
   const assets = Object.freeze(Object.fromEntries(
@@ -125,7 +125,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "1.0.0",
+    version: "1.1.0-native-shell",
     assets,
     get,
     url
