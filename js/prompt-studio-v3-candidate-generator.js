@@ -1,12 +1,12 @@
-/* FPL Draft Challenge — Prompt Studio V3 deliberate candidate generator v3.3.0.
+/* FPL Draft Challenge — Prompt Studio V3 deliberate candidate generator v3.3.1.
    Generates shortlist evidence only. Nothing is saved until the user explicitly chooses a
-   candidate, and every saved candidate enters the isolated V3 library as a disabled Draft. */
+   candidate or confirms Add all, and every saved candidate enters the isolated V3 library as a disabled Draft. */
 (() => {
   "use strict";
 
   if (window.FPL_PROMPT_STUDIO_V3_CANDIDATE_GENERATOR?.ready) return;
 
-  const VERSION = "3.3.0";
+  const VERSION = "3.3.1";
   const SUPPORTED_FAMILIES = Object.freeze(new Set([
     "season-stats", "combined-stats", "exact-bands", "club-stat", "position-stat",
     "league-position", "promoted-clubs", "relegated-clubs", "champions",
@@ -273,34 +273,71 @@
     renderResults(root);
   }
 
+  function availableCandidates() {
+    const existing = new Set(state().prompts.map(prompt => prompt.id));
+    return currentCandidates.filter(candidate => !existing.has(candidate.id));
+  }
+
   function renderResults(root) {
     const host = root.querySelector("[data-v3-candidate-results]");
+    const addAll = root.querySelector("[data-v3-add-all-candidates]");
     if (!host) return;
     if (!currentCandidates.length) {
-      host.innerHTML = '<div class="prompt-v3-empty">Generate a shortlist. Candidates remain temporary until you explicitly add one as a disabled V3 Draft.</div>';
+      host.innerHTML = '<div class="prompt-v3-empty">Generate a shortlist. Candidates remain temporary until you explicitly add one or confirm Add all as disabled V3 Drafts.</div>';
+      if (addAll) { addAll.disabled = true; addAll.textContent = "Add all shortlist as disabled Drafts"; }
       return;
     }
     const existing = new Set(state().prompts.map(prompt => prompt.id));
+    const available = currentCandidates.filter(candidate => !existing.has(candidate.id));
+    if (addAll) {
+      addAll.disabled = available.length === 0;
+      addAll.textContent = available.length
+        ? `Add all ${available.length} as disabled Draft${available.length === 1 ? "" : "s"}`
+        : "All shortlist candidates already added";
+    }
     host.innerHTML = currentCandidates.map((candidate,index) => `<article class="prompt-v3-candidate-row">
       <div><h4>${esc(candidate.wording)}</h4><p>${candidate.answers} valid players · ${candidate.seasons} seasons · ${candidate.clubs} clubs · suggested ${esc(candidate.difficulty)} difficulty</p><div class="prompt-v3-meta"><span>${esc(candidate.family)}</span><span>${esc(candidate.position)}</span><span>Target ${candidate.target.minAnswers}–${candidate.target.maxAnswers}</span><span>Parser-safe</span></div></div>
       <button type="button" class="prompt-v3-button primary" data-v3-add-candidate="${index}"${existing.has(candidate.id) ? " disabled" : ""}>${existing.has(candidate.id) ? "Already in V3" : "Add as disabled Draft"}</button>
     </article>`).join("");
   }
 
-  function addCandidate(root,index) {
-    const candidate = currentCandidates[Number(index)];
-    if (!candidate) return;
-    if (state().prompts.some(prompt => prompt.id === candidate.id)) return window.alert("That candidate is already in the V3 library.");
+  function draftNotes(candidate) {
+    return `[V3 deliberate candidate generator]\nTarget answer pool: ${candidate.target.minAnswers}–${candidate.target.maxAnswers}\nMeasured: ${candidate.answers} players · ${candidate.seasons} seasons · ${candidate.clubs} clubs\nRules: ${candidate.rules.map(item => `${item.field}:${item.operator}:${item.value || "true"}${item.value2 ? `:${item.value2}` : ""}`).join(" | ")}\n\nThis is a Draft only. It still requires real Test → advisory Quality → human Review.`;
+  }
+
+  function saveCandidateAsDraft(root,candidate) {
+    if (!candidate || state().prompts.some(prompt => prompt.id === candidate.id)) return false;
     const create = root.querySelector("[data-v3-create-form]");
-    if (!create) return window.alert("V3 Draft form is unavailable.");
+    if (!create) return false;
     create.elements.id.value = candidate.id;
     create.elements.position.value = candidate.position;
     create.elements.label.value = candidate.wording;
     create.elements.difficulty.value = candidate.difficulty;
     create.elements.family.value = candidate.family;
-    create.elements.notes.value = `[V3 deliberate candidate generator]\nTarget answer pool: ${candidate.target.minAnswers}–${candidate.target.maxAnswers}\nMeasured: ${candidate.answers} players · ${candidate.seasons} seasons · ${candidate.clubs} clubs\nRules: ${candidate.rules.map(item => `${item.field}:${item.operator}:${item.value || "true"}${item.value2 ? `:${item.value2}` : ""}`).join(" | ")}\n\nThis is a Draft only. It still requires real Test → advisory Quality → human Review.`;
+    create.elements.notes.value = draftNotes(candidate);
     create.requestSubmit();
+    return state().prompts.some(prompt => prompt.id === candidate.id);
+  }
+
+  function addCandidate(root,index) {
+    const candidate = currentCandidates[Number(index)];
+    if (!candidate) return;
+    if (state().prompts.some(prompt => prompt.id === candidate.id)) return window.alert("That candidate is already in the V3 library.");
+    if (!root.querySelector("[data-v3-create-form]")) return window.alert("V3 Draft form is unavailable.");
+    saveCandidateAsDraft(root,candidate);
     window.setTimeout(() => renderResults(root),0);
+  }
+
+  function addAllCandidates(root) {
+    const candidates = availableCandidates();
+    if (!candidates.length) return window.alert("Every candidate in this shortlist is already in the V3 library.");
+    if (!root.querySelector("[data-v3-create-form]")) return window.alert("V3 Draft form is unavailable.");
+    if (!window.confirm(`Add all ${candidates.length} remaining shortlist candidate${candidates.length === 1 ? "" : "s"} as disabled V3 Drafts?\n\nThey will NOT be tested, rated, approved or enabled automatically.`)) return;
+
+    let added = 0;
+    for (const candidate of candidates) if (saveCandidateAsDraft(root,candidate)) added += 1;
+    renderResults(root);
+    window.alert(`${added} candidate${added === 1 ? "" : "s"} added as disabled V3 Drafts. Each still requires real Test → all-season evidence → advisory Quality → human Review.`);
   }
 
   function familyOptions() {
@@ -332,7 +369,7 @@
     box.className = "prompt-v3-candidate-generator";
     box.dataset.v3CandidateGenerator = "1";
     box.innerHTML = `
-      <div><h3>Deliberate candidate generator</h3><p>Choose a family and desired answer-pool range. V3 tests candidate recipes against the real database and returns a shortlist only. Nothing is added until you choose <strong>Add as disabled Draft</strong>.</p></div>
+      <div><h3>Deliberate candidate generator</h3><p>Choose a family and desired answer-pool range. V3 tests candidate recipes against the real database and returns a shortlist only. Add individually, or explicitly confirm <strong>Add all</strong>; every saved candidate remains a disabled Draft.</p></div>
       <form class="prompt-v3-candidate-generator-form" data-v3-candidate-generator-form>
         <label>Family<select name="family" required><option value="">Choose supported family</option>${familyOptions()}</select></label>
         <label>Position<select name="position"><option value="ANY">Any</option><option value="GK">GK</option><option value="DEF">DEF</option><option value="MID">MID</option><option value="FWD">FWD</option></select></label>
@@ -342,13 +379,16 @@
         <button type="submit" class="prompt-v3-button" data-v3-generate-candidates>Generate shortlist</button>
       </form>
       <div class="prompt-v3-candidate-progress" data-v3-candidate-progress><i></i></div>
-      <p data-v3-candidate-status style="color:#aebdb4">Ready. ${SUPPORTED_FAMILIES.size} family recipes are available in this first deliberate-generation slice.</p>
+      <p data-v3-candidate-status style="color:#aebdb4">Ready. ${SUPPORTED_FAMILIES.size} family recipes are available in this deliberate-generation slice.</p>
+      <div class="prompt-v3-actions"><button type="button" class="prompt-v3-button primary" data-v3-add-all-candidates disabled>Add all shortlist as disabled Drafts</button></div>
       <div class="prompt-v3-candidate-results" data-v3-candidate-results></div>
     `;
     createCard.appendChild(box);
     renderResults(root);
     box.querySelector("[data-v3-candidate-generator-form]").addEventListener("submit",event => { event.preventDefault(); generate(root); });
     box.addEventListener("click",event => {
+      const addAll = event.target.closest("[data-v3-add-all-candidates]");
+      if (addAll) return addAllCandidates(root);
       const button = event.target.closest("[data-v3-add-candidate]");
       if (button) addCandidate(root,button.dataset.v3AddCandidate);
     });
