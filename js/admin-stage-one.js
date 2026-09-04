@@ -450,25 +450,32 @@
     updateHero();
 
     const originalChildren = [...shell.children];
-    const sidebar = createSidebar();
-    const mainColumn = document.createElement("div");
-    mainColumn.className = "studio-main-column";
-    const topbar = createTopbar();
-    const workspaceHost = document.createElement("div");
-    workspaceHost.className = "studio-workspace-host";
+    // The current Stage One shell is authored in admin.html. Clone that native markup
+    // when available; the JS constructors remain only as a cache-safe fallback.
+    const nativeTemplate = document.getElementById("studioNativeWorkspaceTemplate");
+    const nativeLayout = nativeTemplate?.content?.querySelector(".studio-stage-one-layout")?.cloneNode(true) || null;
+    const sidebar = nativeLayout?.querySelector(".studio-sidebar") || createSidebar();
+    const mainColumn = nativeLayout?.querySelector(".studio-main-column") || document.createElement("div");
+    mainColumn.classList.add("studio-main-column");
+    const topbar = nativeLayout?.querySelector(".studio-topbar") || createTopbar();
+    const workspaceHost = nativeLayout?.querySelector(".studio-workspace-host") || document.createElement("div");
+    workspaceHost.classList.add("studio-workspace-host");
 
     const workspaces = new Map();
     workspaceDefinitions.forEach(definition => {
-      const workspace = createWorkspace(definition);
+      let workspace = nativeLayout?.querySelector(`[data-workspace="${definition.id}"]`) || null;
+      if (!workspace) workspace = createWorkspace(definition);
       workspace.id = `workspace-${definition.id}`;
       workspaces.set(definition.id, workspace);
-      workspaceHost.appendChild(workspace);
+      if (workspace.parentElement !== workspaceHost) workspaceHost.appendChild(workspace);
     });
 
-    const layout = document.createElement("div");
-    layout.className = "studio-stage-one-layout";
-    mainColumn.append(topbar, workspaceHost);
-    layout.append(sidebar, mainColumn);
+    const layout = nativeLayout || document.createElement("div");
+    layout.classList.add("studio-stage-one-layout");
+    if (!nativeLayout) {
+      mainColumn.append(topbar, workspaceHost);
+      layout.append(sidebar, mainColumn);
+    }
     shell.appendChild(layout);
 
     originalChildren.forEach(element => {

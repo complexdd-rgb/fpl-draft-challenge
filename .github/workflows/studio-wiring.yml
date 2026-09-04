@@ -1,0 +1,142 @@
+name: Studio Architecture Build
+
+on:
+  push:
+    branches:
+      - main
+      - refactor/studio-asset-bootstrap
+    paths:
+      - 'config/asset-manifest.json'
+      - 'js/studio-bootstrap.js'
+      - 'js/asset-manifest.js'
+      - 'js/admin-stage-one.js'
+      - 'js/admin-import-tools.js'
+      - 'js/studio-feature-loader.js'
+      - 'js/prompt-studio-loader.js'
+      - 'js/leaderboard-config.js'
+      - 'admin.html'
+      - 'scripts/build-studio-cache-tags.mjs'
+      - 'scripts/build-studio-wiring.mjs'
+      - 'scripts/verify-studio-wiring.mjs'
+      - 'scripts/build-native-studio-shell.mjs'
+      - 'scripts/verify-native-studio-shell.mjs'
+      - 'scripts/apply-studio-refresh-fastboot.mjs'
+      - 'scripts/verify-studio-refresh-fastboot.mjs'
+      - 'scripts/apply-career-evolution-cache-wiring.mjs'
+      - 'scripts/verify-career-evolution-cache-wiring.mjs'
+      - '.github/workflows/studio-wiring.yml'
+  pull_request:
+    paths:
+      - 'config/asset-manifest.json'
+      - 'js/studio-bootstrap.js'
+      - 'js/asset-manifest.js'
+      - 'js/admin-stage-one.js'
+      - 'js/admin-import-tools.js'
+      - 'js/studio-feature-loader.js'
+      - 'js/prompt-studio-loader.js'
+      - 'js/leaderboard-config.js'
+      - 'admin.html'
+      - 'scripts/build-studio-cache-tags.mjs'
+      - 'scripts/build-studio-wiring.mjs'
+      - 'scripts/verify-studio-wiring.mjs'
+      - 'scripts/build-native-studio-shell.mjs'
+      - 'scripts/verify-native-studio-shell.mjs'
+      - 'scripts/apply-studio-refresh-fastboot.mjs'
+      - 'scripts/verify-studio-refresh-fastboot.mjs'
+      - 'scripts/apply-career-evolution-cache-wiring.mjs'
+      - 'scripts/verify-career-evolution-cache-wiring.mjs'
+      - '.github/workflows/studio-wiring.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: studio-architecture-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Apply manifest-owned Admin cache tags
+        run: node scripts/build-studio-cache-tags.mjs
+
+      - name: Build native Studio shell
+        run: node scripts/build-native-studio-shell.mjs
+
+      - name: Build manifest-driven Studio wiring
+        run: node scripts/build-studio-wiring.mjs
+
+      - name: Prove builders are repeat-safe
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            admin.html
+            js/asset-manifest.js
+            js/admin-stage-one.js
+            js/admin-import-tools.js
+            js/studio-feature-loader.js
+            js/prompt-studio-loader.js
+            js/leaderboard-config.js
+          )
+          sha256sum "${files[@]}" > /tmp/studio-architecture-first.sha
+          node scripts/build-studio-cache-tags.mjs
+          node scripts/build-native-studio-shell.mjs
+          node scripts/build-studio-wiring.mjs
+          sha256sum "${files[@]}" > /tmp/studio-architecture-second.sha
+          diff -u /tmp/studio-architecture-first.sha /tmp/studio-architecture-second.sha
+
+      - name: Verify native Studio shell
+        run: node scripts/verify-native-studio-shell.mjs
+
+      - name: Verify Studio wiring architecture
+        run: node scripts/verify-studio-wiring.mjs
+
+      - name: Check generated JavaScript syntax
+        run: |
+          node --check js/asset-manifest.js
+          node --check js/studio-bootstrap.js
+          node --check js/admin-stage-one.js
+          node --check js/admin-import-tools.js
+          node --check js/studio-feature-loader.js
+          node --check js/prompt-studio-loader.js
+          node --check js/leaderboard-config.js
+          node --check scripts/build-studio-cache-tags.mjs
+          node --check scripts/build-native-studio-shell.mjs
+          node --check scripts/build-studio-wiring.mjs
+
+      - name: Reject whitespace errors
+        run: git diff --check
+
+      - name: Commit generated Studio architecture on branch pushes
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add \
+            admin.html \
+            js/asset-manifest.js \
+            js/admin-stage-one.js \
+            js/admin-import-tools.js \
+            js/studio-feature-loader.js \
+            js/prompt-studio-loader.js \
+            js/leaderboard-config.js
+          if git diff --cached --quiet; then
+            echo 'Generated Studio architecture is already current.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Build native manifest-driven Studio architecture'
+          git push origin "HEAD:${GITHUB_REF_NAME}"

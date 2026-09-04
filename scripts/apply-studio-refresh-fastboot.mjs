@@ -14,6 +14,13 @@ const replaceOnce = (source, from, to, label) => {
   if (count !== 1) throw new Error(label + ': expected one source marker, found ' + count + '.');
   return source.replace(from, to);
 };
+const manifest = fs.existsSync('config/asset-manifest.json')
+  ? JSON.parse(read('config/asset-manifest.json'))
+  : null;
+const stageAsset = manifest?.assets?.adminStageOne;
+const stageUrl = stageAsset?.path
+  ? (stageAsset.version ? `${stageAsset.path}?v=${stageAsset.version}` : stageAsset.path)
+  : 'js/admin-stage-one.js?v=1.1.0-fastboot';
 
 {
   const path = 'admin.html';
@@ -21,16 +28,12 @@ const replaceOnce = (source, from, to, label) => {
   let updated = source;
   updated = replaceOnce(updated, '<html lang="en">', '<html lang="en" class="studio-preboot">', 'Studio preboot html class');
 
-  const oldTag = '  <script src="js/admin-stage-one.js?v=1.0.0"></script>\n';
-  const newTag = '  <script src="js/admin-stage-one.js?v=1.1.0-fastboot"></script>\n';
-  if (updated.includes(oldTag)) updated = updated.replace(oldTag, '');
-
-  // Once the fast-boot tag is already in its early position, leave it untouched. The previous
-  // implementation removed and reinserted the same tag on every run, leaving one extra blank
-  // line each time even though the runtime wiring itself was unchanged.
-  if (!updated.includes(newTag)) {
-    updated = replaceOnce(updated, '  </main>\n\n', '  </main>\n\n' + newTag + '\n', 'early Stage One script');
-  }
+  const desiredTag = `  <script src="${stageUrl}"></script>\n`;
+  const stagePattern = /  <script src="js\/admin-stage-one\.js(?:\?v=[^"]+)?"><\/script>\n/g;
+  const matches = updated.match(stagePattern) || [];
+  if (matches.length > 1) throw new Error(`early Stage One script: expected at most one tag, found ${matches.length}.`);
+  if (matches.length === 1) updated = updated.replace(stagePattern, desiredTag);
+  else updated = replaceOnce(updated, '  </main>\n\n', '  </main>\n\n' + desiredTag + '\n', 'early Stage One script');
   write(path, source, updated);
 }
 

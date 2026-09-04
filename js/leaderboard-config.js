@@ -103,22 +103,16 @@ if (window.FPL_LEADERBOARD_CONFIG.enabled && window.FPL_LEADERBOARD_CONFIG.accou
   document.head.appendChild(account);
 }
 
-// Non-critical environment features live in named loaders instead of this configuration file.
-const featureLoader = document.createElement("script");
-featureLoader.src = new URL(
-  window.FPL_IS_STUDIO ? "js/studio-feature-loader.js?v=1.0.1-refinement" : "js/live-feature-loader.js",
-  document.baseURI
-).toString();
-featureLoader.async = !window.FPL_IS_STUDIO;
-featureLoader.dataset.fplFeatureLoader = window.FPL_IS_STUDIO ? "studio" : "live";
-document.head.appendChild(featureLoader);
-
-// The Refinement Incubator is Studio-only and deliberately self-waits for Quality Enforcement
-// v2, so it can be loaded here without joining the already-large prompt-tool dependency chain.
-if (window.FPL_IS_STUDIO) {
-  const refinementIncubator = document.createElement("script");
-  refinementIncubator.src = new URL("js/prompt-refinement-incubator.js?v=1.0.0", document.baseURI).toString();
-  refinementIncubator.async = false;
-  refinementIncubator.dataset.promptRefinementIncubator = "1";
-  document.head.appendChild(refinementIncubator);
+// Studio runtime feature ownership lives in studio-bootstrap.js. Live play keeps its
+// own deferred feature loader and does not depend on the Studio asset manifest.
+if (!window.FPL_IS_STUDIO) {
+  const featureLoader = document.createElement("script");
+  featureLoader.src = new URL("js/live-feature-loader.js", document.baseURI).toString();
+  featureLoader.async = true;
+  featureLoader.dataset.fplFeatureLoader = "live";
+  document.head.appendChild(featureLoader);
 }
+
+window.dispatchEvent(new CustomEvent("fpl:leaderboard-config-ready", {
+  detail: window.FPL_LEADERBOARD_CONFIG
+}));

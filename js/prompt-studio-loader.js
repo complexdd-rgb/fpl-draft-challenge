@@ -4,6 +4,7 @@
   "use strict";
   const WORKSPACE_KEY = "fpl-studio-stage-one-workspace";
   let started = false;
+  const asset = (key, fallback) => window.FPL_ASSET_MANIFEST?.url?.(key) || fallback;
 
   const load = (src, done) => {
     const existing = [...document.scripts].find(script => script.src && script.src.includes(src.split("?")[0]));
@@ -27,16 +28,16 @@
     started = true;
     document.documentElement.dataset.promptToolsLoading = "true";
 
-    load("js/admin-import-tools-base.js?v=16.2.0-careerevolution", () => {
-      load("js/prompt-target-survivor-generator.js?v=1.0.1-careerevolution", () => {
-        load("js/prompt-target-auto-explorer.js?v=1.0.1-careerevolution");
+    load(asset("adminImportToolsBase", "js/admin-import-tools-base.js?v=16.2.0-careerevolution"), () => {
+      load(asset("promptTargetSurvivorGenerator", "js/prompt-target-survivor-generator.js?v=1.0.1-careerevolution"), () => {
+        load(asset("promptTargetAutoExplorer", "js/prompt-target-auto-explorer.js?v=1.0.1-careerevolution"));
       });
       const afterRules = () => {
-        load("js/career-shape-studio.js?v=1.0.0", () => {
-          load("js/career-shape-workspace-repair.js?v=1.0.0", () => {
-            load("js/career-shape-unified-generator.js?v=1.0.0", () => {
-              load("js/career-shape-future-quality-guard.js?v=1.0.0", () => {
-                load("js/career-shape-unified-fixes.js?v=1.0.1", () => {
+        load(asset("careerShapeStudio", "js/career-shape-studio.js?v=1.0.0"), () => {
+          load(asset("careerShapeWorkspaceRepair", "js/career-shape-workspace-repair.js?v=1.0.0"), () => {
+            load(asset("careerShapeUnifiedGenerator", "js/career-shape-unified-generator.js?v=1.0.0"), () => {
+              load(asset("careerShapeFutureQualityGuard", "js/career-shape-future-quality-guard.js?v=1.0.0"), () => {
+                load(asset("careerShapeUnifiedFixes", "js/career-shape-unified-fixes.js?v=1.0.1"), () => {
                   document.documentElement.dataset.promptToolsLoading = "false";
                   document.documentElement.dataset.promptToolsReady = "true";
                   window.dispatchEvent(new CustomEvent("fpl:prompt-tools-ready"));
@@ -48,7 +49,7 @@
       };
 
       if (window.FPL_CAREER_SHAPE_RULES) afterRules();
-      else load("js/career-shape-rules.js?v=1.1.2-repair", afterRules);
+      else load(asset("careerShapeRules", "js/career-shape-rules.js?v=1.1.2-repair"), afterRules);
     });
   }
 
