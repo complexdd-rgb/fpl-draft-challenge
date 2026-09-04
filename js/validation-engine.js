@@ -64,6 +64,8 @@
   }
 
   function getPromptLibrary() {
+    const certificationSnapshot = window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;
+    if (Array.isArray(certificationSnapshot)) return certificationSnapshot;
     const studioLibrary = window.FPL_STUDIO_API?.getPromptLibrary?.();
     if (Array.isArray(studioLibrary)) return studioLibrary;
     return Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : [];
