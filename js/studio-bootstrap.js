@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v1.1.0.
+/* FPL Challenge Studio — single runtime bootstrap owner v1.2.0.
    Owns Studio-only feature loading. Specialist modules remain separate, but no longer
    discover and start overlapping loader chains independently. */
 (() => {
@@ -17,6 +17,7 @@
   let certificationStarted = false;
   let promptLoaderStarted = false;
   let promptRedesignStarted = false;
+  let promptV3Started = false;
   let refinementStarted = false;
   let publishingStarted = false;
 
@@ -68,6 +69,14 @@
     loadAsset("promptStudioRedesign", "data-prompt-studio-redesign", { async: false });
   }
 
+  function ensurePromptV3() {
+    if (promptV3Started) return;
+    promptV3Started = true;
+    loadAsset("promptFamilyRegistryV3", "data-prompt-family-registry-v3", { async: false }, () => {
+      loadAsset("promptStudioV3", "data-prompt-studio-v3", { async: false });
+    });
+  }
+
   function ensurePromptLoader() {
     if (promptLoaderStarted) return;
     promptLoaderStarted = true;
@@ -91,8 +100,8 @@
   function ensureRefinementIncubator() {
     if (refinementStarted) return;
     refinementStarted = true;
-    // The incubator already self-waits for Quality Enforcement v2. Bootstrap owns only
-    // its loading location; certification remains the authority for promotion to 4★+.
+    // Legacy production quality/refinement remains isolated from the clean-room V3 library.
+    // V3 never consumes automatic rescue, rating, deletion or promotion decisions.
     loadAsset("promptRefinementIncubator", "data-prompt-refinement-incubator", { async: false });
   }
 
@@ -108,6 +117,7 @@
     if (!runtimeIsStudio()) return;
     if (started) {
       ensurePromptRedesign();
+      ensurePromptV3();
       ensurePublishing();
       return;
     }
@@ -115,6 +125,7 @@
     document.documentElement.dataset.studioBootstrap = "loading";
 
     ensurePromptRedesign();
+    ensurePromptV3();
     ensurePromptLoader();
     ensureCertificationLayer();
     ensureRefinementIncubator();
@@ -126,11 +137,12 @@
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "1.1.0",
+    version: "1.2.0",
     start,
     loadScript,
     loadAsset,
     ensurePromptRedesign,
+    ensurePromptV3,
     ensurePromptLoader,
     ensureCertificationLayer,
     ensureRefinementIncubator,
