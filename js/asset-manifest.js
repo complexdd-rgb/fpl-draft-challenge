@@ -38,7 +38,7 @@
     },
     "promptStudioV3RuleTester": {
       "path": "js/prompt-studio-v3-rule-tester.js",
-      "version": "3.1.0"
+      "version": "3.1.1"
     },
     "adminImportToolsBase": {
       "path": "js/admin-import-tools-base.js",
