@@ -1,3 +1,4 @@
+# Keeps the durable survivor promotion reproducible on branch pushes and independently checked on PRs.
 name: Refinement Incubator Audit
 
 on:
