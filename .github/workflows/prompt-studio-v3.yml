@@ -1,6 +1,6 @@
 name: Prompt Studio V3
 
-# Candidate generation is shortlist-only: one explicit human click creates one disabled V3 Draft.
+# Candidate generation is shortlist-only and candidate certification is read-only evidence.
 on:
   pull_request:
     paths:
@@ -8,6 +8,7 @@ on:
       - 'js/prompt-studio-v3-rule-tester.js'
       - 'js/prompt-studio-v3-quality-advisor.js'
       - 'js/prompt-studio-v3-candidate-generator.js'
+      - 'js/prompt-studio-v3-candidate-certification.js'
       - 'js/prompt-family-registry-v3.js'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
@@ -21,6 +22,7 @@ on:
       - 'js/prompt-studio-v3-rule-tester.js'
       - 'js/prompt-studio-v3-quality-advisor.js'
       - 'js/prompt-studio-v3-candidate-generator.js'
+      - 'js/prompt-studio-v3-candidate-certification.js'
       - 'js/prompt-family-registry-v3.js'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
@@ -51,6 +53,7 @@ jobs:
           node --check js/prompt-studio-v3-rule-tester.js
           node --check js/prompt-studio-v3-quality-advisor.js
           node --check js/prompt-studio-v3-candidate-generator.js
+          node --check js/prompt-studio-v3-candidate-certification.js
           node --check js/studio-bootstrap.js
           node --check scripts/verify-prompt-studio-v3.mjs
       - name: Reject whitespace errors
