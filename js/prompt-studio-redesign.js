@@ -44,7 +44,9 @@
 
   function qualityResults() {
     const values = window.FPL_PROMPT_QUALITY_API?.getResults?.();
-    return Array.isArray(values) ? values : [];
+    if (!Array.isArray(values)) return [];
+    const current = census();
+    return current?.ready && values.length === current.total ? values : [];
   }
 
   function readStoredView() {
@@ -110,17 +112,17 @@
       setView(button.dataset.promptView, { scroll:false });
     });
     nav.addEventListener("keydown", event => {
-      if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
-      const buttons = [...nav.querySelectorAll('[data-prompt-view]')];
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      const buttons = [...nav.querySelectorAll("[data-prompt-view]")];
       const index = Math.max(0, buttons.indexOf(document.activeElement));
       let target = index;
-      if (event.key === 'ArrowRight') target = (index + 1) % buttons.length;
-      if (event.key === 'ArrowLeft') target = (index - 1 + buttons.length) % buttons.length;
-      if (event.key === 'Home') target = 0;
-      if (event.key === 'End') target = buttons.length - 1;
+      if (event.key === "ArrowRight") target = (index + 1) % buttons.length;
+      if (event.key === "ArrowLeft") target = (index - 1 + buttons.length) % buttons.length;
+      if (event.key === "Home") target = 0;
+      if (event.key === "End") target = buttons.length - 1;
       event.preventDefault();
       buttons[target]?.focus();
-      setView(buttons[target]?.dataset.promptView || 'library');
+      setView(buttons[target]?.dataset.promptView || "library");
     });
     return nav;
   }
@@ -272,7 +274,8 @@
     const host = document.getElementById("promptStudioReviewList");
     if (!host) return;
     const items = library().filter(prompt => prompt?._productionEligible !== true || prompt?.enabled === false);
-    const byId = new Map(qualityResults().map(result => [String(result?.id || ""), result]));
+    const results = qualityResults();
+    const byId = new Map(results.map(result => [String(result?.id || ""), result]));
     const rows = items.map(prompt => ({ prompt, result:byId.get(String(prompt.id)) || null }))
       .sort((left, right) => {
         const a = reviewState(left.prompt, left.result).priority;
@@ -297,9 +300,12 @@
       ? visible.map(row => renderReviewCard(row.prompt, row.result)).join("")
       : '<div class="prompt-review-empty"><strong>No disabled prompts are waiting.</strong><span>The working library is fully resolved.</span></div>';
     const footer = document.getElementById("promptStudioReviewFooter");
-    if (footer) footer.textContent = rows.length > visible.length
-      ? `Showing the first ${visible.length.toLocaleString("en-GB")} of ${rows.length.toLocaleString("en-GB")} prompts. Use Library search for the rest.`
-      : `${rows.length.toLocaleString("en-GB")} prompt${rows.length === 1 ? "" : "s"} in the review queue.`;
+    if (footer) {
+      const staleNote = results.length ? "" : " Quality evidence is shown only after a current full-library analysis.";
+      footer.textContent = rows.length > visible.length
+        ? `Showing the first ${visible.length.toLocaleString("en-GB")} of ${rows.length.toLocaleString("en-GB")} prompts. Use Library search for the rest.${staleNote}`
+        : `${rows.length.toLocaleString("en-GB")} prompt${rows.length === 1 ? "" : "s"} in the review queue.${staleNote}`;
+    }
   }
 
   function refreshSummary() {
