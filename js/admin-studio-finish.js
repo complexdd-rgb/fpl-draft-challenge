@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — finishing layer v1.0.0
+/* FPL Challenge Studio — finishing layer v1.0.3
    Adds management visibility without changing game, scoring, prompt or database rules. */
 (() => {
   "use strict";
@@ -8,6 +8,7 @@
   const WORKSPACE_KEY = "fpl-studio-stage-one-workspace";
   const MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
   const CERT_KEY = "fplStudioAllSeasonCertificationV1";
+  const CERTIFICATION_POOL_WAIT_MS = 120000;
   const POSITIONS = new Set(["GK", "DEF", "MID", "FWD"]);
   let certificationCancelled = false;
   let scheduleState = null;
@@ -154,10 +155,82 @@
     try { localStorage.setItem(CERT_KEY, JSON.stringify(cache)); } catch {}
   }
 
+  function liveCertificationPromptLibrary() {
+    const apiLibrary = window.FPL_STUDIO_API?.getPromptLibrary?.();
+    return Array.isArray(apiLibrary)
+      ? apiLibrary
+      : (Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : []);
+  }
+
+  function certifiedPromptPoolState() {
+    const snapshot = window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;
+    if (Array.isArray(snapshot)) {
+      return { ready:true, prompts:snapshot, expected:snapshot.length, total:snapshot.length, actual:snapshot.length, reason:"Certification snapshot active." };
+    }
+    const pool = window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL;
+    if (!pool?.getState) {
+      const library = liveCertificationPromptLibrary();
+      return { ready:false, prompts:[], expected:851, total:0, actual:library.length, reason:"Repository-certified prompt pool runtime is still loading." };
+    }
+    return pool.getState();
+  }
+
+  function requestCertificationPromptTools() {
+    window.FPL_STUDIO_BOOTSTRAP?.ensurePromptLoader?.();
+    const loader = window.FPL_STUDIO_LOAD_PROMPT_TOOLS;
+    if (typeof loader !== "function") return false;
+    loader();
+    return true;
+  }
+
+  async function waitForCertifiedPromptPool(status) {
+    let current = certifiedPromptPoolState();
+    if (current.ready) return current;
+
+    return await new Promise(resolve => {
+      let settled = false;
+      const events = [
+        "fpl:repository-certified-prompt-pool-ready",
+        "fpl:prompt-tools-ready",
+        "fpl:approved-prompt-baseline-ready",
+        "fpl:quality-prompt-baseline-ready",
+        "fpl:refinement-survivor-pack-ready",
+        "fpl:prompt-library-changed"
+      ];
+      const cleanup = () => {
+        clearInterval(timer);
+        clearTimeout(timeout);
+        events.forEach(name => window.removeEventListener(name, refresh));
+      };
+      const finish = value => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        resolve(value);
+      };
+      const refresh = () => {
+        if (certificationCancelled) return finish({ ...certifiedPromptPoolState(), cancelled:true });
+        requestCertificationPromptTools();
+        window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL?.refresh?.();
+        current = certifiedPromptPoolState();
+        if (current.ready) return finish(current);
+        if (status) status.textContent = `Preparing the repository-certified 851-prompt pool. ${current.reason} Certification has not started yet.`;
+      };
+      const timer = setInterval(refresh, 250);
+      const timeout = setTimeout(() => finish({ ...certifiedPromptPoolState(), timedOut:true }), CERTIFICATION_POOL_WAIT_MS);
+      events.forEach(name => window.addEventListener(name, refresh));
+      refresh();
+    });
+  }
+
   function certificationCoverage() {
     const engine = window.ValidationEngine;
     if (!engine?.getAllSeasonLabels || !engine?.getSeasonFingerprint) return { state:"warn", title:"Not available", detail:"Validation Engine has not loaded yet.", fresh:0, total:0 };
     const seasons = engine.getAllSeasonLabels();
+    const poolState = certifiedPromptPoolState();
+    if (!poolState.ready) {
+      return { state:"warn", title:"Prompt pool pending", detail:`${poolState.reason} Current browser library: ${poolState.actual.toLocaleString("en-GB")} prompts.`, fresh:0, total:seasons.length };
+    }
     const cache = loadCertCache();
     let fresh = 0;
     let failed = 0;
@@ -298,6 +371,13 @@
     const grid = document.getElementById("allSeasonGrid");
     const status = document.getElementById("allSeasonStatus");
     if (!grid || !status) return;
+    const poolState = certifiedPromptPoolState();
+    if (!poolState.ready) {
+      grid.innerHTML = "";
+      status.textContent = `Waiting for the certified 4★+ prompt library. ${poolState.reason} Current browser library: ${poolState.actual.toLocaleString("en-GB")} prompts. Certify All Seasons will wait automatically.`;
+      renderPreflight();
+      return;
+    }
     const entries = freshCertificationEntries();
     let current = 0;
     let failed = 0;
@@ -327,17 +407,36 @@
     const bar = document.querySelector("#allSeasonProgress > span");
     const status = document.getElementById("allSeasonStatus");
     if (!engine?.certifySeason || !engine?.getAllSeasonLabels) return;
-    const seasons = engine.getAllSeasonLabels();
-    const cache = loadCertCache();
+
     certificationCancelled = false;
-    if (run) run.disabled = true;
+    if (run) { run.disabled = true; run.textContent = "Preparing certified prompts…"; }
     if (cancel) cancel.disabled = false;
+    let certificationPool = null;
 
     try {
+      const poolState = await waitForCertifiedPromptPool(status);
+      if (certificationCancelled || poolState?.cancelled) {
+        if (status) status.textContent = "All-season certification cancelled before the certified prompt pool was ready.";
+        return;
+      }
+      if (!poolState?.ready) {
+        if (status) {
+          const suffix = poolState?.timedOut ? " The readiness wait timed out." : "";
+          status.textContent = `Certification did not start. ${poolState?.reason || "The certified prompt library is not ready."}${suffix}`;
+        }
+        return;
+      }
+
+      certificationPool = Object.freeze(poolState.prompts.slice());
+      window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL = certificationPool;
+      const seasons = engine.getAllSeasonLabels();
+      const cache = loadCertCache();
+      if (status) status.textContent = `Certified prompt snapshot locked at ${certificationPool.length.toLocaleString("en-GB")} prompts. Starting all-season certification…`;
+
       for (let index = 0; index < seasons.length; index += 1) {
         if (certificationCancelled) break;
         const season = seasons[index];
-        if (status) status.textContent = `Certifying ${season} · ${index + 1} of ${seasons.length}. Each season runs the complete prompt/runtime regression suite.`;
+        if (status) status.textContent = `Certifying ${season} · ${index + 1} of ${seasons.length} · ${certificationPool.length.toLocaleString("en-GB")} frozen certified prompts.`;
         if (bar) bar.style.width = `${Math.round((index / seasons.length) * 100)}%`;
         await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
         const result = engine.certifySeason(season);
@@ -361,7 +460,8 @@
     } catch (error) {
       if (status) status.textContent = `Certification stopped: ${error?.message || error}`;
     } finally {
-      if (run) run.disabled = false;
+      if (window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL === certificationPool) delete window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;
+      if (run) { run.disabled = false; run.textContent = "Certify all seasons"; }
       if (cancel) cancel.disabled = true;
       renderCertificationMatrix();
     }
@@ -376,7 +476,7 @@
     panel.id = "allSeasonCertification";
     panel.className = "studio-finish-panel";
     panel.innerHTML = `
-      <div class="studio-finish-head"><div><span class="studio-finish-kicker">Regression suite</span><h2>Certify all seasons</h2><p>Run the same complete certification against every supported season and cache the fingerprint. Results automatically become stale when player data or prompts change.</p></div></div>
+      <div class="studio-finish-head"><div><span class="studio-finish-kicker">Regression suite</span><h2>Certify all seasons</h2><p>Run the same complete certification against every supported season after the certified 4★+ prompt library is ready. The final prompt set is frozen for the whole run, and results automatically become stale when player data or prompts change.</p></div></div>
       <div class="studio-finish-actions"><button id="certifyAllSeasonsBtn" class="button primary" type="button">Certify all seasons</button><button id="cancelAllSeasonsBtn" class="button secondary" type="button" disabled>Stop after this season</button></div>
       <div id="allSeasonProgress" class="all-season-progress"><span></span></div>
       <p id="allSeasonStatus" class="all-season-status">Checking saved certification fingerprints…</p>
@@ -448,7 +548,11 @@
     }
     window.addEventListener("storage", event => { if (event.key === MANAGER_KEY || event.key === CERT_KEY) { installUnsavedPill(); renderCertificationMatrix(); renderPreflight(); } });
     window.addEventListener("focus", () => { installUnsavedPill(); renderPreflight(); });
-    window.addEventListener("fpl:prompt-tools-ready", () => { installUnsavedPill(); renderPreflight(); });
+    window.addEventListener("fpl:prompt-tools-ready", () => { installUnsavedPill(); renderCertificationMatrix(); renderPreflight(); });
+    window.addEventListener("fpl:four-star-library-ready", () => { renderCertificationMatrix(); renderPreflight(); });
+    window.addEventListener("fpl:prompt-library-changed", () => {
+      if (!Array.isArray(window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL)) { renderCertificationMatrix(); renderPreflight(); }
+    });
     window.addEventListener("fpl:schedule-status", event => { scheduleState = event.detail || window.FPL_STUDIO_SCHEDULE || null; renderScheduleCoverage(); });
   }
 

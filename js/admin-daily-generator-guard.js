@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.1.2
+/* FPL Challenge Studio — Daily Challenge scheduler + quality-pool guard v1.1.3
    Keeps seven-day generation aligned with the live server schedule and locks every generated
    week to the current certified 4★+ prompt pool. */
 (() => {
@@ -150,64 +150,70 @@
   function updateGuardChip() {
     installGuardChip();
     if (!guardChip) return;
-    const meta = window.FPL_FOUR_STAR_LIBRARY;
+    const repoPool = window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL?.getState?.();
     const scheduleReady = window.FPL_STUDIO_SCHEDULE?.status === "ready";
     const next = scheduleReady ? expectedNext() : null;
     const qualityText = qualityIds instanceof Set && certifiedPoolSize > 0
       ? `${certifiedPoolSize.toLocaleString("en-GB")} certified prompts`
-      : meta?.ready
-        ? `${Number(meta.total || 0).toLocaleString("en-GB")} prompt pool syncing`
-        : "quality pool finalising";
+      : repoPool?.ready
+        ? `${Number(repoPool.total || 0).toLocaleString("en-GB")} repository-certified prompts`
+        : "repository pool finalising";
     const nextText = next?.date && next?.number ? `next #${next.number} · ${next.date}` : "live schedule pending";
     guardChip.textContent = `${qualityText} · ${nextText}`;
     guardChip.title = "Daily Challenge generation is locked to the current certified quality pool and a freshly loaded live Supabase schedule.";
   }
 
   function captureQualityPool() {
-    const meta = window.FPL_FOUR_STAR_LIBRARY;
-    const library = core.getPromptLibrary?.();
-    if (!meta?.ready || !Array.isArray(library)) return false;
-
-    const certifiedSize = Number(meta.total);
-    if (!Number.isInteger(certifiedSize) || certifiedSize <= 0) return false;
-
-    const ids = library.map(prompt => String(prompt?.id || "")).filter(Boolean);
+    const state = window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL?.getState?.();
+    if (!state?.ready || !Array.isArray(state.prompts) || state.total !== 851) return false;
+    const ids = state.prompts.map(prompt => String(prompt?.id || "")).filter(Boolean);
     const uniqueIds = new Set(ids);
-    if (ids.length !== library.length || ids.length !== certifiedSize || uniqueIds.size !== certifiedSize) return false;
-    if (library.some(prompt => Number(prompt?.rating || 0) < 4)) return false;
+    if (ids.length !== 851 || uniqueIds.size !== 851) return false;
+    if (state.prompts.some(prompt => prompt?.enabled === false || Number(prompt?.rating || 0) < 4 || typeof prompt?.test !== "function")) return false;
 
     qualityIds = uniqueIds;
-    certifiedPoolSize = certifiedSize;
+    certifiedPoolSize = 851;
     updateGuardChip();
     return true;
   }
 
   function qualityPoolDiagnostic() {
-    const meta = window.FPL_FOUR_STAR_LIBRARY;
-    const library = core.getPromptLibrary?.();
-    const liveSize = Array.isArray(library) ? library.length : 0;
-    const certifiedSize = Number(meta?.total) || 0;
-    if (!meta?.ready) return `quality certification metadata is still pending; live library ${liveSize.toLocaleString("en-GB")}`;
-    return `certified metadata ${certifiedSize.toLocaleString("en-GB")}; live library ${liveSize.toLocaleString("en-GB")}`;
+    const state = window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL?.getState?.();
+    if (!state) return "repository-certified prompt pool runtime is still loading";
+    return state.ready
+      ? `repository-certified ${state.total.toLocaleString("en-GB")}; browser library ${state.browserTotal.toLocaleString("en-GB")} with ${state.browserCustom.toLocaleString("en-GB")} local custom`
+      : `${state.reason} Browser library ${Number(state.browserTotal || state.actual || 0).toLocaleString("en-GB")}`;
   }
 
   async function waitForQualityPool() {
     if (captureQualityPool()) return true;
-    setStatus("Synchronising the current certified 4★+ prompt pool before generation…", "working");
+    setStatus("Synchronising the repository-certified 851-prompt pool before generation…", "working");
     return await new Promise(resolve => {
       let settled = false;
+      const events = [
+        "fpl:repository-certified-prompt-pool-ready",
+        "fpl:prompt-tools-ready",
+        "fpl:approved-prompt-baseline-ready",
+        "fpl:quality-prompt-baseline-ready",
+        "fpl:refinement-survivor-pack-ready",
+        "fpl:prompt-library-changed"
+      ];
       const finish = value => {
         if (settled) return;
         settled = true;
-        window.removeEventListener("fpl:four-star-library-ready", onReady);
+        events.forEach(name => window.removeEventListener(name, onReady));
         clearInterval(timer);
         clearTimeout(timeout);
         resolve(value);
       };
-      const onReady = () => { if (captureQualityPool()) finish(true); };
-      const timer = setInterval(() => { if (captureQualityPool()) finish(true); }, 250);
+      const onReady = () => {
+        window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL?.refresh?.();
+        if (captureQualityPool()) finish(true);
+      };
+      const timer = setInterval(onReady, 250);
       const timeout = setTimeout(() => finish(false), QUALITY_WAIT_MS);
-      window.addEventListener("fpl:four-star-library-ready", onReady);
+      events.forEach(name => window.addEventListener(name, onReady));
+      onReady();
     });
   }
 

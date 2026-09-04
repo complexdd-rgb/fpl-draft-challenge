@@ -86,7 +86,6 @@
     if (/leaderboard backend|leaderboard health|supabase/.test(title)) return "leaderboard";
     if (/historical database import|official fpl archive import|archive import|identity consolidation/.test(title)) return "imports";
     if (/player database auditor|database health/.test(title)) return "database";
-    if (/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|daily challenge/.test(title)) return "challenge";
 
     return "challenge";
   }

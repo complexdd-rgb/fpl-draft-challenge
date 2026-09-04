@@ -1,0 +1,234 @@
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 1</p>
+          <h2>Challenge settings</h2>
+        </div>
+        <span class="phase-chip">Safe draft</span>
+      </div>
+
+      <div class="settings-grid">
+        <input id="challengeNumber" type="hidden" value="7">
+        <label>
+          Challenge name
+          <input id="challengeName" type="text" value="The Generated Mix" maxlength="55">
+        </label>
+        <label>
+          Difficulty target
+          <select id="difficultyTarget">
+            <option value="mixed" selected>Mixed</option>
+            <option value="easy">Easy leaning</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard leaning</option>
+          </select>
+        </label>
+        <label>
+          Release date
+          <input id="releaseDate" type="date">
+        </label>
+        <label>
+          Minimum valid players
+          <input id="minAnswers" type="number" min="2" max="50" value="6">
+        </label>
+        <label>
+          Maximum valid players
+          <input id="maxAnswers" type="number" min="10" max="300" value="100">
+        </label>
+        <label>
+          Minimum anti-meta prompts
+          <input id="minAntiMeta" type="number" min="0" max="11" value="5">
+        </label>
+        <label>
+          Prompt-family cooldown
+          <select id="cooldownChallenges">
+            <option value="3">3 days</option>
+            <option value="5">5 days</option>
+            <option value="7" selected>7 days</option>
+            <option value="10">10 days</option>
+            <option value="14">14 days</option>
+          </select>
+        </label>
+        <label class="check-label">
+          <input id="avoidRecent" type="checkbox" checked>
+          Include browser/live recent history
+        </label>
+      </div>
+
+<div class="perfect-score-limit" id="perfectScoreLimitPanel">
+  <div class="perfect-score-limit-copy">
+    <span class="limit-kicker">Score control</span>
+    <strong>Maximum perfect score</strong>
+    <small>Set the highest exact unique-player perfect total this generated challenge may have. Enter 0 for no limit.</small>
+  </div>
+  <label>
+    Score ceiling
+    <input id="maxPerfectScore" type="number" min="0" max="5000" step="10" value="0" inputmode="numeric">
+  </label>
+</div>
+      <div class="button-row">
+        <button id="generateBtn" class="button primary" type="button">Generate draft XI</button>
+        <button id="saveDraftBtn" class="button secondary" type="button" disabled>Save draft in this browser</button>
+        <button id="loadDraftBtn" class="button secondary" type="button">Load saved draft</button>
+      </div>
+      <p id="actionStatus" class="action-status" role="status"></p>
+
+      <section class="batch-planner" id="batchPlanner" aria-labelledby="batchPlannerHeading">
+        <div class="batch-planner-head">
+          <div>
+            <span class="limit-kicker">Seven-day challenge calendar</span>
+            <h3 id="batchPlannerHeading">Generate the next 7 days</h3>
+            <p>Build seven dated challenges in one run. Exact prompts now rotate through their full compatible position pool before reuse, while similar prompt families use the configured day cooldown. Scheduled challenges already in the manifest count too.</p>
+          </div>
+          <span id="batchManifestChip" class="phase-chip batch-manifest-chip">Loading calendar…</span>
+        </div>
+
+        <div class="batch-planner-grid">
+          <label>
+            First challenge date
+            <input id="batchStartDate" type="date">
+          </label>
+          <input id="batchFirstNumber" type="hidden" value="0">
+          <label>
+            <strong>Theme preset</strong>
+            <select id="batchThemePreset">
+              <option value="generated-mix">Generated Mix</option>
+              <option value="conte-style">Conte Style</option>
+              <option value="classic-442">Classic 4-4-2</option>
+              <option value="all-out-attack">All-Out Attack</option>
+              <option value="park-the-bus">Park the Bus</option>
+              <option value="possession-433">Possession 4-3-3</option>
+              <option value="wingback-352">Wing-back 3-5-2</option>
+              <option value="gegenpress-4231">Gegenpress 4-2-3-1</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+          <label>
+            <strong>Formation</strong>
+            <select id="batchFormation">
+              <option value="4-4-2">4-4-2</option>
+              <option value="4-3-3">4-3-3</option>
+              <option value="3-4-3">3-4-3</option>
+              <option value="3-5-2">3-5-2</option>
+              <option value="5-3-2">5-3-2</option>
+              <option value="5-4-1">5-4-1</option>
+              <option value="4-2-3-1">4-2-3-1 (FPL 4-5-1)</option>
+            </select>
+          </label>
+          <div class="batch-settings-note"><strong style="color:var(--text);margin-right:6px">Rotation-aware generation:</strong> Studio builds the exact GK/DEF/MID/FWD mix, does not reuse an exact compatible prompt until its position pool cycles, and gives each prompt family a 7-day cooldown by default. If a family rule would make a valid XI impossible, only the family cooldown relaxes; exact-prompt rotation remains enforced.</div>
+        </div>
+
+        <div class="button-row batch-actions">
+          <button id="generateWeekBtn" class="button primary" type="button" disabled aria-busy="true">Generate next 7 days</button>
+          <button id="downloadWeekBtn" class="button secondary" type="button" disabled>Download 7-day calendar ZIP</button>
+          <button id="clearWeekBtn" class="button secondary" type="button">Clear batch</button>
+        </div>
+        <p id="batchStatus" class="action-status batch-status-line" data-state="neutral" role="status">Ready to generate seven future challenges. Nothing is published automatically.</p>
+        <div id="batchReview" class="batch-review" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <section class="panel hidden" id="draftPanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 2</p>
+          <h2>Review the generated XI</h2>
+        </div>
+        <div id="draftSummary" class="summary-chips"></div>
+      </div>
+
+      <div id="warnings" class="warnings" aria-live="polite"></div>
+
+      <section id="perfectPanel" class="perfect-panel" aria-labelledby="perfectHeading">
+        <div class="perfect-score-block">
+          <span>Exact perfect score</span>
+          <strong id="perfectScore">—</strong>
+          <small id="perfectComparison">Calculating…</small>
+        </div>
+        <div class="perfect-xi-block">
+          <h3 id="perfectHeading">Best unique-player XI</h3>
+          <p>The calculation maximises total FPL points while preventing the same footballer being used twice.</p>
+          <ol id="perfectXI" class="perfect-list"></ol>
+        </div>
+      </section>
+
+      <div id="promptSlots" class="prompt-slots"></div>
+    </section>
+
+    <section class="panel hidden" id="testPanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 3</p>
+          <h2>Test Mode</h2>
+          <p class="section-copy">This is a disposable copy of the game. It does not save to or alter the live challenge.</p>
+        </div>
+        <span id="testPassChip" class="phase-chip">Not tested</span>
+      </div>
+
+      <div class="test-toolbar">
+        <div class="summary-chips test-status-chips">
+          <span id="testProgress">0 / 11 valid</span>
+          <span id="testTimer">Time 0:00</span>
+          <span id="testPenalty">Penalties −0</span>
+        </div>
+        <div class="button-row compact-row">
+          <button id="startTestBtn" class="button primary" type="button">Start fresh test</button>
+          <button id="loadPerfectBtn" class="button secondary" type="button">Load optimal XI</button>
+          <button id="autoTestBtn" class="button secondary" type="button">Run automatic checks</button>
+          <button id="resetTestBtn" class="button secondary" type="button">Reset tester</button>
+        </div>
+      </div>
+
+      <div id="autoTestReport" class="warnings" aria-live="polite"></div>
+      <div id="testSlots" class="test-slots"></div>
+
+      <div class="test-footer">
+        <button id="revealTestBtn" class="button primary" type="button" disabled>Reveal test XI</button>
+        <p id="testStatus" class="action-status" role="status">Generate or load a draft above, then start the tester.</p>
+      </div>
+
+      <section id="testResults" class="test-results hidden" aria-label="Test results">
+        <div><span>Player points</span><strong id="testPlayerPoints">0</strong></div>
+        <div><span>Penalties</span><strong id="testPenaltyPoints">0</strong></div>
+        <div><span>Final score</span><strong id="testFinalScore">0</strong></div>
+        <div><span>Perfect score</span><strong id="testPerfectScore">0</strong></div>
+        <div><span>Efficiency</span><strong id="testEfficiency">0%</strong></div>
+        <div><span>Test outcome</span><strong id="testOutcome">—</strong></div>
+      </section>
+    </section>
+
+    <section class="panel hidden" id="codePanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 4</p>
+          <h2>Download-ready challenge</h2>
+        </div>
+        <span class="phase-chip ready-chip">Manual upload</span>
+      </div>
+
+      <p class="code-note">The exact perfect score is included. This single-file download remains available for manual testing/emergency publishing. For the automated midnight calendar, use <strong>Generate next 7 days</strong> above and upload its dated challenge files plus manifest.</p>
+      <textarea id="codeOutput" spellcheck="false" aria-label="Generated challenge code"></textarea>
+      <div class="button-row">
+        <button id="downloadBtn" class="button primary" type="button" disabled>Download todays-challenge.js</button>
+        <button id="copyCodeBtn" class="button secondary" type="button">Copy challenge code</button>
+      </div>
+      <p id="copyStatus" class="action-status" role="status"></p>
+    </section>
+
+    <section class="panel" id="historyPanel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Step 5</p>
+          <h2>Challenge history and cooldown</h2>
+          <p class="section-copy">History is stored in this browser. Seven-day batches are recorded here automatically with all 11 prompts, so the cooldown can reuse the same history later.</p>
+        </div>
+        <span id="cooldownSummary" class="phase-chip">Loading cooldown…</span>
+      </div>
+
+      <div class="button-row">
+        <button id="recordHistoryBtn" class="button primary" type="button" disabled>Record tested challenge</button>
+        <button id="downloadHistoryBtn" class="button secondary" type="button">Download history backup</button>
+        <button id="downloadHistoryMarkdownBtn" class="button secondary" type="button">Download challenge-history.md</button>
+      </div>
+      <p id="historyActionStatus" class="action-status" role="status"></p>
+      <div id="historyList" class="history-list"></div>
+    </section>

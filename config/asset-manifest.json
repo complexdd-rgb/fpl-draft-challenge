@@ -1,34 +1,129 @@
 {
-  "manifestVersion": "1.3.0-refinement-survivors",
+  "manifestVersion": "1.4.2-repository-pool",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "1.3.0-refinement-survivors" },
-    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "1.0.0" },
-    "adminImportTools": { "path": "js/admin-import-tools.js", "version": "23.0.0-bootstrap" },
-    "studioFeatureLoader": { "path": "js/studio-feature-loader.js", "version": "1.1.0-bootstrap-shim" },
-    "promptStudioLoader": { "path": "js/prompt-studio-loader.js", "version": "1.4.0-manifest" },
-    "adminImportToolsBase": { "path": "js/admin-import-tools-base.js", "version": "16.2.0-careerevolution" },
-    "promptTargetSurvivorGenerator": { "path": "js/prompt-target-survivor-generator.js", "version": "1.0.1-careerevolution" },
-    "promptTargetAutoExplorer": { "path": "js/prompt-target-auto-explorer.js", "version": "1.0.1-careerevolution" },
-    "careerShapeRules": { "path": "js/career-shape-rules.js", "version": "1.1.2-repair" },
-    "careerShapeStudio": { "path": "js/career-shape-studio.js", "version": "1.0.0" },
-    "careerShapeWorkspaceRepair": { "path": "js/career-shape-workspace-repair.js", "version": "1.0.0" },
-    "careerShapeUnifiedGenerator": { "path": "js/career-shape-unified-generator.js", "version": "1.0.0" },
-    "careerShapeFutureQualityGuard": { "path": "js/career-shape-future-quality-guard.js", "version": "1.0.0" },
-    "careerShapeUnifiedFixes": { "path": "js/career-shape-unified-fixes.js", "version": "1.0.1" },
-    "promptLibraryLegacyAdditions": { "path": "js/prompt-library-legacy-additions-20260814.js", "version": null },
-    "careerShapeValidationBridge": { "path": "js/career-shape-validation-bridge.js", "version": "1.0.0" },
-    "promptEraRangeWording": { "path": "js/prompt-era-range-wording.js", "version": "1.0.0" },
-    "adminStudioFinish": { "path": "js/admin-studio-finish.js", "version": "1.0.1" },
-    "careerOverlapWording": { "path": "js/career-overlap-wording.js", "version": "1.0.26" },
-    "promptRefinementIncubator": { "path": "js/prompt-refinement-incubator.js", "version": "1.1.1" },
-    "promptRefinementSurvivors": { "path": "js/prompt-refinement-survivors-v1.js", "version": "1.0.0" },
-    "promptFourStarEnforcer": { "path": "js/prompt-four-star-enforcer.js", "version": "2.1.0-survivors" },
-    "adminDailyPublish": { "path": "js/admin-daily-publish.js", "version": null },
-    "liveFeatureLoader": { "path": "js/live-feature-loader.js", "version": null },
-    "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.3.0-native-validation" },
-    "careerContext": { "path": "js/career-context.js", "version": "1.5.0" },
-    "adminBatchCalendar": { "path": "js/admin-batch-calendar.js", "version": "3.0.6" },
-    "adminDailyGeneratorGuard": { "path": "js/admin-daily-generator-guard.js", "version": "1.1.2" },
-    "leaderboardConfig": { "path": "js/leaderboard-config.js", "version": "5.1.0-studio-bootstrap" }
+    "assetManifestRuntime": {
+      "path": "js/asset-manifest.js",
+      "version": "1.4.2-repository-pool"
+    },
+    "studioBootstrap": {
+      "path": "js/studio-bootstrap.js",
+      "version": "1.0.0"
+    },
+    "adminImportTools": {
+      "path": "js/admin-import-tools.js",
+      "version": "23.0.0-bootstrap"
+    },
+    "studioFeatureLoader": {
+      "path": "js/studio-feature-loader.js",
+      "version": "1.1.0-bootstrap-shim"
+    },
+    "promptStudioLoader": {
+      "path": "js/prompt-studio-loader.js",
+      "version": "1.4.0-manifest"
+    },
+    "adminImportToolsBase": {
+      "path": "js/admin-import-tools-base.js",
+      "version": "16.2.0-careerevolution"
+    },
+    "promptTargetSurvivorGenerator": {
+      "path": "js/prompt-target-survivor-generator.js",
+      "version": "1.0.1-careerevolution"
+    },
+    "promptTargetAutoExplorer": {
+      "path": "js/prompt-target-auto-explorer.js",
+      "version": "1.0.1-careerevolution"
+    },
+    "careerShapeRules": {
+      "path": "js/career-shape-rules.js",
+      "version": "1.1.2-repair"
+    },
+    "careerShapeStudio": {
+      "path": "js/career-shape-studio.js",
+      "version": "1.0.0"
+    },
+    "careerShapeWorkspaceRepair": {
+      "path": "js/career-shape-workspace-repair.js",
+      "version": "1.0.0"
+    },
+    "careerShapeUnifiedGenerator": {
+      "path": "js/career-shape-unified-generator.js",
+      "version": "1.0.0"
+    },
+    "careerShapeFutureQualityGuard": {
+      "path": "js/career-shape-future-quality-guard.js",
+      "version": "1.0.0"
+    },
+    "careerShapeUnifiedFixes": {
+      "path": "js/career-shape-unified-fixes.js",
+      "version": "1.0.1"
+    },
+    "promptLibraryLegacyAdditions": {
+      "path": "js/prompt-library-legacy-additions-20260814.js",
+      "version": null
+    },
+    "careerShapeValidationBridge": {
+      "path": "js/career-shape-validation-bridge.js",
+      "version": "1.0.0"
+    },
+    "promptEraRangeWording": {
+      "path": "js/prompt-era-range-wording.js",
+      "version": "1.0.0"
+    },
+    "adminStudioFinish": {
+      "path": "js/admin-studio-finish.js",
+      "version": "1.0.3-repository-pool"
+    },
+    "careerOverlapWording": {
+      "path": "js/career-overlap-wording.js",
+      "version": "1.0.26"
+    },
+    "promptRefinementIncubator": {
+      "path": "js/prompt-refinement-incubator.js",
+      "version": "1.1.1"
+    },
+    "promptRefinementSurvivors": {
+      "path": "js/prompt-refinement-survivors-v1.js",
+      "version": "1.0.0"
+    },
+    "promptFourStarEnforcer": {
+      "path": "js/prompt-four-star-enforcer.js",
+      "version": "2.1.0-survivors"
+    },
+    "adminDailyPublish": {
+      "path": "js/admin-daily-publish.js",
+      "version": null
+    },
+    "liveFeatureLoader": {
+      "path": "js/live-feature-loader.js",
+      "version": null
+    },
+    "validationEngine": {
+      "path": "js/validation-engine.js",
+      "version": "1.7.1-certification-snapshot"
+    },
+    "adminStageOne": {
+      "path": "js/admin-stage-one.js",
+      "version": "1.4.0-native-daily"
+    },
+    "careerContext": {
+      "path": "js/career-context.js",
+      "version": "1.5.0"
+    },
+    "adminBatchCalendar": {
+      "path": "js/admin-batch-calendar.js",
+      "version": "3.0.6"
+    },
+    "adminDailyGeneratorGuard": {
+      "path": "js/admin-daily-generator-guard.js",
+      "version": "1.1.3-repository-pool"
+    },
+    "leaderboardConfig": {
+      "path": "js/leaderboard-config.js",
+      "version": "5.1.0-studio-bootstrap"
+    },
+    "repositoryCertifiedPromptPool": {
+      "path": "js/repository-certified-prompt-pool.js",
+      "version": "1.0.0"
+    }
   }
 }

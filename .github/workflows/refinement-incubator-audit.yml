@@ -10,7 +10,10 @@ on:
       - 'prompt-library.js'
       - 'nationality-enrichment.js'
       - 'admin.html'
+      - 'fragments/admin-daily-workspace.html'
       - 'config/asset-manifest.json'
+      - 'js/admin-stage-one.js'
+      - 'js/admin-studio-finish.js'
       - 'js/prompt-*.js'
       - 'js/career-overlap-wording.js'
       - 'js/admin-import-tools-base.js'
@@ -18,6 +21,10 @@ on:
       - 'js/career-shape-rules.js'
       - 'js/career-shape-validation-bridge.js'
       - 'js/validation-engine.js'
+      - 'scripts/apply-all-season-certification-gate.mjs'
+      - 'scripts/verify-all-season-certification-gate.mjs'
+      - 'scripts/build-native-daily-workspace.mjs'
+      - 'scripts/verify-native-daily-workspace.mjs'
       - 'scripts/audit-refinement-incubator.mjs'
       - 'scripts/upgrade-refinement-metric-priority.mjs'
       - 'scripts/promote-refinement-survivors.mjs'
@@ -29,7 +36,10 @@ on:
       - 'prompt-library.js'
       - 'nationality-enrichment.js'
       - 'admin.html'
+      - 'fragments/admin-daily-workspace.html'
       - 'config/asset-manifest.json'
+      - 'js/admin-stage-one.js'
+      - 'js/admin-studio-finish.js'
       - 'js/prompt-*.js'
       - 'js/career-overlap-wording.js'
       - 'js/admin-import-tools-base.js'
@@ -37,6 +47,10 @@ on:
       - 'js/career-shape-rules.js'
       - 'js/career-shape-validation-bridge.js'
       - 'js/validation-engine.js'
+      - 'scripts/apply-all-season-certification-gate.mjs'
+      - 'scripts/verify-all-season-certification-gate.mjs'
+      - 'scripts/build-native-daily-workspace.mjs'
+      - 'scripts/verify-native-daily-workspace.mjs'
       - 'scripts/audit-refinement-incubator.mjs'
       - 'scripts/upgrade-refinement-metric-priority.mjs'
       - 'scripts/promote-refinement-survivors.mjs'
@@ -101,8 +115,10 @@ jobs:
 
       - name: Refresh manifest-owned Studio wiring
         run: |
+          node scripts/apply-all-season-certification-gate.mjs
           node scripts/build-studio-cache-tags.mjs
           node scripts/build-native-studio-shell.mjs
+          node scripts/build-native-daily-workspace.mjs
           node scripts/build-studio-wiring.mjs
 
       - name: Verify generated runtime is checked in
@@ -111,14 +127,21 @@ jobs:
           set -euo pipefail
           git diff --exit-code -- \
             admin.html \
+            fragments/admin-daily-workspace.html \
             config/asset-manifest.json \
             js/asset-manifest.js \
+            js/admin-stage-one.js \
+            js/admin-studio-finish.js \
+            js/validation-engine.js \
             js/career-overlap-wording.js \
             js/prompt-refinement-incubator.js \
             js/prompt-refinement-survivors-v1.js \
             js/prompt-quality-baseline-finalizer.js \
             js/prompt-four-star-enforcer.js \
             scripts/audit-refinement-incubator.mjs
+
+      - name: Verify all-season certified-library gate
+        run: node scripts/verify-all-season-certification-gate.mjs
 
       - name: Run deterministic Incubator audit
         run: node scripts/audit-refinement-incubator.mjs
@@ -143,11 +166,17 @@ jobs:
 
       - name: Check audit and runtime syntax
         run: |
+          node --check js/admin-studio-finish.js
+          node --check js/validation-engine.js
           node --check js/prompt-refinement-incubator.js
           node --check js/prompt-refinement-survivors-v1.js
           node --check js/prompt-quality-baseline-finalizer.js
           node --check js/prompt-four-star-enforcer.js
           node --check js/career-overlap-wording.js
+          node --check scripts/apply-all-season-certification-gate.mjs
+          node --check scripts/verify-all-season-certification-gate.mjs
+          node --check scripts/build-native-daily-workspace.mjs
+          node --check scripts/verify-native-daily-workspace.mjs
           node --check scripts/audit-refinement-incubator.mjs
           node --check scripts/upgrade-refinement-metric-priority.mjs
           node --check scripts/promote-refinement-survivors.mjs

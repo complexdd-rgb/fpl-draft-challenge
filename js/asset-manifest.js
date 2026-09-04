@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.3.0-refinement-survivors"
+      "version": "1.4.2-repository-pool"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -74,7 +74,7 @@
     },
     "adminStudioFinish": {
       "path": "js/admin-studio-finish.js",
-      "version": "1.0.1"
+      "version": "1.0.3-repository-pool"
     },
     "careerOverlapWording": {
       "path": "js/career-overlap-wording.js",
@@ -100,9 +100,13 @@
       "path": "js/live-feature-loader.js",
       "version": null
     },
+    "validationEngine": {
+      "path": "js/validation-engine.js",
+      "version": "1.7.1-certification-snapshot"
+    },
     "adminStageOne": {
       "path": "js/admin-stage-one.js",
-      "version": "1.3.0-native-validation"
+      "version": "1.4.0-native-daily"
     },
     "careerContext": {
       "path": "js/career-context.js",
@@ -114,11 +118,15 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "1.1.2"
+      "version": "1.1.3-repository-pool"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
       "version": "5.1.0-studio-bootstrap"
+    },
+    "repositoryCertifiedPromptPool": {
+      "path": "js/repository-certified-prompt-pool.js",
+      "version": "1.0.0"
     }
   };
   const assets = Object.freeze(Object.fromEntries(
@@ -133,7 +141,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "1.3.0-refinement-survivors",
+    version: "1.4.2-repository-pool",
     assets,
     get,
     url
