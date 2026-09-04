@@ -1,0 +1,45 @@
+name: Prompt Studio V3
+
+on:
+  pull_request:
+    paths:
+      - 'js/prompt-studio-v3-clean-room.js'
+      - 'js/prompt-family-registry-v3.js'
+      - 'js/studio-bootstrap.js'
+      - 'config/asset-manifest.json'
+      - 'scripts/verify-prompt-studio-v3.mjs'
+      - '.github/workflows/prompt-studio-v3.yml'
+  push:
+    branches:
+      - 'refactor/prompt-studio-v3-clean-room'
+    paths:
+      - 'js/prompt-studio-v3-clean-room.js'
+      - 'js/prompt-family-registry-v3.js'
+      - 'js/studio-bootstrap.js'
+      - 'config/asset-manifest.json'
+      - 'scripts/verify-prompt-studio-v3.mjs'
+      - '.github/workflows/prompt-studio-v3.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify clean-room policy
+        run: node scripts/verify-prompt-studio-v3.mjs
+      - name: Check V3 JavaScript syntax
+        run: |
+          node --check js/prompt-family-registry-v3.js
+          node --check js/prompt-studio-v3-clean-room.js
+          node --check js/studio-bootstrap.js
+          node --check scripts/verify-prompt-studio-v3.mjs
+      - name: Reject whitespace errors
+        run: git diff --check origin/main...HEAD
