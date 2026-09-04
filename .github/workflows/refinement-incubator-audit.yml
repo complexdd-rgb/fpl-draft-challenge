@@ -8,6 +8,7 @@ on:
       - 'players.js'
       - 'prompt-library.js'
       - 'nationality-enrichment.js'
+      - 'admin.html'
       - 'config/asset-manifest.json'
       - 'js/prompt-*.js'
       - 'js/career-overlap-wording.js'
@@ -26,6 +27,7 @@ on:
       - 'players.js'
       - 'prompt-library.js'
       - 'nationality-enrichment.js'
+      - 'admin.html'
       - 'config/asset-manifest.json'
       - 'js/prompt-*.js'
       - 'js/career-overlap-wording.js'
@@ -144,6 +146,7 @@ jobs:
         run: |
           set -euo pipefail
           git add \
+            admin.html \
             config/asset-manifest.json \
             js/asset-manifest.js \
             js/career-overlap-wording.js \
