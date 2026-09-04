@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.1.0-native-shell"
+      "version": "1.2.0-native-validation"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -94,7 +94,7 @@
     },
     "adminStageOne": {
       "path": "js/admin-stage-one.js",
-      "version": "1.2.0-native-shell"
+      "version": "1.3.0-native-validation"
     },
     "careerContext": {
       "path": "js/career-context.js",
@@ -125,7 +125,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "1.1.0-native-shell",
+    version: "1.2.0-native-validation",
     assets,
     get,
     url
