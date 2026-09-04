@@ -37,6 +37,21 @@ localStorage.setItem("fplPromptQualityIncubatorV2", JSON.stringify({
   items: incubatorEntries
 }));
 
+// Capture the exact provisional batch/results that the real Incubator sends to the analyser.
+const realQualityEngine = window.FPL_PROMPT_QUALITY_ENGINE;
+let provisionalBatch = [];
+let provisionalResults = [];
+window.FPL_PROMPT_QUALITY_ENGINE = Object.freeze({
+  analyseLibrary: async (items, playerRows, options = {}) => {
+    const output = await realQualityEngine.analyseLibrary(items, playerRows, options);
+    if (Array.isArray(items) && items.some(prompt => Array.isArray(prompt?.tags) && prompt.tags.includes("refinement-candidate"))) {
+      provisionalBatch = items.slice();
+      provisionalResults = output.slice();
+    }
+    return output;
+  }
+});
+
 run("js/prompt-refinement-incubator.js");
 if (typeof window.FPL_PROMPT_REFINEMENT_INCUBATOR?.refine !== "function") {
   throw new Error("Refinement Incubator API did not initialise.");
@@ -44,6 +59,7 @@ if (typeof window.FPL_PROMPT_REFINEMENT_INCUBATOR?.refine !== "function") {
 
 await window.FPL_PROMPT_REFINEMENT_INCUBATOR.refine();
 await new Promise(resolve => setTimeout(resolve, 25));
+window.FPL_PROMPT_QUALITY_ENGINE = realQualityEngine;
 
 const refinementRun = JSON.parse(localStorage.getItem("fplPromptRefinementIncubatorRunV1") || "null");
 const managerState = JSON.parse(localStorage.getItem("fplChallengeStudioPromptManagerV1") || "null");
@@ -57,16 +73,43 @@ function compileTest(sourceText) {
     return typeof fn === "function" ? fn : null;
   } catch (_) { return null; }
 }
+function parentFromCandidate(prompt) {
+  const tag = (Array.isArray(prompt?.tags) ? prompt.tags : []).map(String).find(value => value.toLowerCase().startsWith("refined-from:"));
+  return tag ? tag.slice("refined-from:".length) : "";
+}
 
 const selectedCandidates = selectedRaw.map(prompt => ({ ...prompt, test: compileTest(prompt.testSource) })).filter(prompt => typeof prompt.test === "function");
+const selectedIds = new Set(selectedCandidates.map(prompt => String(prompt.id)));
+const provisionalById = new Map(provisionalResults.map(result => [String(result?.id || ""), result]));
+const variantRows = provisionalBatch.map(prompt => {
+  const result = provisionalById.get(String(prompt?.id || ""));
+  const d = decision(prompt, result);
+  return {
+    id: String(prompt?.id || ""),
+    parentId: parentFromCandidate(prompt),
+    position: String(prompt?.position || ""),
+    label: String(prompt?.label || ""),
+    state: d.state,
+    rawRating: d.rawRating,
+    rawScore: d.rawScore,
+    adjustedScore: d.adjustedScore,
+    familyBonus: d.bonus,
+    playerCount: d.playerCount,
+    overlap: d.overlap,
+    issues: d.issues,
+    selected: selectedIds.has(String(prompt?.id || ""))
+  };
+});
+
 const rowStateById = new Map(rows.map(row => [row.id, row.state]));
 const certifiedBase = source.filter(prompt => ["certified", "rescued"].includes(rowStateById.get(String(prompt?.id || ""))));
 const fullReview = [...certifiedBase, ...selectedCandidates];
 
 console.log(`Incubator runtime attempted ${Number(refinementRun?.parentsAttempted || 0)} parent(s), tested ${Number(refinementRun?.variantsTested || 0)} variants and selected ${selectedCandidates.length} provisional winner(s).`);
+for (const row of variantRows) console.log(`VARIANT ${row.parentId} -> ${row.id}: ${row.state}; score=${row.rawScore}; adjusted=${row.adjustedScore}; answers=${row.playerCount}; overlap=${row.overlap.toFixed(3)}; selected=${row.selected}`);
 console.log(`Rechecking ${selectedCandidates.length} provisional winner(s) against the full ${fullReview.length.toLocaleString("en-GB")}-prompt candidate library…`);
 
-const fullResults = selectedCandidates.length ? await engine.analyseLibrary(fullReview, window.FPL_PLAYERS, {
+const fullResults = selectedCandidates.length ? await realQualityEngine.analyseLibrary(fullReview, window.FPL_PLAYERS, {
   progress(current, total) {
     if (current === total || current % 200 === 0) console.log(`Full-library survivor check ${current}/${total}`);
   }
@@ -79,7 +122,7 @@ const survivorRows = selectedCandidates.map(prompt => {
   const d = decision(prompt, result);
   return {
     id: String(prompt.id),
-    parentId: candidateToParent.get(String(prompt.id)) || "",
+    parentId: candidateToParent.get(String(prompt.id)) || parentFromCandidate(prompt),
     position: String(prompt.position || ""),
     label: String(prompt.label || ""),
     fail: String(prompt.fail || ""),
@@ -109,10 +152,17 @@ const trial = {
   fullLibrarySizeWithCandidates: fullReview.length,
   predictedPromotions: survivors.length,
   predictedFailures: failures.length,
+  variants: variantRows,
   survivors: survivorRows
 };
 
 fs.writeFileSync(new URL("refinement-survivor-trial.json", outDir), JSON.stringify(trial, null, 2) + "\n");
+const byParent = new Map();
+for (const row of variantRows) {
+  if (!byParent.has(row.parentId)) byParent.set(row.parentId, []);
+  byParent.get(row.parentId).push(row);
+}
+const variantMarkdown = [...byParent.entries()].map(([parentId, variants]) => `### ${parentId}\n\n${variants.map(row => `- \`${row.id}\` — ${row.state}; raw ${row.rawScore}, adjusted ${row.adjustedScore}, answers ${row.playerCount}, overlap ${row.overlap.toFixed(3)}${row.selected ? " — **selected**" : ""}`).join("\n")}`).join("\n\n");
 const mdTrial = `# Refinement survivor trial
 
 Generated: ${trial.generatedAt}
@@ -127,7 +177,11 @@ Generated: ${trial.generatedAt}
 - Predicted full-library promotions: **${trial.predictedPromotions}**
 - Predicted failures after full-pool recheck: **${trial.predictedFailures}**
 
-## Candidate outcomes
+## All provisional variants
+
+${variantMarkdown || "No variants were generated."}
+
+## Full-library candidate outcomes
 
 ${survivorRows.length ? survivorRows.map(row => `### ${row.id}
 
@@ -145,7 +199,7 @@ ${survivorRows.length ? survivorRows.map(row => `### ${row.id}
 
 ## Interpretation
 
-This trial uses the repository's real \`prompt-refinement-incubator.js\` to generate and select controlled variants. It then removes the incubated parents, combines the selected candidates with the currently certified/rescued base, and reruns the same Prompt Quality Analyser across the full candidate library. A predicted promotion therefore has passed both the Incubator's provisional screen and a full-pool overlap/quality recheck.
+This trial uses the repository's real \`prompt-refinement-incubator.js\` to generate and select controlled variants. It captures every provisional variant/result, then removes the incubated parents, combines selected candidates with the currently certified/rescued base, and reruns the same Prompt Quality Analyser across the full candidate library. A predicted promotion therefore has passed both the Incubator's provisional screen and a full-pool overlap/quality recheck.
 `;
 fs.writeFileSync(new URL("refinement-survivor-trial.md", outDir), mdTrial);
 
