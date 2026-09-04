@@ -1,0 +1,66 @@
+{
+  "generatedAt": "2026-09-04T06:26:25.186Z",
+  "parentsAvailable": 2,
+  "parentsAttempted": 2,
+  "variantsTested": 5,
+  "provisionalWinners": 1,
+  "fullLibrarySizeWithCandidates": 850,
+  "predictedPromotions": 1,
+  "predictedFailures": 0,
+  "survivors": [
+    {
+      "id": "quality_v2_mid_price_6_gi_15_refined_1_6_5",
+      "parentId": "quality_v2_mid_price_6_gi_15",
+      "position": "MID",
+      "label": "Midfielder who started at £6.0m or less with 15+ goal involvements",
+      "fail": "That midfielder must start at £6.0m or less and record at least 15 combined goals and assists in the qualifying season.",
+      "tags": [
+        "refined-from:quality_v2_mid_price_6_gi_15",
+        "refinement-candidate",
+        "auto-refined",
+        "quality-pack",
+        "quality-pack-v2",
+        "checked",
+        "anti-meta",
+        "midfielder",
+        "budget",
+        "starting-price",
+        "goal-involvements"
+      ],
+      "studioRule": {
+        "kind": "builder",
+        "join": "all",
+        "conditions": [
+          {
+            "field": "startingPrice",
+            "operator": "lte",
+            "value": 6.5,
+            "value2": 0
+          },
+          {
+            "field": "goalInvolvements",
+            "operator": "gte",
+            "value": 15,
+            "value2": 0
+          },
+          {
+            "field": "minutes",
+            "operator": "gt",
+            "value": 0,
+            "value2": 0
+          }
+        ]
+      },
+      "testSource": "p => ((Number.isFinite(p.startingPrice) && p.startingPrice <= 6.5) && (Number.isFinite((p.goals + p.assists)) && (p.goals + p.assists) >= 15) && (Number.isFinite(p.minutes) && p.minutes > 0))",
+      "state": "certified",
+      "rawRating": 4,
+      "rawScore": 84,
+      "adjustedScore": 86,
+      "familyBonus": 2,
+      "playerCount": 74,
+      "overlap": 0,
+      "issues": [],
+      "predictedPromotion": true
+    }
+  ]
+}
