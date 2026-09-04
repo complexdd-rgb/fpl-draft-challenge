@@ -1,53 +1,54 @@
 # Refinement Incubator audit
 
-Generated: 2026-09-04T07:10:14.436Z
+Generated: 2026-09-04T07:17:15.499Z
 
 ## Headline
 
 - Enabled Studio prompts analysed: **851**
-- Certified: **845**
-- Family/diversity rescued: **4**
-- Incubated promising 3★: **2**
+- Certified: **848**
+- Family/diversity rescued: **3**
+- Durable refinement survivors: **2**
+- Incubated promising 3★: **0**
 - Hard/weak rejected: **0**
 - Previous working reference: **144 incubated**
-- Delta from reference: **-142**
+- Delta from reference: **-144**
+
+## Durable survivors
+
+- **refinement_survivor_v1_mid_price_6_5_gi_15** — Midfielder who started at £6.5m or less with 15+ goal involvements — certified, raw 84, adjusted 86, 74 answers, overlap 0.000.
+- **refinement_survivor_v1_fwd_manager_david_moyes_p75** — Forward managed by David Moyes who scored 75+ FPL points — certified, raw 78, adjusted 84, 14 answers, overlap 0.000.
 
 ## Refinement readiness
 
-- Safely tunable by the current Incubator strategy: **2**
+- Safely tunable by the current Incubator strategy: **0**
 - Structurally stuck with no safe threshold detected: **0**
-- Near the existing family/diversity rescue line: **2**
-- Controlled variants the current strategy would plan: **6**
+- Near the existing family/diversity rescue line: **0**
+- Controlled variants the current strategy would plan: **0**
 
 ### By position
-- FWD: 1
-- MID: 1
+- none
 
 ### By dominant family
-- anti-meta: 1
-- manager: 1
+- none
 
 ### By tunability
-- builder-threshold: 1
-- source-threshold: 1
+- none
 
 ### By answer-pool band
-- ideal: 2
+- none
 
 ### By overlap band
-- low: 2
+- none
 
 ## Highest-priority parents
 
 | ID | Pos | Score | Adj | Answers | Overlap | Family | Tune route | Near rescue |
 |---|---:|---:|---:|---:|---:|---|---|---|
-| quality_v2_mid_price_6_gi_15 | MID | 68 | 70 | 55 | 0.000 | anti-meta | builder-threshold:startingPrice | yes |
-| quality_v3_fwd_manager_david_moyes_p55 | FWD | 63 | 69 | 17 | 0.000 | manager | source-threshold:points | yes |
+
 
 ## Near-rescue parents
 
-- **quality_v2_mid_price_6_gi_15** (MID) — raw 68, adjusted 70, answers 55, overlap 0.000, builder-threshold.
-- **quality_v3_fwd_manager_david_moyes_p55** (FWD) — raw 63, adjusted 69, answers 17, overlap 0.000, source-threshold.
+None under the current near-rescue definition.
 
 ## Structurally stuck parents
 
@@ -57,4 +58,4 @@ None.
 
 ## Method
 
-This report rebuilds the current approved Studio prompt library from repository sources, reinstalls the nationality context pack in its stable post-baseline state, runs the same Prompt Quality Analyser used by Quality Enforcement v2, applies the same v2 decision thresholds, and then classifies held 3★ prompts using the current Refinement Incubator's threshold-detection rules. It does not read browser localStorage or mutate the live prompt library.
+This report rebuilds the current approved Studio prompt library from repository sources, applies the durable refinement survivor pack, reinstalls the nationality context pack in its stable post-baseline state, runs the same Prompt Quality Analyser used by Quality Enforcement v2, applies the same v2 decision thresholds, and then classifies held 3★ prompts using the current Refinement Incubator's threshold-detection rules. It does not read browser localStorage or mutate the live prompt library.

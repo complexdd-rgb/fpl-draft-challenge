@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.2.0-native-validation"
+      "version": "1.3.0-refinement-survivors"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -78,11 +78,19 @@
     },
     "careerOverlapWording": {
       "path": "js/career-overlap-wording.js",
-      "version": "1.0.25"
+      "version": "1.0.26"
     },
     "promptRefinementIncubator": {
       "path": "js/prompt-refinement-incubator.js",
+      "version": "1.1.1"
+    },
+    "promptRefinementSurvivors": {
+      "path": "js/prompt-refinement-survivors-v1.js",
       "version": "1.0.0"
+    },
+    "promptFourStarEnforcer": {
+      "path": "js/prompt-four-star-enforcer.js",
+      "version": "2.1.0-survivors"
     },
     "adminDailyPublish": {
       "path": "js/admin-daily-publish.js",
@@ -125,7 +133,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "1.2.0-native-validation",
+    version: "1.3.0-refinement-survivors",
     assets,
     get,
     url

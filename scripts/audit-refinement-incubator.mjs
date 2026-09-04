@@ -75,6 +75,8 @@ run("js/prompt-approved-disabled-20260814.js");
 run("js/prompt-approved-baseline.js");
 
 if (!window.FPL_APPROVED_PROMPT_BASELINE?.ready) throw new Error("Approved prompt baseline did not initialise.");
+run("js/prompt-refinement-survivors-v1.js");
+if (!window.FPL_REFINEMENT_SURVIVOR_PACK_V1?.ready) throw new Error("Refinement survivor pack did not initialise.");
 
 const library = window.ValidationEngine.getPromptLibrary();
 const statsCache = new Map();
@@ -279,6 +281,8 @@ const rows = source.map(prompt => {
 });
 
 const incubator = rows.filter(row => row.state === "incubator");
+const survivorIds = new Set(window.FPL_REFINEMENT_SURVIVOR_PACK_V1?.ids || []);
+const durableSurvivors = rows.filter(row => survivorIds.has(row.id));
 const decisionCounts = countBy(rows, row => row.state);
 const referenceCount = 144;
 const audit = {
@@ -287,10 +291,16 @@ const audit = {
     enabledPrompts: source.length,
     players: (window.FPL_PLAYERS || []).length,
     approvedBaseline: window.FPL_APPROVED_PROMPT_BASELINE,
-    nationalityPack: window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1 || null
+    nationalityPack: window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1 || null,
+    survivorPack: window.FPL_REFINEMENT_SURVIVOR_PACK_V1 || null
   },
   reference: { previousIncubatorCount: referenceCount, currentIncubatorCount: incubator.length, delta: incubator.length - referenceCount },
   decisions: decisionCounts,
+  survivors: {
+    total: durableSurvivors.length,
+    byState: countBy(durableSurvivors, row => row.state),
+    items: durableSurvivors.map(row => ({ id: row.id, position: row.position, label: row.label, state: row.state, rawRating: row.rawRating, rawScore: row.rawScore, adjustedScore: row.adjustedScore, playerCount: row.playerCount, overlap: row.overlap, issues: row.issues }))
+  },
   incubator: {
     total: incubator.length,
     byPosition: countBy(incubator, row => row.position),
@@ -325,7 +335,7 @@ const top = audit.items.slice(0, 30);
 const stuck = audit.items.filter(row => row.tunability === "no-safe-threshold");
 const near = audit.items.filter(row => row.nearRescue);
 const formatCounts = object => Object.entries(object).map(([key, value]) => `- ${key}: ${value}`).join("\n") || "- none";
-const md = `# Refinement Incubator audit\n\nGenerated: ${audit.generatedAt}\n\n## Headline\n\n- Enabled Studio prompts analysed: **${source.length}**\n- Certified: **${decisionCounts.certified || 0}**\n- Family/diversity rescued: **${decisionCounts.rescued || 0}**\n- Incubated promising 3★: **${incubator.length}**\n- Hard/weak rejected: **${decisionCounts.rejected || 0}**\n- Previous working reference: **${referenceCount} incubated**\n- Delta from reference: **${audit.reference.delta >= 0 ? "+" : ""}${audit.reference.delta}**\n\n## Refinement readiness\n\n- Safely tunable by the current Incubator strategy: **${audit.incubator.safelyTunable}**\n- Structurally stuck with no safe threshold detected: **${audit.incubator.structurallyStuck}**\n- Near the existing family/diversity rescue line: **${audit.incubator.nearRescue}**\n- Controlled variants the current strategy would plan: **${audit.incubator.plannedVariantCount}**\n\n### By position\n${formatCounts(audit.incubator.byPosition)}\n\n### By dominant family\n${formatCounts(audit.incubator.byFamily)}\n\n### By tunability\n${formatCounts(audit.incubator.byTunability)}\n\n### By answer-pool band\n${formatCounts(audit.incubator.byAnswerBand)}\n\n### By overlap band\n${formatCounts(audit.incubator.byOverlapBand)}\n\n## Highest-priority parents\n\n| ID | Pos | Score | Adj | Answers | Overlap | Family | Tune route | Near rescue |\n|---|---:|---:|---:|---:|---:|---|---|---|\n${top.map(row => `| ${row.id} | ${row.position} | ${row.rawScore} | ${row.adjustedScore} | ${row.playerCount} | ${row.overlap.toFixed(3)} | ${row.dominantFamily} | ${row.tunability}${row.tunableField ? `:${row.tunableField}` : ""} | ${row.nearRescue ? "yes" : ""} |`).join("\n")}\n\n## Near-rescue parents\n\n${near.length ? near.map(row => `- **${row.id}** (${row.position}) — raw ${row.rawScore}, adjusted ${row.adjustedScore}, answers ${row.playerCount}, overlap ${row.overlap.toFixed(3)}, ${row.tunability}.`).join("\n") : "None under the current near-rescue definition."}\n\n## Structurally stuck parents\n\nThese prompts meet the 3★ Incubator floor but the current safe threshold strategy cannot create a controlled variant. They are the main candidates for a second refinement strategy rather than repeated threshold mutation.\n\n${stuck.length ? stuck.map(row => `- **${row.id}** (${row.position}) — ${row.label} — raw ${row.rawScore}, answers ${row.playerCount}, overlap ${row.overlap.toFixed(3)}, family ${row.dominantFamily}.`).join("\n") : "None."}\n\n## Method\n\nThis report rebuilds the current approved Studio prompt library from repository sources, reinstalls the nationality context pack in its stable post-baseline state, runs the same Prompt Quality Analyser used by Quality Enforcement v2, applies the same v2 decision thresholds, and then classifies held 3★ prompts using the current Refinement Incubator's threshold-detection rules. It does not read browser localStorage or mutate the live prompt library.\n`;
+const md = `# Refinement Incubator audit\n\nGenerated: ${audit.generatedAt}\n\n## Headline\n\n- Enabled Studio prompts analysed: **${source.length}**\n- Certified: **${decisionCounts.certified || 0}**\n- Family/diversity rescued: **${decisionCounts.rescued || 0}**\n- Durable refinement survivors: **${durableSurvivors.length}**\n- Incubated promising 3★: **${incubator.length}**\n- Hard/weak rejected: **${decisionCounts.rejected || 0}**\n- Previous working reference: **${referenceCount} incubated**\n- Delta from reference: **${audit.reference.delta >= 0 ? "+" : ""}${audit.reference.delta}**\n\n## Durable survivors\n\n${durableSurvivors.length ? durableSurvivors.map(row => `- **${row.id}** — ${row.label} — ${row.state}, raw ${row.rawScore}, adjusted ${row.adjustedScore}, ${row.playerCount} answers, overlap ${row.overlap.toFixed(3)}.`).join("\n") : "None."}\n\n## Refinement readiness\n\n- Safely tunable by the current Incubator strategy: **${audit.incubator.safelyTunable}**\n- Structurally stuck with no safe threshold detected: **${audit.incubator.structurallyStuck}**\n- Near the existing family/diversity rescue line: **${audit.incubator.nearRescue}**\n- Controlled variants the current strategy would plan: **${audit.incubator.plannedVariantCount}**\n\n### By position\n${formatCounts(audit.incubator.byPosition)}\n\n### By dominant family\n${formatCounts(audit.incubator.byFamily)}\n\n### By tunability\n${formatCounts(audit.incubator.byTunability)}\n\n### By answer-pool band\n${formatCounts(audit.incubator.byAnswerBand)}\n\n### By overlap band\n${formatCounts(audit.incubator.byOverlapBand)}\n\n## Highest-priority parents\n\n| ID | Pos | Score | Adj | Answers | Overlap | Family | Tune route | Near rescue |\n|---|---:|---:|---:|---:|---:|---|---|---|\n${top.map(row => `| ${row.id} | ${row.position} | ${row.rawScore} | ${row.adjustedScore} | ${row.playerCount} | ${row.overlap.toFixed(3)} | ${row.dominantFamily} | ${row.tunability}${row.tunableField ? `:${row.tunableField}` : ""} | ${row.nearRescue ? "yes" : ""} |`).join("\n")}\n\n## Near-rescue parents\n\n${near.length ? near.map(row => `- **${row.id}** (${row.position}) — raw ${row.rawScore}, adjusted ${row.adjustedScore}, answers ${row.playerCount}, overlap ${row.overlap.toFixed(3)}, ${row.tunability}.`).join("\n") : "None under the current near-rescue definition."}\n\n## Structurally stuck parents\n\nThese prompts meet the 3★ Incubator floor but the current safe threshold strategy cannot create a controlled variant. They are the main candidates for a second refinement strategy rather than repeated threshold mutation.\n\n${stuck.length ? stuck.map(row => `- **${row.id}** (${row.position}) — ${row.label} — raw ${row.rawScore}, answers ${row.playerCount}, overlap ${row.overlap.toFixed(3)}, family ${row.dominantFamily}.`).join("\n") : "None."}\n\n## Method\n\nThis report rebuilds the current approved Studio prompt library from repository sources, applies the durable refinement survivor pack, reinstalls the nationality context pack in its stable post-baseline state, runs the same Prompt Quality Analyser used by Quality Enforcement v2, applies the same v2 decision thresholds, and then classifies held 3★ prompts using the current Refinement Incubator's threshold-detection rules. It does not read browser localStorage or mutate the live prompt library.\n`;
 fs.writeFileSync(new URL("refinement-incubator-audit.md", outDir), md);
 
 console.log(`Quality decisions: ${JSON.stringify(decisionCounts)}`);

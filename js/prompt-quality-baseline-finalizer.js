@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — quality prompt baseline finalizer v1.1.0
+/* FPL Challenge Studio — quality prompt baseline finalizer v1.2.0
    The project-wide approved prompt standard is now 4★ or 5★. Quality-pack prompts are
    recognised by their tags whether they were loaded from prompt-library.js or generated
    by the V1/V2/V3 checked-pack scripts during Studio startup. */
@@ -17,8 +17,9 @@
     const v1 = window.FPL_QUALITY_PROMPT_PACK_V1;
     const v2 = window.FPL_QUALITY_PROMPT_PACK_V2;
     const v3 = window.FPL_QUALITY_PROMPT_PACK_V3;
+    const survivorPack = window.FPL_REFINEMENT_SURVIVOR_PACK_V1;
     const library = Array.isArray(window.FPL_PROMPT_LIBRARY) ? window.FPL_PROMPT_LIBRARY : null;
-    if (!library || !v1?.ready || !v2?.ready || !v3?.ready) return false;
+    if (!library || !v1?.ready || !v2?.ready || !v3?.ready || !survivorPack?.ready) return false;
 
     const approved = [];
     const withheld = [];
@@ -56,7 +57,7 @@
 
     window.FPL_QUALITY_PROMPT_BASELINE = Object.freeze({
       ready: true,
-      version: "1.1.0",
+      version: "1.2.0",
       minimumRating: 4,
       approved: approved.length,
       fourStar,
@@ -123,4 +124,5 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", retry, { once: true });
   else retry();
   window.addEventListener("fpl:prompt-tools-ready", retry);
+  window.addEventListener("fpl:refinement-survivor-pack-ready", retry);
 })();

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T07:10:14.436Z",
+  "generatedAt": "2026-09-04T07:17:15.499Z",
   "source": {
     "enabledPrompts": 851,
     "players": 3392,
@@ -8,14 +8,14 @@
       "version": "1.0.3",
       "sourceApprovedExpected": 937,
       "approvedExpected": 903,
-      "approvedPresent": 811,
+      "approvedPresent": 810,
       "total": 842,
       "removed": 9,
       "removedDisabled": 0,
       "disabledDeleted": 34,
       "minimumRating": 4,
-      "fourStar": 606,
-      "fiveStar": 236,
+      "fourStar": 608,
+      "fiveStar": 234,
       "disabled": 0
     },
     "nationalityPack": {
@@ -104,111 +104,75 @@
           "seasonAnswers": 10
         }
       ]
+    },
+    "survivorPack": {
+      "ready": true,
+      "version": "1.0.0",
+      "parentIds": [
+        "quality_v2_mid_price_6_gi_15",
+        "quality_v3_fwd_manager_david_moyes_p55"
+      ],
+      "ids": [
+        "refinement_survivor_v1_mid_price_6_5_gi_15",
+        "refinement_survivor_v1_fwd_manager_david_moyes_p75"
+      ],
+      "removedParents": 0,
+      "parentsPresentAfter": 0,
+      "added": 2
     }
   },
   "reference": {
     "previousIncubatorCount": 144,
-    "currentIncubatorCount": 2,
-    "delta": -142
+    "currentIncubatorCount": 0,
+    "delta": -144
   },
   "decisions": {
-    "certified": 845,
-    "rescued": 4,
-    "incubator": 2
+    "certified": 848,
+    "rescued": 3
+  },
+  "survivors": {
+    "total": 2,
+    "byState": {
+      "certified": 2
+    },
+    "items": [
+      {
+        "id": "refinement_survivor_v1_mid_price_6_5_gi_15",
+        "position": "MID",
+        "label": "Midfielder who started at £6.5m or less with 15+ goal involvements",
+        "state": "certified",
+        "rawRating": 4,
+        "rawScore": 84,
+        "adjustedScore": 86,
+        "playerCount": 74,
+        "overlap": 0,
+        "issues": []
+      },
+      {
+        "id": "refinement_survivor_v1_fwd_manager_david_moyes_p75",
+        "position": "FWD",
+        "label": "Forward managed by David Moyes who scored 75+ FPL points",
+        "state": "certified",
+        "rawRating": 4,
+        "rawScore": 78,
+        "adjustedScore": 84,
+        "playerCount": 14,
+        "overlap": 0,
+        "issues": []
+      }
+    ]
   },
   "incubator": {
-    "total": 2,
-    "byPosition": {
-      "FWD": 1,
-      "MID": 1
-    },
-    "byFamily": {
-      "anti-meta": 1,
-      "manager": 1
-    },
-    "byTunability": {
-      "builder-threshold": 1,
-      "source-threshold": 1
-    },
-    "byAnswerBand": {
-      "ideal": 2
-    },
-    "byOverlapBand": {
-      "low": 2
-    },
-    "nearRescue": 2,
-    "safelyTunable": 2,
+    "total": 0,
+    "byPosition": {},
+    "byFamily": {},
+    "byTunability": {},
+    "byAnswerBand": {},
+    "byOverlapBand": {},
+    "nearRescue": 0,
+    "safelyTunable": 0,
     "structurallyStuck": 0,
-    "plannedVariantCount": 6
+    "plannedVariantCount": 0
   },
-  "items": [
-    {
-      "id": "quality_v2_mid_price_6_gi_15",
-      "position": "MID",
-      "label": "Midfielder who started at £6.0m or less with 15+ goal involvements",
-      "family": "quality-pack-v2:budget-attacker",
-      "dominantFamily": "anti-meta",
-      "tags": [
-        "quality-pack",
-        "quality-pack-v2",
-        "checked",
-        "anti-meta",
-        "midfielder",
-        "budget",
-        "starting-price",
-        "goal-involvements"
-      ],
-      "state": "incubator",
-      "rawRating": 3,
-      "rawScore": 68,
-      "adjustedScore": 70,
-      "familyBonus": 2,
-      "playerCount": 55,
-      "answerBand": "ideal",
-      "overlap": 0,
-      "overlapBand": "low",
-      "issues": [],
-      "tunability": "builder-threshold",
-      "tunableField": "startingPrice",
-      "tunableOperator": "lte",
-      "tunableValue": 6,
-      "plannedVariants": 3,
-      "nearRescue": true,
-      "rescueRawGap": 0,
-      "rescueAdjustedGap": 2,
-      "rescueOverlapBlocked": false
-    },
-    {
-      "id": "quality_v3_fwd_manager_david_moyes_p55",
-      "position": "FWD",
-      "label": "Forward managed by David Moyes who scored 55+ FPL points",
-      "family": "quality-pack-v3:manager-performer",
-      "dominantFamily": "manager",
-      "tags": [
-        "quality-pack",
-        "quality-pack-v3",
-        "checked",
-        "anti-meta",
-        "manager",
-        "points"
-      ],
-      "state": "incubator",
-      "rawRating": 3,
-      "rawScore": 63,
-      "adjustedScore": 69,
-      "familyBonus": 6,
-      "playerCount": 17,
-      "answerBand": "ideal",
-      "overlap": 0,
-      "overlapBand": "low",
-      "issues": [],
-      "tunability": "source-threshold",
-      "tunableField": "points",
-      "plannedVariants": 3,
-      "nearRescue": true,
-      "rescueRawGap": 3,
-      "rescueAdjustedGap": 3,
-      "rescueOverlapBlocked": false
-    }
-  ]
+  "items": []
 }
