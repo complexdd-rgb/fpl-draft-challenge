@@ -1,4 +1,4 @@
-# Keeps the durable survivor promotion reproducible on branch pushes and independently checked on PRs.
+# Keeps the durable survivor promotion reproducible and verifies checked-in runtime wiring without rewriting the PR branch.
 name: Refinement Incubator Audit
 
 on:
@@ -44,7 +44,7 @@ on:
       - '.github/workflows/refinement-incubator-audit.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: refinement-incubator-audit-${{ github.ref }}
@@ -105,6 +105,21 @@ jobs:
           node scripts/build-native-studio-shell.mjs
           node scripts/build-studio-wiring.mjs
 
+      - name: Verify generated runtime is checked in
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- \
+            admin.html \
+            config/asset-manifest.json \
+            js/asset-manifest.js \
+            js/career-overlap-wording.js \
+            js/prompt-refinement-incubator.js \
+            js/prompt-refinement-survivors-v1.js \
+            js/prompt-quality-baseline-finalizer.js \
+            js/prompt-four-star-enforcer.js \
+            scripts/audit-refinement-incubator.mjs
+
       - name: Run deterministic Incubator audit
         run: node scripts/audit-refinement-incubator.mjs
 
@@ -140,30 +155,3 @@ jobs:
 
       - name: Reject whitespace errors
         run: git diff --check
-
-      - name: Commit generated promotion on branch pushes
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git add \
-            admin.html \
-            config/asset-manifest.json \
-            js/asset-manifest.js \
-            js/career-overlap-wording.js \
-            js/prompt-refinement-incubator.js \
-            js/prompt-refinement-survivors-v1.js \
-            js/prompt-quality-baseline-finalizer.js \
-            js/prompt-four-star-enforcer.js \
-            scripts/audit-refinement-incubator.mjs \
-            reports/refinement-incubator-audit.json \
-            reports/refinement-incubator-audit.csv \
-            reports/refinement-incubator-audit.md
-          if git diff --cached --quiet; then
-            echo 'Refinement survivor promotion is already current.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Promote certified refinement survivors'
-          git push origin "HEAD:${GITHUB_REF_NAME}"
