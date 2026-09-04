@@ -8,10 +8,13 @@ on:
       - 'admin.html'
       - 'config/asset-manifest.json'
       - 'js/repository-certified-prompt-pool.js'
+      - 'js/prompt-library-canonical-state.js'
       - 'js/admin-studio-finish.js'
       - 'js/admin-daily-generator-guard.js'
       - 'scripts/apply-repository-certified-pool-isolation.mjs'
+      - 'scripts/apply-canonical-prompt-state.mjs'
       - 'scripts/verify-repository-certified-prompt-pool.mjs'
+      - 'scripts/verify-canonical-prompt-state.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-studio-wiring.mjs'
       - '.github/workflows/repository-certified-pool.yml'
@@ -20,10 +23,13 @@ on:
       - 'admin.html'
       - 'config/asset-manifest.json'
       - 'js/repository-certified-prompt-pool.js'
+      - 'js/prompt-library-canonical-state.js'
       - 'js/admin-studio-finish.js'
       - 'js/admin-daily-generator-guard.js'
       - 'scripts/apply-repository-certified-pool-isolation.mjs'
+      - 'scripts/apply-canonical-prompt-state.mjs'
       - 'scripts/verify-repository-certified-prompt-pool.mjs'
+      - 'scripts/verify-canonical-prompt-state.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-studio-wiring.mjs'
       - '.github/workflows/repository-certified-pool.yml'
@@ -52,13 +58,16 @@ jobs:
       - name: Apply repository-certified pool isolation
         run: node scripts/apply-repository-certified-pool-isolation.mjs
 
+      - name: Apply canonical Prompt Studio state
+        run: node scripts/apply-canonical-prompt-state.mjs
+
       - name: Refresh manifest-owned cache tags
         run: node scripts/build-studio-cache-tags.mjs
 
       - name: Refresh manifest runtime wiring
         run: node scripts/build-studio-wiring.mjs
 
-      - name: Prove isolation builders are repeat-safe
+      - name: Prove prompt-state builders are repeat-safe
         shell: bash
         run: |
           set -euo pipefail
@@ -66,18 +75,21 @@ jobs:
             admin.html
             config/asset-manifest.json
             js/asset-manifest.js
+            js/repository-certified-prompt-pool.js
+            js/prompt-library-canonical-state.js
             js/admin-studio-finish.js
             js/admin-daily-generator-guard.js
             scripts/build-studio-cache-tags.mjs
           )
           sha256sum "${files[@]}" > /tmp/repository-pool-first.sha
           node scripts/apply-repository-certified-pool-isolation.mjs
+          node scripts/apply-canonical-prompt-state.mjs
           node scripts/build-studio-cache-tags.mjs
           node scripts/build-studio-wiring.mjs
           sha256sum "${files[@]}" > /tmp/repository-pool-second.sha
           diff -u /tmp/repository-pool-first.sha /tmp/repository-pool-second.sha
 
-      - name: Verify generated isolation wiring is checked in
+      - name: Verify generated prompt-state wiring is checked in
         shell: bash
         run: |
           set -euo pipefail
@@ -85,6 +97,8 @@ jobs:
             admin.html \
             config/asset-manifest.json \
             js/asset-manifest.js \
+            js/repository-certified-prompt-pool.js \
+            js/prompt-library-canonical-state.js \
             js/admin-studio-finish.js \
             js/admin-daily-generator-guard.js \
             scripts/build-studio-cache-tags.mjs
@@ -92,11 +106,17 @@ jobs:
       - name: Verify browser customs cannot enter production pool
         run: node scripts/verify-repository-certified-prompt-pool.mjs
 
+      - name: Verify canonical Prompt Studio counts
+        run: node scripts/verify-canonical-prompt-state.mjs
+
       - name: Check runtime syntax
         run: |
           node --check js/repository-certified-prompt-pool.js
+          node --check js/prompt-library-canonical-state.js
           node --check js/admin-studio-finish.js
           node --check js/admin-daily-generator-guard.js
           node --check scripts/apply-repository-certified-pool-isolation.mjs
+          node --check scripts/apply-canonical-prompt-state.mjs
           node --check scripts/verify-repository-certified-prompt-pool.mjs
+          node --check scripts/verify-canonical-prompt-state.mjs
           git diff --check

@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.4.2-repository-pool"
+      "version": "1.4.3-canonical-library"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -126,6 +126,10 @@
     },
     "repositoryCertifiedPromptPool": {
       "path": "js/repository-certified-prompt-pool.js",
+      "version": "1.1.0"
+    },
+    "promptLibraryCanonicalState": {
+      "path": "js/prompt-library-canonical-state.js",
       "version": "1.0.0"
     }
   };
@@ -141,7 +145,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "1.4.2-repository-pool",
+    version: "1.4.3-canonical-library",
     assets,
     get,
     url

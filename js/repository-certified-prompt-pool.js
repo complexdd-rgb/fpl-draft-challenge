@@ -1,13 +1,13 @@
-/* FPL Challenge Studio — repository-owned certified prompt pool v1.0.0
+/* FPL Challenge Studio — repository-owned certified prompt pool v1.1.0
    Separates the production/certification prompt set from browser-local Prompt Manager state.
    The browser may keep thousands of experimental/custom prompts, but only repository-owned
    approved/quality/survivor/nationality prompts are eligible for certification or generation. */
 (() => {
   "use strict";
 
-  if (window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL?.version === "1.0.0") return;
+  if (window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL?.version === "1.1.0") return;
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
   const EXPECTED_TOTAL = 851;
   const MANAGER_KEY = "fplChallengeStudioPromptManagerV1";
   const QUALITY_TAGS = new Set(["quality-pack-v1", "quality-pack-v2", "quality-pack-v3"]);
@@ -197,7 +197,11 @@
   function paint() {
     const status = getState();
     const target = document.getElementById("libraryStatus");
-    if (target && status.ready) {
+    const census = window.FPL_PROMPT_LIBRARY_CENSUS;
+    if (target && status.ready && census?.ready) {
+      target.textContent = `${census.enabled.toLocaleString("en-GB")} enabled · ${census.total.toLocaleString("en-GB")} total · ${census.disabled.toLocaleString("en-GB")} disabled`;
+      target.title = "Enabled means eligible for production Daily Challenge use. Every other working prompt stays disabled until it is promoted or deleted.";
+    } else if (target && status.ready) {
       const browserEnabled = liveLibrary().filter(prompt => prompt?.enabled !== false).length;
       target.textContent = `${status.total.toLocaleString("en-GB")} certified live · ${browserEnabled.toLocaleString("en-GB")} browser-enabled · ${status.browserCustom.toLocaleString("en-GB")} local custom`;
       target.title = "Production certification and Daily generation use the repository-certified pool only. Browser-local custom prompts remain available in Prompt Studio but are not promoted automatically.";
@@ -212,6 +216,16 @@
     return status;
   }
 
+  function loadCanonicalPromptState() {
+    if (window.FPL_PROMPT_LIBRARY_CANONICAL_STATE?.ready) return;
+    if (document.querySelector('script[data-canonical-prompt-library-state]')) return;
+    const script = document.createElement("script");
+    script.src = window.FPL_ASSET_MANIFEST?.url?.("promptLibraryCanonicalState") || "js/prompt-library-canonical-state.js?v=1.0.0";
+    script.async = false;
+    script.dataset.canonicalPromptLibraryState = "1";
+    document.head.appendChild(script);
+  }
+
   const api = Object.freeze({
     ready: true,
     version: VERSION,
@@ -222,6 +236,7 @@
     refresh: paint
   });
   window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL = api;
+  loadCanonicalPromptState();
 
   const events = [
     "fpl:approved-prompt-baseline-ready",
