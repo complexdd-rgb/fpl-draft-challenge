@@ -11,11 +11,15 @@ on:
       - 'js/asset-manifest.js'
       - 'js/admin-stage-one.js'
       - 'js/admin-import-tools.js'
+      - 'js/admin-studio-finish.js'
+      - 'js/validation-engine.js'
       - 'js/studio-feature-loader.js'
       - 'js/prompt-studio-loader.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
       - 'fragments/admin-daily-workspace.html'
+      - 'scripts/apply-all-season-certification-gate.mjs'
+      - 'scripts/verify-all-season-certification-gate.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-studio-wiring.mjs'
       - 'scripts/verify-studio-wiring.mjs'
@@ -36,11 +40,15 @@ on:
       - 'js/asset-manifest.js'
       - 'js/admin-stage-one.js'
       - 'js/admin-import-tools.js'
+      - 'js/admin-studio-finish.js'
+      - 'js/validation-engine.js'
       - 'js/studio-feature-loader.js'
       - 'js/prompt-studio-loader.js'
       - 'js/leaderboard-config.js'
       - 'admin.html'
       - 'fragments/admin-daily-workspace.html'
+      - 'scripts/apply-all-season-certification-gate.mjs'
+      - 'scripts/verify-all-season-certification-gate.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-studio-wiring.mjs'
       - 'scripts/verify-studio-wiring.mjs'
@@ -76,6 +84,9 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Apply all-season certified-library gate
+        run: node scripts/apply-all-season-certification-gate.mjs
+
       - name: Apply manifest-owned Admin cache tags
         run: node scripts/build-studio-cache-tags.mjs
 
@@ -98,11 +109,14 @@ jobs:
             js/asset-manifest.js
             js/admin-stage-one.js
             js/admin-import-tools.js
+            js/admin-studio-finish.js
+            js/validation-engine.js
             js/studio-feature-loader.js
             js/prompt-studio-loader.js
             js/leaderboard-config.js
           )
           sha256sum "${files[@]}" > /tmp/studio-architecture-first.sha
+          node scripts/apply-all-season-certification-gate.mjs
           node scripts/build-studio-cache-tags.mjs
           node scripts/build-native-studio-shell.mjs
           node scripts/build-native-daily-workspace.mjs
@@ -119,6 +133,9 @@ jobs:
       - name: Verify native Daily workspace
         run: node scripts/verify-native-daily-workspace.mjs
 
+      - name: Verify all-season certified-library gate
+        run: node scripts/verify-all-season-certification-gate.mjs
+
       - name: Verify Studio wiring architecture
         run: node scripts/verify-studio-wiring.mjs
 
@@ -128,9 +145,13 @@ jobs:
           node --check js/studio-bootstrap.js
           node --check js/admin-stage-one.js
           node --check js/admin-import-tools.js
+          node --check js/admin-studio-finish.js
+          node --check js/validation-engine.js
           node --check js/studio-feature-loader.js
           node --check js/prompt-studio-loader.js
           node --check js/leaderboard-config.js
+          node --check scripts/apply-all-season-certification-gate.mjs
+          node --check scripts/verify-all-season-certification-gate.mjs
           node --check scripts/build-studio-cache-tags.mjs
           node --check scripts/build-native-studio-shell.mjs
           node --check scripts/build-native-daily-workspace.mjs
@@ -152,6 +173,8 @@ jobs:
             js/asset-manifest.js \
             js/admin-stage-one.js \
             js/admin-import-tools.js \
+            js/admin-studio-finish.js \
+            js/validation-engine.js \
             js/studio-feature-loader.js \
             js/prompt-studio-loader.js \
             js/leaderboard-config.js
