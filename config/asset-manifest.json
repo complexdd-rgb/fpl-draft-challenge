@@ -1,10 +1,10 @@
 {
-  "manifestVersion": "1.0.0",
+  "manifestVersion": "1.1.0-native-shell",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "1.0.0" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "1.1.0-native-shell" },
     "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "1.0.0" },
-    "adminImportTools": { "path": "js/admin-import-tools.js", "version": "22.3.0-careerevolution" },
-    "studioFeatureLoader": { "path": "js/studio-feature-loader.js", "version": "1.0.1-refinement" },
+    "adminImportTools": { "path": "js/admin-import-tools.js", "version": "23.0.0-bootstrap" },
+    "studioFeatureLoader": { "path": "js/studio-feature-loader.js", "version": "1.1.0-bootstrap-shim" },
     "promptStudioLoader": { "path": "js/prompt-studio-loader.js", "version": "1.4.0-manifest" },
     "adminImportToolsBase": { "path": "js/admin-import-tools-base.js", "version": "16.2.0-careerevolution" },
     "promptTargetSurvivorGenerator": { "path": "js/prompt-target-survivor-generator.js", "version": "1.0.1-careerevolution" },
@@ -23,10 +23,10 @@
     "promptRefinementIncubator": { "path": "js/prompt-refinement-incubator.js", "version": "1.0.0" },
     "adminDailyPublish": { "path": "js/admin-daily-publish.js", "version": null },
     "liveFeatureLoader": { "path": "js/live-feature-loader.js", "version": null },
-    "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.1.0-fastboot" },
+    "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.2.0-native-shell" },
     "careerContext": { "path": "js/career-context.js", "version": "1.5.0" },
     "adminBatchCalendar": { "path": "js/admin-batch-calendar.js", "version": "3.0.6" },
     "adminDailyGeneratorGuard": { "path": "js/admin-daily-generator-guard.js", "version": "1.1.2" },
-    "leaderboardConfig": { "path": "js/leaderboard-config.js", "version": "5.0.5" }
+    "leaderboardConfig": { "path": "js/leaderboard-config.js", "version": "5.1.0-studio-bootstrap" }
   }
 }
