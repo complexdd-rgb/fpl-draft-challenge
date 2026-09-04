@@ -4,6 +4,7 @@ const read = file => fs.readFileSync(file, 'utf8');
 const studio = read('js/prompt-studio-v3-clean-room.js');
 const tester = read('js/prompt-studio-v3-rule-tester.js');
 const advisor = read('js/prompt-studio-v3-quality-advisor.js');
+const generator = read('js/prompt-studio-v3-candidate-generator.js');
 const registry = read('js/prompt-family-registry-v3.js');
 const manifest = JSON.parse(read('config/asset-manifest.json'));
 const bootstrap = read('js/studio-bootstrap.js');
@@ -57,23 +58,43 @@ assert(!advisor.includes('rating:'), 'V3 advisor must never persist an automatic
 assert(!advisor.includes('decision:'), 'V3 advisor must never persist an automatic review decision.');
 assert(!advisor.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL'), 'V3 advisor must not mutate or depend on the production prompt pool.');
 
+assert(generator.includes('const VERSION = "3.3.0"'), 'V3 candidate generator version is missing.');
+assert(generator.includes('const SUPPORTED_FAMILIES = Object.freeze(new Set(['), 'V3 candidate generation is not explicitly family-scoped.');
+assert(generator.includes('minAnswers') && generator.includes('maxAnswers'), 'V3 candidate generator does not use a target answer-pool range.');
+assert(generator.includes('validation.evaluatePrompt(entry.player,entry.season,spec.wording)'), 'V3 candidate shortlist is not measured against the real Validation Engine/database.');
+assert(generator.includes('tester()?.inspectWording?.(spec.position,spec.rules,spec.wording)'), 'V3 candidate recipes are not parser-safety checked before shortlisting.');
+assert(generator.includes('Nothing has been saved.'), 'V3 candidate generator does not make temporary shortlist state explicit.');
+assert(generator.includes('data-v3-add-candidate'), 'V3 candidate generator has no explicit human Add Draft action.');
+assert(generator.includes('create.requestSubmit()'), 'V3 candidate generator does not route selected material through the normal disabled Draft form.');
+assert(generator.includes('This is a Draft only. It still requires real Test → advisory Quality → human Review.'), 'Generated V3 draft does not preserve the manual-review lifecycle note.');
+assert(!generator.includes('prompt.enabled = true'), 'V3 candidate generator must never enable a prompt.');
+assert(!generator.includes('prompt.status = "approved"'), 'V3 candidate generator must never approve a prompt.');
+assert(!generator.includes('qualityReview ='), 'V3 candidate generator must never write human quality state.');
+assert(!generator.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL'), 'V3 candidate generator must not mutate or depend on the production pool.');
+
+const supportedFamilyCount = (generator.match(/^    "[a-z0-9-]+"/gm) || []).length;
+assert(supportedFamilyCount >= 15, `V3 deliberate generator supports too few families (${supportedFamilyCount}); expected at least 15.`);
+
 const familyCount = (registry.match(/^    \["/gm) || []).length;
 assert(familyCount >= 30, `V3 family registry is too small (${familyCount}); expected at least 30 families.`);
 for (const family of ['league-position','career-consistency','career-peak','comeback','one-club','one-season-wonder','era-crossover','premium-disappointment','cross-season-achievement','composite-story']) {
   assert(registry.includes(`"${family}"`), `V3 family registry is missing ${family}.`);
 }
 
-assert(manifest.manifestVersion === '1.8.0-prompt-studio-v3-quality', 'Central manifest is not on the V3 advisory-quality version.');
+assert(manifest.manifestVersion === '1.9.0-prompt-studio-v3-candidates', 'Central manifest is not on the V3 deliberate-candidate version.');
 assert(manifest.assets.promptStudioV3?.path === 'js/prompt-studio-v3-clean-room.js', 'V3 runtime is not manifest-owned.');
 assert(manifest.assets.promptFamilyRegistryV3?.path === 'js/prompt-family-registry-v3.js', 'V3 family registry is not manifest-owned.');
 assert(manifest.assets.promptStudioV3RuleTester?.path === 'js/prompt-studio-v3-rule-tester.js', 'V3 safe builder/database tester is not manifest-owned.');
 assert(manifest.assets.promptStudioV3RuleTester?.version === '3.1.1', 'V3 safe builder/database tester cache version is stale.');
 assert(manifest.assets.promptStudioV3QualityAdvisor?.path === 'js/prompt-studio-v3-quality-advisor.js', 'V3 quality advisor is not manifest-owned.');
 assert(manifest.assets.promptStudioV3QualityAdvisor?.version === '3.2.0', 'V3 quality advisor cache version is stale.');
+assert(manifest.assets.promptStudioV3CandidateGenerator?.path === 'js/prompt-studio-v3-candidate-generator.js', 'V3 candidate generator is not manifest-owned.');
+assert(manifest.assets.promptStudioV3CandidateGenerator?.version === '3.3.0', 'V3 candidate generator cache version is stale.');
 assert(bootstrap.includes('function ensurePromptV3()'), 'Studio bootstrap does not own V3 loading.');
 assert(bootstrap.includes('loadAsset("promptFamilyRegistryV3"'), 'V3 registry is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3"'), 'V3 runtime is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3RuleTester"'), 'V3 safe builder/database tester is not loaded by bootstrap.');
 assert(bootstrap.includes('loadAsset("promptStudioV3QualityAdvisor"'), 'V3 advisory quality layer is not loaded by bootstrap.');
+assert(bootstrap.includes('loadAsset("promptStudioV3CandidateGenerator"'), 'V3 deliberate candidate generator is not loaded by bootstrap.');
 
-console.log(`Prompt Studio V3 verification passed: zero-start isolation, ${familyCount} families, natural safe rule mapping, real database testing, advisory-only quality evidence, manual quality/approval, and frozen legacy production remain separate.`);
+console.log(`Prompt Studio V3 verification passed: zero-start isolation, ${familyCount} registered families, ${supportedFamilyCount} deliberate generator families, natural safe rule mapping, real database testing, advisory-only quality evidence, manual quality/approval, and frozen legacy production remain separate.`);
