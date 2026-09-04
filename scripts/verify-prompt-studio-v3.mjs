@@ -72,7 +72,8 @@ assert(!generator.includes('prompt.status = "approved"'), 'V3 candidate generato
 assert(!generator.includes('qualityReview ='), 'V3 candidate generator must never write human quality state.');
 assert(!generator.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL'), 'V3 candidate generator must not mutate or depend on the production pool.');
 
-const supportedFamilyCount = (generator.match(/^    "[a-z0-9-]+"/gm) || []).length;
+const supportedBlock = generator.match(/const SUPPORTED_FAMILIES = Object\.freeze\(new Set\(\[([\s\S]*?)\]\)\);/);
+const supportedFamilyCount = supportedBlock ? (supportedBlock[1].match(/"[a-z0-9-]+"/g) || []).length : 0;
 assert(supportedFamilyCount >= 15, `V3 deliberate generator supports too few families (${supportedFamilyCount}); expected at least 15.`);
 
 const familyCount = (registry.match(/^    \["/gm) || []).length;
