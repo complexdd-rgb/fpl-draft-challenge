@@ -16,6 +16,7 @@ on:
       - 'js/validation-engine.js'
       - 'scripts/audit-refinement-incubator.mjs'
       - 'scripts/trial-refinement-survivors.mjs'
+      - 'scripts/refinement-survivor-appendix.inc.mjs'
       - '.github/workflows/refinement-incubator-audit.yml'
   pull_request:
     paths:
@@ -30,6 +31,7 @@ on:
       - 'js/validation-engine.js'
       - 'scripts/audit-refinement-incubator.mjs'
       - 'scripts/trial-refinement-survivors.mjs'
+      - 'scripts/refinement-survivor-appendix.inc.mjs'
       - '.github/workflows/refinement-incubator-audit.yml'
 
 permissions:
@@ -78,6 +80,7 @@ jobs:
         run: |
           node --check scripts/audit-refinement-incubator.mjs
           node --check scripts/trial-refinement-survivors.mjs
+          node --check scripts/refinement-survivor-appendix.inc.mjs
 
       - name: Reject whitespace errors
         run: git diff --check
