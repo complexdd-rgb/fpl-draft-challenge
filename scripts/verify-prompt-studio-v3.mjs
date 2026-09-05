@@ -118,7 +118,7 @@ for (const family of ['league-position','career-consistency','career-peak','come
   assert(registry.includes(`"${family}"`), `V3 family registry is missing ${family}.`);
 }
 
-assert(manifest.manifestVersion === '1.11.0-prompt-studio-v3-auto-batch', 'Central manifest is not on the V3 automatic-batch version.');
+assert(manifest.manifestVersion === '1.12.0-prompt-studio-v4-simple', 'Central manifest is not on the V4-compatible version.');
 assert(manifest.assets.promptStudioV3?.path === 'js/prompt-studio-v3-clean-room.js', 'V3 runtime is not manifest-owned.');
 assert(manifest.assets.promptFamilyRegistryV3?.path === 'js/prompt-family-registry-v3.js', 'V3 family registry is not manifest-owned.');
 assert(manifest.assets.promptStudioV3RuleTester?.version === '3.1.1', 'V3 safe builder/database tester cache version is stale.');
