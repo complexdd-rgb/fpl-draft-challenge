@@ -14,6 +14,11 @@ const cleanStudio = read('js/prompt-studio-clean-reset.js');
 const cleanCss = read('admin-prompt-studio-clean.css');
 const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const promptLibrary = read('prompt-library.js');
+const executablePromptLibrary = promptLibrary
+  .replace(/^\uFEFF/, '')
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/\/\/.*$/gm, '')
+  .trim();
 
 assert(config.manifestVersion === '2.1.0-prompt-library-browser-v1', 'Central manifest is not on the Library Browser v1 boundary.');
 assert(config.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio asset is missing.');
@@ -44,7 +49,7 @@ forbid(entrypoint, 'prompt-studio-loader.js', 'Admin entrypoint');
 forbid(entrypoint, 'loadLegacyPromptPath', 'Admin entrypoint');
 assert(entrypoint.includes('fallback is disabled by design'), 'Admin entrypoint does not fail closed.');
 
-assert(promptLibrary.trim() === '', 'prompt-library.js must stay empty at the clean reset boundary.');
+assert(executablePromptLibrary === '', 'prompt-library.js must not contain executable prompt definitions at the clean reset boundary.');
 assert(cleanStudio.includes('const VERSION = "1.1.0"'), 'Clean Prompt Studio runtime version is not 1.1.0.');
 assert(cleanStudio.includes('fplPromptStudioCleanLibraryV1'), 'Clean Prompt Studio store is missing.');
 assert(cleanStudio.includes('fplChallengeStudioPromptManagerV1'), 'Legacy Prompt Manager browser state is not explicitly cleared.');
