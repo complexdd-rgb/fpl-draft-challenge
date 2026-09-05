@@ -8,6 +8,8 @@ on:
       - 'js/studio-bootstrap.js'
       - 'js/admin-import-tools.js'
       - 'js/prompt-studio-clean-reset.js'
+      - 'js/prompt-factory-mount-v1.js'
+      - 'js/prompt-factory-v1.js'
       - 'admin-prompt-studio-clean.css'
       - 'js/repository-certified-prompt-pool.js'
       - 'prompt-library.js'
@@ -28,6 +30,8 @@ on:
       - 'js/studio-bootstrap.js'
       - 'js/admin-import-tools.js'
       - 'js/prompt-studio-clean-reset.js'
+      - 'js/prompt-factory-mount-v1.js'
+      - 'js/prompt-factory-v1.js'
       - 'admin-prompt-studio-clean.css'
       - 'js/repository-certified-prompt-pool.js'
       - 'prompt-library.js'
@@ -76,7 +80,7 @@ jobs:
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
-      - name: Verify Prompt Studio clean boundary and Library Browser
+      - name: Verify Prompt Studio clean boundary and Prompt Factory
         run: node scripts/verify-prompt-studio-clean-reset.mjs
 
       - name: Verify unaffected native workspaces
@@ -90,6 +94,8 @@ jobs:
           node --check js/studio-bootstrap.js
           node --check js/admin-import-tools.js
           node --check js/prompt-studio-clean-reset.js
+          node --check js/prompt-factory-mount-v1.js
+          node --check js/prompt-factory-v1.js
           node --check js/repository-certified-prompt-pool.js
           node --check scripts/verify-prompt-studio-clean-reset.mjs
           node --check scripts/build-studio-cache-tags.mjs
