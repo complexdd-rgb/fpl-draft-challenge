@@ -8,12 +8,15 @@ on:
       - 'js/studio-bootstrap.js'
       - 'js/admin-import-tools.js'
       - 'js/prompt-studio-clean-reset.js'
+      - 'admin-prompt-studio-clean.css'
       - 'js/repository-certified-prompt-pool.js'
       - 'prompt-library.js'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
+      - 'scripts/build-studio-cache-tags.mjs'
       - 'js/admin-stage-one.js'
       - 'js/validation-engine.js'
       - 'fragments/admin-daily-workspace.html'
+      - 'admin.html'
       - '.github/workflows/studio-wiring.yml'
   push:
     branches:
@@ -25,13 +28,16 @@ on:
       - 'js/studio-bootstrap.js'
       - 'js/admin-import-tools.js'
       - 'js/prompt-studio-clean-reset.js'
+      - 'admin-prompt-studio-clean.css'
       - 'js/repository-certified-prompt-pool.js'
       - 'prompt-library.js'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
+      - 'scripts/build-studio-cache-tags.mjs'
+      - 'admin.html'
       - '.github/workflows/studio-wiring.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: studio-architecture-${{ github.ref }}
@@ -51,7 +57,26 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Verify Prompt Studio clean reset boundary
+      - name: Refresh manifest-owned Admin cache tags on branch pushes
+        if: github.event_name == 'push'
+        run: node scripts/build-studio-cache-tags.mjs
+
+      - name: Commit refreshed Admin cache tags
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add admin.html
+          if git diff --cached --quiet; then
+            echo 'Admin cache tags are already current.'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Refresh Prompt Studio cache tags'
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      - name: Verify Prompt Studio clean boundary and Library Browser
         run: node scripts/verify-prompt-studio-clean-reset.mjs
 
       - name: Verify unaffected native workspaces
@@ -59,7 +84,7 @@ jobs:
           node scripts/verify-native-validation-workspace.mjs
           node scripts/verify-native-daily-workspace.mjs
 
-      - name: Check reset JavaScript syntax
+      - name: Check clean runtime JavaScript syntax
         run: |
           node --check js/asset-manifest.js
           node --check js/studio-bootstrap.js
@@ -67,6 +92,7 @@ jobs:
           node --check js/prompt-studio-clean-reset.js
           node --check js/repository-certified-prompt-pool.js
           node --check scripts/verify-prompt-studio-clean-reset.mjs
+          node --check scripts/build-studio-cache-tags.mjs
 
       - name: Reject whitespace errors
         run: git diff --check origin/main...HEAD

@@ -1,9 +1,9 @@
 {
-  "manifestVersion": "2.0.0-prompt-studio-clean-reset",
+  "manifestVersion": "2.1.0-prompt-library-browser-v1",
   "assets": {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "2.0.0-prompt-studio-clean-reset"
+      "version": "2.1.0-prompt-library-browser-v1"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -11,7 +11,11 @@
     },
     "promptStudioClean": {
       "path": "js/prompt-studio-clean-reset.js",
-      "version": "1.0.0"
+      "version": "1.1.0-library-browser"
+    },
+    "promptStudioCleanCss": {
+      "path": "admin-prompt-studio-clean.css",
+      "version": "1.0.0-library-browser"
     },
     "adminImportTools": {
       "path": "js/admin-import-tools.js",

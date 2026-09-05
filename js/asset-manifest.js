@@ -4,9 +4,10 @@
   "use strict";
 
   const source = {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "2.0.0-prompt-studio-clean-reset" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "2.1.0-prompt-library-browser-v1" },
     "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.0.0-clean-reset" },
-    "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.0.0" },
+    "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.1.0-library-browser" },
+    "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.0.0-library-browser" },
     "adminImportTools": { "path": "js/admin-import-tools.js", "version": "24.0.0-clean-reset" },
     "studioFeatureLoader": { "path": "js/studio-feature-loader.js", "version": "1.1.0-bootstrap-shim" },
     "promptStudioLoader": { "path": "js/prompt-studio-loader.js", "version": "1.4.0-retired" },
@@ -60,7 +61,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "2.0.0-prompt-studio-clean-reset",
+    version: "2.1.0-prompt-library-browser-v1",
     assets,
     get,
     url
