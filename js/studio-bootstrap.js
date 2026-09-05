@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v1.7.0.
+/* FPL Challenge Studio — single runtime bootstrap owner v1.8.0.
    Owns Studio-only feature loading. Specialist modules remain separate, but no longer
    discover and start overlapping loader chains independently. */
 (() => {
@@ -78,7 +78,11 @@
           loadAsset("promptStudioV3QualityAdvisor", "data-prompt-studio-v3-quality-advisor", { async: false }, () => {
             loadAsset("promptStudioV3CandidateGenerator", "data-prompt-studio-v3-candidate-generator", { async: false }, () => {
               loadAsset("promptStudioV3AutoBatchGenerator", "data-prompt-studio-v3-auto-batch-generator", { async: false }, () => {
-                loadAsset("promptStudioV3CandidateCertification", "data-prompt-studio-v3-candidate-certification", { async: false });
+                loadAsset("promptStudioV3CandidateCertification", "data-prompt-studio-v3-candidate-certification", { async: false }, () => {
+                  // V4 is the visible simple workflow. V3 remains available underneath as the
+                  // parser-safe candidate engine, but its multi-stage workspace is hidden by V4.
+                  loadAsset("promptStudioV4Simple", "data-prompt-studio-v4-simple", { async: false });
+                });
               });
             });
           });
@@ -110,8 +114,7 @@
   function ensureRefinementIncubator() {
     if (refinementStarted) return;
     refinementStarted = true;
-    // Legacy production quality/refinement remains isolated from the clean-room V3 library.
-    // V3 never consumes automatic rescue, rating, deletion or promotion decisions.
+    // Legacy production quality/refinement remains isolated from the rebuild library.
     loadAsset("promptRefinementIncubator", "data-prompt-refinement-incubator", { async: false });
   }
 
@@ -147,7 +150,7 @@
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "1.7.0",
+    version: "1.8.0",
     start,
     loadScript,
     loadAsset,
