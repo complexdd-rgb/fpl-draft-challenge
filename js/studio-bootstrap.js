@@ -1,6 +1,6 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v2.0.0.
-   Prompt Studio has been reset. This bootstrap intentionally loads one clean Prompt Studio
-   controller and no legacy prompt packs, V2/V3/V4 workspaces, refinement loaders or fallbacks. */
+/* FPL Challenge Studio — single runtime bootstrap owner v2.1.0.
+   Prompt Studio uses one clean controller plus the clean Prompt Factory. No legacy prompt packs,
+   V2/V3/V4 workspaces, refinement loaders or fallback chains are loaded. */
 (() => {
   "use strict";
 
@@ -15,6 +15,7 @@
   const url = (key, fallback) => manifest?.url?.(key) || fallback;
   let started = false;
   let promptStudioStarted = false;
+  let promptFactoryStarted = false;
   let publishingStarted = false;
 
   function findExisting(src, marker) {
@@ -59,13 +60,25 @@
     return loadScript(url(key, fallback), marker, options, done);
   }
 
+  function ensurePromptFactory() {
+    if (promptFactoryStarted) return;
+    promptFactoryStarted = true;
+    loadAsset("promptFactoryMountV1", "data-prompt-factory-mount-v1", { async: false }, () => {
+      loadAsset("promptFactoryV1", "data-prompt-factory-v1", { async: false });
+    });
+  }
+
   function ensurePromptStudio() {
-    if (promptStudioStarted) return;
+    if (promptStudioStarted) {
+      ensurePromptFactory();
+      return;
+    }
     promptStudioStarted = true;
     loadAsset(
       "promptStudioClean",
       "data-prompt-studio-clean",
-      { async: false }
+      { async: false },
+      ensurePromptFactory
     );
   }
 
@@ -87,7 +100,7 @@
 
     started = true;
     document.documentElement.dataset.studioBootstrap = "loading";
-    document.documentElement.dataset.promptStudioArchitecture = "clean-v1";
+    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory";
 
     ensurePromptStudio();
     ensurePublishing();
@@ -95,16 +108,17 @@
     window.addEventListener("fpl:leaderboard-config-ready", ensurePublishing);
     document.documentElement.dataset.studioBootstrap = "ready";
     window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
-      detail: { version: "2.0.0", promptStudio: "clean-v1" }
+      detail: { version: "2.1.0", promptStudio: "clean-v1", promptFactory: "v1" }
     }));
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "2.0.0",
+    version: "2.1.0",
     start,
     loadScript,
     loadAsset,
     ensurePromptStudio,
+    ensurePromptFactory,
     ensurePublishing
   });
 
