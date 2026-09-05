@@ -1,17 +1,21 @@
 {
-  "manifestVersion": "1.12.0-prompt-studio-v4-simple",
+  "manifestVersion": "2.0.0-prompt-studio-clean-reset",
   "assets": {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "1.12.0-prompt-studio-v4-simple"
+      "version": "2.0.0-prompt-studio-clean-reset"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "1.8.0-prompt-studio-v4-simple"
+      "version": "2.0.0-clean-reset"
+    },
+    "promptStudioClean": {
+      "path": "js/prompt-studio-clean-reset.js",
+      "version": "1.0.0"
     },
     "adminImportTools": {
       "path": "js/admin-import-tools.js",
-      "version": "23.0.0-bootstrap"
+      "version": "24.0.0-clean-reset"
     },
     "studioFeatureLoader": {
       "path": "js/studio-feature-loader.js",
@@ -19,43 +23,43 @@
     },
     "promptStudioLoader": {
       "path": "js/prompt-studio-loader.js",
-      "version": "1.4.0-manifest"
+      "version": "1.4.0-retired"
     },
     "promptStudioRedesign": {
       "path": "js/prompt-studio-redesign.js",
-      "version": "2.0.0"
+      "version": "2.0.0-retired"
     },
     "promptFamilyRegistryV3": {
       "path": "js/prompt-family-registry-v3.js",
-      "version": "3.0.0"
+      "version": "3.0.0-retired"
     },
     "promptStudioV3": {
       "path": "js/prompt-studio-v3-clean-room.js",
-      "version": "3.0.0"
+      "version": "3.0.0-retired"
     },
     "promptStudioV3RuleTester": {
       "path": "js/prompt-studio-v3-rule-tester.js",
-      "version": "3.1.1"
+      "version": "3.1.1-retired"
     },
     "promptStudioV3QualityAdvisor": {
       "path": "js/prompt-studio-v3-quality-advisor.js",
-      "version": "3.2.0"
+      "version": "3.2.0-retired"
     },
     "promptStudioV3CandidateGenerator": {
       "path": "js/prompt-studio-v3-candidate-generator.js",
-      "version": "3.3.1"
+      "version": "3.3.1-retired"
     },
     "promptStudioV3AutoBatchGenerator": {
       "path": "js/prompt-studio-v3-auto-batch-generator.js",
-      "version": "3.5.0"
+      "version": "3.5.0-retired"
     },
     "promptStudioV3CandidateCertification": {
       "path": "js/prompt-studio-v3-candidate-certification.js",
-      "version": "3.4.0"
+      "version": "3.4.0-retired"
     },
     "promptStudioV4Simple": {
       "path": "js/prompt-studio-v4-simple.js",
-      "version": "4.0.0"
+      "version": "4.0.0-retired"
     },
     "adminImportToolsBase": {
       "path": "js/admin-import-tools-base.js",
@@ -95,7 +99,7 @@
     },
     "promptLibraryLegacyAdditions": {
       "path": "js/prompt-library-legacy-additions-20260814.js",
-      "version": null
+      "version": "retired"
     },
     "careerShapeValidationBridge": {
       "path": "js/career-shape-validation-bridge.js",
@@ -115,15 +119,15 @@
     },
     "promptRefinementIncubator": {
       "path": "js/prompt-refinement-incubator.js",
-      "version": "1.1.1"
+      "version": "1.1.1-retired"
     },
     "promptRefinementSurvivors": {
       "path": "js/prompt-refinement-survivors-v1.js",
-      "version": "1.0.0"
+      "version": "1.0.0-retired"
     },
     "promptFourStarEnforcer": {
       "path": "js/prompt-four-star-enforcer.js",
-      "version": "2.1.0-survivors"
+      "version": "2.1.0-retired"
     },
     "adminDailyPublish": {
       "path": "js/admin-daily-publish.js",
@@ -159,11 +163,11 @@
     },
     "repositoryCertifiedPromptPool": {
       "path": "js/repository-certified-prompt-pool.js",
-      "version": "1.1.0"
+      "version": "2.0.0-clean-reset"
     },
     "promptLibraryCanonicalState": {
       "path": "js/prompt-library-canonical-state.js",
-      "version": "1.0.0"
+      "version": "1.0.0-retired"
     }
   }
 }

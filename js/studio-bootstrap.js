@@ -1,24 +1,20 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v1.8.0.
-   Owns Studio-only feature loading. Specialist modules remain separate, but no longer
-   discover and start overlapping loader chains independently. */
+/* FPL Challenge Studio — single runtime bootstrap owner v2.0.0.
+   Prompt Studio has been reset. This bootstrap intentionally loads one clean Prompt Studio
+   controller and no legacy prompt packs, V2/V3/V4 workspaces, refinement loaders or fallbacks. */
 (() => {
   "use strict";
 
-  if (window.__FPL_STUDIO_BOOTSTRAP_V1__) {
+  if (window.__FPL_STUDIO_BOOTSTRAP_V2__) {
     window.FPL_STUDIO_BOOTSTRAP?.start?.();
     return;
   }
-  window.__FPL_STUDIO_BOOTSTRAP_V1__ = true;
+  window.__FPL_STUDIO_BOOTSTRAP_V2__ = true;
 
   const manifest = window.FPL_ASSET_MANIFEST;
   const runtimeIsStudio = () => Boolean(window.FPL_IS_STUDIO || document.querySelector("main.studio-shell"));
   const url = (key, fallback) => manifest?.url?.(key) || fallback;
   let started = false;
-  let certificationStarted = false;
-  let promptLoaderStarted = false;
-  let promptRedesignStarted = false;
-  let promptV3Started = false;
-  let refinementStarted = false;
+  let promptStudioStarted = false;
   let publishingStarted = false;
 
   function findExisting(src, marker) {
@@ -63,59 +59,14 @@
     return loadScript(url(key, fallback), marker, options, done);
   }
 
-  function ensurePromptRedesign() {
-    if (promptRedesignStarted) return;
-    promptRedesignStarted = true;
-    loadAsset("promptStudioRedesign", "data-prompt-studio-redesign", { async: false });
-  }
-
-  function ensurePromptV3() {
-    if (promptV3Started) return;
-    promptV3Started = true;
-    loadAsset("promptFamilyRegistryV3", "data-prompt-family-registry-v3", { async: false }, () => {
-      loadAsset("promptStudioV3", "data-prompt-studio-v3", { async: false }, () => {
-        loadAsset("promptStudioV3RuleTester", "data-prompt-studio-v3-rule-tester", { async: false }, () => {
-          loadAsset("promptStudioV3QualityAdvisor", "data-prompt-studio-v3-quality-advisor", { async: false }, () => {
-            loadAsset("promptStudioV3CandidateGenerator", "data-prompt-studio-v3-candidate-generator", { async: false }, () => {
-              loadAsset("promptStudioV3AutoBatchGenerator", "data-prompt-studio-v3-auto-batch-generator", { async: false }, () => {
-                loadAsset("promptStudioV3CandidateCertification", "data-prompt-studio-v3-candidate-certification", { async: false }, () => {
-                  // V4 is the visible simple workflow. V3 remains available underneath as the
-                  // parser-safe candidate engine, but its multi-stage workspace is hidden by V4.
-                  loadAsset("promptStudioV4Simple", "data-prompt-studio-v4-simple", { async: false });
-                });
-              });
-            });
-          });
-        });
-      });
-    });
-  }
-
-  function ensurePromptLoader() {
-    if (promptLoaderStarted) return;
-    promptLoaderStarted = true;
-    loadAsset("promptStudioLoader", "data-prompt-studio-loader", { async: false });
-  }
-
-  function ensureCertificationLayer() {
-    if (certificationStarted) return;
-    certificationStarted = true;
-
-    loadAsset("promptLibraryLegacyAdditions", "data-prompt-library-legacy-additions", { async: false }, () => {
-      loadAsset("careerShapeValidationBridge", "data-career-shape-validation-bridge", { async: false }, () => {
-        loadAsset("promptEraRangeWording", "data-prompt-era-range-wording", { async: false }, () => {
-          loadAsset("adminStudioFinish", "data-admin-studio-finish", { async: true });
-          loadAsset("careerOverlapWording", "data-career-overlap-wording", { async: true });
-        });
-      });
-    });
-  }
-
-  function ensureRefinementIncubator() {
-    if (refinementStarted) return;
-    refinementStarted = true;
-    // Legacy production quality/refinement remains isolated from the rebuild library.
-    loadAsset("promptRefinementIncubator", "data-prompt-refinement-incubator", { async: false });
+  function ensurePromptStudio() {
+    if (promptStudioStarted) return;
+    promptStudioStarted = true;
+    loadAsset(
+      "promptStudioClean",
+      "data-prompt-studio-clean",
+      { async: false }
+    );
   }
 
   function ensurePublishing() {
@@ -129,36 +80,31 @@
   function start() {
     if (!runtimeIsStudio()) return;
     if (started) {
-      ensurePromptRedesign();
-      ensurePromptV3();
+      ensurePromptStudio();
       ensurePublishing();
       return;
     }
+
     started = true;
     document.documentElement.dataset.studioBootstrap = "loading";
+    document.documentElement.dataset.promptStudioArchitecture = "clean-v1";
 
-    ensurePromptRedesign();
-    ensurePromptV3();
-    ensurePromptLoader();
-    ensureCertificationLayer();
-    ensureRefinementIncubator();
+    ensurePromptStudio();
     ensurePublishing();
 
     window.addEventListener("fpl:leaderboard-config-ready", ensurePublishing);
     document.documentElement.dataset.studioBootstrap = "ready";
-    window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready"));
+    window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
+      detail: { version: "2.0.0", promptStudio: "clean-v1" }
+    }));
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "1.8.0",
+    version: "2.0.0",
     start,
     loadScript,
     loadAsset,
-    ensurePromptRedesign,
-    ensurePromptV3,
-    ensurePromptLoader,
-    ensureCertificationLayer,
-    ensureRefinementIncubator,
+    ensurePromptStudio,
     ensurePublishing
   });
 
