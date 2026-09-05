@@ -18,6 +18,7 @@ const executablePromptLibrary = promptLibrary
   .replace(/^\uFEFF/, '')
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/\/\/.*$/gm, '')
+  .replace(/\s+/g, ' ')
   .trim();
 
 assert(config.manifestVersion === '2.1.0-prompt-library-browser-v1', 'Central manifest is not on the Library Browser v1 boundary.');
@@ -49,7 +50,10 @@ forbid(entrypoint, 'prompt-studio-loader.js', 'Admin entrypoint');
 forbid(entrypoint, 'loadLegacyPromptPath', 'Admin entrypoint');
 assert(entrypoint.includes('fallback is disabled by design'), 'Admin entrypoint does not fail closed.');
 
-assert(executablePromptLibrary === '', 'prompt-library.js must not contain executable prompt definitions at the clean reset boundary.');
+assert(
+  executablePromptLibrary === 'window.FPL_PROMPT_LIBRARY = [];',
+  'prompt-library.js must contain only the empty canonical array initializer at the clean reset boundary.'
+);
 assert(cleanStudio.includes('const VERSION = "1.1.0"'), 'Clean Prompt Studio runtime version is not 1.1.0.');
 assert(cleanStudio.includes('fplPromptStudioCleanLibraryV1'), 'Clean Prompt Studio store is missing.');
 assert(cleanStudio.includes('fplChallengeStudioPromptManagerV1'), 'Legacy Prompt Manager browser state is not explicitly cleared.');
@@ -72,4 +76,4 @@ assert(repositoryPool.includes('expectedTotal: 0'), 'Repository prompt pool was 
 forbid(repositoryPool, 'prompt-library-canonical-state.js', 'Repository prompt pool');
 forbid(repositoryPool, 'EXPECTED_TOTAL = 851', 'Repository prompt pool');
 
-console.log('Prompt Studio Library Browser v1 verified: one clean controller, empty canonical library, read-only browser, no legacy fallback chain.');
+console.log('Prompt Studio Library Browser v1 verified: one clean controller, zero-prompt canonical array, read-only browser, no legacy fallback chain.');
