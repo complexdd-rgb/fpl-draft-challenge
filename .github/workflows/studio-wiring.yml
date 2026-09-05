@@ -1,104 +1,44 @@
-name: Studio Architecture Build
+name: Studio Architecture Verification
 
 on:
-  push:
-    branches:
-      - main
-      - 'refactor/**'
-      - 'redesign/**'
-    paths:
-      - 'config/asset-manifest.json'
-      - 'js/studio-bootstrap.js'
-      - 'js/asset-manifest.js'
-      - 'js/admin-stage-one.js'
-      - 'js/admin-import-tools.js'
-      - 'js/admin-studio-finish.js'
-      - 'js/validation-engine.js'
-      - 'js/studio-feature-loader.js'
-      - 'js/prompt-studio-loader.js'
-      - 'js/prompt-studio-redesign.js'
-      - 'js/prompt-studio-v3-clean-room.js'
-      - 'js/prompt-studio-v3-rule-tester.js'
-      - 'js/prompt-studio-v3-quality-advisor.js'
-      - 'js/prompt-studio-v3-candidate-generator.js'
-      - 'js/prompt-studio-v3-candidate-certification.js'
-      - 'js/prompt-family-registry-v3.js'
-      - 'js/leaderboard-config.js'
-      - 'admin.html'
-      - 'admin.css'
-      - 'admin-prompt-studio-v2.css'
-      - 'fragments/admin-daily-workspace.html'
-      - 'fragments/admin-prompt-workspace.html'
-      - 'scripts/apply-all-season-certification-gate.mjs'
-      - 'scripts/verify-all-season-certification-gate.mjs'
-      - 'scripts/build-studio-cache-tags.mjs'
-      - 'scripts/build-studio-wiring.mjs'
-      - 'scripts/verify-studio-wiring.mjs'
-      - 'scripts/build-native-studio-shell.mjs'
-      - 'scripts/build-native-daily-workspace.mjs'
-      - 'scripts/build-native-prompt-workspace.mjs'
-      - 'scripts/verify-native-studio-shell.mjs'
-      - 'scripts/verify-native-validation-workspace.mjs'
-      - 'scripts/verify-native-daily-workspace.mjs'
-      - 'scripts/verify-native-prompt-workspace.mjs'
-      - 'scripts/verify-prompt-studio-v3.mjs'
-      - 'scripts/apply-studio-refresh-fastboot.mjs'
-      - 'scripts/verify-studio-refresh-fastboot.mjs'
-      - 'scripts/apply-career-evolution-cache-wiring.mjs'
-      - 'scripts/verify-career-evolution-cache-wiring.mjs'
-      - '.github/workflows/studio-wiring.yml'
   pull_request:
     paths:
       - 'config/asset-manifest.json'
-      - 'js/studio-bootstrap.js'
       - 'js/asset-manifest.js'
-      - 'js/admin-stage-one.js'
+      - 'js/studio-bootstrap.js'
       - 'js/admin-import-tools.js'
-      - 'js/admin-studio-finish.js'
+      - 'js/prompt-studio-clean-reset.js'
+      - 'js/repository-certified-prompt-pool.js'
+      - 'prompt-library.js'
+      - 'scripts/verify-prompt-studio-clean-reset.mjs'
+      - 'js/admin-stage-one.js'
       - 'js/validation-engine.js'
-      - 'js/studio-feature-loader.js'
-      - 'js/prompt-studio-loader.js'
-      - 'js/prompt-studio-redesign.js'
-      - 'js/prompt-studio-v3-clean-room.js'
-      - 'js/prompt-studio-v3-rule-tester.js'
-      - 'js/prompt-studio-v3-quality-advisor.js'
-      - 'js/prompt-studio-v3-candidate-generator.js'
-      - 'js/prompt-studio-v3-candidate-certification.js'
-      - 'js/prompt-family-registry-v3.js'
-      - 'js/leaderboard-config.js'
-      - 'admin.html'
-      - 'admin.css'
-      - 'admin-prompt-studio-v2.css'
       - 'fragments/admin-daily-workspace.html'
-      - 'fragments/admin-prompt-workspace.html'
-      - 'scripts/apply-all-season-certification-gate.mjs'
-      - 'scripts/verify-all-season-certification-gate.mjs'
-      - 'scripts/build-studio-cache-tags.mjs'
-      - 'scripts/build-studio-wiring.mjs'
-      - 'scripts/verify-studio-wiring.mjs'
-      - 'scripts/build-native-studio-shell.mjs'
-      - 'scripts/build-native-daily-workspace.mjs'
-      - 'scripts/build-native-prompt-workspace.mjs'
-      - 'scripts/verify-native-studio-shell.mjs'
-      - 'scripts/verify-native-validation-workspace.mjs'
-      - 'scripts/verify-native-daily-workspace.mjs'
-      - 'scripts/verify-native-prompt-workspace.mjs'
-      - 'scripts/verify-prompt-studio-v3.mjs'
-      - 'scripts/apply-studio-refresh-fastboot.mjs'
-      - 'scripts/verify-studio-refresh-fastboot.mjs'
-      - 'scripts/apply-career-evolution-cache-wiring.mjs'
-      - 'scripts/verify-career-evolution-cache-wiring.mjs'
+      - '.github/workflows/studio-wiring.yml'
+  push:
+    branches:
+      - main
+      - 'prompt-studio-*'
+    paths:
+      - 'config/asset-manifest.json'
+      - 'js/asset-manifest.js'
+      - 'js/studio-bootstrap.js'
+      - 'js/admin-import-tools.js'
+      - 'js/prompt-studio-clean-reset.js'
+      - 'js/repository-certified-prompt-pool.js'
+      - 'prompt-library.js'
+      - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - '.github/workflows/studio-wiring.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: studio-architecture-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  build-and-verify:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -111,127 +51,22 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Apply all-season certified-library gate
-        run: node scripts/apply-all-season-certification-gate.mjs
+      - name: Verify Prompt Studio clean reset boundary
+        run: node scripts/verify-prompt-studio-clean-reset.mjs
 
-      - name: Apply manifest-owned Admin cache tags
-        run: node scripts/build-studio-cache-tags.mjs
-
-      - name: Build native Studio shell
-        run: node scripts/build-native-studio-shell.mjs
-
-      - name: Build native Daily workspace
-        run: node scripts/build-native-daily-workspace.mjs
-
-      - name: Build native Prompt Studio workspace
-        run: node scripts/build-native-prompt-workspace.mjs
-
-      - name: Build manifest-driven Studio wiring
-        run: node scripts/build-studio-wiring.mjs
-
-      - name: Prove builders are repeat-safe
-        shell: bash
+      - name: Verify unaffected native workspaces
         run: |
-          set -euo pipefail
-          files=(
-            admin.html
-            fragments/admin-daily-workspace.html
-            fragments/admin-prompt-workspace.html
-            js/asset-manifest.js
-            js/admin-stage-one.js
-            js/admin-import-tools.js
-            js/admin-studio-finish.js
-            js/validation-engine.js
-            js/studio-feature-loader.js
-            js/prompt-studio-loader.js
-            js/leaderboard-config.js
-          )
-          sha256sum "${files[@]}" > /tmp/studio-architecture-first.sha
-          node scripts/apply-all-season-certification-gate.mjs
-          node scripts/build-studio-cache-tags.mjs
-          node scripts/build-native-studio-shell.mjs
-          node scripts/build-native-daily-workspace.mjs
-          node scripts/build-native-prompt-workspace.mjs
-          node scripts/build-studio-wiring.mjs
-          sha256sum "${files[@]}" > /tmp/studio-architecture-second.sha
-          diff -u /tmp/studio-architecture-first.sha /tmp/studio-architecture-second.sha
+          node scripts/verify-native-validation-workspace.mjs
+          node scripts/verify-native-daily-workspace.mjs
 
-      - name: Verify native Studio shell
-        run: node scripts/verify-native-studio-shell.mjs
-
-      - name: Verify native Validation workspace
-        run: node scripts/verify-native-validation-workspace.mjs
-
-      - name: Verify native Daily workspace
-        run: node scripts/verify-native-daily-workspace.mjs
-
-      - name: Verify native Prompt Studio workspace
-        run: node scripts/verify-native-prompt-workspace.mjs
-
-      - name: Verify Prompt Studio V3 clean-room policy
-        run: node scripts/verify-prompt-studio-v3.mjs
-
-      - name: Verify all-season certified-library gate
-        run: node scripts/verify-all-season-certification-gate.mjs
-
-      - name: Verify Studio wiring architecture
-        run: node scripts/verify-studio-wiring.mjs
-
-      - name: Check generated JavaScript syntax
+      - name: Check reset JavaScript syntax
         run: |
           node --check js/asset-manifest.js
           node --check js/studio-bootstrap.js
-          node --check js/admin-stage-one.js
           node --check js/admin-import-tools.js
-          node --check js/admin-studio-finish.js
-          node --check js/validation-engine.js
-          node --check js/studio-feature-loader.js
-          node --check js/prompt-studio-loader.js
-          node --check js/prompt-studio-redesign.js
-          node --check js/prompt-studio-v3-clean-room.js
-          node --check js/prompt-studio-v3-rule-tester.js
-          node --check js/prompt-studio-v3-quality-advisor.js
-          node --check js/prompt-studio-v3-candidate-generator.js
-          node --check js/prompt-studio-v3-candidate-certification.js
-          node --check js/prompt-family-registry-v3.js
-          node --check js/leaderboard-config.js
-          node --check scripts/apply-all-season-certification-gate.mjs
-          node --check scripts/verify-all-season-certification-gate.mjs
-          node --check scripts/build-studio-cache-tags.mjs
-          node --check scripts/build-native-studio-shell.mjs
-          node --check scripts/build-native-daily-workspace.mjs
-          node --check scripts/build-native-prompt-workspace.mjs
-          node --check scripts/build-studio-wiring.mjs
-          node --check scripts/verify-native-validation-workspace.mjs
-          node --check scripts/verify-native-daily-workspace.mjs
-          node --check scripts/verify-native-prompt-workspace.mjs
-          node --check scripts/verify-prompt-studio-v3.mjs
+          node --check js/prompt-studio-clean-reset.js
+          node --check js/repository-certified-prompt-pool.js
+          node --check scripts/verify-prompt-studio-clean-reset.mjs
 
       - name: Reject whitespace errors
-        run: git diff --check
-
-      - name: Commit generated Studio architecture on branch pushes
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git add \
-            admin.html \
-            fragments/admin-daily-workspace.html \
-            fragments/admin-prompt-workspace.html \
-            js/asset-manifest.js \
-            js/admin-stage-one.js \
-            js/admin-import-tools.js \
-            js/admin-studio-finish.js \
-            js/validation-engine.js \
-            js/studio-feature-loader.js \
-            js/prompt-studio-loader.js \
-            js/leaderboard-config.js
-          if git diff --cached --quiet; then
-            echo 'Generated Studio architecture is already current.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Build native manifest-driven Studio architecture'
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+        run: git diff --check origin/main...HEAD
