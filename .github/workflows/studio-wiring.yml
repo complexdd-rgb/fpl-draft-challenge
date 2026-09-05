@@ -12,13 +12,16 @@ on:
       - 'js/prompt-factory-v1.js'
       - 'js/prompt-quality-analyser-mount-v1.js'
       - 'js/prompt-quality-analyser-v1.js'
+      - 'js/prompt-promotion-v1.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
+      - 'admin-prompt-promotion-v1.css'
       - 'js/repository-certified-prompt-pool.js'
       - 'prompt-library.js'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - 'scripts/verify-prompt-factory-v1.mjs'
       - 'scripts/verify-prompt-quality-analyser-v1.mjs'
+      - 'scripts/verify-prompt-promotion-v1.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'js/admin-stage-one.js'
       - 'js/validation-engine.js'
@@ -39,13 +42,16 @@ on:
       - 'js/prompt-factory-v1.js'
       - 'js/prompt-quality-analyser-mount-v1.js'
       - 'js/prompt-quality-analyser-v1.js'
+      - 'js/prompt-promotion-v1.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
+      - 'admin-prompt-promotion-v1.css'
       - 'js/repository-certified-prompt-pool.js'
       - 'prompt-library.js'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - 'scripts/verify-prompt-factory-v1.mjs'
       - 'scripts/verify-prompt-quality-analyser-v1.mjs'
+      - 'scripts/verify-prompt-promotion-v1.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'admin.html'
       - '.github/workflows/studio-wiring.yml'
@@ -99,6 +105,9 @@ jobs:
       - name: Run Prompt Quality Analyser behavioural smoke test
         run: node scripts/verify-prompt-quality-analyser-v1.mjs
 
+      - name: Run Prompt Promotion behavioural smoke test
+        run: node scripts/verify-prompt-promotion-v1.mjs
+
       - name: Verify unaffected native workspaces
         run: |
           node scripts/verify-native-validation-workspace.mjs
@@ -114,10 +123,12 @@ jobs:
           node --check js/prompt-factory-v1.js
           node --check js/prompt-quality-analyser-mount-v1.js
           node --check js/prompt-quality-analyser-v1.js
+          node --check js/prompt-promotion-v1.js
           node --check js/repository-certified-prompt-pool.js
           node --check scripts/verify-prompt-studio-clean-reset.mjs
           node --check scripts/verify-prompt-factory-v1.mjs
           node --check scripts/verify-prompt-quality-analyser-v1.mjs
+          node --check scripts/verify-prompt-promotion-v1.mjs
           node --check scripts/build-studio-cache-tags.mjs
 
       - name: Reject whitespace errors
