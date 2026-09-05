@@ -23,8 +23,8 @@ assert(v4.includes('enabled:true'), 'New V4 prompts are not added to the Studio 
 assert(v4.includes('prompt.enabled = false'), 'V4 does not support disabling weak prompts.');
 assert(v4.includes('continue blocking duplicates'), 'V4 does not explicitly preserve disabled prompts as duplicate memory.');
 assert(v4.includes('for (const prompt of state.prompts)'), 'Duplicate memory does not include the whole V4 library.');
-assert(v4.includes('keys.labels.has(labelKey)'), 'V4 does not block duplicate wording.');
-assert(v4.includes('keys.ids.has(candidate.id)'), 'V4 does not block duplicate candidate IDs.');
+assert(v4.includes('seen.labels.has(labelKey)'), 'V4 does not block duplicate wording.');
+assert(v4.includes('seen.ids.has(candidate.id)'), 'V4 does not block duplicate candidate IDs.');
 assert(!v4.includes('state.prompts.splice('), 'V4 must not delete disabled prompts from duplicate memory.');
 assert(!v4.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL.add'), 'V4 must not mutate the live production pool.');
 assert(!v4.includes('FPL_PROMPT_LIBRARY.push'), 'V4 must not push generated prompts into the legacy live library.');
