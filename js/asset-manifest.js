@@ -4,11 +4,13 @@
   "use strict";
 
   const source = {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "2.1.0-prompt-library-browser-v1" },
-    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.0.0-clean-reset" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "2.2.0-prompt-factory-v1" },
+    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.1.0-prompt-factory" },
     "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.1.0-library-browser" },
-    "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.0.0-library-browser" },
-    "adminImportTools": { "path": "js/admin-import-tools.js", "version": "24.0.0-clean-reset" },
+    "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
+    "promptFactoryMountV1": { "path": "js/prompt-factory-mount-v1.js", "version": "1.0.0" },
+    "promptFactoryV1": { "path": "js/prompt-factory-v1.js", "version": "1.0.0" },
+    "adminImportTools": { "path": "js/admin-import-tools.js", "version": "24.1.0-prompt-factory" },
     "studioFeatureLoader": { "path": "js/studio-feature-loader.js", "version": "1.1.0-bootstrap-shim" },
     "promptStudioLoader": { "path": "js/prompt-studio-loader.js", "version": "1.4.0-retired" },
     "promptStudioRedesign": { "path": "js/prompt-studio-redesign.js", "version": "2.0.0-retired" },
@@ -61,7 +63,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "2.1.0-prompt-library-browser-v1",
+    version: "2.2.0-prompt-factory-v1",
     assets,
     get,
     url

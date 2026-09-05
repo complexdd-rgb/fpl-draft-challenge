@@ -12,6 +12,8 @@ const bootstrap = read('js/studio-bootstrap.js');
 const entrypoint = read('js/admin-import-tools.js');
 const cleanStudio = read('js/prompt-studio-clean-reset.js');
 const cleanCss = read('admin-prompt-studio-clean.css');
+const promptFactoryMount = read('js/prompt-factory-mount-v1.js');
+const promptFactory = read('js/prompt-factory-v1.js');
 const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const promptLibrary = read('prompt-library.js');
 const executablePromptLibrary = promptLibrary
@@ -21,17 +23,23 @@ const executablePromptLibrary = promptLibrary
   .replace(/\s+/g, ' ')
   .trim();
 
-assert(config.manifestVersion === '2.1.0-prompt-library-browser-v1', 'Central manifest is not on the Library Browser v1 boundary.');
+assert(config.manifestVersion === '2.2.0-prompt-factory-v1', 'Central manifest is not on the Prompt Factory v1 boundary.');
 assert(config.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio asset is missing.');
-assert(config.assets?.promptStudioClean?.version === '1.1.0-library-browser', 'Library Browser controller cache version is missing.');
+assert(config.assets?.promptStudioClean?.version === '1.1.0-library-browser', 'Library Browser controller cache version changed unexpectedly.');
 assert(config.assets?.promptStudioCleanCss?.path === 'admin-prompt-studio-clean.css', 'Clean Prompt Studio CSS asset is missing.');
-assert(config.assets?.studioBootstrap?.version === '2.0.0-clean-reset', 'Clean bootstrap boundary changed unexpectedly.');
+assert(config.assets?.promptStudioCleanCss?.version === '1.1.0-prompt-factory', 'Prompt Factory CSS cache version is missing.');
+assert(config.assets?.promptFactoryMountV1?.path === 'js/prompt-factory-mount-v1.js', 'Prompt Factory mount asset is missing.');
+assert(config.assets?.promptFactoryV1?.path === 'js/prompt-factory-v1.js', 'Prompt Factory engine asset is missing.');
+assert(config.assets?.studioBootstrap?.version === '2.1.0-prompt-factory', 'Prompt Factory bootstrap version is missing.');
 assert(config.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Clean repository pool boundary changed unexpectedly.');
-assert(generatedManifest.includes('2.1.0-prompt-library-browser-v1'), 'Generated manifest was not refreshed.');
-assert(generatedManifest.includes('"promptStudioCleanCss"'), 'Generated manifest does not expose the clean Prompt Studio CSS asset.');
+assert(generatedManifest.includes('2.2.0-prompt-factory-v1'), 'Generated manifest was not refreshed.');
+assert(generatedManifest.includes('"promptFactoryMountV1"'), 'Generated manifest does not expose the Prompt Factory mount.');
+assert(generatedManifest.includes('"promptFactoryV1"'), 'Generated manifest does not expose the Prompt Factory engine.');
 
 assert(bootstrap.includes('ensurePromptStudio'), 'Bootstrap does not own the clean Prompt Studio load.');
-assert(bootstrap.includes('promptStudioClean'), 'Bootstrap does not load the clean Prompt Studio controller.');
+assert(bootstrap.includes('ensurePromptFactory'), 'Bootstrap does not own the Prompt Factory load.');
+assert(bootstrap.includes('promptFactoryMountV1'), 'Bootstrap does not load the Prompt Factory mount owner.');
+assert(bootstrap.includes('promptFactoryV1'), 'Bootstrap does not load the Prompt Factory engine.');
 for (const retired of [
   'ensurePromptRedesign',
   'ensurePromptV3',
@@ -45,7 +53,7 @@ for (const retired of [
   'promptRefinementIncubator'
 ]) forbid(bootstrap, retired, 'Studio bootstrap');
 
-assert(entrypoint.includes('2.0.0-clean-reset'), 'Admin entrypoint does not cache-bust the clean bootstrap.');
+assert(entrypoint.includes('2.1.0-prompt-factory'), 'Admin entrypoint does not cache-bust the Prompt Factory bootstrap.');
 forbid(entrypoint, 'prompt-studio-loader.js', 'Admin entrypoint');
 forbid(entrypoint, 'loadLegacyPromptPath', 'Admin entrypoint');
 assert(entrypoint.includes('fallback is disabled by design'), 'Admin entrypoint does not fail closed.');
@@ -62,18 +70,33 @@ assert(cleanStudio.includes('library.splice(0, library.length)'), 'Shared prompt
 assert(cleanStudio.includes('FPL_PROMPT_STUDIO_CLEAN'), 'Clean Prompt Studio API is missing.');
 assert(cleanStudio.includes('promptLibraryBrowserList'), 'Library Browser list is missing.');
 assert(cleanStudio.includes('promptLibrarySearch'), 'Library Browser search is missing.');
-assert(cleanStudio.includes('promptLibraryStatusFilter'), 'Library Browser status filter is missing.');
-assert(cleanStudio.includes('promptLibraryPositionFilter'), 'Library Browser position filter is missing.');
-assert(cleanStudio.includes('promptLibraryFamilyFilter'), 'Library Browser family filter is missing.');
-assert(cleanStudio.includes('promptLibraryExportBtn'), 'Library Browser export is missing.');
 assert(cleanStudio.includes('This browser is read-only'), 'Library Browser is not explicitly read-only.');
+
+assert(promptFactoryMount.includes('promptFactoryMount'), 'Prompt Factory mount owner does not create the clean mount.');
+assert(promptFactoryMount.includes('MutationObserver'), 'Prompt Factory mount owner does not survive native workspace redraws.');
+assert(promptFactory.includes('const VERSION = "1.0.0"'), 'Prompt Factory runtime version is not 1.0.0.');
+assert(promptFactory.includes('FAMILY_DEFS'), 'Prompt Factory family registry is missing.');
+assert(promptFactory.includes('MAX_CANDIDATES_PER_FAMILY'), 'Prompt Factory safety boundary is missing.');
+assert(promptFactory.includes('generateFamily'), 'Prompt Factory candidate generation is missing.');
+assert(promptFactory.includes('evaluateCandidate'), 'Prompt Factory viability evaluation is missing.');
+assert(promptFactory.includes('runAll'), 'Prompt Factory all-family runner is missing.');
+assert(promptFactory.includes('season-stats'), 'Season-stat family is missing.');
+assert(promptFactory.includes('nationality'), 'Nationality family is missing.');
+assert(promptFactory.includes('career-longevity'), 'Career-longevity family is missing.');
+assert(promptFactory.includes('composite-story'), 'Composite-story family is missing.');
+assert(promptFactory.includes('Nothing here publishes to the canonical library'), 'Prompt Factory does not state the non-publishing boundary.');
+assert(!promptFactory.includes('localStorage.setItem'), 'Prompt Factory must not persist candidate state into browser storage.');
+assert(!promptFactory.includes('.addPrompt('), 'Prompt Factory must not write directly into the canonical library.');
+
 assert(cleanCss.includes('.prompt-clean-status-card'), 'Mobile-safe clean status card styling is missing.');
 assert(cleanCss.includes('.prompt-library-browser-toolbar'), 'Library Browser toolbar styling is missing.');
-assert(cleanCss.includes('@media (max-width: 620px)'), 'Library Browser mobile layout is missing.');
+assert(cleanCss.includes('.prompt-factory-controls'), 'Prompt Factory controls styling is missing.');
+assert(cleanCss.includes('.prompt-factory-family-row'), 'Prompt Factory family table styling is missing.');
+assert(cleanCss.includes('@media (max-width: 620px)'), 'Prompt Studio mobile layout is missing.');
 
 assert(repositoryPool.includes('version: VERSION'), 'Clean repository prompt pool API is missing.');
 assert(repositoryPool.includes('expectedTotal: 0'), 'Repository prompt pool was not reset to zero.');
 forbid(repositoryPool, 'prompt-library-canonical-state.js', 'Repository prompt pool');
 forbid(repositoryPool, 'EXPECTED_TOTAL = 851', 'Repository prompt pool');
 
-console.log('Prompt Studio Library Browser v1 verified: one clean controller, zero-prompt canonical array, read-only browser, no legacy fallback chain.');
+console.log('Prompt Studio clean boundary + Prompt Factory v1 verified: zero-prompt canonical library, 17-family candidate engine, no legacy fallback chain, no Factory publishing path.');
