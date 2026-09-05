@@ -17,6 +17,8 @@ const promptFactory = read('js/prompt-factory-v1.js');
 const qualityMount = read('js/prompt-quality-analyser-mount-v1.js');
 const qualityAnalyser = read('js/prompt-quality-analyser-v1.js');
 const qualityCss = read('admin-prompt-quality-analyser.css');
+const promotion = read('js/prompt-promotion-v1.js');
+const promotionCss = read('admin-prompt-promotion-v1.css');
 const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const promptLibrary = read('prompt-library.js');
 const executablePromptLibrary = promptLibrary
@@ -26,7 +28,7 @@ const executablePromptLibrary = promptLibrary
   .replace(/\s+/g, ' ')
   .trim();
 
-assert(config.manifestVersion === '2.3.0-quality-analyser-v1', 'Central manifest is not on the Quality Analyser v1 boundary.');
+assert(config.manifestVersion === '2.4.0-promotion-v1', 'Central manifest is not on the Promotion v1 boundary.');
 assert(config.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio asset is missing.');
 assert(config.assets?.promptStudioClean?.version === '1.1.0-library-browser', 'Library Browser controller cache version changed unexpectedly.');
 assert(config.assets?.promptFactoryMountV1?.path === 'js/prompt-factory-mount-v1.js', 'Prompt Factory mount asset is missing.');
@@ -34,19 +36,23 @@ assert(config.assets?.promptFactoryV1?.path === 'js/prompt-factory-v1.js', 'Prom
 assert(config.assets?.promptQualityAnalyserMountV1?.path === 'js/prompt-quality-analyser-mount-v1.js', 'Quality Analyser mount asset is missing.');
 assert(config.assets?.promptQualityAnalyserV1?.path === 'js/prompt-quality-analyser-v1.js', 'Quality Analyser engine asset is missing.');
 assert(config.assets?.promptQualityAnalyserCssV1?.path === 'admin-prompt-quality-analyser.css', 'Quality Analyser CSS asset is missing.');
-assert(config.assets?.studioBootstrap?.version === '2.2.0-quality-analyser', 'Quality Analyser bootstrap version is missing.');
+assert(config.assets?.promptPromotionV1?.path === 'js/prompt-promotion-v1.js', 'Promotion v1 asset is missing.');
+assert(config.assets?.promptPromotionCssV1?.path === 'admin-prompt-promotion-v1.css', 'Promotion v1 CSS asset is missing.');
+assert(config.assets?.studioBootstrap?.version === '2.3.0-promotion', 'Promotion bootstrap version is missing.');
 assert(config.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Clean repository pool boundary changed unexpectedly.');
-assert(generatedManifest.includes('2.3.0-quality-analyser-v1'), 'Generated manifest was not refreshed.');
+assert(generatedManifest.includes('2.4.0-promotion-v1'), 'Generated manifest was not refreshed.');
 assert(generatedManifest.includes('"promptFactoryV1"'), 'Generated manifest does not expose the Prompt Factory engine.');
-assert(generatedManifest.includes('"promptQualityAnalyserMountV1"'), 'Generated manifest does not expose the Quality Analyser mount.');
 assert(generatedManifest.includes('"promptQualityAnalyserV1"'), 'Generated manifest does not expose the Quality Analyser engine.');
-assert(generatedManifest.includes('"promptQualityAnalyserCssV1"'), 'Generated manifest does not expose the Quality Analyser CSS.');
+assert(generatedManifest.includes('"promptPromotionV1"'), 'Generated manifest does not expose Promotion v1.');
+assert(generatedManifest.includes('"promptPromotionCssV1"'), 'Generated manifest does not expose Promotion v1 CSS.');
 
 assert(bootstrap.includes('ensurePromptStudio'), 'Bootstrap does not own the clean Prompt Studio load.');
 assert(bootstrap.includes('ensurePromptFactory'), 'Bootstrap does not own the Prompt Factory load.');
 assert(bootstrap.includes('ensureQualityAnalyser'), 'Bootstrap does not own the Quality Analyser load.');
+assert(bootstrap.includes('ensurePromotion'), 'Bootstrap does not own the Promotion v1 load.');
 assert(bootstrap.includes('promptQualityAnalyserMountV1'), 'Bootstrap does not load the Quality Analyser mount owner.');
 assert(bootstrap.includes('promptQualityAnalyserV1'), 'Bootstrap does not load the Quality Analyser engine.');
+assert(bootstrap.includes('promptPromotionV1'), 'Bootstrap does not load Promotion v1.');
 for (const retired of [
   'ensurePromptRedesign',
   'ensurePromptV3',
@@ -60,14 +66,14 @@ for (const retired of [
   'promptRefinementIncubator'
 ]) forbid(bootstrap, retired, 'Studio bootstrap');
 
-assert(entrypoint.includes('2.2.0-quality-analyser'), 'Admin entrypoint does not cache-bust the Quality Analyser bootstrap.');
+assert(entrypoint.includes('2.3.0-promotion'), 'Admin entrypoint does not cache-bust the Promotion bootstrap.');
 forbid(entrypoint, 'prompt-studio-loader.js', 'Admin entrypoint');
 forbid(entrypoint, 'loadLegacyPromptPath', 'Admin entrypoint');
 assert(entrypoint.includes('fallback is disabled by design'), 'Admin entrypoint does not fail closed.');
 
 assert(
   executablePromptLibrary === 'window.FPL_PROMPT_LIBRARY = [];',
-  'prompt-library.js must contain only the empty canonical array initializer at the clean reset boundary.'
+  'prompt-library.js must remain the empty repository initializer until repository-backed publishing is built.'
 );
 assert(cleanStudio.includes('FPL_PROMPT_STUDIO_CLEAN'), 'Clean Prompt Studio API is missing.');
 assert(cleanStudio.includes('promptLibraryBrowserList'), 'Library Browser list is missing.');
@@ -100,6 +106,19 @@ assert(qualityCss.includes('.prompt-quality-family-row'), 'Quality Analyser fami
 assert(qualityCss.includes('.prompt-quality-state.review'), 'Quality Analyser review-state styling is missing.');
 assert(qualityCss.includes('@media (max-width: 620px)'), 'Quality Analyser mobile layout is missing.');
 
+assert(promotion.includes('const VERSION = "1.0.0"'), 'Promotion runtime version is not 1.0.0.');
+assert(promotion.includes('currentEntries'), 'Promotion does not inspect the current Factory survivor objects.');
+assert(promotion.includes('getMeta'), 'Promotion does not reconcile current Factory object identity against Quality evidence.');
+assert(promotion.includes('currentMatch'), 'Promotion source reconciliation gate is missing.');
+assert(promotion.includes('includeReview: true'), 'Maximum-library promotion policy does not include Review candidates by default.');
+assert(promotion.includes('qualityStatus'), 'Promotion does not preserve quality status metadata.');
+assert(promotion.includes('variantGroup'), 'Promotion does not preserve variant-group metadata.');
+assert(promotion.includes('share:'), 'Promotion does not calculate per-family library share.');
+assert(promotion.includes('Session-only in v1'), 'Promotion does not disclose its session-only persistence boundary.');
+assert(!promotion.includes('localStorage.setItem'), 'Promotion must not attempt to store a 100k+ canonical library in localStorage.');
+assert(promotionCss.includes('.prompt-promotion-family-row'), 'Promotion family-share table styling is missing.');
+assert(promotionCss.includes('@media (max-width: 620px)'), 'Promotion mobile layout is missing.');
+
 assert(cleanCss.includes('.prompt-clean-status-card'), 'Mobile-safe clean status card styling is missing.');
 assert(cleanCss.includes('.prompt-library-browser-toolbar'), 'Library Browser toolbar styling is missing.');
 assert(cleanCss.includes('.prompt-factory-controls'), 'Prompt Factory controls styling is missing.');
@@ -110,4 +129,4 @@ assert(repositoryPool.includes('expectedTotal: 0'), 'Repository prompt pool was 
 forbid(repositoryPool, 'prompt-library-canonical-state.js', 'Repository prompt pool');
 forbid(repositoryPool, 'EXPECTED_TOTAL = 851', 'Repository prompt pool');
 
-console.log('Prompt Studio clean boundary + Prompt Factory + Quality Analyser v1 verified: zero-prompt canonical library, maximum-library variant policy, no legacy fallback chain, no publishing path.');
+console.log('Prompt Studio clean boundary + Factory + Quality Analyser + Promotion v1 verified: source identity gate, maximum-library promotion, family shares, no legacy fallback chain, repository pool still safely zero.');
