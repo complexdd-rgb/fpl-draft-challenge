@@ -34,9 +34,8 @@ assert(v4.includes('Generate and quality-check'), 'V4 does not expose the simple
 assert(v4.includes('Disable matching'), 'V4 does not expose manual bulk disable after automatic quality checks.');
 assert(v4.includes('Disabled · remembered'), 'V4 library does not visibly explain disabled duplicate memory.');
 
-// Keep the V3 manifest-generation contract stable while V4 gets a fresh runtime cache key.
-assert(manifest.manifestVersion === '1.11.0-prompt-studio-v3-auto-batch', 'Central manifest compatibility contract changed unexpectedly.');
-assert(manifest.assets.assetManifestRuntime?.version === '1.12.0-prompt-studio-v4-simple', 'Asset-manifest runtime cache was not bumped for V4.');
+assert(manifest.manifestVersion === '1.12.0-prompt-studio-v4-simple', 'Central manifest is not on the V4 simple version.');
+assert(manifest.assets.assetManifestRuntime?.version === manifest.manifestVersion, 'Asset-manifest runtime cache must match the central manifest version.');
 assert(manifest.assets.promptStudioV4Simple?.path === 'js/prompt-studio-v4-simple.js', 'V4 runtime is not manifest-owned.');
 assert(manifest.assets.promptStudioV4Simple?.version === '4.0.0', 'V4 runtime cache version is stale.');
 assert(manifest.assets.studioBootstrap?.version === '1.8.0-prompt-studio-v4-simple', 'Studio bootstrap manifest version is stale.');
