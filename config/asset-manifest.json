@@ -1,5 +1,5 @@
 {
-  "manifestVersion": "1.12.0-prompt-studio-v4-simple",
+  "manifestVersion": "1.11.0-prompt-studio-v3-auto-batch",
   "assets": {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
