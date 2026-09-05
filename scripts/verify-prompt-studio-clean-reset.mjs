@@ -11,15 +11,18 @@ const generatedManifest = read('js/asset-manifest.js');
 const bootstrap = read('js/studio-bootstrap.js');
 const entrypoint = read('js/admin-import-tools.js');
 const cleanStudio = read('js/prompt-studio-clean-reset.js');
+const cleanCss = read('admin-prompt-studio-clean.css');
 const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const promptLibrary = read('prompt-library.js');
 
-assert(config.manifestVersion === '2.0.0-prompt-studio-clean-reset', 'Central manifest is not on the clean-reset boundary.');
+assert(config.manifestVersion === '2.1.0-prompt-library-browser-v1', 'Central manifest is not on the Library Browser v1 boundary.');
 assert(config.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio asset is missing.');
-assert(config.assets?.studioBootstrap?.version === '2.0.0-clean-reset', 'Clean bootstrap cache version is missing.');
-assert(config.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Clean repository pool cache version is missing.');
-assert(generatedManifest.includes('2.0.0-prompt-studio-clean-reset'), 'Generated manifest was not refreshed.');
-assert(generatedManifest.includes('"promptStudioClean"'), 'Generated manifest does not expose the clean Prompt Studio asset.');
+assert(config.assets?.promptStudioClean?.version === '1.1.0-library-browser', 'Library Browser controller cache version is missing.');
+assert(config.assets?.promptStudioCleanCss?.path === 'admin-prompt-studio-clean.css', 'Clean Prompt Studio CSS asset is missing.');
+assert(config.assets?.studioBootstrap?.version === '2.0.0-clean-reset', 'Clean bootstrap boundary changed unexpectedly.');
+assert(config.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Clean repository pool boundary changed unexpectedly.');
+assert(generatedManifest.includes('2.1.0-prompt-library-browser-v1'), 'Generated manifest was not refreshed.');
+assert(generatedManifest.includes('"promptStudioCleanCss"'), 'Generated manifest does not expose the clean Prompt Studio CSS asset.');
 
 assert(bootstrap.includes('ensurePromptStudio'), 'Bootstrap does not own the clean Prompt Studio load.');
 assert(bootstrap.includes('promptStudioClean'), 'Bootstrap does not load the clean Prompt Studio controller.');
@@ -42,15 +45,26 @@ forbid(entrypoint, 'loadLegacyPromptPath', 'Admin entrypoint');
 assert(entrypoint.includes('fallback is disabled by design'), 'Admin entrypoint does not fail closed.');
 
 assert(promptLibrary.trim() === '', 'prompt-library.js must stay empty at the clean reset boundary.');
+assert(cleanStudio.includes('const VERSION = "1.1.0"'), 'Clean Prompt Studio runtime version is not 1.1.0.');
 assert(cleanStudio.includes('fplPromptStudioCleanLibraryV1'), 'Clean Prompt Studio store is missing.');
 assert(cleanStudio.includes('fplChallengeStudioPromptManagerV1'), 'Legacy Prompt Manager browser state is not explicitly cleared.');
 assert(cleanStudio.includes('fplPromptStudioV3CleanRoom'), 'Legacy V3 browser state is not explicitly cleared.');
 assert(cleanStudio.includes('library.splice(0, library.length)'), 'Shared prompt library is not hard-reset.');
 assert(cleanStudio.includes('FPL_PROMPT_STUDIO_CLEAN'), 'Clean Prompt Studio API is missing.');
+assert(cleanStudio.includes('promptLibraryBrowserList'), 'Library Browser list is missing.');
+assert(cleanStudio.includes('promptLibrarySearch'), 'Library Browser search is missing.');
+assert(cleanStudio.includes('promptLibraryStatusFilter'), 'Library Browser status filter is missing.');
+assert(cleanStudio.includes('promptLibraryPositionFilter'), 'Library Browser position filter is missing.');
+assert(cleanStudio.includes('promptLibraryFamilyFilter'), 'Library Browser family filter is missing.');
+assert(cleanStudio.includes('promptLibraryExportBtn'), 'Library Browser export is missing.');
+assert(cleanStudio.includes('This browser is read-only'), 'Library Browser is not explicitly read-only.');
+assert(cleanCss.includes('.prompt-clean-status-card'), 'Mobile-safe clean status card styling is missing.');
+assert(cleanCss.includes('.prompt-library-browser-toolbar'), 'Library Browser toolbar styling is missing.');
+assert(cleanCss.includes('@media (max-width: 620px)'), 'Library Browser mobile layout is missing.');
 
 assert(repositoryPool.includes('version: VERSION'), 'Clean repository prompt pool API is missing.');
 assert(repositoryPool.includes('expectedTotal: 0'), 'Repository prompt pool was not reset to zero.');
 forbid(repositoryPool, 'prompt-library-canonical-state.js', 'Repository prompt pool');
 forbid(repositoryPool, 'EXPECTED_TOTAL = 851', 'Repository prompt pool');
 
-console.log('Prompt Studio clean reset verified: one controller, empty canonical library, no legacy fallback chain.');
+console.log('Prompt Studio Library Browser v1 verified: one clean controller, empty canonical library, read-only browser, no legacy fallback chain.');
