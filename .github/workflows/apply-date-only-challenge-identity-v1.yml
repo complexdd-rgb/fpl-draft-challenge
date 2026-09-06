@@ -6,6 +6,7 @@ on:
       - prompt-studio-date-only-challenge-identity-v1
     paths:
       - 'scripts/apply-date-only-challenge-identity-v1.mjs'
+      - 'scripts/fix-date-only-patcher-v1.mjs'
       - '.github/workflows/apply-date-only-challenge-identity-v1.yml'
 
 permissions:
@@ -26,8 +27,11 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Apply date-only identity patch
-        run: node scripts/apply-date-only-challenge-identity-v1.mjs
+      - name: Repair and apply date-only identity patch
+        run: |
+          node scripts/fix-date-only-patcher-v1.mjs
+          node --check scripts/apply-date-only-challenge-identity-v1.mjs
+          node scripts/apply-date-only-challenge-identity-v1.mjs
 
       - name: Rebuild generated Studio wiring
         run: |
