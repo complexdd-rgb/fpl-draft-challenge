@@ -3,77 +3,54 @@ import vm from 'node:vm';
 import { execFileSync } from 'node:child_process';
 
 const read = path => fs.readFileSync(path, 'utf8');
-const finish = read('js/admin-studio-finish.js');
-const engineSource = read('js/validation-engine.js');
-const repositoryPool = read('js/repository-certified-prompt-pool.js');
-const adminHtml = read('admin.html');
-
-const requiredFinishMarkers = [
-  'const CERTIFICATION_POOL_WAIT_MS = 120000;',
-  'function certifiedPromptPoolState()',
-  'window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL',
-  'window.FPL_STUDIO_LOAD_PROMPT_TOOLS',
-  'fpl:repository-certified-prompt-pool-ready',
-  'await waitForCertifiedPromptPool(status)',
-  'Object.freeze(poolState.prompts.slice())',
-  'window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL = certificationPool',
-  'delete window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL',
-  'expected:851',
-  'Preparing the repository-certified 851-prompt pool.',
-  'Certified prompt snapshot locked at',
-  'The final prompt set is frozen for the whole run'
-];
-
-for (const marker of requiredFinishMarkers) {
-  if (!finish.includes(marker)) throw new Error(`All-season certification gate is missing: ${marker}`);
-}
-
-// All-season certification must no longer treat the whole browser Prompt Manager library
-// (which can contain thousands of local customs) as the production prompt set.
-if (finish.includes('window.FPL_FOUR_STAR_LIBRARY')) {
-  throw new Error('All-season certification still depends directly on FPL_FOUR_STAR_LIBRARY instead of the repository-owned pool.');
-}
-if (!repositoryPool.includes('const EXPECTED_TOTAL = 851;')) {
-  throw new Error('Repository-certified prompt pool does not pin the expected 851-prompt production population.');
-}
-if (!repositoryPool.includes('Browser-local Prompt Manager changes touch')) {
-  throw new Error('Repository-certified prompt pool does not block local edits that collide with certified prompt IDs.');
-}
-if (!repositoryPool.includes('browser-only prompt(s) ignored')) {
-  throw new Error('Repository-certified prompt pool does not explicitly isolate unrelated browser-only prompts.');
-}
-
-const promptLibraryIndex = adminHtml.indexOf('prompt-library.js?v=2.0.1');
-const repositoryPoolIndex = adminHtml.indexOf('js/repository-certified-prompt-pool.js');
-const adminCoreIndex = adminHtml.indexOf('js/admin-core.js');
-if (!(promptLibraryIndex >= 0 && repositoryPoolIndex > promptLibraryIndex && adminCoreIndex > repositoryPoolIndex)) {
-  throw new Error('Repository-certified prompt pool must load after prompt-library.js and before admin-core applies browser-local Prompt Manager state.');
-}
-
-if (!engineSource.includes('const certificationSnapshot = window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;')) {
-  throw new Error('Validation Engine does not prioritise the frozen certification prompt snapshot.');
-}
-
-const snapshot = Object.freeze([{ id: 'snapshot-prompt', rating: 4, enabled: true }]);
-globalThis.window = {
-  FPL_VALIDATION_CERTIFICATION_PROMPT_POOL: snapshot,
-  FPL_STUDIO_API: { getPromptLibrary: () => [{ id: 'live-prompt', rating: 4, enabled: true }] },
-  FPL_PROMPT_LIBRARY: [{ id: 'global-prompt', rating: 4, enabled: true }],
-  FPL_PLAYERS: []
+const assert = (condition, message) => {
+  if (!condition) throw new Error(message);
 };
-vm.runInThisContext(engineSource, { filename: 'js/validation-engine.js' });
 
-if (window.ValidationEngine.getPromptLibrary() !== snapshot) {
-  throw new Error('Validation Engine did not return the frozen certification snapshot first.');
-}
-delete window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;
-const live = window.ValidationEngine.getPromptLibrary();
-if (!Array.isArray(live) || live[0]?.id !== 'live-prompt') {
-  throw new Error('Validation Engine did not return to the live Studio library after the snapshot was released.');
-}
+const repositoryPool = read('js/repository-certified-prompt-pool.js');
+const dailyGuard = read('js/admin-daily-generator-guard.js');
+const engineSource = read('js/validation-engine.js');
 
-// Re-run the dedicated browser-local isolation regression from this gate so a green
-// all-season check proves the exact 2,072-custom scenario cannot contaminate production.
+// Full all-season certification has not been restarted after the Prompt Studio clean reset.
+// This gate protects that deferred state: the repository production population must remain
+// intentionally empty, while Daily Challenge is allowed to use its separate saved-library
+// reservoir only after structural and runtime checks.
+assert(repositoryPool.includes('expectedTotal: 0'), 'Repository production prompt pool is not pinned to zero during the deferred all-season phase.');
+assert(repositoryPool.includes('total: 0'), 'Repository production prompt pool is no longer empty.');
+assert(!repositoryPool.includes('851'), 'All-season boundary still contains the retired 851-prompt population.');
+
+for (const token of [
+  'saved-library generation guard v2.0.0',
+  'async function buildCertifiedReservoir()',
+  'window.FPL_DAILY_GENERATION_PROMPT_POOL = prompts;',
+  'const uniqueWeekIds = new Set(weekIds);',
+  'fpl:daily-saved-library-week-certified'
+]) {
+  assert(dailyGuard.includes(token), `Daily saved-library isolation is missing: ${token}`);
+}
+assert(!dailyGuard.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL'), 'Daily generation has fallen back to the deferred repository production pool.');
+
+// Preserve the independent frozen-snapshot hook used by Validation Engine. When all-season
+// certification resumes it can still lock a deliberately supplied prompt snapshot for a run.
+assert(engineSource.includes('const certificationSnapshot = window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;'), 'Validation Engine no longer prioritises an explicit frozen certification snapshot.');
+const snapshot = Object.freeze([{ id: 'snapshot-prompt', rating: 4, enabled: true }]);
+const sandbox = {
+  console,
+  window: {
+    FPL_VALIDATION_CERTIFICATION_PROMPT_POOL: snapshot,
+    FPL_STUDIO_API: { getPromptLibrary: () => [{ id: 'live-prompt', rating: 4, enabled: true }] },
+    FPL_PROMPT_LIBRARY: [{ id: 'global-prompt', rating: 4, enabled: true }],
+    FPL_PLAYERS: []
+  }
+};
+sandbox.window.window = sandbox.window;
+vm.runInNewContext(engineSource, sandbox, { filename: 'js/validation-engine.js' });
+assert(sandbox.window.ValidationEngine.getPromptLibrary() === snapshot, 'Validation Engine did not return the frozen certification snapshot first.');
+delete sandbox.window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;
+const live = sandbox.window.ValidationEngine.getPromptLibrary();
+assert(Array.isArray(live) && live[0]?.id === 'live-prompt', 'Validation Engine did not return to the live Studio library after releasing the frozen snapshot.');
+
 execFileSync(process.execPath, ['scripts/verify-repository-certified-prompt-pool.mjs'], { stdio: 'inherit' });
+execFileSync(process.execPath, ['scripts/verify-weekly-certified-snapshot-race.mjs'], { stdio: 'inherit' });
 
-console.log('All-season repository-certified readiness gate verification passed.');
+console.log('All-season certification boundary verified: full certification remains deferred, repository production is intentionally zero, and Daily saved-library generation stays isolated behind its 77-prompt runtime-certified reservoir.');
