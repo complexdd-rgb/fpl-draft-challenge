@@ -34,7 +34,7 @@ sandbox.window.dispatchEvent = () => true;
 vm.runInNewContext(source, sandbox, { filename:'prompt-library-shards-v1.js' });
 const shards = sandbox.window.FPL_PROMPT_LIBRARY_SHARDS_V1;
 assert(shards?.ready === true, 'Prompt Library Shards API did not initialise.');
-assert(shards.version === '1.0.0', 'Prompt Library Shards version mismatch.');
+assert(shards.version === '1.0.1', 'Prompt Library Shards version mismatch.');
 
 const records = [
   { id:'value_brazil_5_0', family:'value', position:'MID', variantGroup:'vg_mid_price_brazil', qualityStatus:'pass' },
@@ -57,10 +57,11 @@ assert(valueShard.path === 'prompt-library-shards/value.json', 'Value repository
 assert(snapshot.shards.find(item => item.family === 'nationality')?.path === 'prompt-library-shards/nationality.json', 'Nationality repository shard path is wrong.');
 
 assert(source.includes('window.indexedDB.open'), 'Shard persistence does not use IndexedDB.');
+assert(source.includes('getAll()'), 'Hardened shard restore does not queue family reads in one transaction.');
 assert(source.includes('fpl:prompt-library-shards-restored'), 'Shard restore event is missing.');
 assert(source.includes('buildRepositoryPackage'), 'Repository package builder is missing.');
 assert(!source.includes('localStorage.setItem'), '100k+ shard persistence must not use localStorage.');
 assert(bridge.includes('fpl:prompt-library-changed'), 'Promotion bridge does not listen to canonical-library changes.');
 assert(bridge.includes('prompt-promotion-v1'), 'Promotion bridge does not restrict auto-save to verified Promotion output.');
 
-console.log('Prompt Library Shards v1 smoke test passed: close variants preserved, two family shards built, IndexedDB boundary present.');
+console.log('Prompt Library Shards v1.0.1 smoke test passed: close variants preserved, two family shards built, hardened IndexedDB boundary present.');
