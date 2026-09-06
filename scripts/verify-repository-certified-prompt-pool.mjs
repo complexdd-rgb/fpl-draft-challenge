@@ -2,106 +2,54 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const source = fs.readFileSync('js/repository-certified-prompt-pool.js', 'utf8');
-const listeners = new Map();
-const statusNode = { textContent:'', title:'' };
-const store = new Map();
-const appendedScripts = [];
+const assert = (condition, message) => {
+  if (!condition) throw new Error(message);
+};
 
-const approved = Array.from({ length: 810 }, (_, index) => `approved_${index}`);
-const baseQuality = Array.from({ length: 10 }, (_, index) => `quality_base_${index}`);
-const runtimeQuality = Array.from({ length: 20 }, (_, index) => `quality_runtime_${index}`);
-const survivors = ['survivor_1', 'survivor_2'];
-const nationality = Array.from({ length: 9 }, (_, index) => `nationality_${index}`);
-const browserCustoms = Array.from({ length: 2072 }, (_, index) => ({ id:`browser_custom_${index}`, rating:5, enabled:true }));
-
-function prompt(id, tags = []) {
-  return { id, rating:4, enabled:true, tags, test() { return true; } };
-}
-
-const baseLibrary = [
-  ...approved.map(id => prompt(id)),
-  ...baseQuality.map(id => prompt(id, ['quality-pack-v1']))
+const statusNode = { textContent: '', title: '' };
+const browserLibrary = [
+  { id: 'saved-browser-1', enabled: true },
+  { id: 'saved-browser-2', enabled: true },
+  { id: 'saved-browser-3', enabled: true }
 ];
 
-globalThis.window = {
-  FPL_PROMPT_LIBRARY: baseLibrary,
-  addEventListener(type, handler) {
-    if (!listeners.has(type)) listeners.set(type, new Set());
-    listeners.get(type).add(handler);
+const sandbox = {
+  console,
+  window: {
+    FPL_PROMPT_LIBRARY: browserLibrary,
+    FPL_PROMPT_STUDIO_CLEAN: { getLibrary: () => browserLibrary }
   },
-  dispatchEvent(event) {
-    for (const handler of listeners.get(event.type) || []) handler(event);
+  document: {
+    readyState: 'complete',
+    addEventListener() {},
+    getElementById(id) { return id === 'libraryStatus' ? statusNode : null; }
   }
 };
-window.window = window;
+sandbox.window.window = sandbox.window;
+sandbox.window.document = sandbox.document;
 
-globalThis.document = {
-  readyState: 'complete',
-  head: { appendChild(node) { appendedScripts.push(node); } },
-  addEventListener() {},
-  querySelector() { return null; },
-  createElement(tag) { return { tagName:String(tag).toUpperCase(), dataset:{}, async:true, src:'' }; },
-  getElementById(id) { return id === 'libraryStatus' ? statusNode : null; }
-};
-globalThis.localStorage = {
-  getItem(key) { return store.get(String(key)) ?? null; },
-  setItem(key, value) { store.set(String(key), String(value)); },
-  removeItem(key) { store.delete(String(key)); }
-};
-globalThis.CustomEvent = class CustomEvent {
-  constructor(type, init = {}) { this.type = type; this.detail = init.detail; }
-};
+vm.runInNewContext(source, sandbox, { filename: 'js/repository-certified-prompt-pool.js' });
+const api = sandbox.window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL;
+assert(api?.ready === true, 'Clean repository prompt-pool API did not initialise.');
+assert(api.version === '2.0.0', 'Repository prompt pool is not on clean reset v2.0.0.');
+assert(api.expectedTotal === 0, 'Repository prompt pool must remain intentionally zero after the clean reset.');
+assert(api.baseCount === 0, 'Repository prompt pool still exposes a pre-reset base population.');
 
-vm.runInThisContext(source, { filename:'js/repository-certified-prompt-pool.js' });
-if (appendedScripts.length !== 1 || !/prompt-library-canonical-state\.js\?v=1\.0\.0/.test(appendedScripts[0].src)) {
-  throw new Error('Repository pool did not request the canonical Prompt Studio state runtime.');
-}
+const state = api.getState();
+assert(state.ready === true, 'Clean repository prompt pool is unexpectedly blocked.');
+assert(state.expected === 0 && state.total === 0, 'Repository production membership is not pinned to zero.');
+assert(state.actual === browserLibrary.length, 'Repository pool did not report the current browser library separately.');
+assert(state.browserTotal === browserLibrary.length, 'Browser library count is incorrect.');
+assert(state.ignoredBrowserPrompts === browserLibrary.length, 'Browser/saved prompts are not explicitly isolated from repository production membership.');
+assert(Array.isArray(state.prompts) && state.prompts.length === 0, 'Repository pool leaked browser prompts into production prompts.');
+assert(Array.isArray(state.ids) && state.ids.length === 0, 'Repository pool leaked browser prompt IDs into production IDs.');
+assert(Array.isArray(api.snapshot()) && api.snapshot().length === 0, 'Repository production snapshot must remain empty.');
 
-const liveLibrary = window.FPL_PROMPT_LIBRARY;
-liveLibrary.push(...runtimeQuality.map(id => prompt(id, ['quality-pack-v1'])));
-liveLibrary.push(...survivors.map(id => prompt(id, ['quality-pack-v2'])));
-liveLibrary.push(...nationality.map(id => prompt(id, ['nationality'])));
-liveLibrary.push(...browserCustoms.map(item => ({ ...prompt(item.id), studioRule:{ kind:'builder' }, _studioCustom:true })));
-window.FPL_STUDIO_API = { getPromptLibrary: () => liveLibrary };
+api.refresh();
+assert(statusNode.textContent === '0 certified · clean reset', `Repository status is misleading: ${statusNode.textContent}`);
+assert(/retired|clean/i.test(statusNode.title), 'Repository status title does not explain the clean reset boundary.');
 
-window.FPL_APPROVED_PROMPT_IDS_20260814 = approved;
-window.FPL_APPROVED_PROMPT_DISABLED_IDS_20260814 = [];
-window.FPL_APPROVED_PROMPT_BASELINE = { ready:true };
-window.FPL_QUALITY_PROMPT_PACK_V1 = { ready:true, ids:runtimeQuality };
-window.FPL_QUALITY_PROMPT_PACK_V2 = { ready:true, ids:[] };
-window.FPL_QUALITY_PROMPT_PACK_V3 = { ready:true, ids:[] };
-window.FPL_QUALITY_PROMPT_BASELINE = { ready:true, ids:[...baseQuality, ...runtimeQuality, ...survivors] };
-window.FPL_REFINEMENT_SURVIVOR_PACK_V1 = { ready:true, ids:survivors, parentIds:['weak_parent_1','weak_parent_2'] };
-window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1 = { ready:true, ids:nationality };
+assert(!source.includes('EXPECTED_TOTAL = 851'), 'Repository pool source still pins the retired 851-prompt population.');
+assert(!source.includes('prompt-library-canonical-state.js'), 'Repository pool still tries to load the retired canonical-state runtime.');
 
-localStorage.setItem('fplChallengeStudioPromptManagerV1', JSON.stringify({
-  version:1,
-  overrides:{},
-  deletedIds:[],
-  customs:browserCustoms
-}));
-
-let state = window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL.getState();
-if (!state.ready) throw new Error(`Expected repository pool to be ready: ${state.reason}`);
-if (state.total !== 851) throw new Error(`Expected 851 certified prompts, got ${state.total}.`);
-if (state.browserCustom !== 2072) throw new Error(`Expected 2072 browser customs, got ${state.browserCustom}.`);
-if (state.ignoredBrowserPrompts !== 2072) throw new Error(`Expected 2072 ignored browser prompts, got ${state.ignoredBrowserPrompts}.`);
-if (state.prompts.some(item => String(item.id).startsWith('browser_custom_'))) throw new Error('Browser custom prompt leaked into repository certified pool.');
-
-window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL.refresh();
-const compactStatus = statusNode.textContent.replaceAll(',', '');
-if (!/851 certified live/.test(compactStatus) || !/2072 local custom/.test(compactStatus)) {
-  throw new Error(`Library status did not distinguish certified and browser-local counts: ${statusNode.textContent}`);
-}
-
-localStorage.setItem('fplChallengeStudioPromptManagerV1', JSON.stringify({
-  version:1,
-  overrides:{},
-  deletedIds:[],
-  customs:[...browserCustoms, { id:approved[0], rating:5, enabled:true }]
-}));
-state = window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL.getState();
-if (state.ready) throw new Error('Repository pool should block a browser-local collision with a certified prompt ID.');
-if (!/touch/i.test(state.reason)) throw new Error(`Collision reason was not actionable: ${state.reason}`);
-
-console.log('Repository-certified pool isolation verification passed: 851 production prompts, 2,072 browser customs ignored safely.');
+console.log('Repository prompt-pool isolation verified: repository production remains intentionally zero while saved/browser prompts stay outside that boundary.');
