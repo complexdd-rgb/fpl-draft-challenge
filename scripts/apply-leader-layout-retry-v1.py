@@ -92,7 +92,8 @@ new_start = '''    let rotationState = generationSnapshot
         let attemptFailed = false;
 
         for (let dayIndex = 0; dayIndex < DAYS_IN_BATCH; dayIndex += 1) {'''
-batch = replace_once(batch, old_start, new_start, "outer layout retry loop")\n
+batch = replace_once(batch, old_start, new_start, "outer layout retry loop")
+
 batch = replace_once(
     batch,
     "          promptMixPlan,\n          weeklyLeaderDays,\n          dayIndex,",
@@ -177,21 +178,18 @@ batch = replace_once(batch, old_readme, new_readme, "readme fallback summary")
 
 batch_path.write_text(batch)
 
-# Central cache/version ownership.
 config_path = Path("config/asset-manifest.json")
 config = config_path.read_text()
 config = config.replace("3.0.3-leader-day-spacing", "3.0.4-leader-layout-retry")
 config = config.replace("3.5.0-leader-day-spacing", "3.6.0-leader-layout-retry")
 config_path.write_text(config)
 
-# Clean-reset verifier owns the central manifest/cache boundary.
 clean_path = Path("scripts/verify-prompt-studio-clean-reset.mjs")
 clean = clean_path.read_text()
 clean = clean.replace("3.0.3-leader-day-spacing", "3.0.4-leader-layout-retry")
 clean = clean.replace("3.5.0-leader-day-spacing", "3.6.0-leader-layout-retry")
 clean_path.write_text(clean)
 
-# Strengthen the dedicated answer-diversity regression around full-week retries and fallback.
 verify_path = Path("scripts/verify-weekly-top-answer-diversity.mjs")
 verify = verify_path.read_text()
 verify = verify.replace('["policy v4", "const ANSWER_DIVERSITY_POLICY_VERSION = 4;"],', '["policy v5", "const ANSWER_DIVERSITY_POLICY_VERSION = 5;"],')
