@@ -15,6 +15,7 @@ on:
       - 'js/prompt-promotion-v1.js'
       - 'js/prompt-library-shards-v1.js'
       - 'js/prompt-library-shards-promotion-bridge-v1.js'
+      - 'js/admin-daily-library-cutover-v1.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
       - 'admin-prompt-promotion-v1.css'
@@ -26,17 +27,21 @@ on:
       - 'scripts/verify-prompt-quality-analyser-v1.mjs'
       - 'scripts/verify-prompt-promotion-v1.mjs'
       - 'scripts/verify-prompt-library-shards-v1.mjs'
+      - 'scripts/verify-daily-library-cutover-v1.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
+      - 'scripts/build-native-daily-workspace.mjs'
       - 'js/admin-stage-one.js'
       - 'js/validation-engine.js'
       - 'fragments/admin-daily-workspace.html'
+      - 'scripts/verify-native-daily-workspace.mjs'
       - 'admin.html'
       - '.github/workflows/studio-wiring.yml'
   push:
     branches:
       - main
       - 'prompt-studio-*'
+      - 'redesign/daily-challenge-studio-v1'
     paths:
       - 'config/asset-manifest.json'
       - 'js/asset-manifest.js'
@@ -50,6 +55,7 @@ on:
       - 'js/prompt-promotion-v1.js'
       - 'js/prompt-library-shards-v1.js'
       - 'js/prompt-library-shards-promotion-bridge-v1.js'
+      - 'js/admin-daily-library-cutover-v1.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
       - 'admin-prompt-promotion-v1.css'
@@ -61,8 +67,12 @@ on:
       - 'scripts/verify-prompt-quality-analyser-v1.mjs'
       - 'scripts/verify-prompt-promotion-v1.mjs'
       - 'scripts/verify-prompt-library-shards-v1.mjs'
+      - 'scripts/verify-daily-library-cutover-v1.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
+      - 'scripts/build-native-daily-workspace.mjs'
+      - 'fragments/admin-daily-workspace.html'
+      - 'scripts/verify-native-daily-workspace.mjs'
       - 'admin.html'
       - '.github/workflows/studio-wiring.yml'
 
@@ -87,22 +97,25 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Refresh manifest-owned Admin cache tags on branch pushes
+      - name: Refresh manifest-owned Studio wiring on branch pushes
         if: github.event_name == 'push'
-        run: node scripts/build-studio-cache-tags.mjs
+        run: |
+          node scripts/build-studio-wiring.mjs
+          node scripts/build-native-daily-workspace.mjs
+          node scripts/build-studio-cache-tags.mjs
 
-      - name: Commit refreshed Admin cache tags
+      - name: Commit refreshed Studio wiring
         if: github.event_name == 'push'
         shell: bash
         run: |
           set -euo pipefail
-          git add admin.html
+          git add admin.html js/asset-manifest.js
           if git diff --cached --quiet; then
-            echo 'Admin cache tags are already current.'
+            echo 'Studio wiring is already current.'
           else
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'Refresh Prompt Studio cache tags'
+            git commit -m 'Refresh Daily Studio wiring'
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
@@ -120,6 +133,9 @@ jobs:
 
       - name: Run Prompt Library Shards behavioural smoke test
         run: node scripts/verify-prompt-library-shards-v1.mjs
+
+      - name: Run Daily library cutover boundary smoke test
+        run: node scripts/verify-daily-library-cutover-v1.mjs
 
       - name: Verify unaffected native workspaces
         run: |
@@ -139,14 +155,17 @@ jobs:
           node --check js/prompt-promotion-v1.js
           node --check js/prompt-library-shards-v1.js
           node --check js/prompt-library-shards-promotion-bridge-v1.js
+          node --check js/admin-daily-library-cutover-v1.js
           node --check js/repository-certified-prompt-pool.js
           node --check scripts/verify-prompt-studio-clean-reset.mjs
           node --check scripts/verify-prompt-factory-v1.mjs
           node --check scripts/verify-prompt-quality-analyser-v1.mjs
           node --check scripts/verify-prompt-promotion-v1.mjs
           node --check scripts/verify-prompt-library-shards-v1.mjs
+          node --check scripts/verify-daily-library-cutover-v1.mjs
           node --check scripts/materialise-prompt-library-shards.mjs
           node --check scripts/build-studio-cache-tags.mjs
+          node --check scripts/build-native-daily-workspace.mjs
 
       - name: Reject whitespace errors
         run: git diff --check origin/main...HEAD
