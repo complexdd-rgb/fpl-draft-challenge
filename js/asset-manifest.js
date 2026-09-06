@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "2.8.0-schedule-manager-v2"
+      "version": "2.9.0-daily-semantic-diversity"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -62,6 +62,10 @@
     },
     "adminDailyLibraryCutoverV1": {
       "path": "js/admin-daily-library-cutover-v1.js",
+      "version": "1.0.0"
+    },
+    "dailySemanticDiversityV1": {
+      "path": "js/daily-semantic-diversity-v1.js",
       "version": "1.0.0"
     },
     "adminImportTools": {
@@ -206,11 +210,11 @@
     },
     "adminBatchCalendar": {
       "path": "js/admin-batch-calendar.js",
-      "version": "3.0.6"
+      "version": "3.1.0-semantic-diversity"
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.0.0-saved-library-cycle"
+      "version": "2.1.0-semantic-diversity"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
@@ -237,7 +241,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "2.8.0-schedule-manager-v2",
+    version: "2.9.0-daily-semantic-diversity",
     assets,
     get,
     url
