@@ -1,5 +1,5 @@
-/* FPL Challenge Studio — Seven-day review cards v1.3
-   Visual-only upgrade: weekly review and publishing now read as the main Daily Challenge path. */
+/* FPL Challenge Studio — Seven-day review cards v1.3.1
+   Weekly review, publishing and published-schedule control form one Daily Challenge workflow. */
 
 .batch-review {
   position: relative;
@@ -320,7 +320,7 @@
   margin-top: 10px;
 }
 
-/* Published schedule management follows publishing directly. It owns delete-day/delete-week. */
+/* Published schedule management follows publishing directly. It owns remove-day/remove-week. */
 .batch-planner #scheduleManagerPanel {
   margin-top: 9px;
 }
