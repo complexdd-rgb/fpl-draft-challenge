@@ -36,7 +36,7 @@ assert(manifest.assets?.promptLibraryShardsV1?.path === 'js/prompt-library-shard
 assert(manifest.assets?.promptLibraryShardsCssV1?.version === '1.2.0-daily-authority', 'Daily saved-library authority display cache tag is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.path === 'js/admin-daily-library-cutover-v1.js', 'Daily saved-library cutover boundary is missing from the central manifest.');
 assert(manifest.assets?.adminDailyGeneratorGuard?.path === 'js/admin-daily-generator-guard.js', 'Daily generation guard is missing from the central manifest.');
-assert(manifest.assets?.adminDailyGeneratorGuard?.version === '2.2.0-date-identity', 'Daily generation guard cache version is not on saved-library v2.');
+assert(manifest.assets?.adminDailyGeneratorGuard?.version === '2.3.0-reservoir-authority', 'Daily generation guard cache version is not on saved-library v2.');
 assert(manifest.assets?.dailySemanticDiversityV1?.path === 'js/daily-semantic-diversity-v1.js', 'Daily semantic-diversity policy is missing from the central manifest.');
 assert(manifest.assets?.adminBatchCalendar?.version === '3.3.0-nationality-rotation', 'Batch calendar date-identity cache version is stale.');
 assert(manifest.assets?.adminDailyPublish?.version === '1.1.0-date-identity', 'Daily publishing date-identity cache version is stale.');
@@ -82,7 +82,7 @@ assert(shardCss.includes('Active saved promoted library'), 'Daily library balanc
 assert(shardCss.includes('77-prompt reservoir is structurally and runtime verified'), 'Daily library balance does not explain the runtime-certified weekly reservoir.');
 
 for (const token of [
-  'saved-library generation guard v2.2.0',
+  'saved-library generation guard v2.3.0',
   'ensureSemanticDiversity()',
   'semanticWeeklyCap: DAYS_IN_BATCH',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',

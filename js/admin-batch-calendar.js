@@ -208,10 +208,16 @@
     // Exact-prompt rotation is always enforced by the seven-day generator. The optional
     // browser/live history below is an extra freshness guard for challenges that may not yet
     // be represented in the calendar manifest.
-    const extraBlockedIds = settings.avoidRecent
-      ? new Set(window.FPL_STUDIO_PHASE3?.getCooldownPromptIds?.() || [])
-      : new Set();
-    if (settings.avoidRecent) {
+    // Guarded generation already chose the immutable weekly reservoir using authoritative
+    // Supabase/GitHub/browser history, with the most recent source IDs ordered last. Do not
+    // hard-block a prompt after certification, or the 77-prompt reservoir can become impossible
+    // to consume. Legacy unguarded generation keeps the older browser/live freshness block.
+    const extraBlockedIds = generationSnapshot
+      ? new Set()
+      : settings.avoidRecent
+        ? new Set(window.FPL_STUDIO_PHASE3?.getCooldownPromptIds?.() || [])
+        : new Set();
+    if (settings.avoidRecent && !generationSnapshot) {
       const livePromptIds = await loadLivePromptIds();
       livePromptIds.forEach(id => extraBlockedIds.add(id));
     }

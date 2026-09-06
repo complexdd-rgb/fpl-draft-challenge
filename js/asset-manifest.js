@@ -214,7 +214,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.2.0-date-identity"
+      "version": "2.3.0-reservoir-authority"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
