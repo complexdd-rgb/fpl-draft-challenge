@@ -74,6 +74,7 @@ assert(source.includes('WEEKLY_PROMPT_SLOTS = 77'), 'Daily family share planning
 assert(source.includes('Cutover pending'), 'Daily view does not preserve the explicit production cutover boundary.');
 assert(source.includes('Future published schedule'), 'Daily view is missing spoiler-safe future schedule context.');
 assert(source.includes('promptIds') && source.includes('FPL_CHALLENGE_MANIFEST'), 'Known used coverage is not grounded in challenge history.');
+assert(source.includes('future Supabase prompt IDs and family details are deliberately not included'), 'Future scheduled prompts are not explicitly protected from the usage view.');
 assert(!source.includes('FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Read-only shard view must not take over Daily generation authority.');
 
 console.log('Prompt Library Shards v1.1.0 smoke test passed: durable shards plus read-only Daily 17-family balance are present without generation cutover.');
