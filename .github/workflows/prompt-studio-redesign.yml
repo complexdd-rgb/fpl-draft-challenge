@@ -18,6 +18,7 @@ on:
       - 'js/prompt-library-shards-promotion-bridge-v1.js'
       - 'js/repository-certified-prompt-pool.js'
       - 'js/studio-bootstrap.js'
+      - 'js/admin-schedule-manager.js'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - '.github/workflows/prompt-studio-redesign.yml'
 
@@ -51,5 +52,6 @@ jobs:
           node --check js/prompt-library-shards-promotion-bridge-v1.js
           node --check js/repository-certified-prompt-pool.js
           node --check js/studio-bootstrap.js
+          node --check js/admin-schedule-manager.js
           node --check scripts/verify-prompt-studio-clean-reset.mjs
           git diff --check
