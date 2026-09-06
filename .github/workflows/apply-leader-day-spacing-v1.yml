@@ -5,7 +5,7 @@ on:
     branches:
       - daily-leader-day-spacing-v1
     paths:
-      - 'scripts/apply-leader-day-spacing-v1.py'
+      - 'scripts/apply-leader-day-spacing*.py'
 
 permissions:
   contents: write
