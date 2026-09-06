@@ -1,0 +1,45 @@
+name: Apply cleanup relevance pass 2
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass1
+    paths:
+      - 'scripts/apply-cleanup-relevance-pass2.py'
+      - '.github/workflows/apply-cleanup-relevance-pass2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply pass 2 cleanup
+        run: python scripts/apply-cleanup-relevance-pass2.py
+      - name: Verify retained architecture
+        run: |
+          node scripts/verify-prompt-studio-clean-reset.mjs
+          node scripts/verify-weekly-top-answer-diversity.mjs
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          node --check js/admin-batch-calendar.js
+          git diff --check
+      - name: Commit runtime simplification
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin.html config/asset-manifest.json js/asset-manifest.js js/admin-batch-calendar.js scripts/verify-prompt-studio-clean-reset.mjs scripts/verify-weekly-top-answer-diversity.mjs
+          if git diff --cached --quiet; then
+            echo 'No pass 2 changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Simplify preplanned weekly generation path'
+          git push origin HEAD:cleanup-relevance-pass1
