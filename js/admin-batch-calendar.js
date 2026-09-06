@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine v3.2.0: date-identified seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.3.0: weekly-reservoir-aware date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
@@ -208,10 +208,16 @@
     // Exact-prompt rotation is always enforced by the seven-day generator. The optional
     // browser/live history below is an extra freshness guard for challenges that may not yet
     // be represented in the calendar manifest.
-    const extraBlockedIds = settings.avoidRecent
-      ? new Set(window.FPL_STUDIO_PHASE3?.getCooldownPromptIds?.() || [])
-      : new Set();
-    if (settings.avoidRecent) {
+    // Guarded generation already chose the immutable weekly reservoir using authoritative
+    // Supabase/GitHub/browser history, with the most recent source IDs ordered last. Do not
+    // hard-block a prompt after certification, or the 77-prompt reservoir can become impossible
+    // to consume. Legacy unguarded generation keeps the older browser/live freshness block.
+    const extraBlockedIds = generationSnapshot
+      ? new Set()
+      : settings.avoidRecent
+        ? new Set(window.FPL_STUDIO_PHASE3?.getCooldownPromptIds?.() || [])
+        : new Set();
+    if (settings.avoidRecent && !generationSnapshot) {
       const livePromptIds = await loadLivePromptIds();
       livePromptIds.forEach(id => extraBlockedIds.add(id));
     }
@@ -247,7 +253,9 @@
       });
       scheduledDates.add(date);
     }
-    const rotationState = buildExactRotationState(virtualSchedule, startDate, basePools, promptById);
+    const rotationState = generationSnapshot
+      ? buildWeeklyReservoirRotationState(basePools)
+      : buildExactRotationState(virtualSchedule, startDate, basePools, promptById);
     const weeklyLeaderDays = new Map();
 
     try {
@@ -498,6 +506,16 @@
     return `${prompt.position || "ANY"}:${family}`;
   }
 
+  function buildWeeklyReservoirRotationState(basePools) {
+    // The guarded Daily flow has already selected a fresh immutable 77-prompt reservoir for
+    // this week. Cross-week unused/cycle decisions belong to the guard; replaying historical
+    // schedule rows against this new reservoir creates false bridge backlogs. Start the weekly
+    // consumption cycle at zero and let the seven generated days consume every reservoir prompt once.
+    return Object.fromEntries(
+      Object.keys(basePools).map(position => [position, { cycle: 1, usedIds: new Set() }])
+    );
+  }
+
   function buildExactRotationState(schedule, beforeDate, basePools, promptById) {
     const state = Object.fromEntries(Object.keys(basePools).map(position => [position, { cycle: 1, usedIds: new Set() }]));
     const poolIds = Object.fromEntries(Object.entries(basePools).map(([position, prompts]) => [position, new Set(prompts.map(prompt => prompt.id))]));
@@ -665,7 +683,7 @@
       exactPlan[prompt.position]?.mustUseIds?.has(prompt.id)
     );
     if (requiredNationality.length > DAILY_PROMPT_MIX_TARGET.nationality) {
-      return { ok: false, reason: "Exact prompt rotation currently forces more than one nationality prompt into the same day. Regenerate from a later rotation point rather than relaxing the nationality quota." };
+      return { ok: false, reason: "Exact prompt rotation currently forces more than one nationality prompt into the same day. The guarded weekly reservoir must start from a fresh weekly rotation; reload Studio if this persists." };
     }
     if (requiredNationality.length === 1 && !familyPlanAllows(requiredNationality[0], familyPlan)) {
       const position = requiredNationality[0].position;

@@ -1,7 +1,7 @@
 {
-  "manifestVersion": "3.0.0-date-only-daily",
+  "manifestVersion": "3.0.1-nationality-rotation",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.0.0-date-only-daily" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.0.1-nationality-rotation" },
     "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.6.0-schedule-manager" },
     "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.1.0-library-browser" },
     "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
@@ -52,8 +52,8 @@
     "validationEngine": { "path": "js/validation-engine.js", "version": "1.7.1-certification-snapshot" },
     "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.5.0-native-prompts" },
     "careerContext": { "path": "js/career-context.js", "version": "1.5.0" },
-    "adminBatchCalendar": { "path": "js/admin-batch-calendar.js", "version": "3.2.0-date-identity" },
-    "adminDailyGeneratorGuard": { "path": "js/admin-daily-generator-guard.js", "version": "2.2.0-date-identity" },
+    "adminBatchCalendar": { "path": "js/admin-batch-calendar.js", "version": "3.3.0-nationality-rotation" },
+    "adminDailyGeneratorGuard": { "path": "js/admin-daily-generator-guard.js", "version": "2.3.0-reservoir-authority" },
     "leaderboardConfig": { "path": "js/leaderboard-config.js", "version": "5.1.0-studio-bootstrap" },
     "repositoryCertifiedPromptPool": { "path": "js/repository-certified-prompt-pool.js", "version": "2.0.0-clean-reset" },
     "promptLibraryCanonicalState": { "path": "js/prompt-library-canonical-state.js", "version": "1.0.0-retired" }

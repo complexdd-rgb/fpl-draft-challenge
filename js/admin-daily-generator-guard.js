@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.2.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.3.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 17-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.2.0";
+  const VERSION = "2.3.0";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -303,8 +303,34 @@
       }
     };
     for (const entry of window.FPL_CHALLENGE_MANIFEST?.challenges || []) addIds(entry?.promptIds);
+    for (const row of window.FPL_STUDIO_SCHEDULE?.scheduled || []) {
+      const stored = row?.manifest_entry && typeof row.manifest_entry === "object" ? row.manifest_entry : {};
+      addIds(stored.promptIds);
+    }
     for (const entry of window.FPL_STUDIO_PHASE3?.getHistory?.() || []) addIds(entry?.promptIds);
     return used;
+  }
+
+  function knownRecentSourceIds(days = 7) {
+    const recent = new Set();
+    const start = String(startDateInput?.value || "");
+    if (!isIsoDate(start)) return recent;
+    const cutoff = addDaysIso(start, -Math.max(1, Number(days) || 7));
+    const addEntry = (dateValue, values) => {
+      const date = String(dateValue || "");
+      if (!isIsoDate(date) || date >= start || date < cutoff) return;
+      for (const value of values || []) {
+        const id = sourceIdFromPromptId(value);
+        if (id) recent.add(id);
+      }
+    };
+    for (const entry of window.FPL_CHALLENGE_MANIFEST?.challenges || []) addEntry(entry?.date, entry?.promptIds);
+    for (const row of window.FPL_STUDIO_SCHEDULE?.scheduled || []) {
+      const stored = row?.manifest_entry && typeof row.manifest_entry === "object" ? row.manifest_entry : {};
+      addEntry(row?.release_date, stored.promptIds);
+    }
+    for (const entry of window.FPL_STUDIO_PHASE3?.getHistory?.() || []) addEntry(entry?.releaseDate, entry?.promptIds);
+    return recent;
   }
 
   function allocateFamilyTargets(familyIndex) {
@@ -384,13 +410,21 @@
     return ordered;
   }
 
-  function recordOrder(records, usedIds) {
+  function recordOrder(records, usedIds, recentIds = new Set()) {
     const unused = [];
-    const used = [];
+    const recycled = [];
+    const recent = [];
     for (const record of records || []) {
-      (usedIds.has(String(record?.id || "")) ? used : unused).push(record);
+      const id = String(record?.id || "");
+      if (!usedIds.has(id)) unused.push(record);
+      else if (recentIds.has(id)) recent.push(record);
+      else recycled.push(record);
     }
-    return [...interleaveSemanticGroups(unused), ...interleaveSemanticGroups(used)];
+    return [
+      ...interleaveSemanticGroups(unused),
+      ...interleaveSemanticGroups(recycled),
+      ...interleaveSemanticGroups(recent)
+    ];
   }
 
   function assignAnyRecords(records, positionNeeds, offset = 0) {
@@ -531,6 +565,7 @@
     const families = Object.keys(targets).filter(family => targets[family] > 0);
     const positionNeeds = weeklyPositionNeeds();
     const usedIds = knownUsedSourceIds();
+    const recentIds = knownRecentSourceIds(7);
     const limits = answerLimits();
     const runtimeCache = new Map();
     const cycleFamilies = new Set();
@@ -541,7 +576,7 @@
       let scanned = 0;
       for (const family of families) {
         const shard = shardByFamily.get(family);
-        const raw = recordOrder(Array.isArray(shard?.records) ? shard.records : [], usedIds);
+        const raw = recordOrder(Array.isArray(shard?.records) ? shard.records : [], usedIds, recentIds);
         if (raw.filter(record => !usedIds.has(String(record?.id || ""))).length < targets[family]) cycleFamilies.add(family);
         const assigned = assignAnyRecords(raw, positionNeeds, anyOffset);
         const certifiedByPosition = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
@@ -632,6 +667,7 @@
         positionNeeds: Object.freeze({ ...positionNeeds }),
         cycleFamilies: Object.freeze([...cycleFamilies]),
         knownUsedSourceIds: usedIds.size,
+        recentSourceIds: recentIds.size,
         runtimeCandidatesChecked: scanned,
         antiMetaCount,
         nationalityCount,
