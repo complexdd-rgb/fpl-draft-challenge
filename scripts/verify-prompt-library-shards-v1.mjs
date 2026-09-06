@@ -7,6 +7,8 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
+assert(!fs.existsSync('js/prompt-library-shards-v1-1.js'), 'Duplicate Prompt Library Shards runtime must not exist.');
+
 const documentStub = {
   readyState: 'loading',
   addEventListener() {},
@@ -64,4 +66,4 @@ assert(!source.includes('localStorage.setItem'), '100k+ shard persistence must n
 assert(bridge.includes('fpl:prompt-library-changed'), 'Promotion bridge does not listen to canonical-library changes.');
 assert(bridge.includes('prompt-promotion-v1'), 'Promotion bridge does not restrict auto-save to verified Promotion output.');
 
-console.log('Prompt Library Shards v1.0.1 smoke test passed: close variants preserved, two family shards built, hardened IndexedDB boundary present.');
+console.log('Prompt Library Shards v1.0.1 smoke test passed: one runtime, close variants preserved, hardened IndexedDB boundary present.');
