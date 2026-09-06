@@ -48,7 +48,7 @@ const replacement = [
   "    \"  assert(mergedDates[index] === addIsoDays(mergedDates[index - 1], 1), 'Date-keyed manifest regression created a gap before ' + mergedDates[index] + '.');\",",
   "    \"}\",",
   "    \"\"",
-  "  ].join('\\\\n');",
+  "  ].join('\\n');",
   "  write(weeklyPath, weeklySource.replace(needle, insert));",
   "}",
   ""
