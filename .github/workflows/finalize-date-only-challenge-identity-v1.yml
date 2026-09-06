@@ -1,0 +1,57 @@
+name: Finalize date-only Daily identity v1
+
+on:
+  push:
+    branches:
+      - prompt-studio-date-only-challenge-identity-v1
+    paths:
+      - 'scripts/finalize-date-only-challenge-identity-v1.py'
+      - '.github/workflows/finalize-date-only-challenge-identity-v1.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Finalize authority split and compact manifest
+        run: python3 scripts/finalize-date-only-challenge-identity-v1.py
+
+      - name: Rebuild generated cache wiring
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-studio-cache-tags.mjs
+
+      - name: Verify final date-only boundary
+        run: |
+          node --check js/admin-batch-calendar.js
+          node --check js/admin-daily-generator-guard.js
+          node --check js/admin-daily-publish.js
+          node --check scripts/verify-weekly-certified-snapshot-race.mjs
+          node --check scripts/verify-prompt-studio-clean-reset.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-native-daily-workspace.mjs
+          node scripts/verify-prompt-studio-clean-reset.mjs
+          git diff --check
+
+      - name: Commit production cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add admin.html config/asset-manifest.json js/admin-batch-calendar.js js/asset-manifest.js scripts/verify-weekly-certified-snapshot-race.mjs
+          if git diff --cached --quiet; then
+            echo 'Final date-only production cleanup is already current.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Separate Supabase schedule from GitHub fallback manifest'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
