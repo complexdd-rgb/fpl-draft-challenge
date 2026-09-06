@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.3.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.4.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 17-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.3.0";
+  const VERSION = "2.4.0";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -427,6 +427,39 @@
     ];
   }
 
+  function promptTopAnswer(prompt) {
+    return core.getPromptStats(prompt)?.bestAnswer || null;
+  }
+
+  function promptTopAnswerKey(prompt) {
+    return String(promptTopAnswer(prompt)?.playerId || "");
+  }
+
+  function topAnswerDiversityAudit(prompts) {
+    const counts = new Map();
+    for (const prompt of prompts || []) {
+      const best = promptTopAnswer(prompt);
+      const playerId = String(best?.playerId || "");
+      if (!playerId) continue;
+      const existing = counts.get(playerId) || {
+        playerId,
+        name: String(best?.playerName || best?.name || playerId),
+        count: 0
+      };
+      existing.count += 1;
+      counts.set(playerId, existing);
+    }
+    const repeatedPlayers = [...counts.values()]
+      .filter(item => item.count > 1)
+      .sort((left, right) => right.count - left.count || left.name.localeCompare(right.name));
+    return {
+      promptCount: (prompts || []).length,
+      uniquePlayers: counts.size,
+      repeatSlots: repeatedPlayers.reduce((sum, item) => sum + item.count - 1, 0),
+      repeatedPlayers
+    };
+  }
+
   function assignAnyRecords(records, positionNeeds, offset = 0) {
     const assigned = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
     const anyLoads = Object.fromEntries(POSITION_ORDER.map(position => [position, 0]));
@@ -570,6 +603,7 @@
     const runtimeCache = new Map();
     const cycleFamilies = new Set();
     const shardByFamily = new Map(payload.shards.map(shard => [String(shard.family), shard]));
+    let bestReservoir = null;
 
     for (let anyOffset = 0; anyOffset < POSITION_ORDER.length; anyOffset += 1) {
       const candidatePools = new Map();
@@ -582,8 +616,11 @@
         const certifiedByPosition = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
         for (const position of POSITION_ORDER) {
           const need = Math.min(targets[family], positionNeeds[position]);
-          const semanticExtra = Math.max(8, Math.ceil(need * 0.75));
-          const certifyLimit = Math.min(assigned[position].length, need + semanticExtra);
+          // Top-answer diversity is decided at reservoir selection, so certify a materially
+          // wider alternative set than the family/position minimum. This gives the selector
+          // enough different leaders to avoid Salah/Robertson/TAA-style weekly clustering.
+          const diversityExtra = Math.max(24, Math.ceil(need * 3));
+          const certifyLimit = Math.min(assigned[position].length, need + diversityExtra);
           for (const record of assigned[position]) {
             if (certifiedByPosition[position].length >= certifyLimit) break;
             const prompt = await certifyCandidate(record, position, limits, cutoverApi, runtimeCache);
@@ -606,34 +643,65 @@
       const prompts = [];
       const sourceIds = new Set();
       const semanticCounts = new Map();
+      const leaderCounts = new Map();
       let collision = false;
+      const selectionGroups = [];
       for (const family of families) {
         for (const position of POSITION_ORDER) {
           const required = allocation[family][position];
           if (!required) continue;
           const available = candidatePools.get(family)?.[position] || [];
-          let added = 0;
-          while (added < required) {
-            const choices = available
-              .filter(candidate => {
-                const sourceId = String(candidate.record.id || "");
-                return sourceId && !sourceIds.has(sourceId) && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);
-              })
-              .sort((left, right) => semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts));
-            const candidate = choices[0];
-            if (!candidate) break;
-            const sourceId = String(candidate.record.id || "");
-            prompts.push(candidate.prompt);
-            sourceIds.add(sourceId);
-            semantic.commitWeekly(candidate.prompt, semanticCounts);
-            added += 1;
-          }
-          if (added !== required) {
-            collision = true;
-            break;
-          }
+          const distinctLeaders = new Set(available.map(candidate => promptTopAnswerKey(candidate.prompt)).filter(Boolean)).size;
+          selectionGroups.push({
+            family,
+            position,
+            required,
+            available,
+            leaderSlack: distinctLeaders - required
+          });
         }
-        if (collision) break;
+      }
+      // Constrained family/position groups choose first. Flexible groups therefore cannot
+      // consume a leader that a later group effectively needs, which materially reduces
+      // avoidable weekly repeats before the normal unused-leader preference is applied.
+      selectionGroups.sort((left, right) =>
+        left.leaderSlack - right.leaderSlack
+        || left.available.length - right.available.length
+        || left.family.localeCompare(right.family)
+        || POSITION_ORDER.indexOf(left.position) - POSITION_ORDER.indexOf(right.position)
+      );
+
+      for (const group of selectionGroups) {
+        const { required, available } = group;
+        let added = 0;
+        while (added < required) {
+          const choices = available
+            .filter(candidate => {
+              const sourceId = String(candidate.record.id || "");
+              return sourceId && !sourceIds.has(sourceId) && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);
+            })
+            .sort((left, right) => {
+              const leftLeader = promptTopAnswerKey(left.prompt);
+              const rightLeader = promptTopAnswerKey(right.prompt);
+              const leftLeaderLoad = leftLeader ? Number(leaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;
+              const rightLeaderLoad = rightLeader ? Number(leaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;
+              return leftLeaderLoad - rightLeaderLoad
+                || semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts);
+            });
+          const candidate = choices[0];
+          if (!candidate) break;
+          const sourceId = String(candidate.record.id || "");
+          prompts.push(candidate.prompt);
+          sourceIds.add(sourceId);
+          semantic.commitWeekly(candidate.prompt, semanticCounts);
+          const leaderKey = promptTopAnswerKey(candidate.prompt);
+          if (leaderKey) leaderCounts.set(leaderKey, Number(leaderCounts.get(leaderKey) || 0) + 1);
+          added += 1;
+        }
+        if (added !== required) {
+          collision = true;
+          break;
+        }
       }
       if (collision || prompts.length !== WEEKLY_PROMPTS || sourceIds.size !== WEEKLY_PROMPTS) continue;
 
@@ -658,6 +726,11 @@
       const frozenPrompts = Object.freeze(prompts.map(prompt => Object.freeze(prompt)));
       const ids = new Set(frozenPrompts.map(prompt => String(prompt.id)));
       if (ids.size !== WEEKLY_PROMPTS) continue;
+      const topAnswerDiversity = topAnswerDiversityAudit(frozenPrompts);
+      const frozenTopAnswerDiversity = Object.freeze({
+        ...topAnswerDiversity,
+        repeatedPlayers: Object.freeze(topAnswerDiversity.repeatedPlayers.map(item => Object.freeze({ ...item })))
+      });
       const plan = Object.freeze({
         version: VERSION,
         source: "saved-promoted-17-family-library",
@@ -671,12 +744,23 @@
         runtimeCandidatesChecked: scanned,
         antiMetaCount,
         nationalityCount,
+        topAnswerDiversity: frozenTopAnswerDiversity,
         semanticDiversityVersion: String(window.FPL_DAILY_SEMANTIC_DIVERSITY?.version || ""),
         semanticWeeklyCap: DAYS_IN_BATCH
       });
-      return { prompts: frozenPrompts, ids, plan };
+      const reservoir = { prompts: frozenPrompts, ids, plan };
+      if (!bestReservoir
+        || frozenTopAnswerDiversity.repeatSlots < bestReservoir.plan.topAnswerDiversity.repeatSlots
+        || (frozenTopAnswerDiversity.repeatSlots === bestReservoir.plan.topAnswerDiversity.repeatSlots
+          && frozenTopAnswerDiversity.uniquePlayers > bestReservoir.plan.topAnswerDiversity.uniquePlayers)) {
+        bestReservoir = reservoir;
+      }
+      // A fully unique weekly leader set is optimal; otherwise try the remaining ANY-position
+      // assignments and keep the reservoir with the fewest unavoidable/recycled leader slots.
+      if (frozenTopAnswerDiversity.repeatSlots === 0) return reservoir;
     }
 
+    if (bestReservoir) return bestReservoir;
     throw new Error("The saved 17-family library could not fill the selected formation with 77 runtime-certified prompts while preserving family targets and the one-per-day semantic cap. Expand variant diversity in the affected families.");
   }
 
@@ -727,7 +811,8 @@
     }
     const missing = [...snapshot.ids].filter(id => !uniqueWeekIds.has(id));
     if (missing.length) return { ok: false, reason: `${missing.length} runtime-certified reservoir prompt(s) were not consumed by the week.` };
-    return { ok: true, reason: "" };
+    const topAnswerDiversity = topAnswerDiversityAudit(snapshot.prompts || []);
+    return { ok: true, reason: "", topAnswerDiversity };
   }
 
   async function guardedGenerate() {
@@ -757,7 +842,7 @@
       setStatus("Building the proportional 77-prompt generation reservoir from unused saved prompts…", "working");
       const reservoir = await buildCertifiedReservoir();
       generationSnapshot = installGenerationSnapshot(reservoir);
-      setStatus(`77 runtime-certified prompts locked · 17-family proportional cycle · ${reservoir.plan.cycleFamilies.length ? `${reservoir.plan.cycleFamilies.length} family cycle reset(s)` : "unused prompts preferred"}. Generating week…`, "working");
+      setStatus(`77 runtime-certified prompts locked · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · 17-family proportional cycle · ${reservoir.plan.cycleFamilies.length ? `${reservoir.plan.cycleFamilies.length} family cycle reset(s)` : "unused prompts preferred"}. Generating week…`, "working");
 
       const generator = window.FPL_STUDIO_BATCH_CALENDAR?.generate;
       if (typeof generator !== "function") {
@@ -773,7 +858,11 @@
         return;
       }
       updateGuardChip();
-      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 17-family targets were preserved and no same-day semantic clashes were allowed.`, "pass");
+      const diversity = certification.topAnswerDiversity || reservoir.plan.topAnswerDiversity;
+      const diversityText = diversity?.repeatSlots
+        ? `${diversity.uniquePlayers}/77 unique top-answer players · ${diversity.repeatSlots} fallback repeat slot(s)`
+        : "77/77 unique top-answer players";
+      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 17-family targets were preserved, no same-day semantic clashes were allowed, and top-answer diversity finished at ${diversityText}.`, "pass");
       window.dispatchEvent(new CustomEvent("fpl:daily-saved-library-week-certified", { detail: { ...reservoir.plan } }));
     } catch (error) {
       console.error(error);
@@ -815,7 +904,15 @@
     qualityReady: () => Boolean(cutoverState()?.ready),
     scheduleReady: () => window.FPL_STUDIO_SCHEDULE?.status === "ready",
     getExpectedNext: () => ({ ...expectedNext() }),
-    getLastFamilyPlan: () => lastPlan ? { ...lastPlan, targets: { ...lastPlan.targets }, positionNeeds: { ...lastPlan.positionNeeds } } : null,
+    getLastFamilyPlan: () => lastPlan ? {
+      ...lastPlan,
+      targets: { ...lastPlan.targets },
+      positionNeeds: { ...lastPlan.positionNeeds },
+      topAnswerDiversity: lastPlan.topAnswerDiversity ? {
+        ...lastPlan.topAnswerDiversity,
+        repeatedPlayers: (lastPlan.topAnswerDiversity.repeatedPlayers || []).map(item => ({ ...item }))
+      } : null
+    } : null,
     sync: () => syncInputsToSchedule(true),
     generate: guardedGenerate
   });
