@@ -55,6 +55,10 @@ assert(publish.includes('challengeNumber: 0, // legacy schema field; releaseDate
 assert(publishEdge.includes('challengeNumber < 0'), 'Publishing Edge Function still requires positive challenge numbers.');
 assert(publishEdge.includes('manifest_entry, published_at'), 'Schedule status does not expose stored prompt metadata needed for generation history.');
 assert(!publishEdge.includes('.gte("release_date", today)'), 'Schedule status still hides historical Supabase dates needed for exact rotation history.');
+assert(batch.includes('function buildWeeklyReservoirRotationState(basePools)'), 'Guarded weekly generation does not have a fresh reservoir rotation state.');
+assert(batch.includes('const rotationState = generationSnapshot'), 'Batch generator does not distinguish guarded reservoir rotation from legacy history replay.');
+assert(batch.includes('? buildWeeklyReservoirRotationState(basePools)'), 'Guarded reservoir still replays old schedule history into its fresh 77-prompt cycle.');
+assert(!batch.includes('Regenerate from a later rotation point rather than relaxing the nationality quota.'), 'Generator still recommends moving the fixed schedule date to escape a rotation conflict.');
 
 const addIsoDays = (iso, amount) => {
   const [year, month, day] = iso.split('-').map(Number);
@@ -103,6 +107,19 @@ const mutableGlobal = [...generationPool, { id: 'late-uncertified' }];
 const selectedSource = generationPool || mutableGlobal;
 assert(selectedSource.length === 77, 'Immutable generation source changed after a late global-library mutation.');
 assert(!selectedSource.some(prompt => prompt.id === 'late-uncertified'), 'Late global prompt leaked into the immutable generation source.');
+
+// In guarded mode the reservoir has exactly seven days of position capacity. Starting its
+// rotation fresh means every day, including day 7, still has at least one full formation of
+// unused prompts. Therefore the exact planner never enters a bridge cycle and cannot force
+// multiple old-cycle nationality prompts into one day.
+const dailyFormation = { GK: 1, DEF: 4, MID: 4, FWD: 2 };
+const weeklyPositionPool = { GK: 7, DEF: 28, MID: 28, FWD: 14 };
+for (let day = 0; day < 7; day += 1) {
+  for (const position of Object.keys(dailyFormation)) {
+    const unusedBeforeDay = weeklyPositionPool[position] - dailyFormation[position] * day;
+    assert(unusedBeforeDay >= dailyFormation[position], `Fresh weekly rotation bridges too early for ${position} on day ${day + 1}.`);
+  }
+}
 
 // Reproduce the final weekly-consumption gate: seven PASS days must consume all 77 snapshot
 // IDs exactly once. One repeated ID must be detected even when every ID belongs to the snapshot.

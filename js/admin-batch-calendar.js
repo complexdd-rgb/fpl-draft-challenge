@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine v3.2.0: date-identified seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.3.0: weekly-reservoir-aware date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
@@ -247,7 +247,9 @@
       });
       scheduledDates.add(date);
     }
-    const rotationState = buildExactRotationState(virtualSchedule, startDate, basePools, promptById);
+    const rotationState = generationSnapshot
+      ? buildWeeklyReservoirRotationState(basePools)
+      : buildExactRotationState(virtualSchedule, startDate, basePools, promptById);
     const weeklyLeaderDays = new Map();
 
     try {
@@ -498,6 +500,16 @@
     return `${prompt.position || "ANY"}:${family}`;
   }
 
+  function buildWeeklyReservoirRotationState(basePools) {
+    // The guarded Daily flow has already selected a fresh immutable 77-prompt reservoir for
+    // this week. Cross-week unused/cycle decisions belong to the guard; replaying historical
+    // schedule rows against this new reservoir creates false bridge backlogs. Start the weekly
+    // consumption cycle at zero and let the seven generated days consume every reservoir prompt once.
+    return Object.fromEntries(
+      Object.keys(basePools).map(position => [position, { cycle: 1, usedIds: new Set() }])
+    );
+  }
+
   function buildExactRotationState(schedule, beforeDate, basePools, promptById) {
     const state = Object.fromEntries(Object.keys(basePools).map(position => [position, { cycle: 1, usedIds: new Set() }]));
     const poolIds = Object.fromEntries(Object.entries(basePools).map(([position, prompts]) => [position, new Set(prompts.map(prompt => prompt.id))]));
@@ -665,7 +677,7 @@
       exactPlan[prompt.position]?.mustUseIds?.has(prompt.id)
     );
     if (requiredNationality.length > DAILY_PROMPT_MIX_TARGET.nationality) {
-      return { ok: false, reason: "Exact prompt rotation currently forces more than one nationality prompt into the same day. Regenerate from a later rotation point rather than relaxing the nationality quota." };
+      return { ok: false, reason: "Exact prompt rotation currently forces more than one nationality prompt into the same day. The guarded weekly reservoir must start from a fresh weekly rotation; reload Studio if this persists." };
     }
     if (requiredNationality.length === 1 && !familyPlanAllows(requiredNationality[0], familyPlan)) {
       const position = requiredNationality[0].position;
