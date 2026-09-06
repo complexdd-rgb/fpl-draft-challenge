@@ -320,6 +320,11 @@
   margin-top: 10px;
 }
 
+/* Published schedule management follows publishing directly. It owns delete-day/delete-week. */
+.batch-planner #scheduleManagerPanel {
+  margin-top: 9px;
+}
+
 @media (min-width: 1220px) {
   .batch-review .batch-table tbody {
     grid-template-columns: repeat(3, minmax(0, 1fr));
