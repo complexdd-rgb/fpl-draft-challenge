@@ -22,6 +22,7 @@ const promotionCss = read('admin-prompt-promotion-v1.css');
 const shards = read('js/prompt-library-shards-v1.js');
 const shardBridge = read('js/prompt-library-shards-promotion-bridge-v1.js');
 const shardCss = read('admin-prompt-library-shards-v1.css');
+const dailyCutover = read('js/admin-daily-library-cutover-v1.js');
 const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const promptLibrary = read('prompt-library.js');
 const executablePromptLibrary = promptLibrary
@@ -31,7 +32,7 @@ const executablePromptLibrary = promptLibrary
   .replace(/\s+/g, ' ')
   .trim();
 
-assert(config.manifestVersion === '2.5.0-library-shards-v1', 'Central manifest is not on the Prompt Library Shards v1 boundary.');
+assert(config.manifestVersion === '2.6.0-daily-cutover-v1', 'Central manifest is not on the Daily cutover v1 boundary.');
 assert(config.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio asset is missing.');
 assert(config.assets?.promptStudioClean?.version === '1.1.0-library-browser', 'Library Browser controller cache version changed unexpectedly.');
 assert(config.assets?.promptFactoryMountV1?.path === 'js/prompt-factory-mount-v1.js', 'Prompt Factory mount asset is missing.');
@@ -44,22 +45,25 @@ assert(config.assets?.promptPromotionCssV1?.path === 'admin-prompt-promotion-v1.
 assert(config.assets?.promptLibraryShardsV1?.path === 'js/prompt-library-shards-v1.js', 'Prompt Library Shards v1 asset is missing.');
 assert(config.assets?.promptLibraryShardsBridgeV1?.path === 'js/prompt-library-shards-promotion-bridge-v1.js', 'Prompt Library Shards promotion bridge is missing.');
 assert(config.assets?.promptLibraryShardsCssV1?.path === 'admin-prompt-library-shards-v1.css', 'Prompt Library Shards CSS asset is missing.');
-assert(config.assets?.studioBootstrap?.version === '2.4.0-library-shards', 'Prompt Library Shards bootstrap version is missing.');
+assert(config.assets?.adminDailyLibraryCutoverV1?.path === 'js/admin-daily-library-cutover-v1.js', 'Daily saved-library cutover asset is missing.');
+assert(config.assets?.adminDailyLibraryCutoverV1?.version === '1.0.0', 'Daily saved-library cutover cache version is wrong.');
+assert(config.assets?.studioBootstrap?.version === '2.5.0-daily-cutover', 'Daily cutover bootstrap version is missing.');
+assert(config.assets?.adminImportTools?.version === '24.5.0-daily-cutover', 'Clean Admin entrypoint cache version is stale.');
 assert(config.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Clean repository pool boundary changed unexpectedly.');
-assert(generatedManifest.includes('2.5.0-library-shards-v1'), 'Generated manifest was not refreshed.');
-assert(generatedManifest.includes('"promptFactoryV1"'), 'Generated manifest does not expose the Prompt Factory engine.');
-assert(generatedManifest.includes('"promptQualityAnalyserV1"'), 'Generated manifest does not expose the Quality Analyser engine.');
-assert(generatedManifest.includes('"promptPromotionV1"'), 'Generated manifest does not expose Promotion v1.');
-assert(generatedManifest.includes('"promptLibraryShardsV1"'), 'Generated manifest does not expose Prompt Library Shards v1.');
-assert(generatedManifest.includes('"promptLibraryShardsBridgeV1"'), 'Generated manifest does not expose the Promotion-to-shards bridge.');
+assert(generatedManifest.includes('2.6.0-daily-cutover-v1'), 'Generated manifest was not refreshed to the Daily cutover boundary.');
+for (const key of ['promptFactoryV1', 'promptQualityAnalyserV1', 'promptPromotionV1', 'promptLibraryShardsV1', 'promptLibraryShardsBridgeV1', 'adminDailyLibraryCutoverV1']) {
+  assert(generatedManifest.includes(`"${key}"`), `Generated manifest does not expose ${key}.`);
+}
 
 assert(bootstrap.includes('ensurePromptStudio'), 'Bootstrap does not own the clean Prompt Studio load.');
 assert(bootstrap.includes('ensurePromptFactory'), 'Bootstrap does not own the Prompt Factory load.');
 assert(bootstrap.includes('ensureQualityAnalyser'), 'Bootstrap does not own the Quality Analyser load.');
 assert(bootstrap.includes('ensurePromotion'), 'Bootstrap does not own the Promotion v1 load.');
 assert(bootstrap.includes('ensureLibraryShards'), 'Bootstrap does not own the Prompt Library Shards load.');
+assert(bootstrap.includes('ensureDailyCutover'), 'Bootstrap does not own the Daily saved-library cutover load.');
 assert(bootstrap.includes('promptLibraryShardsV1'), 'Bootstrap does not load Prompt Library Shards v1.');
 assert(bootstrap.includes('promptLibraryShardsBridgeV1'), 'Bootstrap does not load the Promotion-to-shards bridge.');
+assert(bootstrap.includes('adminDailyLibraryCutoverV1'), 'Bootstrap does not load the Daily cutover boundary.');
 for (const retired of [
   'ensurePromptRedesign',
   'ensurePromptV3',
@@ -73,7 +77,7 @@ for (const retired of [
   'promptRefinementIncubator'
 ]) forbid(bootstrap, retired, 'Studio bootstrap');
 
-assert(entrypoint.includes('2.4.0-library-shards'), 'Admin entrypoint does not cache-bust the Prompt Library Shards bootstrap.');
+assert(entrypoint.includes('2.5.0-daily-cutover'), 'Admin entrypoint does not cache-bust the Daily cutover bootstrap.');
 forbid(entrypoint, 'prompt-studio-loader.js', 'Admin entrypoint');
 forbid(entrypoint, 'loadLegacyPromptPath', 'Admin entrypoint');
 assert(entrypoint.includes('fallback is disabled by design'), 'Admin entrypoint does not fail closed.');
@@ -138,6 +142,13 @@ assert(shardBridge.includes('detail.source !== "prompt-promotion-v1"'), 'Promoti
 assert(shardCss.includes('.prompt-shard-family-list'), 'Prompt Library Shards family-list styling is missing.');
 assert(shardCss.includes('@media (max-width: 620px)'), 'Prompt Library Shards mobile layout is missing.');
 
+assert(dailyCutover.includes('EXPECTED_FAMILIES'), 'Daily cutover does not pin the 17 promoted families.');
+assert(dailyCutover.includes('materialiseFamily'), 'Daily cutover does not expose lazy family materialisation.');
+assert(dailyCutover.includes('compileConditions'), 'Daily cutover does not rebuild executable prompt rules.');
+assert(dailyCutover.includes('historyPanel'), 'Daily cutover does not retire the old visible history panel.');
+assert(!dailyCutover.includes('window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL ='), 'Daily cutover must not replace production authority yet.');
+assert(!dailyCutover.includes('window.FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Daily cutover must not silently activate generation.');
+
 assert(cleanCss.includes('.prompt-clean-status-card'), 'Mobile-safe clean status card styling is missing.');
 assert(cleanCss.includes('.prompt-library-browser-toolbar'), 'Library Browser toolbar styling is missing.');
 assert(cleanCss.includes('.prompt-factory-controls'), 'Prompt Factory controls styling is missing.');
@@ -148,4 +159,4 @@ assert(repositoryPool.includes('expectedTotal: 0'), 'Repository prompt pool was 
 forbid(repositoryPool, 'prompt-library-canonical-state.js', 'Repository prompt pool');
 forbid(repositoryPool, 'EXPECTED_TOTAL = 851', 'Repository prompt pool');
 
-console.log('Prompt Studio clean boundary + Factory + Quality + Promotion + durable family shards verified: one explicit promotion can be restored without rerunning Factory, production pool still safely zero.');
+console.log('Prompt Studio clean boundary verified through saved 17-family Daily cutover indexing: production generation authority remains safely separate.');
