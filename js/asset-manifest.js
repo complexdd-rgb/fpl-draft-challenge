@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "2.6.0-daily-cutover-v1"
+      "version": "2.7.0-daily-generation-cutover"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -206,7 +206,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "1.1.3-repository-pool"
+      "version": "2.0.0-saved-library-cycle"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
@@ -233,7 +233,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "2.6.0-daily-cutover-v1",
+    version: "2.7.0-daily-generation-cutover",
     assets,
     get,
     url
