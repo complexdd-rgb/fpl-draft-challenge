@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.0.6-preplan-fastpath"
+      "version": "3.1.0-studio-prune"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -68,53 +68,9 @@
       "path": "js/daily-semantic-diversity-v1.js",
       "version": "1.0.0"
     },
-    "adminImportTools": {
-      "path": "js/admin-import-tools.js",
-      "version": "24.6.0-schedule-manager"
-    },
-    "studioFeatureLoader": {
-      "path": "js/studio-feature-loader.js",
-      "version": "1.1.0-bootstrap-shim"
-    },
     "promptStudioLoader": {
       "path": "js/prompt-studio-loader.js",
       "version": "1.4.0-retired"
-    },
-    "promptStudioRedesign": {
-      "path": "js/prompt-studio-redesign.js",
-      "version": "2.0.0-retired"
-    },
-    "promptFamilyRegistryV3": {
-      "path": "js/prompt-family-registry-v3.js",
-      "version": "3.0.0-retired"
-    },
-    "promptStudioV3": {
-      "path": "js/prompt-studio-v3-clean-room.js",
-      "version": "3.0.0-retired"
-    },
-    "promptStudioV3RuleTester": {
-      "path": "js/prompt-studio-v3-rule-tester.js",
-      "version": "3.1.1-retired"
-    },
-    "promptStudioV3QualityAdvisor": {
-      "path": "js/prompt-studio-v3-quality-advisor.js",
-      "version": "3.2.0-retired"
-    },
-    "promptStudioV3CandidateGenerator": {
-      "path": "js/prompt-studio-v3-candidate-generator.js",
-      "version": "3.3.1-retired"
-    },
-    "promptStudioV3AutoBatchGenerator": {
-      "path": "js/prompt-studio-v3-auto-batch-generator.js",
-      "version": "3.5.0-retired"
-    },
-    "promptStudioV3CandidateCertification": {
-      "path": "js/prompt-studio-v3-candidate-certification.js",
-      "version": "3.4.0-retired"
-    },
-    "promptStudioV4Simple": {
-      "path": "js/prompt-studio-v4-simple.js",
-      "version": "4.0.0-retired"
     },
     "adminImportToolsBase": {
       "path": "js/admin-import-tools-base.js",
@@ -241,7 +197,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.0.6-preplan-fastpath",
+    version: "3.1.0-studio-prune",
     assets,
     get,
     url

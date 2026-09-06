@@ -19,7 +19,7 @@ for (const key of [
   'adminStageOne',
   'adminBatchCalendar',
   'adminDailyGeneratorGuard',
-  'adminImportTools',
+  'studioBootstrap',
   'leaderboardConfig'
 ]) {
   const asset = manifest.assets[key];

@@ -72,8 +72,7 @@ admin.html
 → validation-engine.js
 → admin-core.js
 → weekly/daily guards
-→ admin-import-tools.js compatibility shim
-   → studio-bootstrap.js
+→ studio-bootstrap.js
       ├─ Prompt Studio V2 compatibility controller
       ├─ Prompt Studio V3 clean-room controller
       ├─ V3 family registry
@@ -92,12 +91,6 @@ Main modules:
 - `config/asset-manifest.json` — authoritative Studio asset paths/cache versions.
 - `js/studio-bootstrap.js` — single Studio feature/bootstrap owner.
 - `js/admin-stage-one.js` — native shell activation and remaining legacy re-parenting.
-- `js/prompt-studio-v3-clean-room.js` — isolated V3 Draft/Test/Quality/Review workflow.
-- `js/prompt-family-registry-v3.js` — V3 family catalogue and coverage source.
-- `js/prompt-studio-v3-rule-tester.js` — parser-safe structured rule builder and real player-database Test evidence.
-- `js/prompt-studio-v3-quality-advisor.js` — advisory answer breadth, concentration, V3 overlap and family-coverage evidence; never a review authority.
-- `js/prompt-studio-v3-candidate-generator.js` — deliberate family + target-answer-pool shortlist generator; never auto-saves or promotes candidates.
-- `js/prompt-studio-v3-candidate-certification.js` — read-only season-by-season candidate evidence; never mutates V3 review/approval or production membership.
 - `js/prompt-studio-redesign.js` — V2 compatibility presentation while the old production pipeline still exists.
 - `js/prompt-library-canonical-state.js` — V2 visible census/enabled policy; not V3 authority.
 - `js/repository-certified-prompt-pool.js` — existing production membership boundary.
@@ -107,12 +100,7 @@ Main modules:
 - `js/admin-studio-finish.js` — preflight and all-season certification orchestration.
 - `js/validation-engine.js` / `js/validation-lab.js` — validation behaviour.
 
-Temporary shims:
-
-- `js/admin-import-tools.js`
-- `js/studio-feature-loader.js`
-
-Retire them only when all supported callers have migrated.
+The former `admin-import-tools.js` and `studio-feature-loader.js` compatibility shims have been retired. `admin.html` now loads `js/studio-bootstrap.js` directly.
 
 ---
 
@@ -381,7 +369,8 @@ config/asset-manifest.json
 → scripts/build-native-studio-shell.mjs
 → scripts/build-native-daily-workspace.mjs
 → scripts/build-native-prompt-workspace.mjs
-→ scripts/build-studio-wiring.mjs
+→ scripts/build-asset-manifest-runtime.mjs
+→ scripts/build-studio-cache-tags.mjs
 → verification
 ```
 
@@ -392,10 +381,8 @@ Dedicated verifiers include:
 - `scripts/verify-native-validation-workspace.mjs`
 - `scripts/verify-native-daily-workspace.mjs`
 - `scripts/verify-native-prompt-workspace.mjs`
-- `scripts/verify-prompt-studio-v3.mjs`
 - `scripts/verify-all-season-certification-gate.mjs`
 
-The V3 verifier explicitly proves zero-start isolation, disabled-by-default drafts, parser-safe structured rule mapping, real database Test evidence, advisory-only quality evidence, deliberate temporary candidate generation, read-only candidate all-season certification, human quality review, non-live approval and the absence of automatic V3 promotion/removal logic.
 
 ---
 

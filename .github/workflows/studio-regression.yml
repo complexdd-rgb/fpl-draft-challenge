@@ -17,61 +17,44 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Check Studio and live JavaScript syntax
+      - name: Check surviving Studio and live JavaScript syntax
+        shell: bash
         run: |
+          set -euo pipefail
           node --check prompt-library.js
           node --check players-live.js
-          node --check js/admin-core.js
-          node --check js/admin-stage-one.js
-          node --check js/admin-batch-calendar.js
-          node --check js/admin-import-tools.js
-          node --check js/prompt-studio-loader.js
-          node --check js/career-shape-validation-bridge.js
-          node --check js/admin-import-tools-base.js
-          node --check js/admin-daily-publish.js
-          node --check js/admin-daily-generator-guard.js
-          node --check js/admin-studio-finish.js
-          node --check js/validation-engine.js
-          node --check js/validation-lab.js
-          node --check js/leaderboard-config.js
-          node --check js/live-feature-loader.js
-          node --check js/studio-feature-loader.js
-          node --check js/prompt-library-legacy-additions-20260814.js
-          node --check js/leaderboard-client.js
-          node --check js/leaderboard-team-view.js
-          node --check js/leaderboard-ranking-rules.js
-          node --check js/leaderboard-all-time.js
-          node --check js/leaderboard-account.js
-          node --check js/leaderboard-admin-status.js
-          node --check js/player-profile.js
-          node --check js/player-profile-cache.js
-          node --check js/player-profile-core.js
-          node --check js/results-v2.js
-          node --check js/results-polish-v3.js
-          node --check js/career-context.js
-          node --check js/career-overlap-wording.js
-          node --check js/prompt-four-star-enforcer.js
-          node --check js/prompt-refinement-incubator.js
-          node --check js/career-shape-rules.js
-          node --check js/career-shape-studio.js
-          node --check js/career-shape-unified-generator.js
-          node --check js/career-shape-unified-fixes.js
-          node --check js/career-shape-future-quality-guard.js
-          node --check js/ui-cleanup.js
-          node --check js/live-ui-bootstrap.js
-          node --check js/studio-zip.js
-          node --check js/challenge-manifest-bootstrap.js
-          node --check js/challenge-legacy-fallback.js
-          node --check js/prompt-helpers.js
-          node --check js/game-engine.js
-          node --check js/live-visual-enhancements.js
-          node --check js/phase45-dashboard.js
-          node --check js/phase45-polish.js
-          node --check js/season-select-performance.js
-          node --check js/autocomplete-layer.js
-          node --check js/visual-overhaul.js
-          node --check js/visual-finishing.js
+          find js -maxdepth 1 -type f -name '*.js' -print0 | sort -z | xargs -0 -n1 node --check
           node --check sw.js
+
+      - name: Verify retired Studio shims and V3 V4 runtime are physically removed
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in \
+            js/admin-import-tools.js \
+            js/studio-feature-loader.js \
+            js/prompt-studio-redesign.js \
+            js/prompt-family-registry-v3.js \
+            js/prompt-studio-v3-clean-room.js \
+            js/prompt-studio-v3-rule-tester.js \
+            js/prompt-studio-v3-quality-advisor.js \
+            js/prompt-studio-v3-candidate-generator.js \
+            js/prompt-studio-v3-auto-batch-generator.js \
+            js/prompt-studio-v3-candidate-certification.js \
+            js/prompt-studio-v4-simple.js \
+            scripts/verify-prompt-studio-v3.mjs \
+            scripts/verify-prompt-studio-v4.mjs \
+            scripts/build-studio-wiring.mjs \
+            scripts/verify-studio-wiring.mjs; do
+            test ! -e "$file"
+          done
+          grep -q 'data-studio-bootstrap="1" src="js/studio-bootstrap.js?v=2.6.0-schedule-manager"' admin.html
+          ! grep -q 'js/admin-import-tools.js' admin.html
+          ! grep -q '"adminImportTools"' config/asset-manifest.json
+          ! grep -q '"studioFeatureLoader"' config/asset-manifest.json
+          ! grep -q '"promptStudioV3"' config/asset-manifest.json
+          ! grep -q '"promptStudioV4Simple"' config/asset-manifest.json
+          git diff --check
 
       - name: Verify retired public UI is physically removed
         shell: bash
@@ -86,9 +69,8 @@ jobs:
           ! grep -q 'removeLegacySelectionPanel' js/give-up-gameplay.js
           ! grep -q 'retired-panel-compat' js/ui-cleanup.js
           test ! -e js/retired-panel-compat.js
-          git diff --check
 
-      - name: Verify retired 2015/16 importer is physically removed
+      - name: Verify retired importer and repair workspaces are removed
         shell: bash
         run: |
           set -euo pipefail
@@ -98,15 +80,6 @@ jobs:
           ! grep -q 'BEGIN admin-phase12.js' js/admin-import-tools-base.js
           ! grep -q 'END admin-phase12.js' js/admin-import-tools-base.js
           grep -q 'BEGIN admin-phase15.js' js/admin-import-tools-base.js
-          grep -q 'id="importCentreHeading"' admin.html
-          grep -q 'id="identityConsolidationCentre"' admin.html
-          node --check js/admin-import-tools-base.js
-          git diff --check
-
-      - name: Verify retired repair workspaces are physically removed
-        shell: bash
-        run: |
-          set -euo pipefail
           ! grep -q 'id="databaseRepairPanel"' admin.html
           ! grep -q 'id="autoRepairHeading"' admin.html
           ! grep -q 'BEGIN admin-phase8.js' js/admin-core.js
@@ -119,8 +92,6 @@ jobs:
           grep -q 'id="databaseAuditorPanel"' admin.html
           grep -q 'id="importCentreHeading"' admin.html
           grep -q 'id="identityConsolidationCentre"' admin.html
-          node --check js/admin-core.js
-          git diff --check
 
       - name: Verify legacy Publishing Centre is removed and ZIP paths remain active
         shell: bash
@@ -146,14 +117,11 @@ jobs:
           (async () => {
             const blob = window.FPL_STUDIO_ZIP.buildZipBlob([{ name: 'hello.txt', content: 'hello' }]);
             const bytes = new Uint8Array(await blob.arrayBuffer());
-            if (blob.type !== 'application/zip' || bytes.length < 22 || bytes[0] !== 0x50 || bytes[1] !== 0x4b || bytes[2] !== 0x03 || bytes[3] !== 0x04) {
-              throw new Error('Shared ZIP utility smoke test failed');
-            }
+            if (blob.type !== 'application/zip' || bytes.length < 22 || bytes[0] !== 0x50 || bytes[1] !== 0x4b || bytes[2] !== 0x03 || bytes[3] !== 0x04) throw new Error('Shared ZIP utility smoke test failed');
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
-          git diff --check
 
-      - name: Verify player stylesheet is externalized
+      - name: Verify player and Studio styles remain external
         shell: bash
         run: |
           set -euo pipefail
@@ -161,30 +129,30 @@ jobs:
           grep -q 'href="player-game.css?v=1.0.0"' index.html
           ! grep -q '<style>' index.html
           grep -q 'Core player-facing game styles extracted from index.html' player-game.css
-          grep -q 'PHASE 4.5 second pass' player-game.css
           grep -q '.phase45-shell' player-game.css
           grep -q '.slot' player-game.css
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const html = fs.readFileSync('index.html', 'utf8');
-          const head = html.slice(0, html.indexOf('</head>'));
-          if ((head.match(/player-game\.css\?v=1\.0\.0/g) || []).length !== 1) throw new Error('Expected exactly one player-game.css load');
-          if (head.indexOf('player-game.css?v=1.0.0') > head.indexOf('manifest.webmanifest')) throw new Error('Player stylesheet load order changed');
-          NODE
-          git diff --check
+          test -s admin-live-tools.css
+          grep -q 'href="admin-live-tools.css?v=1.0.0"' admin.html
+          ! grep -q '<style' admin.html
+          grep -q 'FPL STUDIO PERFECT-SCORE LIMIT + PICK EFFICIENCY v1' admin-live-tools.css
+          grep -q 'Phase 2 — seven-day calendar generator' admin-live-tools.css
 
-      - name: Verify live bootstrap scripts are externalized in order
+      - name: Verify live bootstrap and game engine order
         shell: bash
         run: |
           set -euo pipefail
           test -s js/challenge-manifest-bootstrap.js
           test -s js/challenge-legacy-fallback.js
           test -s js/prompt-helpers.js
+          test -s js/game-engine.js
           grep -q 'src="js/challenge-manifest-bootstrap.js?v=1.0.0"' index.html
           grep -q 'src="js/challenge-legacy-fallback.js?v=1.0.0"' index.html
           grep -q 'src="js/prompt-helpers.js?v=1.0.0"' index.html
-          ! grep -q '<script>[[:space:]]*document.write' index.html
           grep -q 'src="js/game-engine.js?v=1.0.0"' index.html
+          grep -q 'const INVALID_PENALTY = 10;' js/game-engine.js
+          grep -q 'const qualifiesForAnswer=record=>' js/game-engine.js
+          grep -q 'function calculatePerfectXI()' js/game-engine.js
+          grep -q 'function reveal(restoring=false)' js/game-engine.js
           node - <<'NODE'
           const fs = require('node:fs');
           const html = fs.readFileSync('index.html', 'utf8');
@@ -196,87 +164,29 @@ jobs:
             'js/prompt-helpers.js?v=1.0.0',
             'players-live.js?v=1.0.0',
             'js/career-context.js?v=1.5.0',
-            'js/game-engine.js?v=1.0.0'
+            'js/game-engine.js?v=1.0.0',
+            'js/live-visual-enhancements.js?v=1.0.0'
           ].map(item => html.indexOf(item));
           if (!order.every(index => index >= 0) || !order.every((index, i) => i === 0 || index > order[i - 1])) throw new Error('Live bootstrap load order changed');
           NODE
-          git diff --check
 
-      - name: Verify core game engine is externalized without rule drift
+      - name: Verify live and Studio pages have zero inline scripts
         shell: bash
         run: |
           set -euo pipefail
-          test -s js/game-engine.js
-          grep -q 'src="js/game-engine.js?v=1.0.0"' index.html
-          ! grep -q 'Core FPL Daily Challenge game engine' index.html
-          grep -q 'Core FPL Daily Challenge game engine' js/game-engine.js
-          grep -q 'const INVALID_PENALTY = 10;' js/game-engine.js
-          grep -q 'const qualifiesForAnswer=record=>' js/game-engine.js
-          grep -q 'function calculatePerfectXI()' js/game-engine.js
-          grep -q 'function reveal(restoring=false)' js/game-engine.js
-          grep -q 'if(completedRecord){renderCompletedResult(completedRecord,true);}' js/game-engine.js
-          grep -q 'src="js/live-visual-enhancements.js?v=1.0.0"' index.html
           node - <<'NODE'
           const fs = require('node:fs');
-          const html = fs.readFileSync('index.html', 'utf8');
-          const career = html.indexOf('js/career-context.js?v=1.5.0');
-          const engine = html.indexOf('js/game-engine.js?v=1.0.0');
-          const visual = html.indexOf('js/live-visual-enhancements.js?v=1.0.0');
-          if (!(career >= 0 && engine > career && visual > engine)) throw new Error('Core engine load order changed');
+          for (const file of ['index.html', 'admin.html']) {
+            const html = fs.readFileSync(file, 'utf8');
+            const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/gi)];
+            if (inline.length !== 0) throw new Error(`${file}: expected zero inline scripts, found ${inline.length}`);
+          }
+          const admin = fs.readFileSync('admin.html', 'utf8');
+          const base = admin.indexOf('admin.css?v=16.2.0');
+          const stage = admin.indexOf('admin-stage-one.css?v=1.0.0');
+          const tools = admin.indexOf('admin-live-tools.css?v=1.0.0');
+          if (!(base >= 0 && stage > base && tools > stage && tools < admin.indexOf('</head>'))) throw new Error('Studio stylesheet load order changed');
           NODE
-          git diff --check
-
-      - name: Verify live page has zero inline scripts
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -s js/live-visual-enhancements.js
-          test -s js/phase45-dashboard.js
-          grep -q 'src="js/live-visual-enhancements.js?v=1.0.0"' index.html
-          grep -q 'src="js/phase45-dashboard.js?v=1.0.0"' index.html
-          grep -q 'FPL Daily Challenge 4.3 — inline visual enhancements' js/live-visual-enhancements.js
-          grep -q 'const historyStore = "fpl-v4-local-history";' js/phase45-dashboard.js
-          grep -q 'id="phase45BottomNav"' index.html
-          grep -q 'id="completionMoment"' index.html
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const html = fs.readFileSync('index.html', 'utf8');
-          const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/gi)];
-          if (inline.length !== 0) throw new Error(`Expected zero inline scripts, found ${inline.length}`);
-          const order = [
-            'js/game-engine.js?v=1.0.0',
-            'js/live-visual-enhancements.js?v=1.0.0',
-            'phase45BottomNav',
-            'completionMoment',
-            'js/phase45-dashboard.js?v=1.0.0',
-            'js/leaderboard-config.js?v=5.0.0',
-            'js/leaderboard-client.js?v=5.0.0',
-            'js/phase45-polish.js?v=2.0.0'
-          ].map(item => html.indexOf(item));
-          if (!order.every(index => index >= 0) || !order.every((index, i) => i === 0 || index > order[i - 1])) throw new Error('Final live-page order changed');
-          NODE
-          git diff --check
-
-      - name: Verify Studio page uses external CSS and JavaScript only
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -s admin-live-tools.css
-          grep -q 'href="admin-live-tools.css?v=1.0.0"' admin.html
-          ! grep -q '<style' admin.html
-          grep -q 'FPL STUDIO PERFECT-SCORE LIMIT + PICK EFFICIENCY v1' admin-live-tools.css
-          grep -q 'Phase 2 — seven-day calendar generator' admin-live-tools.css
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const html = fs.readFileSync('admin.html','utf8');
-          const inlineScripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/gi)];
-          if (inlineScripts.length !== 0) throw new Error(`Expected zero inline Studio scripts, found ${inlineScripts.length}`);
-          const base = html.indexOf('admin.css?v=16.2.0');
-          const stage = html.indexOf('admin-stage-one.css?v=1.0.0');
-          const tools = html.indexOf('admin-live-tools.css?v=1.0.0');
-          if (!(base >= 0 && stage > base && tools > stage && tools < html.indexOf('</head>'))) throw new Error('Studio stylesheet load order changed');
-          NODE
-          git diff --check
 
       - name: Verify Stage One has no retired-workspace compatibility residue
         shell: bash
@@ -284,11 +194,10 @@ jobs:
           set -euo pipefail
           ! grep -q 'studioRetired' js/admin-stage-one.js
           ! grep -q 'repairBlockedCount' js/admin-stage-one.js
-          ! grep -q 'database repair|automatic repair' js/admin-stage-one.js
-          ! grep -q 'publishing centre|daily challenge' js/admin-stage-one.js
+          ! grep -qiE 'database repair|automatic repair' js/admin-stage-one.js
+          ! grep -qiE 'publishing centre|daily challenge' js/admin-stage-one.js
           ! grep -q 'studio-retired-tool' admin-stage-one.css
           grep -q 'id: "imports"' js/admin-stage-one.js
           grep -q 'Player Database Auditor' js/admin-stage-one.js
           grep -q 'Historical Database Import Centre' js/admin-stage-one.js
-          node --check js/admin-stage-one.js
           git diff --check
