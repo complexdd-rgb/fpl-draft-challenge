@@ -242,6 +242,49 @@
   color: #65eaa3 !important;
 }
 
+/* The repository-certified pool deliberately remains zero after the clean reset. Daily v2 now
+   consumes the saved promoted library through a fresh runtime-certified 77-prompt reservoir,
+   so the old repository-alignment state is no longer the generation-authority signal. */
+.daily-library-boundary.pending {
+  grid-template-columns: minmax(0, 1fr) auto;
+  border-color: rgba(57, 232, 143, .2);
+  background: rgba(57, 232, 143, .04);
+}
+
+.daily-library-boundary.pending > * {
+  display: none;
+}
+
+.daily-library-boundary.pending::before {
+  content: "GENERATION AUTHORITY\A Active saved promoted library\A A 77-prompt reservoir is structurally and runtime verified before each Generate week run.";
+  display: block;
+  color: #81998d;
+  font-size: .61rem;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.daily-library-boundary.pending::first-line {
+  color: #7f9b8d;
+  font-size: .57rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+}
+
+.daily-library-boundary.pending::after {
+  content: "SOURCE ACTIVE";
+  display: block;
+  padding: 6px 8px;
+  border: 1px solid rgba(57, 232, 143, .22);
+  border-radius: 999px;
+  color: #65eaa3;
+  font-size: .58rem;
+  font-weight: 950;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .daily-library-future-note {
   grid-template-columns: minmax(150px, .45fr) minmax(0, 1.55fr);
   border-color: rgba(98, 201, 255, .12);
@@ -412,6 +455,10 @@
   }
 
   .daily-library-boundary-chip {
+    justify-self: start;
+  }
+
+  .daily-library-boundary.pending::after {
     justify-self: start;
   }
 
