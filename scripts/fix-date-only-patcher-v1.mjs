@@ -55,5 +55,8 @@ const replacement = [
 ].join('\n');
 
 source = source.slice(0, start) + replacement + source.slice(end);
+// The migration helper edits browser source that itself contains template literals. Keep
+// those browser expressions literal here instead of evaluating them inside the helper.
+source = source.replaceAll('${scheduled.length}', '\\${scheduled.length}');
 fs.writeFileSync(path, source);
 console.log('Repaired date-only migration helper quoting.');
