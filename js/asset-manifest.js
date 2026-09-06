@@ -58,7 +58,7 @@
     },
     "promptLibraryShardsCssV1": {
       "path": "admin-prompt-library-shards-v1.css",
-      "version": "1.1.0"
+      "version": "1.2.0-daily-authority"
     },
     "adminDailyLibraryCutoverV1": {
       "path": "js/admin-daily-library-cutover-v1.js",
