@@ -5,7 +5,7 @@ on:
     branches:
       - daily-leader-layout-retry-v1
     paths:
-      - 'scripts/apply-leader-layout-retry-v1.py'
+      - 'scripts/apply-leader-layout-retry*.py'
       - '.github/workflows/apply-leader-layout-retry-v1.yml'
 
 permissions:
@@ -22,7 +22,9 @@ jobs:
         with:
           node-version: '22'
       - name: Apply weekly layout retry
-        run: python scripts/apply-leader-layout-retry-v1.py
+        run: |
+          python scripts/apply-leader-layout-retry-v1.py
+          python scripts/apply-leader-layout-retry-verifier-v1.py
       - name: Refresh asset wiring
         run: |
           node scripts/build-asset-manifest-runtime.mjs
@@ -40,7 +42,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add admin.html config/asset-manifest.json js/admin-batch-calendar.js js/asset-manifest.js scripts/verify-weekly-top-answer-diversity.mjs scripts/verify-prompt-studio-clean-reset.mjs
+          git add admin.html config/asset-manifest.json js/admin-batch-calendar.js js/asset-manifest.js scripts/verify-weekly-top-answer-diversity.mjs scripts/verify-weekly-certified-snapshot-race.mjs scripts/verify-prompt-studio-clean-reset.mjs
           if git diff --cached --quiet; then
             echo 'No production changes to commit.'
           else
