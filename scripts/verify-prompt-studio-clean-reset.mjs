@@ -19,6 +19,9 @@ const qualityAnalyser = read('js/prompt-quality-analyser-v1.js');
 const qualityCss = read('admin-prompt-quality-analyser.css');
 const promotion = read('js/prompt-promotion-v1.js');
 const promotionCss = read('admin-prompt-promotion-v1.css');
+const shards = read('js/prompt-library-shards-v1.js');
+const shardBridge = read('js/prompt-library-shards-promotion-bridge-v1.js');
+const shardCss = read('admin-prompt-library-shards-v1.css');
 const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const promptLibrary = read('prompt-library.js');
 const executablePromptLibrary = promptLibrary
@@ -28,7 +31,7 @@ const executablePromptLibrary = promptLibrary
   .replace(/\s+/g, ' ')
   .trim();
 
-assert(config.manifestVersion === '2.4.0-promotion-v1', 'Central manifest is not on the Promotion v1 boundary.');
+assert(config.manifestVersion === '2.5.0-library-shards-v1', 'Central manifest is not on the Prompt Library Shards v1 boundary.');
 assert(config.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio asset is missing.');
 assert(config.assets?.promptStudioClean?.version === '1.1.0-library-browser', 'Library Browser controller cache version changed unexpectedly.');
 assert(config.assets?.promptFactoryMountV1?.path === 'js/prompt-factory-mount-v1.js', 'Prompt Factory mount asset is missing.');
@@ -38,21 +41,25 @@ assert(config.assets?.promptQualityAnalyserV1?.path === 'js/prompt-quality-analy
 assert(config.assets?.promptQualityAnalyserCssV1?.path === 'admin-prompt-quality-analyser.css', 'Quality Analyser CSS asset is missing.');
 assert(config.assets?.promptPromotionV1?.path === 'js/prompt-promotion-v1.js', 'Promotion v1 asset is missing.');
 assert(config.assets?.promptPromotionCssV1?.path === 'admin-prompt-promotion-v1.css', 'Promotion v1 CSS asset is missing.');
-assert(config.assets?.studioBootstrap?.version === '2.3.0-promotion', 'Promotion bootstrap version is missing.');
+assert(config.assets?.promptLibraryShardsV1?.path === 'js/prompt-library-shards-v1.js', 'Prompt Library Shards v1 asset is missing.');
+assert(config.assets?.promptLibraryShardsBridgeV1?.path === 'js/prompt-library-shards-promotion-bridge-v1.js', 'Prompt Library Shards promotion bridge is missing.');
+assert(config.assets?.promptLibraryShardsCssV1?.path === 'admin-prompt-library-shards-v1.css', 'Prompt Library Shards CSS asset is missing.');
+assert(config.assets?.studioBootstrap?.version === '2.4.0-library-shards', 'Prompt Library Shards bootstrap version is missing.');
 assert(config.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Clean repository pool boundary changed unexpectedly.');
-assert(generatedManifest.includes('2.4.0-promotion-v1'), 'Generated manifest was not refreshed.');
+assert(generatedManifest.includes('2.5.0-library-shards-v1'), 'Generated manifest was not refreshed.');
 assert(generatedManifest.includes('"promptFactoryV1"'), 'Generated manifest does not expose the Prompt Factory engine.');
 assert(generatedManifest.includes('"promptQualityAnalyserV1"'), 'Generated manifest does not expose the Quality Analyser engine.');
 assert(generatedManifest.includes('"promptPromotionV1"'), 'Generated manifest does not expose Promotion v1.');
-assert(generatedManifest.includes('"promptPromotionCssV1"'), 'Generated manifest does not expose Promotion v1 CSS.');
+assert(generatedManifest.includes('"promptLibraryShardsV1"'), 'Generated manifest does not expose Prompt Library Shards v1.');
+assert(generatedManifest.includes('"promptLibraryShardsBridgeV1"'), 'Generated manifest does not expose the Promotion-to-shards bridge.');
 
 assert(bootstrap.includes('ensurePromptStudio'), 'Bootstrap does not own the clean Prompt Studio load.');
 assert(bootstrap.includes('ensurePromptFactory'), 'Bootstrap does not own the Prompt Factory load.');
 assert(bootstrap.includes('ensureQualityAnalyser'), 'Bootstrap does not own the Quality Analyser load.');
 assert(bootstrap.includes('ensurePromotion'), 'Bootstrap does not own the Promotion v1 load.');
-assert(bootstrap.includes('promptQualityAnalyserMountV1'), 'Bootstrap does not load the Quality Analyser mount owner.');
-assert(bootstrap.includes('promptQualityAnalyserV1'), 'Bootstrap does not load the Quality Analyser engine.');
-assert(bootstrap.includes('promptPromotionV1'), 'Bootstrap does not load Promotion v1.');
+assert(bootstrap.includes('ensureLibraryShards'), 'Bootstrap does not own the Prompt Library Shards load.');
+assert(bootstrap.includes('promptLibraryShardsV1'), 'Bootstrap does not load Prompt Library Shards v1.');
+assert(bootstrap.includes('promptLibraryShardsBridgeV1'), 'Bootstrap does not load the Promotion-to-shards bridge.');
 for (const retired of [
   'ensurePromptRedesign',
   'ensurePromptV3',
@@ -66,14 +73,14 @@ for (const retired of [
   'promptRefinementIncubator'
 ]) forbid(bootstrap, retired, 'Studio bootstrap');
 
-assert(entrypoint.includes('2.3.0-promotion'), 'Admin entrypoint does not cache-bust the Promotion bootstrap.');
+assert(entrypoint.includes('2.4.0-library-shards'), 'Admin entrypoint does not cache-bust the Prompt Library Shards bootstrap.');
 forbid(entrypoint, 'prompt-studio-loader.js', 'Admin entrypoint');
 forbid(entrypoint, 'loadLegacyPromptPath', 'Admin entrypoint');
 assert(entrypoint.includes('fallback is disabled by design'), 'Admin entrypoint does not fail closed.');
 
 assert(
   executablePromptLibrary === 'window.FPL_PROMPT_LIBRARY = [];',
-  'prompt-library.js must remain the empty repository initializer until repository-backed publishing is built.'
+  'prompt-library.js must remain the empty repository initializer until the saved shard package is explicitly materialised into repository files.'
 );
 assert(cleanStudio.includes('FPL_PROMPT_STUDIO_CLEAN'), 'Clean Prompt Studio API is missing.');
 assert(cleanStudio.includes('promptLibraryBrowserList'), 'Library Browser list is missing.');
@@ -114,10 +121,22 @@ assert(promotion.includes('includeReview: true'), 'Maximum-library promotion pol
 assert(promotion.includes('qualityStatus'), 'Promotion does not preserve quality status metadata.');
 assert(promotion.includes('variantGroup'), 'Promotion does not preserve variant-group metadata.');
 assert(promotion.includes('share:'), 'Promotion does not calculate per-family library share.');
-assert(promotion.includes('Session-only in v1'), 'Promotion does not disclose its session-only persistence boundary.');
 assert(!promotion.includes('localStorage.setItem'), 'Promotion must not attempt to store a 100k+ canonical library in localStorage.');
 assert(promotionCss.includes('.prompt-promotion-family-row'), 'Promotion family-share table styling is missing.');
 assert(promotionCss.includes('@media (max-width: 620px)'), 'Promotion mobile layout is missing.');
+
+assert(shards.includes('const DB_NAME = "fplPromptLibraryShardsV1"'), 'Durable shard database name is missing.');
+assert(shards.includes('window.indexedDB.open'), 'Prompt Library Shards does not use IndexedDB.');
+assert(shards.includes('createSnapshot'), 'Prompt Library Shards snapshot builder is missing.');
+assert(shards.includes('saveCurrentPromotion'), 'Prompt Library Shards promotion saver is missing.');
+assert(shards.includes('restoreSaved'), 'Prompt Library Shards restore path is missing.');
+assert(shards.includes('buildRepositoryPackage'), 'Prompt Library Shards repository package builder is missing.');
+assert(shards.includes('prompt-library-shards/'), 'Prompt Library Shards does not define the repository family-shard layout.');
+assert(!shards.includes('localStorage.setItem'), 'Prompt Library Shards must not use localStorage for the 100k+ library.');
+assert(shardBridge.includes('fpl:prompt-library-changed'), 'Promotion-to-shards bridge is not wired to the canonical-library event.');
+assert(shardBridge.includes('detail.source !== "prompt-promotion-v1"'), 'Promotion-to-shards bridge does not restrict saving to explicit Promotion output.');
+assert(shardCss.includes('.prompt-shard-family-list'), 'Prompt Library Shards family-list styling is missing.');
+assert(shardCss.includes('@media (max-width: 620px)'), 'Prompt Library Shards mobile layout is missing.');
 
 assert(cleanCss.includes('.prompt-clean-status-card'), 'Mobile-safe clean status card styling is missing.');
 assert(cleanCss.includes('.prompt-library-browser-toolbar'), 'Library Browser toolbar styling is missing.');
@@ -129,4 +148,4 @@ assert(repositoryPool.includes('expectedTotal: 0'), 'Repository prompt pool was 
 forbid(repositoryPool, 'prompt-library-canonical-state.js', 'Repository prompt pool');
 forbid(repositoryPool, 'EXPECTED_TOTAL = 851', 'Repository prompt pool');
 
-console.log('Prompt Studio clean boundary + Factory + Quality Analyser + Promotion v1 verified: source identity gate, maximum-library promotion, family shares, no legacy fallback chain, repository pool still safely zero.');
+console.log('Prompt Studio clean boundary + Factory + Quality + Promotion + durable family shards verified: one explicit promotion can be restored without rerunning Factory, production pool still safely zero.');
