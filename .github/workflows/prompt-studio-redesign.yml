@@ -1,21 +1,24 @@
-name: Prompt Studio v2
+name: Prompt Studio compatibility guard
 
 on:
   pull_request:
     paths:
       - 'admin.html'
-      - 'admin.css'
-      - 'admin-prompt-studio-v2.css'
+      - 'admin-prompt-studio-clean.css'
       - 'config/asset-manifest.json'
       - 'fragments/admin-prompt-workspace.html'
       - 'js/admin-stage-one.js'
-      - 'js/prompt-studio-redesign.js'
-      - 'js/prompt-library-canonical-state.js'
+      - 'js/prompt-studio-clean-reset.js'
+      - 'js/prompt-factory-mount-v1.js'
+      - 'js/prompt-factory-v1.js'
+      - 'js/prompt-quality-analyser-mount-v1.js'
+      - 'js/prompt-quality-analyser-v1.js'
+      - 'js/prompt-promotion-v1.js'
+      - 'js/prompt-library-shards-v1.js'
+      - 'js/prompt-library-shards-promotion-bridge-v1.js'
       - 'js/repository-certified-prompt-pool.js'
       - 'js/studio-bootstrap.js'
-      - 'scripts/build-native-prompt-workspace.mjs'
-      - 'scripts/verify-native-prompt-workspace.mjs'
-      - 'scripts/verify-prompt-studio-redesign-policy.mjs'
+      - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - '.github/workflows/prompt-studio-redesign.yml'
 
 permissions:
@@ -33,16 +36,20 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Verify native Prompt Studio
-        run: node scripts/verify-native-prompt-workspace.mjs
+      - name: Verify current clean Prompt Studio architecture
+        run: node scripts/verify-prompt-studio-clean-reset.mjs
 
-      - name: Verify redesign policy
-        run: node scripts/verify-prompt-studio-redesign-policy.mjs
-
-      - name: Check redesign syntax
+      - name: Check current Prompt Studio syntax
         run: |
-          node --check js/prompt-studio-redesign.js
-          node --check scripts/build-native-prompt-workspace.mjs
-          node --check scripts/verify-native-prompt-workspace.mjs
-          node --check scripts/verify-prompt-studio-redesign-policy.mjs
+          node --check js/prompt-studio-clean-reset.js
+          node --check js/prompt-factory-mount-v1.js
+          node --check js/prompt-factory-v1.js
+          node --check js/prompt-quality-analyser-mount-v1.js
+          node --check js/prompt-quality-analyser-v1.js
+          node --check js/prompt-promotion-v1.js
+          node --check js/prompt-library-shards-v1.js
+          node --check js/prompt-library-shards-promotion-bridge-v1.js
+          node --check js/repository-certified-prompt-pool.js
+          node --check js/studio-bootstrap.js
+          node --check scripts/verify-prompt-studio-clean-reset.mjs
           git diff --check
