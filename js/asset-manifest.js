@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.0.3-leader-day-spacing"
+      "version": "3.0.4-leader-layout-retry"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -210,7 +210,7 @@
     },
     "adminBatchCalendar": {
       "path": "js/admin-batch-calendar.js",
-      "version": "3.5.0-leader-day-spacing"
+      "version": "3.6.0-leader-layout-retry"
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
@@ -241,7 +241,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.0.3-leader-day-spacing",
+    version: "3.0.4-leader-layout-retry",
     assets,
     get,
     url
