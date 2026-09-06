@@ -6,33 +6,21 @@ on:
       - 'config/asset-manifest.json'
       - 'js/asset-manifest.js'
       - 'js/studio-bootstrap.js'
-      - 'js/admin-import-tools.js'
       - 'js/prompt-studio-clean-reset.js'
-      - 'js/prompt-factory-mount-v1.js'
-      - 'js/prompt-factory-v1.js'
-      - 'js/prompt-quality-analyser-mount-v1.js'
-      - 'js/prompt-quality-analyser-v1.js'
+      - 'js/prompt-factory-*.js'
+      - 'js/prompt-quality-analyser-*.js'
       - 'js/prompt-promotion-v1.js'
-      - 'js/prompt-library-shards-v1.js'
-      - 'js/prompt-library-shards-promotion-bridge-v1.js'
+      - 'js/prompt-library-shards-*.js'
       - 'js/admin-daily-library-cutover-v1.js'
       - 'js/daily-semantic-diversity-v1.js'
       - 'js/admin-daily-generator-guard.js'
       - 'js/admin-batch-calendar.js'
       - 'js/admin-schedule-manager-v2.js'
-      - 'admin-prompt-studio-clean.css'
-      - 'admin-prompt-quality-analyser.css'
-      - 'admin-prompt-promotion-v1.css'
-      - 'admin-prompt-library-shards-v1.css'
       - 'js/repository-certified-prompt-pool.js'
+      - 'admin-prompt-*.css'
       - 'prompt-library.js'
-      - 'scripts/verify-prompt-studio-clean-reset.mjs'
-      - 'scripts/verify-prompt-factory-v1.mjs'
-      - 'scripts/verify-prompt-quality-analyser-v1.mjs'
-      - 'scripts/verify-prompt-promotion-v1.mjs'
-      - 'scripts/verify-prompt-library-shards-v1.mjs'
-      - 'scripts/verify-daily-library-cutover-v1.mjs'
-      - 'scripts/verify-daily-semantic-diversity-v1.mjs'
+      - 'scripts/verify-prompt-*.mjs'
+      - 'scripts/verify-daily-*.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-asset-manifest-runtime.mjs'
@@ -48,38 +36,27 @@ on:
     branches:
       - main
       - 'prompt-studio-*'
+      - 'cleanup-relevance-*'
       - 'redesign/daily-challenge-studio-v1'
     paths:
       - 'config/asset-manifest.json'
       - 'js/asset-manifest.js'
       - 'js/studio-bootstrap.js'
-      - 'js/admin-import-tools.js'
       - 'js/prompt-studio-clean-reset.js'
-      - 'js/prompt-factory-mount-v1.js'
-      - 'js/prompt-factory-v1.js'
-      - 'js/prompt-quality-analyser-mount-v1.js'
-      - 'js/prompt-quality-analyser-v1.js'
+      - 'js/prompt-factory-*.js'
+      - 'js/prompt-quality-analyser-*.js'
       - 'js/prompt-promotion-v1.js'
-      - 'js/prompt-library-shards-v1.js'
-      - 'js/prompt-library-shards-promotion-bridge-v1.js'
+      - 'js/prompt-library-shards-*.js'
       - 'js/admin-daily-library-cutover-v1.js'
       - 'js/daily-semantic-diversity-v1.js'
       - 'js/admin-daily-generator-guard.js'
       - 'js/admin-batch-calendar.js'
       - 'js/admin-schedule-manager-v2.js'
-      - 'admin-prompt-studio-clean.css'
-      - 'admin-prompt-quality-analyser.css'
-      - 'admin-prompt-promotion-v1.css'
-      - 'admin-prompt-library-shards-v1.css'
       - 'js/repository-certified-prompt-pool.js'
+      - 'admin-prompt-*.css'
       - 'prompt-library.js'
-      - 'scripts/verify-prompt-studio-clean-reset.mjs'
-      - 'scripts/verify-prompt-factory-v1.mjs'
-      - 'scripts/verify-prompt-quality-analyser-v1.mjs'
-      - 'scripts/verify-prompt-promotion-v1.mjs'
-      - 'scripts/verify-prompt-library-shards-v1.mjs'
-      - 'scripts/verify-daily-library-cutover-v1.mjs'
-      - 'scripts/verify-daily-semantic-diversity-v1.mjs'
+      - 'scripts/verify-prompt-*.mjs'
+      - 'scripts/verify-daily-*.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-asset-manifest-runtime.mjs'
@@ -111,50 +88,50 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Refresh manifest-owned Daily Studio wiring on branch pushes
+      - name: Refresh manifest-owned Studio wiring on branch pushes
         if: github.event_name == 'push'
         run: |
           node scripts/build-asset-manifest-runtime.mjs
           node scripts/build-native-daily-workspace.mjs
           node scripts/build-studio-cache-tags.mjs
 
-      - name: Commit refreshed Daily Studio wiring
+      - name: Commit refreshed Studio wiring
         if: github.event_name == 'push'
         shell: bash
         run: |
           set -euo pipefail
           git add admin.html js/asset-manifest.js
           if git diff --cached --quiet; then
-            echo 'Daily Studio wiring is already current.'
+            echo 'Studio wiring is already current.'
           else
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'Refresh Daily Studio wiring'
+            git commit -m 'Refresh Studio wiring'
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
-      - name: Verify Prompt Studio clean architecture boundary
+      - name: Verify clean Prompt Studio boundary
         run: node scripts/verify-prompt-studio-clean-reset.mjs
 
-      - name: Run Prompt Factory behavioural smoke test
+      - name: Run Prompt Factory smoke test
         run: node scripts/verify-prompt-factory-v1.mjs
 
-      - name: Run Prompt Quality Analyser behavioural smoke test
+      - name: Run Prompt Quality Analyser smoke test
         run: node scripts/verify-prompt-quality-analyser-v1.mjs
 
-      - name: Run Prompt Promotion behavioural smoke test
+      - name: Run Prompt Promotion smoke test
         run: node scripts/verify-prompt-promotion-v1.mjs
 
-      - name: Run Prompt Library Shards behavioural smoke test
+      - name: Run Prompt Library Shards smoke test
         run: node scripts/verify-prompt-library-shards-v1.mjs
 
-      - name: Run Daily library cutover boundary smoke test
+      - name: Run Daily library cutover smoke test
         run: node scripts/verify-daily-library-cutover-v1.mjs
 
       - name: Verify Daily semantic diversity guard
         run: node scripts/verify-daily-semantic-diversity-v1.mjs
 
-      - name: Verify immutable weekly reservoir and semantic spread
+      - name: Verify immutable weekly reservoir
         run: node scripts/verify-weekly-certified-snapshot-race.mjs
 
       - name: Verify unaffected native workspaces
@@ -162,25 +139,27 @@ jobs:
           node scripts/verify-native-validation-workspace.mjs
           node scripts/verify-native-daily-workspace.mjs
 
-      - name: Check clean runtime JavaScript syntax
+      - name: Check surviving runtime JavaScript syntax
         run: |
-          node --check js/asset-manifest.js
-          node --check js/studio-bootstrap.js
-          node --check js/admin-import-tools.js
-          node --check js/prompt-studio-clean-reset.js
-          node --check js/prompt-factory-mount-v1.js
-          node --check js/prompt-factory-v1.js
-          node --check js/prompt-quality-analyser-mount-v1.js
-          node --check js/prompt-quality-analyser-v1.js
-          node --check js/prompt-promotion-v1.js
-          node --check js/prompt-library-shards-v1.js
-          node --check js/prompt-library-shards-promotion-bridge-v1.js
-          node --check js/admin-daily-library-cutover-v1.js
-          node --check js/daily-semantic-diversity-v1.js
-          node --check js/admin-daily-generator-guard.js
-          node --check js/admin-batch-calendar.js
-          node --check js/admin-schedule-manager-v2.js
-          node --check js/repository-certified-prompt-pool.js
+          for file in \
+            js/asset-manifest.js \
+            js/studio-bootstrap.js \
+            js/prompt-studio-clean-reset.js \
+            js/prompt-factory-mount-v1.js \
+            js/prompt-factory-v1.js \
+            js/prompt-quality-analyser-mount-v1.js \
+            js/prompt-quality-analyser-v1.js \
+            js/prompt-promotion-v1.js \
+            js/prompt-library-shards-v1.js \
+            js/prompt-library-shards-promotion-bridge-v1.js \
+            js/admin-daily-library-cutover-v1.js \
+            js/daily-semantic-diversity-v1.js \
+            js/admin-daily-generator-guard.js \
+            js/admin-batch-calendar.js \
+            js/admin-schedule-manager-v2.js \
+            js/repository-certified-prompt-pool.js; do
+            node --check "$file"
+          done
           node --check scripts/verify-prompt-studio-clean-reset.mjs
           node --check scripts/verify-prompt-factory-v1.mjs
           node --check scripts/verify-prompt-quality-analyser-v1.mjs
