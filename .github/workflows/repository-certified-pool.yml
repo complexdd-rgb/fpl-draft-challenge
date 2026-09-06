@@ -1,37 +1,28 @@
 name: Repository certified prompt pool
 
 on:
-  push:
-    branches:
-      - 'refactor/**'
-    paths:
-      - 'admin.html'
-      - 'config/asset-manifest.json'
-      - 'js/repository-certified-prompt-pool.js'
-      - 'js/prompt-library-canonical-state.js'
-      - 'js/admin-studio-finish.js'
-      - 'js/admin-daily-generator-guard.js'
-      - 'scripts/apply-repository-certified-pool-isolation.mjs'
-      - 'scripts/apply-canonical-prompt-state.mjs'
-      - 'scripts/verify-repository-certified-prompt-pool.mjs'
-      - 'scripts/verify-canonical-prompt-state.mjs'
-      - 'scripts/build-studio-cache-tags.mjs'
-      - 'scripts/build-studio-wiring.mjs'
-      - '.github/workflows/repository-certified-pool.yml'
   pull_request:
     paths:
-      - 'admin.html'
-      - 'config/asset-manifest.json'
+      - 'prompt-library.js'
       - 'js/repository-certified-prompt-pool.js'
-      - 'js/prompt-library-canonical-state.js'
-      - 'js/admin-studio-finish.js'
+      - 'js/admin-daily-library-cutover-v1.js'
       - 'js/admin-daily-generator-guard.js'
-      - 'scripts/apply-repository-certified-pool-isolation.mjs'
-      - 'scripts/apply-canonical-prompt-state.mjs'
+      - 'js/admin-batch-calendar.js'
       - 'scripts/verify-repository-certified-prompt-pool.mjs'
-      - 'scripts/verify-canonical-prompt-state.mjs'
-      - 'scripts/build-studio-cache-tags.mjs'
-      - 'scripts/build-studio-wiring.mjs'
+      - 'scripts/verify-daily-library-cutover-v1.mjs'
+      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
+      - '.github/workflows/repository-certified-pool.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'prompt-library.js'
+      - 'js/repository-certified-prompt-pool.js'
+      - 'js/admin-daily-library-cutover-v1.js'
+      - 'js/admin-daily-generator-guard.js'
+      - 'js/admin-batch-calendar.js'
+      - 'scripts/verify-repository-certified-prompt-pool.mjs'
+      - 'scripts/verify-daily-library-cutover-v1.mjs'
+      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - '.github/workflows/repository-certified-pool.yml'
 
 permissions:
@@ -39,84 +30,36 @@ permissions:
 
 concurrency:
   group: repository-certified-pool-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  build-and-verify:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Apply repository-certified pool isolation
-        run: node scripts/apply-repository-certified-pool-isolation.mjs
-
-      - name: Apply canonical Prompt Studio state
-        run: node scripts/apply-canonical-prompt-state.mjs
-
-      - name: Refresh manifest-owned cache tags
-        run: node scripts/build-studio-cache-tags.mjs
-
-      - name: Refresh manifest runtime wiring
-        run: node scripts/build-studio-wiring.mjs
-
-      - name: Prove prompt-state builders are repeat-safe
-        shell: bash
-        run: |
-          set -euo pipefail
-          files=(
-            admin.html
-            config/asset-manifest.json
-            js/asset-manifest.js
-            js/repository-certified-prompt-pool.js
-            js/prompt-library-canonical-state.js
-            js/admin-studio-finish.js
-            js/admin-daily-generator-guard.js
-            scripts/build-studio-cache-tags.mjs
-          )
-          sha256sum "${files[@]}" > /tmp/repository-pool-first.sha
-          node scripts/apply-repository-certified-pool-isolation.mjs
-          node scripts/apply-canonical-prompt-state.mjs
-          node scripts/build-studio-cache-tags.mjs
-          node scripts/build-studio-wiring.mjs
-          sha256sum "${files[@]}" > /tmp/repository-pool-second.sha
-          diff -u /tmp/repository-pool-first.sha /tmp/repository-pool-second.sha
-
-      - name: Verify generated prompt-state wiring is checked in
-        shell: bash
-        run: |
-          set -euo pipefail
-          git diff --exit-code -- \
-            admin.html \
-            config/asset-manifest.json \
-            js/asset-manifest.js \
-            js/repository-certified-prompt-pool.js \
-            js/prompt-library-canonical-state.js \
-            js/admin-studio-finish.js \
-            js/admin-daily-generator-guard.js \
-            scripts/build-studio-cache-tags.mjs
-
-      - name: Verify browser customs cannot enter production pool
+      - name: Verify clean zero repository boundary
         run: node scripts/verify-repository-certified-prompt-pool.mjs
 
-      - name: Verify canonical Prompt Studio counts
-        run: node scripts/verify-canonical-prompt-state.mjs
+      - name: Verify saved-library Daily cutover boundary
+        run: node scripts/verify-daily-library-cutover-v1.mjs
 
-      - name: Check runtime syntax
+      - name: Verify immutable 77-prompt weekly reservoir
+        run: node scripts/verify-weekly-certified-snapshot-race.mjs
+
+      - name: Check current runtime syntax
         run: |
           node --check js/repository-certified-prompt-pool.js
-          node --check js/prompt-library-canonical-state.js
-          node --check js/admin-studio-finish.js
+          node --check js/admin-daily-library-cutover-v1.js
           node --check js/admin-daily-generator-guard.js
-          node --check scripts/apply-repository-certified-pool-isolation.mjs
-          node --check scripts/apply-canonical-prompt-state.mjs
+          node --check js/admin-batch-calendar.js
           node --check scripts/verify-repository-certified-prompt-pool.mjs
-          node --check scripts/verify-canonical-prompt-state.mjs
+          node --check scripts/verify-daily-library-cutover-v1.mjs
+          node --check scripts/verify-weekly-certified-snapshot-race.mjs
           git diff --check
