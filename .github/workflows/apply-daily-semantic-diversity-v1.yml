@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git add config/asset-manifest.json js/admin-daily-generator-guard.js js/admin-batch-calendar.js scripts/verify-prompt-studio-clean-reset.mjs scripts/verify-weekly-certified-snapshot-race.mjs .github/workflows/studio-wiring.yml
+          git add config/asset-manifest.json js/admin-daily-generator-guard.js js/admin-batch-calendar.js scripts/verify-prompt-studio-clean-reset.mjs scripts/verify-weekly-certified-snapshot-race.mjs
           if git diff --cached --quiet; then
             echo 'Semantic diversity runtime is already current.'
             exit 0
