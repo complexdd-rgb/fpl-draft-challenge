@@ -68,7 +68,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git reset scripts/apply-cleanup-relevance-pass4.py .github/workflows/apply-cleanup-relevance-pass4.yml .github/workflows/historical-safe-prompts.yml
+          git reset scripts/apply-cleanup-relevance-pass4.py .github/workflows/apply-cleanup-relevance-pass4.yml .github/workflows/historical-safe-prompts.yml .github/workflows/studio-regression.yml
           if git diff --cached --quiet; then
             echo 'No pass 4 production changes to commit.'
             exit 0
