@@ -11,13 +11,13 @@ for (const token of [
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex)',
-  'function buildCertifiedReservoir()',
+  'async function buildCertifiedReservoir()',
   'function solveFamilyPositionFlow(',
   'window.FPL_DAILY_GENERATION_PROMPT_POOL = prompts;',
   'window.FPL_DAILY_GENERATION_FAMILY_PLAN = reservoir.plan;',
   'const uniqueWeekIds = new Set(weekIds);',
   'uniqueWeekIds.size !== WEEKLY_PROMPTS',
-  'every snapshot prompt consumed',
+  'runtime-certified reservoir prompt(s) were not consumed by the week',
   'fpl:daily-saved-library-week-certified'
 ]) {
   assert(guard.includes(token), `Daily Challenge guard is missing saved-library snapshot protection: ${token}`);
@@ -53,10 +53,10 @@ assert(!selectedSource.some(prompt => prompt.id === 'late-uncertified'), 'Late g
 
 // Reproduce the final weekly-consumption gate: seven PASS days must consume all 77 snapshot
 // IDs exactly once. One repeated ID must be detected even when every ID belongs to the snapshot.
-const goodWeek = Array.from({ length: 7 }, (_, day => ({
+const goodWeek = Array.from({ length: 7 }, (_, day) => ({
   status: 'PASS',
   promptIds: generationPool.slice(day * 11, day * 11 + 11).map(prompt => prompt.id)
-})));
+}));
 const goodIds = goodWeek.flatMap(day => day.promptIds);
 assert(goodIds.length === 77 && new Set(goodIds).size === 77, 'Valid 77-prompt fixture did not consume the whole reservoir exactly once.');
 assert(goodIds.every(id => activeIds.has(id)), 'Valid fixture contains an ID outside the active reservoir.');
@@ -76,7 +76,7 @@ const familyWeights = [
 ];
 const nationalityTarget = 7;
 const otherFamilies = familyWeights.filter(([family]) => family !== 'nationality');
-let remaining = 77 - nationalityTarget - otherFamilies.length;
+const remaining = 77 - nationalityTarget - otherFamilies.length;
 assert(remaining >= 0, 'Family-floor fixture exceeds the 77-prompt weekly reservoir.');
 const weightTotal = otherFamilies.reduce((sum, [, weight]) => sum + weight, 0);
 const allocations = Object.fromEntries(familyWeights.map(([family]) => [family, family === 'nationality' ? 7 : 1]));
