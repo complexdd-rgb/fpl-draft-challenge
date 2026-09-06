@@ -26,7 +26,9 @@ const sandbox = {
   setTimeout(callback) { callback(); },
   MutationObserver: class MutationObserver { observe() {} },
   Blob: class Blob {},
-  URL: { createObjectURL() { return 'blob:test'; }, revokeObjectURL() {} }
+  URL: { createObjectURL() { return 'blob:test'; }, revokeObjectURL() {} },
+  Intl,
+  Date
 };
 sandbox.window.window = sandbox.window;
 sandbox.window.document = documentStub;
@@ -36,7 +38,7 @@ sandbox.window.dispatchEvent = () => true;
 vm.runInNewContext(source, sandbox, { filename:'prompt-library-shards-v1.js' });
 const shards = sandbox.window.FPL_PROMPT_LIBRARY_SHARDS_V1;
 assert(shards?.ready === true, 'Prompt Library Shards API did not initialise.');
-assert(shards.version === '1.0.1', 'Prompt Library Shards version mismatch.');
+assert(shards.version === '1.1.0', 'Prompt Library Shards version mismatch.');
 
 const records = [
   { id:'value_brazil_5_0', family:'value', position:'MID', variantGroup:'vg_mid_price_brazil', qualityStatus:'pass' },
@@ -66,4 +68,12 @@ assert(!source.includes('localStorage.setItem'), '100k+ shard persistence must n
 assert(bridge.includes('fpl:prompt-library-changed'), 'Promotion bridge does not listen to canonical-library changes.');
 assert(bridge.includes('prompt-promotion-v1'), 'Promotion bridge does not restrict auto-save to verified Promotion output.');
 
-console.log('Prompt Library Shards v1.0.1 smoke test passed: one runtime, close variants preserved, hardened IndexedDB boundary present.');
+assert(source.includes('promptLibraryDailyBalanceMount'), 'Daily Challenge saved-library balance mount is missing.');
+assert(source.includes('17-family balance and rotation coverage'), 'Daily Challenge family-balance heading is missing.');
+assert(source.includes('WEEKLY_PROMPT_SLOTS = 77'), 'Daily family share planning is not based on the seven-day 77-slot week.');
+assert(source.includes('Cutover pending'), 'Daily view does not preserve the explicit production cutover boundary.');
+assert(source.includes('Future published schedule'), 'Daily view is missing spoiler-safe future schedule context.');
+assert(source.includes('promptIds') && source.includes('FPL_CHALLENGE_MANIFEST'), 'Known used coverage is not grounded in challenge history.');
+assert(!source.includes('FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Read-only shard view must not take over Daily generation authority.');
+
+console.log('Prompt Library Shards v1.1.0 smoke test passed: durable shards plus read-only Daily 17-family balance are present without generation cutover.');
