@@ -10,8 +10,7 @@ const requiredIds = [
   'batchPlanner',
   'draftPanel',
   'testPanel',
-  'codePanel',
-  'historyPanel'
+  'codePanel'
 ];
 
 function count(source, token) {
@@ -52,6 +51,14 @@ requiredIds.forEach(id => {
   assert(fragment.includes(token), `${token} is missing from the canonical Daily fragment.`);
 });
 
+assert(!fragment.includes('id="historyPanel"'), 'The retired visible Challenge history and cooldown panel still exists in the canonical fragment.');
+assert(!challengeWorkspace.includes('id="historyPanel"'), 'The retired visible Challenge history and cooldown panel still exists in admin.html.');
+assert(fragment.includes('id="dailyHistoryCompatibility" hidden'), 'Hidden history compatibility controls are missing while the legacy controller still records rotation data.');
+assert(challengeWorkspace.includes('id="dailyHistoryCompatibility" hidden'), 'Generated Daily workspace is missing the hidden history compatibility controls.');
+for (const id of ['cooldownSummary', 'recordHistoryBtn', 'downloadHistoryBtn', 'downloadHistoryMarkdownBtn', 'historyActionStatus', 'historyList']) {
+  assert(fragment.includes(`id="${id}"`), `Hidden compatibility control ${id} is missing from the canonical Daily fragment.`);
+}
+
 assert(fragment.includes('id="generateWeekBtn"'), 'Seven-day generator control is missing from the canonical Daily fragment.');
 assert(fragment.includes('id="downloadWeekBtn"'), 'Seven-day ZIP control is missing from the canonical Daily fragment.');
 assert(fragment.includes('id="batchStatus"'), 'Seven-day generator status is missing from the canonical Daily fragment.');
@@ -73,6 +80,8 @@ console.log('Native Daily workspace verification passed.');
 console.log(JSON.stringify({
   canonicalFragmentLines: fragment.split('\n').length,
   nativeDailyPanels: requiredIds.length,
+  visibleHistoryPanelRetired: true,
+  hiddenHistoryCompatibility: true,
   legacyDailyPanelsRemaining: requiredIds.filter(id => legacyMain.includes(`id="${id}"`)).length,
   redundantClassifierRemoved: true
 }, null, 2));
