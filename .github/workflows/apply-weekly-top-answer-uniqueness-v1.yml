@@ -1,0 +1,50 @@
+name: Apply weekly top-answer uniqueness v1
+
+on:
+  push:
+    branches:
+      - daily-weekly-top-answer-uniqueness-v1
+    paths:
+      - 'scripts/apply-weekly-top-answer-uniqueness-v1.py'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply patch
+        run: python scripts/apply-weekly-top-answer-uniqueness-v1.py
+      - name: Refresh generated asset wiring
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-studio-cache-tags.mjs
+      - name: Verify targeted boundaries
+        run: |
+          node --check js/admin-daily-generator-guard.js
+          node --check js/admin-batch-calendar.js
+          node --check scripts/verify-weekly-top-answer-diversity.mjs
+          node scripts/verify-weekly-top-answer-diversity.mjs
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-prompt-studio-clean-reset.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          git diff --check
+      - name: Commit production changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin.html config/asset-manifest.json js/admin-daily-generator-guard.js js/admin-batch-calendar.js js/asset-manifest.js scripts/verify-weekly-top-answer-diversity.mjs scripts/verify-weekly-certified-snapshot-race.mjs scripts/verify-prompt-studio-clean-reset.mjs scripts/verify-all-season-certification-gate.mjs
+          if git diff --cached --quiet; then
+            echo 'No production changes to commit.'
+          else
+            git commit -m 'Prefer unique weekly top-answer players in Daily reservoir'
+            git push origin HEAD:daily-weekly-top-answer-uniqueness-v1
+          fi
