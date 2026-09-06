@@ -12,7 +12,7 @@
     "promptQualityAnalyserCssV1": { "path": "admin-prompt-quality-analyser.css", "version": "1.0.0" },
     "promptPromotionV1": { "path": "js/prompt-promotion-v1.js", "version": "1.0.0" },
     "promptPromotionCssV1": { "path": "admin-prompt-promotion-v1.css", "version": "1.0.0" },
-    "promptLibraryShardsV1": { "path": "js/prompt-library-shards-v1.js", "version": "1.0.0" },
+    "promptLibraryShardsV1": { "path": "js/prompt-library-shards-v1-1.js", "version": "1.0.1" },
     "promptLibraryShardsBridgeV1": { "path": "js/prompt-library-shards-promotion-bridge-v1.js", "version": "1.0.0" },
     "promptLibraryShardsCssV1": { "path": "admin-prompt-library-shards-v1.css", "version": "1.0.0" },
     "adminImportTools": { "path": "js/admin-import-tools.js", "version": "24.4.0-library-shards" },
