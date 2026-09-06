@@ -62,11 +62,14 @@ function validateDailyBlock(block) {
     'id="draftPanel"',
     'id="testPanel"',
     'id="codePanel"',
-    'id="historyPanel"'
+    'id="dailyHistoryCompatibility" hidden'
   ];
   required.forEach(token => {
     if (!block.includes(token)) throw new Error(`Daily workspace block is missing ${token}.`);
   });
+  if (block.includes('id="historyPanel"')) {
+    throw new Error('Retired visible Challenge history and cooldown panel was reintroduced into the Daily workspace.');
+  }
   if (block.includes('id="libraryManagerPanel"')) {
     throw new Error('Prompt Library Manager was accidentally captured by the Daily workspace block.');
   }
