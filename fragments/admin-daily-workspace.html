@@ -77,7 +77,7 @@
           <div>
             <span class="limit-kicker">Seven-day challenge calendar</span>
             <h3 id="batchPlannerHeading">Generate the next 7 days</h3>
-            <p>Build seven dated challenges in one run. Exact prompts now rotate through their full compatible position pool before reuse, while similar prompt families use the configured day cooldown. Scheduled challenges already in the manifest count too.</p>
+            <p>Build seven dated challenges in one run. The release date is the challenge identity. Exact prompts rotate through their full compatible position pool before reuse, while similar prompt families use the configured day cooldown. Published Supabase dates and repository-manifest dates both count.</p>
           </div>
           <span id="batchManifestChip" class="phase-chip batch-manifest-chip">Loading calendar…</span>
         </div>
@@ -87,7 +87,6 @@
             First challenge date
             <input id="batchStartDate" type="date">
           </label>
-          <input id="batchFirstNumber" type="hidden" value="0">
           <label>
             <strong>Theme preset</strong>
             <select id="batchThemePreset">

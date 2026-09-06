@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.1.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.2.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 17-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.1.0";
+  const VERSION = "2.2.0";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -63,7 +63,6 @@
   const core = window.FPL_STUDIO_API;
   const generateButton = document.getElementById("generateWeekBtn");
   const startDateInput = document.getElementById("batchStartDate");
-  const firstNumberInput = document.getElementById("batchFirstNumber");
   const formationInput = document.getElementById("batchFormation");
   const minAnswersInput = document.getElementById("minAnswers");
   const maxAnswersInput = document.getElementById("maxAnswers");
@@ -71,7 +70,7 @@
   const status = document.getElementById("batchStatus");
   const manifestChip = document.getElementById("batchManifestChip");
 
-  if (!core || !generateButton || !startDateInput || !firstNumberInput) return;
+  if (!core || !generateButton || !startDateInput) return;
 
   let generationRunning = false;
   let guardChip = null;
@@ -130,9 +129,8 @@
       : [];
     return entries.map(entry => ({
       date: String(entry?.date || ""),
-      number: Number(entry?.number) || 0,
       source: "manifest"
-    })).filter(entry => isIsoDate(entry.date) && entry.number > 0);
+    })).filter(entry => isIsoDate(entry.date));
   }
 
   function serverRows() {
@@ -141,9 +139,8 @@
       : [];
     return rows.map(entry => ({
       date: String(entry?.release_date || entry?.releaseDate || ""),
-      number: Number(entry?.challenge_number ?? entry?.challengeNumber) || 0,
       source: "server"
-    })).filter(entry => isIsoDate(entry.date) && entry.number > 0);
+    })).filter(entry => isIsoDate(entry.date));
   }
 
   function combinedSchedule() {
@@ -155,16 +152,9 @@
 
   function expectedNext() {
     const rows = combinedSchedule();
-    if (!rows.length) return { date: addDaysIso(londonToday(), 1), number: 1, maxNumber: 0, consistent: true };
+    if (!rows.length) return { date: addDaysIso(londonToday(), 1), latest: null };
     const latest = rows[rows.length - 1];
-    const maxNumber = rows.reduce((max, row) => Math.max(max, row.number), 0);
-    return {
-      date: addDaysIso(latest.date, 1),
-      number: latest.number + 1,
-      maxNumber,
-      latest,
-      consistent: latest.number === maxNumber
-    };
+    return { date: addDaysIso(latest.date, 1), latest };
   }
 
   function installGuardChip() {
@@ -194,7 +184,7 @@
     const poolText = cutover?.ready
       ? `${Number(cutover.total || 0).toLocaleString("en-GB")} saved · ${Number(cutover.families || 0)} families`
       : cutover?.status === "blocked" ? "saved library blocked" : "saved library checking";
-    const nextText = next?.date && next?.number ? `next #${next.number} · ${next.date}` : "live schedule pending";
+    const nextText = next?.date ? `next · ${next.date}` : "live schedule pending";
     guardChip.textContent = `${poolText} · ${nextText}`;
     guardChip.title = "Generation builds a runtime-certified 77-prompt reservoir from the saved promoted library, then locks that immutable reservoir for the whole seven-day run.";
   }
@@ -253,14 +243,9 @@
       return false;
     }
     const next = expectedNext();
-    if (!next.consistent) return false;
     const start = String(startDateInput.value || "");
-    const number = Number(firstNumberInput.value) || 0;
-    const stale = !isIsoDate(start) || start < next.date || number <= next.maxNumber;
-    if (force || stale) {
-      startDateInput.value = next.date;
-      firstNumberInput.value = String(next.number);
-    }
+    const stale = !isIsoDate(start) || start < next.date;
+    if (force || stale) startDateInput.value = next.date;
     updateGuardChip();
     return true;
   }
@@ -270,29 +255,21 @@
       return { ok: false, reason: "The live Supabase schedule is not ready. Generation stays locked until the server schedule has been refreshed successfully." };
     }
     const next = expectedNext();
-    if (!next.consistent) {
-      return { ok: false, reason: `Challenge numbering is inconsistent: the latest dated challenge is #${next.latest?.number || "?"}, but #${next.maxNumber} is already reserved elsewhere. Resolve the schedule before generating.` };
-    }
-
     const start = String(startDateInput.value || "");
-    const first = Number(firstNumberInput.value) || 0;
-    if (start !== next.date || first !== next.number) {
+    if (start !== next.date) {
       startDateInput.value = next.date;
-      firstNumberInput.value = String(next.number);
       updateGuardChip();
       return {
         ok: false,
-        reason: `Schedule synced to the next unused slot: ${next.date}, Challenge #${next.number}. Press Generate week again to build #${next.number}–#${next.number + DAYS_IN_BATCH - 1}.`
+        reason: `Schedule synced to the next unused date: ${next.date}. Press Generate week again to build the next seven dated challenges.`
       };
     }
 
     const dates = new Set(serverRows().map(row => row.date));
-    const numbers = new Set(serverRows().map(row => row.number));
     for (let index = 0; index < DAYS_IN_BATCH; index += 1) {
       const date = addDaysIso(start, index);
-      const number = first + index;
-      if (dates.has(date) || numbers.has(number)) {
-        return { ok: false, reason: `${date} / Challenge #${number} is already scheduled in Supabase. Remove that scheduled day or week before regenerating it.` };
+      if (dates.has(date)) {
+        return { ok: false, reason: `${date} is already scheduled in Supabase. Remove that scheduled day or week before regenerating it.` };
       }
     }
     return { ok: true };

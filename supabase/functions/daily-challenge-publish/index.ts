@@ -37,7 +37,7 @@ function validateChallenge(raw: unknown) {
 
   if (!isIsoDate(releaseDate)) throw httpError(400, "Every published challenge needs a valid release date.");
   if (!challengeId || challengeId.length < 8) throw httpError(400, `Challenge ${releaseDate} is missing its id.`);
-  if (!Number.isInteger(challengeNumber) || challengeNumber < 1) throw httpError(400, `Challenge ${releaseDate} has an invalid number.`);
+  if (!Number.isInteger(challengeNumber) || challengeNumber < 0) throw httpError(400, `Challenge ${releaseDate} has invalid legacy number metadata.`);
   if (!title) throw httpError(400, `Challenge ${releaseDate} is missing its title.`);
   if (!Number.isFinite(perfectScore) || perfectScore < 0) throw httpError(400, `Challenge ${releaseDate} has an invalid perfect score.`);
   if (sourceJs.length < 100 || sourceJs.length > 500000 || !sourceJs.includes("window.FPL_DAILY_CHALLENGE")) {
@@ -111,11 +111,10 @@ Deno.serve(async (req) => {
       const today = londonDateKey();
       const { data, error } = await supabase
         .from("daily_challenge_schedule")
-        .select("release_date, challenge_id, challenge_number, title, perfect_score, published_at")
+        .select("release_date, challenge_id, challenge_number, title, difficulty, formation, theme, perfect_score, manifest_entry, published_at")
         .eq("active", true)
-        .gte("release_date", today)
         .order("release_date", { ascending: true })
-        .limit(60);
+        .limit(400);
       if (error) throw error;
       return json({ admin: true, today, scheduled: data || [] });
     }
