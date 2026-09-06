@@ -16,6 +16,7 @@ on:
       - 'js/prompt-library-shards-v1.js'
       - 'js/prompt-library-shards-promotion-bridge-v1.js'
       - 'js/admin-daily-library-cutover-v1.js'
+      - 'js/admin-schedule-manager-v2.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
       - 'admin-prompt-promotion-v1.css'
@@ -57,6 +58,7 @@ on:
       - 'js/prompt-library-shards-v1.js'
       - 'js/prompt-library-shards-promotion-bridge-v1.js'
       - 'js/admin-daily-library-cutover-v1.js'
+      - 'js/admin-schedule-manager-v2.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
       - 'admin-prompt-promotion-v1.css'
@@ -158,6 +160,7 @@ jobs:
           node --check js/prompt-library-shards-v1.js
           node --check js/prompt-library-shards-promotion-bridge-v1.js
           node --check js/admin-daily-library-cutover-v1.js
+          node --check js/admin-schedule-manager-v2.js
           node --check js/repository-certified-prompt-pool.js
           node --check scripts/verify-prompt-studio-clean-reset.mjs
           node --check scripts/verify-prompt-factory-v1.mjs

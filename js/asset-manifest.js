@@ -6,11 +6,11 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "2.7.0-daily-generation-cutover"
+      "version": "2.8.0-schedule-manager-v2"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "2.5.0-daily-cutover"
+      "version": "2.6.0-schedule-manager"
     },
     "promptStudioClean": {
       "path": "js/prompt-studio-clean-reset.js",
@@ -66,7 +66,7 @@
     },
     "adminImportTools": {
       "path": "js/admin-import-tools.js",
-      "version": "24.5.0-daily-cutover"
+      "version": "24.6.0-schedule-manager"
     },
     "studioFeatureLoader": {
       "path": "js/studio-feature-loader.js",
@@ -184,6 +184,10 @@
       "path": "js/admin-daily-publish.js",
       "version": null
     },
+    "adminScheduleManagerV2": {
+      "path": "js/admin-schedule-manager-v2.js",
+      "version": "2.0.0"
+    },
     "liveFeatureLoader": {
       "path": "js/live-feature-loader.js",
       "version": null
@@ -233,7 +237,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "2.7.0-daily-generation-cutover",
+    version: "2.8.0-schedule-manager-v2",
     assets,
     get,
     url
