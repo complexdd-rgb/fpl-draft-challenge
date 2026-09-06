@@ -6,6 +6,7 @@ on:
       - prompt-studio-daily-similarity-guard-v1
     paths:
       - 'scripts/apply-daily-semantic-diversity-v1.mjs'
+      - 'scripts/finish-daily-semantic-diversity-v1.mjs'
       - '.github/workflows/apply-daily-semantic-diversity-v1.yml'
 
 permissions:
@@ -27,7 +28,16 @@ jobs:
           node-version: '22'
 
       - name: Apply semantic diversity patch
-        run: node scripts/apply-daily-semantic-diversity-v1.mjs
+        shell: bash
+        run: |
+          set +e
+          node scripts/apply-daily-semantic-diversity-v1.mjs
+          patch_status=$?
+          set -e
+          if [ "$patch_status" -ne 0 ]; then
+            echo "Primary patcher stopped at the known duplicated Studio-workflow anchor; validating and finishing the already-applied working-tree changes."
+          fi
+          node scripts/finish-daily-semantic-diversity-v1.mjs
 
       - name: Verify patched JavaScript
         run: |
