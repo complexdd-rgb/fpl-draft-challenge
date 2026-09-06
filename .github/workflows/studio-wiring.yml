@@ -29,6 +29,7 @@ on:
       - 'scripts/verify-prompt-library-shards-v1.mjs'
       - 'scripts/verify-daily-library-cutover-v1.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
+      - 'scripts/build-asset-manifest-runtime.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-native-daily-workspace.mjs'
       - 'js/admin-stage-one.js'
@@ -69,6 +70,7 @@ on:
       - 'scripts/verify-prompt-library-shards-v1.mjs'
       - 'scripts/verify-daily-library-cutover-v1.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
+      - 'scripts/build-asset-manifest-runtime.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'scripts/build-native-daily-workspace.mjs'
       - 'fragments/admin-daily-workspace.html'
@@ -97,21 +99,21 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Refresh manifest-owned Studio wiring on branch pushes
+      - name: Refresh manifest-owned Daily Studio wiring on branch pushes
         if: github.event_name == 'push'
         run: |
-          node scripts/build-studio-wiring.mjs
+          node scripts/build-asset-manifest-runtime.mjs
           node scripts/build-native-daily-workspace.mjs
           node scripts/build-studio-cache-tags.mjs
 
-      - name: Commit refreshed Studio wiring
+      - name: Commit refreshed Daily Studio wiring
         if: github.event_name == 'push'
         shell: bash
         run: |
           set -euo pipefail
           git add admin.html js/asset-manifest.js
           if git diff --cached --quiet; then
-            echo 'Studio wiring is already current.'
+            echo 'Daily Studio wiring is already current.'
           else
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -164,6 +166,7 @@ jobs:
           node --check scripts/verify-prompt-library-shards-v1.mjs
           node --check scripts/verify-daily-library-cutover-v1.mjs
           node --check scripts/materialise-prompt-library-shards.mjs
+          node --check scripts/build-asset-manifest-runtime.mjs
           node --check scripts/build-studio-cache-tags.mjs
           node --check scripts/build-native-daily-workspace.mjs
 
