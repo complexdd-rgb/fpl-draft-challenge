@@ -645,42 +645,63 @@
       const semanticCounts = new Map();
       const leaderCounts = new Map();
       let collision = false;
+      const selectionGroups = [];
       for (const family of families) {
         for (const position of POSITION_ORDER) {
           const required = allocation[family][position];
           if (!required) continue;
           const available = candidatePools.get(family)?.[position] || [];
-          let added = 0;
-          while (added < required) {
-            const choices = available
-              .filter(candidate => {
-                const sourceId = String(candidate.record.id || "");
-                return sourceId && !sourceIds.has(sourceId) && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);
-              })
-              .sort((left, right) => {
-                const leftLeader = promptTopAnswerKey(left.prompt);
-                const rightLeader = promptTopAnswerKey(right.prompt);
-                const leftLeaderLoad = leftLeader ? Number(leaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;
-                const rightLeaderLoad = rightLeader ? Number(leaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;
-                return leftLeaderLoad - rightLeaderLoad
-                  || semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts);
-              });
-            const candidate = choices[0];
-            if (!candidate) break;
-            const sourceId = String(candidate.record.id || "");
-            prompts.push(candidate.prompt);
-            sourceIds.add(sourceId);
-            semantic.commitWeekly(candidate.prompt, semanticCounts);
-            const leaderKey = promptTopAnswerKey(candidate.prompt);
-            if (leaderKey) leaderCounts.set(leaderKey, Number(leaderCounts.get(leaderKey) || 0) + 1);
-            added += 1;
-          }
-          if (added !== required) {
-            collision = true;
-            break;
-          }
+          const distinctLeaders = new Set(available.map(candidate => promptTopAnswerKey(candidate.prompt)).filter(Boolean)).size;
+          selectionGroups.push({
+            family,
+            position,
+            required,
+            available,
+            leaderSlack: distinctLeaders - required
+          });
         }
-        if (collision) break;
+      }
+      // Constrained family/position groups choose first. Flexible groups therefore cannot
+      // consume a leader that a later group effectively needs, which materially reduces
+      // avoidable weekly repeats before the normal unused-leader preference is applied.
+      selectionGroups.sort((left, right) =>
+        left.leaderSlack - right.leaderSlack
+        || left.available.length - right.available.length
+        || left.family.localeCompare(right.family)
+        || POSITION_ORDER.indexOf(left.position) - POSITION_ORDER.indexOf(right.position)
+      );
+
+      for (const group of selectionGroups) {
+        const { required, available } = group;
+        let added = 0;
+        while (added < required) {
+          const choices = available
+            .filter(candidate => {
+              const sourceId = String(candidate.record.id || "");
+              return sourceId && !sourceIds.has(sourceId) && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);
+            })
+            .sort((left, right) => {
+              const leftLeader = promptTopAnswerKey(left.prompt);
+              const rightLeader = promptTopAnswerKey(right.prompt);
+              const leftLeaderLoad = leftLeader ? Number(leaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;
+              const rightLeaderLoad = rightLeader ? Number(leaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;
+              return leftLeaderLoad - rightLeaderLoad
+                || semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts);
+            });
+          const candidate = choices[0];
+          if (!candidate) break;
+          const sourceId = String(candidate.record.id || "");
+          prompts.push(candidate.prompt);
+          sourceIds.add(sourceId);
+          semantic.commitWeekly(candidate.prompt, semanticCounts);
+          const leaderKey = promptTopAnswerKey(candidate.prompt);
+          if (leaderKey) leaderCounts.set(leaderKey, Number(leaderCounts.get(leaderKey) || 0) + 1);
+          added += 1;
+        }
+        if (added !== required) {
+          collision = true;
+          break;
+        }
       }
       if (collision || prompts.length !== WEEKLY_PROMPTS || sourceIds.size !== WEEKLY_PROMPTS) continue;
 

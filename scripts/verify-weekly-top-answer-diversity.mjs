@@ -22,6 +22,7 @@ for (const [label, needle] of [
   ['reservoir ranks unused leaders first', 'leftLeaderLoad - rightLeaderLoad'],
   ['reservoir certifies wider alternatives', 'const diversityExtra = Math.max(24, Math.ceil(need * 3));'],
   ['reservoir keeps best ANY assignment', 'let bestReservoir = null;'],
+  ['scarce leader groups choose first', 'selectionGroups.sort((left, right) =>'],
   ['reservoir reports diversity', 'topAnswerDiversity: frozenTopAnswerDiversity'],
   ['generation result reports diversity', 'top-answer players']
 ]) {
