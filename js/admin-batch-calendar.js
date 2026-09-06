@@ -359,7 +359,7 @@
         await yieldToBrowser();
       }
 
-      batchManifest = buildMergedManifest(existingEntries, batchResults, settings);
+      batchManifest = buildMergedManifest(repositoryManifestEntries(), batchResults, settings);
       window.FPL_STUDIO_PHASE3?.recordBatchChallenges?.(batchResults.map(result => ({
         ...result,
         name: baseName,
@@ -1234,7 +1234,6 @@
     return {
       version: 1,
       challengeId: result.id,
-      challengeNumber: Number(result.number) || 0,
       releaseDate: result.releaseDate,
       title: result.title,
       formation: result.formation || "4-4-2",
@@ -1410,7 +1409,7 @@
     }
 
     const manifestSource = buildManifestSource(batchManifest);
-    const originalEntries = getManifestEntries();
+    const originalEntries = repositoryManifestEntries();
     const originalManifest = originalEntries.length
       ? buildManifestSource({
           version: Number(window.FPL_CHALLENGE_MANIFEST?.version || 1),
@@ -1418,7 +1417,7 @@
           fallbackPath: window.FPL_CHALLENGE_MANIFEST?.fallbackPath || "todays-challenge.js",
           challenges: originalEntries
         })
-      : "/* No repository or Supabase challenge schedule was loaded before this batch was generated. */\n";
+      : "/* No GitHub fallback manifest was loaded before this batch was generated. */\n";
 
     const files = batchResults.map(result => ({
       name: `UPLOAD/challenges/${result.releaseDate}.js`,
@@ -1490,13 +1489,13 @@
       "2. Extract this ZIP.",
       "3. Open UPLOAD/challenges/.",
       "4. Upload ALL seven YYYY-MM-DD.js files into the repository challenges/ folder.",
-      "5. Upload challenges/manifest.js LAST. It is date-keyed and is rebuilt from the repository manifest plus the authoritative Supabase schedule, so previously published dates are preserved.",
+      "5. Upload challenges/manifest.js LAST. It is a date-keyed GitHub fallback index built from the existing GitHub manifest plus these seven real files; Supabase-only dates are deliberately not given invented GitHub paths.",
       "6. Commit the changes and wait for GitHub Pages to publish.",
       "7. Hard-refresh the live page and confirm the scheduled challenge/countdown.",
       "",
       "WHY MANIFEST.JS IS LAST",
       "-----------------------",
-      "The manifest tells the live game which dated file to load. Dates are the challenge identity; numeric challenge sequencing is no longer used. Uploading the dated files first prevents a temporary broken challenge while GitHub Pages is publishing.",
+      "Supabase is the live schedule authority. manifest.js is only the static GitHub fallback index, so it lists real GitHub challenge files only. Dates are the challenge identity; numeric challenge sequencing is no longer used. Uploading the dated files first prevents a temporary broken fallback while GitHub Pages is publishing.",
       "",
       "DO NOT upload the ZIP itself. GitHub Pages will not extract it.",
       "DO NOT replace players.js, prompt-library.js or admin-core.js for this weekly publishing step.",
