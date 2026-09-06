@@ -24,8 +24,8 @@ const promptLibrary = read('prompt-library.js')
   .replace(/\s+/g, ' ')
   .trim();
 
-assert(manifest.manifestVersion === '3.0.2-top-answer-diversity', 'Central manifest is not on the schedule-manager v2 boundary.');
-assert(manifest.assets?.assetManifestRuntime?.version === '3.0.2-top-answer-diversity', 'Asset-manifest runtime cache version is stale.');
+assert(manifest.manifestVersion === '3.0.3-leader-day-spacing', 'Central manifest is not on the schedule-manager v2 boundary.');
+assert(manifest.assets?.assetManifestRuntime?.version === '3.0.3-leader-day-spacing', 'Asset-manifest runtime cache version is stale.');
 assert(manifest.assets?.studioBootstrap?.path === 'js/studio-bootstrap.js', 'Central manifest no longer owns the clean Studio bootstrap.');
 assert(manifest.assets?.studioBootstrap?.version === '2.6.0-schedule-manager', 'Studio bootstrap cache version does not include schedule manager v2.');
 assert(manifest.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio controller is missing from the central manifest.');
@@ -36,16 +36,16 @@ assert(manifest.assets?.promptLibraryShardsV1?.path === 'js/prompt-library-shard
 assert(manifest.assets?.promptLibraryShardsCssV1?.version === '1.2.0-daily-authority', 'Daily saved-library authority display cache tag is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.path === 'js/admin-daily-library-cutover-v1.js', 'Daily saved-library cutover boundary is missing from the central manifest.');
 assert(manifest.assets?.adminDailyGeneratorGuard?.path === 'js/admin-daily-generator-guard.js', 'Daily generation guard is missing from the central manifest.');
-assert(manifest.assets?.adminDailyGeneratorGuard?.version === '2.4.0-top-answer-diversity', 'Daily generation guard cache version is not on saved-library v2.');
+assert(manifest.assets?.adminDailyGeneratorGuard?.version === '2.5.0-leader-day-spacing', 'Daily generation guard cache version is not on saved-library v2.');
 assert(manifest.assets?.dailySemanticDiversityV1?.path === 'js/daily-semantic-diversity-v1.js', 'Daily semantic-diversity policy is missing from the central manifest.');
-assert(manifest.assets?.adminBatchCalendar?.version === '3.4.0-top-answer-diversity', 'Batch calendar date-identity cache version is stale.');
+assert(manifest.assets?.adminBatchCalendar?.version === '3.5.0-leader-day-spacing', 'Batch calendar date-identity cache version is stale.');
 assert(manifest.assets?.adminDailyPublish?.version === '1.1.0-date-identity', 'Daily publishing date-identity cache version is stale.');
 assert(manifest.assets?.adminScheduleManagerV2?.path === 'js/admin-schedule-manager-v2.js', 'Schedule manager v2 is missing from the central manifest.');
 assert(manifest.assets?.adminScheduleManagerV2?.version === '2.0.0', 'Schedule manager v2 cache version is stale.');
 assert(manifest.assets?.adminImportTools?.version === '24.6.0-schedule-manager', 'Admin entrypoint cache version does not force the new bootstrap.');
 assert(manifest.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Repository prompt pool is not on the clean zero boundary.');
 
-assert(generatedManifest.includes('3.0.2-top-answer-diversity'), 'Generated asset manifest was not refreshed to the schedule-manager v2 boundary.');
+assert(generatedManifest.includes('3.0.3-leader-day-spacing'), 'Generated asset manifest was not refreshed to the schedule-manager v2 boundary.');
 assert(generatedManifest.includes('"dailySemanticDiversityV1"'), 'Generated asset manifest does not expose the Daily semantic-diversity policy.');
 assert(generatedManifest.includes('"adminScheduleManagerV2"'), 'Generated asset manifest does not expose schedule manager v2.');
 assert(generatedManifest.includes('"version": "1.2.0-daily-authority"'), 'Generated asset manifest did not retain the Daily authority CSS cache tag.');
@@ -82,7 +82,7 @@ assert(shardCss.includes('Active saved promoted library'), 'Daily library balanc
 assert(shardCss.includes('77-prompt reservoir is structurally and runtime verified'), 'Daily library balance does not explain the runtime-certified weekly reservoir.');
 
 for (const token of [
-  'saved-library generation guard v2.4.0',
+  'saved-library generation guard v2.5.0',
   'ensureSemanticDiversity()',
   'semanticWeeklyCap: DAYS_IN_BATCH',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',

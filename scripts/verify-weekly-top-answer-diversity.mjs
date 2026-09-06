@@ -1,46 +1,26 @@
-import fs from 'node:fs';
+import fs from "node:fs";
 
-const source = fs.readFileSync('js/admin-batch-calendar.js', 'utf8');
-const guard = fs.readFileSync('js/admin-daily-generator-guard.js', 'utf8');
+const batch = fs.readFileSync("js/admin-batch-calendar.js", "utf8");
+const guard = fs.readFileSync("js/admin-daily-generator-guard.js", "utf8");
 const checks = [
-  ['soft cap is one day', 'const WEEKLY_LEADER_SOFT_CAP = 1;'],
-  ['weekly counts are batch-local', 'const weeklyLeaderDays = new Map();'],
-  ['candidate scoring includes weekly penalty', 'score += weeklyLeaderPenalty(draft, weeklyLeaderDays);'],
-  ['weighted selection penalises leaders after cap', 'if (priorLeaderDays >= WEEKLY_LEADER_SOFT_CAP)'],
-  ['successful days commit leader usage', 'commitWeeklyLeaderDays(prompts, weeklyLeaderDays);'],
-  ['top-answer records are cached', 'const topAnswerRecordsCache = new Map();'],
-  ['top-answer player ids are cached', 'const topAnswerPlayerIdsCache = new Map();'],
-  ['weighted selection reuses the current answer pool', 'answerOverlapWithDraft(prompt, currentDraft, alreadyUsedTopAnswerIds)']
+  ["policy v4", "const ANSWER_DIVERSITY_POLICY_VERSION = 4;"],
+  ["three-day target", "const WEEKLY_LEADER_MIN_DAY_GAP = 3;"],
+  ["two-day preferred cap", "const WEEKLY_LEADER_PREFERRED_DAY_CAP = 2;"],
+  ["three-day hard cap", "const WEEKLY_LEADER_HARD_DAY_CAP = 3;"],
+  ["day history arrays", "function weeklyLeaderHistory(weeklyLeaderDays, playerId)"],
+  ["spacing penalty", "gap < WEEKLY_LEADER_MIN_DAY_GAP"],
+  ["same-day grouping", "sameDayLeader"],
+  ["same-day repeats allowed", "Multiple prompts led by the same player on one Daily Challenge count as one leader day."],
+  ["hard cap filter", "weeklyLeaderHistory(weeklyLeaderDays, playerId).length >= WEEKLY_LEADER_HARD_DAY_CAP"],
+  ["day index committed", "commitWeeklyLeaderDays(prompts, weeklyLeaderDays, dayIndex);"],
+  ["actual week audit", "function weeklyTopAnswerDiversity()"],
+  ["spacing audit", "spacingViolationCount"],
+  ["audit exported", "getTopAnswerDayAudit"],
+  ["guard uses day audit", "getTopAnswerDayAudit?.()"]
 ];
-
-for (const [label, needle] of checks) {
-  if (!source.includes(needle)) throw new Error(`Missing weekly diversity check: ${label}`);
+for (const [label, token] of checks) {
+  if (!(batch.includes(token) || guard.includes(token))) throw new Error(`Missing leader-day diversity check: ${label}`);
 }
-
-for (const [label, needle] of [
-  ['reservoir has top-answer audit', 'function topAnswerDiversityAudit(prompts)'],
-  ['reservoir ranks unused leaders first', 'leftLeaderLoad - rightLeaderLoad'],
-  ['reservoir certifies wider alternatives', 'const diversityExtra = Math.max(24, Math.ceil(need * 3));'],
-  ['reservoir keeps best ANY assignment', 'let bestReservoir = null;'],
-  ['scarce leader groups choose first', 'selectionGroups.sort((left, right) =>'],
-  ['reservoir reports diversity', 'topAnswerDiversity: frozenTopAnswerDiversity'],
-  ['generation result reports diversity', 'top-answer players']
-]) {
-  if (!guard.includes(needle)) throw new Error(`Missing reservoir top-answer uniqueness check: ${label}`);
-}
-
-// Synthetic regression: once leader A has been selected, a valid leader B alternative must
-// outrank another A candidate even when the duplicate candidate appears first.
-const leaderCounts = new Map([['A', 1]]);
-const candidates = [
-  { id: 'duplicate-first', leader: 'A', semantic: 0 },
-  { id: 'unique-second', leader: 'B', semantic: 5 }
-];
-candidates.sort((left, right) => {
-  const leftLoad = Number(leaderCounts.get(left.leader) || 0);
-  const rightLoad = Number(leaderCounts.get(right.leader) || 0);
-  return leftLoad - rightLoad || left.semantic - right.semantic;
-});
-if (candidates[0].id !== 'unique-second') throw new Error('Unique top-answer alternative did not outrank a repeated weekly leader.');
-
-console.log('Weekly top-answer diversity policy verified: reservoir-level uniqueness preference and one-day scheduling cap are active.');
+if (batch.includes("const WEEKLY_LEADER_SOFT_CAP = 1;")) throw new Error("Old one-day soft cap remains.");
+if (batch.includes("if (leaderRepeatedInDraft(prompt, currentDraft)) weight /= 8;")) throw new Error("Same-day leader repeats are still penalised.");
+console.log("Weekly leader-day diversity policy verified.");
