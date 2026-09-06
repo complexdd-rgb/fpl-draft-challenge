@@ -46,4 +46,12 @@ if model not in verify:
     verify = replace_once(verify, model_anchor, model + model_anchor, 'fresh weekly rotation model')
 verify_path.write_text(verify)
 
+clean_path = Path('scripts/verify-prompt-studio-clean-reset.mjs')
+clean = clean_path.read_text()
+clean = clean.replace("manifest.manifestVersion === '3.0.0-date-only-daily'", "manifest.manifestVersion === '3.0.1-nationality-rotation'")
+clean = clean.replace("manifest.assets?.assetManifestRuntime?.version === '3.0.0-date-only-daily'", "manifest.assets?.assetManifestRuntime?.version === '3.0.1-nationality-rotation'")
+clean = clean.replace("manifest.assets?.adminBatchCalendar?.version === '3.2.0-date-identity'", "manifest.assets?.adminBatchCalendar?.version === '3.3.0-nationality-rotation'")
+clean = clean.replace("generatedManifest.includes('3.0.0-date-only-daily')", "generatedManifest.includes('3.0.1-nationality-rotation')")
+clean_path.write_text(clean)
+
 print('Applied weekly reservoir rotation fix.')
