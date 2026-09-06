@@ -6,6 +6,7 @@ on:
       - daily-weekly-top-answer-uniqueness-v1
     paths:
       - 'scripts/apply-weekly-top-answer-uniqueness-v1.py'
+      - '.github/workflows/apply-weekly-top-answer-uniqueness-v1.yml'
 
 permissions:
   contents: write
