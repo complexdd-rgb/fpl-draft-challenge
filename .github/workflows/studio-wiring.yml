@@ -13,15 +13,20 @@ on:
       - 'js/prompt-quality-analyser-mount-v1.js'
       - 'js/prompt-quality-analyser-v1.js'
       - 'js/prompt-promotion-v1.js'
+      - 'js/prompt-library-shards-v1.js'
+      - 'js/prompt-library-shards-promotion-bridge-v1.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
       - 'admin-prompt-promotion-v1.css'
+      - 'admin-prompt-library-shards-v1.css'
       - 'js/repository-certified-prompt-pool.js'
       - 'prompt-library.js'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - 'scripts/verify-prompt-factory-v1.mjs'
       - 'scripts/verify-prompt-quality-analyser-v1.mjs'
       - 'scripts/verify-prompt-promotion-v1.mjs'
+      - 'scripts/verify-prompt-library-shards-v1.mjs'
+      - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'js/admin-stage-one.js'
       - 'js/validation-engine.js'
@@ -43,15 +48,20 @@ on:
       - 'js/prompt-quality-analyser-mount-v1.js'
       - 'js/prompt-quality-analyser-v1.js'
       - 'js/prompt-promotion-v1.js'
+      - 'js/prompt-library-shards-v1.js'
+      - 'js/prompt-library-shards-promotion-bridge-v1.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
       - 'admin-prompt-promotion-v1.css'
+      - 'admin-prompt-library-shards-v1.css'
       - 'js/repository-certified-prompt-pool.js'
       - 'prompt-library.js'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - 'scripts/verify-prompt-factory-v1.mjs'
       - 'scripts/verify-prompt-quality-analyser-v1.mjs'
       - 'scripts/verify-prompt-promotion-v1.mjs'
+      - 'scripts/verify-prompt-library-shards-v1.mjs'
+      - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
       - 'admin.html'
       - '.github/workflows/studio-wiring.yml'
@@ -96,7 +106,7 @@ jobs:
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
-      - name: Verify Prompt Studio clean boundary, Factory and Quality Analyser
+      - name: Verify Prompt Studio clean architecture boundary
         run: node scripts/verify-prompt-studio-clean-reset.mjs
 
       - name: Run Prompt Factory behavioural smoke test
@@ -107,6 +117,9 @@ jobs:
 
       - name: Run Prompt Promotion behavioural smoke test
         run: node scripts/verify-prompt-promotion-v1.mjs
+
+      - name: Run Prompt Library Shards behavioural smoke test
+        run: node scripts/verify-prompt-library-shards-v1.mjs
 
       - name: Verify unaffected native workspaces
         run: |
@@ -124,11 +137,15 @@ jobs:
           node --check js/prompt-quality-analyser-mount-v1.js
           node --check js/prompt-quality-analyser-v1.js
           node --check js/prompt-promotion-v1.js
+          node --check js/prompt-library-shards-v1.js
+          node --check js/prompt-library-shards-promotion-bridge-v1.js
           node --check js/repository-certified-prompt-pool.js
           node --check scripts/verify-prompt-studio-clean-reset.mjs
           node --check scripts/verify-prompt-factory-v1.mjs
           node --check scripts/verify-prompt-quality-analyser-v1.mjs
           node --check scripts/verify-prompt-promotion-v1.mjs
+          node --check scripts/verify-prompt-library-shards-v1.mjs
+          node --check scripts/materialise-prompt-library-shards.mjs
           node --check scripts/build-studio-cache-tags.mjs
 
       - name: Reject whitespace errors

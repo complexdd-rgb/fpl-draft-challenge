@@ -1,8 +1,8 @@
 {
-  "manifestVersion": "2.4.0-promotion-v1",
+  "manifestVersion": "2.5.0-library-shards-v1",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "2.4.0-promotion-v1" },
-    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.3.0-promotion" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "2.5.0-library-shards-v1" },
+    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.4.0-library-shards" },
     "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.1.0-library-browser" },
     "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
     "promptFactoryMountV1": { "path": "js/prompt-factory-mount-v1.js", "version": "1.0.0" },
@@ -12,7 +12,10 @@
     "promptQualityAnalyserCssV1": { "path": "admin-prompt-quality-analyser.css", "version": "1.0.0" },
     "promptPromotionV1": { "path": "js/prompt-promotion-v1.js", "version": "1.0.0" },
     "promptPromotionCssV1": { "path": "admin-prompt-promotion-v1.css", "version": "1.0.0" },
-    "adminImportTools": { "path": "js/admin-import-tools.js", "version": "24.3.0-promotion" },
+    "promptLibraryShardsV1": { "path": "js/prompt-library-shards-v1.js", "version": "1.0.1" },
+    "promptLibraryShardsBridgeV1": { "path": "js/prompt-library-shards-promotion-bridge-v1.js", "version": "1.0.0" },
+    "promptLibraryShardsCssV1": { "path": "admin-prompt-library-shards-v1.css", "version": "1.0.0" },
+    "adminImportTools": { "path": "js/admin-import-tools.js", "version": "24.4.0-library-shards" },
     "studioFeatureLoader": { "path": "js/studio-feature-loader.js", "version": "1.1.0-bootstrap-shim" },
     "promptStudioLoader": { "path": "js/prompt-studio-loader.js", "version": "1.4.0-retired" },
     "promptStudioRedesign": { "path": "js/prompt-studio-redesign.js", "version": "2.0.0-retired" },
