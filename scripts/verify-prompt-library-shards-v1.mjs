@@ -3,6 +3,7 @@ import vm from 'node:vm';
 
 const source = fs.readFileSync('js/prompt-library-shards-v1.js', 'utf8');
 const bridge = fs.readFileSync('js/prompt-library-shards-promotion-bridge-v1.js', 'utf8');
+const css = fs.readFileSync('admin-prompt-library-shards-v1.css', 'utf8');
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
@@ -71,10 +72,13 @@ assert(bridge.includes('prompt-promotion-v1'), 'Promotion bridge does not restri
 assert(source.includes('promptLibraryDailyBalanceMount'), 'Daily Challenge saved-library balance mount is missing.');
 assert(source.includes('17-family balance and rotation coverage'), 'Daily Challenge family-balance heading is missing.');
 assert(source.includes('WEEKLY_PROMPT_SLOTS = 77'), 'Daily family share planning is not based on the seven-day 77-slot week.');
-assert(source.includes('Cutover pending'), 'Daily view does not preserve the explicit production cutover boundary.');
 assert(source.includes('Future published schedule'), 'Daily view is missing spoiler-safe future schedule context.');
 assert(source.includes('promptIds') && source.includes('FPL_CHALLENGE_MANIFEST'), 'Known used coverage is not grounded in challenge history.');
 assert(source.includes('future Supabase prompt IDs and family details are deliberately not included'), 'Future scheduled prompts are not explicitly protected from the usage view.');
-assert(!source.includes('FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Read-only shard view must not take over Daily generation authority.');
+assert(!source.includes('FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Shard storage must not itself take over Daily generation authority.');
 
-console.log('Prompt Library Shards v1.1.0 smoke test passed: durable shards plus read-only Daily 17-family balance are present without generation cutover.');
+assert(css.includes('Active saved promoted library'), 'Daily balance display does not show the saved library as the active Daily source.');
+assert(css.includes('77-prompt reservoir is structurally and runtime verified'), 'Daily balance display does not explain the runtime verification boundary.');
+assert(css.includes('SOURCE ACTIVE'), 'Daily balance display is missing the active-source chip.');
+
+console.log('Prompt Library Shards v1.1.0 smoke test passed: durable shards plus Daily 17-family balance are present, with active generation authority explicitly delegated to the runtime-certified 77-prompt guard.');
