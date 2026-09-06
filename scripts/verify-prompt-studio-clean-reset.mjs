@@ -8,7 +8,7 @@ const assert = (condition, message) => {
 const manifest = JSON.parse(read('config/asset-manifest.json'));
 const generatedManifest = read('js/asset-manifest.js');
 const bootstrap = read('js/studio-bootstrap.js');
-const entrypoint = read('js/admin-import-tools.js');
+const admin = read('admin.html');
 const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const cutover = read('js/admin-daily-library-cutover-v1.js');
 const dailyGuard = read('js/admin-daily-generator-guard.js');
@@ -24,8 +24,8 @@ const promptLibrary = read('prompt-library.js')
   .replace(/\s+/g, ' ')
   .trim();
 
-assert(manifest.manifestVersion === '3.0.6-preplan-fastpath', 'Central manifest is not on the schedule-manager v2 boundary.');
-assert(manifest.assets?.assetManifestRuntime?.version === '3.0.6-preplan-fastpath', 'Asset-manifest runtime cache version is stale.');
+assert(manifest.manifestVersion === '3.1.0-studio-prune', 'Central manifest is not on the schedule-manager v2 boundary.');
+assert(manifest.assets?.assetManifestRuntime?.version === '3.1.0-studio-prune', 'Asset-manifest runtime cache version is stale.');
 assert(manifest.assets?.studioBootstrap?.path === 'js/studio-bootstrap.js', 'Central manifest no longer owns the clean Studio bootstrap.');
 assert(manifest.assets?.studioBootstrap?.version === '2.6.0-schedule-manager', 'Studio bootstrap cache version does not include schedule manager v2.');
 assert(manifest.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio controller is missing from the central manifest.');
@@ -42,10 +42,9 @@ assert(manifest.assets?.adminBatchCalendar?.version === '3.8.0-preplan-fastpath'
 assert(manifest.assets?.adminDailyPublish?.version === '1.1.0-date-identity', 'Daily publishing date-identity cache version is stale.');
 assert(manifest.assets?.adminScheduleManagerV2?.path === 'js/admin-schedule-manager-v2.js', 'Schedule manager v2 is missing from the central manifest.');
 assert(manifest.assets?.adminScheduleManagerV2?.version === '2.0.0', 'Schedule manager v2 cache version is stale.');
-assert(manifest.assets?.adminImportTools?.version === '24.6.0-schedule-manager', 'Admin entrypoint cache version does not force the new bootstrap.');
 assert(manifest.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Repository prompt pool is not on the clean zero boundary.');
 
-assert(generatedManifest.includes('3.0.6-preplan-fastpath'), 'Generated asset manifest was not refreshed to the schedule-manager v2 boundary.');
+assert(generatedManifest.includes('3.1.0-studio-prune'), 'Generated asset manifest was not refreshed to the schedule-manager v2 boundary.');
 assert(generatedManifest.includes('"dailySemanticDiversityV1"'), 'Generated asset manifest does not expose the Daily semantic-diversity policy.');
 assert(generatedManifest.includes('"adminScheduleManagerV2"'), 'Generated asset manifest does not expose schedule manager v2.');
 assert(generatedManifest.includes('"version": "1.2.0-daily-authority"'), 'Generated asset manifest did not retain the Daily authority CSS cache tag.');
@@ -59,9 +58,11 @@ for (const retired of ['ensurePromptRedesign', 'ensurePromptV3', 'ensurePromptLo
   assert(!bootstrap.includes(retired), `Clean Studio bootstrap still contains retired owner ${retired}.`);
 }
 assert(bootstrap.includes('adminScheduleManagerV2'), 'Clean Studio bootstrap does not load the centrally owned schedule manager v2.');
-assert(entrypoint.includes('js/studio-bootstrap.js?v=2.6.0-schedule-manager'), 'Admin entrypoint does not force the schedule-manager v2 bootstrap.');
-assert(entrypoint.includes('fallback is disabled by design'), 'Admin entrypoint does not fail closed when the clean bootstrap cannot load.');
-assert(!entrypoint.includes('loadLegacyPromptPath'), 'Admin entrypoint can still resurrect the retired Prompt Studio loader path.');
+assert(admin.includes('data-studio-bootstrap="1" src="js/studio-bootstrap.js?v=2.6.0-schedule-manager"'), 'admin.html does not load the single Studio bootstrap directly.');
+assert(!admin.includes('js/admin-import-tools.js'), 'admin.html still loads the retired admin-import-tools compatibility shim.');
+for (const retiredKey of ['adminImportTools','studioFeatureLoader','promptStudioRedesign','promptFamilyRegistryV3','promptStudioV3','promptStudioV3RuleTester','promptStudioV3QualityAdvisor','promptStudioV3CandidateGenerator','promptStudioV3AutoBatchGenerator','promptStudioV3CandidateCertification','promptStudioV4Simple']) {
+  assert(!manifest.assets?.[retiredKey], `Central manifest still exposes retired Studio asset ${retiredKey}.`);
+}
 assert(promptLibrary === 'window.FPL_PROMPT_LIBRARY = [];', 'prompt-library.js must remain the empty repository initializer; the durable promoted library belongs to family shards.');
 
 assert(scheduleManager.includes('centrally owned published schedule manager v2.0.0'), 'Schedule manager v2 header/version is missing.');
