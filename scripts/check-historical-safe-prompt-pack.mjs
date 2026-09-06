@@ -7,8 +7,7 @@ const readinessPath = 'js/prompt-field-readiness.js';
 const panelPath = 'js/prompt-field-readiness-panel.js';
 const manifestPath = 'js/historical-season-field-manifest.js';
 const unlockAuditPath = 'js/historical-prompt-unlock-audit.js';
-const loaderPath = 'js/career-overlap-wording.js';
-for (const path of [packPath, eraPath, nationalityContextPath, readinessPath, panelPath, manifestPath, unlockAuditPath, loaderPath]) {
+for (const path of [packPath, eraPath, nationalityContextPath, readinessPath, panelPath, manifestPath, unlockAuditPath]) {
   if (!fs.existsSync(path)) throw new Error(`Missing required prompt file: ${path}`);
 }
 const pack = fs.readFileSync(packPath, 'utf8');
@@ -18,7 +17,6 @@ const readiness = fs.readFileSync(readinessPath, 'utf8');
 const panel = fs.readFileSync(panelPath, 'utf8');
 const manifest = fs.readFileSync(manifestPath, 'utf8');
 const unlockAudit = fs.readFileSync(unlockAuditPath, 'utf8');
-const loader = fs.readFileSync(loaderPath, 'utf8');
 
 const requiredPackMarkers = [
   'FPL_HISTORICAL_SAFE_PROMPT_PACK_V1',
@@ -42,7 +40,4 @@ if (!readiness.includes('prompt-nationality-context-pack-v1.js') || !readiness.i
 if (!panel.includes('Historical prompt readiness') || !panel.includes('Latest season field coverage') || !panel.includes('Run season prompt unlock audit')) throw new Error('Prompt readiness panel is incomplete.');
 if (!manifest.includes('FPL_HISTORICAL_FIELD_MANIFEST') || !manifest.includes('canEvaluate')) throw new Error('Historical season field manifest is incomplete.');
 if (!unlockAudit.includes('FPL_HISTORICAL_PROMPT_UNLOCK_AUDIT') || !unlockAudit.includes('minAnswers') || !unlockAudit.includes('unlockedCount')) throw new Error('Historical prompt unlock audit is incomplete.');
-if (!loader.includes('prompt-historical-safe-pack-v1.js')) throw new Error('Historical-safe pack is not wired into Prompt Studio loader.');
-if (!loader.includes('prompt-historical-era-pack-v1.js')) throw new Error('Historical era pack is not wired into Prompt Studio loader.');
-if (!loader.includes('prompt-field-readiness.js')) throw new Error('Field-readiness mapper is not wired into Prompt Studio loader.');
 console.log('Historical-safe prompt expansion static checks passed.');

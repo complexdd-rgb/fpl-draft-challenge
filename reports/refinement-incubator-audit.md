@@ -1,12 +1,12 @@
 # Refinement Incubator audit
 
-Generated: 2026-09-04T07:21:30.227Z
+Generated: 2026-09-06T22:04:40.634Z
 
 ## Headline
 
-- Enabled Studio prompts analysed: **851**
-- Certified: **848**
-- Family/diversity rescued: **3**
+- Enabled Studio prompts analysed: **89**
+- Certified: **89**
+- Family/diversity rescued: **0**
 - Durable refinement survivors: **2**
 - Incubated promising 3★: **0**
 - Hard/weak rejected: **0**
@@ -15,8 +15,8 @@ Generated: 2026-09-04T07:21:30.227Z
 
 ## Durable survivors
 
-- **refinement_survivor_v1_mid_price_6_5_gi_15** — Midfielder who started at £6.5m or less with 15+ goal involvements — certified, raw 84, adjusted 86, 74 answers, overlap 0.000.
-- **refinement_survivor_v1_fwd_manager_david_moyes_p75** — Forward managed by David Moyes who scored 75+ FPL points — certified, raw 78, adjusted 84, 14 answers, overlap 0.000.
+- **refinement_survivor_v1_mid_price_6_5_gi_15** — Midfielder who started at £6.5m or less with 15+ goal involvements — certified, raw 100, adjusted 100, 74 answers, overlap 0.000.
+- **refinement_survivor_v1_fwd_manager_david_moyes_p75** — Forward managed by David Moyes who scored 75+ FPL points — certified, raw 98, adjusted 100, 14 answers, overlap 0.000.
 
 ## Refinement readiness
 

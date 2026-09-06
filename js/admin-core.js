@@ -2125,45 +2125,6 @@ ${promptsSource}
 
   const HISTORY_KEY = "fplChallengeStudioHistoryV1";
   const INVALID_PENALTY = 10;
-  const BASELINE_CHALLENGE = {
-    version: 1,
-    id: "daily-006-underdog-xi",
-    number: 6,
-    name: "The Underdog XI",
-    title: "20 July 2026 · The Underdog XI",
-    releaseDate: "2026-07-20",
-    difficulty: "Medium / Hard",
-    perfectScore: 1885,
-    status: "published",
-    locked: false,
-    recordedAt: "2026-07-20T00:00:00.000Z",
-    promptIds: [
-      "gk_survival_saves",
-      "def_moyes_minutes",
-      "def_creator_outside_big_six",
-      "def_midtable_minutes",
-      "def_budget_clean_sheets",
-      "mid_relegated_involvements",
-      "mid_creator_outside_big_six",
-      "mid_midtable_exact_five",
-      "mid_budget_involvements",
-      "fwd_promoted_goals",
-      "fwd_exact_ten_outside_big_six"
-    ],
-    promptLabels: [
-      "Goalkeeper whose club finished 13th–17th with at least 100 saves",
-      "Defender managed by David Moyes who played at least 2,000 minutes",
-      "Defender outside the traditional Big Six with at least five assists",
-      "Defender from a club finishing 7th–12th who played 2,500+ minutes",
-      "Defender who started at £4.5m or less with at least eight clean sheets",
-      "Midfielder from a relegated club with at least 10 goal involvements",
-      "Midfielder outside the traditional Big Six with at least 10 assists",
-      "Midfielder from a club finishing 7th–12th with exactly five goals",
-      "Midfielder who started at £6.0m or less with at least 15 goal involvements",
-      "Forward from a promoted club with at least eight goals",
-      "Forward outside the traditional Big Six who scored exactly 10 goals"
-    ]
-  };
 
   const core = window.FPL_STUDIO_API;
   const players = Array.isArray(window.FPL_PLAYERS) ? window.FPL_PLAYERS : [];
@@ -2183,7 +2144,6 @@ ${promptsSource}
   const elements = {
     historyStatus: document.querySelector("#historyStatus"),
     cooldownChallenges: document.querySelector("#cooldownChallenges"),
-    cooldownSummary: document.querySelector("#cooldownSummary"),
     testPanel: document.querySelector("#testPanel"),
     startTestBtn: document.querySelector("#startTestBtn"),
     loadPerfectBtn: document.querySelector("#loadPerfectBtn"),
@@ -2203,18 +2163,12 @@ ${promptsSource}
     testFinalScore: document.querySelector("#testFinalScore"),
     testPerfectScore: document.querySelector("#testPerfectScore"),
     testEfficiency: document.querySelector("#testEfficiency"),
-    testOutcome: document.querySelector("#testOutcome"),
-    recordHistoryBtn: document.querySelector("#recordHistoryBtn"),
-    downloadHistoryBtn: document.querySelector("#downloadHistoryBtn"),
-    downloadHistoryMarkdownBtn: document.querySelector("#downloadHistoryMarkdownBtn"),
-    historyActionStatus: document.querySelector("#historyActionStatus"),
-    historyList: document.querySelector("#historyList")
+    testOutcome: document.querySelector("#testOutcome")
   };
 
   let history = loadHistory();
   let testState = createTestState();
 
-  migrateLegacyHistory();
   syncManifestHistory();
 
   window.FPL_STUDIO_PHASE3 = Object.freeze({
@@ -2228,9 +2182,8 @@ ${promptsSource}
 
   function initialise() {
     bindEvents();
-    renderHistory();
+    updateHistoryStatus();
     syncDraftAvailability();
-    updateCooldownSummary();
     startTimerLoop();
   }
 
@@ -2240,11 +2193,7 @@ ${promptsSource}
     elements.autoTestBtn.addEventListener("click", runAutomaticChecks);
     elements.resetTestBtn.addEventListener("click", resetTester);
     elements.revealTestBtn.addEventListener("click", revealTestXI);
-    elements.recordHistoryBtn.addEventListener("click", recordCurrentChallenge);
-    elements.downloadHistoryBtn.addEventListener("click", downloadHistoryBackup);
-    elements.downloadHistoryMarkdownBtn.addEventListener("click", downloadHistoryMarkdown);
     elements.cooldownChallenges.addEventListener("change", () => {
-      updateCooldownSummary();
       core?.refreshDraft?.();
     });
     document.addEventListener("fplstudio:draftchange", () => {
@@ -2287,7 +2236,6 @@ ${promptsSource}
     elements.startTestBtn.disabled = !hasDraft;
     elements.loadPerfectBtn.disabled = !hasDraft || !core?.getPerfectResult?.()?.possible;
     elements.autoTestBtn.disabled = !hasDraft;
-    updateRecordButton();
     if (hasDraft && !testState.startedAt) {
       elements.testStatus.textContent = "Draft ready. Run the automatic checks, or start a manual play-through.";
     }
@@ -2321,7 +2269,6 @@ ${promptsSource}
     elements.testPassChip.classList.remove("test-pass", "test-fail");
     elements.testStatus.textContent = message;
     updateTestStatus();
-    updateRecordButton();
   }
 
   function testPickEfficiencyMarkup(record, prompt) {
@@ -2561,9 +2508,8 @@ ${promptsSource}
     elements.testPassChip.classList.toggle("test-pass", passed);
     elements.testPassChip.classList.toggle("test-fail", !passed);
     elements.testStatus.textContent = passed
-      ? "Automatic checks passed. You can record this challenge in history, or manually play through it as an extra check."
+      ? "Automatic checks passed. You can manually play through it as an extra check."
       : "One or more automatic checks failed. Do not upload this challenge yet.";
-    updateRecordButton();
   }
 
   function revealTestXI() {
@@ -2635,20 +2581,6 @@ ${promptsSource}
     }
   }
 
-  function migrateLegacyHistory() {
-    let changed = false;
-    history = history.map(entry => {
-      const next = { ...entry };
-      if (next.locked) { next.locked = false; changed = true; }
-      if (next.releaseDate && /^Challenge #\d+/.test(String(next.title || ""))) {
-        next.title = `${formatHistoryDate(next.releaseDate)} · ${next.name || String(next.title).replace(/^Challenge #\d+\s*·\s*/, "") || "Daily Challenge"}`;
-        changed = true;
-      }
-      return next;
-    });
-    if (changed) saveHistory();
-  }
-
   function saveHistory() {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   }
@@ -2707,51 +2639,11 @@ ${promptsSource}
     return new Set(recent.flatMap(entry => entry.promptIds || []));
   }
 
-  function updateCooldownSummary() {
-    const challengeCount = clampNumber(elements.cooldownChallenges?.value, 1, 50, 7);
-    const promptCount = getCooldownPromptIds().size;
-    elements.cooldownSummary.textContent = `${promptCount} prompts blocked from the last ${Math.min(challengeCount, history.length)} challenge(s)`;
-  }
-
-  function updateRecordButton() {
-    const validDraft = currentPrompts().length === 11 && core?.getPerfectResult?.()?.possible;
-    const sameDraft = testState.signature === draftSignature();
-    elements.recordHistoryBtn.disabled = !(validDraft && sameDraft && testState.automaticPassed);
-  }
-
-  function recordCurrentChallenge() {
-    if (elements.recordHistoryBtn.disabled) return;
-    const prompts = currentPrompts();
-    const perfect = core.getPerfectResult();
-    const meta = core.getChallengeMeta();
-    const existingIndex = history.findIndex(entry => entry.releaseDate === meta.releaseDate || entry.id === `daily-${meta.releaseDate}-${slugify(meta.name) || "generated-mix"}`);
-    if (existingIndex >= 0) {
-      const replace = window.confirm(`${formatHistoryDate(meta.releaseDate)} is already in this browser's history. Replace it with the tested version?`);
-      if (!replace) return;
+  function updateHistoryStatus() {
+    const count = sortedHistory().length;
+    if (elements.historyStatus) {
+      elements.historyStatus.textContent = `${count} challenge${count === 1 ? "" : "s"} recorded`;
     }
-
-    const entry = {
-      version: 1,
-      id: `daily-${meta.releaseDate}-${slugify(meta.name) || "generated-mix"}`,
-      number: meta.number,
-      name: meta.name,
-      title: `${formatHistoryDate(meta.releaseDate)} · ${meta.name}`,
-      releaseDate: meta.releaseDate,
-      difficulty: meta.difficulty,
-      perfectScore: perfect.score,
-      status: "ready",
-      locked: false,
-      recordedAt: new Date().toISOString(),
-      promptIds: prompts.map(prompt => prompt.id),
-      promptLabels: prompts.map(prompt => prompt.label)
-    };
-
-    if (existingIndex >= 0) history[existingIndex] = entry;
-    else history.push(entry);
-    saveHistory();
-    renderHistory();
-    core.refreshDraft();
-    elements.historyActionStatus.textContent = `${formatHistoryDate(meta.releaseDate)} recorded. Its prompts now count towards the cooldown.`;
   }
 
   function recordBatchChallenges(entries) {
@@ -2784,9 +2676,8 @@ ${promptsSource}
     }
     if (!recorded) return;
     saveHistory();
-    renderHistory();
+    updateHistoryStatus();
     core?.refreshDraft?.();
-    elements.historyActionStatus.textContent = `${recorded} batch challenge${recorded === 1 ? "" : "s"} saved to Challenge History with all prompts.`;
   }
 
   function formatHistoryDate(value) {
@@ -2795,88 +2686,6 @@ ${promptsSource}
     const [, year, month, day] = match;
     return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
       .format(new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), 12)));
-  }
-
-  function renderHistory() {
-    const ordered = sortedHistory();
-    elements.historyStatus.textContent = `${ordered.length} challenge${ordered.length === 1 ? "" : "s"} recorded`;
-    elements.historyList.innerHTML = ordered.length ? ordered.map(entry => {
-      const status = entry.status === "published" ? "Published" : entry.status === "scheduled" ? "Scheduled" : "Ready to upload";
-      const prompts = (entry.promptLabels?.length ? entry.promptLabels : entry.promptIds).map((label, index) => `<li>${escapeHtml(label || entry.promptIds[index])}</li>`).join("");
-      return `<article class="history-card" data-history-id="${escapeAttribute(entry.id)}">
-        <div class="history-card-head">
-          <div>
-            <h3>${escapeHtml(entry.title || `${formatHistoryDate(entry.releaseDate)} · ${entry.name || "Daily Challenge"}`)}</h3>
-            <p class="history-meta">${escapeHtml(entry.releaseDate || "No date")} · ${escapeHtml(entry.difficulty || "Mixed")} · ${Number(entry.perfectScore || 0).toLocaleString()} perfect score</p>
-          </div>
-          <span class="history-status ${entry.status === "published" ? "published" : ""}">${status}</span>
-        </div>
-        <details class="history-prompts"><summary>Show ${entry.promptIds.length} used prompts</summary><ol>${prompts}</ol></details>
-        <div class="history-actions">
-          <button type="button" data-history-toggle="${escapeAttribute(entry.id)}">Mark ${entry.status === "published" ? "ready" : "published"}</button><button type="button" data-history-delete="${escapeAttribute(entry.id)}">Delete entry</button>
-        </div>
-      </article>`;
-    }).join("") : '<div class="history-empty">No challenge history is stored in this browser yet.</div>';
-
-    elements.historyList.querySelectorAll("[data-history-toggle]").forEach(button => button.addEventListener("click", () => toggleHistoryStatus(button.dataset.historyToggle)));
-    elements.historyList.querySelectorAll("[data-history-delete]").forEach(button => button.addEventListener("click", () => deleteHistoryEntry(button.dataset.historyDelete)));
-    updateCooldownSummary();
-    updateRecordButton();
-  }
-
-  function toggleHistoryStatus(id) {
-    const entry = history.find(item => item.id === id);
-    if (!entry) return;
-    entry.status = entry.status === "published" ? "ready" : "published";
-    saveHistory();
-    renderHistory();
-    elements.historyActionStatus.textContent = `${entry.title} marked ${entry.status}.`;
-  }
-
-  function deleteHistoryEntry(id) {
-    const entry = history.find(item => item.id === id);
-    if (!entry) return;
-    if (!window.confirm(`Delete ${entry.title} from this browser's history?`)) return;
-    history = history.filter(item => item.id !== id);
-    saveHistory();
-    renderHistory();
-    core.refreshDraft();
-    elements.historyActionStatus.textContent = `${entry.title} removed from browser history.`;
-  }
-
-  function downloadHistoryBackup() {
-    const content = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), challenges: sortedHistory() }, null, 2) + "\n";
-    downloadText("fpl-challenge-history.json", content, "application/json;charset=utf-8");
-    elements.historyActionStatus.textContent = "Challenge history backup downloaded as JSON.";
-  }
-
-  function downloadHistoryMarkdown() {
-    const lines = ["# FPL Daily Challenge History", "", `Exported: ${new Date().toLocaleString()}`, ""];
-    for (const entry of sortedHistory().reverse()) {
-      lines.push(`## ${formatHistoryDate(entry.releaseDate)} · ${entry.name || "Daily Challenge"}`);
-      lines.push("");
-      lines.push(`- Release date: ${entry.releaseDate || "—"}`);
-      lines.push(`- Difficulty: ${entry.difficulty || "Mixed"}`);
-      lines.push(`- Perfect score: ${entry.perfectScore || 0}`);
-      lines.push(`- Status: ${entry.status || "ready"}`);
-      lines.push("");
-      (entry.promptLabels?.length ? entry.promptLabels : entry.promptIds).forEach((label, index) => lines.push(`${index + 1}. ${label}`));
-      lines.push("");
-    }
-    downloadText("challenge-history.md", lines.join("\n") + "\n", "text/markdown;charset=utf-8");
-    elements.historyActionStatus.textContent = "Readable challenge-history.md downloaded.";
-  }
-
-  function downloadText(filename, content, type) {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = filename;
-    document.body.append(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(url);
   }
 
   function normalise(value) {

@@ -1,436 +1,163 @@
 # FPL Draft Challenge — Architecture Map
 
-Updated: 4 September 2026
+Updated: 6 September 2026
 
-This document records current runtime ownership and remaining Studio migration work. Temporary compatibility layers are called out explicitly so they are not mistaken for permanent architecture.
+This map records the current runtime ownership after the Prompt Studio clean reset and the Studio relevance cleanup. Historical migration scripts are not runtime architecture.
 
-## 1. System boundaries
+## 1. Runtime boundaries
 
-The repository has five main runtime areas:
+The repository has five active areas:
 
-1. **Live game** — public daily challenge, player search, scoring, results and leaderboard.
-2. **Challenge Studio** — admin-only generation, prompt management, validation, database auditing and publishing.
-3. **Prompt engine** — prompt families, generation, quality analysis and prompt review.
-4. **Weekly engine** — seven-day generation, certified prompt snapshot, family quotas, exact rotation, nationality reservation and answer diversity.
-5. **Historical data/certification** — player-season data, career context, field readiness and season certification.
+1. **Live game** — public Daily Challenge, answers, scoring, results and leaderboard.
+2. **Challenge Studio** — admin generation, prompt management, validation, database audit and publishing.
+3. **Clean Prompt Studio** — Factory → Quality → Promotion → durable saved family shards.
+4. **Weekly engine** — seven-day generation from the saved promoted library.
+5. **Historical data** — player-season database, field readiness and validation/certification tooling.
 
-Core rule: **candidate-building tools must never silently change production prompt membership. Live generation and certification consume only explicit repository-certified state.**
-
----
+Candidate tools must never silently change production membership. Daily generation consumes only the explicitly saved promoted family-shard snapshot after its generation guard certifies the weekly reservoir.
 
 ## 2. Live game
 
-Primary page: `index.html`
+Primary page: `index.html`.
 
 ```text
 challenge-manifest-bootstrap
 → daily-challenge-loader
-→ challenge-legacy-fallback
-→ challenge-archive
-→ prompt-helpers
-→ players-live.js
-→ career-context.js
+→ challenge fallback/archive
+→ players-live.js + career-context.js
 → game-engine.js
-→ live visual/result layers
-→ leaderboard/account feature loading
+→ result/visual layers
+→ leaderboard/account layers
 ```
 
-`career-context.js` must load before `game-engine.js` whenever a live prompt depends on career-derived data.
-
----
+Supabase is the live Daily schedule/source authority. Repository challenge files remain a static fallback path.
 
 ## 3. Challenge Studio
 
-Primary page: `admin.html`
-
-The Studio has one central asset/version manifest, one top-level Studio bootstrap owner and a native workspace shell authored in `#studioNativeWorkspaceTemplate`.
-
-Native workspaces:
-
-- **Validation Lab** — `workspace-validation`.
-- **Daily Challenge** — `workspace-challenge`, including settings, seven-day generation, XI review, Test Mode, download output and history.
-- **Prompt Studio** — `workspace-prompts`.
-
-Prompt Studio is now in a deliberate transition:
-
-- the old V2 runtime remains available only to protect the existing live/certification pipeline;
-- the human-facing Prompt Studio is being rebuilt as **V3 clean-room state starting from zero prompts**;
-- V3 never mutates the legacy production library.
+Primary page: `admin.html`.
 
 ```text
 admin.html
 → asset-manifest.js
 → admin-stage-one.js
-   ├─ native Daily Challenge
-   ├─ native Prompt Studio
-   ├─ native Validation Lab
-   └─ re-parent remaining legacy workspaces
-→ players.js
-→ career-context.js
-→ prompt-library.js
-→ repository-certified-prompt-pool.js
+→ players.js + career-context.js
+→ empty prompt-library.js initializer
+→ repository-certified-prompt-pool.js (deferred production pool = 0)
 → validation-engine.js
 → admin-core.js
-→ weekly/daily guards
+→ Daily batch/guard modules
 → studio-bootstrap.js
-      ├─ Prompt Studio V2 compatibility controller
-      ├─ Prompt Studio V3 clean-room controller
-      ├─ V3 family registry
-      ├─ V3 safe rule builder + database tester
-      ├─ V3 advisory quality evidence
-      ├─ V3 deliberate family/answer-pool candidate generator
-      ├─ V3 read-only candidate all-season certification
-      ├─ Prompt Studio heavy-tool lazy loader
-      ├─ legacy production certification/quality chain
-      ├─ legacy Refinement Incubator
-      └─ publishing support
 ```
 
-Main modules:
+`studio-bootstrap.js` is the single Prompt Studio bootstrap owner. `admin.html` loads it directly; compatibility bootstraps and alternate Studio owners have been removed.
 
-- `config/asset-manifest.json` — authoritative Studio asset paths/cache versions.
-- `js/studio-bootstrap.js` — single Studio feature/bootstrap owner.
-- `js/admin-stage-one.js` — native shell activation and remaining legacy re-parenting.
-- `js/prompt-studio-redesign.js` — V2 compatibility presentation while the old production pipeline still exists.
-- `js/prompt-library-canonical-state.js` — V2 visible census/enabled policy; not V3 authority.
-- `js/repository-certified-prompt-pool.js` — existing production membership boundary.
-- `js/admin-core.js` — large multi-phase core; still a decomposition target.
-- `js/admin-batch-calendar.js` — seven-day generator.
-- `js/admin-daily-generator-guard.js` — production-certified prompt generation snapshot/final guard.
-- `js/admin-studio-finish.js` — preflight and all-season certification orchestration.
-- `js/validation-engine.js` / `js/validation-lab.js` — validation behaviour.
+Native workspaces:
 
-The former `admin-import-tools.js` and `studio-feature-loader.js` compatibility shims have been retired. `admin.html` now loads `js/studio-bootstrap.js` directly.
+- `workspace-challenge` — Daily Challenge settings, seven-day generation, XI review, Test Mode and download output.
+- `workspace-prompts` — clean Prompt Studio.
+- `workspace-validation` — Validation Lab.
 
----
-
-## 4. Prompt Studio V3 clean-room model
-
-V3 deliberately starts with **zero prompts** and owns a separate browser state key:
-
-`fplPromptStudioV3CleanRoom`
-
-The existing 851-prompt production library remains frozen and continues to power the public game and certification until an explicit future V3 cutover.
-
-### V3 lifecycle
+## 4. Clean Prompt Studio
 
 ```text
-Draft
-→ real database Test
-→ read-only candidate all-season evidence
-→ advisory Quality evidence
-→ Human quality review
-→ Review
-→ Human approval for future V3
-→ explicit repository cutover later
+prompt-studio-clean-reset.js
+→ prompt-factory-v1.js
+→ prompt-quality-analyser-v1.js
+→ prompt-promotion-v1.js
+→ prompt-library-shards-v1.js
+→ admin-daily-library-cutover-v1.js
 ```
 
-Important distinction: **V3 approval is not the same as production enablement.** During the clean-room build every V3 prompt remains production-disabled, including approved prompts.
+The canonical repository `prompt-library.js` remains intentionally empty after the clean reset. Promoted Prompt Studio output is stored durably in IndexedDB as family shards. Factory candidates do not become Daily source material until they pass through Quality and Promotion and are saved.
 
-### V3 work areas
+The old V2/V3/V4 Prompt Studio runtimes, compatibility shims, prompt lazy-loader and career-overlap loader chain are retired and physically absent.
+
+## 5. Daily generation
 
 ```text
-Library
-→ one isolated V3 list
-→ starts at 0
-→ total = disabled during the clean-room phase
-
-Create
-→ safe structured rule builder for parser-supported rules
-→ generated wording must parse back to exactly the chosen rule fields
-→ deliberate candidate generator chooses family + position + target answer-pool range
-→ candidate recipes are parser-checked and measured against the real database
-→ the generator returns a temporary shortlist only
-→ each candidate requires an explicit Add as disabled Draft click
-→ manual wording remains a fallback for families not covered yet
-→ choose family + position + difficulty
-→ always saves disabled
-
-Test
-→ executes the shared Validation Engine against the loaded FPL_PLAYERS database
-→ calculates unique valid players, season breadth, club breadth, runtime errors and zero-minute violations
-→ technical PASS requires safe mapping, at least one answer, zero runtime errors and zero accepted zero-minute records
-→ candidate all-season certification then runs the same prompt across every supported season
-→ season evidence reports answers, clubs, runtime errors and zero-minute answers per season
-→ NO MATCH is evidence, not a technical failure; only runtime/zero-minute problems fail candidate certification
-→ all-season evidence is read-only and cannot rate, approve or enable a prompt
-
-Quality
-→ automated evidence is advisory only
-→ calculates answer breadth and concentration signals
-→ calculates traditional-Big-Six concentration as an obviousness signal
-→ compares answer-set overlap only against compatible technically-passing V3 peers
-→ reports V3 family coverage and nearest overlaps
-→ human may explicitly copy overlap/obviousness evidence into the review form
-→ human still chooses quality rating and review decision
-→ difficulty remains a separate property
-
-Review
-→ explicit human decision
-→ approve / keep for refinement / delete
-→ no automatic production promotion
-
-Families
-→ coverage across the V3 family registry
-→ growth is driven by missing/weak families, not an arbitrary total
+saved promoted 17-family snapshot
+→ Daily library cutover validation
+→ weekly generation guard
+→ immutable 77-prompt reservoir
+→ seven dated 11-prompt challenges
+→ nationality / semantic / leader-day spacing policies
+→ exact unique-player perfect-XI validation
+→ review + ZIP
+→ explicit Supabase publish
 ```
 
-### No automatic Quality Enforcement in V3
+Protected invariants:
 
-The legacy production pipeline still contains `prompt-four-star-enforcer.js` and related Quality Enforcement v2 logic because the frozen 851-prompt library currently depends on it. **V3 does not consume those decisions.**
+- 7 days × 11 prompts;
+- 77 unique prompt IDs in a successful week;
+- exactly one nationality prompt per day;
+- all required prompt families represented;
+- formation totals remain exact;
+- semantic clashes are guarded;
+- same top-answer player may lead multiple prompts on one day, but cross-day repeats target a three-day gap;
+- two leader appearance days per player is preferred and three is the hard weekly maximum;
+- the perfect XI uses unique footballers;
+- partial/failed weeks cannot publish as valid packages.
 
-V3 must not automatically:
+### Browser rotation history
 
-- change a star rating;
-- rescue a 3★ prompt to 4★;
-- apply a family-diversity bonus to promotion;
-- enable a prompt;
-- disable a prompt because of subjective quality;
-- delete a prompt;
-- approve a prompt.
+`admin-core.js` Phase 3 keeps a small browser history store only for cooldown/rotation state. Batch generation records completed generated days automatically through `FPL_STUDIO_PHASE3.recordBatchChallenges()` and reads recent prompt IDs through `getCooldownPromptIds()`.
 
-Automated tools may provide evidence and suggestions. Only explicit human review changes V3 review status.
+There is no visible or hidden history-management DOM. The retired manual history buttons/cards were compatibility UI and have been removed.
 
-Technical impossibilities such as a broken rule/runtime failure may block approval, but they still do not silently delete material.
+## 6. Publishing and schedule ownership
 
-### V3 advisory-quality boundary
+- Supabase `daily_challenge_schedule` is the live schedule/source authority.
+- Challenge identity is the release date: `daily-YYYY-MM-DD`.
+- `admin-schedule-manager-v2.js` owns schedule management.
+- `admin-daily-publish.js` owns explicit publishing.
+- `challenges/manifest.js` is a static fallback file index, not the primary live schedule.
 
-`js/prompt-studio-v3-quality-advisor.js` owns a separate evidence key:
+Publishing never occurs merely because a week was generated.
 
-`fplPromptStudioV3QualityAdvisoryEvidence`
+## 7. Certification boundary
 
-Its outputs are deliberately non-authoritative. It may calculate:
+Full repository all-season prompt certification remains deliberately deferred after the clean reset. `repository-certified-prompt-pool.js` is pinned to zero production prompts.
 
-- answer-pool breadth;
-- season and club concentration;
-- traditional Big Six share;
-- obviousness-risk signals;
-- highest overlap against compatible technically-passing V3 prompts;
-- same-family V3 coverage.
+`validation-engine.js` still supports an explicit frozen `FPL_VALIDATION_CERTIFICATION_PROMPT_POOL` snapshot so a future certification run can lock one deliberately supplied prompt set without reading mutable browser state mid-run.
 
-Overlap uses the established smaller-answer-set convention: common valid player IDs divided by the smaller answer set. This makes near-subset prompts visible as high overlap rather than hiding them behind a low union/Jaccard score.
+Current CI protects this state through `scripts/verify-all-season-certification-gate.mjs`. Daily generation is separate: it uses the saved promoted library only after the 77-prompt weekly reservoir passes structural, runtime and semantic checks.
 
-The advisor may populate a human form field only after an explicit **Copy** click. It must never write `qualityReview`, a star rating, a review decision, lifecycle status or production state itself.
+## 8. Generated wiring
 
-### V3 deliberate-candidate boundary
-
-`js/prompt-studio-v3-candidate-generator.js` is a shortlist tool, not a library authority.
-
-The user chooses:
-
-- a supported V3 family;
-- a position or Any;
-- a minimum and maximum desired unique-player answer count;
-- shortlist size.
-
-The generator enumerates a bounded set of parser-safe family recipes, validates their wording through the V3 rule tester, executes them against the real player database, and ranks only candidates whose measured answer pools fall inside the requested range.
-
-A generated candidate is **temporary** until the user explicitly clicks **Add as disabled Draft**. There is no bulk auto-save, no automatic Test pass, no quality rating, no approval and no production membership change. Once added, the candidate must follow the normal V3 lifecycle from Draft onward.
-
-The first slice supports 16 families with safe recipes: season stats, combined stats, exact/bands, club + stat, position + stat, league position/status, promoted clubs, relegated clubs, champions, career longevity, club count, manager, anti-meta, starting-price value, minutes/role and composite/story prompts. Unsupported registered families remain visible in Family Coverage and can gain recipes later without changing the authority model.
-
-### V3 candidate-certification boundary
-
-`js/prompt-studio-v3-candidate-certification.js` owns separate read-only evidence under:
-
-`fplPromptStudioV3CandidateAllSeasonEvidence`
-
-A prompt must first pass the real V3 database Test. Candidate certification then evaluates that exact prompt against every supported season and records:
-
-- player rows available in the season;
-- unique valid answers in the season;
-- clubs represented by valid answers;
-- runtime errors;
-- accepted zero-minute answers;
-- ACTIVE / NO MATCH / FAIL season status;
-- total active-season coverage and unique players across all seasons.
-
-`NO MATCH` is deliberately not treated as a technical failure because season-specific and sparse prompts may correctly have no valid answers in many seasons. Candidate technical certification fails only for runtime errors, accepted zero-minute answers or no valid answer anywhere.
-
-Evidence carries a fingerprint of prompt ID, position, wording and the underlying real-Test timestamp. Human quality/review edits do not invalidate it; a changed prompt definition or rerun Test does.
-
-Candidate certification must never write a quality rating, review decision, lifecycle status, approval state, enabled state or production membership.
-
-### V3 family registry
-
-The initial registry contains **33 families**, including core families and new priority areas:
-
-- season stats;
-- combined stats;
-- exact values/bands;
-- club + stat;
-- position + stat;
-- nationality + stat;
-- league position;
-- promoted clubs;
-- relegated clubs;
-- champions;
-- career totals;
-- career longevity;
-- club journey;
-- Premier League club count;
-- return journey;
-- career consistency;
-- career peak;
-- rise/fall;
-- comeback;
-- one-club career;
-- one-season wonder;
-- era crossover;
-- manager relationship;
-- manager journey;
-- teammate relationship;
-- name/identity;
-- anti-meta;
-- starting-price value;
-- premium disappointment;
-- minutes/role;
-- cross-season achievement;
-- club-status journey;
-- composite/story prompts.
-
-The family count is not a target by itself. V3 should favour genuinely different answer pools, recognisable football stories and coverage across eras/positions/clubs over raw prompt volume.
-
----
-
-## 5. Frozen legacy production prompt pipeline
-
-Until V3 is deliberately cut over, the current public pipeline remains unchanged.
-
-Current production membership is exactly **851 repository-certified prompts**. The existing production reconstruction includes the approved baseline, quality packs, durable survivors and nationality-context prompts.
-
-```text
-legacy approved/quality sources
-→ legacy quality/refinement chain
-→ repository-certified 851-prompt pool
-→ immutable generation/certification snapshot
-```
-
-The September Refinement Incubator audit remains historical evidence for that frozen production pool: **848 directly certified + 3 family/diversity rescued**, with two durable survivors replacing weak parents.
-
-This legacy automatic enforcement must not be copied into V3.
-
----
-
-## 6. Weekly generation
-
-```text
-nationality pack readiness
-→ repository-certified 851-prompt legacy pool ready
-→ immutable certified prompt snapshot
-→ formation-aware selection
-→ exactly one nationality prompt per day
-→ family/mix quotas
-→ exact rotation
-→ family cooldown
-→ answer/top-player diversity
-→ perfect-XI validation
-→ final certified-pool check
-→ ZIP eligibility
-```
-
-Protected invariants during the V3 rebuild:
-
-- V3 prompts cannot leak into production generation;
-- repository-certified legacy prompts only;
-- immutable snapshot for each run;
-- exactly one nationality prompt per generated day;
-- safe exact rotation;
-- family cooldown relaxes only where designed;
-- certified-pool membership never relaxes;
-- failed/partial seven-day runs cannot publish as valid packages.
-
----
-
-## 7. All-season certification readiness gate
-
-The in-page Regression Suite must not certify against V3 drafts, browser working prompts or transient loading sets.
-
-```text
-Certify all seasons requested
-→ wait for FPL_REPOSITORY_CERTIFIED_PROMPT_POOL
-→ require exactly 851 legacy production prompt IDs
-→ require unique IDs and valid 4★+ definitions
-→ freeze FPL_VALIDATION_CERTIFICATION_PROMPT_POOL
-→ certify every supported season against that snapshot
-→ release snapshot after completion/cancellation
-```
-
-V3 candidate all-season certification is separate from this production gate. It evaluates one V3 candidate at a time for evidence only and never changes production or V3 approval state.
-
----
-
-## 8. Generated wiring and verification
+Authoritative asset versions live in `config/asset-manifest.json`.
 
 ```text
 config/asset-manifest.json
-→ scripts/apply-all-season-certification-gate.mjs
-→ scripts/build-studio-cache-tags.mjs
+→ scripts/build-asset-manifest-runtime.mjs
 → scripts/build-native-studio-shell.mjs
 → scripts/build-native-daily-workspace.mjs
 → scripts/build-native-prompt-workspace.mjs
-→ scripts/build-asset-manifest-runtime.mjs
 → scripts/build-studio-cache-tags.mjs
 → verification
 ```
 
-The architecture build runs the generated chain twice; the second pass must be byte-identical.
+Key verifiers include:
 
-Dedicated verifiers include:
-
-- `scripts/verify-native-validation-workspace.mjs`
+- `scripts/verify-prompt-studio-clean-reset.mjs`
 - `scripts/verify-native-daily-workspace.mjs`
 - `scripts/verify-native-prompt-workspace.mjs`
+- `scripts/verify-native-validation-workspace.mjs`
+- `scripts/verify-weekly-certified-snapshot-race.mjs`
 - `scripts/verify-all-season-certification-gate.mjs`
 
+## 9. Offline legacy analysis helpers
 
----
+Some older generation/quality modules remain because diagnostic and refinement scripts still use them directly outside the live Studio runtime, particularly `js/admin-import-tools-base.js` and historical/refinement analysis helpers.
 
-## 9. Cache/version ownership
+They are **not** Prompt Studio runtime owners. Remove them only after their remaining diagnostics, audits and survivor-growth workflows have been migrated or retired.
 
-`config/asset-manifest.json` is the source of truth.
+## 10. Remaining cleanup order
 
-Current V3 candidate-certification slice:
+1. Continue decomposing the large multi-phase `js/admin-core.js` without changing generation/test behaviour.
+2. Audit offline legacy quality/generator helpers and their remaining diagnostic callers.
+3. Remove manifest entries that are demonstrably offline-only once their callers are settled.
+4. Continue the Daily Challenge UI redesign on top of the now-clean runtime architecture.
+5. Return to Prompt Factory/Quality/Promotion survivor-library growth.
 
-- manifest/runtime: `1.10.0-prompt-studio-v3-certification`
-- Studio bootstrap: `1.6.0-prompt-studio-v3-certification`
-- Prompt Studio V3: `3.0.0`
-- Prompt family registry V3: `3.0.0`
-- V3 safe rule builder/database tester: `3.1.1`
-- V3 advisory quality evidence: `3.2.0`
-- V3 deliberate candidate generator: `3.3.0`
-- V3 candidate all-season certification: `3.4.0`
-- Stage One: `1.5.0-native-prompts`
-- legacy Prompt Studio redesign: `2.0.0`
-- legacy repository-certified prompt pool: `1.1.0`
-- Validation Engine: `1.7.1-certification-snapshot`
-
-Do not add competing version literals where the manifest can own them.
-
----
-
-## 10. Current hotspots and next order
-
-Do not one-shot rewrite these:
-
-- `js/admin-core.js`
-- `js/admin-import-tools-base.js`
-- `js/admin-batch-calendar.js`
-- the legacy V2 prompt-generation/quality chain while it is still production-critical;
-- remaining legacy workspaces in `admin.html`;
-- accumulated Studio CSS layers.
-
-Prompt Studio V3 progress/order:
-
-1. **Complete** — keep the 851-prompt legacy production pool frozen and green.
-2. **Complete** — establish V3 clean-room storage/UI/family coverage at zero prompts.
-3. **Complete** — wire the safe rule builder and real validation engine into V3 Test without importing the old working library.
-4. **Complete** — build advisory Quality evidence with no automatic state mutation.
-5. **Complete** — add deliberate candidate generation by family/target answer-pool size; generated material remains temporary until explicitly added as a disabled Draft.
-6. **Complete** — build read-only V3 candidate all-season certification with season-by-season answer and technical evidence.
-7. **Next** — grow an initial high-quality V3 set using Family Coverage rather than a fixed prompt-count target.
-8. Simulate seven-day calendars against approved V3 candidates.
-9. Design and separately approve the eventual production cutover.
-10. Only after cutover, retire/archive the old automatic quality/refinement chain.
-
-Update this map whenever V3 gains a new authority boundary or a legacy production dependency is retired.
+Update this document when a real runtime authority changes; do not keep historical migration architecture here.

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 const read = file => fs.readFileSync(file, 'utf8');
 const html = read('admin.html');
 const stageOne = read('js/admin-stage-one.js');
+const adminCore = read('js/admin-core.js');
 const fragment = read('fragments/admin-daily-workspace.html');
 const manifest = JSON.parse(read('config/asset-manifest.json'));
 
@@ -53,11 +54,16 @@ requiredIds.forEach(id => {
 
 assert(!fragment.includes('id="historyPanel"'), 'The retired visible Challenge history and cooldown panel still exists in the canonical fragment.');
 assert(!challengeWorkspace.includes('id="historyPanel"'), 'The retired visible Challenge history and cooldown panel still exists in admin.html.');
-assert(fragment.includes('id="dailyHistoryCompatibility" hidden'), 'Hidden history compatibility controls are missing while the legacy controller still records rotation data.');
-assert(challengeWorkspace.includes('id="dailyHistoryCompatibility" hidden'), 'Generated Daily workspace is missing the hidden history compatibility controls.');
+assert(!fragment.includes('id="dailyHistoryCompatibility"'), 'Retired hidden Daily history compatibility mount remains in the canonical fragment.');
+assert(!challengeWorkspace.includes('id="dailyHistoryCompatibility"'), 'Retired hidden Daily history compatibility mount remains in admin.html.');
 for (const id of ['cooldownSummary', 'recordHistoryBtn', 'downloadHistoryBtn', 'downloadHistoryMarkdownBtn', 'historyActionStatus', 'historyList']) {
-  assert(fragment.includes(`id="${id}"`), `Hidden compatibility control ${id} is missing from the canonical Daily fragment.`);
+  assert(!fragment.includes(`id="${id}"`), `Retired hidden compatibility control ${id} remains in the canonical Daily fragment.`);
+  assert(!challengeWorkspace.includes(`id="${id}"`), `Retired hidden compatibility control ${id} remains in admin.html.`);
+  assert(!adminCore.includes(id), `Retired hidden compatibility control ${id} is still referenced by admin-core.js.`);
 }
+assert(adminCore.includes('getCooldownPromptIds'), 'Automatic browser history no longer exposes cooldown prompt IDs.');
+assert(adminCore.includes('recordBatchChallenges'), 'Automatic seven-day history recording was removed unexpectedly.');
+assert(adminCore.includes('getHistory:'), 'Automatic history snapshot API was removed unexpectedly.');
 
 assert(fragment.includes('id="generateWeekBtn"'), 'Seven-day generator control is missing from the canonical Daily fragment.');
 assert(fragment.includes('id="downloadWeekBtn"'), 'Seven-day ZIP control is missing from the canonical Daily fragment.');
@@ -81,7 +87,7 @@ console.log(JSON.stringify({
   canonicalFragmentLines: fragment.split('\n').length,
   nativeDailyPanels: requiredIds.length,
   visibleHistoryPanelRetired: true,
-  hiddenHistoryCompatibility: true,
+  hiddenHistoryCompatibilityRetired: true,
   legacyDailyPanelsRemaining: requiredIds.filter(id => legacyMain.includes(`id="${id}"`)).length,
   redundantClassifierRemoved: true
 }, null, 2));
