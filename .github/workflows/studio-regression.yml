@@ -26,7 +26,7 @@ jobs:
           find js -maxdepth 1 -type f -name '*.js' -print0 | sort -z | xargs -0 -n1 node --check
           node --check sw.js
 
-      - name: Verify retired Studio shims and V3 V4 runtime are physically removed
+      - name: Verify retired Studio runtime branches are physically removed
         shell: bash
         run: |
           set -euo pipefail
@@ -42,6 +42,9 @@ jobs:
             js/prompt-studio-v3-auto-batch-generator.js \
             js/prompt-studio-v3-candidate-certification.js \
             js/prompt-studio-v4-simple.js \
+            js/prompt-studio-loader.js \
+            js/admin-studio-finish.js \
+            js/career-overlap-wording.js \
             scripts/verify-prompt-studio-v3.mjs \
             scripts/verify-prompt-studio-v4.mjs \
             scripts/build-studio-wiring.mjs \
@@ -54,6 +57,14 @@ jobs:
           ! grep -q '"studioFeatureLoader"' config/asset-manifest.json
           ! grep -q '"promptStudioV3"' config/asset-manifest.json
           ! grep -q '"promptStudioV4Simple"' config/asset-manifest.json
+          ! grep -q '"promptStudioLoader"' config/asset-manifest.json
+          ! grep -q '"adminStudioFinish"' config/asset-manifest.json
+          ! grep -q '"careerOverlapWording"' config/asset-manifest.json
+          ! grep -q 'id="dailyHistoryCompatibility"' admin.html
+          ! grep -q 'id="recordHistoryBtn"' admin.html
+          ! grep -q 'recordHistoryBtn' js/admin-core.js
+          grep -q 'recordBatchChallenges' js/admin-core.js
+          grep -q 'getCooldownPromptIds' js/admin-core.js
           git diff --check
 
       - name: Verify retired public UI is physically removed
