@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.0.1-nationality-rotation"
+      "version": "3.0.2-top-answer-diversity"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -210,11 +210,11 @@
     },
     "adminBatchCalendar": {
       "path": "js/admin-batch-calendar.js",
-      "version": "3.3.0-nationality-rotation"
+      "version": "3.4.0-top-answer-diversity"
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.3.0-reservoir-authority"
+      "version": "2.4.0-top-answer-diversity"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
@@ -241,7 +241,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.0.1-nationality-rotation",
+    version: "3.0.2-top-answer-diversity",
     assets,
     get,
     url

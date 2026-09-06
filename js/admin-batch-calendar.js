@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine v3.3.0: weekly-reservoir-aware date-identified seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.4.0: weekly-top-answer-aware date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
@@ -853,9 +853,9 @@
     };
   }
 
-  const ANSWER_DIVERSITY_POLICY_VERSION = 2;
+  const ANSWER_DIVERSITY_POLICY_VERSION = 3;
   const ANSWER_DIVERSITY_POOL_SIZE = 16;
-  const WEEKLY_LEADER_SOFT_CAP = 2;
+  const WEEKLY_LEADER_SOFT_CAP = 1;
   const WEEKLY_LEADER_BASE_PENALTY = 180;
   const topAnswerRecordsCache = new Map();
   const topAnswerPlayerIdsCache = new Map();
@@ -1386,7 +1386,11 @@
       </tr>`;
     }).join("");
 
-    elements.review.innerHTML = `<div class="batch-table-wrap"><table class="batch-table">
+    const topAnswerAudit = weeklyTopAnswerDiversity();
+    const topAnswerSummary = topAnswerAudit
+      ? `<div class="batch-summary"><strong>Top-answer diversity: ${topAnswerAudit.uniquePlayers}/${topAnswerAudit.promptCount || 77} unique players</strong><span>${topAnswerAudit.repeatSlots ? `${topAnswerAudit.repeatSlots} fallback repeat slot(s)` : "No weekly leader repeats"}</span></div>`
+      : "";
+    elements.review.innerHTML = `${topAnswerSummary}<div class="batch-table-wrap"><table class="batch-table">
       <thead><tr><th>Date</th><th>Challenge</th><th>Difficulty</th><th>Formation</th><th>Perfect</th><th>Anti-meta</th><th>Validation</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>`;
@@ -1460,6 +1464,22 @@
     setStatus(`${filename} downloaded. Upload the seven dated files first and manifest.js last.`, "pass");
   }
 
+  function weeklyTopAnswerDiversity() {
+    const plan = window.FPL_DAILY_GENERATOR_GUARD?.getLastFamilyPlan?.();
+    const audit = plan?.topAnswerDiversity;
+    if (!audit) return null;
+    return {
+      promptCount: Number(audit.promptCount) || 0,
+      uniquePlayers: Number(audit.uniquePlayers) || 0,
+      repeatSlots: Number(audit.repeatSlots) || 0,
+      repeatedPlayers: (audit.repeatedPlayers || []).map(item => ({
+        playerId: String(item.playerId || ""),
+        name: String(item.name || item.playerId || ""),
+        count: Number(item.count) || 0
+      }))
+    };
+  }
+
   function buildBatchReport() {
     const settings = settingsFromUi();
     return JSON.stringify({
@@ -1467,6 +1487,7 @@
       generatedAt: new Date().toISOString(),
       timezone: LONDON_TIMEZONE,
       allPassed: batchResults.length === DAYS_IN_BATCH && batchResults.every(result => result.status === "PASS"),
+      topAnswerDiversity: weeklyTopAnswerDiversity(),
       settings,
       challenges: batchResults.map(result => ({
         date: result.releaseDate,
@@ -1500,6 +1521,16 @@
       `Challenges: ${longChallengeDate(first.releaseDate)} to ${longChallengeDate(last.releaseDate)}`,
       `Formation: ${first.formation || "4-4-2"}`,
       `Theme: ${first.theme || "Generated Mix"}`,
+      "",
+      "TOP-ANSWER DIVERSITY",
+      "--------------------",
+      (() => {
+        const audit = weeklyTopAnswerDiversity();
+        if (!audit) return "Audit unavailable.";
+        return audit.repeatSlots
+          ? `${audit.uniquePlayers}/${audit.promptCount || 77} unique top-answer players · ${audit.repeatSlots} fallback repeat slot(s). Repeats are only used after unique-leader alternatives are exhausted by the certified reservoir constraints.`
+          : `${audit.uniquePlayers}/${audit.promptCount || 77} unique top-answer players · no weekly leader repeats.`;
+      })(),
       "",
       "UPLOAD ORDER",
       "------------",

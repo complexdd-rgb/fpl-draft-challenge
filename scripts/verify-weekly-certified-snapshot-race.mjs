@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.3.0',
+  'saved-library generation guard v2.4.0',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex)',
@@ -58,6 +58,10 @@ assert(!publishEdge.includes('.gte("release_date", today)'), 'Schedule status st
 assert(batch.includes('function buildWeeklyReservoirRotationState(basePools)'), 'Guarded weekly generation does not have a fresh reservoir rotation state.');
 assert(batch.includes('const rotationState = generationSnapshot'), 'Batch generator does not distinguish guarded reservoir rotation from legacy history replay.');
 assert(batch.includes('? buildWeeklyReservoirRotationState(basePools)'), 'Guarded reservoir still replays old schedule history into its fresh 77-prompt cycle.');
+assert(guard.includes('function topAnswerDiversityAudit(prompts)'), '77-prompt reservoir does not audit top-answer player uniqueness.');
+assert(guard.includes('leftLeaderLoad - rightLeaderLoad'), '77-prompt reservoir does not prefer unused weekly top-answer players.');
+assert(guard.includes('const diversityExtra = Math.max(24, Math.ceil(need * 3));'), '77-prompt reservoir does not certify enough alternatives for leader diversity.');
+assert(guard.includes('topAnswerDiversity: frozenTopAnswerDiversity'), '77-prompt reservoir does not expose its top-answer diversity audit.');
 assert(!batch.includes('Regenerate from a later rotation point rather than relaxing the nationality quota.'), 'Generator still recommends moving the fixed schedule date to escape a rotation conflict.');
 assert(guard.includes('window.FPL_STUDIO_SCHEDULE?.scheduled || []'), 'Weekly reservoir does not consume authoritative Supabase prompt history.');
 assert(guard.includes('row?.manifest_entry'), 'Weekly reservoir does not read stored Supabase manifest prompt IDs.');
