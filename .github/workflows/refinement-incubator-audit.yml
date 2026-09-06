@@ -1,66 +1,28 @@
-# Keeps the durable survivor promotion reproducible and verifies checked-in runtime wiring without rewriting the PR branch.
+# The old Refinement Incubator runtime was retired by the clean Prompt Studio reset.
+# This workflow now guards that retirement instead of rewriting current Studio files.
 name: Refinement Incubator Audit
 
 on:
-  push:
-    branches:
-      - audit/refinement-incubator-2026-09-04
-    paths:
-      - 'players.js'
-      - 'prompt-library.js'
-      - 'nationality-enrichment.js'
-      - 'admin.html'
-      - 'fragments/admin-daily-workspace.html'
-      - 'fragments/admin-prompt-workspace.html'
-      - 'config/asset-manifest.json'
-      - 'js/admin-stage-one.js'
-      - 'js/admin-studio-finish.js'
-      - 'js/prompt-*.js'
-      - 'js/career-overlap-wording.js'
-      - 'js/admin-import-tools-base.js'
-      - 'js/career-context.js'
-      - 'js/career-shape-rules.js'
-      - 'js/career-shape-validation-bridge.js'
-      - 'js/validation-engine.js'
-      - 'scripts/apply-all-season-certification-gate.mjs'
-      - 'scripts/verify-all-season-certification-gate.mjs'
-      - 'scripts/build-native-daily-workspace.mjs'
-      - 'scripts/verify-native-daily-workspace.mjs'
-      - 'scripts/build-native-prompt-workspace.mjs'
-      - 'scripts/verify-native-prompt-workspace.mjs'
-      - 'scripts/audit-refinement-incubator.mjs'
-      - 'scripts/upgrade-refinement-metric-priority.mjs'
-      - 'scripts/promote-refinement-survivors.mjs'
-      - 'scripts/verify-refinement-survivors.mjs'
-      - '.github/workflows/refinement-incubator-audit.yml'
   pull_request:
     paths:
-      - 'players.js'
-      - 'prompt-library.js'
-      - 'nationality-enrichment.js'
-      - 'admin.html'
-      - 'fragments/admin-daily-workspace.html'
-      - 'fragments/admin-prompt-workspace.html'
       - 'config/asset-manifest.json'
-      - 'js/admin-stage-one.js'
-      - 'js/admin-studio-finish.js'
-      - 'js/prompt-*.js'
-      - 'js/career-overlap-wording.js'
-      - 'js/admin-import-tools-base.js'
-      - 'js/career-context.js'
-      - 'js/career-shape-rules.js'
-      - 'js/career-shape-validation-bridge.js'
-      - 'js/validation-engine.js'
-      - 'scripts/apply-all-season-certification-gate.mjs'
+      - 'js/studio-bootstrap.js'
+      - 'js/prompt-refinement-incubator.js'
+      - 'js/prompt-refinement-survivors-v1.js'
+      - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - 'scripts/verify-all-season-certification-gate.mjs'
-      - 'scripts/build-native-daily-workspace.mjs'
-      - 'scripts/verify-native-daily-workspace.mjs'
-      - 'scripts/build-native-prompt-workspace.mjs'
-      - 'scripts/verify-native-prompt-workspace.mjs'
-      - 'scripts/audit-refinement-incubator.mjs'
-      - 'scripts/upgrade-refinement-metric-priority.mjs'
-      - 'scripts/promote-refinement-survivors.mjs'
-      - 'scripts/verify-refinement-survivors.mjs'
+      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
+      - '.github/workflows/refinement-incubator-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'config/asset-manifest.json'
+      - 'js/studio-bootstrap.js'
+      - 'js/prompt-refinement-incubator.js'
+      - 'js/prompt-refinement-survivors-v1.js'
+      - 'scripts/verify-prompt-studio-clean-reset.mjs'
+      - 'scripts/verify-all-season-certification-gate.mjs'
+      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - '.github/workflows/refinement-incubator-audit.yml'
 
 permissions:
@@ -68,7 +30,7 @@ permissions:
 
 concurrency:
   group: refinement-incubator-audit-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   audit:
@@ -76,125 +38,30 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Apply semantic refinement metric priority
-        shell: bash
-        run: |
-          set -euo pipefail
-          node scripts/upgrade-refinement-metric-priority.mjs
-          cp js/prompt-refinement-incubator.js /tmp/refinement-runtime-first.js
-          cp scripts/audit-refinement-incubator.mjs /tmp/refinement-audit-first.mjs
-          node scripts/upgrade-refinement-metric-priority.mjs
-          cmp /tmp/refinement-runtime-first.js js/prompt-refinement-incubator.js
-          cmp /tmp/refinement-audit-first.mjs scripts/audit-refinement-incubator.mjs
+      - name: Verify clean Prompt Studio retirement boundary
+        run: node scripts/verify-prompt-studio-clean-reset.mjs
 
-      - name: Apply durable survivor promotion
-        shell: bash
-        run: |
-          set -euo pipefail
-          node scripts/promote-refinement-survivors.mjs
-          sha256sum \
-            js/prompt-refinement-survivors-v1.js \
-            js/prompt-refinement-incubator.js \
-            js/prompt-quality-baseline-finalizer.js \
-            js/prompt-four-star-enforcer.js \
-            js/career-overlap-wording.js \
-            config/asset-manifest.json \
-            scripts/audit-refinement-incubator.mjs > /tmp/survivor-first.sha
-          node scripts/promote-refinement-survivors.mjs
-          sha256sum \
-            js/prompt-refinement-survivors-v1.js \
-            js/prompt-refinement-incubator.js \
-            js/prompt-quality-baseline-finalizer.js \
-            js/prompt-four-star-enforcer.js \
-            js/career-overlap-wording.js \
-            config/asset-manifest.json \
-            scripts/audit-refinement-incubator.mjs > /tmp/survivor-second.sha
-          cmp /tmp/survivor-first.sha /tmp/survivor-second.sha
-
-      - name: Refresh manifest-owned Studio wiring
-        run: |
-          node scripts/apply-all-season-certification-gate.mjs
-          node scripts/build-studio-cache-tags.mjs
-          node scripts/build-native-studio-shell.mjs
-          node scripts/build-native-daily-workspace.mjs
-          node scripts/build-native-prompt-workspace.mjs
-          node scripts/build-studio-wiring.mjs
-
-      - name: Verify generated runtime is checked in
-        shell: bash
-        run: |
-          set -euo pipefail
-          git diff --exit-code -- \
-            admin.html \
-            fragments/admin-daily-workspace.html \
-            fragments/admin-prompt-workspace.html \
-            config/asset-manifest.json \
-            js/asset-manifest.js \
-            js/admin-stage-one.js \
-            js/admin-studio-finish.js \
-            js/validation-engine.js \
-            js/career-overlap-wording.js \
-            js/prompt-refinement-incubator.js \
-            js/prompt-refinement-survivors-v1.js \
-            js/prompt-quality-baseline-finalizer.js \
-            js/prompt-four-star-enforcer.js \
-            scripts/audit-refinement-incubator.mjs
-
-      - name: Verify native Prompt Studio workspace
-        run: node scripts/verify-native-prompt-workspace.mjs
-
-      - name: Verify all-season certified-library gate
+      - name: Verify deferred all-season boundary
         run: node scripts/verify-all-season-certification-gate.mjs
 
-      - name: Run deterministic Incubator audit
-        run: node scripts/audit-refinement-incubator.mjs
+      - name: Verify current Daily saved-library reservoir
+        run: node scripts/verify-weekly-certified-snapshot-race.mjs
 
-      - name: Verify report is deterministic
+      - name: Confirm retired Incubator is not bootstrap-owned
         shell: bash
         run: |
           set -euo pipefail
-          cp reports/refinement-incubator-audit.json /tmp/incubator-first.json
-          cp reports/refinement-incubator-audit.csv /tmp/incubator-first.csv
-          node scripts/audit-refinement-incubator.mjs
-          node - <<'NODE'
-          const fs = require('fs');
-          for (const [a,b] of [['/tmp/incubator-first.json','reports/refinement-incubator-audit.json'],['/tmp/incubator-first.csv','reports/refinement-incubator-audit.csv']]) {
-            const clean = p => fs.readFileSync(p,'utf8').replace(/"generatedAt":\s*"[^"]+"/,'"generatedAt":"<time>"');
-            if (clean(a) !== clean(b)) throw new Error(`Audit output changed between identical runs: ${b}`);
-          }
-          NODE
-
-      - name: Verify durable refinement survivors
-        run: node scripts/verify-refinement-survivors.mjs
-
-      - name: Check audit and runtime syntax
-        run: |
-          node --check js/admin-studio-finish.js
-          node --check js/validation-engine.js
-          node --check js/prompt-studio-redesign.js
-          node --check js/prompt-refinement-incubator.js
-          node --check js/prompt-refinement-survivors-v1.js
-          node --check js/prompt-quality-baseline-finalizer.js
-          node --check js/prompt-four-star-enforcer.js
-          node --check js/career-overlap-wording.js
-          node --check scripts/apply-all-season-certification-gate.mjs
-          node --check scripts/verify-all-season-certification-gate.mjs
-          node --check scripts/build-native-daily-workspace.mjs
-          node --check scripts/verify-native-daily-workspace.mjs
-          node --check scripts/build-native-prompt-workspace.mjs
-          node --check scripts/verify-native-prompt-workspace.mjs
-          node --check scripts/audit-refinement-incubator.mjs
-          node --check scripts/upgrade-refinement-metric-priority.mjs
-          node --check scripts/promote-refinement-survivors.mjs
-          node --check scripts/verify-refinement-survivors.mjs
+          ! grep -q 'ensureRefinementIncubator' js/studio-bootstrap.js
+          grep -q '"promptRefinementIncubator"' config/asset-manifest.json
+          grep -q '"version": "1.1.1-retired"' config/asset-manifest.json
+          grep -q '"promptRefinementSurvivors"' config/asset-manifest.json
+          grep -q '"version": "1.0.0-retired"' config/asset-manifest.json
 
       - name: Reject whitespace errors
         run: git diff --check

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
   <title>FPL Challenge Studio</title>
-  <script src="js/asset-manifest.js?v=2.5.0-library-shards-v1"></script>
+  <script src="js/asset-manifest.js?v=2.7.0-daily-generation-cutover"></script>
   <link rel="stylesheet" href="admin.css?v=16.2.0">
 
   <link rel="stylesheet" href="admin-stage-one.css?v=1.0.0">
@@ -620,24 +620,16 @@
                   <p id="copyStatus" class="action-status" role="status"></p>
                 </section>
 
-                <section class="panel" id="historyPanel">
-                  <div class="panel-heading">
-                    <div>
-                      <p class="eyebrow">Step 5</p>
-                      <h2>Challenge history and cooldown</h2>
-                      <p class="section-copy">History is stored in this browser. Seven-day batches are recorded here automatically with all 11 prompts, so the cooldown can reuse the same history later.</p>
-                    </div>
-                    <span id="cooldownSummary" class="phase-chip">Loading cooldown…</span>
-                  </div>
-
-                  <div class="button-row">
-                    <button id="recordHistoryBtn" class="button primary" type="button" disabled>Record tested challenge</button>
-                    <button id="downloadHistoryBtn" class="button secondary" type="button">Download history backup</button>
-                    <button id="downloadHistoryMarkdownBtn" class="button secondary" type="button">Download challenge-history.md</button>
-                  </div>
-                  <p id="historyActionStatus" class="action-status" role="status"></p>
-                  <div id="historyList" class="history-list"></div>
-                </section>
+                <!-- Legacy history controls remain hidden only so the existing controller can keep
+                     recording rotation data until that controller is simplified in the cutover pass. -->
+                <div id="dailyHistoryCompatibility" hidden aria-hidden="true">
+                  <span id="cooldownSummary"></span>
+                  <button id="recordHistoryBtn" type="button" disabled></button>
+                  <button id="downloadHistoryBtn" type="button"></button>
+                  <button id="downloadHistoryMarkdownBtn" type="button"></button>
+                  <p id="historyActionStatus"></p>
+                  <div id="historyList"></div>
+                </div>
             <!-- STUDIO_NATIVE_DAILY_WORKSPACE_END -->
           </section>
           <section class="studio-workspace" data-workspace="prompts" id="workspace-prompts" hidden aria-hidden="true" aria-labelledby="workspace-prompts-title">
@@ -1087,8 +1079,8 @@
   <script src="js/admin-weekly-nationality-readiness-gate.js?v=1.0.2"></script>
   <script src="js/admin-batch-calendar.js?v=3.0.6"></script>
   <script src="js/admin-weekly-nationality-quota-guard.js?v=1.0.0"></script>
-  <script data-admin-daily-generator-guard="1" src="js/admin-daily-generator-guard.js?v=1.1.2"></script>
-  <script src="js/admin-import-tools.js?v=24.4.0-library-shards"></script>
+  <script data-admin-daily-generator-guard="1" src="js/admin-daily-generator-guard.js?v=2.0.0-saved-library-cycle"></script>
+  <script src="js/admin-import-tools.js?v=24.5.0-daily-cutover"></script>
 
   <script src="js/leaderboard-config.js?v=5.1.0-studio-bootstrap"></script>
   <script src="js/leaderboard-admin-status.js?v=5.0.5"></script>

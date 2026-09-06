@@ -90,6 +90,316 @@
   font-size: .78rem;
 }
 
+/* Daily Challenge read-only view of the saved promoted library. */
+.daily-library-balance {
+  display: grid;
+  gap: 13px;
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid rgba(98, 201, 255, .16);
+  border-radius: 17px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(98, 201, 255, .07), transparent 16rem),
+    rgba(2, 17, 12, .27);
+}
+
+.daily-library-balance.empty {
+  border-style: dashed;
+}
+
+.daily-library-balance-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.daily-library-balance-head h4 {
+  margin: 2px 0 0;
+  color: #f4fff8;
+  font-size: 1rem;
+}
+
+.daily-library-balance-head p:not(.eyebrow) {
+  max-width: 780px;
+  margin: 5px 0 0;
+  color: #8ea99a;
+  font-size: .69rem;
+  line-height: 1.45;
+}
+
+.daily-library-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.daily-library-summary-grid article {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(174, 226, 199, .09);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .12);
+}
+
+.daily-library-summary-grid span,
+.daily-library-summary-grid strong,
+.daily-library-summary-grid small {
+  display: block;
+}
+
+.daily-library-summary-grid span {
+  color: #7f9b8d;
+  font-size: .58rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.daily-library-summary-grid strong {
+  margin-top: 4px;
+  color: #f4fff8;
+  font-size: 1.08rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.daily-library-summary-grid small {
+  margin-top: 3px;
+  color: #81998d;
+  font-size: .59rem;
+  line-height: 1.3;
+}
+
+.daily-library-boundary,
+.daily-library-future-note {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid rgba(174, 226, 199, .09);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .1);
+}
+
+.daily-library-boundary.pending {
+  border-color: rgba(255, 209, 102, .17);
+  background: rgba(255, 209, 102, .035);
+}
+
+.daily-library-boundary.aligned {
+  border-color: rgba(57, 232, 143, .2);
+  background: rgba(57, 232, 143, .04);
+}
+
+.daily-library-boundary span,
+.daily-library-boundary strong,
+.daily-library-boundary small,
+.daily-library-future-note span,
+.daily-library-future-note strong,
+.daily-library-future-note small {
+  display: block;
+}
+
+.daily-library-boundary > div > span,
+.daily-library-future-note > div > span {
+  color: #7f9b8d;
+  font-size: .57rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.daily-library-boundary strong,
+.daily-library-future-note strong {
+  margin-top: 3px;
+  color: #eaf8f0;
+  font-size: .77rem;
+}
+
+.daily-library-boundary small,
+.daily-library-future-note small {
+  margin-top: 3px;
+  color: #81998d;
+  font-size: .61rem;
+  line-height: 1.35;
+}
+
+.daily-library-boundary-chip {
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 209, 102, .2);
+  border-radius: 999px;
+  color: #d9bf77 !important;
+  font-size: .58rem !important;
+  font-weight: 950;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.daily-library-boundary.aligned .daily-library-boundary-chip {
+  border-color: rgba(57, 232, 143, .22);
+  color: #65eaa3 !important;
+}
+
+/* The repository-certified pool deliberately remains zero after the clean reset. Daily v2 now
+   consumes the saved promoted library through a fresh runtime-certified 77-prompt reservoir,
+   so the old repository-alignment state is no longer the generation-authority signal. */
+.daily-library-boundary.pending {
+  grid-template-columns: minmax(0, 1fr) auto;
+  border-color: rgba(57, 232, 143, .2);
+  background: rgba(57, 232, 143, .04);
+}
+
+.daily-library-boundary.pending > * {
+  display: none;
+}
+
+.daily-library-boundary.pending::before {
+  content: "GENERATION AUTHORITY\A Active saved promoted library\A A 77-prompt reservoir is structurally and runtime verified before each Generate week run.";
+  display: block;
+  color: #81998d;
+  font-size: .61rem;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.daily-library-boundary.pending::first-line {
+  color: #7f9b8d;
+  font-size: .57rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+}
+
+.daily-library-boundary.pending::after {
+  content: "SOURCE ACTIVE";
+  display: block;
+  padding: 6px 8px;
+  border: 1px solid rgba(57, 232, 143, .22);
+  border-radius: 999px;
+  color: #65eaa3;
+  font-size: .58rem;
+  font-weight: 950;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.daily-library-future-note {
+  grid-template-columns: minmax(150px, .45fr) minmax(0, 1.55fr);
+  border-color: rgba(98, 201, 255, .12);
+  background: rgba(98, 201, 255, .025);
+}
+
+.daily-family-balance-details {
+  border: 1px solid rgba(174, 226, 199, .09);
+  border-radius: 13px;
+  background: rgba(0, 0, 0, .09);
+  overflow: hidden;
+}
+
+.daily-family-balance-details > summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.daily-family-balance-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.daily-family-balance-details > summary span {
+  color: #dff2e7;
+  font-size: .69rem;
+  font-weight: 900;
+}
+
+.daily-family-balance-details > summary strong {
+  color: #79a58d;
+  font-size: .61rem;
+  font-weight: 850;
+}
+
+.daily-family-balance-copy {
+  margin: 0;
+  padding: 0 12px 10px;
+  color: #81998d;
+  font-size: .61rem;
+  line-height: 1.4;
+}
+
+.daily-family-balance-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  padding: 0 10px 10px;
+}
+
+.daily-family-row {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(174, 226, 199, .075);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .018);
+}
+
+.daily-family-row-head,
+.daily-family-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 8px;
+}
+
+.daily-family-row-head strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #eaf8f0;
+  font-size: .68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.daily-family-row-head span {
+  flex: 0 0 auto;
+  color: #62c9ff;
+  font-size: .61rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.daily-family-share-track {
+  height: 4px;
+  margin: 7px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .055);
+}
+
+.daily-family-share-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(57, 232, 143, .82), rgba(98, 201, 255, .72));
+}
+
+.daily-family-row-meta {
+  justify-content: flex-start;
+  color: #789386;
+  font-size: .55rem;
+  line-height: 1.3;
+}
+
+.daily-family-row-meta strong {
+  margin-left: auto;
+  color: #b5d6c3;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 900px) {
   .prompt-shard-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -101,6 +411,59 @@
 
   .prompt-shard-family-list code {
     grid-column: 1 / -1;
+  }
+
+  .daily-library-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .daily-library-balance {
+    gap: 9px;
+    margin-bottom: 11px;
+    padding: 11px;
+    border-radius: 13px;
+  }
+
+  .daily-library-balance-head {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .daily-library-balance-head .phase-chip {
+    justify-self: start;
+  }
+
+  .daily-library-summary-grid {
+    gap: 6px;
+  }
+
+  .daily-library-summary-grid article {
+    padding: 9px;
+  }
+
+  .daily-library-summary-grid strong {
+    font-size: .9rem;
+  }
+
+  .daily-library-boundary,
+  .daily-library-future-note {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 9px;
+  }
+
+  .daily-library-boundary-chip {
+    justify-self: start;
+  }
+
+  .daily-library-boundary.pending::after {
+    justify-self: start;
+  }
+
+  .daily-family-balance-list {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -129,5 +492,20 @@
 
   .prompt-shard-family-list > div {
     grid-template-columns: 1fr auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .daily-library-summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .daily-family-balance-details > summary {
+    display: grid;
+  }
+
+  .daily-family-row-meta strong {
+    width: 100%;
+    margin-left: 0;
   }
 }

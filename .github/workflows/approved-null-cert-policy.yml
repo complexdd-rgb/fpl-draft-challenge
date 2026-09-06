@@ -3,187 +3,63 @@ name: Approved-null certification policy
 on:
   pull_request:
     paths:
-      - 'index.html'
-      - 'admin.html'
-      - 'config/asset-manifest.json'
-      - 'js/asset-manifest.js'
-      - 'js/studio-bootstrap.js'
-      - 'js/career-context.js'
       - 'js/certification-approved-null-policy.js'
-      - 'js/admin-batch-calendar.js'
+      - 'js/validation-engine.js'
+      - 'js/admin-daily-library-cutover-v1.js'
       - 'js/admin-daily-generator-guard.js'
-      - 'js/admin-import-tools.js'
-      - 'js/admin-import-tools-base.js'
-      - 'js/admin-stage-one.js'
-      - 'admin-stage-one.css'
-      - 'js/prompt-target-survivor-generator.js'
-      - 'js/prompt-target-auto-explorer.js'
-      - 'js/prompt-quality-family-generator.js'
-      - 'js/prompt-nationality-family-generator.js'
-      - 'js/prompt-career-evolution-family-generator.js'
-      - 'js/prompt-studio-loader.js'
-      - 'js/career-overlap-wording.js'
-      - 'js/studio-feature-loader.js'
-      - 'scripts/apply-approved-null-cert-policy.mjs'
-      - 'scripts/apply-weekly-nationality-hard-reservation.mjs'
-      - 'scripts/apply-weekly-certified-snapshot-race.mjs'
-      - 'scripts/apply-weekly-rotation-library-evolution.mjs'
-      - 'scripts/apply-unified-prompt-family-generator.mjs'
-      - 'scripts/apply-prompt-target-survivor-generator.mjs'
-      - 'scripts/apply-career-evolution-prompt-families.mjs'
-      - 'scripts/apply-career-evolution-cache-wiring.mjs'
-      - 'scripts/apply-studio-refresh-fastboot.mjs'
-      - 'scripts/build-studio-cache-tags.mjs'
-      - 'scripts/build-native-studio-shell.mjs'
-      - 'scripts/build-studio-wiring.mjs'
-      - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
+      - 'js/admin-batch-calendar.js'
+      - 'fragments/admin-daily-workspace.html'
+      - 'admin.html'
+      - 'scripts/verify-daily-library-cutover-v1.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
-      - 'scripts/verify-weekly-rotation-library-evolution.mjs'
-      - 'scripts/verify-unified-prompt-family-generator.mjs'
-      - 'scripts/verify-prompt-target-survivor-generator.mjs'
-      - 'scripts/verify-career-evolution-prompt-families.mjs'
-      - 'scripts/verify-career-evolution-cache-wiring.mjs'
-      - 'scripts/verify-studio-refresh-fastboot.mjs'
-      - 'scripts/verify-native-studio-shell.mjs'
-      - 'scripts/verify-studio-wiring.mjs'
-      - 'scripts/diagnose-certified-nationality-pool.mjs'
-      - 'scripts/diagnose-weekly-day-one.mjs'
+      - 'scripts/verify-native-daily-workspace.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
   push:
     branches: [main]
     paths:
-      - 'index.html'
-      - 'admin.html'
-      - 'config/asset-manifest.json'
-      - 'js/asset-manifest.js'
-      - 'js/studio-bootstrap.js'
-      - 'js/career-context.js'
       - 'js/certification-approved-null-policy.js'
-      - 'js/admin-batch-calendar.js'
+      - 'js/validation-engine.js'
+      - 'js/admin-daily-library-cutover-v1.js'
       - 'js/admin-daily-generator-guard.js'
-      - 'js/admin-import-tools.js'
-      - 'js/admin-import-tools-base.js'
-      - 'js/admin-stage-one.js'
-      - 'admin-stage-one.css'
-      - 'js/prompt-target-survivor-generator.js'
-      - 'js/prompt-target-auto-explorer.js'
-      - 'js/prompt-quality-family-generator.js'
-      - 'js/prompt-nationality-family-generator.js'
-      - 'js/prompt-career-evolution-family-generator.js'
-      - 'js/prompt-studio-loader.js'
-      - 'js/career-overlap-wording.js'
-      - 'js/studio-feature-loader.js'
-      - 'scripts/apply-approved-null-cert-policy.mjs'
-      - 'scripts/apply-weekly-nationality-hard-reservation.mjs'
-      - 'scripts/apply-weekly-certified-snapshot-race.mjs'
-      - 'scripts/apply-weekly-rotation-library-evolution.mjs'
-      - 'scripts/apply-unified-prompt-family-generator.mjs'
-      - 'scripts/apply-prompt-target-survivor-generator.mjs'
-      - 'scripts/apply-career-evolution-prompt-families.mjs'
-      - 'scripts/apply-career-evolution-cache-wiring.mjs'
-      - 'scripts/apply-studio-refresh-fastboot.mjs'
-      - 'scripts/build-studio-cache-tags.mjs'
-      - 'scripts/build-native-studio-shell.mjs'
-      - 'scripts/build-studio-wiring.mjs'
-      - 'scripts/verify-weekly-nationality-hard-reservation.mjs'
+      - 'js/admin-batch-calendar.js'
+      - 'fragments/admin-daily-workspace.html'
+      - 'admin.html'
+      - 'scripts/verify-daily-library-cutover-v1.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
-      - 'scripts/verify-weekly-rotation-library-evolution.mjs'
-      - 'scripts/verify-unified-prompt-family-generator.mjs'
-      - 'scripts/verify-prompt-target-survivor-generator.mjs'
-      - 'scripts/verify-career-evolution-prompt-families.mjs'
-      - 'scripts/verify-career-evolution-cache-wiring.mjs'
-      - 'scripts/verify-studio-refresh-fastboot.mjs'
-      - 'scripts/verify-native-studio-shell.mjs'
-      - 'scripts/verify-studio-wiring.mjs'
-      - 'scripts/diagnose-certified-nationality-pool.mjs'
-      - 'scripts/diagnose-weekly-day-one.mjs'
+      - 'scripts/verify-native-daily-workspace.mjs'
       - '.github/workflows/approved-null-cert-policy.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  wire-and-check:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Wire policy into Studio
+
+      - name: Check certification runtime syntax
         run: |
-          node scripts/apply-approved-null-cert-policy.mjs
-          node scripts/apply-prompt-target-survivor-generator.mjs
-          if ! grep -q 'includeCareerEvolutionFamilies' js/admin-import-tools-base.js; then
-            node scripts/apply-career-evolution-prompt-families.mjs
-          else
-            echo 'Career Evolution generator wiring is already installed; patch step skipped.'
-          fi
-          node scripts/apply-career-evolution-cache-wiring.mjs
-          node scripts/apply-studio-refresh-fastboot.mjs
           node --check js/certification-approved-null-policy.js
           node --check js/validation-engine.js
-          node --check js/admin-batch-calendar.js
+          node --check js/admin-daily-library-cutover-v1.js
           node --check js/admin-daily-generator-guard.js
-          node --check js/admin-import-tools.js
-          node --check js/admin-import-tools-base.js
-          node --check js/admin-stage-one.js
-          node --check js/career-context.js
-          node --check js/prompt-target-survivor-generator.js
-          node --check js/prompt-target-auto-explorer.js
-          node --check js/prompt-quality-family-generator.js
-          node --check js/prompt-nationality-family-generator.js
-          node --check js/prompt-career-evolution-family-generator.js
-          grep -q 'js/certification-approved-null-policy.js?v=1.0.0' admin.html
-          grep -q 'js/admin-batch-calendar.js?v=3.0.6' admin.html
-          grep -q 'js/admin-daily-generator-guard.js?v=1.1.2' admin.html
-          grep -q 'js/career-context.js?v=1.5.0' admin.html
-          grep -q 'factoryIncludeQualityFamilies' admin.html
-          grep -q 'factoryIncludeNationalityFamily' admin.html
-          grep -q 'factoryIncludeCareerEvolutionFamilies' admin.html
-          node scripts/verify-career-evolution-prompt-families.mjs
-          node scripts/verify-career-evolution-cache-wiring.mjs
-          node scripts/verify-studio-refresh-fastboot.mjs
-          node scripts/verify-native-studio-shell.mjs
-          node scripts/verify-studio-wiring.mjs
-          git diff --check
-      - name: Diagnose certified nationality pool
-        run: node scripts/diagnose-certified-nationality-pool.mjs
-      - name: Reproduce weekly day-one generation
-        run: node scripts/diagnose-weekly-day-one.mjs
-      - name: Publish generated Studio wiring
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          set -euo pipefail
-          generated_files=(
-            index.html
-            admin.html
-            admin-stage-one.css
-            js/career-context.js
-            js/admin-stage-one.js
-            js/admin-batch-calendar.js
-            js/admin-daily-generator-guard.js
-            js/admin-import-tools.js
-            js/admin-import-tools-base.js
-            js/prompt-target-survivor-generator.js
-            js/prompt-target-auto-explorer.js
-            js/prompt-quality-family-generator.js
-            js/prompt-nationality-family-generator.js
-            js/prompt-studio-loader.js
-            js/career-overlap-wording.js
-            js/studio-feature-loader.js
-          )
-          if [[ -z "$(git status --porcelain -- "${generated_files[@]}")" ]]; then
-            echo "Studio generation policies, prompt-family wiring, Career Evolution cache wiring, target-survivor generation, auto-exploration and refresh fast boot are already current."
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- "${generated_files[@]}"
-          git commit -m 'Wire Studio generation policies'
-          git push
+          node --check js/admin-batch-calendar.js
+
+      - name: Verify saved-library Daily certification boundary
+        run: node scripts/verify-daily-library-cutover-v1.mjs
+
+      - name: Verify seven-day reservoir certification
+        run: node scripts/verify-weekly-certified-snapshot-race.mjs
+
+      - name: Verify native Daily workspace
+        run: node scripts/verify-native-daily-workspace.mjs
+
+      - name: Reject whitespace errors
+        run: git diff --check
