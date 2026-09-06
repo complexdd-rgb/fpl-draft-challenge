@@ -1,0 +1,32 @@
+from pathlib import Path
+
+path = Path('js/admin-daily-generator-guard.js')
+text = path.read_text()
+old = '''      let collision = false;\n      for (const family of families) {\n        for (const position of POSITION_ORDER) {\n          const required = allocation[family][position];\n          if (!required) continue;\n          const available = candidatePools.get(family)?.[position] || [];\n          let added = 0;\n          while (added < required) {\n            const choices = available\n              .filter(candidate => {\n                const sourceId = String(candidate.record.id || "");\n                return sourceId && !sourceIds.has(sourceId) && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);\n              })\n              .sort((left, right) => {\n                const leftLeader = promptTopAnswerKey(left.prompt);\n                const rightLeader = promptTopAnswerKey(right.prompt);\n                const leftLeaderLoad = leftLeader ? Number(leaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;\n                const rightLeaderLoad = rightLeader ? Number(leaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;\n                return leftLeaderLoad - rightLeaderLoad\n                  || semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts);\n              });\n            const candidate = choices[0];\n            if (!candidate) break;\n            const sourceId = String(candidate.record.id || "");\n            prompts.push(candidate.prompt);\n            sourceIds.add(sourceId);\n            semantic.commitWeekly(candidate.prompt, semanticCounts);\n            const leaderKey = promptTopAnswerKey(candidate.prompt);\n            if (leaderKey) leaderCounts.set(leaderKey, Number(leaderCounts.get(leaderKey) || 0) + 1);\n            added += 1;\n          }\n          if (added !== required) {\n            collision = true;\n            break;\n          }\n        }\n        if (collision) break;\n      }\n'''
+new = '''      let collision = false;\n      const selectionGroups = [];\n      for (const family of families) {\n        for (const position of POSITION_ORDER) {\n          const required = allocation[family][position];\n          if (!required) continue;\n          const available = candidatePools.get(family)?.[position] || [];\n          const distinctLeaders = new Set(available.map(candidate => promptTopAnswerKey(candidate.prompt)).filter(Boolean)).size;\n          selectionGroups.push({\n            family,\n            position,\n            required,\n            available,\n            leaderSlack: distinctLeaders - required\n          });\n        }\n      }\n      // Constrained family/position groups choose first. Flexible groups therefore cannot\n      // consume a leader that a later group effectively needs, which materially reduces\n      // avoidable weekly repeats before the normal unused-leader preference is applied.\n      selectionGroups.sort((left, right) =>\n        left.leaderSlack - right.leaderSlack\n        || left.available.length - right.available.length\n        || left.family.localeCompare(right.family)\n        || POSITION_ORDER.indexOf(left.position) - POSITION_ORDER.indexOf(right.position)\n      );\n\n      for (const group of selectionGroups) {\n        const { required, available } = group;\n        let added = 0;\n        while (added < required) {\n          const choices = available\n            .filter(candidate => {\n              const sourceId = String(candidate.record.id || "");\n              return sourceId && !sourceIds.has(sourceId) && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);\n            })\n            .sort((left, right) => {\n              const leftLeader = promptTopAnswerKey(left.prompt);\n              const rightLeader = promptTopAnswerKey(right.prompt);\n              const leftLeaderLoad = leftLeader ? Number(leaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;\n              const rightLeaderLoad = rightLeader ? Number(leaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;\n              return leftLeaderLoad - rightLeaderLoad\n                || semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts);\n            });\n          const candidate = choices[0];\n          if (!candidate) break;\n          const sourceId = String(candidate.record.id || "");\n          prompts.push(candidate.prompt);\n          sourceIds.add(sourceId);\n          semantic.commitWeekly(candidate.prompt, semanticCounts);\n          const leaderKey = promptTopAnswerKey(candidate.prompt);\n          if (leaderKey) leaderCounts.set(leaderKey, Number(leaderCounts.get(leaderKey) || 0) + 1);\n          added += 1;\n        }\n        if (added !== required) {\n          collision = true;\n          break;\n        }\n      }\n'''
+if old not in text:
+    raise SystemExit('Missing scarcity-order selection block')
+text = text.replace(old, new, 1)
+path.write_text(text)
+
+verify_path = Path('scripts/verify-weekly-top-answer-diversity.mjs')
+verify = verify_path.read_text()
+needle = "  ['reservoir keeps best ANY assignment', 'let bestReservoir = null;'],\n"
+addition = "  ['scarce leader groups choose first', 'selectionGroups.sort((left, right) =>'],\n"
+if addition not in verify:
+    if needle not in verify:
+        raise SystemExit('Missing verifier anchor')
+    verify = verify.replace(needle, needle + addition, 1)
+verify_path.write_text(verify)
+
+snapshot_path = Path('scripts/verify-weekly-certified-snapshot-race.mjs')
+snapshot = snapshot_path.read_text()
+anchor = "assert(guard.includes('leftLeaderLoad - rightLeaderLoad'), '77-prompt reservoir does not prefer unused weekly top-answer players.');\n"
+addition = "assert(guard.includes('selectionGroups.sort((left, right) =>'), '77-prompt reservoir does not give constrained top-answer groups first choice.');\n"
+if addition not in snapshot:
+    if anchor not in snapshot:
+        raise SystemExit('Missing snapshot anchor')
+    snapshot = snapshot.replace(anchor, anchor + addition, 1)
+snapshot_path.write_text(snapshot)
+
+print('Applied scarce-leader-first reservoir ordering.')
