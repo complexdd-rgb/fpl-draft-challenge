@@ -16,7 +16,7 @@
     "promptLibraryShardsBridgeV1": { "path": "js/prompt-library-shards-promotion-bridge-v1.js", "version": "1.0.0" },
     "promptLibraryShardsCssV1": { "path": "admin-prompt-library-shards-v1.css", "version": "1.1.0" },
     "adminDailyLibraryCutoverV1": { "path": "js/admin-daily-library-cutover-v1.js", "version": "1.0.0" },
-    "adminImportTools": { "path": "js/admin-import-tools.js", "version": "24.4.0-library-shards" },
+    "adminImportTools": { "path": "js/admin-import-tools.js", "version": "24.5.0-daily-cutover" },
     "studioFeatureLoader": { "path": "js/studio-feature-loader.js", "version": "1.1.0-bootstrap-shim" },
     "promptStudioLoader": { "path": "js/prompt-studio-loader.js", "version": "1.4.0-retired" },
     "promptStudioRedesign": { "path": "js/prompt-studio-redesign.js", "version": "2.0.0-retired" },
