@@ -214,21 +214,13 @@
       <p id="copyStatus" class="action-status" role="status"></p>
     </section>
 
-    <section class="panel" id="historyPanel">
-      <div class="panel-heading">
-        <div>
-          <p class="eyebrow">Step 5</p>
-          <h2>Challenge history and cooldown</h2>
-          <p class="section-copy">History is stored in this browser. Seven-day batches are recorded here automatically with all 11 prompts, so the cooldown can reuse the same history later.</p>
-        </div>
-        <span id="cooldownSummary" class="phase-chip">Loading cooldown…</span>
-      </div>
-
-      <div class="button-row">
-        <button id="recordHistoryBtn" class="button primary" type="button" disabled>Record tested challenge</button>
-        <button id="downloadHistoryBtn" class="button secondary" type="button">Download history backup</button>
-        <button id="downloadHistoryMarkdownBtn" class="button secondary" type="button">Download challenge-history.md</button>
-      </div>
-      <p id="historyActionStatus" class="action-status" role="status"></p>
-      <div id="historyList" class="history-list"></div>
-    </section>
+    <!-- Legacy history controls remain hidden only so the existing controller can keep
+         recording rotation data until that controller is simplified in the cutover pass. -->
+    <div id="dailyHistoryCompatibility" hidden aria-hidden="true">
+      <span id="cooldownSummary"></span>
+      <button id="recordHistoryBtn" type="button" disabled></button>
+      <button id="downloadHistoryBtn" type="button"></button>
+      <button id="downloadHistoryMarkdownBtn" type="button"></button>
+      <p id="historyActionStatus"></p>
+      <div id="historyList"></div>
+    </div>
