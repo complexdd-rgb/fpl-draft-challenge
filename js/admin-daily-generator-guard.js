@@ -1,20 +1,21 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.0.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.1.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
-   runtime-retests each selected prompt, preserves exact rotation, and matches the real 17-family
-   library proportions across the seven-day week. */
+   runtime-retests each selected prompt, preserves exact rotation, matches the real 17-family
+   proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
 (() => {
   "use strict";
 
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.0.0";
+  const VERSION = "2.1.0";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
   const LONDON_TIMEZONE = "Europe/London";
   const CUTOVER_WAIT_MS = 30000;
   const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;
+  const SEMANTIC_WAIT_MS = 10000;
   const POSITION_ORDER = Object.freeze(["GK", "DEF", "MID", "FWD"]);
   const FORMATIONS = Object.freeze({
     "4-4-2": { GK: 1, DEF: 4, MID: 4, FWD: 2 },
@@ -80,6 +81,26 @@
     if (!status) return;
     status.textContent = message;
     status.dataset.state = state;
+  }
+
+  async function ensureSemanticDiversity() {
+    if (window.FPL_DAILY_SEMANTIC_DIVERSITY?.version === "1.0.0") return window.FPL_DAILY_SEMANTIC_DIVERSITY;
+    const manifestUrl = window.FPL_ASSET_MANIFEST?.url?.("dailySemanticDiversityV1");
+    const src = manifestUrl || "js/daily-semantic-diversity-v1.js?v=1.0.0";
+    let script = [...document.scripts].find(item => /\/js\/daily-semantic-diversity-v1\.js(?:\?|$)/.test(item.src));
+    if (!script) {
+      script = document.createElement("script");
+      script.src = new URL(src, document.baseURI).toString();
+      script.async = false;
+      script.dataset.dailySemanticDiversityV1 = "1";
+      document.head.appendChild(script);
+    }
+    const deadline = Date.now() + SEMANTIC_WAIT_MS;
+    while (Date.now() < deadline) {
+      if (window.FPL_DAILY_SEMANTIC_DIVERSITY?.version === "1.0.0") return window.FPL_DAILY_SEMANTIC_DIVERSITY;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    throw new Error("The Daily semantic-diversity policy did not load. Reload Studio before generating.");
   }
 
   function isIsoDate(value) {
@@ -359,18 +380,40 @@
     return [...tags];
   }
 
+  function recordQualityCompare(a, b) {
+    const passA = a?.qualityStatus === "pass" ? 1 : 0;
+    const passB = b?.qualityStatus === "pass" ? 1 : 0;
+    if (passA !== passB) return passB - passA;
+    const scoreA = Number(a?.qualityScore || 0);
+    const scoreB = Number(b?.qualityScore || 0);
+    return scoreB - scoreA || String(a?.id || "").localeCompare(String(b?.id || ""));
+  }
+
+  function interleaveSemanticGroups(records) {
+    const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
+    if (!semantic?.recordGroupKey) return [...records].sort(recordQualityCompare);
+    const sorted = [...records].sort(recordQualityCompare);
+    const groups = new Map();
+    for (const record of sorted) {
+      const key = semantic.recordGroupKey(record, record?.position || "ANY");
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(record);
+    }
+    const queues = [...groups.values()];
+    const ordered = [];
+    while (queues.some(queue => queue.length)) {
+      for (const queue of queues) if (queue.length) ordered.push(queue.shift());
+    }
+    return ordered;
+  }
+
   function recordOrder(records, usedIds) {
-    return [...records].sort((a, b) => {
-      const usedA = usedIds.has(String(a?.id || "")) ? 1 : 0;
-      const usedB = usedIds.has(String(b?.id || "")) ? 1 : 0;
-      if (usedA !== usedB) return usedA - usedB;
-      const passA = a?.qualityStatus === "pass" ? 1 : 0;
-      const passB = b?.qualityStatus === "pass" ? 1 : 0;
-      if (passA !== passB) return passB - passA;
-      const scoreA = Number(a?.qualityScore || 0);
-      const scoreB = Number(b?.qualityScore || 0);
-      return scoreB - scoreA || String(a?.id || "").localeCompare(String(b?.id || ""));
-    });
+    const unused = [];
+    const used = [];
+    for (const record of records || []) {
+      (usedIds.has(String(record?.id || "")) ? used : unused).push(record);
+    }
+    return [...interleaveSemanticGroups(unused), ...interleaveSemanticGroups(used)];
   }
 
   function assignAnyRecords(records, positionNeeds, offset = 0) {
@@ -404,6 +447,8 @@
       return null;
     }
     prompt.tags = semanticTags(record, prompt);
+    const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
+    if (semantic?.fromRecord) prompt.semanticDiversity = semantic.fromRecord(record, position, prompt.label);
     core.invalidatePromptStats?.(prompt.id);
     let stats;
     try {
@@ -525,8 +570,10 @@
         const certifiedByPosition = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
         for (const position of POSITION_ORDER) {
           const need = Math.min(targets[family], positionNeeds[position]);
+          const semanticExtra = Math.max(8, Math.ceil(need * 0.75));
+          const certifyLimit = Math.min(assigned[position].length, need + semanticExtra);
           for (const record of assigned[position]) {
-            if (certifiedByPosition[position].length >= need) break;
+            if (certifiedByPosition[position].length >= certifyLimit) break;
             const prompt = await certifyCandidate(record, position, limits, cutoverApi, runtimeCache);
             scanned += 1;
             if (prompt) certifiedByPosition[position].push({ record, prompt });
@@ -542,8 +589,11 @@
       const allocation = solveFamilyPositionFlow(families, targets, positionNeeds, candidatePools);
       if (!allocation) continue;
 
+      const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
+      if (!semantic?.canAddWeekly) throw new Error("The Daily semantic-diversity policy is unavailable while selecting the weekly reservoir.");
       const prompts = [];
       const sourceIds = new Set();
+      const semanticCounts = new Map();
       let collision = false;
       for (const family of families) {
         for (const position of POSITION_ORDER) {
@@ -551,13 +601,20 @@
           if (!required) continue;
           const available = candidatePools.get(family)?.[position] || [];
           let added = 0;
-          for (const candidate of available) {
+          while (added < required) {
+            const choices = available
+              .filter(candidate => {
+                const sourceId = String(candidate.record.id || "");
+                return sourceId && !sourceIds.has(sourceId) && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);
+              })
+              .sort((left, right) => semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts));
+            const candidate = choices[0];
+            if (!candidate) break;
             const sourceId = String(candidate.record.id || "");
-            if (!sourceId || sourceIds.has(sourceId)) continue;
             prompts.push(candidate.prompt);
             sourceIds.add(sourceId);
+            semantic.commitWeekly(candidate.prompt, semanticCounts);
             added += 1;
-            if (added >= required) break;
           }
           if (added !== required) {
             collision = true;
@@ -600,12 +657,14 @@
         knownUsedSourceIds: usedIds.size,
         runtimeCandidatesChecked: scanned,
         antiMetaCount,
-        nationalityCount
+        nationalityCount,
+        semanticDiversityVersion: String(window.FPL_DAILY_SEMANTIC_DIVERSITY?.version || ""),
+        semanticWeeklyCap: DAYS_IN_BATCH
       });
       return { prompts: frozenPrompts, ids, plan };
     }
 
-    throw new Error("The saved 17-family library could not fill the selected formation with 77 runtime-certified prompts while preserving the proportional family targets.");
+    throw new Error("The saved 17-family library could not fill the selected formation with 77 runtime-certified prompts while preserving family targets and the one-per-day semantic cap. Expand variant diversity in the affected families.");
   }
 
   function installGenerationSnapshot(reservoir) {
@@ -634,6 +693,8 @@
       return { ok: false, reason: `Only ${results.length}/${DAYS_IN_BATCH} days were produced: ${detail}.` };
     }
 
+    const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
+    const snapshotPromptById = new Map((snapshot.prompts || []).map(prompt => [String(prompt.id), prompt]));
     const weekIds = [];
     for (const result of results) {
       const day = result?.releaseDate || result?.date || "A generated day";
@@ -641,6 +702,9 @@
       if (!Array.isArray(result.promptIds) || result.promptIds.length !== PROMPTS_PER_DAY) return { ok: false, reason: `${day} did not return exactly ${PROMPTS_PER_DAY} prompt IDs.` };
       const uncertified = result.promptIds.filter(id => !snapshot.ids.has(String(id)));
       if (uncertified.length) return { ok: false, reason: `${day} contains prompt(s) outside the immutable saved-library reservoir: ${uncertified.slice(0, 3).join(", ")}.` };
+      const dayPrompts = result.promptIds.map(id => snapshotPromptById.get(String(id))).filter(Boolean);
+      const semanticIssues = semantic?.dayIssues?.(dayPrompts) || [];
+      if (semanticIssues.length) return { ok: false, reason: `${day} contains overly similar prompts: ${semanticIssues[0].description}.` };
       weekIds.push(...result.promptIds.map(String));
     }
 
@@ -659,6 +723,7 @@
     generateButton.disabled = true;
     let generationSnapshot = null;
     try {
+      await ensureSemanticDiversity();
       if (!await waitForCutover()) {
         const state = cutoverState();
         setStatus(`Generation is blocked until the saved promoted library passes Daily certification${state?.reason ? `: ${state.reason}` : "."}`, "fail");
@@ -695,7 +760,7 @@
         return;
       }
       updateGuardChip();
-      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once and the 17-family weekly targets were preserved.`, "pass");
+      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 17-family targets were preserved and no same-day semantic clashes were allowed.`, "pass");
       window.dispatchEvent(new CustomEvent("fpl:daily-saved-library-week-certified", { detail: { ...reservoir.plan } }));
     } catch (error) {
       console.error(error);
