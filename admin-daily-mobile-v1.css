@@ -1,12 +1,252 @@
-/* FPL Challenge Studio — Daily Challenge mobile polish v1
-   Mobile-only layout refinements. No application logic is changed. */
+/* FPL Challenge Studio — Daily Challenge workspace redesign v2
+   Weekly generation is the primary workflow. Existing generation/test/publish logic is unchanged. */
 
+/* The native Daily workspace should read as one weekly workbench rather than five equal tools. */
+#workspace-challenge > .stage-one-tool-panel:first-of-type {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border-color: rgba(57, 232, 143, .18);
+  background:
+    radial-gradient(circle at 0 0, rgba(57, 232, 143, .07), transparent 24rem),
+    linear-gradient(155deg, rgba(13, 37, 27, .98), rgba(7, 24, 17, .99));
+}
+
+/* The old “Challenge settings” heading described the single-day flow. The seven-day planner is now the visible owner. */
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .panel-heading {
+  display: none;
+}
+
+#workspace-challenge #batchPlanner {
+  order: -10;
+  margin: 0;
+  padding: 22px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+#workspace-challenge #batchPlanner .batch-planner-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+#workspace-challenge #batchPlanner .batch-planner-head > div:first-child {
+  min-width: 0;
+}
+
+#workspace-challenge #batchPlanner .limit-kicker {
+  display: block;
+  margin-bottom: 5px;
+  color: #39e88f;
+  font-size: .63rem;
+  font-weight: 1000;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+#workspace-challenge #batchPlanner .batch-planner-head h3 {
+  margin: 0;
+  color: #f5fff8;
+  font-size: clamp(1.35rem, 2.8vw, 1.9rem);
+  line-height: 1.08;
+  letter-spacing: -.035em;
+}
+
+#workspace-challenge #batchPlanner .batch-planner-head p {
+  max-width: 780px;
+  margin: 8px 0 0;
+  color: #9bb7a8;
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+#workspace-challenge #batchManifestChip,
+#workspace-challenge #dailyGeneratorGuardChip {
+  align-self: start;
+  max-width: 320px;
+  margin: 0 !important;
+  padding: 7px 10px;
+  white-space: normal;
+  text-align: right;
+  line-height: 1.3;
+}
+
+/* Core weekly controls: start date, theme and formation are what the user needs first. */
+#workspace-challenge #batchPlanner .batch-planner-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, .8fr) minmax(220px, 1.1fr) minmax(180px, .8fr);
+  gap: 10px;
+  align-items: end;
+  margin: 0;
+}
+
+#workspace-challenge #batchPlanner .batch-planner-grid > label {
+  min-width: 0;
+  color: #a9c0b3;
+  font-size: .66rem;
+  font-weight: 850;
+}
+
+#workspace-challenge #batchPlanner .batch-planner-grid input,
+#workspace-challenge #batchPlanner .batch-planner-grid select {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 5px;
+  border-color: rgba(174, 226, 199, .13);
+  background: rgba(0, 0, 0, .18);
+}
+
+#workspace-challenge #batchPlanner .batch-settings-note {
+  grid-column: 1 / -1;
+  min-height: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(98, 201, 255, .12);
+  border-radius: 12px;
+  background: rgba(98, 201, 255, .035);
+  color: #91aa9d;
+  font-size: .68rem;
+  line-height: 1.45;
+}
+
+#workspace-challenge #batchPlanner .batch-settings-note strong {
+  color: #cbe9da !important;
+}
+
+/* Advanced rules remain available, but sit below the weekly job instead of before it. */
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid {
+  order: 10;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin: 0 22px;
+  padding: 16px;
+  border-top: 1px solid rgba(174, 226, 199, .09);
+  border-bottom: 1px solid rgba(174, 226, 199, .09);
+  background: rgba(0, 0, 0, .1);
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid::before {
+  content: "Advanced generation rules";
+  grid-column: 1 / -1;
+  margin-bottom: 1px;
+  color: #7f9b8d;
+  font-size: .61rem;
+  font-weight: 1000;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid label {
+  min-width: 0;
+  color: #8fa99b;
+  font-size: .62rem;
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid > label:first-of-type {
+  grid-column: span 2;
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid input,
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid select {
+  min-height: 39px;
+  margin-top: 4px;
+  padding: 7px 9px;
+  font-size: .72rem;
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid .check-label {
+  align-self: end;
+  min-height: 39px;
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .perfect-score-limit {
+  order: 11;
+  margin: 12px 22px 0;
+  padding: 12px 14px;
+  border-color: rgba(255, 209, 102, .12);
+  background: rgba(255, 209, 102, .025);
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .perfect-score-limit .limit-kicker {
+  color: #d6b765;
+}
+
+/* Single-day buttons remain as an emergency/diagnostic fallback, not the normal route. */
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .button-row:not(.batch-actions) {
+  order: 12;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 38px 22px 14px;
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .button-row:not(.batch-actions)::before {
+  content: "Single-day fallback";
+  position: absolute;
+  top: 15px;
+  left: 22px;
+  color: #6f8b7d;
+  font-size: .58rem;
+  font-weight: 1000;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > .button-row:not(.batch-actions) .button {
+  min-height: 36px;
+  padding: 7px 10px;
+  border-color: rgba(174, 226, 199, .09);
+  background: rgba(255, 255, 255, .025);
+  color: #8da99a;
+  font-size: .66rem;
+  box-shadow: none;
+}
+
+#workspace-challenge > .stage-one-tool-panel:first-of-type > #actionStatus {
+  order: 13;
+  margin: 0;
+  padding: 0 22px 18px;
+  color: #748f81;
+  font-size: .64rem;
+}
+
+/* Follow-on single-day panels are still functional but clearly secondary to the week calendar. */
+#workspace-challenge #draftPanel,
+#workspace-challenge #testPanel,
+#workspace-challenge #codePanel {
+  border-color: rgba(174, 226, 199, .09);
+  background: linear-gradient(150deg, rgba(12, 31, 23, .88), rgba(7, 22, 16, .92));
+}
+
+#workspace-challenge #draftPanel > .panel-heading .eyebrow::after,
+#workspace-challenge #testPanel > .panel-heading .eyebrow::after,
+#workspace-challenge #codePanel > .panel-heading .eyebrow::after {
+  content: " · single-day fallback";
+  color: #6d887a;
+}
+
+#workspace-challenge #historyPanel {
+  border-color: rgba(98, 201, 255, .1);
+}
+
+/* Mobile remains compact, but now mirrors the weekly-first desktop hierarchy. */
 @media (max-width: 720px) {
-  /* Keep the Daily Challenge workspace dense enough to use comfortably on a phone. */
   #workspace-challenge .stage-one-tool-panel {
     margin-bottom: 10px;
     padding: 12px;
     border-radius: 13px;
+  }
+
+  #workspace-challenge > .stage-one-tool-panel:first-of-type {
+    padding: 0;
   }
 
   #workspace-challenge .stage-one-tool-panel > .panel-heading,
@@ -32,40 +272,111 @@
     font-size: .58rem;
   }
 
-  /* Challenge settings: keep the name full-width, then use paired controls. */
-  #workspace-challenge .settings-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 7px !important;
+  #workspace-challenge #batchPlanner {
+    padding: 14px;
   }
 
-  #workspace-challenge .settings-grid > label:first-of-type,
-  #workspace-challenge .settings-grid > .check-label {
+  #workspace-challenge #batchPlanner .batch-planner-head {
+    display: block;
+    margin-bottom: 11px;
+  }
+
+  #workspace-challenge #batchPlanner .batch-planner-head h3 {
+    margin: 2px 0 5px;
+    font-size: 1.12rem;
+    line-height: 1.15;
+  }
+
+  #workspace-challenge #batchPlanner .batch-planner-head p {
+    max-width: none;
+    margin-top: 6px;
+    font-size: .65rem;
+    line-height: 1.38;
+  }
+
+  #workspace-challenge #batchManifestChip,
+  #workspace-challenge #dailyGeneratorGuardChip {
+    display: inline-flex;
+    width: auto;
+    max-width: 100%;
+    margin: 7px 5px 0 0 !important;
+    padding: 4px 7px;
+    text-align: left;
+    font-size: .55rem;
+  }
+
+  #workspace-challenge #batchPlanner .batch-planner-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  #workspace-challenge #batchPlanner .batch-planner-grid > label:first-of-type,
+  #workspace-challenge #batchPlanner .batch-settings-note {
     grid-column: 1 / -1;
   }
 
-  #workspace-challenge .settings-grid label {
+  #workspace-challenge #batchPlanner .batch-planner-grid label {
     min-width: 0;
-    font-size: .62rem;
+    font-size: .61rem;
   }
 
-  #workspace-challenge .settings-grid input,
-  #workspace-challenge .settings-grid select {
-    min-height: 37px;
+  #workspace-challenge #batchPlanner .batch-planner-grid input,
+  #workspace-challenge #batchPlanner .batch-planner-grid select {
+    min-height: 38px;
     margin-top: 4px;
     padding: 7px 8px;
-    font-size: .71rem;
+    font-size: .68rem;
   }
 
-  #workspace-challenge .settings-grid .check-label {
-    min-height: 40px;
+  #workspace-challenge #batchPlanner .batch-settings-note {
     padding: 8px 9px;
+    border-radius: 9px;
+    font-size: .6rem;
+    line-height: 1.35;
   }
 
-  /* Score ceiling is a compact control, not a second full-size card. */
-  #workspace-challenge .perfect-score-limit {
-    grid-template-columns: minmax(0, 1fr) 96px !important;
+  #workspace-challenge #batchPlanner .batch-actions {
+    margin-top: 10px;
+  }
+
+  #workspace-challenge #batchStatus,
+  #workspace-challenge #batchPlanner .action-status {
+    font-size: .61rem;
+    line-height: 1.35;
+  }
+
+  #workspace-challenge #batchReview {
+    margin-top: 9px;
+  }
+
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin: 0 12px;
+    padding: 12px;
+  }
+
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid > label:first-of-type,
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid > .check-label {
+    grid-column: 1 / -1;
+  }
+
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid label {
+    min-width: 0;
+    font-size: .6rem;
+  }
+
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid input,
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid select {
+    min-height: 36px;
+    padding: 6px 8px;
+    font-size: .69rem;
+  }
+
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .perfect-score-limit {
+    grid-template-columns: minmax(0, 1fr) 96px;
     gap: 9px;
-    margin: 9px 0;
+    margin: 10px 12px 0;
     padding: 10px 11px;
     border-radius: 12px;
   }
@@ -80,11 +391,6 @@
     display: none;
   }
 
-  #workspace-challenge .limit-kicker {
-    font-size: .5rem;
-    letter-spacing: .1em;
-  }
-
   #workspace-challenge .perfect-score-limit label {
     font-size: .56rem;
   }
@@ -96,143 +402,29 @@
     font-size: .78rem;
   }
 
-  #workspace-challenge #generateBtn,
-  #workspace-challenge #saveDraftBtn {
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .button-row:not(.batch-actions) {
+    padding: 34px 12px 11px;
+  }
+
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .button-row:not(.batch-actions)::before {
+    top: 12px;
+    left: 12px;
+  }
+
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .button-row:not(.batch-actions) .button {
     flex: 1 1 calc(50% - 4px);
   }
 
-  #workspace-challenge #loadDraftBtn {
-    flex: 1 1 100%;
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > #loadDraftBtn {
+    flex-basis: 100%;
   }
 
-  #workspace-challenge #actionStatus {
-    margin-top: 7px;
-    font-size: .63rem;
-    line-height: 1.3;
-  }
-
-  /* Seven-day generator: retain the useful controls, compress the explanatory copy. */
-  #workspace-challenge #batchPlanner {
-    margin-top: 11px;
-    padding: 11px;
-    border-radius: 13px;
-  }
-
-  #workspace-challenge #batchPlanner .batch-planner-head {
-    display: block;
-    margin-bottom: 9px;
-  }
-
-  #workspace-challenge #batchPlanner .batch-planner-head h3 {
-    margin: 2px 0 5px;
-    font-size: .98rem;
-    line-height: 1.18;
-  }
-
-  #workspace-challenge #batchPlanner .batch-planner-head p {
-    display: none;
-  }
-
-  #workspace-challenge #batchManifestChip {
-    width: max-content;
-    margin-top: 5px;
-    padding: 4px 7px;
-    font-size: .55rem;
-  }
-
-  #workspace-challenge #batchPlanner .batch-planner-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 7px;
-  }
-
-  #workspace-challenge #batchPlanner .batch-planner-grid > label:first-of-type {
-    grid-column: 1 / -1;
-  }
-
-  #workspace-challenge #batchPlanner .batch-planner-grid label {
-    min-width: 0;
-    font-size: .61rem;
-  }
-
-  #workspace-challenge #batchPlanner .batch-planner-grid input,
-  #workspace-challenge #batchPlanner .batch-planner-grid select {
-    min-height: 37px;
-    margin-top: 4px;
-    padding: 7px 8px;
-    font-size: .68rem;
-  }
-
-  #workspace-challenge #batchPlanner .batch-settings-note {
-    grid-column: 1 / -1;
-    min-height: 0;
-    padding: 8px 9px;
-    border-radius: 9px;
-    font-size: 0;
-    line-height: 1.3;
-  }
-
-  #workspace-challenge #batchPlanner .batch-settings-note strong {
-    display: inline;
-    margin-right: 4px !important;
-    font-size: .61rem;
-  }
-
-  #workspace-challenge #batchPlanner .batch-settings-note::after {
-    content: "Exact prompt rotation stays enforced; family cooldown relaxes only when needed.";
-    color: var(--v2-muted, #91aa9d);
-    font-size: .6rem;
-  }
-
-  #workspace-challenge #batchPlanner .batch-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 9px;
-  }
-
-  #workspace-challenge #batchPlanner .batch-actions .button {
-    flex: 1 1 calc(50% - 3px);
-    width: auto;
-    min-height: 34px;
-    padding: 6px 8px;
-    font-size: .62rem;
-  }
-
-  #workspace-challenge #generateWeekBtn {
-    flex-basis: 100% !important;
-  }
-
-  #workspace-challenge #batchStatus,
-  #workspace-challenge #batchPlanner .action-status {
-    margin-top: 7px;
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > #actionStatus {
+    padding: 0 12px 13px;
     font-size: .61rem;
     line-height: 1.3;
   }
 
-  #workspace-challenge #batchPlanner .batch-status-line + p,
-  #workspace-challenge #batchPlanner > p:not(.batch-status-line) {
-    margin-top: 5px;
-    font-size: .59rem;
-    line-height: 1.3;
-  }
-
-  #workspace-challenge #batchReview {
-    margin-top: 8px;
-  }
-
-  #workspace-challenge #batchReview .batch-empty {
-    gap: 2px;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: .64rem;
-    line-height: 1.3;
-  }
-
-  #workspace-challenge #batchReview .batch-empty strong {
-    font-size: .77rem;
-  }
-
-  /* Collapsed follow-on workflow cards should stay genuinely compact. */
   #workspace-challenge .stage-one-tool-panel.stage-one-collapsed {
     padding-block: 11px;
   }
@@ -244,20 +436,20 @@
   }
 }
 
-@media (max-width: 360px) {
-  #workspace-challenge .settings-grid,
-  #workspace-challenge #batchPlanner .batch-planner-grid {
-    grid-template-columns: 1fr !important;
+@media (max-width: 420px) {
+  #workspace-challenge #batchPlanner .batch-planner-grid,
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid {
+    grid-template-columns: 1fr;
   }
 
-  #workspace-challenge .settings-grid > label:first-of-type,
-  #workspace-challenge .settings-grid > .check-label,
   #workspace-challenge #batchPlanner .batch-planner-grid > label:first-of-type,
-  #workspace-challenge #batchPlanner .batch-settings-note {
+  #workspace-challenge #batchPlanner .batch-settings-note,
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid > label:first-of-type,
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid > .check-label {
     grid-column: auto;
   }
 
-  #workspace-challenge .perfect-score-limit {
-    grid-template-columns: 1fr !important;
+  #workspace-challenge > .stage-one-tool-panel:first-of-type > .perfect-score-limit {
+    grid-template-columns: 1fr;
   }
 }
