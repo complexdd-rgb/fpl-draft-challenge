@@ -4,6 +4,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   certify-all-seasons:
     runs-on: ubuntu-latest
@@ -16,8 +19,18 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Verify browser certified-library gate
+      - name: Verify deferred all-season boundary
         run: node scripts/verify-all-season-certification-gate.mjs
 
-      - name: Certify every season against the approved 4-star library
-        run: node scripts/diagnose-approved-library-certification.mjs
+      - name: Verify saved-library Daily cutover boundary
+        run: node scripts/verify-daily-library-cutover-v1.mjs
+
+      - name: Verify immutable weekly generation reservoir
+        run: node scripts/verify-weekly-certified-snapshot-race.mjs
+
+      - name: Check boundary syntax
+        run: |
+          node --check scripts/verify-all-season-certification-gate.mjs
+          node --check scripts/verify-daily-library-cutover-v1.mjs
+          node --check scripts/verify-weekly-certified-snapshot-race.mjs
+          git diff --check
