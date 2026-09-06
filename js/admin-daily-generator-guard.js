@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.4.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.5.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 17-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.4.0";
+  const VERSION = "2.5.0";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -858,11 +858,11 @@
         return;
       }
       updateGuardChip();
-      const diversity = certification.topAnswerDiversity || reservoir.plan.topAnswerDiversity;
-      const diversityText = diversity?.repeatSlots
-        ? `${diversity.uniquePlayers}/77 unique top-answer players · ${diversity.repeatSlots} fallback repeat slot(s)`
-        : "77/77 unique top-answer players";
-      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 17-family targets were preserved, no same-day semantic clashes were allowed, and top-answer diversity finished at ${diversityText}.`, "pass");
+      const dayAudit = window.FPL_STUDIO_BATCH_CALENDAR?.getTopAnswerDayAudit?.();
+      const diversityText = dayAudit
+        ? `${dayAudit.uniquePlayers} unique top-answer players · max ${dayAudit.maxAppearanceDays} leader day(s) for one player · ${dayAudit.spacingViolationCount} spacing exception(s)`
+        : "leader-day audit unavailable";
+      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 17-family targets were preserved, no same-day semantic clashes were allowed, and the 3-day leader-spacing audit finished at ${diversityText}.`, "pass");
       window.dispatchEvent(new CustomEvent("fpl:daily-saved-library-week-certified", { detail: { ...reservoir.plan } }));
     } catch (error) {
       console.error(error);

@@ -1,7 +1,7 @@
 {
-  "manifestVersion": "3.0.2-top-answer-diversity",
+  "manifestVersion": "3.0.3-leader-day-spacing",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.0.2-top-answer-diversity" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.0.3-leader-day-spacing" },
     "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.6.0-schedule-manager" },
     "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.1.0-library-browser" },
     "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
@@ -52,8 +52,8 @@
     "validationEngine": { "path": "js/validation-engine.js", "version": "1.7.1-certification-snapshot" },
     "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.5.0-native-prompts" },
     "careerContext": { "path": "js/career-context.js", "version": "1.5.0" },
-    "adminBatchCalendar": { "path": "js/admin-batch-calendar.js", "version": "3.4.0-top-answer-diversity" },
-    "adminDailyGeneratorGuard": { "path": "js/admin-daily-generator-guard.js", "version": "2.4.0-top-answer-diversity" },
+    "adminBatchCalendar": { "path": "js/admin-batch-calendar.js", "version": "3.5.0-leader-day-spacing" },
+    "adminDailyGeneratorGuard": { "path": "js/admin-daily-generator-guard.js", "version": "2.5.0-leader-day-spacing" },
     "leaderboardConfig": { "path": "js/leaderboard-config.js", "version": "5.1.0-studio-bootstrap" },
     "repositoryCertifiedPromptPool": { "path": "js/repository-certified-prompt-pool.js", "version": "2.0.0-clean-reset" },
     "promptLibraryCanonicalState": { "path": "js/prompt-library-canonical-state.js", "version": "1.0.0-retired" }

@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine v3.4.0: weekly-top-answer-aware date-identified seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.5.0: leader-day-spaced date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
@@ -353,7 +353,7 @@
         batchResults.push(result);
         if (!validation.length) {
           commitExactRotationSelection(rotationState, exactPlan, prompts, basePools);
-          commitWeeklyLeaderDays(prompts, weeklyLeaderDays);
+          commitWeeklyLeaderDays(prompts, weeklyLeaderDays, dayIndex);
         }
         virtualSchedule.push(manifestEntryForResult(result));
         renderBatchReview();
@@ -770,7 +770,7 @@
             && !used.has(prompt.id)
             && !isNationalityPrompt(prompt)
           );
-          choice = weightedPick(options, draft, settings, familyPlan, promptMixPlan, weeklyLeaderDays, semanticPressure);
+          choice = weightedPick(options, draft, settings, familyPlan, promptMixPlan, weeklyLeaderDays, dayIndex, semanticPressure);
         }
         if (!choice || used.has(choice.id) || draft.some(existing => semantic.dayClash(choice, existing))) break;
         draft.push(choice);
@@ -782,13 +782,16 @@
       if (draft.filter(isAntiMeta).length < settings.minAntiMeta) continue;
       if (semantic.dayIssues(draft).length) continue;
       if (semantic.missingRequiredKeys(draft, semanticPressure.required).length) continue;
+      // Three separate leader days is the weekly hard ceiling. Repeated prompts on this same
+      // day are fine because the current day is only committed once after the XI passes.
+      if ([...weeklyLeaderIds(draft)].some(playerId => weeklyLeaderHistory(weeklyLeaderDays, playerId).length >= WEEKLY_LEADER_HARD_DAY_CAP)) continue;
 
       const signature = draft.map(prompt => prompt.id).join("|");
       if (signatures.has(signature)) continue;
       signatures.add(signature);
       candidates.push({
         prompts: draft,
-        balance: scoreDraft(draft, settings, promptMixPlan, weeklyLeaderDays),
+        balance: scoreDraft(draft, settings, promptMixPlan, weeklyLeaderDays, dayIndex),
         naiveScore: naivePerfectUpperBound(draft)
       });
 
@@ -853,10 +856,13 @@
     };
   }
 
-  const ANSWER_DIVERSITY_POLICY_VERSION = 3;
+  const ANSWER_DIVERSITY_POLICY_VERSION = 4;
   const ANSWER_DIVERSITY_POOL_SIZE = 16;
-  const WEEKLY_LEADER_SOFT_CAP = 1;
-  const WEEKLY_LEADER_BASE_PENALTY = 180;
+  const WEEKLY_LEADER_MIN_DAY_GAP = 3;
+  const WEEKLY_LEADER_PREFERRED_DAY_CAP = 2;
+  const WEEKLY_LEADER_HARD_DAY_CAP = 3;
+  const WEEKLY_LEADER_GAP_PENALTY = 900;
+  const WEEKLY_LEADER_THIRD_DAY_PENALTY = 420;
   const topAnswerRecordsCache = new Map();
   const topAnswerPlayerIdsCache = new Map();
 
@@ -917,7 +923,6 @@
       scoreBands.set(band, (scoreBands.get(band) || 0) + 1);
     }
 
-    for (const count of leaders.values()) if (count > 1) penalty += (count - 1) * 60;
     for (const count of clubs.values()) if (count > 2) penalty += (count - 2) * 10;
     for (const count of seasons.values()) if (count > 3) penalty += (count - 3) * 6;
     for (const count of scoreBands.values()) if (count > 4) penalty += (count - 4) * 3;
@@ -945,25 +950,34 @@
     return ids;
   }
 
-  function weeklyLeaderPenalty(draft, weeklyLeaderDays) {
-    if (!(weeklyLeaderDays instanceof Map) || !weeklyLeaderDays.size) return 0;
+  function weeklyLeaderHistory(weeklyLeaderDays, playerId) {
+    const history = weeklyLeaderDays instanceof Map ? weeklyLeaderDays.get(playerId) : null;
+    return Array.isArray(history) ? history : [];
+  }
+
+  function weeklyLeaderPenalty(draft, weeklyLeaderDays, dayIndex) {
+    if (!(weeklyLeaderDays instanceof Map)) return 0;
     let penalty = 0;
     for (const playerId of weeklyLeaderIds(draft)) {
-      const projectedDays = Number(weeklyLeaderDays.get(playerId) || 0) + 1;
-      if (projectedDays <= WEEKLY_LEADER_SOFT_CAP) continue;
-      const excess = projectedDays - WEEKLY_LEADER_SOFT_CAP;
-      penalty += excess * excess * WEEKLY_LEADER_BASE_PENALTY;
+      const history = weeklyLeaderHistory(weeklyLeaderDays, playerId);
+      const projectedDays = history.length + 1;
+      const lastDay = history.length ? history[history.length - 1] : null;
+      const gap = Number.isInteger(lastDay) ? dayIndex - lastDay : Number.POSITIVE_INFINITY;
+      if (gap < WEEKLY_LEADER_MIN_DAY_GAP) penalty += (WEEKLY_LEADER_MIN_DAY_GAP - gap) * WEEKLY_LEADER_GAP_PENALTY;
+      if (projectedDays > WEEKLY_LEADER_PREFERRED_DAY_CAP) penalty += (projectedDays - WEEKLY_LEADER_PREFERRED_DAY_CAP) * WEEKLY_LEADER_THIRD_DAY_PENALTY;
     }
     return penalty;
   }
 
-  function commitWeeklyLeaderDays(draft, weeklyLeaderDays) {
+  function commitWeeklyLeaderDays(draft, weeklyLeaderDays, dayIndex) {
     for (const playerId of weeklyLeaderIds(draft)) {
-      weeklyLeaderDays.set(playerId, Number(weeklyLeaderDays.get(playerId) || 0) + 1);
+      const history = [...weeklyLeaderHistory(weeklyLeaderDays, playerId)];
+      if (!history.includes(dayIndex)) history.push(dayIndex);
+      weeklyLeaderDays.set(playerId, history);
     }
   }
 
-  function weightedPick(options, currentDraft, settings, familyPlan, promptMixPlan, weeklyLeaderDays, semanticPressure) {
+  function weightedPick(options, currentDraft, settings, familyPlan, promptMixPlan, weeklyLeaderDays, dayIndex, semanticPressure) {
     if (!options.length) return null;
     const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
     if (semantic?.filterDayCompatible) {
@@ -998,12 +1012,19 @@
       else if (antiNeeded > 0 && isAntiMeta(prompt)) weight *= 2;
       const repeatedThemeCount = (prompt.tags || []).filter(tag => DIVERSITY_TAGS.has(tag) && tagsAlreadyUsed.has(tag)).length;
       weight /= 1 + repeatedThemeCount * 1.6;
-      if (leaderRepeatedInDraft(prompt, currentDraft)) weight /= 8;
       const leaderId = core.getPromptStats(prompt)?.bestAnswer?.playerId;
-      const priorLeaderDays = leaderId ? Number(weeklyLeaderDays?.get(leaderId) || 0) : 0;
-      if (priorLeaderDays >= WEEKLY_LEADER_SOFT_CAP) {
-        const excess = priorLeaderDays - WEEKLY_LEADER_SOFT_CAP + 1;
-        weight /= 1 + excess * excess * 12;
+      const sameDayLeader = Boolean(leaderId && currentDraft.some(item => core.getPromptStats(item)?.bestAnswer?.playerId === leaderId));
+      if (sameDayLeader) {
+        // Multiple prompts led by the same player on one Daily Challenge count as one leader day.
+        // A small grouping preference helps concentrate unavoidable repeats instead of spreading them.
+        weight *= 1.2;
+      } else if (leaderId) {
+        const history = weeklyLeaderHistory(weeklyLeaderDays, leaderId);
+        const lastDay = history.length ? history[history.length - 1] : null;
+        const gap = Number.isInteger(lastDay) ? dayIndex - lastDay : Number.POSITIVE_INFINITY;
+        if (gap < WEEKLY_LEADER_MIN_DAY_GAP) weight /= 1 + (WEEKLY_LEADER_MIN_DAY_GAP - gap) * 24;
+        if (history.length >= WEEKLY_LEADER_PREFERRED_DAY_CAP) weight /= 18;
+        if (history.length >= WEEKLY_LEADER_HARD_DAY_CAP) weight /= 1000;
       }
       const answerOverlap = answerOverlapWithDraft(prompt, currentDraft, alreadyUsedTopAnswerIds);
       weight /= 1 + answerOverlap * 0.65;
@@ -1025,7 +1046,7 @@
     return weighted[weighted.length - 1].prompt;
   }
 
-  function scoreDraft(draft, settings, promptMixPlan, weeklyLeaderDays) {
+  function scoreDraft(draft, settings, promptMixPlan, weeklyLeaderDays, dayIndex) {
     const target = difficultyTargetValue(settings.difficultyTarget);
     const averageDifficulty = draft.reduce((sum, prompt) => sum + (DIFFICULTY_VALUE[prompt.difficulty] || 2), 0) / draft.length;
     let score = Math.abs(averageDifficulty - target) * 20;
@@ -1049,7 +1070,7 @@
     score += Math.max(0, promptMixPlan.context - mix.context) * 110;
     score += Math.max(0, mix.name - promptMixPlan.maxName) * 180;
     score += answerDiversityPenalty(draft);
-    score += weeklyLeaderPenalty(draft, weeklyLeaderDays);
+    score += weeklyLeaderPenalty(draft, weeklyLeaderDays, dayIndex);
     return score + Math.random() * 0.25;
   }
 
@@ -1388,7 +1409,7 @@
 
     const topAnswerAudit = weeklyTopAnswerDiversity();
     const topAnswerSummary = topAnswerAudit
-      ? `<div class="batch-summary"><strong>Top-answer diversity: ${topAnswerAudit.uniquePlayers}/${topAnswerAudit.promptCount || 77} unique players</strong><span>${topAnswerAudit.repeatSlots ? `${topAnswerAudit.repeatSlots} fallback repeat slot(s)` : "No weekly leader repeats"}</span></div>`
+      ? `<div class="batch-summary"><strong>Leader-day diversity: ${topAnswerAudit.uniquePlayers} unique top-answer players</strong><span>3-day spacing · preferred max 2 days/player · hard max 3 · ${topAnswerAudit.spacingViolationCount ? `${topAnswerAudit.spacingViolationCount} spacing exception(s)` : "no spacing exceptions"} · same-day repeats allowed</span></div>`
       : "";
     elements.review.innerHTML = `${topAnswerSummary}<div class="batch-table-wrap"><table class="batch-table">
       <thead><tr><th>Date</th><th>Challenge</th><th>Difficulty</th><th>Formation</th><th>Perfect</th><th>Anti-meta</th><th>Validation</th></tr></thead>
@@ -1465,18 +1486,64 @@
   }
 
   function weeklyTopAnswerDiversity() {
-    const plan = window.FPL_DAILY_GENERATOR_GUARD?.getLastFamilyPlan?.();
-    const audit = plan?.topAnswerDiversity;
-    if (!audit) return null;
+    const byPlayer = new Map();
+    let promptCount = 0;
+    batchResults.forEach((result, dayIndex) => {
+      const leadersToday = new Map();
+      for (const prompt of result?.prompts || []) {
+        promptCount += 1;
+        const best = core.getPromptStats(prompt)?.bestAnswer;
+        const playerId = String(best?.playerId || "");
+        if (!playerId) continue;
+        const today = leadersToday.get(playerId) || {
+          playerId,
+          name: String(best?.playerName || best?.name || playerId),
+          promptCount: 0
+        };
+        today.promptCount += 1;
+        leadersToday.set(playerId, today);
+      }
+      for (const today of leadersToday.values()) {
+        const player = byPlayer.get(today.playerId) || { playerId: today.playerId, name: today.name, days: [] };
+        player.days.push({ dayIndex, date: result.releaseDate || result.date, promptCount: today.promptCount });
+        byPlayer.set(today.playerId, player);
+      }
+    });
+
+    const players = [...byPlayer.values()].map(player => {
+      player.days.sort((a, b) => a.dayIndex - b.dayIndex);
+      const gaps = [];
+      for (let index = 1; index < player.days.length; index += 1) gaps.push(player.days[index].dayIndex - player.days[index - 1].dayIndex);
+      return {
+        playerId: player.playerId,
+        name: player.name,
+        appearanceDays: player.days.length,
+        promptCount: player.days.reduce((sum, day) => sum + day.promptCount, 0),
+        dates: player.days.map(day => day.date),
+        minimumGapDays: gaps.length ? Math.min(...gaps) : null
+      };
+    }).sort((left, right) => right.appearanceDays - left.appearanceDays || right.promptCount - left.promptCount || left.name.localeCompare(right.name));
+
+    const spacingViolations = players.filter(player => player.minimumGapDays != null && player.minimumGapDays < WEEKLY_LEADER_MIN_DAY_GAP);
+    const preferredCapBreaches = players.filter(player => player.appearanceDays > WEEKLY_LEADER_PREFERRED_DAY_CAP);
+    const hardCapBreaches = players.filter(player => player.appearanceDays > WEEKLY_LEADER_HARD_DAY_CAP);
+    const playerDayAppearances = players.reduce((sum, player) => sum + player.appearanceDays, 0);
     return {
-      promptCount: Number(audit.promptCount) || 0,
-      uniquePlayers: Number(audit.uniquePlayers) || 0,
-      repeatSlots: Number(audit.repeatSlots) || 0,
-      repeatedPlayers: (audit.repeatedPlayers || []).map(item => ({
-        playerId: String(item.playerId || ""),
-        name: String(item.name || item.playerId || ""),
-        count: Number(item.count) || 0
-      }))
+      promptCount,
+      uniquePlayers: players.length,
+      playerDayAppearances,
+      sameDayRepeatPrompts: Math.max(0, promptCount - playerDayAppearances),
+      minDayGap: WEEKLY_LEADER_MIN_DAY_GAP,
+      preferredDayCap: WEEKLY_LEADER_PREFERRED_DAY_CAP,
+      hardDayCap: WEEKLY_LEADER_HARD_DAY_CAP,
+      maxAppearanceDays: players.reduce((max, player) => Math.max(max, player.appearanceDays), 0),
+      spacingViolationCount: spacingViolations.length,
+      preferredCapBreachCount: preferredCapBreaches.length,
+      hardCapBreachCount: hardCapBreaches.length,
+      spacingViolations,
+      preferredCapBreaches,
+      hardCapBreaches,
+      players
     };
   }
 
@@ -1527,9 +1594,7 @@
       (() => {
         const audit = weeklyTopAnswerDiversity();
         if (!audit) return "Audit unavailable.";
-        return audit.repeatSlots
-          ? `${audit.uniquePlayers}/${audit.promptCount || 77} unique top-answer players · ${audit.repeatSlots} fallback repeat slot(s). Repeats are only used after unique-leader alternatives are exhausted by the certified reservoir constraints.`
-          : `${audit.uniquePlayers}/${audit.promptCount || 77} unique top-answer players · no weekly leader repeats.`;
+        return `${audit.uniquePlayers} unique top-answer players across ${audit.playerDayAppearances} leader-day appearances. Same-day repeats are allowed; repeat days target a ${audit.minDayGap}-day gap, prefer no more than ${audit.preferredDayCap} days per player and never exceed ${audit.hardDayCap}. Spacing exceptions: ${audit.spacingViolationCount}; players needing a third day: ${audit.preferredCapBreachCount}.`;
       })(),
       "",
       "UPLOAD ORDER",
@@ -1684,6 +1749,7 @@
       promptMixQuotaRelaxed: Boolean(result.promptMixQuotaRelaxed),
       familyCooldownRelaxedPositions: [...(result.familyCooldownRelaxedPositions || [])]
     })),
+    getTopAnswerDayAudit: () => JSON.parse(JSON.stringify(weeklyTopAnswerDiversity())),
     getManifest: () => batchManifest ? JSON.parse(JSON.stringify(batchManifest)) : null,
     getSources: () => batchResults.filter(result => result.source).map(result => ({ date: result.releaseDate, source: result.source })),
     addDaysIso,
