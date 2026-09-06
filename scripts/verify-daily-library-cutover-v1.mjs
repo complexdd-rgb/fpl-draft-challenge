@@ -64,7 +64,6 @@ const sandbox = {
   CustomEvent: class CustomEvent { constructor(type, options = {}) { this.type = type; this.detail = options.detail; } },
   setTimeout,
   clearTimeout,
-  Function,
   Promise,
   Map,
   Set,
