@@ -13,6 +13,7 @@ const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const cutover = read('js/admin-daily-library-cutover-v1.js');
 const dailyGuard = read('js/admin-daily-generator-guard.js');
 const shards = read('js/prompt-library-shards-v1.js');
+const shardCss = read('admin-prompt-library-shards-v1.css');
 const promptLibrary = read('prompt-library.js')
   .replace(/^\uFEFF/, '')
   .replace(/\/\*[\s\S]*?\*\//g, '')
@@ -27,12 +28,14 @@ assert(manifest.assets?.promptFactoryV1?.path === 'js/prompt-factory-v1.js', 'Pr
 assert(manifest.assets?.promptQualityAnalyserV1?.path === 'js/prompt-quality-analyser-v1.js', 'Prompt Quality Analyser v1 is missing from the central manifest.');
 assert(manifest.assets?.promptPromotionV1?.path === 'js/prompt-promotion-v1.js', 'Prompt Promotion v1 is missing from the central manifest.');
 assert(manifest.assets?.promptLibraryShardsV1?.path === 'js/prompt-library-shards-v1.js', 'Durable Prompt Library shards are missing from the central manifest.');
+assert(manifest.assets?.promptLibraryShardsCssV1?.version === '1.2.0-daily-authority', 'Daily saved-library authority display cache tag is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.path === 'js/admin-daily-library-cutover-v1.js', 'Daily saved-library cutover boundary is missing from the central manifest.');
 assert(manifest.assets?.adminDailyGeneratorGuard?.path === 'js/admin-daily-generator-guard.js', 'Daily generation guard is missing from the central manifest.');
 assert(manifest.assets?.adminDailyGeneratorGuard?.version === '2.0.0-saved-library-cycle', 'Daily generation guard cache version is not on saved-library v2.');
 assert(manifest.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Repository prompt pool is not on the clean zero boundary.');
 
 assert(generatedManifest.includes('2.7.0-daily-generation-cutover'), 'Generated asset manifest was not refreshed to the Daily cutover boundary.');
+assert(generatedManifest.includes('"version": "1.2.0-daily-authority"'), 'Generated asset manifest did not receive the Daily authority CSS cache tag.');
 assert(generatedManifest.includes('"adminDailyLibraryCutoverV1"'), 'Generated asset manifest does not expose the Daily cutover module.');
 assert(generatedManifest.includes('"adminDailyGeneratorGuard"'), 'Generated asset manifest does not expose the Daily generation guard.');
 
@@ -52,6 +55,8 @@ assert(cutover.includes('EXPECTED_FAMILIES'), 'Daily cutover no longer validates
 assert(cutover.includes('materialiseRecord'), 'Daily cutover no longer exposes lazy prompt hydration.');
 assert(shards.includes('fplPromptLibraryShardsV1'), 'Durable Prompt Library shard storage is missing.');
 assert(shards.includes('window.indexedDB.open'), 'Durable Prompt Library shards no longer use IndexedDB.');
+assert(shardCss.includes('Active saved promoted library'), 'Daily library balance still displays the retired cutover-pending authority wording.');
+assert(shardCss.includes('77-prompt reservoir is structurally and runtime verified'), 'Daily library balance does not explain the runtime-certified weekly reservoir.');
 
 for (const token of [
   'saved-library generation guard v2.0.0',
