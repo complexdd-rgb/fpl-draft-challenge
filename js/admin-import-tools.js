@@ -1,10 +1,10 @@
-/* FPL Challenge Studio — bootstrap entrypoint v24.5.0.
+/* FPL Challenge Studio — bootstrap entrypoint v24.6.0.
    There is deliberately no Prompt Studio fallback path. A bootstrap failure is surfaced as
    an error rather than silently resurrecting an older Prompt Studio build. */
 (() => {
   "use strict";
 
-  const BOOTSTRAP_URL = "js/studio-bootstrap.js?v=2.5.0-daily-cutover";
+  const BOOTSTRAP_URL = "js/studio-bootstrap.js?v=2.6.0-schedule-manager";
 
   const startBootstrap = () => {
     if (window.FPL_STUDIO_BOOTSTRAP?.start) {
