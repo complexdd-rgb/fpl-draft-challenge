@@ -11,7 +11,7 @@ if (start < 0 || end < 0 || end <= start) throw new Error('Could not locate the 
 const replacement = [
   "{",
   "  const weeklySource = read(weeklyPath);",
-  "  const needle = \"assert(!dailyGuard.includes(forbidden), `Daily Challenge guard still contains retired 851-prompt authority: ${forbidden}`);\\n}\\n\";",
+  "  const needle = \"assert(!guard.includes(forbidden), `Daily Challenge guard still contains retired 851-prompt authority: ${forbidden}`);\\n}\\n\";",
   "  assert(weeklySource.includes(needle), 'Weekly verifier retired-authority insertion marker not found.');",
   "  const insert = [",
   "    needle.trimEnd(),",
