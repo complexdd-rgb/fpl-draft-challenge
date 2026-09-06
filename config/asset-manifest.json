@@ -1,8 +1,8 @@
 {
-  "manifestVersion": "2.5.0-library-shards-v1",
+  "manifestVersion": "2.6.0-daily-cutover-v1",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "2.5.0-library-shards-v1" },
-    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.4.0-library-shards" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "2.6.0-daily-cutover-v1" },
+    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.5.0-daily-cutover" },
     "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.1.0-library-browser" },
     "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
     "promptFactoryMountV1": { "path": "js/prompt-factory-mount-v1.js", "version": "1.0.0" },
@@ -15,6 +15,7 @@
     "promptLibraryShardsV1": { "path": "js/prompt-library-shards-v1.js", "version": "1.1.0" },
     "promptLibraryShardsBridgeV1": { "path": "js/prompt-library-shards-promotion-bridge-v1.js", "version": "1.0.0" },
     "promptLibraryShardsCssV1": { "path": "admin-prompt-library-shards-v1.css", "version": "1.1.0" },
+    "adminDailyLibraryCutoverV1": { "path": "js/admin-daily-library-cutover-v1.js", "version": "1.0.0" },
     "adminImportTools": { "path": "js/admin-import-tools.js", "version": "24.4.0-library-shards" },
     "studioFeatureLoader": { "path": "js/studio-feature-loader.js", "version": "1.1.0-bootstrap-shim" },
     "promptStudioLoader": { "path": "js/prompt-studio-loader.js", "version": "1.4.0-retired" },
