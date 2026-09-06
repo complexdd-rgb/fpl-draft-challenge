@@ -1,7 +1,7 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v2.5.0.
+/* FPL Challenge Studio — single runtime bootstrap owner v2.6.0.
    Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser, Promotion layer,
-   durable family-shard storage and the read-only Daily cutover boundary. No legacy Prompt
-   Studio fallback chain is loaded. */
+   durable family-shard storage, Daily cutover, publishing and the centrally owned schedule manager.
+   No legacy Prompt Studio fallback chain is loaded. */
 (() => {
   "use strict";
 
@@ -22,6 +22,7 @@
   let libraryShardsStarted = false;
   let dailyCutoverStarted = false;
   let publishingStarted = false;
+  let scheduleManagerStarted = false;
 
   function findExisting(src, marker) {
     if (marker) {
@@ -127,12 +128,26 @@
     );
   }
 
+  function ensureScheduleManager() {
+    if (scheduleManagerStarted) {
+      window.FPL_STUDIO_SCHEDULE_MANAGER?.render?.(window.FPL_STUDIO_SCHEDULE);
+      return;
+    }
+    const config = window.FPL_LEADERBOARD_CONFIG;
+    if (!config?.dailyPublishing?.enabled || !document.getElementById("batchPlanner")) return;
+    scheduleManagerStarted = true;
+    loadAsset("adminScheduleManagerV2", "data-admin-schedule-manager-v2", { async: true });
+  }
+
   function ensurePublishing() {
-    if (publishingStarted) return;
+    if (publishingStarted) {
+      ensureScheduleManager();
+      return;
+    }
     const config = window.FPL_LEADERBOARD_CONFIG;
     if (!config?.dailyPublishing?.enabled || !document.getElementById("downloadWeekBtn")) return;
     publishingStarted = true;
-    loadAsset("adminDailyPublish", "data-admin-daily-publish", { async: true });
+    loadAsset("adminDailyPublish", "data-admin-daily-publish", { async: true }, ensureScheduleManager);
   }
 
   function start() {
@@ -145,7 +160,7 @@
 
     started = true;
     document.documentElement.dataset.studioBootstrap = "loading";
-    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards-daily-cutover";
+    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards-daily-cutover-schedule-v2";
 
     ensurePromptStudio();
     ensurePublishing();
@@ -154,19 +169,20 @@
     document.documentElement.dataset.studioBootstrap = "ready";
     window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
       detail: {
-        version: "2.5.0",
+        version: "2.6.0",
         promptStudio: "clean-v1",
         promptFactory: "v1",
         qualityAnalyser: "v1",
         promotion: "v1",
         libraryShards: "v1",
-        dailyLibraryCutover: "v1"
+        dailyLibraryCutover: "v1",
+        scheduleManager: "v2"
       }
     }));
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "2.5.0",
+    version: "2.6.0",
     start,
     loadScript,
     loadAsset,
@@ -176,7 +192,8 @@
     ensurePromotion,
     ensureLibraryShards,
     ensureDailyCutover,
-    ensurePublishing
+    ensurePublishing,
+    ensureScheduleManager
   });
 
   start();
