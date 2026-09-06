@@ -1,0 +1,133 @@
+.prompt-library-shards {
+  display: grid;
+  gap: 22px;
+  margin-top: 24px;
+  padding: 22px;
+  border: 1px solid rgba(109, 255, 169, .18);
+  border-radius: 22px;
+  background: rgba(9, 35, 25, .56);
+}
+
+.prompt-shard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.prompt-shard-state,
+.prompt-shard-boundary {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  background: rgba(2, 17, 12, .42);
+}
+
+.prompt-shard-state.saved {
+  border-color: rgba(80, 255, 145, .24);
+  background: rgba(33, 107, 67, .12);
+}
+
+.prompt-shard-state.empty {
+  border-color: rgba(255, 255, 255, .08);
+}
+
+.prompt-shard-state strong,
+.prompt-shard-boundary strong {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.prompt-shard-state span,
+.prompt-shard-boundary span {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.prompt-shard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+#promptShardStatus {
+  flex: 1 1 320px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.prompt-shard-family-list {
+  display: grid;
+  gap: 8px;
+}
+
+.prompt-shard-family-list > div {
+  display: grid;
+  grid-template-columns: minmax(130px, 1.1fr) auto minmax(180px, 1.4fr);
+  gap: 12px;
+  align-items: center;
+  padding: 11px 14px;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 14px;
+  background: rgba(2, 17, 12, .26);
+}
+
+.prompt-shard-family-list span {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.prompt-shard-family-list strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.prompt-shard-family-list code {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+@media (max-width: 900px) {
+  .prompt-shard-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .prompt-shard-family-list > div {
+    grid-template-columns: 1fr auto;
+  }
+
+  .prompt-shard-family-list code {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .prompt-library-shards {
+    padding: 18px;
+    gap: 18px;
+  }
+
+  .prompt-shard-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prompt-shard-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .prompt-shard-actions .button {
+    width: 100%;
+  }
+
+  #promptShardStatus {
+    min-width: 0;
+  }
+
+  .prompt-shard-family-list > div {
+    grid-template-columns: 1fr auto;
+  }
+}
