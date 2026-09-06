@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine v3.7.0: leader-preplanned date-identified seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.8.0: preplanned fast-path date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
@@ -95,7 +95,6 @@
   let batchResults = [];
   let batchManifest = null;
   let generationToken = 0;
-  let lastLeaderLayoutPolicy = null;
   let lastLeaderPreplan = null;
 
   initialise();
@@ -173,7 +172,6 @@
 
   async function generateSevenDayBatch() {
     clearBatch(false);
-    lastLeaderLayoutPolicy = null;
     lastLeaderPreplan = null;
     const token = ++generationToken;
     const settings = settingsFromUi();
@@ -264,10 +262,7 @@
       : buildExactRotationState(virtualSchedule, startDate, basePools, promptById);
     let weeklyLeaderDays = new Map();
     const virtualScheduleBaselineLength = virtualSchedule.length;
-    const layoutAttempts = Array.from({ length: WEEK_LAYOUT_ATTEMPTS }, (_, index) => ({
-      strictLeaderCap: true,
-      plannerSalt: index
-    }));
+    const layoutAttempts = Array.from({ length: WEEK_LAYOUT_ATTEMPTS }, (_, index) => ({ plannerSalt: index }));
     let layoutCompleted = false;
     let lastLayoutFailure = "";
 
@@ -335,7 +330,7 @@
           familyPlan,
           promptMixPlan,
           weeklyLeaderDays,
-          strictLeaderCap: true,
+          preplanned: Boolean(plannedPromptIds),
           dayIndex,
           date,
           token
@@ -400,12 +395,13 @@
 
         if (!attemptFailed && batchResults.length === DAYS_IN_BATCH && batchResults.every(result => result.status === "PASS")) {
           layoutCompleted = true;
-          lastLeaderLayoutPolicy = Object.freeze({
-            strictLeaderCap: true,
-            attempt: layoutAttemptIndex + 1,
-            totalAttemptsAvailable: layoutAttempts.length,
-            preplanned: Boolean(leaderPreplan)
-          });
+          if (lastLeaderPreplan) {
+            lastLeaderPreplan = Object.freeze({
+              ...lastLeaderPreplan,
+              layoutAttempt: layoutAttemptIndex + 1,
+              totalLayoutAttempts: layoutAttempts.length
+            });
+          }
           break;
         }
         if (!attemptFailed) lastLayoutFailure = "The weekly layout ended before all seven dated challenges were produced.";
@@ -721,7 +717,7 @@
     return true;
   }
 
-  async function generateCandidateForDay({ basePools, settings, requiredFormation, formationSlots, exactPlan, familyPlan, promptMixPlan, weeklyLeaderDays, strictLeaderCap = true, dayIndex, date, token }) {
+  async function generateCandidateForDay({ basePools, settings, requiredFormation, formationSlots, exactPlan, familyPlan, promptMixPlan, weeklyLeaderDays, preplanned = false, dayIndex, date, token }) {
     const exactNationality = Object.values(basePools).flat().filter(prompt =>
       isNationalityPrompt(prompt)
       && exactPlanAllows(prompt, exactPlan)
@@ -801,6 +797,43 @@
       }
     }
 
+    if (preplanned) {
+      if (token !== generationToken) return { ok: false, reason: "Generation cancelled." };
+      const positionOrder = [...new Set(formationSlots)];
+      const prompts = positionOrder.flatMap(position => basePools[position] || []);
+      if (prompts.length !== 11) {
+        return { ok: false, reason: `The leader-day pre-plan supplied ${prompts.length} prompts instead of exactly 11.` };
+      }
+      if (promptMixCounts(prompts).nationality !== DAILY_PROMPT_MIX_TARGET.nationality) {
+        return { ok: false, reason: "The leader-day pre-plan did not preserve exactly one nationality prompt for this day." };
+      }
+      if (!satisfiesExactRotationRequirements(prompts, exactPlan)) {
+        return { ok: false, reason: "The leader-day pre-plan skipped a prompt required by exact rotation." };
+      }
+      if (prompts.filter(isAntiMeta).length < settings.minAntiMeta) {
+        return { ok: false, reason: "The leader-day pre-plan fell below the daily anti-meta minimum." };
+      }
+      const semanticIssues = semantic.dayIssues(prompts);
+      if (semanticIssues.length) return { ok: false, reason: semanticIssues[0].message };
+      if (semantic.missingRequiredKeys(prompts, semanticPressure.required).length) {
+        return { ok: false, reason: "The leader-day pre-plan did not place a semantic backlog item required on this day." };
+      }
+      if ([...weeklyLeaderIds(prompts)].some(playerId => weeklyLeaderHistory(weeklyLeaderDays, playerId).length >= WEEKLY_LEADER_HARD_DAY_CAP)) {
+        return { ok: false, reason: "The leader-day pre-plan would exceed the hard maximum of three appearance days for one top-answer player." };
+      }
+      const perfect = calculatePerfectXI(prompts);
+      if (!perfect.possible) return { ok: false, reason: perfect.reason || "The preplanned XI has no valid unique-player solution." };
+      if (settings.maxPerfectScore > 0 && perfect.score > settings.maxPerfectScore) {
+        return { ok: false, reason: `The preplanned XI perfect score is ${perfect.score.toLocaleString()}, above the ${settings.maxPerfectScore.toLocaleString()} ceiling.` };
+      }
+      return {
+        ok: true,
+        prompts,
+        perfect,
+        quotaRelaxed: !promptMixMeets(promptMixCounts(prompts), promptMixPlan)
+      };
+    }
+
     const candidates = [];
     const signatures = new Set();
     for (let attempt = 0; attempt < MAX_CANDIDATES_PER_DAY; attempt += 1) {
@@ -836,7 +869,7 @@
       if (semantic.missingRequiredKeys(draft, semanticPressure.required).length) continue;
       // Three separate leader days is the weekly hard ceiling. Repeated prompts on this same
       // day are fine because the current day is only committed once after the XI passes.
-      if (strictLeaderCap && [...weeklyLeaderIds(draft)].some(playerId => weeklyLeaderHistory(weeklyLeaderDays, playerId).length >= WEEKLY_LEADER_HARD_DAY_CAP)) continue;
+      if ([...weeklyLeaderIds(draft)].some(playerId => weeklyLeaderHistory(weeklyLeaderDays, playerId).length >= WEEKLY_LEADER_HARD_DAY_CAP)) continue;
 
       const signature = draft.map(prompt => prompt.id).join("|");
       if (signatures.has(signature)) continue;
@@ -853,9 +886,10 @@
       }
     }
 
-    if (!candidates.length) return { ok: false, reason: strictLeaderCap
-      ? "No complete XI could satisfy exact rotation, formation, the hard same-day semantic-diversity guard and the strict three-leader-day weekly cap."
-      : "No complete XI could satisfy exact rotation, formation and the hard same-day semantic-diversity guard, even after leader-day fallback was enabled." };
+    if (!candidates.length) return {
+      ok: false,
+      reason: "No complete XI could satisfy exact rotation, formation, the hard same-day semantic-diversity guard and the strict three-leader-day weekly cap."
+    };
     candidates.sort((left, right) => left.balance - right.balance || left.naiveScore - right.naiveScore);
     const nationalityCandidates = candidates.filter(candidate =>
       promptMixCounts(candidate.prompts).nationality === DAILY_PROMPT_MIX_TARGET.nationality
@@ -1903,7 +1937,6 @@
       preferredCapBreaches,
       hardCapBreaches,
       players,
-      layoutPolicy: lastLeaderLayoutPolicy ? { ...lastLeaderLayoutPolicy } : null,
       leaderPreplan: lastLeaderPreplan ? { ...lastLeaderPreplan } : null,
       preplanUsed: Boolean(lastLeaderPreplan)
     };

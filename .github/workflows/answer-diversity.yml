@@ -3,44 +3,34 @@ name: Answer diversity policy
 on:
   pull_request:
     paths:
-      - 'scripts/apply-answer-diversity.mjs'
-      - '.github/workflows/answer-diversity.yml'
       - 'js/admin-batch-calendar.js'
+      - 'js/admin-daily-generator-guard.js'
+      - 'scripts/verify-weekly-top-answer-diversity.mjs'
+      - '.github/workflows/answer-diversity.yml'
   push:
     branches: [main]
     paths:
-      - 'scripts/apply-answer-diversity.mjs'
+      - 'js/admin-batch-calendar.js'
+      - 'js/admin-daily-generator-guard.js'
+      - 'scripts/verify-weekly-top-answer-diversity.mjs'
       - '.github/workflows/answer-diversity.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  apply-and-check:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Apply answer-diversity policy
-        run: node scripts/apply-answer-diversity.mjs
-      - name: Verify generator syntax and policy
+      - name: Verify current answer-diversity policy
         run: |
+          node scripts/verify-weekly-top-answer-diversity.mjs
           node --check js/admin-batch-calendar.js
-          grep -Eq 'ANSWER_DIVERSITY_POLICY_VERSION = [1-9][0-9]*' js/admin-batch-calendar.js
-          grep -q 'leaderRepeatedInDraft' js/admin-batch-calendar.js
-          grep -q 'answerOverlapWithDraft' js/admin-batch-calendar.js
-          grep -q 'answerDiversityPenalty(draft)' js/admin-batch-calendar.js
-      - name: Publish generated generator update on main
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          if git diff --quiet -- js/admin-batch-calendar.js; then
-            echo 'Generator already contains answer-diversity policy.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add js/admin-batch-calendar.js
-          git commit -m 'Apply answer-diversity policy to challenge generator'
-          git push
+          node --check js/admin-daily-generator-guard.js
+          test ! -e scripts/apply-answer-diversity.mjs
+          test ! -e scripts/apply-weekly-top-answer-diversity.mjs
+          git diff --check

@@ -225,7 +225,6 @@
   migrateBrowserManager();
   installChallengeQualityBootstrap();
   loadStatus("js/prompt-missing-field-guard.js?v=1.0.0", "data-prompt-missing-field-guard");
-  loadStatus("js/admin-schedule-manager.js?v=1.0.1", "data-admin-schedule-manager");
   loadStatus("js/admin-daily-generator-guard.js?v=1.1.1", "data-admin-daily-generator-guard");
   loadQualityPromptPacks();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", installDomObserver, { once: true });

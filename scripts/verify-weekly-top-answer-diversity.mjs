@@ -11,7 +11,8 @@ const checks = [
   ["spacing penalty", "gap < WEEKLY_LEADER_MIN_DAY_GAP"],
   ["same-day grouping", "sameDayLeader"],
   ["same-day repeats allowed", "Multiple prompts led by the same player on one Daily Challenge count as one leader day."],
-  ["strict hard cap filter", "strictLeaderCap && [...weeklyLeaderIds(draft)].some(playerId => weeklyLeaderHistory(weeklyLeaderDays, playerId).length >= WEEKLY_LEADER_HARD_DAY_CAP)"],
+  ["hard cap filter", "[...weeklyLeaderIds(draft)].some(playerId => weeklyLeaderHistory(weeklyLeaderDays, playerId).length >= WEEKLY_LEADER_HARD_DAY_CAP)"],
+  ["preplanned exact-11 fast path", "preplanned: Boolean(plannedPromptIds)"],
   ["day index committed", "commitWeeklyLeaderDays(prompts, weeklyLeaderDays, dayIndex);"],
   ["whole-week leader preplanner", "function buildLeaderDayPreplan(prompts, requiredFormation, settings, salt = 0)"],
   ["leader minimum-day proof", "function leaderGroupMinimumDays(group, requiredFormation, semantic)"],
@@ -32,6 +33,9 @@ if (batch.includes("if (leaderRepeatedInDraft(prompt, currentDraft)) weight /= 8
 console.log("Weekly leader-day diversity policy verified.");
 
 if (batch.includes("FALLBACK_WEEK_LAYOUT_ATTEMPTS")) throw new Error("Leader-day fallback can still permit 4+ appearance days.");
+if (batch.includes("strictLeaderCap")) throw new Error("Dead strictLeaderCap fallback plumbing remains in the batch generator.");
+if (batch.includes("leader-day fallback was enabled")) throw new Error("Unreachable leader-day fallback messaging remains in the batch generator.");
+if (batch.includes("lastLeaderLayoutPolicy")) throw new Error("Duplicate leader layout audit state remains alongside the preplan audit.");
 const minimumDays = (count, dailyCapacity) => Math.ceil(count / dailyCapacity);
 if (minimumDays(8, 4) !== 2) throw new Error("Eight defender-led prompts should fit on two 4-4-2 days.");
 if (minimumDays(7, 4) !== 2) throw new Error("Seven midfielder-led prompts should fit on two 4-4-2 days.");
