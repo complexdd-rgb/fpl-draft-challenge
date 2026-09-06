@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine: formation-aware seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.2.0: date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
@@ -70,7 +70,6 @@
 
   const elements = {
     startDate: document.querySelector("#batchStartDate"),
-    firstNumber: document.querySelector("#batchFirstNumber"),
     generateButton: document.querySelector("#generateWeekBtn"),
     downloadButton: document.querySelector("#downloadWeekBtn"),
     clearButton: document.querySelector("#clearWeekBtn"),
@@ -99,17 +98,10 @@
 
   function initialise() {
     const manifestEntries = getManifestEntries();
-    const manifestMaxNumber = manifestEntries.reduce((max, entry) => Math.max(max, Number(entry.number) || 0), 0);
-    const singleNumber = Number(document.querySelector("#challengeNumber")?.value) || 1;
 
     if (elements.startDate && !elements.startDate.value) {
       const singleReleaseDate = document.querySelector("#releaseDate")?.value;
       elements.startDate.value = isIsoDate(singleReleaseDate) ? singleReleaseDate : addDaysIso(londonDateKey(), 1);
-    }
-    if (elements.firstNumber && !Number(elements.firstNumber.value)) {
-      elements.firstNumber.value = String(Math.max(singleNumber, manifestMaxNumber + 1));
-    } else if (elements.firstNumber && manifestMaxNumber && Number(elements.firstNumber.value) <= manifestMaxNumber) {
-      elements.firstNumber.value = String(manifestMaxNumber + 1);
     }
 
     if (elements.manifestChip) {
@@ -124,7 +116,7 @@
     elements.themePreset?.addEventListener("change", applyThemePreset);
 
     for (const input of [
-      elements.startDate, elements.firstNumber, elements.challengeName, elements.difficultyTarget,
+      elements.startDate, elements.challengeName, elements.difficultyTarget,
       elements.minAnswers, elements.maxAnswers, elements.minAntiMeta, elements.cooldownChallenges,
       elements.avoidRecent, elements.maxPerfectScore, elements.formation, elements.themePreset
     ]) {
@@ -180,7 +172,6 @@
     const token = ++generationToken;
     const settings = settingsFromUi();
     const startDate = elements.startDate?.value;
-    const firstNumber = clampNumber(elements.firstNumber?.value, 1, 9999, 1);
     const baseName = (elements.challengeName?.value || "The Generated Mix").trim() || "The Generated Mix";
     const formation = settings.formation;
     const requiredFormation = formation.counts;
@@ -194,19 +185,6 @@
     const batchDates = Array.from({ length: DAYS_IN_BATCH }, (_, index) => addDaysIso(startDate, index));
     const existingEntries = getManifestEntries();
     const datesBeingReplaced = new Set(batchDates);
-    const reservedNumbers = new Map(
-      existingEntries
-        .filter(entry => !datesBeingReplaced.has(entry.date))
-        .map(entry => [Number(entry.number) || 0, entry])
-        .filter(([number]) => number > 0)
-    );
-    const numberCollision = Array.from({ length: DAYS_IN_BATCH }, (_, index) => firstNumber + index)
-      .find(number => reservedNumbers.has(number));
-    if (numberCollision) {
-      const entry = reservedNumbers.get(numberCollision);
-      setStatus(`An internal challenge ID is already reserved for ${entry.date || "another calendar date"}. The generator will choose the next available internal ID.`, "fail");
-      return;
-    }
 
     const generationSnapshot = Array.isArray(window.FPL_DAILY_GENERATION_PROMPT_POOL)
       ? window.FPL_DAILY_GENERATION_PROMPT_POOL
@@ -276,7 +254,6 @@
       for (let dayIndex = 0; dayIndex < DAYS_IN_BATCH; dayIndex += 1) {
         if (token !== generationToken) return;
         const date = batchDates[dayIndex];
-        const number = firstNumber + dayIndex;
         const futureReservedIds = getFutureReservedPromptIds(virtualSchedule, date);
         const exactPlan = buildExactRotationPlan({
           rotationState,
@@ -317,7 +294,6 @@
         if (!generated.ok) {
           batchResults.push({
             date,
-            number,
             title: `${longChallengeDate(date)} · ${baseName}`,
             difficulty: "—",
             formation: formation.label,
@@ -338,8 +314,7 @@
         const perfect = generated.perfect;
         const difficulty = displayDifficultyFor(prompts);
         const challenge = {
-          id: `daily-${date}-${slugify(baseName) || "generated-mix"}`,
-          number,
+          id: `daily-${date}`,
           title: `${longChallengeDate(date)} · ${baseName}`,
           dateLabel: `${settings.theme || baseName} · ${formation.label} · ${difficulty}`,
           difficulty,
@@ -1218,7 +1193,7 @@
       return `    {\n      id: ${JSON.stringify(prompt.id)},\n      family: ${JSON.stringify(promptFamily(prompt))},\n      position: ${JSON.stringify(prompt.position)},\n      label: ${JSON.stringify(prompt.label)},\n      fail: ${JSON.stringify(prompt.fail)},\n      test: ${testSource}\n    }`;
     }).join(",\n");
 
-    return `/* Generated by FPL Challenge Studio — Seven-Day Calendar.\n   Release date: ${challenge.releaseDate} (Europe/London)\n   Exact perfect score calculated with eleven unique footballers. */\nwindow.FPL_DAILY_CHALLENGE = {\n  id: ${JSON.stringify(challenge.id)},\n  number: ${challenge.number},\n  title: ${JSON.stringify(challenge.title)},\n  dateLabel: ${JSON.stringify(challenge.dateLabel)},\n  difficulty: ${JSON.stringify(challenge.difficulty)},\n  releaseDate: ${JSON.stringify(challenge.releaseDate)},\n  formation: ${JSON.stringify(challenge.formation || "4-4-2")},\n  formationCounts: ${JSON.stringify(challenge.formationCounts || FORMATIONS["4-4-2"].counts)},\n  theme: ${JSON.stringify(challenge.theme || "Generated Mix")},\n  perfectScore: ${challenge.perfectScore},\n  prompts: [\n${promptsCode}\n  ]\n};\n`;
+    return `/* Generated by FPL Challenge Studio — Seven-Day Calendar.\n   Release date: ${challenge.releaseDate} (Europe/London)\n   Exact perfect score calculated with eleven unique footballers. */\nwindow.FPL_DAILY_CHALLENGE = {\n  id: ${JSON.stringify(challenge.id)},\n  title: ${JSON.stringify(challenge.title)},\n  dateLabel: ${JSON.stringify(challenge.dateLabel)},\n  difficulty: ${JSON.stringify(challenge.difficulty)},\n  releaseDate: ${JSON.stringify(challenge.releaseDate)},\n  formation: ${JSON.stringify(challenge.formation || "4-4-2")},\n  formationCounts: ${JSON.stringify(challenge.formationCounts || FORMATIONS["4-4-2"].counts)},\n  theme: ${JSON.stringify(challenge.theme || "Generated Mix")},\n  perfectScore: ${challenge.perfectScore},\n  prompts: [\n${promptsCode}\n  ]\n};\n`;
   }
 
   function buildLeaderboardVerifier(result) {
@@ -1309,7 +1284,6 @@
       date: result.releaseDate || result.date,
       path: `challenges/${result.releaseDate || result.date}.js`,
       id: result.id,
-      number: Number(result.number) || 0,
       title: result.title || "",
       difficulty: result.difficulty || "Mixed",
       formation: result.formation || "4-4-2",
@@ -1327,18 +1301,52 @@
   }
 
   function buildManifestSource(manifest) {
-    return `/* FPL Daily Challenge calendar manifest.\n   Generated by Challenge Studio Seven-Day Calendar.\n   Upload dated challenge files first, then replace this manifest last. */\nwindow.FPL_CHALLENGE_MANIFEST = ${JSON.stringify(manifest, null, 2)};\n`;
+    return `/* FPL Daily Challenge calendar manifest.\n   Generated by Challenge Studio Seven-Day Calendar.\n   Dates are canonical challenge identities. Upload dated files first, then replace this manifest last. */\nwindow.FPL_CHALLENGE_MANIFEST = ${JSON.stringify(manifest, null, 2)};\n`;
+  }
+
+  function normaliseManifestEntry(entry) {
+    const date = String(entry?.date || entry?.release_date || entry?.releaseDate || "");
+    if (!isIsoDate(date)) return null;
+    return {
+      ...(entry && typeof entry === "object" ? entry : {}),
+      date,
+      path: String(entry?.path || `challenges/${date}.js`),
+      id: String(entry?.id || entry?.challenge_id || entry?.challengeId || `daily-${date}`),
+      promptIds: Array.isArray(entry?.promptIds) ? [...entry.promptIds] : [],
+      promptFamilies: Array.isArray(entry?.promptFamilies) ? [...entry.promptFamilies] : [],
+      familyCooldownRelaxedPositions: Array.isArray(entry?.familyCooldownRelaxedPositions) ? [...entry.familyCooldownRelaxedPositions] : []
+    };
+  }
+
+  function repositoryManifestEntries() {
+    const rows = Array.isArray(window.FPL_CHALLENGE_MANIFEST?.challenges) ? window.FPL_CHALLENGE_MANIFEST.challenges : [];
+    return rows.map(normaliseManifestEntry).filter(Boolean);
+  }
+
+  function serverManifestEntries() {
+    const rows = Array.isArray(window.FPL_STUDIO_SCHEDULE?.scheduled) ? window.FPL_STUDIO_SCHEDULE.scheduled : [];
+    return rows.map(row => {
+      const stored = row?.manifest_entry && typeof row.manifest_entry === "object" ? row.manifest_entry : {};
+      return normaliseManifestEntry({
+        ...stored,
+        date: row?.release_date || stored.date,
+        id: stored.id || row?.challenge_id,
+        title: stored.title || row?.title || "",
+        difficulty: stored.difficulty || row?.difficulty || "Mixed",
+        formation: stored.formation || row?.formation || "4-4-2",
+        theme: stored.theme || row?.theme || "Generated Mix",
+        perfectScore: Number(stored.perfectScore ?? row?.perfect_score) || 0
+      });
+    }).filter(Boolean);
   }
 
   function getManifestEntries() {
-    return Array.isArray(window.FPL_CHALLENGE_MANIFEST?.challenges)
-      ? window.FPL_CHALLENGE_MANIFEST.challenges.map(entry => ({
-          ...entry,
-          promptIds: Array.isArray(entry.promptIds) ? [...entry.promptIds] : [],
-          promptFamilies: Array.isArray(entry.promptFamilies) ? [...entry.promptFamilies] : [],
-          familyCooldownRelaxedPositions: Array.isArray(entry.familyCooldownRelaxedPositions) ? [...entry.familyCooldownRelaxedPositions] : []
-        }))
-      : [];
+    const byDate = new Map();
+    for (const entry of repositoryManifestEntries()) byDate.set(entry.date, entry);
+    // Supabase is authoritative for dates already published through Studio. Server rows
+    // overwrite stale repository-manifest rows for the same date and also fill repo gaps.
+    for (const entry of serverManifestEntries()) byDate.set(entry.date, entry);
+    return [...byDate.values()].sort((left, right) => left.date.localeCompare(right.date));
   }
 
   function renderBatchReview() {
@@ -1402,14 +1410,15 @@
     }
 
     const manifestSource = buildManifestSource(batchManifest);
-    const originalManifest = window.FPL_CHALLENGE_MANIFEST
+    const originalEntries = getManifestEntries();
+    const originalManifest = originalEntries.length
       ? buildManifestSource({
-          version: Number(window.FPL_CHALLENGE_MANIFEST.version || 1),
-          timezone: window.FPL_CHALLENGE_MANIFEST.timezone || LONDON_TIMEZONE,
-          fallbackPath: window.FPL_CHALLENGE_MANIFEST.fallbackPath || "todays-challenge.js",
-          challenges: getManifestEntries()
+          version: Number(window.FPL_CHALLENGE_MANIFEST?.version || 1),
+          timezone: window.FPL_CHALLENGE_MANIFEST?.timezone || LONDON_TIMEZONE,
+          fallbackPath: window.FPL_CHALLENGE_MANIFEST?.fallbackPath || "todays-challenge.js",
+          challenges: originalEntries
         })
-      : "/* No challenge manifest was loaded before this batch was generated. */\n";
+      : "/* No repository or Supabase challenge schedule was loaded before this batch was generated. */\n";
 
     const files = batchResults.map(result => ({
       name: `UPLOAD/challenges/${result.releaseDate}.js`,
@@ -1445,7 +1454,6 @@
       challenges: batchResults.map(result => ({
         date: result.releaseDate,
         id: result.id,
-        number: result.number,
         title: result.title,
         difficulty: result.difficulty,
         formation: result.formation,
@@ -1482,13 +1490,13 @@
       "2. Extract this ZIP.",
       "3. Open UPLOAD/challenges/.",
       "4. Upload ALL seven YYYY-MM-DD.js files into the repository challenges/ folder.",
-      "5. Upload challenges/manifest.js LAST, replacing the existing manifest.",
+      "5. Upload challenges/manifest.js LAST. It is date-keyed and is rebuilt from the repository manifest plus the authoritative Supabase schedule, so previously published dates are preserved.",
       "6. Commit the changes and wait for GitHub Pages to publish.",
       "7. Hard-refresh the live page and confirm the scheduled challenge/countdown.",
       "",
       "WHY MANIFEST.JS IS LAST",
       "-----------------------",
-      "The manifest tells the live game which dated file to load. Uploading the dated files first prevents a temporary broken challenge while GitHub Pages is publishing.",
+      "The manifest tells the live game which dated file to load. Dates are the challenge identity; numeric challenge sequencing is no longer used. Uploading the dated files first prevents a temporary broken challenge while GitHub Pages is publishing.",
       "",
       "DO NOT upload the ZIP itself. GitHub Pages will not extract it.",
       "DO NOT replace players.js, prompt-library.js or admin-core.js for this weekly publishing step.",
@@ -1615,7 +1623,6 @@
       date: result.releaseDate || result.date,
       releaseDate: result.releaseDate || result.date,
       id: result.id,
-      number: result.number,
       formation: result.formation,
       formationCounts: result.formationCounts,
       theme: result.theme,

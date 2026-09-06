@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — publish a validated seven-day package directly to Supabase. */
+/* FPL Challenge Studio — publish a validated date-identified seven-day package directly to Supabase v1.1.0. */
 (() => {
   "use strict";
 
@@ -15,6 +15,7 @@
     status: "loading",
     scheduled: [],
     lastDate: "",
+    today: "",
     error: "",
     refreshedAt: "",
     refresh: null
@@ -207,6 +208,7 @@
       scheduleApi.status = "ready";
       scheduleApi.scheduled = scheduled;
       scheduleApi.lastDate = last;
+      scheduleApi.today = String(data.today || "");
       scheduleApi.refreshedAt = new Date().toISOString();
       scheduleApi.error = "";
       emitScheduleStatus();
@@ -214,7 +216,7 @@
         setStatus("Supabase publishing is ready. No server-scheduled challenge dates yet.", "ready");
         return;
       }
-      setStatus(`${scheduled.length} Supabase challenge${scheduled.length === 1 ? "" : "s"} scheduled · coverage through ${last}. Midnight rollover is automatic.`, "published");
+      setStatus(`${scheduled.length} Supabase challenge date${scheduled.length === 1 ? "" : "s"} stored · coverage through ${last}. Midnight rollover is automatic.`, "published");
     } catch (error) {
       scheduleApi.status = "unavailable";
       scheduleApi.scheduled = [];
@@ -302,8 +304,8 @@
       if (!entry || !verifier) throw new Error(`The generated package is incomplete for ${date}.`);
       return {
         releaseDate: date,
-        challengeId: String(entry.id || ""),
-        challengeNumber: Number(entry.number) || 0,
+        challengeId: String(entry.id || `daily-${date}`),
+        challengeNumber: 0, // legacy schema field; releaseDate is the canonical identity
         title: String(entry.title || ""),
         difficulty: String(entry.difficulty || "Mixed"),
         formation: String(entry.formation || "4-4-2"),
