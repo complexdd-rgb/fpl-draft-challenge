@@ -1,0 +1,60 @@
+name: Apply cleanup relevance pass 3
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass3
+    paths:
+      - 'scripts/apply-cleanup-relevance-pass3.py'
+      - '.github/workflows/apply-cleanup-relevance-pass3.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply pass 3 cleanup
+        run: python scripts/apply-cleanup-relevance-pass3.py
+      - name: Rebuild manifest-owned wiring
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-studio-cache-tags.mjs
+      - name: Verify surviving Studio architecture
+        run: |
+          node scripts/verify-prompt-studio-clean-reset.mjs
+          node scripts/verify-prompt-factory-v1.mjs
+          node scripts/verify-prompt-quality-analyser-v1.mjs
+          node scripts/verify-prompt-promotion-v1.mjs
+          node scripts/verify-prompt-library-shards-v1.mjs
+          node scripts/verify-daily-library-cutover-v1.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-native-daily-workspace.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          node --check js/studio-bootstrap.js
+          node --check js/asset-manifest.js
+          git diff --check
+          test ! -e js/admin-import-tools.js
+          test ! -e js/studio-feature-loader.js
+          test ! -e js/prompt-studio-v3-clean-room.js
+          test ! -e js/prompt-studio-v4-simple.js
+      - name: Commit Studio prune
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git reset scripts/apply-cleanup-relevance-pass3.py .github/workflows/apply-cleanup-relevance-pass3.yml
+          if git diff --cached --quiet; then
+            echo 'No pass 3 production changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Prune retired Studio shims and V3 V4 runtime'
+          git push origin HEAD:cleanup-relevance-pass3
