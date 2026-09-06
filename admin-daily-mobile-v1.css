@@ -118,6 +118,20 @@
   color: #cbe9da !important;
 }
 
+/* Published schedule control is part of the main weekly workflow, not a buried utility. */
+#workspace-challenge #scheduleManagerPanel {
+  margin-top: 12px;
+  border-color: rgba(98, 201, 255, .2);
+}
+
+#workspace-challenge #scheduleManagerPanel > summary {
+  min-height: 58px;
+}
+
+#workspace-challenge #scheduleManagerPanel[open] {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .12);
+}
+
 /* Advanced rules remain available, but sit below the weekly job instead of before it. */
 #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid {
   order: 10;
@@ -347,6 +361,10 @@
 
   #workspace-challenge #batchReview {
     margin-top: 9px;
+  }
+
+  #workspace-challenge #scheduleManagerPanel > summary {
+    min-height: 0;
   }
 
   #workspace-challenge > .stage-one-tool-panel:first-of-type > .settings-grid {
