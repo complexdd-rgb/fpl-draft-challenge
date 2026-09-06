@@ -59,6 +59,7 @@
   const CERTIFIED_SNAPSHOT_SOURCE_POLICY_VERSION = 1;
   const EXACT_ROTATION_REPLAY_POLICY_VERSION = 2;
   const ROTATION_POLICY_VERSION = 1;
+  const SEMANTIC_DIVERSITY_POLICY_VERSION = 1;
   const FORBIDDEN_COST = 1_000_000;
   const LONDON_TIMEZONE = "Europe/London";
   const MAX_CANDIDATES_PER_DAY = 650;
@@ -736,6 +737,25 @@
       return { ok: false, reason: `Exact prompt rotation leaves too few ${missing.join(", ")} prompts. The family cooldown has already been relaxed where necessary.` };
     }
 
+    const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
+    if (!semantic?.remainingPressure) return { ok: false, reason: "The same-day semantic diversity guard is unavailable. Reload Studio before generating." };
+    const remainingDays = DAYS_IN_BATCH - dayIndex;
+    const exactRemaining = Object.values(basePools).flat().filter(prompt => exactPlanAllows(prompt, exactPlan));
+    const semanticPressure = semantic.remainingPressure(exactRemaining, remainingDays);
+    if (semanticPressure.impossible.size) {
+      const key = [...semanticPressure.impossible][0];
+      return { ok: false, reason: `Semantic rotation backlog is impossible to spread: ${semantic.describeKey(key)} has more remaining prompts than remaining days. Rebuild the weekly reservoir with more variety.` };
+    }
+    for (const key of semanticPressure.required) {
+      const exactMatches = exactRemaining.filter(prompt => semantic.hasKey(prompt, key));
+      if (exactMatches.length && !exactMatches.some(prompt => familyPlanAllows(prompt, familyPlan))) {
+        for (const position of new Set(exactMatches.map(prompt => prompt.position))) {
+          familyPlan.relaxedPositions.add(position);
+          familyPlan.allowedFamiliesByPosition[position] = null;
+        }
+      }
+    }
+
     const candidates = [];
     const signatures = new Set();
     for (let attempt = 0; attempt < MAX_CANDIDATES_PER_DAY; attempt += 1) {
@@ -757,9 +777,9 @@
             && !used.has(prompt.id)
             && !isNationalityPrompt(prompt)
           );
-          choice = weightedPick(options, draft, settings, familyPlan, promptMixPlan, weeklyLeaderDays);
+          choice = weightedPick(options, draft, settings, familyPlan, promptMixPlan, weeklyLeaderDays, semanticPressure);
         }
-        if (!choice || used.has(choice.id)) break;
+        if (!choice || used.has(choice.id) || draft.some(existing => semantic.dayClash(choice, existing))) break;
         draft.push(choice);
         used.add(choice.id);
       }
@@ -767,6 +787,8 @@
       if (promptMixCounts(draft).nationality !== DAILY_PROMPT_MIX_TARGET.nationality) continue;
       if (!satisfiesExactRotationRequirements(draft, exactPlan)) continue;
       if (draft.filter(isAntiMeta).length < settings.minAntiMeta) continue;
+      if (semantic.dayIssues(draft).length) continue;
+      if (semantic.missingRequiredKeys(draft, semanticPressure.required).length) continue;
 
       const signature = draft.map(prompt => prompt.id).join("|");
       if (signatures.has(signature)) continue;
@@ -783,7 +805,7 @@
       }
     }
 
-    if (!candidates.length) return { ok: false, reason: "No complete XI could be generated with the current restrictions." };
+    if (!candidates.length) return { ok: false, reason: "No complete XI could satisfy exact rotation, formation and the hard same-day semantic-diversity guard. The generator will not cluster near-duplicate prompts on one day." };
     candidates.sort((left, right) => left.balance - right.balance || left.naiveScore - right.naiveScore);
     const nationalityCandidates = candidates.filter(candidate =>
       promptMixCounts(candidate.prompts).nationality === DAILY_PROMPT_MIX_TARGET.nationality
@@ -948,8 +970,13 @@
     }
   }
 
-  function weightedPick(options, currentDraft, settings, familyPlan, promptMixPlan, weeklyLeaderDays) {
+  function weightedPick(options, currentDraft, settings, familyPlan, promptMixPlan, weeklyLeaderDays, semanticPressure) {
     if (!options.length) return null;
+    const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
+    if (semantic?.filterDayCompatible) {
+      options = semantic.filterDayCompatible(options, currentDraft);
+      if (!options.length) return null;
+    }
     const usedFamilies = new Set(currentDraft.map(promptFamily));
     const familyFreshOptions = options.filter(prompt => !usedFamilies.has(promptFamily(prompt)));
     if (familyFreshOptions.length) options = familyFreshOptions;
@@ -987,6 +1014,11 @@
       }
       const answerOverlap = answerOverlapWithDraft(prompt, currentDraft, alreadyUsedTopAnswerIds);
       weight /= 1 + answerOverlap * 0.65;
+      if (semantic?.hasKey && semanticPressure?.required?.size) {
+        let requiredMatches = 0;
+        for (const key of semanticPressure.required) if (semantic.hasKey(prompt, key)) requiredMatches += 1;
+        if (requiredMatches) weight *= 1 + requiredMatches * 18;
+      }
       if (familyPlan?.recentFamilies?.has(promptFamily(prompt))) weight /= 12;
       return { prompt, weight };
     });
@@ -1143,6 +1175,8 @@
     if (prompts.length !== 11) issues.push("Challenge does not contain 11 prompts.");
     const uniqueIds = new Set(prompts.map(prompt => prompt.id));
     if (uniqueIds.size !== prompts.length) issues.push("A prompt is repeated inside the XI.");
+    const semanticIssues = window.FPL_DAILY_SEMANTIC_DIVERSITY?.dayIssues?.(prompts) || [];
+    if (semanticIssues.length) issues.push(semanticIssues[0].message);
 
     const formation = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
     prompts.forEach(prompt => { if (formation[prompt.position] != null) formation[prompt.position] += 1; });
@@ -1602,6 +1636,7 @@
     formations: FORMATIONS,
     themePresets: THEME_PRESETS,
     formationSequence,
-    promptFamily
+    promptFamily,
+    semanticDiversityPolicyVersion: SEMANTIC_DIVERSITY_POLICY_VERSION
   });
 })();

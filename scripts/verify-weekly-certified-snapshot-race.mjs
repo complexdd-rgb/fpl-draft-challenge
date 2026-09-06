@@ -7,7 +7,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.0.0',
+  'saved-library generation guard v2.1.0',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex)',
@@ -18,7 +18,10 @@ for (const token of [
   'const uniqueWeekIds = new Set(weekIds);',
   'uniqueWeekIds.size !== WEEKLY_PROMPTS',
   'runtime-certified reservoir prompt(s) were not consumed by the week',
-  'fpl:daily-saved-library-week-certified'
+  'fpl:daily-saved-library-week-certified',
+  'semanticWeeklyCap: DAYS_IN_BATCH',
+  'semantic.canAddWeekly',
+  'semantic?.dayIssues'
 ]) {
   assert(guard.includes(token), `Daily Challenge guard is missing saved-library snapshot protection: ${token}`);
 }
@@ -37,7 +40,10 @@ for (const forbidden of [
 for (const token of [
   'const CERTIFIED_SNAPSHOT_SOURCE_POLICY_VERSION = 1;',
   'Array.isArray(window.FPL_DAILY_GENERATION_PROMPT_POOL)',
-  'const promptSource = generationSnapshot || (Array.isArray(apiLibrary) ? apiLibrary : globalLibrary);'
+  'const promptSource = generationSnapshot || (Array.isArray(apiLibrary) ? apiLibrary : globalLibrary);',
+  'semantic.dayClash(choice, existing)',
+  'semantic.missingRequiredKeys(draft, semanticPressure.required)',
+  'same-day semantic-diversity guard'
 ]) {
   assert(batch.includes(token), `Weekly generator is missing immutable saved-library snapshot source: ${token}`);
 }

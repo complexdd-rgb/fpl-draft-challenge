@@ -16,6 +16,9 @@ on:
       - 'js/prompt-library-shards-v1.js'
       - 'js/prompt-library-shards-promotion-bridge-v1.js'
       - 'js/admin-daily-library-cutover-v1.js'
+      - 'js/daily-semantic-diversity-v1.js'
+      - 'js/admin-daily-generator-guard.js'
+      - 'js/admin-batch-calendar.js'
       - 'js/admin-schedule-manager-v2.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
@@ -29,6 +32,8 @@ on:
       - 'scripts/verify-prompt-promotion-v1.mjs'
       - 'scripts/verify-prompt-library-shards-v1.mjs'
       - 'scripts/verify-daily-library-cutover-v1.mjs'
+      - 'scripts/verify-daily-semantic-diversity-v1.mjs'
+      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-asset-manifest-runtime.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
@@ -58,6 +63,9 @@ on:
       - 'js/prompt-library-shards-v1.js'
       - 'js/prompt-library-shards-promotion-bridge-v1.js'
       - 'js/admin-daily-library-cutover-v1.js'
+      - 'js/daily-semantic-diversity-v1.js'
+      - 'js/admin-daily-generator-guard.js'
+      - 'js/admin-batch-calendar.js'
       - 'js/admin-schedule-manager-v2.js'
       - 'admin-prompt-studio-clean.css'
       - 'admin-prompt-quality-analyser.css'
@@ -71,6 +79,8 @@ on:
       - 'scripts/verify-prompt-promotion-v1.mjs'
       - 'scripts/verify-prompt-library-shards-v1.mjs'
       - 'scripts/verify-daily-library-cutover-v1.mjs'
+      - 'scripts/verify-daily-semantic-diversity-v1.mjs'
+      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-asset-manifest-runtime.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
@@ -141,6 +151,12 @@ jobs:
       - name: Run Daily library cutover boundary smoke test
         run: node scripts/verify-daily-library-cutover-v1.mjs
 
+      - name: Verify Daily semantic diversity guard
+        run: node scripts/verify-daily-semantic-diversity-v1.mjs
+
+      - name: Verify immutable weekly reservoir and semantic spread
+        run: node scripts/verify-weekly-certified-snapshot-race.mjs
+
       - name: Verify unaffected native workspaces
         run: |
           node scripts/verify-native-validation-workspace.mjs
@@ -160,6 +176,9 @@ jobs:
           node --check js/prompt-library-shards-v1.js
           node --check js/prompt-library-shards-promotion-bridge-v1.js
           node --check js/admin-daily-library-cutover-v1.js
+          node --check js/daily-semantic-diversity-v1.js
+          node --check js/admin-daily-generator-guard.js
+          node --check js/admin-batch-calendar.js
           node --check js/admin-schedule-manager-v2.js
           node --check js/repository-certified-prompt-pool.js
           node --check scripts/verify-prompt-studio-clean-reset.mjs
@@ -168,6 +187,8 @@ jobs:
           node --check scripts/verify-prompt-promotion-v1.mjs
           node --check scripts/verify-prompt-library-shards-v1.mjs
           node --check scripts/verify-daily-library-cutover-v1.mjs
+          node --check scripts/verify-daily-semantic-diversity-v1.mjs
+          node --check scripts/verify-weekly-certified-snapshot-race.mjs
           node --check scripts/materialise-prompt-library-shards.mjs
           node --check scripts/build-asset-manifest-runtime.mjs
           node --check scripts/build-studio-cache-tags.mjs

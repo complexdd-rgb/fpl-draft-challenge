@@ -13,6 +13,8 @@ const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const cutover = read('js/admin-daily-library-cutover-v1.js');
 const dailyGuard = read('js/admin-daily-generator-guard.js');
 const scheduleManager = read('js/admin-schedule-manager-v2.js');
+const semanticDiversity = read('js/daily-semantic-diversity-v1.js');
+const batchCalendar = read('js/admin-batch-calendar.js');
 const shards = read('js/prompt-library-shards-v1.js');
 const shardCss = read('admin-prompt-library-shards-v1.css');
 const promptLibrary = read('prompt-library.js')
@@ -22,8 +24,8 @@ const promptLibrary = read('prompt-library.js')
   .replace(/\s+/g, ' ')
   .trim();
 
-assert(manifest.manifestVersion === '2.8.0-schedule-manager-v2', 'Central manifest is not on the schedule-manager v2 boundary.');
-assert(manifest.assets?.assetManifestRuntime?.version === '2.8.0-schedule-manager-v2', 'Asset-manifest runtime cache version is stale.');
+assert(manifest.manifestVersion === '2.9.0-daily-semantic-diversity', 'Central manifest is not on the schedule-manager v2 boundary.');
+assert(manifest.assets?.assetManifestRuntime?.version === '2.9.0-daily-semantic-diversity', 'Asset-manifest runtime cache version is stale.');
 assert(manifest.assets?.studioBootstrap?.path === 'js/studio-bootstrap.js', 'Central manifest no longer owns the clean Studio bootstrap.');
 assert(manifest.assets?.studioBootstrap?.version === '2.6.0-schedule-manager', 'Studio bootstrap cache version does not include schedule manager v2.');
 assert(manifest.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio controller is missing from the central manifest.');
@@ -34,13 +36,16 @@ assert(manifest.assets?.promptLibraryShardsV1?.path === 'js/prompt-library-shard
 assert(manifest.assets?.promptLibraryShardsCssV1?.version === '1.2.0-daily-authority', 'Daily saved-library authority display cache tag is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.path === 'js/admin-daily-library-cutover-v1.js', 'Daily saved-library cutover boundary is missing from the central manifest.');
 assert(manifest.assets?.adminDailyGeneratorGuard?.path === 'js/admin-daily-generator-guard.js', 'Daily generation guard is missing from the central manifest.');
-assert(manifest.assets?.adminDailyGeneratorGuard?.version === '2.0.0-saved-library-cycle', 'Daily generation guard cache version is not on saved-library v2.');
+assert(manifest.assets?.adminDailyGeneratorGuard?.version === '2.1.0-semantic-diversity', 'Daily generation guard cache version is not on saved-library v2.');
+assert(manifest.assets?.dailySemanticDiversityV1?.path === 'js/daily-semantic-diversity-v1.js', 'Daily semantic-diversity policy is missing from the central manifest.');
+assert(manifest.assets?.adminBatchCalendar?.version === '3.1.0-semantic-diversity', 'Batch calendar semantic-diversity cache version is stale.');
 assert(manifest.assets?.adminScheduleManagerV2?.path === 'js/admin-schedule-manager-v2.js', 'Schedule manager v2 is missing from the central manifest.');
 assert(manifest.assets?.adminScheduleManagerV2?.version === '2.0.0', 'Schedule manager v2 cache version is stale.');
 assert(manifest.assets?.adminImportTools?.version === '24.6.0-schedule-manager', 'Admin entrypoint cache version does not force the new bootstrap.');
 assert(manifest.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Repository prompt pool is not on the clean zero boundary.');
 
-assert(generatedManifest.includes('2.8.0-schedule-manager-v2'), 'Generated asset manifest was not refreshed to the schedule-manager v2 boundary.');
+assert(generatedManifest.includes('2.9.0-daily-semantic-diversity'), 'Generated asset manifest was not refreshed to the schedule-manager v2 boundary.');
+assert(generatedManifest.includes('"dailySemanticDiversityV1"'), 'Generated asset manifest does not expose the Daily semantic-diversity policy.');
 assert(generatedManifest.includes('"adminScheduleManagerV2"'), 'Generated asset manifest does not expose schedule manager v2.');
 assert(generatedManifest.includes('"version": "1.2.0-daily-authority"'), 'Generated asset manifest did not retain the Daily authority CSS cache tag.');
 assert(generatedManifest.includes('"adminDailyLibraryCutoverV1"'), 'Generated asset manifest does not expose the Daily cutover module.');
@@ -76,7 +81,9 @@ assert(shardCss.includes('Active saved promoted library'), 'Daily library balanc
 assert(shardCss.includes('77-prompt reservoir is structurally and runtime verified'), 'Daily library balance does not explain the runtime-certified weekly reservoir.');
 
 for (const token of [
-  'saved-library generation guard v2.0.0',
+  'saved-library generation guard v2.1.0',
+  'ensureSemanticDiversity()',
+  'semanticWeeklyCap: DAYS_IN_BATCH',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'async function buildCertifiedReservoir()',
@@ -87,5 +94,9 @@ for (const token of [
   assert(dailyGuard.includes(token), `Daily saved-library generation boundary is missing: ${token}`);
 }
 assert(!dailyGuard.includes('state.total !== 851'), 'Daily generation guard still depends on the retired 851-prompt pool.');
+assert(semanticDiversity.includes('entity:manager:'), 'Semantic policy is missing manager-entity isolation.');
+assert(semanticDiversity.includes('rare:bonus'), 'Semantic policy is missing bonus-point isolation.');
+assert(batchCalendar.includes('semantic.missingRequiredKeys'), 'Batch calendar is missing semantic look-ahead pressure.');
+assert(batchCalendar.includes('semantic.dayClash'), 'Batch calendar is missing the hard same-day semantic guard.');
 
 console.log('Prompt Studio clean boundary verified with centrally owned Daily schedule manager v2 and active 17-family generation cutover.');
