@@ -1,6 +1,7 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v2.4.0.
-   Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser, Promotion layer
-   and durable family-shard storage. No legacy Prompt Studio fallback chain is loaded. */
+/* FPL Challenge Studio — single runtime bootstrap owner v2.5.0.
+   Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser, Promotion layer,
+   durable family-shard storage and the read-only Daily cutover boundary. No legacy Prompt
+   Studio fallback chain is loaded. */
 (() => {
   "use strict";
 
@@ -19,6 +20,7 @@
   let qualityAnalyserStarted = false;
   let promotionStarted = false;
   let libraryShardsStarted = false;
+  let dailyCutoverStarted = false;
   let publishingStarted = false;
 
   function findExisting(src, marker) {
@@ -63,11 +65,20 @@
     return loadScript(url(key, fallback), marker, options, done);
   }
 
+  function ensureDailyCutover() {
+    if (dailyCutoverStarted) return;
+    dailyCutoverStarted = true;
+    loadAsset("adminDailyLibraryCutoverV1", "data-admin-daily-library-cutover-v1", { async: false });
+  }
+
   function ensureLibraryShards() {
-    if (libraryShardsStarted) return;
+    if (libraryShardsStarted) {
+      ensureDailyCutover();
+      return;
+    }
     libraryShardsStarted = true;
     loadAsset("promptLibraryShardsV1", "data-prompt-library-shards-v1", { async: false }, () => {
-      loadAsset("promptLibraryShardsBridgeV1", "data-prompt-library-shards-bridge-v1", { async: false });
+      loadAsset("promptLibraryShardsBridgeV1", "data-prompt-library-shards-bridge-v1", { async: false }, ensureDailyCutover);
     });
   }
 
@@ -134,7 +145,7 @@
 
     started = true;
     document.documentElement.dataset.studioBootstrap = "loading";
-    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards";
+    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards-daily-cutover";
 
     ensurePromptStudio();
     ensurePublishing();
@@ -143,18 +154,19 @@
     document.documentElement.dataset.studioBootstrap = "ready";
     window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
       detail: {
-        version: "2.4.0",
+        version: "2.5.0",
         promptStudio: "clean-v1",
         promptFactory: "v1",
         qualityAnalyser: "v1",
         promotion: "v1",
-        libraryShards: "v1"
+        libraryShards: "v1",
+        dailyLibraryCutover: "v1"
       }
     }));
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "2.4.0",
+    version: "2.5.0",
     start,
     loadScript,
     loadAsset,
@@ -163,6 +175,7 @@
     ensureQualityAnalyser,
     ensurePromotion,
     ensureLibraryShards,
+    ensureDailyCutover,
     ensurePublishing
   });
 
