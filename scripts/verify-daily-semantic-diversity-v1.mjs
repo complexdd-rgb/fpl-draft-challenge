@@ -73,11 +73,13 @@ const issueMessages = api.dayIssues([bonusAssists, bonusPoints, moyes50, moyes60
 assert(issueMessages.some(issue => issue.key === 'rare:bonus'), 'Day validator did not report the bonus cluster.');
 assert(issueMessages.some(issue => issue.key === 'entity:manager:david-moyes'), 'Day validator did not report the David Moyes cluster.');
 
-const counts = new Map();
-for (let index = 0; index < 7; index += 1) {
+// Start the counter through the policy itself so the Map belongs to the same VM realm as the
+// policy functions. Browser generation naturally runs in one realm; this keeps the test honest.
+let counts = api.commitWeekly({ ...bonusPoints, id: 'bonus-0' }, null);
+for (let index = 1; index < 7; index += 1) {
   const item = { ...bonusPoints, id: `bonus-${index}` };
   assert(api.canAddWeekly(item, counts, 7), `Weekly semantic cap blocked bonus prompt ${index + 1} too early.`);
-  api.commitWeekly(item, counts);
+  counts = api.commitWeekly(item, counts);
 }
 assert(!api.canAddWeekly({ ...bonusPoints, id: 'bonus-8' }, counts, 7), 'Weekly semantic cap allowed an eighth bonus prompt into a seven-day reservoir.');
 
