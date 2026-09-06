@@ -1,6 +1,6 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v2.3.0.
-   Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser and Promotion layer.
-   No legacy prompt packs, V2/V3/V4 workspaces, refinement loaders or fallback chains are loaded. */
+/* FPL Challenge Studio — single runtime bootstrap owner v2.4.0.
+   Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser, Promotion layer
+   and durable family-shard storage. No legacy Prompt Studio fallback chain is loaded. */
 (() => {
   "use strict";
 
@@ -18,6 +18,7 @@
   let promptFactoryStarted = false;
   let qualityAnalyserStarted = false;
   let promotionStarted = false;
+  let libraryShardsStarted = false;
   let publishingStarted = false;
 
   function findExisting(src, marker) {
@@ -62,10 +63,21 @@
     return loadScript(url(key, fallback), marker, options, done);
   }
 
+  function ensureLibraryShards() {
+    if (libraryShardsStarted) return;
+    libraryShardsStarted = true;
+    loadAsset("promptLibraryShardsV1", "data-prompt-library-shards-v1", { async: false }, () => {
+      loadAsset("promptLibraryShardsBridgeV1", "data-prompt-library-shards-bridge-v1", { async: false });
+    });
+  }
+
   function ensurePromotion() {
-    if (promotionStarted) return;
+    if (promotionStarted) {
+      ensureLibraryShards();
+      return;
+    }
     promotionStarted = true;
-    loadAsset("promptPromotionV1", "data-prompt-promotion-v1", { async: false });
+    loadAsset("promptPromotionV1", "data-prompt-promotion-v1", { async: false }, ensureLibraryShards);
   }
 
   function ensureQualityAnalyser() {
@@ -122,7 +134,7 @@
 
     started = true;
     document.documentElement.dataset.studioBootstrap = "loading";
-    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion";
+    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards";
 
     ensurePromptStudio();
     ensurePublishing();
@@ -131,17 +143,18 @@
     document.documentElement.dataset.studioBootstrap = "ready";
     window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
       detail: {
-        version: "2.3.0",
+        version: "2.4.0",
         promptStudio: "clean-v1",
         promptFactory: "v1",
         qualityAnalyser: "v1",
-        promotion: "v1"
+        promotion: "v1",
+        libraryShards: "v1"
       }
     }));
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "2.3.0",
+    version: "2.4.0",
     start,
     loadScript,
     loadAsset,
@@ -149,6 +162,7 @@
     ensurePromptFactory,
     ensureQualityAnalyser,
     ensurePromotion,
+    ensureLibraryShards,
     ensurePublishing
   });
 
