@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.0.5-leader-preplan"
+      "version": "3.0.6-preplan-fastpath"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -210,7 +210,7 @@
     },
     "adminBatchCalendar": {
       "path": "js/admin-batch-calendar.js",
-      "version": "3.7.0-leader-preplan"
+      "version": "3.8.0-preplan-fastpath"
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
@@ -241,7 +241,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.0.5-leader-preplan",
+    version: "3.0.6-preplan-fastpath",
     assets,
     get,
     url
