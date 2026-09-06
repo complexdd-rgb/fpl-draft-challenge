@@ -7,6 +7,7 @@ on:
     paths:
       - 'scripts/apply-daily-semantic-diversity-v1.mjs'
       - 'scripts/finish-daily-semantic-diversity-v1.mjs'
+      - 'scripts/verify-daily-semantic-diversity-v1.mjs'
       - '.github/workflows/apply-daily-semantic-diversity-v1.yml'
 
 permissions:
