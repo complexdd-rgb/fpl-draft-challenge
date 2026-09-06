@@ -1,5 +1,23 @@
-/* FPL Challenge Studio — Seven-day review cards v1.2
-   Visual-only upgrade: keeps the existing batch generator, validation and publishing logic untouched. */
+/* FPL Challenge Studio — Seven-day review cards v1.3
+   Visual-only upgrade: weekly review and publishing now read as the main Daily Challenge path. */
+
+.batch-review {
+  position: relative;
+  margin-top: 18px;
+  padding-top: 34px;
+}
+
+.batch-review::before {
+  content: "Seven-day review";
+  position: absolute;
+  top: 0;
+  left: 1px;
+  color: #7f9b8d;
+  font-size: .61rem;
+  font-weight: 1000;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
 
 .batch-review .batch-table-wrap {
   overflow: visible;
@@ -29,24 +47,24 @@
 
 .batch-review .batch-table tbody {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .batch-review .batch-table tbody tr {
   position: relative;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 9px;
   min-width: 0;
-  padding: 17px;
+  padding: 15px;
   overflow: hidden;
-  border: 1px solid rgba(174, 226, 199, .15);
-  border-radius: 18px;
+  border: 1px solid rgba(174, 226, 199, .14);
+  border-radius: 17px;
   background:
-    radial-gradient(circle at 100% 0%, rgba(57, 232, 143, .08), transparent 12rem),
-    linear-gradient(145deg, rgba(16, 39, 29, .96), rgba(8, 25, 18, .98));
-  box-shadow: 0 14px 34px rgba(0, 0, 0, .16);
+    radial-gradient(circle at 100% 0%, rgba(57, 232, 143, .07), transparent 12rem),
+    linear-gradient(145deg, rgba(14, 36, 27, .96), rgba(7, 24, 17, .98));
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .14);
 }
 
 .batch-review .batch-table tbody tr::after {
@@ -59,7 +77,7 @@
 }
 
 .batch-review .batch-table tbody tr:has(.batch-fail) {
-  border-color: rgba(255, 127, 153, .3);
+  border-color: rgba(255, 127, 153, .28);
   background:
     radial-gradient(circle at 100% 0%, rgba(255, 127, 153, .08), transparent 12rem),
     linear-gradient(145deg, rgba(42, 24, 28, .96), rgba(24, 16, 18, .98));
@@ -72,10 +90,10 @@
 .batch-review .batch-table td {
   display: block;
   min-width: 0;
-  padding: 11px 12px;
-  border: 1px solid rgba(174, 226, 199, .1);
-  border-radius: 13px;
-  background: rgba(0, 0, 0, .12);
+  padding: 10px 11px;
+  border: 1px solid rgba(174, 226, 199, .09);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .11);
   color: #f4fff8;
   vertical-align: top;
   font-variant-numeric: tabular-nums;
@@ -84,8 +102,8 @@
 .batch-review .batch-table td::before {
   display: block;
   margin-bottom: 5px;
-  color: #8ea99a;
-  font-size: .62rem;
+  color: #829d8f;
+  font-size: .58rem;
   font-weight: 950;
   letter-spacing: .09em;
   text-transform: uppercase;
@@ -95,16 +113,16 @@
 .batch-review .batch-table td:nth-child(2)::before { content: "Challenge"; }
 .batch-review .batch-table td:nth-child(3)::before { content: "Difficulty"; }
 .batch-review .batch-table td:nth-child(4)::before { content: "Formation"; }
-.batch-review .batch-table td:nth-child(5)::before { content: "Perfect score"; }
+.batch-review .batch-table td:nth-child(5)::before { content: "Perfect"; }
 .batch-review .batch-table td:nth-child(6)::before { content: "Anti-meta"; }
 .batch-review .batch-table td:nth-child(7)::before { content: "Validation"; }
 
 .batch-review .batch-table td:nth-child(2) {
   grid-column: 1 / -1;
   grid-row: 1;
-  padding: 13px 14px;
-  border-color: rgba(98, 201, 255, .16);
-  background: linear-gradient(135deg, rgba(98, 201, 255, .07), rgba(57, 232, 143, .04));
+  padding: 12px 13px;
+  border-color: rgba(98, 201, 255, .14);
+  background: linear-gradient(135deg, rgba(98, 201, 255, .055), rgba(57, 232, 143, .035));
 }
 
 .batch-review .batch-table td:nth-child(1) {
@@ -116,43 +134,32 @@
   grid-row: 2;
 }
 
-.batch-review .batch-table td:nth-child(3),
-.batch-review .batch-table td:nth-child(4),
-.batch-review .batch-table td:nth-child(5),
-.batch-review .batch-table td:nth-child(6) {
-  grid-row: auto;
-}
-
 .batch-review .batch-table td strong {
   color: #f4fff8;
-  font-size: .94rem;
+  font-size: .9rem;
   line-height: 1.25;
 }
 
 .batch-review .batch-table td:nth-child(2) strong {
-  font-size: 1.02rem;
+  font-size: .98rem;
 }
 
 .batch-review .batch-table td > span:not(.batch-status) {
+  display: block;
   margin-top: 4px;
-  color: #9bb7a8;
-  font-size: .76rem;
+  color: #95b0a1;
+  font-size: .72rem;
   line-height: 1.35;
 }
 
-/* Theme is already shown under Challenge, so do not repeat it under Formation. */
 .batch-review .batch-table td:nth-child(4) > span:not(.batch-status) {
   display: none;
 }
 
 .batch-review .batch-table td:nth-child(5),
 .batch-review .batch-table td:nth-child(6) {
-  font-size: 1rem;
+  font-size: .96rem;
   font-weight: 950;
-}
-
-.batch-review .batch-table td:nth-child(5) {
-  color: #f4fff8;
 }
 
 .batch-review .batch-table td:nth-child(6) {
@@ -162,34 +169,44 @@
 .batch-review .batch-status {
   margin-top: 1px;
   padding: 5px 9px;
-  font-size: .66rem;
+  font-size: .64rem;
 }
 
 .batch-review .batch-table small {
-  margin-top: 7px;
+  display: block;
+  margin-top: 6px;
   max-width: none;
-  color: #9bb7a8;
-  font-size: .72rem;
-  line-height: 1.4;
+  color: #8ea99a;
+  font-size: .68rem;
+  line-height: 1.38;
 }
 
 .batch-review .batch-empty {
+  display: grid;
+  gap: 3px;
+  min-height: 92px;
+  align-content: center;
   padding: 18px;
-  border-color: rgba(174, 226, 199, .15);
-  border-radius: 17px;
-  background: rgba(11, 29, 22, .72);
+  border: 1px dashed rgba(174, 226, 199, .16);
+  border-radius: 16px;
+  background: rgba(8, 27, 19, .58);
+  color: #8fa99b;
 }
 
-/* Daily Challenge action dock — one clear spoiler-safe workflow.
-   Generate and Publish are the primary path; ZIP and Clear are supporting actions. */
+.batch-review .batch-empty strong {
+  color: #dff2e7;
+  font-size: .84rem;
+}
+
+/* One clear weekly action dock: Generate -> Publish. ZIP and Clear support the main route. */
 .batch-planner .batch-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 16px;
-  padding: 12px;
-  border: 1px solid rgba(174, 226, 199, .13);
-  border-radius: 18px;
+  gap: 9px;
+  margin-top: 15px;
+  padding: 11px;
+  border: 1px solid rgba(174, 226, 199, .12);
+  border-radius: 16px;
   background: linear-gradient(145deg, rgba(4, 20, 13, .68), rgba(8, 31, 21, .82));
 }
 
@@ -206,12 +223,22 @@
   box-shadow: 0 10px 24px rgba(57, 232, 143, .1);
 }
 
+.batch-planner #generateWeekBtn::before {
+  content: "1  ";
+  opacity: .62;
+}
+
 .batch-planner #publishWeekSupabaseBtn {
   grid-column: 1 / -1;
   order: 2;
   min-height: 52px;
   border-color: rgba(98, 201, 255, .24);
   background: linear-gradient(135deg, rgba(98, 201, 255, .11), rgba(57, 232, 143, .08));
+}
+
+.batch-planner #publishWeekSupabaseBtn::before {
+  content: "2  ";
+  opacity: .62;
 }
 
 .batch-planner #publishWeekSupabaseBtn:not(:disabled) {
@@ -228,101 +255,115 @@
 .batch-planner #downloadWeekBtn {
   grid-column: 1;
   order: 3;
-  min-height: 46px;
-  font-size: .78rem;
+  min-height: 44px;
+  font-size: .74rem;
 }
 
 .batch-planner #clearWeekBtn {
   grid-column: 2;
   order: 4;
-  min-height: 46px;
-  border-color: rgba(174, 226, 199, .1);
-  background: rgba(255, 255, 255, .025);
-  color: #9bb7a8;
-  font-size: .78rem;
+  min-height: 44px;
+  border-color: rgba(174, 226, 199, .09);
+  background: rgba(255, 255, 255, .022);
+  color: #879f92;
+  font-size: .74rem;
 }
 
 .batch-planner #clearWeekBtn:hover {
   color: #f4fff8;
-  border-color: rgba(174, 226, 199, .2);
+  border-color: rgba(174, 226, 199, .18);
 }
 
-/* Keep generation and server status together instead of two loose lines. */
+/* Generation, publishing and spoiler-safe workflow status stay together as one block. */
 .batch-planner #batchStatus,
 .batch-planner #dailyPublishStatus {
-  padding: 10px 12px;
-  border: 1px solid rgba(174, 226, 199, .1);
-  background: rgba(0, 0, 0, .12);
-  color: #9bb7a8;
-  font-size: .76rem;
-  line-height: 1.42;
+  padding: 9px 11px;
+  border: 1px solid rgba(174, 226, 199, .09);
+  background: rgba(0, 0, 0, .11);
+  color: #91aa9d;
+  font-size: .72rem;
+  line-height: 1.4;
 }
 
 .batch-planner #batchStatus {
-  margin: 12px 0 0;
-  border-radius: 14px 14px 7px 7px;
+  margin: 11px 0 0;
+  border-radius: 13px 13px 6px 6px;
 }
 
 .batch-planner #dailyPublishStatus {
-  margin: 6px 0 0;
-  border-radius: 7px 7px 14px 14px;
+  margin: 5px 0 0;
+  border-radius: 6px 6px 13px 13px;
 }
 
 .batch-planner #batchStatus[data-state="pass"],
 .batch-planner #dailyPublishStatus[data-state="published"] {
   border-color: rgba(57, 232, 143, .2);
-  background: rgba(57, 232, 143, .055);
+  background: rgba(57, 232, 143, .05);
   color: #9ed9b9;
 }
 
 .batch-planner #batchStatus[data-state="working"],
 .batch-planner #dailyPublishStatus[data-state="working"] {
   border-color: rgba(98, 201, 255, .2);
-  background: rgba(98, 201, 255, .055);
+  background: rgba(98, 201, 255, .05);
   color: #a6d6e9;
 }
 
 .batch-planner #batchStatus[data-state="fail"],
 .batch-planner #dailyPublishStatus[data-state="error"] {
   border-color: rgba(255, 127, 153, .22);
-  background: rgba(255, 127, 153, .055);
+  background: rgba(255, 127, 153, .05);
   color: #e7a8b4;
 }
 
-@media (max-width: 720px) {
+.batch-planner .spoiler-publish-flow {
+  margin-top: 10px;
+}
+
+@media (min-width: 1220px) {
+  .batch-review .batch-table tbody {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
   .batch-review .batch-table tbody {
     grid-template-columns: 1fr;
-  }
-
-  .batch-review .batch-table tbody tr {
-    padding: 14px;
   }
 }
 
 @media (max-width: 520px) {
+  .batch-review {
+    padding-top: 30px;
+  }
+
+  .batch-review .batch-table tbody tr {
+    padding: 12px;
+  }
+
   .batch-planner .batch-actions {
-    gap: 8px;
-    padding: 10px;
+    gap: 7px;
+    padding: 9px;
   }
 
   .batch-planner #downloadWeekBtn,
   .batch-planner #clearWeekBtn {
-    min-height: 44px;
+    min-height: 42px;
     padding-inline: 8px;
   }
 }
 
 @media (max-width: 420px) {
   .batch-review .batch-table tbody tr {
-    gap: 8px;
+    gap: 7px;
   }
 
   .batch-review .batch-table td {
-    padding: 10px;
+    padding: 9px;
   }
 
   .batch-review .batch-table td:nth-child(2) {
-    padding: 12px;
+    padding: 11px;
   }
 
   .batch-planner .batch-actions {
