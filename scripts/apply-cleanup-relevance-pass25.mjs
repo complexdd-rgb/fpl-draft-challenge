@@ -55,26 +55,6 @@ replaceExact(
   'mobile CSS cache tag'
 );
 
-replaceExact(
-  'admin.html',
-  '<link rel="stylesheet" href="admin.css?v=16.2.1">',
-  '<link rel="stylesheet" href="admin.css?v=16.2.2">',
-  'admin CSS cache tag'
-);
-replaceExact(
-  'admin.html',
-  '<link rel="stylesheet" href="admin-stage-one.css?v=1.0.1">',
-  '<link rel="stylesheet" href="admin-stage-one.css?v=1.0.2">',
-  'stage-one CSS cache tag'
-);
-
-replaceExact(
-  '.github/workflows/studio-regression.yml',
-  "const base = admin.indexOf('admin.css?v=16.2.1');\n          const stage = admin.indexOf('admin-stage-one.css?v=1.0.1');",
-  "const base = admin.indexOf('admin.css?v=16.2.2');\n          const stage = admin.indexOf('admin-stage-one.css?v=1.0.2');",
-  'Studio regression stylesheet cache expectations'
-);
-
 const retired = [
   'repair-toolbar',
   'repair-summary-grid',
@@ -89,7 +69,5 @@ requireAbsent('admin-mobile-v2.css', ['repair-regression-panel', 'auto-repair-pa
 requirePresent('admin-stage-one.css', ['audit-toolbar', 'audit-summary-grid article', 'prompt-factory', 'prompt-quality-analyser', 'import-subpanel', 'identity-regression-panel']);
 requirePresent('admin-mobile-v2.css', ['prompt-factory', 'prompt-quality-analyser', 'import-subpanel', 'identity-regression-panel']);
 requirePresent('admin.css', ['admin-mobile-v2.css?v=2.2.1', 'admin-base.css?v=16.2.4']);
-requirePresent('admin.html', ['admin.css?v=16.2.2', 'admin-stage-one.css?v=1.0.2']);
-requirePresent('.github/workflows/studio-regression.yml', ["admin.css?v=16.2.2", "admin-stage-one.css?v=1.0.2"]);
 
 console.log('Pass 25 applied: retired repair/publishing/legacy responsive selectors pruned; active audit/import/identity styling preserved.');
