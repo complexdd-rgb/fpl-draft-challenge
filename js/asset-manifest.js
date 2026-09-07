@@ -82,7 +82,7 @@
     },
     "adminStageOne": {
       "path": "js/admin-stage-one.js",
-      "version": "1.5.1-copy-cleanup"
+      "version": "1.5.2-semantic-labels"
     },
     "careerContext": {
       "path": "js/career-context.js",
