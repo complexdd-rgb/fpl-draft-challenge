@@ -6,11 +6,11 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.5.0-live-loader-prune"
+      "version": "3.6.0-curation-review-export"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "2.6.0-schedule-manager"
+      "version": "2.7.0-curation-review-export"
     },
     "promptStudioClean": {
       "path": "js/prompt-studio-clean-reset.js",
@@ -59,6 +59,10 @@
     "promptLibraryShardsCssV1": {
       "path": "admin-prompt-library-shards-v1.css",
       "version": "1.2.0-daily-authority"
+    },
+    "promptCurationReviewExportV1": {
+      "path": "js/prompt-curation-review-export-v1.js",
+      "version": "1.0.0"
     },
     "adminDailyLibraryCutoverV1": {
       "path": "js/admin-daily-library-cutover-v1.js",
@@ -117,7 +121,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.5.0-live-loader-prune",
+    version: "3.6.0-curation-review-export",
     assets,
     get,
     url
