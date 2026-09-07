@@ -1,0 +1,63 @@
+name: Apply cleanup relevance pass 25
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass25
+    paths:
+      - '.github/workflows/apply-cleanup-relevance-pass25.yml'
+      - 'scripts/apply-cleanup-relevance-pass25.mjs'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-relevance-pass25
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Apply responsive CSS cleanup
+        run: node scripts/apply-cleanup-relevance-pass25.mjs
+
+      - name: Verify production diff
+        run: |
+          ! grep -q 'repair-toolbar' admin-stage-one.css
+          ! grep -q 'repair-summary-grid' admin-stage-one.css
+          ! grep -q 'publish-summary-card' admin-stage-one.css
+          ! grep -q 'repair-regression-panel' admin-stage-one.css
+          ! grep -q 'auto-repair-panel' admin-stage-one.css
+          ! grep -q 'legacy-regression-panel' admin-stage-one.css
+          ! grep -q 'repair-regression-panel' admin-mobile-v2.css
+          ! grep -q 'auto-repair-panel' admin-mobile-v2.css
+          ! grep -q 'legacy-regression-panel' admin-mobile-v2.css
+          grep -q 'audit-summary-grid article' admin-stage-one.css
+          grep -q 'import-subpanel' admin-stage-one.css
+          grep -q 'identity-regression-panel' admin-stage-one.css
+          grep -q 'import-subpanel' admin-mobile-v2.css
+          grep -q 'identity-regression-panel' admin-mobile-v2.css
+          grep -q 'admin-mobile-v2.css?v=2.2.1' admin.css
+          grep -q 'admin.css?v=16.2.2' admin.html
+          grep -q 'admin-stage-one.css?v=1.0.2' admin.html
+          grep -q "admin.css?v=16.2.2" .github/workflows/studio-regression.yml
+          grep -q "admin-stage-one.css?v=1.0.2" .github/workflows/studio-regression.yml
+          git diff --check
+
+      - name: Commit production cleanup
+        run: |
+          if git diff --quiet -- admin-stage-one.css admin-mobile-v2.css admin.css admin.html .github/workflows/studio-regression.yml; then
+            echo 'No production cleanup changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin-stage-one.css admin-mobile-v2.css admin.css admin.html .github/workflows/studio-regression.yml
+          git commit -m 'Prune retired responsive workspace selectors'
+          git push origin HEAD:cleanup-relevance-pass25
