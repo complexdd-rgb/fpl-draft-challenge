@@ -425,8 +425,7 @@
     clearLegacyBrowserState();
     installStyles();
 
-    // Hard reset the shared array first. This also clears any browser-local prompts that
-    // admin-core may have restored earlier in the same page load.
+    // Hard reset the shared array first so only the clean store can repopulate it.
     library.splice(0, library.length);
 
     // Only the new clean store is eligible to repopulate the library.

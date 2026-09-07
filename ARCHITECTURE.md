@@ -70,7 +70,7 @@ prompt-studio-clean-reset.js
 
 The canonical repository `prompt-library.js` remains intentionally empty after the clean reset. Promoted Prompt Studio output is stored durably in IndexedDB as family shards. Factory candidates do not become Daily source material until they pass through Quality and Promotion and are saved.
 
-The old V2/V3/V4 Prompt Studio runtimes, compatibility shims, prompt lazy-loader, career-overlap loader chain and V2 canonical-state layer are retired and physically absent. The obsolete V2 native-Prompt builder/verifier pair has also been removed; the clean Prompt Studio controller owns the current prompt workspace at runtime.
+The old V2/V3/V4 Prompt Studio runtimes, compatibility shims, prompt lazy-loader, career-overlap loader chain and V2 canonical-state layer are retired and physically absent. The obsolete V2 native-Prompt builder/verifier pair has also been removed; the clean Prompt Studio controller owns the current prompt workspace at runtime. The retired browser Prompt Library Manager phase has also been removed from `admin-core.js`, so it no longer restores or edits the shared prompt array before the clean controller starts.
 
 ## 5. Daily generation
 
@@ -152,7 +152,7 @@ They are **not** Prompt Studio runtime owners and retired refinement artifacts a
 
 ## 10. Remaining cleanup order
 
-1. Continue decomposing the large multi-phase `js/admin-core.js` without changing generation/test behaviour.
+1. Continue auditing the remaining `js/admin-core.js` phases and remove only controllers with no surviving runtime caller.
 2. Audit offline legacy quality/generator helpers and their remaining diagnostic callers.
 3. Continue removing demonstrably dead V2/static Prompt Studio residue without disturbing the clean runtime.
 4. Continue the Daily Challenge UI redesign on top of the now-clean runtime architecture.
