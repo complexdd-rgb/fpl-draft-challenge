@@ -132,11 +132,12 @@ Authoritative asset versions live in `config/asset-manifest.json`.
 ```text
 config/asset-manifest.json
 → scripts/build-asset-manifest-runtime.mjs
-→ scripts/build-native-studio-shell.mjs
 → scripts/build-native-daily-workspace.mjs
 → scripts/build-studio-cache-tags.mjs
 → verification
 ```
+
+The old native Studio shell migration builder/verifier have been removed. The shell is now settled in `admin.html`; only current generated wiring remains in this map.
 
 Key verifiers include:
 
@@ -156,7 +157,7 @@ They are **not** Prompt Studio runtime owners and retired refinement artifacts a
 
 1. Continue auditing the remaining `js/admin-core.js` phases and remove only controllers with no surviving runtime caller.
 2. Audit offline legacy quality/generator helpers and their remaining diagnostic callers.
-3. Continue removing demonstrably dead V2/static Prompt Studio residue without disturbing the clean runtime.
+3. Continue removing demonstrably dead migration/static residue without disturbing the clean runtime.
 4. Continue the Daily Challenge UI redesign on top of the now-clean runtime architecture.
 5. Return to Prompt Factory/Quality/Promotion survivor-library growth.
 
