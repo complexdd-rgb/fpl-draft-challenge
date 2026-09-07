@@ -1,7 +1,7 @@
 # FPL Draft Challenge — Permanent Prompt Curation Policy
 
-Status: Phase 1 calibration-refined  
-Current baseline export: `shards_134765_1pkuiu3`  
+Status: Phase 1 calibration-refined
+Current baseline export: `shards_134765_1pkuiu3`
 Current baseline size: 134,765 promoted prompts · 17 families · 2,684 variant groups
 
 ## Purpose
