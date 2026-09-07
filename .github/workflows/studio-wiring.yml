@@ -15,13 +15,18 @@ on:
       - 'js/daily-semantic-diversity-v1.js'
       - 'js/admin-daily-generator-guard.js'
       - 'js/admin-batch-calendar.js'
+      - 'js/admin-weekly-nationality-*.js'
+      - 'js/prompt-nationality-context-pack-v1.js'
+      - 'nationality-enrichment.js'
       - 'js/admin-schedule-manager-v2.js'
       - 'js/repository-certified-prompt-pool.js'
+      - 'js/admin-core.js'
       - 'admin-prompt-*.css'
       - 'prompt-library.js'
       - 'scripts/verify-prompt-*.mjs'
       - 'scripts/verify-daily-*.mjs'
-      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
+      - 'scripts/verify-weekly-*.mjs'
+      - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-asset-manifest-runtime.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
@@ -51,13 +56,18 @@ on:
       - 'js/daily-semantic-diversity-v1.js'
       - 'js/admin-daily-generator-guard.js'
       - 'js/admin-batch-calendar.js'
+      - 'js/admin-weekly-nationality-*.js'
+      - 'js/prompt-nationality-context-pack-v1.js'
+      - 'nationality-enrichment.js'
       - 'js/admin-schedule-manager-v2.js'
       - 'js/repository-certified-prompt-pool.js'
+      - 'js/admin-core.js'
       - 'admin-prompt-*.css'
       - 'prompt-library.js'
       - 'scripts/verify-prompt-*.mjs'
       - 'scripts/verify-daily-*.mjs'
-      - 'scripts/verify-weekly-certified-snapshot-race.mjs'
+      - 'scripts/verify-weekly-*.mjs'
+      - 'scripts/verify-studio-refresh-fastboot.mjs'
       - 'scripts/materialise-prompt-library-shards.mjs'
       - 'scripts/build-asset-manifest-runtime.mjs'
       - 'scripts/build-studio-cache-tags.mjs'
@@ -134,6 +144,17 @@ jobs:
       - name: Verify immutable weekly reservoir
         run: node scripts/verify-weekly-certified-snapshot-race.mjs
 
+      - name: Verify weekly nationality and rotation guards
+        run: |
+          node scripts/verify-weekly-nationality-generation-gate.mjs
+          node scripts/verify-weekly-nationality-hard-reservation.mjs
+          node scripts/verify-weekly-nationality-quota-guard.mjs
+          node scripts/verify-weekly-nationality-readiness.mjs
+          node scripts/verify-weekly-rotation-library-evolution.mjs
+
+      - name: Verify Studio fast-boot boundary
+        run: node scripts/verify-studio-refresh-fastboot.mjs
+
       - name: Verify unaffected native workspaces
         run: |
           node scripts/verify-native-validation-workspace.mjs
@@ -168,6 +189,12 @@ jobs:
           node --check scripts/verify-daily-library-cutover-v1.mjs
           node --check scripts/verify-daily-semantic-diversity-v1.mjs
           node --check scripts/verify-weekly-certified-snapshot-race.mjs
+          node --check scripts/verify-weekly-nationality-generation-gate.mjs
+          node --check scripts/verify-weekly-nationality-hard-reservation.mjs
+          node --check scripts/verify-weekly-nationality-quota-guard.mjs
+          node --check scripts/verify-weekly-nationality-readiness.mjs
+          node --check scripts/verify-weekly-rotation-library-evolution.mjs
+          node --check scripts/verify-studio-refresh-fastboot.mjs
           node --check scripts/materialise-prompt-library-shards.mjs
           node --check scripts/build-asset-manifest-runtime.mjs
           node --check scripts/build-studio-cache-tags.mjs
