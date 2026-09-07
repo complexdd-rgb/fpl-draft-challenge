@@ -65,20 +65,4 @@ function writeChanged(path, source) {
   writeChanged(path, source);
 }
 
-{
-  const path = '.github/workflows/studio-regression.yml';
-  let source = fs.readFileSync(path, 'utf8');
-  requireIncludes(source, "admin.css?v=16.2.0", `${path} admin.css expected version`);
-  requireIncludes(source, "admin-stage-one.css?v=1.0.0", `${path} Stage One expected version`);
-  requireIncludes(source, "          ! grep -q 'studio-retired-tool' admin-stage-one.css\n", `${path} Stage One CSS guard anchor`);
-  source = source
-    .replaceAll('admin.css?v=16.2.0', 'admin.css?v=16.2.1')
-    .replaceAll('admin-stage-one.css?v=1.0.0', 'admin-stage-one.css?v=1.0.1')
-    .replace(
-      "          ! grep -q 'studio-retired-tool' admin-stage-one.css\n",
-      "          ! grep -q 'studio-retired-tool' admin-stage-one.css\n          ! grep -q 'manager-count-grid' admin-stage-one.css\n          ! grep -q 'Phase 4: Prompt Library Manager' admin-base.css\n          ! grep -q 'manager-toolbar' admin-base.css\n"
-    );
-  writeChanged(path, source);
-}
-
 console.log('Pass 21 CSS cleanup applied: retired Prompt Library Manager base and Stage One selectors removed; current workspace styling and cache order preserved.');
