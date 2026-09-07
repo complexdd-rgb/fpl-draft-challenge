@@ -232,19 +232,6 @@
     panel.dataset.toolTitle = getToolTitle(panel);
     panel.dataset.toolWorkspace = workspaceId;
 
-    const eyebrow = panel.querySelector(":scope > .panel-heading .eyebrow, :scope > .section-heading-row .eyebrow");
-    if (eyebrow && /^step\s+\d+$/i.test(eyebrow.textContent.trim())) {
-      const labels = {
-        challenge: "Challenge workflow",
-        prompts: "Prompt workspace",
-        validation: "Validation lab",
-        database: "Database health",
-        imports: "Historical imports",
-        leaderboard: "Leaderboard backend"
-      };
-      eyebrow.textContent = labels[workspaceId] || "Studio tool";
-    }
-
     const heading = panel.querySelector(":scope > .panel-heading, :scope > .section-heading-row");
     if (!heading || heading.querySelector(".stage-one-collapse-button")) return;
 

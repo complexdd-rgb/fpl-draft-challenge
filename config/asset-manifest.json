@@ -20,7 +20,7 @@
     "adminDailyPublish": { "path": "js/admin-daily-publish.js", "version": "1.1.0-date-identity" },
     "adminScheduleManagerV2": { "path": "js/admin-schedule-manager-v2.js", "version": "2.0.0" },
     "validationEngine": { "path": "js/validation-engine.js", "version": "1.7.1-certification-snapshot" },
-    "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.5.1-copy-cleanup" },
+    "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.5.2-semantic-labels" },
     "careerContext": { "path": "js/career-context.js", "version": "1.5.0" },
     "adminBatchCalendar": { "path": "js/admin-batch-calendar.js", "version": "3.8.0-preplan-fastpath" },
     "adminDailyGeneratorGuard": { "path": "js/admin-daily-generator-guard.js", "version": "2.5.0-leader-day-spacing" },

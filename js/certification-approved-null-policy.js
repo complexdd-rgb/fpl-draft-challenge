@@ -105,7 +105,7 @@
   }
 
   /*
-   * Phase 7's older auditor still treats every positive-minute startingPrice
+   * The legacy auditor still treats every positive-minute startingPrice
    * blank as a blocker. Filter only rows that satisfy the same explicit
    * APPROVED NULL + pricePromptEligible:false policy used by certification.
    * The audit report arrays are mutated in place so its CSV/JSON exports and
