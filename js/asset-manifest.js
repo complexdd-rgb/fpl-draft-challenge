@@ -62,7 +62,7 @@
     },
     "promptCurationReviewExportV1": {
       "path": "js/prompt-curation-review-export-v1.js",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     "adminDailyLibraryCutoverV1": {
       "path": "js/admin-daily-library-cutover-v1.js",
