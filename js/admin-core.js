@@ -2525,11 +2525,6 @@
   }
 
   function getSelectedBaseDatabase() {
-    if (elements.importBaseDatabase.value === "auto-repaired") {
-      const repaired = window.FPL_AUTOMATIC_DATABASE_REPAIR?.getWorkspace?.();
-      if (!Array.isArray(repaired) || !repaired.length) throw new Error("Run Phase 9 automatic repair first, or choose the current loaded players.js as the base.");
-      return cloneData(repaired);
-    }
     return cloneData(originalPlayers);
   }
 
