@@ -1,0 +1,61 @@
+name: Apply cleanup relevance pass 30 big sweep
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass30-big-sweep
+    paths:
+      - 'scripts/apply-cleanup-relevance-pass30-big-sweep.mjs'
+      - '.github/workflows/apply-cleanup-relevance-pass30-big-sweep.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-relevance-pass30-big-sweep
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Apply big relevance sweep
+        run: node scripts/apply-cleanup-relevance-pass30-big-sweep.mjs
+
+      - name: Verify production sweep
+        run: |
+          set -euo pipefail
+          test ! -e admin-retired-workspaces.css
+          ! grep -q 'admin-retired-workspaces.css' admin.css
+          grep -q 'data-open-workspace="imports"' admin.html
+          grep -q 'data-workspace="imports"' admin.html
+          ! grep -q 'studio-retired-tool' js/admin-stage-one.js
+          ! grep -q 'historyPanel' js/admin-stage-one.js
+          ! grep -q 'historyPanel' js/admin-daily-library-cutover-v1.js
+          ! grep -q '#workspace-challenge #historyPanel' admin-daily-mobile-v1.css
+          ! grep -q 'Review before manually uploading to GitHub' js/admin-core.js
+          ! grep -q 'FPL Challenge Studio Phase 4' todays-challenge.js
+          grep -q '1.0.1-history-residue-prune' config/asset-manifest.json
+          grep -q '1.5.3-residue-prune' config/asset-manifest.json
+          node scripts/verify-prompt-studio-clean-reset.mjs
+          node scripts/verify-daily-library-cutover-v1.mjs
+          node scripts/verify-native-daily-workspace.mjs
+          node scripts/verify-native-validation-workspace.mjs
+          git diff --check
+
+      - name: Commit production sweep
+        run: |
+          if git diff --quiet; then
+            echo 'No production changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Run final pre-audit relevance sweep'
+          git push origin HEAD:cleanup-relevance-pass30-big-sweep
