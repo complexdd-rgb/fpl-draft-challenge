@@ -1,0 +1,51 @@
+name: Apply cleanup relevance pass 26
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass26
+    paths:
+      - 'scripts/apply-cleanup-relevance-pass26.mjs'
+      - '.github/workflows/apply-cleanup-relevance-pass26.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-relevance-pass26
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Apply dead repair branch cleanup
+        run: node scripts/apply-cleanup-relevance-pass26.mjs
+
+      - name: Verify production diff
+        run: |
+          ! grep -q 'auto-repaired' js/admin-core.js
+          ! grep -q 'FPL_AUTOMATIC_DATABASE_REPAIR' js/admin-core.js
+          ! grep -q 'Run Phase 9 automatic repair first' js/admin-core.js
+          grep -q 'function getSelectedBaseDatabase' js/admin-core.js
+          grep -q 'importBaseDatabase' js/admin-core.js
+          grep -q '<option value="current">Current loaded players.js</option>' admin.html
+          grep -q 'js/admin-core.js?v=19.0.1' admin.html
+          git diff --check
+
+      - name: Commit production cleanup
+        run: |
+          if git diff --quiet -- js/admin-core.js admin.html; then
+            echo 'No production cleanup changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add js/admin-core.js admin.html
+          git commit -m 'Remove unreachable automatic repair import branch'
+          git push origin HEAD:cleanup-relevance-pass26
