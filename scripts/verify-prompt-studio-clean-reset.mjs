@@ -24,8 +24,8 @@ const promptLibrary = read('prompt-library.js')
   .replace(/\s+/g, ' ')
   .trim();
 
-assert(manifest.manifestVersion === '3.3.0-retired-manifest-prune', 'Central manifest is not on the retired-manifest-prune boundary.');
-assert(manifest.assets?.assetManifestRuntime?.version === '3.3.0-retired-manifest-prune', 'Asset-manifest runtime cache version is stale.');
+assert(manifest.manifestVersion === '3.4.0-offline-helper-prune', 'Central manifest is not on the offline-helper-prune boundary.');
+assert(manifest.assets?.assetManifestRuntime?.version === '3.4.0-offline-helper-prune', 'Asset-manifest runtime cache version is stale.');
 assert(manifest.assets?.studioBootstrap?.path === 'js/studio-bootstrap.js', 'Central manifest no longer owns the clean Studio bootstrap.');
 assert(manifest.assets?.studioBootstrap?.version === '2.6.0-schedule-manager', 'Studio bootstrap cache version does not include schedule manager v2.');
 assert(manifest.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio controller is missing from the central manifest.');
@@ -44,7 +44,7 @@ assert(manifest.assets?.adminScheduleManagerV2?.path === 'js/admin-schedule-mana
 assert(manifest.assets?.adminScheduleManagerV2?.version === '2.0.0', 'Schedule manager v2 cache version is stale.');
 assert(manifest.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Repository prompt pool is not on the clean zero boundary.');
 
-assert(generatedManifest.includes('3.3.0-retired-manifest-prune'), 'Generated asset manifest was not refreshed to the retired-manifest-prune boundary.');
+assert(generatedManifest.includes('3.4.0-offline-helper-prune'), 'Generated asset manifest was not refreshed to the offline-helper-prune boundary.');
 assert(generatedManifest.includes('"dailySemanticDiversityV1"'), 'Generated asset manifest does not expose the Daily semantic-diversity policy.');
 assert(generatedManifest.includes('"adminScheduleManagerV2"'), 'Generated asset manifest does not expose schedule manager v2.');
 assert(generatedManifest.includes('"version": "1.2.0-daily-authority"'), 'Generated asset manifest did not retain the Daily authority CSS cache tag.');
@@ -64,6 +64,9 @@ assert(!admin.includes('id="libraryManagerPanel"'), 'admin.html still embeds the
 assert(!admin.includes('STUDIO_NATIVE_PROMPT_WORKSPACE_START'), 'admin.html still embeds the retired static Prompt Studio migration shell.');
 for (const retiredKey of ['adminImportTools','studioFeatureLoader','promptStudioRedesign','promptFamilyRegistryV3','promptStudioV3','promptStudioV3RuleTester','promptStudioV3QualityAdvisor','promptStudioV3CandidateGenerator','promptStudioV3AutoBatchGenerator','promptStudioV3CandidateCertification','promptStudioV4Simple','promptStudioLoader','adminStudioFinish','careerOverlapWording','promptLibraryLegacyAdditions','promptRefinementIncubator','promptRefinementSurvivors','promptFourStarEnforcer','promptLibraryCanonicalState']) {
   assert(!manifest.assets?.[retiredKey], `Central manifest still exposes retired Studio asset ${retiredKey}.`);
+}
+for (const offlineKey of ['adminImportToolsBase','promptTargetSurvivorGenerator','promptTargetAutoExplorer','careerShapeRules','careerShapeStudio','careerShapeWorkspaceRepair','careerShapeUnifiedGenerator','careerShapeFutureQualityGuard','careerShapeUnifiedFixes','careerShapeValidationBridge','promptEraRangeWording']) {
+  assert(!manifest.assets?.[offlineKey], `Central manifest still advertises offline-only helper ${offlineKey}.`);
 }
 assert(promptLibrary === 'window.FPL_PROMPT_LIBRARY = [];', 'prompt-library.js must remain the empty repository initializer; the durable promoted library belongs to family shards.');
 
