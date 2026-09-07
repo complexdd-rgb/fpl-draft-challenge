@@ -32,11 +32,16 @@ for (const token of [
 ]) requireText(careerSource, token, 'career evolution context');
 
 const admin = read('admin.html');
-requireText(admin, 'id="factoryIncludeCareerEvolutionFamilies"', 'main-generator Career Evolution checkbox');
+if (admin.includes('factoryIncludeCareerEvolutionFamilies')) {
+  throw new Error('Retired legacy Career Evolution factory checkbox returned to the clean Studio shell.');
+}
 requireText(admin, 'js/career-context.js?v=1.5.0', 'Studio career-context cache bust');
 const index = read('index.html');
 requireText(index, 'js/career-context.js?v=1.5.0', 'live-game career-context cache bust');
 
+// The old all-in-one factory is retained only as an offline refinement helper. Its
+// optional Career Evolution integration must remain usable for research, but it is
+// no longer allowed to own a checkbox or runtime shell in admin.html.
 const base = read('js/admin-import-tools-base.js');
 for (const token of [
   'includeCareerEvolutionFamilies: document.querySelector("#factoryIncludeCareerEvolutionFamilies")',
@@ -45,11 +50,11 @@ for (const token of [
   'includeCareerEvolutionFamilies })',
   'Career Evolution</span>',
   'Career evolution</span>'
-]) requireText(base, token, 'main-generator Career Evolution integration');
+]) requireText(base, token, 'offline factory Career Evolution integration');
 
 for (const path of ['js/prompt-target-survivor-generator.js', 'js/prompt-target-auto-explorer.js']) {
   const source = read(path);
-  requireText(source, 'factoryIncludeCareerEvolutionFamilies', `${path} setting persistence`);
+  requireText(source, 'factoryIncludeCareerEvolutionFamilies', `${path} optional setting persistence`);
   requireText(source, 'includeCareerEvolutionFamilies', `${path} Career Evolution setting`);
 }
 
@@ -133,4 +138,4 @@ for (const item of batch) {
   }
 }
 
-console.log(`Career Evolution verified: ${evolutionRows.length} careers derived; ${batch.length} checked candidates across ${families.size} selected families. Metrics ${JSON.stringify(metricChecks)}.`);
+console.log(`Career Evolution verified at the clean Studio boundary: ${evolutionRows.length} careers derived; ${batch.length} checked offline candidates across ${families.size} selected families. Metrics ${JSON.stringify(metricChecks)}.`);
