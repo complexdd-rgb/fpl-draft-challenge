@@ -1,0 +1,53 @@
+name: Apply cleanup relevance pass 28
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass28
+    paths:
+      - 'scripts/apply-cleanup-relevance-pass28.mjs'
+      - '.github/workflows/apply-cleanup-relevance-pass28.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-relevance-pass28
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Apply wording and stale-target cleanup
+        run: node scripts/apply-cleanup-relevance-pass28.mjs
+
+      - name: Verify production diff
+        run: |
+          ! grep -q 'Publishing remains a manual GitHub upload' admin.html
+          ! grep -q 'publish, repair and expand' admin.html
+          ! grep -q 'guide the repair work safely' js/admin-stage-one.js
+          ! grep -q 'data-target-title="Prompt Library Manager"' js/admin-stage-one.js
+          grep -q 'Daily publishing happens only when you explicitly use the publish controls' admin.html
+          grep -q 'data-open-workspace="prompts"' js/admin-stage-one.js
+          grep -q '1.5.1-copy-cleanup' config/asset-manifest.json
+          grep -q '1.5.1-copy-cleanup' js/asset-manifest.js
+          grep -q 'js/admin-stage-one.js?v=1.5.1-copy-cleanup' admin.html
+          git diff --check
+
+      - name: Commit production cleanup
+        run: |
+          if git diff --quiet -- admin.html js/admin-stage-one.js config/asset-manifest.json js/asset-manifest.js; then
+            echo 'No production cleanup changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin.html js/admin-stage-one.js config/asset-manifest.json js/asset-manifest.js
+          git commit -m 'Clean retired Studio wording and prompt target'
+          git push origin HEAD:cleanup-relevance-pass28
