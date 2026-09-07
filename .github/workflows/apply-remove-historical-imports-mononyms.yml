@@ -24,14 +24,18 @@ jobs:
           node-version: 22
       - name: Apply migration
         run: node scripts/apply-remove-historical-imports-mononyms.mjs
-      - name: Make generated mononym verifier browser-safe
+      - name: Normalize generated migration output
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
-          const path = 'scripts/verify-admin-ui-truth.mjs';
-          let source = fs.readFileSync(path, 'utf8');
+          const verifier = 'scripts/verify-admin-ui-truth.mjs';
+          let source = fs.readFileSync(verifier, 'utf8');
           source = source.replace('const sandbox = { window: {} };', 'const sandbox = { window: { addEventListener: () => {} } };');
-          fs.writeFileSync(path, source);
+          fs.writeFileSync(verifier, source.replace(/\s*$/, '\n'));
+          for (const path of ['js/admin-core.js']) {
+            const text = fs.readFileSync(path, 'utf8');
+            fs.writeFileSync(path, text.replace(/\s*$/, '\n'));
+          }
           NODE
       - name: Rebuild generated Studio wiring/cache tags
         run: |
