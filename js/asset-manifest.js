@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.2.0-runtime-prune"
+      "version": "3.3.0-retired-manifest-prune"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -104,10 +104,6 @@
       "path": "js/career-shape-unified-fixes.js",
       "version": "1.0.1"
     },
-    "promptLibraryLegacyAdditions": {
-      "path": "js/prompt-library-legacy-additions-20260814.js",
-      "version": "retired"
-    },
     "careerShapeValidationBridge": {
       "path": "js/career-shape-validation-bridge.js",
       "version": "1.0.0"
@@ -115,18 +111,6 @@
     "promptEraRangeWording": {
       "path": "js/prompt-era-range-wording.js",
       "version": "1.0.0"
-    },
-    "promptRefinementIncubator": {
-      "path": "js/prompt-refinement-incubator.js",
-      "version": "1.1.1-retired"
-    },
-    "promptRefinementSurvivors": {
-      "path": "js/prompt-refinement-survivors-v1.js",
-      "version": "1.0.0-retired"
-    },
-    "promptFourStarEnforcer": {
-      "path": "js/prompt-four-star-enforcer.js",
-      "version": "2.1.0-retired"
     },
     "adminDailyPublish": {
       "path": "js/admin-daily-publish.js",
@@ -167,10 +151,6 @@
     "repositoryCertifiedPromptPool": {
       "path": "js/repository-certified-prompt-pool.js",
       "version": "2.0.0-clean-reset"
-    },
-    "promptLibraryCanonicalState": {
-      "path": "js/prompt-library-canonical-state.js",
-      "version": "1.0.0-retired"
     }
   };
   const assets = Object.freeze(Object.fromEntries(
@@ -185,7 +165,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.2.0-runtime-prune",
+    version: "3.3.0-retired-manifest-prune",
     assets,
     get,
     url
