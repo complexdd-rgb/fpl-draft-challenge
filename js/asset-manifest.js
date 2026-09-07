@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.3.0-retired-manifest-prune"
+      "version": "3.4.0-offline-helper-prune"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -68,50 +68,6 @@
       "path": "js/daily-semantic-diversity-v1.js",
       "version": "1.0.0"
     },
-    "adminImportToolsBase": {
-      "path": "js/admin-import-tools-base.js",
-      "version": "16.2.0-careerevolution"
-    },
-    "promptTargetSurvivorGenerator": {
-      "path": "js/prompt-target-survivor-generator.js",
-      "version": "1.0.1-careerevolution"
-    },
-    "promptTargetAutoExplorer": {
-      "path": "js/prompt-target-auto-explorer.js",
-      "version": "1.0.1-careerevolution"
-    },
-    "careerShapeRules": {
-      "path": "js/career-shape-rules.js",
-      "version": "1.1.2-repair"
-    },
-    "careerShapeStudio": {
-      "path": "js/career-shape-studio.js",
-      "version": "1.0.0"
-    },
-    "careerShapeWorkspaceRepair": {
-      "path": "js/career-shape-workspace-repair.js",
-      "version": "1.0.0"
-    },
-    "careerShapeUnifiedGenerator": {
-      "path": "js/career-shape-unified-generator.js",
-      "version": "1.0.0"
-    },
-    "careerShapeFutureQualityGuard": {
-      "path": "js/career-shape-future-quality-guard.js",
-      "version": "1.0.0"
-    },
-    "careerShapeUnifiedFixes": {
-      "path": "js/career-shape-unified-fixes.js",
-      "version": "1.0.1"
-    },
-    "careerShapeValidationBridge": {
-      "path": "js/career-shape-validation-bridge.js",
-      "version": "1.0.0"
-    },
-    "promptEraRangeWording": {
-      "path": "js/prompt-era-range-wording.js",
-      "version": "1.0.0"
-    },
     "adminDailyPublish": {
       "path": "js/admin-daily-publish.js",
       "version": "1.1.0-date-identity"
@@ -165,7 +121,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.3.0-retired-manifest-prune",
+    version: "3.4.0-offline-helper-prune",
     assets,
     get,
     url

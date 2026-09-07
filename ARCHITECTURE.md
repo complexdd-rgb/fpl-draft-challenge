@@ -151,7 +151,7 @@ Key verifiers include:
 
 Some older generation/quality modules remain because diagnostic and refinement scripts still use them directly outside the live Studio runtime, particularly `js/admin-import-tools-base.js` and historical/refinement analysis helpers.
 
-They are **not** Prompt Studio runtime owners and retired refinement artifacts are no longer advertised through the live asset manifest. Remove direct-file analysis helpers only after their remaining diagnostics, audits and survivor-growth workflows have been migrated or retired.
+They are **not** Prompt Studio runtime owners. Offline diagnostic/refinement helpers are now loaded only by their direct analysis callers and are no longer advertised through the live asset manifest. Remove their source files only after those remaining diagnostics, audits and survivor-growth workflows have been migrated or retired.
 
 ## 10. Remaining cleanup order
 
