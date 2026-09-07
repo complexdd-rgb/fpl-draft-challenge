@@ -1,0 +1,82 @@
+name: Apply cleanup relevance pass 13
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass13
+    paths:
+      - 'config/asset-manifest.json'
+      - '.github/workflows/apply-cleanup-relevance-pass13.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Update manifest boundary guards and architecture notes
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          verifier_path = Path('scripts/verify-prompt-studio-clean-reset.mjs')
+          verifier = verifier_path.read_text(encoding='utf-8')
+          verifier = verifier.replace('3.3.0-retired-manifest-prune', '3.4.0-offline-helper-prune')
+          verifier = verifier.replace('retired-manifest-prune boundary', 'offline-helper-prune boundary')
+          anchor = "assert(promptLibrary === 'window.FPL_PROMPT_LIBRARY = [];', 'prompt-library.js must remain the empty repository initializer; the durable promoted library belongs to family shards.');"
+          guard = """for (const offlineKey of ['adminImportToolsBase','promptTargetSurvivorGenerator','promptTargetAutoExplorer','careerShapeRules','careerShapeStudio','careerShapeWorkspaceRepair','careerShapeUnifiedGenerator','careerShapeFutureQualityGuard','careerShapeUnifiedFixes','careerShapeValidationBridge','promptEraRangeWording']) {\n  assert(!manifest.assets?.[offlineKey], `Central manifest still advertises offline-only helper ${offlineKey}.`);\n}\n"""
+          if guard not in verifier:
+              if anchor not in verifier:
+                  raise SystemExit('Prompt Studio verifier insertion anchor not found')
+              verifier = verifier.replace(anchor, guard + anchor, 1)
+          verifier_path.write_text(verifier, encoding='utf-8')
+
+          arch_path = Path('ARCHITECTURE.md')
+          arch = arch_path.read_text(encoding='utf-8')
+          old = "They are **not** Prompt Studio runtime owners and retired refinement artifacts are no longer advertised through the live asset manifest. Remove direct-file analysis helpers only after their remaining diagnostics, audits and survivor-growth workflows have been migrated or retired."
+          new = "They are **not** Prompt Studio runtime owners. Offline diagnostic/refinement helpers are now loaded only by their direct analysis callers and are no longer advertised through the live asset manifest. Remove their source files only after those remaining diagnostics, audits and survivor-growth workflows have been migrated or retired."
+          if old not in arch:
+              raise SystemExit('Architecture offline-helper sentence not found')
+          arch_path.write_text(arch.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Refresh generated runtime manifest and cache tags
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-studio-cache-tags.mjs
+
+      - name: Verify pruned runtime boundary
+        run: |
+          node scripts/verify-prompt-studio-clean-reset.mjs
+          node --check js/asset-manifest.js
+          node --check scripts/verify-prompt-studio-clean-reset.mjs
+          grep -q 'js/asset-manifest.js?v=3.4.0-offline-helper-prune' admin.html
+          ! grep -q '"adminImportToolsBase"' js/asset-manifest.js
+          ! grep -q '"promptTargetSurvivorGenerator"' js/asset-manifest.js
+          ! grep -q '"careerShapeRules"' js/asset-manifest.js
+          ! grep -q '"promptEraRangeWording"' js/asset-manifest.js
+          git diff --check
+
+      - name: Commit pass 13 generated cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add js/asset-manifest.js admin.html scripts/verify-prompt-studio-clean-reset.mjs ARCHITECTURE.md
+          if git diff --cached --quiet; then
+            echo 'No pass 13 generated changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Refresh manifest after offline helper prune'
+          git push origin HEAD:cleanup-relevance-pass13
