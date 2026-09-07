@@ -48,19 +48,13 @@ function requireLocalRef(owner, raw, kind) {
 
 for (const file of files.filter(file => file.endsWith('.html'))) {
   const source = text.get(file) || '';
-  for (const match of source.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi)) {
-    requireLocalRef(file, match[1], 'HTML');
-  }
+  for (const match of source.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi)) requireLocalRef(file, match[1], 'HTML');
 }
 
 for (const file of files.filter(file => file.endsWith('.css'))) {
   const source = text.get(file) || '';
-  for (const match of source.matchAll(/@import\s+(?:url\(\s*)?["']?([^"')\s;]+)["']?/gi)) {
-    requireLocalRef(file, match[1], 'CSS import');
-  }
-  for (const match of source.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/gi)) {
-    requireLocalRef(file, match[1], 'CSS url');
-  }
+  for (const match of source.matchAll(/@import\s+(?:url\(\s*)?["']?([^"')\s;]+)["']?/gi)) requireLocalRef(file, match[1], 'CSS import');
+  for (const match of source.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/gi)) requireLocalRef(file, match[1], 'CSS url');
 }
 
 const manifestPath = 'config/asset-manifest.json';
@@ -79,11 +73,17 @@ if (!manifest.manifestVersion || !manifest.assets || typeof manifest.assets !== 
   }
 }
 
-for (const file of files.filter(file => file.startsWith('.github/workflows/') && /\.ya?ml$/.test(file))) {
+const workflowFiles = files.filter(file => file.startsWith('.github/workflows/') && /\.ya?ml$/.test(file));
+for (const file of workflowFiles) {
   const source = text.get(file) || '';
   for (const match of source.matchAll(/\bnode(?:\s+--check)?\s+([A-Za-z0-9_./-]+\.(?:m?js))\b/g)) {
     const target = match[1];
     if (!fileSet.has(target)) errors.push(`${file}: invokes missing ${target}`);
+  }
+  for (const match of source.matchAll(/^\s*-\s+['"]([^'"]+)['"]\s*$/gm)) {
+    const target = match[1];
+    if (!/\.(?:m?js|css|html|json|md|ya?ml)$/.test(target) || /[*?{}]/.test(target)) continue;
+    if (!fileSet.has(target)) warnings.push(`${file}: stale exact path filter for missing ${target}`);
   }
 }
 
@@ -107,9 +107,7 @@ const retiredPatterns = [
 ];
 for (const file of productionFiles) {
   const source = text.get(file) || '';
-  for (const pattern of retiredPatterns) {
-    if (source.includes(pattern)) errors.push(`${file}: retired production residue remains: ${pattern}`);
-  }
+  for (const pattern of retiredPatterns) if (source.includes(pattern)) errors.push(`${file}: retired production residue remains: ${pattern}`);
 }
 
 function refsOutsideSelf(candidate) {
@@ -117,19 +115,21 @@ function refsOutsideSelf(candidate) {
   return textFiles.filter(file => file !== candidate && ((text.get(file) || '').includes(candidate) || (text.get(file) || '').includes(base)));
 }
 
-const cssCandidates = files
-  .filter(file => !file.includes('/') && file.endsWith('.css'))
-  .filter(file => refsOutsideSelf(file).length === 0);
-const jsCandidates = files
-  .filter(file => file.startsWith('js/') && file.endsWith('.js'))
-  .filter(file => refsOutsideSelf(file).length === 0);
-const fragmentCandidates = files
-  .filter(file => file.startsWith('fragments/') && file.endsWith('.html'))
-  .filter(file => refsOutsideSelf(file).length === 0);
-
+const cssCandidates = files.filter(file => !file.includes('/') && file.endsWith('.css')).filter(file => refsOutsideSelf(file).length === 0);
+const jsCandidates = files.filter(file => file.startsWith('js/') && file.endsWith('.js')).filter(file => refsOutsideSelf(file).length === 0);
+const fragmentCandidates = files.filter(file => file.startsWith('fragments/') && file.endsWith('.html')).filter(file => refsOutsideSelf(file).length === 0);
 for (const file of cssCandidates) warnings.push(`Unowned CSS candidate: ${file}`);
 for (const file of jsCandidates) warnings.push(`Unowned JS candidate: ${file}`);
 for (const file of fragmentCandidates) warnings.push(`Unowned fragment candidate: ${file}`);
+
+const permanentWorkflowText = workflowFiles
+  .filter(file => file !== '.github/workflows/final-architecture-audit.yml')
+  .map(file => text.get(file) || '')
+  .join('\n');
+const unownedVerifiers = files
+  .filter(file => file.startsWith('scripts/verify-') && file.endsWith('.mjs'))
+  .filter(file => !permanentWorkflowText.includes(file));
+for (const file of unownedVerifiers) warnings.push(`Verifier has no permanent workflow caller: ${file}`);
 
 const removedWorkflowRefs = [
   'scripts/build-native-studio-shell.mjs',
@@ -140,16 +140,14 @@ const removedWorkflowRefs = [
   'scripts/diagnose-weekly-day-one.mjs',
   'scripts/upgrade-refinement-metric-priority.mjs'
 ];
-for (const file of files.filter(file => file.startsWith('.github/workflows/') && /\.ya?ml$/.test(file))) {
+for (const file of workflowFiles) {
   const source = text.get(file) || '';
-  for (const removed of removedWorkflowRefs) {
-    if (source.includes(removed)) warnings.push(`${file}: stale reference to removed helper ${removed}`);
-  }
+  for (const removed of removedWorkflowRefs) if (source.includes(removed)) warnings.push(`${file}: stale reference to removed helper ${removed}`);
 }
 
 console.log(`Final architecture audit scanned ${files.length} files (${textFiles.length} text files).`);
 console.log(`Manifest assets: ${Object.keys(manifest.assets || {}).length}.`);
-console.log(`Potential ownership candidates: CSS ${cssCandidates.length}, JS ${jsCandidates.length}, fragments ${fragmentCandidates.length}.`);
+console.log(`Potential ownership candidates: CSS ${cssCandidates.length}, JS ${jsCandidates.length}, fragments ${fragmentCandidates.length}; unowned verifiers ${unownedVerifiers.length}.`);
 if (warnings.length) {
   console.log('\nAUDIT WARNINGS (review manually; not automatic deletion evidence):');
   for (const warning of warnings) console.log(`- ${warning}`);
