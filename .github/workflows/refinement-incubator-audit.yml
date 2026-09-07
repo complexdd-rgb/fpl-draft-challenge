@@ -12,6 +12,9 @@ on:
       - 'js/prompt-four-star-enforcer.js'
       - 'js/prompt-library-canonical-state.js'
       - 'js/prompt-library-legacy-additions-20260814.js'
+      - 'scripts/apply-canonical-prompt-state.mjs'
+      - 'scripts/verify-canonical-prompt-state.mjs'
+      - 'scripts/verify-prompt-studio-redesign-policy.mjs'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - 'scripts/verify-all-season-certification-gate.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
@@ -26,6 +29,9 @@ on:
       - 'js/prompt-four-star-enforcer.js'
       - 'js/prompt-library-canonical-state.js'
       - 'js/prompt-library-legacy-additions-20260814.js'
+      - 'scripts/apply-canonical-prompt-state.mjs'
+      - 'scripts/verify-canonical-prompt-state.mjs'
+      - 'scripts/verify-prompt-studio-redesign-policy.mjs'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - 'scripts/verify-all-season-certification-gate.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
@@ -69,6 +75,10 @@ jobs:
           ! grep -q '"promptFourStarEnforcer"' config/asset-manifest.json
           ! grep -q '"promptLibraryCanonicalState"' config/asset-manifest.json
           ! grep -q '"promptLibraryLegacyAdditions"' config/asset-manifest.json
+          test ! -e js/prompt-library-canonical-state.js
+          test ! -e scripts/apply-canonical-prompt-state.mjs
+          test ! -e scripts/verify-canonical-prompt-state.mjs
+          test ! -e scripts/verify-prompt-studio-redesign-policy.mjs
 
       - name: Reject whitespace errors
         run: git diff --check
