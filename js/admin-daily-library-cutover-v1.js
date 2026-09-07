@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily saved-library cutover boundary v1.0.0.
+/* FPL Challenge Studio — Daily saved-library cutover boundary v1.0.1.
    Validates the promoted family-shard snapshot and provides lazy, deterministic prompt
    rehydration for Daily Challenge. It does not make this pool production-authoritative. */
 (() => {
@@ -6,7 +6,7 @@
 
   if (window.FPL_DAILY_LIBRARY_CUTOVER_V1?.ready) return;
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.0.1";
   const EXPECTED_FAMILIES = Object.freeze([
     "season-stats",
     "position-stat",
@@ -339,21 +339,8 @@
     });
   }
 
-  function retireLegacyHistoryPanel() {
-    const panel = document.getElementById("historyPanel");
-    if (!panel) return;
-    panel.hidden = true;
-    panel.setAttribute("aria-hidden", "true");
-    const remove = () => {
-      if (panel.isConnected) panel.remove();
-      document.documentElement.dataset.dailyHistoryPanel = "retired";
-    };
-    if (document.readyState === "complete") setTimeout(remove, 0);
-    else window.addEventListener("load", () => setTimeout(remove, 0), { once: true });
-  }
 
   function initialise() {
-    retireLegacyHistoryPanel();
     refresh();
     window.addEventListener("fpl:prompt-library-shards-saved", refresh);
     window.addEventListener("fpl:prompt-library-shards-restored", refresh);

@@ -96,7 +96,7 @@ await new Promise(resolve => setTimeout(resolve, 25));
 
 const api = sandbox.window.FPL_DAILY_LIBRARY_CUTOVER_V1;
 assert(api?.ready === true, 'Daily library cutover API did not initialise.');
-assert(api.version === '1.0.0', 'Daily library cutover version mismatch.');
+assert(api.version === '1.0.1', 'Daily library cutover version mismatch.');
 assert(api.expectedFamilies.length === 17, 'Daily library cutover must require all 17 promoted families.');
 
 const state = api.getState();
@@ -120,7 +120,7 @@ assert(nationalityTest({ _career: { playerId: 1 } }) === true, 'Hydrated nationa
 
 assert(source.includes('state.recordsById'), 'Cutover boundary does not retain the compact certified index.');
 assert(source.includes('materialiseFamily'), 'Lazy family materialisation API is missing.');
-assert(source.includes('historyPanel'), 'Legacy History & cooldown panel retirement is missing.');
+assert(!source.includes('historyPanel'), 'Retired visible History panel residue remains in the Daily cutover runtime.');
 assert(!source.includes('window.FPL_REPOSITORY_CERTIFIED_PROMPT_POOL ='), 'Cutover boundary must not replace production authority yet.');
 assert(!source.includes('window.FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Cutover boundary must not silently activate Daily generation.');
 

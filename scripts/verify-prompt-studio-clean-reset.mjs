@@ -9,6 +9,9 @@ const manifest = JSON.parse(read('config/asset-manifest.json'));
 const generatedManifest = read('js/asset-manifest.js');
 const bootstrap = read('js/studio-bootstrap.js');
 const admin = read('admin.html');
+const adminCss = read('admin.css');
+const stageOne = read('js/admin-stage-one.js');
+const dailyMobileCss = read('admin-daily-mobile-v1.css');
 const repositoryPool = read('js/repository-certified-prompt-pool.js');
 const cutover = read('js/admin-daily-library-cutover-v1.js');
 const dailyGuard = read('js/admin-daily-generator-guard.js');
@@ -35,6 +38,7 @@ assert(manifest.assets?.promptPromotionV1?.path === 'js/prompt-promotion-v1.js',
 assert(manifest.assets?.promptLibraryShardsV1?.path === 'js/prompt-library-shards-v1.js', 'Durable Prompt Library shards are missing from the central manifest.');
 assert(manifest.assets?.promptLibraryShardsCssV1?.version === '1.2.0-daily-authority', 'Daily saved-library authority display cache tag is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.path === 'js/admin-daily-library-cutover-v1.js', 'Daily saved-library cutover boundary is missing from the central manifest.');
+assert(manifest.assets?.adminDailyLibraryCutoverV1?.version === '1.0.1-history-residue-prune', 'Daily cutover cache version does not include the history-residue cleanup.');
 assert(manifest.assets?.adminDailyGeneratorGuard?.path === 'js/admin-daily-generator-guard.js', 'Daily generation guard is missing from the central manifest.');
 assert(manifest.assets?.adminDailyGeneratorGuard?.version === '2.5.0-leader-day-spacing', 'Daily generation guard cache version is not on saved-library v2.');
 assert(manifest.assets?.dailySemanticDiversityV1?.path === 'js/daily-semantic-diversity-v1.js', 'Daily semantic-diversity policy is missing from the central manifest.');
@@ -43,6 +47,15 @@ assert(manifest.assets?.adminDailyPublish?.version === '1.1.0-date-identity', 'D
 assert(manifest.assets?.adminScheduleManagerV2?.path === 'js/admin-schedule-manager-v2.js', 'Schedule manager v2 is missing from the central manifest.');
 assert(manifest.assets?.adminScheduleManagerV2?.version === '2.0.0', 'Schedule manager v2 cache version is stale.');
 assert(manifest.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-reset', 'Repository prompt pool is not on the clean zero boundary.');
+
+assert(!fs.existsSync('admin-retired-workspaces.css'), 'Retired workspace stylesheet returned and can hide active tools.');
+assert(!adminCss.includes('admin-retired-workspaces.css'), 'admin.css still imports the retired workspace hiding layer.');
+assert(admin.includes('data-open-workspace="imports"'), 'Historical Imports navigation is missing from the active Studio shell.');
+assert(admin.includes('data-workspace="imports"'), 'Historical Imports workspace is missing from the active Studio shell.');
+assert(!stageOne.includes('studio-retired-tool'), 'Stage One still contains the unreachable retired-tool branch.');
+assert(!stageOne.includes('historyPanel'), 'Stage One still references the removed visible Daily history panel.');
+assert(!cutover.includes('historyPanel'), 'Daily cutover still references the removed visible Daily history panel.');
+assert(!dailyMobileCss.includes('#workspace-challenge #historyPanel'), 'Daily mobile CSS still styles the removed History panel.');
 
 assert(generatedManifest.includes('3.5.0-live-loader-prune'), 'Generated asset manifest was not refreshed to the live-loader-prune boundary.');
 assert(generatedManifest.includes('"dailySemanticDiversityV1"'), 'Generated asset manifest does not expose the Daily semantic-diversity policy.');
