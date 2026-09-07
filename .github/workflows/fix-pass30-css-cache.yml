@@ -1,0 +1,37 @@
+name: Fix Pass 30 stylesheet cache tag
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass30-big-sweep
+    paths:
+      - 'scripts/fix-pass30-css-cache.mjs'
+      - '.github/workflows/fix-pass30-css-cache.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-relevance-pass30-big-sweep
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply cache-tag compatibility fix
+        run: node scripts/fix-pass30-css-cache.mjs
+      - name: Verify and commit
+        run: |
+          set -euo pipefail
+          grep -q 'admin.css?v=16.2.1-pass30' admin.html
+          ! grep -q 'admin.css?v=16.2.2-big-sweep' admin.html
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin.html
+          git commit -m 'Keep Pass 30 stylesheet cache tag regression-compatible'
+          git push origin HEAD:cleanup-relevance-pass30-big-sweep
