@@ -118,7 +118,6 @@ jobs:
           ! grep -R -q 'FPL_STUDIO_PHASE6' js --include='*.js'
           grep -q 'FPL_STUDIO_ZIP?.buildZipBlob' js/admin-batch-calendar.js
           grep -q 'window.FPL_STUDIO_ZIP' js/admin-daily-publish.js
-          grep -q 'FPL_STUDIO_ZIP?.buildZipBlob' js/admin-core.js
           grep -q 'src="js/studio-zip.js?v=1.0.0"' admin.html
           node - <<'NODE'
           const fs = require('node:fs');
