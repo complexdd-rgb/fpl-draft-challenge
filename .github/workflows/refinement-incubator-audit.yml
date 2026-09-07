@@ -8,14 +8,15 @@ on:
       - 'config/asset-manifest.json'
       - 'js/studio-bootstrap.js'
       - 'js/admin-core.js'
+      - 'js/career-context.js'
+      - 'js/prompt-career-evolution-family-generator.js'
+      - 'js/prompt-target-survivor-generator.js'
+      - 'js/prompt-target-auto-explorer.js'
       - 'js/prompt-refinement-incubator.js'
       - 'js/prompt-refinement-survivors-v1.js'
       - 'js/prompt-four-star-enforcer.js'
-      - 'js/prompt-library-canonical-state.js'
       - 'js/prompt-library-legacy-additions-20260814.js'
-      - 'scripts/apply-canonical-prompt-state.mjs'
-      - 'scripts/verify-canonical-prompt-state.mjs'
-      - 'scripts/verify-prompt-studio-redesign-policy.mjs'
+      - 'scripts/verify-career-evolution-prompt-families.mjs'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - 'scripts/verify-all-season-certification-gate.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
@@ -26,14 +27,15 @@ on:
       - 'config/asset-manifest.json'
       - 'js/studio-bootstrap.js'
       - 'js/admin-core.js'
+      - 'js/career-context.js'
+      - 'js/prompt-career-evolution-family-generator.js'
+      - 'js/prompt-target-survivor-generator.js'
+      - 'js/prompt-target-auto-explorer.js'
       - 'js/prompt-refinement-incubator.js'
       - 'js/prompt-refinement-survivors-v1.js'
       - 'js/prompt-four-star-enforcer.js'
-      - 'js/prompt-library-canonical-state.js'
       - 'js/prompt-library-legacy-additions-20260814.js'
-      - 'scripts/apply-canonical-prompt-state.mjs'
-      - 'scripts/verify-canonical-prompt-state.mjs'
-      - 'scripts/verify-prompt-studio-redesign-policy.mjs'
+      - 'scripts/verify-career-evolution-prompt-families.mjs'
       - 'scripts/verify-prompt-studio-clean-reset.mjs'
       - 'scripts/verify-all-season-certification-gate.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
@@ -66,6 +68,9 @@ jobs:
 
       - name: Verify current Daily saved-library reservoir
         run: node scripts/verify-weekly-certified-snapshot-race.mjs
+
+      - name: Verify Career Evolution offline refinement boundary
+        run: node scripts/verify-career-evolution-prompt-families.mjs
 
       - name: Confirm retired refinement assets are not runtime-owned
         shell: bash
