@@ -115,6 +115,8 @@ Examples include Liverpool 16/18-goal prompts both returning four players, botto
 
 For monotonic nested filters, an unchanged count guarantees the nested answer set is unchanged. Those examples are equivalent-cell evidence, not distinct rescues.
 
+Detailed record-level evidence is preserved in `reports/prompt-curation-132804-calibration-findings.md`.
+
 ## What remains before survivor export
 
 Before a permanent curated package is written, add or derive where feasible:
