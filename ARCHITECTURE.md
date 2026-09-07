@@ -1,6 +1,6 @@
 # FPL Draft Challenge — Architecture Map
 
-Updated: 6 September 2026
+Updated: 7 September 2026
 
 This map records the current runtime ownership after the Prompt Studio clean reset and the Studio relevance cleanup. Historical migration scripts are not runtime architecture.
 
@@ -70,7 +70,7 @@ prompt-studio-clean-reset.js
 
 The canonical repository `prompt-library.js` remains intentionally empty after the clean reset. Promoted Prompt Studio output is stored durably in IndexedDB as family shards. Factory candidates do not become Daily source material until they pass through Quality and Promotion and are saved.
 
-The old V2/V3/V4 Prompt Studio runtimes, compatibility shims, prompt lazy-loader and career-overlap loader chain are retired and physically absent.
+The old V2/V3/V4 Prompt Studio runtimes, compatibility shims, prompt lazy-loader, career-overlap loader chain and V2 canonical-state layer are retired and physically absent. The obsolete V2 native-Prompt builder/verifier pair has also been removed; the clean Prompt Studio controller owns the current prompt workspace at runtime.
 
 ## 5. Daily generation
 
@@ -132,7 +132,6 @@ config/asset-manifest.json
 → scripts/build-asset-manifest-runtime.mjs
 → scripts/build-native-studio-shell.mjs
 → scripts/build-native-daily-workspace.mjs
-→ scripts/build-native-prompt-workspace.mjs
 → scripts/build-studio-cache-tags.mjs
 → verification
 ```
@@ -141,7 +140,6 @@ Key verifiers include:
 
 - `scripts/verify-prompt-studio-clean-reset.mjs`
 - `scripts/verify-native-daily-workspace.mjs`
-- `scripts/verify-native-prompt-workspace.mjs`
 - `scripts/verify-native-validation-workspace.mjs`
 - `scripts/verify-weekly-certified-snapshot-race.mjs`
 - `scripts/verify-all-season-certification-gate.mjs`
@@ -150,13 +148,13 @@ Key verifiers include:
 
 Some older generation/quality modules remain because diagnostic and refinement scripts still use them directly outside the live Studio runtime, particularly `js/admin-import-tools-base.js` and historical/refinement analysis helpers.
 
-They are **not** Prompt Studio runtime owners. Remove them only after their remaining diagnostics, audits and survivor-growth workflows have been migrated or retired.
+They are **not** Prompt Studio runtime owners and retired refinement artifacts are no longer advertised through the live asset manifest. Remove direct-file analysis helpers only after their remaining diagnostics, audits and survivor-growth workflows have been migrated or retired.
 
 ## 10. Remaining cleanup order
 
 1. Continue decomposing the large multi-phase `js/admin-core.js` without changing generation/test behaviour.
 2. Audit offline legacy quality/generator helpers and their remaining diagnostic callers.
-3. Remove manifest entries that are demonstrably offline-only once their callers are settled.
+3. Continue removing demonstrably dead V2/static Prompt Studio residue without disturbing the clean runtime.
 4. Continue the Daily Challenge UI redesign on top of the now-clean runtime architecture.
 5. Return to Prompt Factory/Quality/Promotion survivor-library growth.
 
