@@ -27,7 +27,7 @@ window.FPL_DAILY_CHALLENGE = {
       position: "DEF",
       label: "Defender who started at £4.0m or less and played 1,500+ minutes",
       fail: "That defender must start at £4.0m or less and play at least 1,500 minutes.",
-      test: p => p.startingPrice <= 4 && p.minutes >= 1500
+      test: p => Number.isFinite(p.startingPrice) && p.startingPrice <= 4 && p.minutes >= 1500
     },
     {
       id: "def_2500_5bonus_zero_goal",
@@ -89,7 +89,7 @@ window.FPL_DAILY_CHALLENGE = {
       position: "MID",
       label: "Midfielder who finished at £5.0m or less with 100+ points",
       fail: "That midfielder must finish at £5.0m or less and score at least 100 points.",
-      test: p => p.finalPrice <= 5 && p.points >= 100
+      test: p => Number.isFinite(p.finalPrice) && p.finalPrice <= 5 && p.points >= 100
     },
     {
       id: "mid_10yellows_100",
