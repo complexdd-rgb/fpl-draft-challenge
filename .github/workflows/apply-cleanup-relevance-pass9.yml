@@ -48,7 +48,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add js/admin-core.js js/prompt-studio-clean-reset.js .github/workflows/studio-regression.yml ARCHITECTURE.md
+          git add js/admin-core.js js/prompt-studio-clean-reset.js ARCHITECTURE.md
           if git diff --cached --quiet; then
             echo 'No pass 9 production changes to commit.'
             exit 0
