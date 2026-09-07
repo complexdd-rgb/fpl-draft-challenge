@@ -15,7 +15,7 @@
     "promptLibraryShardsV1": { "path": "js/prompt-library-shards-v1.js", "version": "1.1.0" },
     "promptLibraryShardsBridgeV1": { "path": "js/prompt-library-shards-promotion-bridge-v1.js", "version": "1.0.0" },
     "promptLibraryShardsCssV1": { "path": "admin-prompt-library-shards-v1.css", "version": "1.2.0-daily-authority" },
-    "promptCurationReviewExportV1": { "path": "js/prompt-curation-review-export-v1.js", "version": "1.0.0" },
+    "promptCurationReviewExportV1": { "path": "js/prompt-curation-review-export-v1.js", "version": "1.1.0" },
     "adminDailyLibraryCutoverV1": { "path": "js/admin-daily-library-cutover-v1.js", "version": "1.0.1-history-residue-prune" },
     "dailySemanticDiversityV1": { "path": "js/daily-semantic-diversity-v1.js", "version": "1.0.0" },
     "adminDailyPublish": { "path": "js/admin-daily-publish.js", "version": "1.1.0-date-identity" },
