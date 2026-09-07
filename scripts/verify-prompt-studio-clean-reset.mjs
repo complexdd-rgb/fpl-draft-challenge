@@ -50,8 +50,9 @@ assert(manifest.assets?.repositoryCertifiedPromptPool?.version === '2.0.0-clean-
 
 assert(!fs.existsSync('admin-retired-workspaces.css'), 'Retired workspace stylesheet returned and can hide active tools.');
 assert(!adminCss.includes('admin-retired-workspaces.css'), 'admin.css still imports the retired workspace hiding layer.');
-assert(admin.includes('data-open-workspace="imports"'), 'Historical Imports navigation is missing from the active Studio shell.');
-assert(admin.includes('data-workspace="imports"'), 'Historical Imports workspace is missing from the active Studio shell.');
+assert(!admin.includes('data-open-workspace="imports"'), 'Retired Historical Imports navigation returned to the active Studio shell.');
+assert(!admin.includes('data-workspace="imports"'), 'Retired Historical Imports workspace returned to the active Studio shell.');
+assert(!stageOne.includes('id: "imports"'), 'Stage One still owns the retired Historical Imports workspace.');
 assert(!stageOne.includes('studio-retired-tool'), 'Stage One still contains the unreachable retired-tool branch.');
 assert(!stageOne.includes('historyPanel'), 'Stage One still references the removed visible Daily history panel.');
 assert(!cutover.includes('historyPanel'), 'Daily cutover still references the removed visible Daily history panel.');
