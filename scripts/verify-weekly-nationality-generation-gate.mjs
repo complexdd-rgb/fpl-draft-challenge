@@ -2,11 +2,15 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const admin = fs.readFileSync('admin.html', 'utf8');
+const manifest = JSON.parse(fs.readFileSync('config/asset-manifest.json', 'utf8'));
+const batchAsset = manifest.assets?.adminBatchCalendar;
+if (!batchAsset?.path || !batchAsset?.version) throw new Error('Central manifest is missing adminBatchCalendar ownership.');
+
 const expectedOrder = [
-  'nationality-enrichment.js?v=1.1.1',
-  'js/prompt-nationality-context-pack-v1.js?v=1.0.2',
-  'js/admin-weekly-nationality-readiness-gate.js?v=1.0.2',
-  'js/admin-batch-calendar.js?v=3.0.6'
+  'nationality-enrichment.js?v=',
+  'js/prompt-nationality-context-pack-v1.js?v=',
+  'js/admin-weekly-nationality-readiness-gate.js?v=',
+  `${batchAsset.path}?v=${batchAsset.version}`
 ];
 let lastIndex = -1;
 for (const asset of expectedOrder) {
@@ -110,4 +114,4 @@ if (window.FPL_WEEKLY_NATIONALITY_READINESS_GATE?.ready?.() !== true) {
   throw new Error('Gate readiness API does not reflect real usable nationality-pack readiness.');
 }
 
-console.log('Weekly nationality generation gate verified: empty ready packs remain blocked; real usable packs unlock; cache versions bumped.');
+console.log(`Weekly nationality generation gate verified: empty ready packs remain blocked; real usable packs unlock; ${batchAsset.path} is manifest-owned at ${batchAsset.version}.`);

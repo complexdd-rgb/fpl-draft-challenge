@@ -10,6 +10,10 @@ on:
       - 'js/admin-batch-calendar.js'
       - 'fragments/admin-daily-workspace.html'
       - 'admin.html'
+      - 'prompt-library.js'
+      - 'todays-challenge.js'
+      - 'challenges/*.js'
+      - 'scripts/verify-price-prompt-null-safety.mjs'
       - 'scripts/verify-daily-library-cutover-v1.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/verify-native-daily-workspace.mjs'
@@ -24,6 +28,10 @@ on:
       - 'js/admin-batch-calendar.js'
       - 'fragments/admin-daily-workspace.html'
       - 'admin.html'
+      - 'prompt-library.js'
+      - 'todays-challenge.js'
+      - 'challenges/*.js'
+      - 'scripts/verify-price-prompt-null-safety.mjs'
       - 'scripts/verify-daily-library-cutover-v1.mjs'
       - 'scripts/verify-weekly-certified-snapshot-race.mjs'
       - 'scripts/verify-native-daily-workspace.mjs'
@@ -51,6 +59,10 @@ jobs:
           node --check js/admin-daily-library-cutover-v1.js
           node --check js/admin-daily-generator-guard.js
           node --check js/admin-batch-calendar.js
+          node --check scripts/verify-price-prompt-null-safety.mjs
+
+      - name: Verify production price null safety
+        run: node scripts/verify-price-prompt-null-safety.mjs
 
       - name: Verify saved-library Daily certification boundary
         run: node scripts/verify-daily-library-cutover-v1.mjs

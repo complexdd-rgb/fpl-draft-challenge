@@ -17,7 +17,7 @@ window.FPL_DAILY_CHALLENGE = {
       id: "auto_gk_saves_70_league_10_15_excluding_emiliano_martinez_nick_pope",
       family: "GK:league-position+saves",
       position: "GK",
-      label: "Goalkeeper with 70+ saves from a club finishing 10th–15th — excluding Emiliano Martínez and Nick Pope",
+      label: "Goalkeeper with 70+ saves from a club finishing 10th–15th — excluding Tim Howard and Petr Cech",
       fail: "That goalkeeper season must include at least 70 saves for a club finishing 10th–15th. Excluding Emiliano Martínez and Nick Pope.",
       test: p => ((p => ((Number.isFinite(p.saves) && p.saves >= 70) && (Number.isFinite(p.leaguePosition) && p.leaguePosition >= 10 && p.leaguePosition <= 15)))(p) && !["emiliano-martinez","nick-pope"].includes(p.playerId))
     },
@@ -89,7 +89,7 @@ window.FPL_DAILY_CHALLENGE = {
       position: "MID",
       label: "Midfielder outside the traditional Big Six who started below £6.0m and had 10+ goal involvements",
       fail: "That midfielder must be outside the traditional Big Six, start below £6.0m and record at least 10 combined goals and assists.",
-      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && p.startingPrice < 6 && (p.goals + p.assists) >= 10
+      test: p => !["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"].includes(p.club) && Number.isFinite(p.startingPrice) && p.startingPrice < 6 && (p.goals + p.assists) >= 10
     },
     {
       id: "mid_promoted_5assists",

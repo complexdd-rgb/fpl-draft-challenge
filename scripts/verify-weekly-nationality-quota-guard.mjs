@@ -2,10 +2,13 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const admin = fs.readFileSync('admin.html', 'utf8');
-const batchIndex = admin.indexOf('js/admin-batch-calendar.js?v=3.0.6');
-const guardIndex = admin.indexOf('js/admin-weekly-nationality-quota-guard.js?v=1.0.0');
+const manifest = JSON.parse(fs.readFileSync('config/asset-manifest.json', 'utf8'));
+const batchAsset = manifest.assets?.adminBatchCalendar;
+if (!batchAsset?.path || !batchAsset?.version) throw new Error('Central manifest is missing adminBatchCalendar ownership.');
+const batchIndex = admin.indexOf(`${batchAsset.path}?v=${batchAsset.version}`);
+const guardIndex = admin.indexOf('js/admin-weekly-nationality-quota-guard.js?v=');
 if (batchIndex < 0 || guardIndex <= batchIndex) {
-  throw new Error('Weekly nationality quota guard is not loaded after the batch calendar.');
+  throw new Error('Weekly nationality quota guard is not loaded after the manifest-owned batch calendar.');
 }
 
 const source = fs.readFileSync('js/admin-weekly-nationality-quota-guard.js', 'utf8');
@@ -94,4 +97,4 @@ if (event.prevented || event.stopped || window.FPL_WEEKLY_NATIONALITY_QUOTA_GUAR
   throw new Error('Quota guard blocked a valid seven-day batch with exactly one nationality prompt per day.');
 }
 
-console.log('Weekly nationality quota guard verified: ZIP (5)-style zero-nationality batches are blocked; 1-per-day batches are certified.');
+console.log(`Weekly nationality quota guard verified after ${batchAsset.path}@${batchAsset.version}: zero-nationality batches are blocked; 1-per-day batches are certified.`);
