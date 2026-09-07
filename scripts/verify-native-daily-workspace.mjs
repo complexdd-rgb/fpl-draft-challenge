@@ -5,6 +5,7 @@ const html = read('admin.html');
 const stageOne = read('js/admin-stage-one.js');
 const adminCore = read('js/admin-core.js');
 const fragment = read('fragments/admin-daily-workspace.html');
+const builder = read('scripts/build-native-daily-workspace.mjs');
 const manifest = JSON.parse(read('config/asset-manifest.json'));
 
 const requiredIds = [
@@ -69,6 +70,11 @@ assert(fragment.includes('id="downloadWeekBtn"'), 'Seven-day ZIP control is miss
 assert(fragment.includes('id="batchStatus"'), 'Seven-day generator status is missing from the canonical Daily fragment.');
 assert(fragment.includes('id="maxPerfectScore"'), 'Maximum perfect score control is missing from the canonical Daily fragment.');
 
+assert(builder.includes("const fragment = dedent(read(FRAGMENT_PATH));"), 'Daily workspace builder no longer renders from the canonical fragment.');
+for (const retired of ['locateLegacyDaily', 'extractMarkedDaily', 'PROMPT_PANEL_START', 'libraryManagerPanel']) {
+  assert(!builder.includes(retired), `Daily workspace builder still contains retired migration residue: ${retired}.`);
+}
+
 const redundantClassifier = 'if (/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|daily challenge/.test(title)) return "challenge";';
 assert(!stageOne.includes(redundantClassifier), 'Redundant Daily title classifier still exists in admin-stage-one.js.');
 assert(stageOne.includes('return "challenge";'), 'Stage One fallback workspace classification was removed unexpectedly.');
@@ -88,5 +94,6 @@ console.log(JSON.stringify({
   visibleHistoryPanelRetired: true,
   hiddenHistoryCompatibilityRetired: true,
   legacyDailyPanelsRemaining: requiredIds.filter(id => legacyMain.includes(`id="${id}"`)).length,
+  builderLegacyMigrationRetired: true,
   redundantClassifierRemoved: true
 }, null, 2));
