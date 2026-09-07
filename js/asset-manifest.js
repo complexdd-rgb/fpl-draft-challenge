@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.4.0-offline-helper-prune"
+      "version": "3.5.0-live-loader-prune"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -76,10 +76,6 @@
       "path": "js/admin-schedule-manager-v2.js",
       "version": "2.0.0"
     },
-    "liveFeatureLoader": {
-      "path": "js/live-feature-loader.js",
-      "version": null
-    },
     "validationEngine": {
       "path": "js/validation-engine.js",
       "version": "1.7.1-certification-snapshot"
@@ -121,7 +117,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.4.0-offline-helper-prune",
+    version: "3.5.0-live-loader-prune",
     assets,
     get,
     url
