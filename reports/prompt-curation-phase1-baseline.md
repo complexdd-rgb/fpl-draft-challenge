@@ -52,7 +52,7 @@ The source export remains immutable. The target is applied by survivor decisions
 
 ## Evidence of threshold explosion
 
-The promoted records already expose very large threshold families. Examples in the source include variant groups with 30+ near-neighbour point thresholds, 100+ career-club/stat variants and a career-longevity group whose stored `variantGroupSize` reaches 474. These prompts can all pass structural Quality checks while still being redundant as permanent gameplay material.
+The promoted records already expose very large threshold families. Examples in the source include 30+ near-neighbour point thresholds, 100+ career-club/stat variants and combined-stat groups whose stored `variantGroupSize` exceeds 2,300 (observed up to 2,389 in File Library search). These prompts can all pass structural Quality checks while still being redundant as permanent gameplay material.
 
 ## 144-prompt calibration batch
 
@@ -68,5 +68,7 @@ This prevents the 144 review from reproducing the source imbalance.
 ## What remains to measure from the complete export
 
 The audit script calculates the full per-family variant-group distribution, median/P90/P95/P99/max group sizes, group-size buckets, position/difficulty/answer-pool distributions, and 1/2/3-survivor compression simulations when run against the complete JSON export.
+
+The export also contains Quality-pass prompts with more than 150 answer players (181 observed), so the audit records `151+` as a separate very-broad answer band.
 
 No unobserved distribution values are invented in this baseline report.
