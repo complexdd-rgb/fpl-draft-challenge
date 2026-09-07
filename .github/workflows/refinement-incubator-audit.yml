@@ -7,6 +7,7 @@ on:
     paths:
       - 'config/asset-manifest.json'
       - 'js/studio-bootstrap.js'
+      - 'js/admin-core.js'
       - 'js/prompt-refinement-incubator.js'
       - 'js/prompt-refinement-survivors-v1.js'
       - 'js/prompt-four-star-enforcer.js'
@@ -24,6 +25,7 @@ on:
     paths:
       - 'config/asset-manifest.json'
       - 'js/studio-bootstrap.js'
+      - 'js/admin-core.js'
       - 'js/prompt-refinement-incubator.js'
       - 'js/prompt-refinement-survivors-v1.js'
       - 'js/prompt-four-star-enforcer.js'
@@ -75,6 +77,9 @@ jobs:
           ! grep -q '"promptFourStarEnforcer"' config/asset-manifest.json
           ! grep -q '"promptLibraryCanonicalState"' config/asset-manifest.json
           ! grep -q '"promptLibraryLegacyAdditions"' config/asset-manifest.json
+          ! grep -q 'BEGIN admin-phase5.js' js/admin-core.js
+          ! grep -q 'END admin-phase5.js' js/admin-core.js
+          ! grep -q 'FPL_PROMPT_MANAGER_API' js/admin-core.js
           test ! -e js/prompt-library-canonical-state.js
           test ! -e scripts/apply-canonical-prompt-state.mjs
           test ! -e scripts/verify-canonical-prompt-state.mjs
