@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07150f">
   <title>FPL Challenge Studio</title>
-  <script src="js/asset-manifest.js?v=3.1.0-studio-prune"></script>
+  <script src="js/asset-manifest.js?v=3.2.0-runtime-prune"></script>
   <link rel="stylesheet" href="admin.css?v=16.2.0">
 
   <link rel="stylesheet" href="admin-stage-one.css?v=1.0.0">
@@ -618,17 +618,6 @@
                   </div>
                   <p id="copyStatus" class="action-status" role="status"></p>
                 </section>
-
-                <!-- Legacy history controls remain hidden only so the existing controller can keep
-                     recording rotation data until that controller is simplified in the cutover pass. -->
-                <div id="dailyHistoryCompatibility" hidden aria-hidden="true">
-                  <span id="cooldownSummary"></span>
-                  <button id="recordHistoryBtn" type="button" disabled></button>
-                  <button id="downloadHistoryBtn" type="button"></button>
-                  <button id="downloadHistoryMarkdownBtn" type="button"></button>
-                  <p id="historyActionStatus"></p>
-                  <div id="historyList"></div>
-                </div>
             <!-- STUDIO_NATIVE_DAILY_WORKSPACE_END -->
           </section>
           <section class="studio-workspace" data-workspace="prompts" id="workspace-prompts" hidden aria-hidden="true" aria-labelledby="workspace-prompts-title">

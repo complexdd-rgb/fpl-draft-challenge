@@ -140,26 +140,6 @@ function replaceRequired(source, search, replacement, label) {
 writeIfChanged(survivorPackPath, survivorPack);
 
 {
-  const path = 'js/career-overlap-wording.js';
-  let source = fs.readFileSync(path, 'utf8');
-  source = source.replace('career-overlap wording clarity v1.0.24', 'career-overlap wording clarity v1.0.26');
-  source = source.replace('career-overlap wording clarity v1.0.25', 'career-overlap wording clarity v1.0.26');
-  source = replaceRequired(
-    source,
-    '    loadStatus("js/prompt-approved-baseline-loader.js?v=1.0.2", "data-approved-prompt-baseline-loader");\n    loadStatus("js/prompt-quality-baseline-finalizer.js?v=1.1.0", "data-quality-prompt-baseline-finalizer");',
-    '    loadStatus("js/prompt-approved-baseline-loader.js?v=1.0.2", "data-approved-prompt-baseline-loader");\n    loadStatus(window.FPL_ASSET_MANIFEST?.url?.("promptRefinementSurvivors") || "js/prompt-refinement-survivors-v1.js?v=1.0.0", "data-prompt-refinement-survivors-v1");\n    loadStatus("js/prompt-quality-baseline-finalizer.js?v=1.2.0-survivors", "data-quality-prompt-baseline-finalizer");',
-    'career overlap survivor load'
-  );
-  source = replaceRequired(
-    source,
-    '    loadStatus("js/prompt-four-star-enforcer.js?v=1.0.3", "data-prompt-four-star-enforcer");',
-    '    loadStatus(window.FPL_ASSET_MANIFEST?.url?.("promptFourStarEnforcer") || "js/prompt-four-star-enforcer.js?v=2.1.0-survivors", "data-prompt-four-star-enforcer");',
-    'career overlap enforcer load'
-  );
-  writeIfChanged(path, source);
-}
-
-{
   const path = 'js/prompt-quality-baseline-finalizer.js';
   let source = fs.readFileSync(path, 'utf8');
   source = source.replace('quality prompt baseline finalizer v1.1.0', 'quality prompt baseline finalizer v1.2.0');
@@ -210,7 +190,6 @@ writeIfChanged(survivorPackPath, survivorPack);
   let source = fs.readFileSync(path, 'utf8');
   source = source.replace('"manifestVersion": "1.2.0-native-validation"', '"manifestVersion": "1.3.0-refinement-survivors"');
   source = source.replace('"assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "1.2.0-native-validation" }', '"assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "1.3.0-refinement-survivors" }');
-  source = source.replace('"careerOverlapWording": { "path": "js/career-overlap-wording.js", "version": "1.0.25" }', '"careerOverlapWording": { "path": "js/career-overlap-wording.js", "version": "1.0.26" }');
   source = source.replace('"promptRefinementIncubator": { "path": "js/prompt-refinement-incubator.js", "version": "1.0.0" }', '"promptRefinementIncubator": { "path": "js/prompt-refinement-incubator.js", "version": "1.1.1" },\n    "promptRefinementSurvivors": { "path": "js/prompt-refinement-survivors-v1.js", "version": "1.0.0" },\n    "promptFourStarEnforcer": { "path": "js/prompt-four-star-enforcer.js", "version": "2.1.0-survivors" }');
   writeIfChanged(path, source);
 }

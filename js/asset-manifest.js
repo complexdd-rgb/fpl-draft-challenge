@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.1.0-studio-prune"
+      "version": "3.2.0-runtime-prune"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -68,10 +68,6 @@
       "path": "js/daily-semantic-diversity-v1.js",
       "version": "1.0.0"
     },
-    "promptStudioLoader": {
-      "path": "js/prompt-studio-loader.js",
-      "version": "1.4.0-retired"
-    },
     "adminImportToolsBase": {
       "path": "js/admin-import-tools-base.js",
       "version": "16.2.0-careerevolution"
@@ -119,14 +115,6 @@
     "promptEraRangeWording": {
       "path": "js/prompt-era-range-wording.js",
       "version": "1.0.0"
-    },
-    "adminStudioFinish": {
-      "path": "js/admin-studio-finish.js",
-      "version": "1.0.3-repository-pool"
-    },
-    "careerOverlapWording": {
-      "path": "js/career-overlap-wording.js",
-      "version": "1.0.26"
     },
     "promptRefinementIncubator": {
       "path": "js/prompt-refinement-incubator.js",
@@ -197,7 +185,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.1.0-studio-prune",
+    version: "3.2.0-runtime-prune",
     assets,
     get,
     url

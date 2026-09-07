@@ -11,7 +11,6 @@ on:
       - 'js/prompt-field-readiness-panel.js'
       - 'js/historical-season-field-manifest.js'
       - 'js/historical-prompt-unlock-audit.js'
-      - 'js/career-overlap-wording.js'
       - 'scripts/check-historical-safe-prompt-pack.mjs'
       - '.github/workflows/historical-safe-prompts.yml'
   push:
@@ -24,7 +23,6 @@ on:
       - 'js/prompt-field-readiness-panel.js'
       - 'js/historical-season-field-manifest.js'
       - 'js/historical-prompt-unlock-audit.js'
-      - 'js/career-overlap-wording.js'
       - 'scripts/check-historical-safe-prompt-pack.mjs'
       - '.github/workflows/historical-safe-prompts.yml'
 
@@ -48,7 +46,6 @@ jobs:
           node --check js/prompt-field-readiness-panel.js
           node --check js/historical-season-field-manifest.js
           node --check js/historical-prompt-unlock-audit.js
-          node --check js/career-overlap-wording.js
           node --check scripts/check-historical-safe-prompt-pack.mjs
       - name: Historical prompt safety assertions
         run: node scripts/check-historical-safe-prompt-pack.mjs
