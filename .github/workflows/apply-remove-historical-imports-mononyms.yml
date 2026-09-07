@@ -27,8 +27,8 @@ jobs:
       - name: Rebuild generated Studio wiring/cache tags
         run: |
           node scripts/build-asset-manifest-runtime.mjs
-          node scripts/build-native-daily-workspace.mjs
           node scripts/build-studio-cache-tags.mjs
+          node scripts/build-native-daily-workspace.mjs
       - name: Verify changed architecture
         run: |
           node scripts/verify-admin-ui-truth.mjs
