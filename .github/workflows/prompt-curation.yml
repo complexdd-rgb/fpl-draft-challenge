@@ -1,0 +1,52 @@
+name: Prompt Curation
+
+on:
+  pull_request:
+    paths:
+      - 'PROMPT_CURATION_POLICY.md'
+      - 'PROJECT_ROADMAP.md'
+      - 'scripts/audit-prompt-curation-v1.mjs'
+      - 'scripts/verify-prompt-curation-v1.mjs'
+      - 'reports/prompt-curation-phase1-baseline.md'
+      - '.github/workflows/prompt-curation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'PROMPT_CURATION_POLICY.md'
+      - 'PROJECT_ROADMAP.md'
+      - 'scripts/audit-prompt-curation-v1.mjs'
+      - 'scripts/verify-prompt-curation-v1.mjs'
+      - 'reports/prompt-curation-phase1-baseline.md'
+      - '.github/workflows/prompt-curation.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prompt-curation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify prompt curation audit and review-batch invariants
+        run: node scripts/verify-prompt-curation-v1.mjs
+
+      - name: Confirm Daily generation architecture is untouched by curation tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'audit-prompt-curation-v1' js/studio-bootstrap.js
+          ! grep -q 'promptCuration' config/asset-manifest.json
+
+      - name: Reject whitespace errors
+        run: git diff --check
