@@ -193,8 +193,8 @@ jobs:
             if (inline.length !== 0) throw new Error(`${file}: expected zero inline scripts, found ${inline.length}`);
           }
           const admin = fs.readFileSync('admin.html', 'utf8');
-          const base = admin.indexOf('admin.css?v=16.2.0');
-          const stage = admin.indexOf('admin-stage-one.css?v=1.0.0');
+          const base = admin.indexOf('admin.css?v=16.2.1');
+          const stage = admin.indexOf('admin-stage-one.css?v=1.0.1');
           const tools = admin.indexOf('admin-live-tools.css?v=1.0.0');
           if (!(base >= 0 && stage > base && tools > stage && tools < admin.indexOf('</head>'))) throw new Error('Studio stylesheet load order changed');
           NODE
@@ -208,6 +208,9 @@ jobs:
           ! grep -qiE 'database repair|automatic repair' js/admin-stage-one.js
           ! grep -qiE 'publishing centre|daily challenge' js/admin-stage-one.js
           ! grep -q 'studio-retired-tool' admin-stage-one.css
+          ! grep -q 'manager-count-grid' admin-stage-one.css
+          ! grep -q 'Phase 4: Prompt Library Manager' admin-base.css
+          ! grep -q 'manager-toolbar' admin-base.css
           grep -q 'id: "imports"' js/admin-stage-one.js
           grep -q 'Player Database Auditor' js/admin-stage-one.js
           grep -q 'Historical Database Import Centre' js/admin-stage-one.js
