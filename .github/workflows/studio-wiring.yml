@@ -11,6 +11,7 @@ on:
       - 'js/prompt-quality-analyser-*.js'
       - 'js/prompt-promotion-v1.js'
       - 'js/prompt-library-shards-*.js'
+      - 'js/prompt-curation-review-export-v1.js'
       - 'js/admin-daily-library-cutover-v1.js'
       - 'js/daily-semantic-diversity-v1.js'
       - 'js/admin-daily-generator-guard.js'
@@ -41,6 +42,7 @@ on:
     branches:
       - main
       - 'prompt-studio-*'
+      - 'prompt-curation-*'
       - 'cleanup-relevance-*'
       - 'redesign/daily-challenge-studio-v1'
     paths:
@@ -52,6 +54,7 @@ on:
       - 'js/prompt-quality-analyser-*.js'
       - 'js/prompt-promotion-v1.js'
       - 'js/prompt-library-shards-*.js'
+      - 'js/prompt-curation-review-export-v1.js'
       - 'js/admin-daily-library-cutover-v1.js'
       - 'js/daily-semantic-diversity-v1.js'
       - 'js/admin-daily-generator-guard.js'
@@ -135,6 +138,9 @@ jobs:
       - name: Run Prompt Library Shards smoke test
         run: node scripts/verify-prompt-library-shards-v1.mjs
 
+      - name: Run Prompt Curation Review Export smoke test
+        run: node scripts/verify-prompt-curation-review-export-v1.mjs
+
       - name: Run Daily library cutover smoke test
         run: node scripts/verify-daily-library-cutover-v1.mjs
 
@@ -173,6 +179,7 @@ jobs:
             js/prompt-promotion-v1.js \
             js/prompt-library-shards-v1.js \
             js/prompt-library-shards-promotion-bridge-v1.js \
+            js/prompt-curation-review-export-v1.js \
             js/admin-daily-library-cutover-v1.js \
             js/daily-semantic-diversity-v1.js \
             js/admin-daily-generator-guard.js \
@@ -186,6 +193,7 @@ jobs:
           node --check scripts/verify-prompt-quality-analyser-v1.mjs
           node --check scripts/verify-prompt-promotion-v1.mjs
           node --check scripts/verify-prompt-library-shards-v1.mjs
+          node --check scripts/verify-prompt-curation-review-export-v1.mjs
           node --check scripts/verify-daily-library-cutover-v1.mjs
           node --check scripts/verify-daily-semantic-diversity-v1.mjs
           node --check scripts/verify-weekly-certified-snapshot-race.mjs
