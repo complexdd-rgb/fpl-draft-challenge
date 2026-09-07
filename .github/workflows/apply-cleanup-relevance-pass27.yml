@@ -1,0 +1,50 @@
+name: Apply cleanup relevance pass 27
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass27
+    paths:
+      - 'scripts/apply-cleanup-relevance-pass27.mjs'
+      - '.github/workflows/apply-cleanup-relevance-pass27.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-relevance-pass27
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Apply status observer cleanup
+        run: node scripts/apply-cleanup-relevance-pass27.mjs
+
+      - name: Verify production diff
+        run: |
+          ! grep -q 'repairBlockedCount' js/leaderboard-admin-status.js
+          grep -q 'auditStatusTop' js/leaderboard-admin-status.js
+          grep -q 'auditCriticalCount' js/leaderboard-admin-status.js
+          grep -q 'auditInfoCount' js/leaderboard-admin-status.js
+          grep -q 'auditPlayerCount' js/leaderboard-admin-status.js
+          grep -q 'js/leaderboard-admin-status.js?v=5.0.6' admin.html
+          git diff --check
+
+      - name: Commit production cleanup
+        run: |
+          if git diff --quiet -- js/leaderboard-admin-status.js admin.html; then
+            echo 'No production cleanup changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add js/leaderboard-admin-status.js admin.html
+          git commit -m 'Remove retired repair status observer'
+          git push origin HEAD:cleanup-relevance-pass27
