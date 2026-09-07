@@ -1,7 +1,7 @@
 {
-  "manifestVersion": "3.4.0-offline-helper-prune",
+  "manifestVersion": "3.5.0-live-loader-prune",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.4.0-offline-helper-prune" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.5.0-live-loader-prune" },
     "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.6.0-schedule-manager" },
     "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.1.0-library-browser" },
     "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
@@ -19,7 +19,6 @@
     "dailySemanticDiversityV1": { "path": "js/daily-semantic-diversity-v1.js", "version": "1.0.0" },
     "adminDailyPublish": { "path": "js/admin-daily-publish.js", "version": "1.1.0-date-identity" },
     "adminScheduleManagerV2": { "path": "js/admin-schedule-manager-v2.js", "version": "2.0.0" },
-    "liveFeatureLoader": { "path": "js/live-feature-loader.js", "version": null },
     "validationEngine": { "path": "js/validation-engine.js", "version": "1.7.1-certification-snapshot" },
     "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.5.0-native-prompts" },
     "careerContext": { "path": "js/career-context.js", "version": "1.5.0" },
