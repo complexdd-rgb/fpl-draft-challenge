@@ -18,7 +18,7 @@ for (let familyIndex = 0; familyIndex < families.length; familyIndex += 1) {
   for (let groupIndex = 0; groupIndex < 12; groupIndex += 1) {
     groupTotal += 1;
     const group = `vg_${familyIndex}_${groupIndex}`;
-    const answers = [30, 9, 8, 8, 7];
+    const answers = [30, 9, 8, 8, 181];
     const difficulty = ['easy','hard','hard','hard','hard'];
     for (let sibling = 0; sibling < 5; sibling += 1) {
       records.push({
@@ -83,5 +83,6 @@ assert(new Set(batch.records.map(row => row.id)).size === 144, 'Review batch con
 assert(audit.compression.capOne === groupTotal, 'One-per-group simulation is wrong.');
 assert(audit.compression.capTwo === groupTotal * 2, 'Two-per-group simulation is wrong.');
 assert(audit.compression.capThree === groupTotal * 3, 'Three-per-group simulation is wrong.');
+assert(audit.families.some(row => row.answerBands['151+'] > 0), '151+ answer-pool band must be preserved.');
 fs.rmSync(temp, { recursive:true, force:true });
 console.log('Prompt curation v1 verifier passed.');
