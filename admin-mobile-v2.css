@@ -174,11 +174,8 @@
   body.stage-one-enabled .panel,
   body.stage-one-enabled .prompt-factory,
   body.stage-one-enabled .prompt-quality-analyser,
-  body.stage-one-enabled .repair-regression-panel,
-  body.stage-one-enabled .auto-repair-panel,
   body.stage-one-enabled .import-subpanel,
-  body.stage-one-enabled .identity-regression-panel,
-  body.stage-one-enabled .legacy-regression-panel {
+  body.stage-one-enabled .identity-regression-panel {
     padding: 13px;
     border-radius: 12px;
   }
