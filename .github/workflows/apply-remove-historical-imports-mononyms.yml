@@ -56,6 +56,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # The installation token cannot push modifications to permanent workflow files.
+          # Restore that one file here; it is updated separately through the GitHub connector.
+          git restore --source=HEAD -- .github/workflows/studio-regression.yml
           if git diff --quiet; then
             echo 'No migration changes to commit.'
             exit 0
