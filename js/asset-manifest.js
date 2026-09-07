@@ -62,7 +62,7 @@
     },
     "adminDailyLibraryCutoverV1": {
       "path": "js/admin-daily-library-cutover-v1.js",
-      "version": "1.0.0"
+      "version": "1.0.1-history-residue-prune"
     },
     "dailySemanticDiversityV1": {
       "path": "js/daily-semantic-diversity-v1.js",
@@ -82,7 +82,7 @@
     },
     "adminStageOne": {
       "path": "js/admin-stage-one.js",
-      "version": "1.5.2-semantic-labels"
+      "version": "1.5.3-residue-prune"
     },
     "careerContext": {
       "path": "js/career-context.js",

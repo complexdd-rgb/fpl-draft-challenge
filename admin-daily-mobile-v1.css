@@ -247,9 +247,6 @@
   color: #6d887a;
 }
 
-#workspace-challenge #historyPanel {
-  border-color: rgba(98, 201, 255, .1);
-}
 
 /* Mobile remains compact, but now mirrors the weekly-first desktop hierarchy. */
 @media (max-width: 720px) {

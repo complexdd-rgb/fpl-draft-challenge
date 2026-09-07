@@ -276,7 +276,7 @@
       values = [];
     }
     if (!Array.isArray(values)) values = [];
-    if (!hasSavedPreference) values.push("historyPanel", "identityConsolidationCentre");
+    if (!hasSavedPreference) values.push("identityConsolidationCentre");
 
     document.querySelectorAll(".stage-one-tool-panel").forEach(panel => {
       if (!values.includes(getPanelKey(panel))) return;
@@ -474,11 +474,6 @@
 
     originalChildren.forEach(element => {
       const workspaceId = classifyElement(element);
-      if (workspaceId === "retired") {
-        element.classList.add("studio-retired-tool");
-        element.setAttribute("aria-hidden", "true");
-        return;
-      }
       workspaces.get(workspaceId)?.appendChild(element);
       if (!element.matches(".studio-hero, .safety-banner, .status-grid")) labelToolPanel(element, workspaceId);
     });
