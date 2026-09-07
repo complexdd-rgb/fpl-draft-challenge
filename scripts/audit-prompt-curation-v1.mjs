@@ -1,410 +1,145 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const EXPECTED_FAMILIES = Object.freeze([
-  'season-stats','position-stat','exact-stats','combined-stats','club-stat','league-position',
-  'promoted-clubs','relegated-clubs','champions','nationality','career-longevity','club-count',
-  'manager','anti-meta','value','minutes-role','composite-story'
-]);
+const FAMILIES = ['season-stats','position-stat','exact-stats','combined-stats','club-stat','league-position','promoted-clubs','relegated-clubs','champions','nationality','career-longevity','club-count','manager','anti-meta','value','minutes-role','composite-story'];
+const TARGETS = {
+  'season-stats':185, champions:200, 'promoted-clubs':225, 'relegated-clubs':225, 'club-count':250,
+  'anti-meta':300, 'exact-stats':300, 'position-stat':325, 'league-position':325, 'career-longevity':350,
+  value:400, 'club-stat':400, nationality:400, manager:400, 'minutes-role':400, 'composite-story':450, 'combined-stats':450
+};
+const DECISIONS = ['CERTIFY','RESCUE','REJECT'];
+const ANSWER_BANDS = ['2','3-5','6-15','16-40','41-80','81-150','151+'];
+const SIZE_BANDS = [['1',1,1],['2',2,2],['3',3,3],['4-5',4,5],['6-10',6,10],['11-20',11,20],['21-50',21,50],['51-100',51,100],['101-250',101,250],['251+',251,Infinity]];
+const n = (v, fallback=0) => Number.isFinite(Number(v)) ? Number(v) : fallback;
+const round = (v,d=2) => Math.round(v * 10 ** d) / 10 ** d;
+const pct = (v,t) => t ? v/t*100 : 0;
+const countBy = (items, key, seed=[]) => {
+  const out = Object.fromEntries(seed.map(v => [v,0]));
+  for (const item of items) { const k = key(item); out[k] = (out[k] || 0) + 1; }
+  return out;
+};
+const quantile = (a,q) => {
+  if (!a.length) return 0;
+  const x=(a.length-1)*q, i=Math.floor(x), r=x-i;
+  return a[i+1] == null ? a[i] : a[i] + r*(a[i+1]-a[i]);
+};
+const answerBand = value => value <= 2 ? '2' : value <= 5 ? '3-5' : value <= 15 ? '6-15' : value <= 40 ? '16-40' : value <= 80 ? '41-80' : value <= 150 ? '81-150' : '151+';
+const sizeBand = value => SIZE_BANDS.find(([,lo,hi]) => value >= lo && value <= hi)?.[0] || 'unknown';
+const groupOf = record => String(record?.variantGroup || '').trim() || `missing:${record?.family}:${record?.position}:${JSON.stringify(record?.conditions || [])}`;
 
-const SURVIVOR_TARGETS = Object.freeze({
-  'season-stats':185,
-  champions:200,
-  'promoted-clubs':225,
-  'relegated-clubs':225,
-  'club-count':250,
-  'anti-meta':300,
-  'exact-stats':300,
-  'position-stat':325,
-  'league-position':325,
-  'career-longevity':350,
-  value:400,
-  'club-stat':400,
-  nationality:400,
-  manager:400,
-  'minutes-role':400,
-  'composite-story':450,
-  'combined-stats':450
-});
-
-const DECISIONS = Object.freeze(['CERTIFY','RESCUE','REJECT']);
-const POSITION_ORDER = Object.freeze(['ANY','GK','DEF','MID','FWD']);
-const DIFFICULTY_ORDER = Object.freeze(['easy','medium','hard','unknown']);
-const GROUP_BUCKETS = Object.freeze([
-  ['1', 1, 1], ['2', 2, 2], ['3', 3, 3], ['4-5', 4, 5], ['6-10', 6, 10],
-  ['11-20', 11, 20], ['21-50', 21, 50], ['51-100', 51, 100],
-  ['101-250', 101, 250], ['251+', 251, Number.POSITIVE_INFINITY]
-]);
-
-function parseArgs(argv) {
-  const args = { input:'', outDir:'reports', prefix:'prompt-curation-v1', quiet:false };
-  for (let index = 2; index < argv.length; index += 1) {
-    const token = argv[index];
-    if (token === '--out-dir') args.outDir = argv[++index] || args.outDir;
-    else if (token === '--prefix') args.prefix = argv[++index] || args.prefix;
-    else if (token === '--quiet') args.quiet = true;
-    else if (!args.input) args.input = token;
-    else throw new Error(`Unexpected argument: ${token}`);
+function args(argv) {
+  const out={input:'',outDir:'reports',prefix:'prompt-curation-v1',quiet:false};
+  for(let i=2;i<argv.length;i+=1){
+    if(argv[i]==='--out-dir') out.outDir=argv[++i]||out.outDir;
+    else if(argv[i]==='--prefix') out.prefix=argv[++i]||out.prefix;
+    else if(argv[i]==='--quiet') out.quiet=true;
+    else if(!out.input) out.input=argv[i];
+    else throw new Error(`Unexpected argument: ${argv[i]}`);
   }
-  if (!args.input) throw new Error('Usage: node scripts/audit-prompt-curation-v1.mjs <export.json> [--out-dir reports] [--prefix prompt-curation-v1]');
-  return args;
-}
-
-function readPackage(file) {
-  const payload = JSON.parse(fs.readFileSync(file, 'utf8'));
-  if (!payload || payload.kind !== 'fpl-prompt-library-family-shards') {
-    throw new Error('Input is not an FPL prompt-library family-shard export.');
-  }
-  if (!payload.manifest || !Array.isArray(payload.shards)) throw new Error('Export is missing manifest or shards.');
-  return payload;
-}
-
-function canonicalFamily(value) { return String(value || '').trim(); }
-function number(value, fallback = 0) { const parsed = Number(value); return Number.isFinite(parsed) ? parsed : fallback; }
-function pct(value, total) { return total ? value / total * 100 : 0; }
-function round(value, digits = 2) { const scale = 10 ** digits; return Math.round(value * scale) / scale; }
-function quantile(sorted, q) {
-  if (!sorted.length) return 0;
-  const position = (sorted.length - 1) * q;
-  const base = Math.floor(position);
-  const rest = position - base;
-  const next = sorted[base + 1];
-  return next === undefined ? sorted[base] : sorted[base] + rest * (next - sorted[base]);
-}
-function counter(values, allowed = null) {
-  const out = Object.fromEntries((allowed || []).map(value => [value, 0]));
-  for (const value of values) out[value] = (out[value] || 0) + 1;
+  if(!out.input) throw new Error('Usage: node scripts/audit-prompt-curation-v1.mjs <export.json> [--out-dir reports] [--prefix prompt-curation-v1]');
   return out;
 }
-function answerBand(count) {
-  if (count <= 2) return '2';
-  if (count <= 5) return '3-5';
-  if (count <= 15) return '6-15';
-  if (count <= 40) return '16-40';
-  if (count <= 80) return '41-80';
-  return '81-150';
-}
-function groupBand(size) {
-  return GROUP_BUCKETS.find(([, low, high]) => size >= low && size <= high)?.[0] || 'unknown';
-}
-function stableConditionKey(record) {
-  return JSON.stringify((record?.conditions || []).map(condition => ({
-    field:String(condition?.field || ''), operator:String(condition?.operator || ''),
-    value:condition?.value, value2:condition?.value2
-  })).sort((a,b) => JSON.stringify(a).localeCompare(JSON.stringify(b))));
-}
-function fallbackGroup(record) {
-  return `missing:${record?.position || 'ANY'}:${stableConditionKey(record)}`;
-}
-function recordGroup(record) { return String(record?.variantGroup || '').trim() || fallbackGroup(record); }
-function groupRankScore(record) {
-  const evidence = record?.qualityEvidence || {};
-  const answers = number(evidence.answerPlayers);
-  const answerUtility = answers >= 6 && answers <= 80 ? 12 : answers >= 3 && answers <= 150 ? 7 : 2;
-  return number(record?.qualityScore) * 10 + number(evidence.coverage) + Math.min(20, number(evidence.seasons)) + Math.min(20, number(evidence.clubs)) + answerUtility;
-}
-function compareRecords(a, b) {
-  return groupRankScore(b) - groupRankScore(a)
-    || number(b?.qualityEvidence?.coverage) - number(a?.qualityEvidence?.coverage)
-    || number(b?.qualityEvidence?.seasons) - number(a?.qualityEvidence?.seasons)
-    || number(b?.qualityEvidence?.clubs) - number(a?.qualityEvidence?.clubs)
-    || String(a?.id || '').localeCompare(String(b?.id || ''));
-}
-function materialDistance(anchor, candidate) {
-  if (!anchor || !candidate) return 0;
-  const a = number(anchor?.qualityEvidence?.answerPlayers);
-  const b = number(candidate?.qualityEvidence?.answerPlayers);
-  let score = 0;
-  if (answerBand(a) !== answerBand(b)) score += 3;
-  if (String(anchor?.difficulty || '') !== String(candidate?.difficulty || '')) score += 2;
-  if (a && Math.abs(a - b) >= Math.max(3, Math.ceil(a * 0.2))) score += 2;
-  if (Math.abs(number(anchor?.qualityScore) - number(candidate?.qualityScore)) >= 10) score += 1;
-  return score;
+
+function load(file){
+  const p=JSON.parse(fs.readFileSync(file,'utf8'));
+  if(p?.kind!=='fpl-prompt-library-family-shards'||!p.manifest||!Array.isArray(p.shards)) throw new Error('Input is not an FPL prompt-library family-shard export.');
+  return p;
 }
 
-function validate(payload) {
-  const errors = [];
-  const manifest = payload.manifest || {};
-  const shards = payload.shards || [];
-  const families = shards.map(shard => canonicalFamily(shard?.family));
-  const missing = EXPECTED_FAMILIES.filter(family => !families.includes(family));
-  const unexpected = families.filter(family => !EXPECTED_FAMILIES.includes(family));
-  if (missing.length) errors.push(`Missing families: ${missing.join(', ')}`);
-  if (unexpected.length) errors.push(`Unexpected families: ${unexpected.join(', ')}`);
-  if (new Set(families).size !== families.length) errors.push('Duplicate family shards found.');
-  const inspected = shards.reduce((sum, shard) => sum + (Array.isArray(shard?.records) ? shard.records.length : 0), 0);
-  if (number(manifest.total) !== inspected) errors.push(`Manifest total ${manifest.total} does not match ${inspected} inspected records.`);
-  if (number(manifest.families) !== EXPECTED_FAMILIES.length) errors.push(`Manifest family count is ${manifest.families}; expected ${EXPECTED_FAMILIES.length}.`);
-  const ids = new Set();
-  const variantGroups = new Set();
-  let duplicates = 0;
-  let pass = 0;
-  let review = 0;
-  for (const shard of shards) for (const record of shard.records || []) {
-    const id = String(record?.id || '').trim();
-    if (!id) errors.push(`Record in ${shard.family} is missing ID.`);
-    else if (ids.has(id)) duplicates += 1;
-    else ids.add(id);
-    if (canonicalFamily(record?.family) !== canonicalFamily(shard?.family)) errors.push(`Record ${id || '(missing id)'} has wrong family.`);
-    variantGroups.add(recordGroup(record));
-    if (record?.qualityStatus === 'pass') pass += 1;
-    else if (record?.qualityStatus === 'review') review += 1;
-  }
-  if (duplicates) errors.push(`${duplicates} duplicate prompt IDs found.`);
-  if (number(manifest.variantGroups) !== variantGroups.size) errors.push(`Manifest variant-group count ${manifest.variantGroups} does not match ${variantGroups.size} observed groups.`);
-  if (number(manifest.qualityPass) !== pass) errors.push(`Manifest pass count ${manifest.qualityPass} does not match ${pass} observed pass records.`);
-  if (number(manifest.qualityReview) !== review) errors.push(`Manifest review count ${manifest.qualityReview} does not match ${review} observed review records.`);
-  if (errors.length) throw new Error(`Curation audit input failed validation:\n- ${errors.join('\n- ')}`);
-}
-
-function buildIndex(payload) {
-  const records = [];
-  const byFamily = new Map(EXPECTED_FAMILIES.map(family => [family, []]));
-  const groups = new Map();
-  for (const shard of payload.shards) {
-    const family = canonicalFamily(shard.family);
-    for (const raw of shard.records || []) {
-      const record = { ...raw, family };
-      records.push(record);
+function inspect(payload){
+  const errors=[], ids=new Set(), groups=new Map(), byFamily=new Map(FAMILIES.map(f=>[f,[]]));
+  const shardFamilies=payload.shards.map(s=>String(s?.family||''));
+  const missing=FAMILIES.filter(f=>!shardFamilies.includes(f)), extra=shardFamilies.filter(f=>!FAMILIES.includes(f));
+  if(missing.length) errors.push(`Missing families: ${missing.join(', ')}`);
+  if(extra.length) errors.push(`Unexpected families: ${extra.join(', ')}`);
+  if(new Set(shardFamilies).size!==shardFamilies.length) errors.push('Duplicate family shards found.');
+  const manifestCounts=new Map((payload.manifest.familyShards||[]).map(x=>[String(x?.family||''),n(x?.count,-1)]));
+  let pass=0,review=0,total=0,duplicates=0;
+  for(const shard of payload.shards){
+    const family=String(shard?.family||''), records=Array.isArray(shard?.records)?shard.records:[];
+    if(n(shard?.count,-1)!==records.length) errors.push(`Shard ${family} count ${shard?.count} does not match ${records.length} records.`);
+    if(manifestCounts.has(family)&&manifestCounts.get(family)!==records.length) errors.push(`Manifest family shard ${family} count mismatch.`);
+    total+=records.length;
+    for(const raw of records){
+      const record={...raw,family}, id=String(record?.id||'').trim(), group=groupOf(record);
+      if(!id) errors.push(`Record in ${family} is missing ID.`); else if(ids.has(id)) duplicates+=1; else ids.add(id);
+      if(String(raw?.family||'')!==family) errors.push(`Record ${id||'(missing id)'} has wrong family.`);
+      if(!groups.has(group)) groups.set(group,[]); groups.get(group).push(record);
       byFamily.get(family)?.push(record);
-      const group = recordGroup(record);
-      if (!groups.has(group)) groups.set(group, []);
-      groups.get(group).push(record);
+      if(record.qualityStatus==='pass') pass+=1; else if(record.qualityStatus==='review') review+=1;
     }
   }
-  for (const list of groups.values()) list.sort(compareRecords);
-  return { records, byFamily, groups };
+  if(duplicates) errors.push(`${duplicates} duplicate prompt IDs found.`);
+  if(n(payload.manifest.total)!==total) errors.push(`Manifest total ${payload.manifest.total} does not match ${total}.`);
+  if(n(payload.manifest.families)!==FAMILIES.length) errors.push(`Manifest family count is ${payload.manifest.families}; expected ${FAMILIES.length}.`);
+  if(n(payload.manifest.variantGroups)!==groups.size) errors.push(`Manifest variant-group count ${payload.manifest.variantGroups} does not match ${groups.size}.`);
+  if(n(payload.manifest.qualityPass)!==pass) errors.push(`Manifest pass count ${payload.manifest.qualityPass} does not match ${pass}.`);
+  if(n(payload.manifest.qualityReview)!==review) errors.push(`Manifest review count ${payload.manifest.qualityReview} does not match ${review}.`);
+  for(const [group,records] of groups){
+    const stored=new Set(records.map(r=>n(r?.qualityEvidence?.variantGroupSize,-1)).filter(v=>v>=0));
+    if(stored.size && (stored.size!==1 || !stored.has(records.length))) errors.push(`Variant group ${group} stores size(s) ${[...stored].join(', ')} but contains ${records.length} records.`);
+  }
+  if(errors.length) throw new Error(`Curation audit input failed validation:\n- ${errors.join('\n- ')}`);
+  return {records:[...byFamily.values()].flat(),byFamily,groups};
 }
 
-function familyMetrics(family, records) {
-  const localGroups = new Map();
-  for (const record of records) {
-    const group = recordGroup(record);
-    if (!localGroups.has(group)) localGroups.set(group, []);
-    localGroups.get(group).push(record);
-  }
-  const sizes = [...localGroups.values()].map(group => group.length).sort((a,b) => a-b);
+function score(record){
+  const e=record?.qualityEvidence||{}, answers=n(e.answerPlayers);
+  const answerUtility=answers>=6&&answers<=80?12:answers>=3&&answers<=150?7:2;
+  return n(record?.qualityScore)*10+n(e.coverage)+Math.min(20,n(e.seasons))+Math.min(20,n(e.clubs))+answerUtility;
+}
+const compare=(a,b)=>score(b)-score(a)||String(a?.id||'').localeCompare(String(b?.id||''));
+function distance(anchor,candidate){
+  const a=n(anchor?.qualityEvidence?.answerPlayers), b=n(candidate?.qualityEvidence?.answerPlayers);
+  return (answerBand(a)!==answerBand(b)?3:0)+(String(anchor?.difficulty||'')!==String(candidate?.difficulty||'')?2:0)+(a&&Math.abs(a-b)>=Math.max(3,Math.ceil(a*.2))?2:0)+(Math.abs(n(anchor?.qualityScore)-n(candidate?.qualityScore))>=10?1:0);
+}
+
+function familyMetric(family,records){
+  const local=new Map(); for(const r of records){const g=groupOf(r);if(!local.has(g))local.set(g,[]);local.get(g).push(r);}
+  const sizes=[...local.values()].map(x=>x.length).sort((a,b)=>a-b);
   return {
-    family,
-    prompts: records.length,
-    target: SURVIVOR_TARGETS[family],
-    targetCompressionPct: round(100 - pct(Math.min(records.length, SURVIVOR_TARGETS[family]), records.length), 2),
-    variantGroups: localGroups.size,
-    promptsPerGroup: round(records.length / Math.max(1, localGroups.size), 2),
-    groupMedian: round(quantile(sizes, .5), 1),
-    groupP90: round(quantile(sizes, .9), 1),
-    groupMax: sizes.at(-1) || 0,
-    positions: counter(records.map(record => POSITION_ORDER.includes(String(record?.position)) ? String(record.position) : 'OTHER'), [...POSITION_ORDER, 'OTHER']),
-    difficulties: counter(records.map(record => DIFFICULTY_ORDER.includes(String(record?.difficulty).toLowerCase()) ? String(record.difficulty).toLowerCase() : 'unknown'), DIFFICULTY_ORDER),
-    answerBands: counter(records.map(record => answerBand(number(record?.qualityEvidence?.answerPlayers))), ['2','3-5','6-15','16-40','41-80','81-150'])
+    family,prompts:records.length,target:TARGETS[family],targetCompressionPct:round(100-pct(Math.min(records.length,TARGETS[family]),records.length)),
+    variantGroups:local.size,promptsPerGroup:round(records.length/Math.max(1,local.size)),groupMedian:round(quantile(sizes,.5),1),groupP90:round(quantile(sizes,.9),1),groupMax:sizes.at(-1)||0,
+    positions:countBy(records,r=>String(r?.position||'OTHER'),['ANY','GK','DEF','MID','FWD','OTHER']),
+    difficulties:countBy(records,r=>['easy','medium','hard'].includes(String(r?.difficulty||'').toLowerCase())?String(r.difficulty).toLowerCase():'unknown',['easy','medium','hard','unknown']),
+    answerBands:countBy(records,r=>answerBand(n(r?.qualityEvidence?.answerPlayers)),ANSWER_BANDS)
   };
 }
 
-function decisionQuota(family, extraFamilies, smallIndex) {
-  if (extraFamilies.has(family)) return { CERTIFY:3, RESCUE:3, REJECT:3 };
-  const missing = DECISIONS[smallIndex % DECISIONS.length];
-  return Object.fromEntries(DECISIONS.map(decision => [decision, decision === missing ? 2 : 3]));
+function quotas(family,extras,smallIndex){
+  if(extras.has(family)) return {CERTIFY:3,RESCUE:3,REJECT:3};
+  const missing=DECISIONS[smallIndex%3]; return Object.fromEntries(DECISIONS.map(d=>[d,d===missing?2:3]));
 }
-
-function annotateGroups(familyRecords, globalGroups) {
-  const out = [];
-  for (const record of familyRecords) {
-    const group = recordGroup(record);
-    const members = globalGroups.get(group) || [record];
-    const rank = members.findIndex(item => String(item.id) === String(record.id));
-    const anchor = members[0];
-    out.push({ record, group, members, rank, anchor, distance: rank > 0 ? materialDistance(anchor, record) : 0 });
+function annotated(records,groups){
+  return records.map(record=>{const group=groupOf(record),members=[...(groups.get(group)||[record])].sort(compare),rank=members.findIndex(x=>x.id===record.id),anchor=members[0];return{record,group,members,rank,distance:rank>0?distance(anchor,record):0};});
+}
+function pool(decision,items){
+  const preferred=items.filter(x=>decision==='CERTIFY'?x.rank===0&&n(x.record?.qualityScore)>=65&&n(x.record?.qualityEvidence?.answerPlayers)>=3:decision==='RESCUE'?x.rank>0&&x.rank<=2&&n(x.record?.qualityScore)>=45&&x.distance>=2:x.rank>=2&&(x.members.length>=6||x.distance<=2));
+  const fallback=items.filter(x=>decision==='CERTIFY'?x.rank===0:decision==='RESCUE'?x.rank>0:x.rank>=1).filter(x=>!preferred.includes(x));
+  return [...preferred,...fallback].sort((a,b)=>decision==='CERTIFY'?compare(a.record,b.record)||b.members.length-a.members.length:decision==='RESCUE'?b.distance-a.distance||compare(a.record,b.record):b.members.length-a.members.length||a.distance-b.distance||compare(a.record,b.record));
+}
+function reviewBatch(index,familyRows){
+  const extras=new Set([...familyRows].sort((a,b)=>b.prompts-a.prompts||a.family.localeCompare(b.family)).slice(0,8).map(x=>x.family));
+  const small=FAMILIES.filter(f=>!extras.has(f)), selected=new Set(), rows=[], familyQuotas={};
+  for(const family of FAMILIES){
+    const q=quotas(family,extras,small.indexOf(family)); familyQuotas[family]=q; const items=annotated(index.byFamily.get(family)||[],index.groups);
+    for(const decision of DECISIONS){let need=q[decision];for(const x of pool(decision,items)){if(!need)break;const id=String(x.record?.id||'');if(!id||selected.has(id))continue;selected.add(id);rows.push({reviewIndex:0,proposedDecision:decision,family,id,label:String(x.record?.label||''),position:String(x.record?.position||''),difficulty:String(x.record?.difficulty||'unknown'),qualityScore:n(x.record?.qualityScore),answerPlayers:n(x.record?.qualityEvidence?.answerPlayers),seasons:n(x.record?.qualityEvidence?.seasons),clubs:n(x.record?.qualityEvidence?.clubs),coverage:n(x.record?.qualityEvidence?.coverage),variantGroup:x.group,variantGroupSize:x.members.length,siblingRank:x.rank+1,materialDistance:x.distance,conditions:x.record?.conditions||[],rationale:decision==='CERTIFY'?`Group anchor; strongest representative for this variant group.`:decision==='RESCUE'?`Sibling adds material answer-pool/difficulty contrast (distance ${x.distance}).`:`Threshold sibling ${x.rank+1}/${x.members.length}; review for redundant numeric variation.`});need-=1;}if(need)throw new Error(`Could not fill ${decision} quota for ${family}; ${need} slots remain.`);}
   }
-  return out;
+  rows.sort((a,b)=>a.family.localeCompare(b.family)||DECISIONS.indexOf(a.proposedDecision)-DECISIONS.indexOf(b.proposedDecision)||a.id.localeCompare(b.id));rows.forEach((r,i)=>r.reviewIndex=i+1);
+  const decisionCounts=countBy(rows,r=>r.proposedDecision,DECISIONS);if(rows.length!==144||DECISIONS.some(d=>decisionCounts[d]!==48))throw new Error(`Review batch invariant failed: ${rows.length} / ${JSON.stringify(decisionCounts)}.`);
+  return {records:rows,familyQuotas,extraFamilies:[...extras],decisionCounts};
 }
 
-function candidatePool(decision, annotated) {
-  const predicates = {
-    CERTIFY: item => item.rank === 0 && number(item.record?.qualityScore) >= 65 && number(item.record?.qualityEvidence?.answerPlayers) >= 3,
-    RESCUE: item => item.rank > 0 && item.rank <= 2 && number(item.record?.qualityScore) >= 45 && item.distance >= 2,
-    REJECT: item => item.rank >= 2 && (item.members.length >= 6 || item.distance <= 2)
-  };
-  const preferred = annotated.filter(predicates[decision]);
-  const fallback = annotated.filter(item => decision === 'CERTIFY' ? item.rank === 0 : decision === 'RESCUE' ? item.rank > 0 : item.rank >= 1);
-  const pool = [...preferred, ...fallback.filter(item => !preferred.includes(item))];
-  pool.sort((a,b) => {
-    if (decision === 'CERTIFY') return compareRecords(a.record, b.record) || b.members.length - a.members.length;
-    if (decision === 'RESCUE') return b.distance - a.distance || compareRecords(a.record, b.record);
-    return b.members.length - a.members.length || a.distance - b.distance || compareRecords(a.record, b.record);
-  });
-  return pool;
+function audit(payload,file){
+  const index=inspect(payload); for(const members of index.groups.values()) members.sort(compare);
+  const families=FAMILIES.map(f=>familyMetric(f,index.byFamily.get(f)||[])), sizes=[...index.groups.values()].map(x=>x.length).sort((a,b)=>a-b), buckets=Object.fromEntries(SIZE_BANDS.map(([k])=>[k,0]));for(const s of sizes)buckets[sizeBand(s)]+=1;
+  const totalTarget=Object.values(TARGETS).reduce((a,b)=>a+b,0), top=[...families].sort((a,b)=>b.prompts-a.prompts).map(x=>({family:x.family,prompts:x.prompts,sharePct:round(pct(x.prompts,index.records.length))})), batch=reviewBatch(index,families);
+  return {schemaVersion:1,auditVersion:'1.1.0',generatedAt:new Date().toISOString(),source:{file:path.basename(file),promotionFingerprint:String(payload.manifest.promotionFingerprint||''),total:n(payload.manifest.total),families:n(payload.manifest.families),variantGroups:n(payload.manifest.variantGroups),qualityPass:n(payload.manifest.qualityPass),qualityReview:n(payload.manifest.qualityReview),savedAt:String(payload.manifest.savedAt||'')},policy:{survivorTargets:TARGETS,survivorTargetTotal:totalTarget,defaultVariantGroupTarget:2,hardVariantGroupCap:3,reviewBatchSize:144,reviewDecisionTargets:{CERTIFY:48,RESCUE:48,REJECT:48}},concentration:{topFamilies:top,topFiveSharePct:round(pct(top.slice(0,5).reduce((s,x)=>s+x.prompts,0),index.records.length)),topSixSharePct:round(pct(top.slice(0,6).reduce((s,x)=>s+x.prompts,0),index.records.length))},compression:{sourcePrompts:index.records.length,variantGroups:index.groups.size,averagePromptsPerGroup:round(index.records.length/Math.max(1,index.groups.size)),medianGroupSize:round(quantile(sizes,.5),1),p90GroupSize:round(quantile(sizes,.9),1),p95GroupSize:round(quantile(sizes,.95),1),p99GroupSize:round(quantile(sizes,.99),1),maxGroupSize:sizes.at(-1)||0,groupBuckets:buckets,capOne:index.groups.size,capTwo:sizes.reduce((s,x)=>s+Math.min(2,x),0),capThree:sizes.reduce((s,x)=>s+Math.min(3,x),0),survivorTarget:totalTarget,survivorTargetPerGroup:round(totalTarget/Math.max(1,index.groups.size)),survivorCompressionPct:round(100-pct(totalTarget,index.records.length))},families,reviewBatch:batch};
+}
+function md(a){
+  const lines=['# Prompt curation Phase 1 audit','',`Generated: ${a.generatedAt}`,'',`- Source prompts: **${a.source.total.toLocaleString('en-GB')}**`,`- Variant groups: **${a.compression.variantGroups.toLocaleString('en-GB')}**`,`- Average prompts/group: **${a.compression.averagePromptsPerGroup}**`,`- Top-five family share: **${a.concentration.topFiveSharePct}%**`,`- Survivor target: **${a.policy.survivorTargetTotal.toLocaleString('en-GB')}** (${a.compression.survivorCompressionPct}% compression)`,'','## Variant groups','',`- Median: ${a.compression.medianGroupSize}`,`- P90 / P95 / P99: ${a.compression.p90GroupSize} / ${a.compression.p95GroupSize} / ${a.compression.p99GroupSize}`,`- Maximum: ${a.compression.maxGroupSize}`,`- Cap 1 / 2 / 3: ${a.compression.capOne.toLocaleString('en-GB')} / ${a.compression.capTwo.toLocaleString('en-GB')} / ${a.compression.capThree.toLocaleString('en-GB')}`,'','## Family targets','','| Family | Source | Groups | Avg/group | Target |','|---|---:|---:|---:|---:|'];for(const r of [...a.families].sort((x,y)=>y.prompts-x.prompts))lines.push(`| ${r.family} | ${r.prompts.toLocaleString('en-GB')} | ${r.variantGroups.toLocaleString('en-GB')} | ${r.promptsPerGroup} | ${r.target.toLocaleString('en-GB')} |`);return `${lines.join('\n')}\n`;
 }
 
-function batchReason(decision, item) {
-  const answers = number(item.record?.qualityEvidence?.answerPlayers);
-  if (decision === 'CERTIFY') return `Group anchor; quality ${number(item.record?.qualityScore)}; ${answers} answer players; strongest representative for this variant group.`;
-  if (decision === 'RESCUE') return `Non-anchor sibling with material-distance score ${item.distance}; review whether its answer-pool/difficulty contrast earns a second survivor.`;
-  return `Threshold sibling rank ${item.rank + 1} of ${item.members.length}; review for redundant numeric variation rather than structural quality failure.`;
-}
-
-function buildReviewBatch(index, familyRows) {
-  const volumes = [...familyRows].sort((a,b) => b.prompts - a.prompts || a.family.localeCompare(b.family));
-  const extraFamilies = new Set(volumes.slice(0, 8).map(row => row.family));
-  const smallFamilies = EXPECTED_FAMILIES.filter(family => !extraFamilies.has(family));
-  const selectedIds = new Set();
-  const batch = [];
-  const familyQuotas = {};
-
-  for (const family of EXPECTED_FAMILIES) {
-    const quota = decisionQuota(family, extraFamilies, smallFamilies.indexOf(family));
-    familyQuotas[family] = quota;
-    const annotated = annotateGroups(index.byFamily.get(family) || [], index.groups);
-    for (const decision of DECISIONS) {
-      let needed = quota[decision];
-      for (const item of candidatePool(decision, annotated)) {
-        if (!needed) break;
-        const id = String(item.record?.id || '');
-        if (!id || selectedIds.has(id)) continue;
-        selectedIds.add(id);
-        batch.push({
-          reviewIndex: batch.length + 1,
-          proposedDecision: decision,
-          family,
-          id,
-          label:String(item.record?.label || ''),
-          position:String(item.record?.position || ''),
-          difficulty:String(item.record?.difficulty || 'unknown'),
-          qualityScore:number(item.record?.qualityScore),
-          answerPlayers:number(item.record?.qualityEvidence?.answerPlayers),
-          seasons:number(item.record?.qualityEvidence?.seasons),
-          clubs:number(item.record?.qualityEvidence?.clubs),
-          coverage:number(item.record?.qualityEvidence?.coverage),
-          variantGroup:item.group,
-          variantGroupSize:item.members.length,
-          siblingRank:item.rank + 1,
-          materialDistance:item.distance,
-          conditions:item.record?.conditions || [],
-          rationale:batchReason(decision, item)
-        });
-        needed -= 1;
-      }
-      if (needed) throw new Error(`Could not fill ${decision} quota for ${family}; ${needed} slots remain.`);
-    }
-  }
-
-  batch.sort((a,b) => a.family.localeCompare(b.family) || DECISIONS.indexOf(a.proposedDecision) - DECISIONS.indexOf(b.proposedDecision) || a.id.localeCompare(b.id));
-  batch.forEach((row, indexValue) => { row.reviewIndex = indexValue + 1; });
-  const decisionCounts = counter(batch.map(row => row.proposedDecision), DECISIONS);
-  if (batch.length !== 144 || DECISIONS.some(decision => decisionCounts[decision] !== 48)) {
-    throw new Error(`Review batch invariant failed: ${batch.length} rows / ${JSON.stringify(decisionCounts)}.`);
-  }
-  return { batch, familyQuotas, extraFamilies:[...extraFamilies], decisionCounts };
-}
-
-function buildAudit(payload) {
-  validate(payload);
-  const index = buildIndex(payload);
-  const manifest = payload.manifest;
-  const familyRows = EXPECTED_FAMILIES.map(family => familyMetrics(family, index.byFamily.get(family) || []));
-  const groupSizes = [...index.groups.values()].map(records => records.length).sort((a,b) => a-b);
-  const groupBuckets = Object.fromEntries(GROUP_BUCKETS.map(([label]) => [label, 0]));
-  for (const size of groupSizes) groupBuckets[groupBand(size)] += 1;
-  const totalTarget = Object.values(SURVIVOR_TARGETS).reduce((sum,value) => sum + value,0);
-  const review = buildReviewBatch(index, familyRows);
-  const topFamilies = [...familyRows].sort((a,b) => b.prompts - a.prompts).map(row => ({ family:row.family, prompts:row.prompts, sharePct:round(pct(row.prompts,index.records.length),2) }));
-  const compression = {
-    sourcePrompts:index.records.length,
-    variantGroups:index.groups.size,
-    averagePromptsPerGroup:round(index.records.length / Math.max(1,index.groups.size),2),
-    medianGroupSize:round(quantile(groupSizes,.5),1),
-    p90GroupSize:round(quantile(groupSizes,.9),1),
-    p95GroupSize:round(quantile(groupSizes,.95),1),
-    p99GroupSize:round(quantile(groupSizes,.99),1),
-    maxGroupSize:groupSizes.at(-1) || 0,
-    groupBuckets,
-    capOne:index.groups.size,
-    capTwo:groupSizes.reduce((sum,size) => sum + Math.min(2,size),0),
-    capThree:groupSizes.reduce((sum,size) => sum + Math.min(3,size),0),
-    survivorTarget:totalTarget,
-    survivorTargetPerGroup:round(totalTarget / Math.max(1,index.groups.size),2),
-    survivorCompressionPct:round(100 - pct(totalTarget,index.records.length),2)
-  };
-  return {
-    schemaVersion:1,
-    auditVersion:'1.0.0',
-    generatedAt:new Date().toISOString(),
-    source:{
-      file:path.basename(payload.__sourceFile || ''),
-      promotionFingerprint:String(manifest.promotionFingerprint || ''),
-      total:number(manifest.total), families:number(manifest.families), variantGroups:number(manifest.variantGroups),
-      qualityPass:number(manifest.qualityPass), qualityReview:number(manifest.qualityReview), savedAt:String(manifest.savedAt || '')
-    },
-    policy:{
-      survivorTargets:SURVIVOR_TARGETS,
-      survivorTargetTotal:totalTarget,
-      defaultVariantGroupTarget:2,
-      hardVariantGroupCap:3,
-      reviewBatchSize:144,
-      reviewDecisionTargets:{ CERTIFY:48, RESCUE:48, REJECT:48 }
-    },
-    concentration:{ topFamilies, topFiveSharePct:round(topFamilies.slice(0,5).reduce((sum,row)=>sum+row.prompts,0)/index.records.length*100,2), topSixSharePct:round(topFamilies.slice(0,6).reduce((sum,row)=>sum+row.prompts,0)/index.records.length*100,2) },
-    compression,
-    families:familyRows,
-    reviewBatch:{ familyQuotas:review.familyQuotas, extraFamilies:review.extraFamilies, decisionCounts:review.decisionCounts, records:review.batch }
-  };
-}
-
-function markdown(audit) {
-  const lines = [];
-  lines.push('# Prompt curation Phase 1 audit','',`Generated: ${audit.generatedAt}`,'');
-  lines.push('## Headline','',
-    `- Source prompts: **${audit.source.total.toLocaleString('en-GB')}**`,
-    `- Families: **${audit.source.families}**`,
-    `- Variant groups: **${audit.compression.variantGroups.toLocaleString('en-GB')}**`,
-    `- Average prompts per group: **${audit.compression.averagePromptsPerGroup}**`,
-    `- Top-five family share: **${audit.concentration.topFiveSharePct}%**`,
-    `- Top-six family share: **${audit.concentration.topSixSharePct}%**`,
-    `- Proposed survivor target: **${audit.policy.survivorTargetTotal.toLocaleString('en-GB')}** (${audit.compression.survivorCompressionPct}% compression)`,
-    `- Review batch: **144** = 48 CERTIFY / 48 RESCUE / 48 REJECT`,'');
-  lines.push('## Variant-group compression','',
-    `- Median group: ${audit.compression.medianGroupSize}`,
-    `- P90: ${audit.compression.p90GroupSize}`,
-    `- P95: ${audit.compression.p95GroupSize}`,
-    `- P99: ${audit.compression.p99GroupSize}`,
-    `- Largest group: ${audit.compression.maxGroupSize}`,
-    `- One survivor/group simulation: ${audit.compression.capOne.toLocaleString('en-GB')}`,
-    `- Two survivors/group cap: ${audit.compression.capTwo.toLocaleString('en-GB')}`,
-    `- Three survivors/group cap: ${audit.compression.capThree.toLocaleString('en-GB')}`,'');
-  lines.push('## Family targets','', '| Family | Source | Share | Groups | Avg/group | Target | Compression |', '|---|---:|---:|---:|---:|---:|---:|');
-  for (const row of [...audit.families].sort((a,b)=>b.prompts-a.prompts)) {
-    lines.push(`| ${row.family} | ${row.prompts.toLocaleString('en-GB')} | ${round(row.prompts/audit.source.total*100,2)}% | ${row.variantGroups.toLocaleString('en-GB')} | ${row.promptsPerGroup} | ${row.target.toLocaleString('en-GB')} | ${row.targetCompressionPct}% |`);
-  }
-  lines.push('', '## Permanent decision semantics','',
-    '- **CERTIFY**: the strongest representative of a genuinely useful variant group; promotion quality pass alone is not enough.',
-    '- **RESCUE**: a second/exceptional third sibling only when it creates material answer-pool, difficulty, position or family diversity.',
-    '- **REJECT**: structurally valid but redundant threshold siblings, exact duplicates, or low-value variants that add volume without new gameplay.',
-    '- Default survivor target is **2 per variant group** with a **hard cap of 3**. One is preferred where siblings are functionally interchangeable.',
-    '- Source exports are immutable provenance. Curation emits decisions/survivor IDs; it does not rewrite Prompt Factory, Quality, Promotion or Daily generation architecture.','');
-  return `${lines.join('\n')}\n`;
-}
-
-function main() {
-  const args = parseArgs(process.argv);
-  const payload = readPackage(args.input);
-  payload.__sourceFile = args.input;
-  const audit = buildAudit(payload);
-  fs.mkdirSync(args.outDir, { recursive:true });
-  const jsonPath = path.join(args.outDir, `${args.prefix}-audit.json`);
-  const mdPath = path.join(args.outDir, `${args.prefix}-audit.md`);
-  const batchPath = path.join(args.outDir, `${args.prefix}-review-batch.json`);
-  fs.writeFileSync(jsonPath, `${JSON.stringify(audit,null,2)}\n`);
-  fs.writeFileSync(mdPath, markdown(audit));
-  fs.writeFileSync(batchPath, `${JSON.stringify({
-    schemaVersion:1, auditVersion:audit.auditVersion, generatedAt:audit.generatedAt, source:audit.source,
-    decisionTargets:audit.policy.reviewDecisionTargets, familyQuotas:audit.reviewBatch.familyQuotas,
-    records:audit.reviewBatch.records
-  },null,2)}\n`);
-  if (!args.quiet) {
-    console.log(`Prompt curation audit complete: ${audit.source.total.toLocaleString('en-GB')} prompts / ${audit.compression.variantGroups.toLocaleString('en-GB')} groups.`);
-    console.log(`Survivor target: ${audit.policy.survivorTargetTotal.toLocaleString('en-GB')} (${audit.compression.survivorCompressionPct}% compression).`);
-    console.log(`Review batch: ${audit.reviewBatch.records.length} prompts (${JSON.stringify(audit.reviewBatch.decisionCounts)}).`);
-    console.log(`Wrote ${jsonPath}, ${mdPath}, ${batchPath}`);
-  }
-}
-
-main();
+const cli=args(process.argv), payload=load(cli.input), result=audit(payload,cli.input);fs.mkdirSync(cli.outDir,{recursive:true});
+const base=path.join(cli.outDir,cli.prefix);fs.writeFileSync(`${base}-audit.json`,`${JSON.stringify(result,null,2)}\n`);fs.writeFileSync(`${base}-audit.md`,md(result));fs.writeFileSync(`${base}-review-batch.json`,`${JSON.stringify({schemaVersion:1,auditVersion:result.auditVersion,generatedAt:result.generatedAt,source:result.source,decisionTargets:result.policy.reviewDecisionTargets,familyQuotas:result.reviewBatch.familyQuotas,records:result.reviewBatch.records},null,2)}\n`);
+if(!cli.quiet){console.log(`Prompt curation audit complete: ${result.source.total.toLocaleString('en-GB')} prompts / ${result.compression.variantGroups.toLocaleString('en-GB')} groups.`);console.log(`Survivor target: ${result.policy.survivorTargetTotal.toLocaleString('en-GB')} (${result.compression.survivorCompressionPct}% compression).`);console.log(`Review batch: ${result.reviewBatch.records.length} prompts (${JSON.stringify(result.reviewBatch.decisionCounts)}).`);}

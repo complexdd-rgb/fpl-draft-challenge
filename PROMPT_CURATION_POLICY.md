@@ -101,7 +101,8 @@ Use these as review guards rather than blind quotas:
 - avoid any one family exceeding roughly 8% of the curated library without a documented exception;
 - where a family genuinely supports all playing positions, keep usable GK/DEF/MID/FWD coverage rather than allowing one position to dominate because it generated more combinations;
 - retain a deliberate spread of easy/medium/hard material;
-- retain a deliberate spread of answer-pool bands: 2, 3–5, 6–15, 16–40, 41–80 and 81–150;
+- retain a deliberate spread of answer-pool bands: 2, 3–5, 6–15, 16–40, 41–80, 81–150 and 151+;
+- treat 151+ answer-player prompts as an explicit very-broad band rather than silently folding them into 81–150;
 - do not use broad answer count alone as a quality proxy: a narrow prompt may be excellent if it is memorable and fair.
 
 ## Representative 144-prompt review batch
