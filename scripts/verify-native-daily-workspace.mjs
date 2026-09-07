@@ -71,9 +71,10 @@ assert(fragment.includes('id="batchStatus"'), 'Seven-day generator status is mis
 assert(fragment.includes('id="maxPerfectScore"'), 'Maximum perfect score control is missing from the canonical Daily fragment.');
 
 assert(builder.includes("const fragment = dedent(read(FRAGMENT_PATH));"), 'Daily workspace builder no longer renders from the canonical fragment.');
-for (const retired of ['locateLegacyDaily', 'extractMarkedDaily', 'PROMPT_PANEL_START', 'libraryManagerPanel']) {
+for (const retired of ['locateLegacyDaily', 'extractMarkedDaily', 'PROMPT_PANEL_START']) {
   assert(!builder.includes(retired), `Daily workspace builder still contains retired migration residue: ${retired}.`);
 }
+assert(builder.includes('id="libraryManagerPanel"'), 'Daily builder no longer rejects accidental Prompt Manager markup in the canonical fragment.');
 
 const redundantClassifier = 'if (/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|daily challenge/.test(title)) return "challenge";';
 assert(!stageOne.includes(redundantClassifier), 'Redundant Daily title classifier still exists in admin-stage-one.js.');
