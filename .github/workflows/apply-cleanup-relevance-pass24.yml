@@ -1,0 +1,52 @@
+name: Apply cleanup relevance pass 24
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass24
+    paths:
+      - '.github/workflows/apply-cleanup-relevance-pass24.yml'
+      - 'scripts/apply-cleanup-relevance-pass24.mjs'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-relevance-pass24
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply CSS cleanup
+        run: node scripts/apply-cleanup-relevance-pass24.mjs
+      - name: Verify production diff
+        run: |
+          ! grep -q 'Phase 8 — Database Repair Centre' admin-base.css
+          ! grep -q 'Phase 9 — automatic conservative repair engine' admin-base.css
+          ! grep -q 'database-repair-centre' admin-base.css
+          ! grep -q 'repair-summary-grid' admin-base.css
+          ! grep -q 'repair-item-card' admin-base.css
+          ! grep -q 'auto-repair-summary' admin-base.css
+          ! grep -q 'auto-repair-panel' admin-base.css
+          grep -q 'repair-regression-head' admin-base.css
+          grep -q 'repair-regression-row' admin-base.css
+          grep -q 'safe-mode-banner' admin-base.css
+          grep -q 'Phase 10 — historical database import centre' admin-base.css
+          grep -q 'admin-base.css?v=16.2.4' admin.css
+          git diff --check
+      - name: Commit production cleanup
+        run: |
+          if git diff --quiet -- admin-base.css admin.css; then
+            echo 'No production cleanup changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin-base.css admin.css
+          git commit -m 'Prune retired database repair CSS'
+          git push origin HEAD:cleanup-relevance-pass24
