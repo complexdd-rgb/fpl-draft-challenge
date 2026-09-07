@@ -1,8 +1,8 @@
 {
-  "manifestVersion": "3.5.0-live-loader-prune",
+  "manifestVersion": "3.6.0-curation-review-export",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.5.0-live-loader-prune" },
-    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.6.0-schedule-manager" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.6.0-curation-review-export" },
+    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.7.0-curation-review-export" },
     "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.2.0-roadmap-truth" },
     "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
     "promptFactoryMountV1": { "path": "js/prompt-factory-mount-v1.js", "version": "1.0.0" },
@@ -15,6 +15,7 @@
     "promptLibraryShardsV1": { "path": "js/prompt-library-shards-v1.js", "version": "1.1.0" },
     "promptLibraryShardsBridgeV1": { "path": "js/prompt-library-shards-promotion-bridge-v1.js", "version": "1.0.0" },
     "promptLibraryShardsCssV1": { "path": "admin-prompt-library-shards-v1.css", "version": "1.2.0-daily-authority" },
+    "promptCurationReviewExportV1": { "path": "js/prompt-curation-review-export-v1.js", "version": "1.0.0" },
     "adminDailyLibraryCutoverV1": { "path": "js/admin-daily-library-cutover-v1.js", "version": "1.0.1-history-residue-prune" },
     "dailySemanticDiversityV1": { "path": "js/daily-semantic-diversity-v1.js", "version": "1.0.0" },
     "adminDailyPublish": { "path": "js/admin-daily-publish.js", "version": "1.1.0-date-identity" },
