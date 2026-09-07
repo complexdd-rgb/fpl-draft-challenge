@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Prompt Studio mobile pass v1.0.0 */
+/* FPL Challenge Studio — Prompt Studio mobile pass v1.0.1 */
 @media (max-width: 720px) {
   body.stage-one-enabled [data-workspace="prompts"] .stage-one-tool-panel {
     padding: 12px !important;
@@ -23,90 +23,6 @@
     -webkit-line-clamp: 3;
     font-size: .72rem !important;
     line-height: 1.42 !important;
-  }
-
-  /* Library totals: 2 x 2 rather than four full-width cards. */
-  body.stage-one-enabled [data-workspace="prompts"] .manager-count-grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 7px !important;
-    margin: 8px 0 10px !important;
-  }
-
-  body.stage-one-enabled [data-workspace="prompts"] .manager-count-grid article {
-    min-width: 0 !important;
-    min-height: 72px !important;
-    padding: 10px 11px !important;
-    border-radius: 11px !important;
-  }
-
-  body.stage-one-enabled [data-workspace="prompts"] .manager-count-grid article span {
-    font-size: .66rem !important;
-    line-height: 1.25 !important;
-  }
-
-  body.stage-one-enabled [data-workspace="prompts"] .manager-count-grid article strong {
-    margin-top: 4px !important;
-    font-size: 1.35rem !important;
-    line-height: 1 !important;
-  }
-
-  /* Search + filters: search full width; selectors pair up beneath it. */
-  body.stage-one-enabled [data-workspace="prompts"] .manager-toolbar {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 7px !important;
-    padding: 8px !important;
-    margin: 0 !important;
-  }
-
-  body.stage-one-enabled [data-workspace="prompts"] #promptManagerSearch {
-    grid-column: 1 / -1 !important;
-  }
-
-  body.stage-one-enabled [data-workspace="prompts"] #promptManagerStatusFilter {
-    grid-column: 1 / -1 !important;
-  }
-
-  body.stage-one-enabled [data-workspace="prompts"] .manager-toolbar input,
-  body.stage-one-enabled [data-workspace="prompts"] .manager-toolbar select {
-    width: 100% !important;
-    min-width: 0 !important;
-    min-height: 40px !important;
-    margin: 0 !important;
-    padding: 8px 9px !important;
-    font-size: .73rem !important;
-  }
-
-  /* Library actions: two columns, destructive reset isolated. */
-  body.stage-one-enabled [data-workspace="prompts"] .manager-actions {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 7px !important;
-    margin-top: 9px !important;
-  }
-
-  body.stage-one-enabled [data-workspace="prompts"] .manager-actions .button,
-  body.stage-one-enabled [data-workspace="prompts"] .manager-actions .file-button {
-    width: 100% !important;
-    min-width: 0 !important;
-    min-height: 44px !important;
-    margin: 0 !important;
-    padding: 8px 7px !important;
-    font-size: .69rem !important;
-    line-height: 1.18 !important;
-    white-space: normal !important;
-    text-align: center !important;
-  }
-
-  body.stage-one-enabled [data-workspace="prompts"] #resetPromptManagerBtn {
-    grid-column: 1 / -1 !important;
-  }
-
-  body.stage-one-enabled [data-workspace="prompts"] #managerStatus {
-    margin: 8px 2px 0 !important;
-    font-size: .68rem !important;
-    line-height: 1.4 !important;
   }
 
   /* Career Shape summary sits between library controls and creator. */
