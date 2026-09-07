@@ -717,7 +717,6 @@ body.stage-one-enabled .button.secondary {
 }
 
 body.stage-one-enabled .button-row,
-body.stage-one-enabled .repair-toolbar,
 body.stage-one-enabled .audit-toolbar {
   gap: 8px;
 }
@@ -728,9 +727,7 @@ body.stage-one-enabled .import-settings-grid {
 }
 
 body.stage-one-enabled .summary-card,
-body.stage-one-enabled .audit-summary-grid article,
-body.stage-one-enabled .repair-summary-grid article,
-body.stage-one-enabled .publish-summary-card {
+body.stage-one-enabled .audit-summary-grid article {
   border-color: var(--stage-border);
   background: rgba(255, 255, 255, .025);
   box-shadow: none;
@@ -738,11 +735,8 @@ body.stage-one-enabled .publish-summary-card {
 
 body.stage-one-enabled .prompt-factory,
 body.stage-one-enabled .prompt-quality-analyser,
-body.stage-one-enabled .repair-regression-panel,
-body.stage-one-enabled .auto-repair-panel,
 body.stage-one-enabled .import-subpanel,
-body.stage-one-enabled .identity-regression-panel,
-body.stage-one-enabled .legacy-regression-panel {
+body.stage-one-enabled .identity-regression-panel {
   border-color: var(--stage-border);
   background: rgba(255, 255, 255, .022);
 }
