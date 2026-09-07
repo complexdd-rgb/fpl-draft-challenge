@@ -60,6 +60,8 @@ for (const retired of ['ensurePromptRedesign', 'ensurePromptV3', 'ensurePromptLo
 assert(bootstrap.includes('adminScheduleManagerV2'), 'Clean Studio bootstrap does not load the centrally owned schedule manager v2.');
 assert(admin.includes('data-studio-bootstrap="1" src="js/studio-bootstrap.js?v=2.6.0-schedule-manager"'), 'admin.html does not load the single Studio bootstrap directly.');
 assert(!admin.includes('js/admin-import-tools.js'), 'admin.html still loads the retired admin-import-tools compatibility shim.');
+assert(!admin.includes('id="libraryManagerPanel"'), 'admin.html still embeds the retired static Prompt Library Manager shell.');
+assert(!admin.includes('STUDIO_NATIVE_PROMPT_WORKSPACE_START'), 'admin.html still embeds the retired static Prompt Studio migration shell.');
 for (const retiredKey of ['adminImportTools','studioFeatureLoader','promptStudioRedesign','promptFamilyRegistryV3','promptStudioV3','promptStudioV3RuleTester','promptStudioV3QualityAdvisor','promptStudioV3CandidateGenerator','promptStudioV3AutoBatchGenerator','promptStudioV3CandidateCertification','promptStudioV4Simple','promptStudioLoader','adminStudioFinish','careerOverlapWording','promptLibraryLegacyAdditions','promptRefinementIncubator','promptRefinementSurvivors','promptFourStarEnforcer','promptLibraryCanonicalState']) {
   assert(!manifest.assets?.[retiredKey], `Central manifest still exposes retired Studio asset ${retiredKey}.`);
 }

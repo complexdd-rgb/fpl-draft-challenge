@@ -39,10 +39,9 @@ assert(count(html, '<!-- STUDIO_NATIVE_DAILY_WORKSPACE_END -->') === 1, 'Expecte
 assert(challengeWorkspace.includes('<h2>Challenge settings</h2>'), 'Challenge settings are not authored inside the native Daily workspace.');
 assert(!legacyMain.includes('<h2>Challenge settings</h2>'), 'Legacy <main> still contains Challenge settings.');
 assert(!challengeWorkspace.includes('id="libraryManagerPanel"'), 'Prompt Library Manager leaked into the Daily workspace.');
-if (html.includes('<!-- STUDIO_NATIVE_PROMPT_WORKSPACE_START -->')) {
-  assert(promptWorkspace.includes('id="libraryManagerPanel"'), 'Prompt Library Manager is not inside the native Prompt Studio workspace.');
-  assert(!legacyMain.includes('id="libraryManagerPanel"'), 'Legacy <main> still contains Prompt Library Manager after native migration.');
-}
+assert(!html.includes('<!-- STUDIO_NATIVE_PROMPT_WORKSPACE_START -->'), 'Retired static Prompt Studio shell marker returned to admin.html.');
+assert(!html.includes('id="libraryManagerPanel"'), 'Retired static Prompt Library Manager returned to admin.html.');
+assert(!promptWorkspace.includes('promptManagerSearch'), 'Retired Prompt Manager controls returned to the native Prompt workspace shell.');
 
 requiredIds.forEach(id => {
   const token = `id="${id}"`;
