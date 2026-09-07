@@ -1,21 +1,16 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const HTML_PATH = 'admin.html';
-const STAGE_ONE_PATH = 'js/admin-stage-one.js';
 const FRAGMENT_PATH = 'fragments/admin-daily-workspace.html';
 const MARKER_START = '<!-- STUDIO_NATIVE_DAILY_WORKSPACE_START -->';
 const MARKER_END = '<!-- STUDIO_NATIVE_DAILY_WORKSPACE_END -->';
-const CHALLENGE_HEADING = '<h2>Challenge settings</h2>';
-const PROMPT_PANEL_START = '<section class="panel" id="libraryManagerPanel">';
 const CHALLENGE_WORKSPACE_START = '<section class="studio-workspace" data-workspace="challenge" id="workspace-challenge"';
 const PROMPT_WORKSPACE_START = '<section class="studio-workspace" data-workspace="prompts" id="workspace-prompts"';
 
 const read = file => fs.readFileSync(file, 'utf8');
 const write = (file, before, after) => {
   if (before === after) return false;
-  fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, after);
   console.log(`Updated ${file}`);
   return true;
@@ -33,31 +28,9 @@ function indent(block, spaces) {
   return dedent(block).split('\n').map(line => line ? prefix + line : '').join('\n');
 }
 
-function extractMarkedDaily(html) {
-  const start = html.indexOf(MARKER_START);
-  if (start < 0) return '';
-  const end = html.indexOf(MARKER_END, start);
-  if (end < 0) throw new Error('Native Daily workspace start marker exists without its end marker.');
-  return dedent(html.slice(start + MARKER_START.length, end));
-}
-
-function locateLegacyDaily(html) {
-  const mainClose = html.indexOf('\n  </main>');
-  const heading = html.indexOf(CHALLENGE_HEADING);
-  if (mainClose < 0 || heading < 0 || heading > mainClose) return null;
-
-  const start = html.lastIndexOf('    <section class="panel"', heading);
-  const end = html.indexOf(`\n    ${PROMPT_PANEL_START}`, heading);
-  if (start < 0 || end < 0 || end > mainClose) {
-    throw new Error('Could not isolate the legacy Daily Challenge panel block safely.');
-  }
-
-  return { start, end, block: dedent(html.slice(start, end)) };
-}
-
 function validateDailyBlock(block) {
   const required = [
-    CHALLENGE_HEADING,
+    '<h2>Challenge settings</h2>',
     'id="batchPlanner"',
     'id="draftPanel"',
     'id="testPanel"',
@@ -66,47 +39,9 @@ function validateDailyBlock(block) {
   required.forEach(token => {
     if (!block.includes(token)) throw new Error(`Daily workspace block is missing ${token}.`);
   });
-  if (block.includes('id="historyPanel"')) {
-    throw new Error('Retired visible Challenge history and cooldown panel was reintroduced into the Daily workspace.');
+  for (const retired of ['id="historyPanel"', 'id="dailyHistoryCompatibility"', 'id="libraryManagerPanel"']) {
+    if (block.includes(retired)) throw new Error(`Retired control returned to the Daily workspace fragment: ${retired}`);
   }
-  if (block.includes('id="dailyHistoryCompatibility"')) {
-    throw new Error('Retired hidden Daily history compatibility mount was reintroduced.');
-  }
-  if (block.includes('id="libraryManagerPanel"')) {
-    throw new Error('Prompt Library Manager was accidentally captured by the Daily workspace block.');
-  }
-}
-
-function loadCanonicalDaily(html) {
-  if (fs.existsSync(FRAGMENT_PATH)) {
-    const fragment = dedent(read(FRAGMENT_PATH));
-    validateDailyBlock(fragment);
-    return fragment;
-  }
-
-  const marked = extractMarkedDaily(html);
-  if (marked) {
-    validateDailyBlock(marked);
-    write(FRAGMENT_PATH, '', `${marked}\n`);
-    return marked;
-  }
-
-  const legacy = locateLegacyDaily(html);
-  if (!legacy) throw new Error('Could not find Daily Challenge markup to create the canonical fragment.');
-  validateDailyBlock(legacy.block);
-  write(FRAGMENT_PATH, '', `${legacy.block}\n`);
-  return legacy.block;
-}
-
-function removeLegacyDaily(html) {
-  const legacy = locateLegacyDaily(html);
-  if (!legacy) return html;
-
-  let start = legacy.start;
-  if (start > 0 && html[start - 1] === '\n') start -= 1;
-  let end = legacy.end;
-  while (html[end] === '\n') end += 1;
-  return html.slice(0, start) + '\n' + html.slice(end);
 }
 
 function installNativeDaily(html, fragment) {
@@ -126,21 +61,9 @@ function installNativeDaily(html, fragment) {
   return html.slice(0, headerEnd) + insertion + html.slice(workspaceClose);
 }
 
-function removeRedundantChallengeClassifier(source) {
-  const redundant = '    if (/challenge settings|review the generated xi|test mode|download-ready challenge|challenge history|daily challenge/.test(title)) return "challenge";\n';
-  if (!source.includes(redundant)) return source;
-  return source.replace(redundant, '');
-}
-
 const sourceHtml = read(HTML_PATH);
-const fragment = loadCanonicalDaily(sourceHtml);
-let nextHtml = removeLegacyDaily(sourceHtml);
-nextHtml = installNativeDaily(nextHtml, fragment);
-write(HTML_PATH, sourceHtml, nextHtml);
+const fragment = dedent(read(FRAGMENT_PATH));
+validateDailyBlock(fragment);
+write(HTML_PATH, sourceHtml, installNativeDaily(sourceHtml, fragment));
 
-const stageBefore = read(STAGE_ONE_PATH);
-const stageAfter = removeRedundantChallengeClassifier(stageBefore);
-write(STAGE_ONE_PATH, stageBefore, stageAfter);
-
-execFileSync(process.execPath, ['--check', STAGE_ONE_PATH], { stdio: 'inherit' });
 execFileSync(process.execPath, ['scripts/verify-native-daily-workspace.mjs'], { stdio: 'inherit' });
