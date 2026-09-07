@@ -1,0 +1,73 @@
+name: Final architecture audit
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-final-audit
+  pull_request:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run repository integrity audit
+        run: node scripts/final-architecture-audit.mjs
+
+      - name: Verify generated architecture is idempotent
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-native-daily-workspace.mjs
+          node scripts/build-studio-cache-tags.mjs
+          git diff --check
+          git diff --exit-code -- admin.html js/asset-manifest.js
+
+      - name: Run permanent architecture and Daily verifier matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          for verifier in \
+            scripts/verify-all-season-certification-gate.mjs \
+            scripts/verify-career-evolution-prompt-families.mjs \
+            scripts/verify-daily-library-cutover-v1.mjs \
+            scripts/verify-daily-semantic-diversity-v1.mjs \
+            scripts/verify-native-daily-workspace.mjs \
+            scripts/verify-native-validation-workspace.mjs \
+            scripts/verify-price-prompt-null-safety.mjs \
+            scripts/verify-prompt-factory-v1.mjs \
+            scripts/verify-prompt-library-shards-v1.mjs \
+            scripts/verify-prompt-promotion-v1.mjs \
+            scripts/verify-prompt-quality-analyser-v1.mjs \
+            scripts/verify-prompt-studio-clean-reset.mjs \
+            scripts/verify-repository-certified-prompt-pool.mjs \
+            scripts/verify-studio-refresh-fastboot.mjs \
+            scripts/verify-weekly-certified-snapshot-race.mjs \
+            scripts/verify-weekly-nationality-generation-gate.mjs \
+            scripts/verify-weekly-nationality-hard-reservation.mjs \
+            scripts/verify-weekly-nationality-quota-guard.mjs \
+            scripts/verify-weekly-nationality-readiness.mjs \
+            scripts/verify-weekly-rotation-library-evolution.mjs \
+            scripts/verify-weekly-top-answer-diversity.mjs; do
+            echo "==> $verifier"
+            node "$verifier"
+          done
+          node scripts/test-live-feature-loader-race.mjs
+
+      - name: Final syntax and whitespace check
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check prompt-library.js
+          node --check players-live.js
+          find js -maxdepth 1 -type f -name '*.js' -print0 | sort -z | xargs -0 -n1 node --check
+          find scripts -maxdepth 1 -type f -name '*.mjs' -print0 | sort -z | xargs -0 -n1 node --check
+          node --check sw.js
+          git diff --check
