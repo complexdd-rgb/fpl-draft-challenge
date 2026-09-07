@@ -51,6 +51,8 @@ admin.html
 
 `studio-bootstrap.js` is the single Prompt Studio bootstrap owner. `admin.html` loads it directly; compatibility bootstraps and alternate Studio owners have been removed.
 
+The Prompt workspace shell in `admin.html` is intentionally empty. `prompt-studio-clean-reset.js` owns and renders the current Prompt Studio DOM at runtime; the retired V2 static Prompt Manager markup is no longer shipped.
+
 Native workspaces:
 
 - `workspace-challenge` — Daily Challenge settings, seven-day generation, XI review, Test Mode and download output.

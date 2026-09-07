@@ -6,7 +6,6 @@ on:
       - 'admin.html'
       - 'admin-prompt-studio-clean.css'
       - 'config/asset-manifest.json'
-      - 'fragments/admin-prompt-workspace.html'
       - 'js/admin-stage-one.js'
       - 'js/prompt-studio-clean-reset.js'
       - 'js/prompt-factory-mount-v1.js'
@@ -39,6 +38,15 @@ jobs:
 
       - name: Verify current clean Prompt Studio architecture
         run: node scripts/verify-prompt-studio-clean-reset.mjs
+
+      - name: Confirm retired static Prompt Studio shell is absent
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e fragments/admin-prompt-workspace.html
+          ! grep -q 'STUDIO_NATIVE_PROMPT_WORKSPACE_START' admin.html
+          ! grep -q 'id="libraryManagerPanel"' admin.html
+          ! grep -q 'promptManagerSearch' admin.html
 
       - name: Check current Prompt Studio syntax
         run: |
