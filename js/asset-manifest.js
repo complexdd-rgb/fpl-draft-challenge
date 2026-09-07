@@ -82,7 +82,7 @@
     },
     "adminStageOne": {
       "path": "js/admin-stage-one.js",
-      "version": "1.5.0-native-prompts"
+      "version": "1.5.1-copy-cleanup"
     },
     "careerContext": {
       "path": "js/career-context.js",

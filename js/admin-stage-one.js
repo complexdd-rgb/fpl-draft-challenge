@@ -197,7 +197,7 @@
             <small>Generate, test and download the seven-day calendar.</small>
             <em id="dashboardChallengeStatus">Ready to create</em>
           </button>
-          <button class="dashboard-action-card" type="button" data-open-workspace="prompts" data-target-title="Prompt Library Manager">
+          <button class="dashboard-action-card" type="button" data-open-workspace="prompts">
             <span class="dashboard-action-icon">P</span>
             <strong>Manage prompts</strong>
             <small>Create prompt batches and review library quality.</small>
@@ -418,7 +418,7 @@
 
     if (!auditHasRun) {
       nextTitle.textContent = "Run the database audit";
-      nextCopy.textContent = "Start with a fresh read-only scan so the studio can guide the repair work safely.";
+      nextCopy.textContent = "Start with a fresh read-only scan so the studio can guide database research safely.";
       nextButton.textContent = "Open Database Health";
       nextButton.dataset.openWorkspace = "database";
       nextButton.dataset.targetTitle = "Player Database Auditor";
