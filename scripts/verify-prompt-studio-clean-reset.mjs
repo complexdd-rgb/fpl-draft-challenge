@@ -77,6 +77,7 @@ for (const retired of ['ensurePromptRedesign', 'ensurePromptV3', 'ensurePromptLo
   assert(!bootstrap.includes(retired), `Clean Studio bootstrap still contains retired owner ${retired}.`);
 }
 assert(bootstrap.includes('promptCurationReviewExportV1'), 'Clean Studio bootstrap does not load the read-only curation review exporter.');
+assert(bootstrap.includes('adminScheduleManagerV2'), 'Clean Studio bootstrap does not load the centrally owned schedule manager v2.');
 assert(admin.includes('data-studio-bootstrap="1" src="js/studio-bootstrap.js?v=2.7.0-curation-review-export"'), 'admin.html does not load the current single Studio bootstrap directly.');
 assert(!admin.includes('js/admin-import-tools.js'), 'admin.html still loads the retired admin-import-tools compatibility shim.');
 assert(!admin.includes('id="libraryManagerPanel"'), 'admin.html still embeds the retired static Prompt Library Manager shell.');
