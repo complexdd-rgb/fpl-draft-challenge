@@ -1,0 +1,57 @@
+name: Apply cleanup relevance pass 9
+
+on:
+  push:
+    branches:
+      - cleanup-relevance-pass9
+    paths:
+      - 'scripts/apply-cleanup-relevance-pass9.py'
+      - '.github/workflows/apply-cleanup-relevance-pass9.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Remove retired Prompt Manager phase
+        run: python scripts/apply-cleanup-relevance-pass9.py
+
+      - name: Verify surviving Studio boundaries
+        run: |
+          node --check js/admin-core.js
+          node --check js/prompt-studio-clean-reset.js
+          node scripts/verify-prompt-studio-clean-reset.mjs
+          node scripts/verify-native-daily-workspace.mjs
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          ! grep -q 'BEGIN admin-phase5.js' js/admin-core.js
+          ! grep -q 'END admin-phase5.js' js/admin-core.js
+          ! grep -q 'FPL_PROMPT_MANAGER_API' js/admin-core.js
+          grep -q 'BEGIN admin-phase3.js' js/admin-core.js
+          grep -q 'recordBatchChallenges' js/admin-core.js
+          grep -q 'getCooldownPromptIds' js/admin-core.js
+          git diff --check
+
+      - name: Commit pass 9 production cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add js/admin-core.js js/prompt-studio-clean-reset.js .github/workflows/studio-regression.yml ARCHITECTURE.md
+          if git diff --cached --quiet; then
+            echo 'No pass 9 production changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Remove retired browser Prompt Manager phase'
+          git push origin HEAD:cleanup-relevance-pass9
