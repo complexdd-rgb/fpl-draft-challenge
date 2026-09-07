@@ -98,11 +98,12 @@ jobs:
           ! grep -q 'BEGIN admin-phase9.js' js/admin-core.js
           ! grep -q 'END admin-phase9.js' js/admin-core.js
           grep -q 'BEGIN admin-phase7.js' js/admin-core.js
-          grep -q 'BEGIN admin-phase10.js' js/admin-core.js
-          grep -q 'BEGIN admin-phase11.js' js/admin-core.js
+          ! grep -q 'BEGIN admin-phase10.js' js/admin-core.js
+          ! grep -q 'BEGIN admin-phase11.js' js/admin-core.js
           grep -q 'id="databaseAuditorPanel"' admin.html
-          grep -q 'id="importCentreHeading"' admin.html
-          grep -q 'id="identityConsolidationCentre"' admin.html
+          ! grep -q 'id="importCentreHeading"' admin.html
+          ! grep -q 'id="identityConsolidationCentre"' admin.html
+          node scripts/verify-admin-ui-truth.mjs
 
       - name: Verify legacy Publishing Centre is removed and ZIP paths remain active
         shell: bash
@@ -117,7 +118,6 @@ jobs:
           ! grep -R -q 'FPL_STUDIO_PHASE6' js --include='*.js'
           grep -q 'FPL_STUDIO_ZIP?.buildZipBlob' js/admin-batch-calendar.js
           grep -q 'window.FPL_STUDIO_ZIP' js/admin-daily-publish.js
-          grep -q 'FPL_STUDIO_ZIP?.buildZipBlob' js/admin-core.js
           grep -q 'src="js/studio-zip.js?v=1.0.0"' admin.html
           node - <<'NODE'
           const fs = require('node:fs');
@@ -193,7 +193,7 @@ jobs:
             if (inline.length !== 0) throw new Error(`${file}: expected zero inline scripts, found ${inline.length}`);
           }
           const admin = fs.readFileSync('admin.html', 'utf8');
-          const base = admin.indexOf('admin.css?v=16.2.1');
+          const base = admin.indexOf('admin.css?v=');
           const stage = admin.indexOf('admin-stage-one.css?v=1.0.1');
           const tools = admin.indexOf('admin-live-tools.css?v=1.0.0');
           if (!(base >= 0 && stage > base && tools > stage && tools < admin.indexOf('</head>'))) throw new Error('Studio stylesheet load order changed');
@@ -211,7 +211,7 @@ jobs:
           ! grep -q 'manager-count-grid' admin-stage-one.css
           ! grep -q 'Phase 4: Prompt Library Manager' admin-base.css
           ! grep -q 'manager-toolbar' admin-base.css
-          grep -q 'id: "imports"' js/admin-stage-one.js
+          ! grep -q 'id: "imports"' js/admin-stage-one.js
           grep -q 'Player Database Auditor' js/admin-stage-one.js
-          grep -q 'Historical Database Import Centre' js/admin-stage-one.js
+          ! grep -q 'Historical Database Import Centre' js/admin-stage-one.js
           git diff --check

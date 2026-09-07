@@ -408,9 +408,9 @@
         </section>
 
         <div class="dashboard-action-grid prompt-clean-roadmap" aria-label="Prompt Studio rebuild roadmap">
-          <article class="dashboard-action-card"><span class="dashboard-action-icon">+</span><strong>Prompt Builder</strong><small>Create prompts against one explicit schema.</small><em>Next</em></article>
-          <article class="dashboard-action-card"><span class="dashboard-action-icon">Q</span><strong>Quality Analyser</strong><small>Test candidates before anything enters the canonical library.</small><em>Planned</em></article>
-          <article class="dashboard-action-card"><span class="dashboard-action-icon">R</span><strong>Refinement Incubator</strong><small>Rebuild survivor generation without legacy packs.</small><em>Planned</em></article>
+          <article class="dashboard-action-card"><span class="dashboard-action-icon">+</span><strong>Prompt Builder</strong><small>Create prompts against one explicit schema.</small><em>Live</em></article>
+          <article class="dashboard-action-card"><span class="dashboard-action-icon">Q</span><strong>Quality Analyser</strong><small>Test candidates before anything enters the canonical library.</small><em>Live</em></article>
+          <article class="dashboard-action-card"><span class="dashboard-action-icon">R</span><strong>Refinement Incubator</strong><small>Curate and compress the promoted candidate universe into a balanced survivor library.</small><em>Next</em></article>
         </div>
       </section>`;
 

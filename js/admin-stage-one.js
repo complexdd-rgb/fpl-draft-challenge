@@ -48,13 +48,6 @@
       title: "Leaderboard",
       icon: "#",
       description: "Check Supabase configuration, deployment readiness and backend health."
-    },
-    {
-      id: "imports",
-      label: "Historical Imports",
-      title: "Historical Imports",
-      icon: "↥",
-      description: "Import verified historical seasons and review identity matches safely."
     }
   ];
 
@@ -83,7 +76,6 @@
 
     if (/validation lab|player inspector|rule tester|prompt explorer|season health/.test(title)) return "validation";
     if (/leaderboard backend|leaderboard health|supabase/.test(title)) return "leaderboard";
-    if (/historical database import|official fpl archive import|archive import|identity consolidation/.test(title)) return "imports";
     if (/player database auditor|database health/.test(title)) return "database";
 
     return "challenge";
@@ -215,12 +207,6 @@
             <small>Audit blockers, statistics and metadata gaps.</small>
             <em id="dashboardDatabaseStatus">Audit not run</em>
           </button>
-          <button class="dashboard-action-card" type="button" data-open-workspace="imports" data-target-title="Historical Database Import Centre">
-            <span class="dashboard-action-icon">↥</span>
-            <strong>Import a historical season</strong>
-            <small>Map clubs, review identities and certify the imported season.</small>
-            <em id="dashboardImportStatus">Waiting for a source file</em>
-          </button>
         </div>
       </section>
     `;
@@ -276,7 +262,6 @@
       values = [];
     }
     if (!Array.isArray(values)) values = [];
-    if (!hasSavedPreference) values.push("identityConsolidationCentre");
 
     document.querySelectorAll(".stage-one-tool-panel").forEach(panel => {
       if (!values.includes(getPanelKey(panel))) return;
@@ -327,7 +312,7 @@
 
     if (eyebrow) eyebrow.textContent = "FPL Challenge Studio";
     if (title) title.textContent = "Build, test and maintain your FPL game";
-    if (copy) copy.textContent = "Create the daily challenge, manage prompts, audit the player database and import historical seasons from one focused workspace.";
+    if (copy) copy.textContent = "Create the daily challenge, manage prompts and audit the player database from one focused workspace.";
     if (backLink) backLink.textContent = "Open live game";
 
     if (!hero.querySelector(".studio-version-badge")) {
@@ -350,7 +335,6 @@
     const metadata = parseNumber(document.getElementById("auditInfoCount")?.textContent);
     const libraryText = document.getElementById("libraryStatus")?.textContent?.trim() || "Loading…";
     const challengeText = document.getElementById("batchStatus")?.textContent?.trim() || "Ready to generate";
-    const importText = document.getElementById("importCentreStatus")?.textContent?.trim() || "Waiting for files";
 
     const auditHasRun = !/not run|loading|waiting/i.test(auditText) || parseNumber(document.getElementById("auditPlayerCount")?.textContent) > 0;
     const effectiveBlockers = critical;
@@ -378,8 +362,7 @@
       challenge: /ready|passed|calendar zip is ready/i.test(challengeText) ? "✓" : "",
       prompts: parseNumber(libraryText) > 0 ? String(parseNumber(libraryText)) : "",
       validation: "✓",
-      database: effectiveBlockers > 0 ? String(effectiveBlockers) : auditHasRun ? "✓" : "!",
-      imports: /waiting/i.test(importText) ? "" : "•"
+      database: effectiveBlockers > 0 ? String(effectiveBlockers) : auditHasRun ? "✓" : "!"
     };
 
     Object.entries(badges).forEach(([workspace, value]) => {
@@ -393,13 +376,11 @@
     const challengeStatus = document.getElementById("dashboardChallengeStatus");
     const promptStatus = document.getElementById("dashboardPromptStatus");
     const databaseStatus = document.getElementById("dashboardDatabaseStatus");
-    const importStatus = document.getElementById("dashboardImportStatus");
     if (challengeStatus) challengeStatus.textContent = challengeText;
     if (promptStatus) promptStatus.textContent = libraryText;
     if (databaseStatus) databaseStatus.textContent = !auditHasRun
       ? "Audit not run"
       : `${effectiveBlockers.toLocaleString()} blockers · ${metadata.toLocaleString()} metadata gaps`;
-    if (importStatus) importStatus.textContent = importText;
 
     if (!nextTitle || !nextCopy || !nextButton) return;
 
@@ -580,7 +561,7 @@
 
     const watchedIds = [
       "auditStatusTop", "auditCriticalCount", "auditInfoCount",
-      "libraryStatus", "batchStatus", "importCentreStatus", "auditPlayerCount"
+      "libraryStatus", "batchStatus", "auditPlayerCount"
     ];
     const observer = new MutationObserver(updateDynamicStatus);
     watchedIds.forEach(id => {

@@ -14,7 +14,7 @@
     },
     "promptStudioClean": {
       "path": "js/prompt-studio-clean-reset.js",
-      "version": "1.1.0-library-browser"
+      "version": "1.2.0-roadmap-truth"
     },
     "promptStudioCleanCss": {
       "path": "admin-prompt-studio-clean.css",
@@ -82,7 +82,7 @@
     },
     "adminStageOne": {
       "path": "js/admin-stage-one.js",
-      "version": "1.5.3-residue-prune"
+      "version": "1.6.0-imports-retired"
     },
     "careerContext": {
       "path": "js/career-context.js",

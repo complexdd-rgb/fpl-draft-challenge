@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07150f">
   <title>FPL Challenge Studio</title>
   <script src="js/asset-manifest.js?v=3.5.0-live-loader-prune"></script>
-  <link rel="stylesheet" href="admin.css?v=16.2.1-pass30">
+  <link rel="stylesheet" href="admin.css?v=16.3.0-imports-retired">
 
   <link rel="stylesheet" href="admin-stage-one.css?v=1.0.1">
   <link rel="stylesheet" href="admin-live-tools.css?v=1.0.0">
@@ -16,8 +16,8 @@
     <header class="studio-hero">
       <div>
         <p class="eyebrow">FPL Challenge Studio</p>
-        <h1>Build, test, analyse, publish, audit and expand the historical database safely</h1>
-        <p class="hero-copy">Generate and review the XI, create relational anti-meta prompts, analyse prompt quality, review the library, publish checked daily challenges, audit the player database and import verified historical seasons without touching the live game.</p>
+        <h1>Build, test, analyse, publish and audit safely</h1>
+        <p class="hero-copy">Generate and review the XI, create relational anti-meta prompts, analyse prompt quality, review the library, publish checked daily challenges and audit the player database without touching the live game.</p>
       </div>
       <a class="back-link" href="./">Open live game</a>
     </header>
@@ -128,215 +128,6 @@
 
 
 
-    <section class="studio-section import-centre-section" aria-labelledby="importCentreHeading">
-      <div class="section-heading-row">
-        <div>
-          <p class="eyebrow">Historical imports</p>
-          <h2 id="importCentreHeading">Historical Database Import Centre</h2>
-          <p>Imports one season at a time into a cloned workspace, tracks the source of every added record, protects existing seasons and runs full regressions before an upload file can be downloaded.</p>
-        </div>
-        <span id="importCentreStatus" class="audit-status-chip pending">Waiting for files</span>
-      </div>
-
-      <div class="safe-mode-banner">
-        <strong>Import sandbox</strong>
-        <span>Nothing on this page edits the live <code>players.js</code>. Ambiguous identities and incomplete club metadata block the upload-ready package.</span>
-      </div>
-
-      <div class="import-settings-grid">
-        <label>
-          Base database
-          <select id="importBaseDatabase">
-            <option value="current">Current loaded players.js</option>
-          </select>
-        </label>
-        <label>
-          Season being imported
-          <input id="importSeasonLabel" type="text" inputmode="numeric" placeholder="e.g. 2011/12" maxlength="7">
-        </label>
-        <label>
-          Source name
-          <input id="importSourceName" type="text" placeholder="e.g. Official FPL archive" maxlength="80">
-        </label>
-        <label>
-          Source URL or reference
-          <input id="importSourceUrl" type="text" placeholder="Optional source link or archive name" maxlength="220">
-        </label>
-        <label>
-          Source confidence
-          <select id="importSourceTrust">
-            <option value="official">Official / primary</option>
-            <option value="verified-community" selected>Verified community dataset</option>
-            <option value="unverified">Unverified — review only</option>
-          </select>
-        </label>
-        <label class="check-label">
-          <input id="importRequireManagers" type="checkbox" checked>
-          Require manager metadata for every club
-        </label>
-      </div>
-
-      <div class="import-file-grid">
-        <label class="import-file-card">
-          <strong>1. Player season dataset</strong>
-          <span>CSV, JSON or a data-only players.js. Standard FPL <code>players_raw.csv</code> is supported.</span>
-          <input id="importDatasetFile" type="file" accept=".csv,.json,.js,.txt,text/csv,application/json,text/plain">
-          <small id="importDatasetFileStatus">No file selected.</small>
-        </label>
-        <label class="import-file-card">
-          <strong>2. Team-name mapping</strong>
-          <span>Optional <code>teams.csv</code> or JSON. Needed when the player file stores numeric team IDs.</span>
-          <input id="importTeamsFile" type="file" accept=".csv,.json,.js,.txt,text/csv,application/json,text/plain">
-          <small id="importTeamsFileStatus">No file selected.</small>
-        </label>
-        <label class="import-file-card">
-          <strong>3. Club metadata</strong>
-          <span>Optional CSV/JSON with club, league position, promoted status and managers. It can also be completed below.</span>
-          <input id="importMetadataFile" type="file" accept=".csv,.json,.js,.txt,text/csv,application/json,text/plain">
-          <small id="importMetadataFileStatus">No file selected.</small>
-        </label>
-      </div>
-
-      <div class="button-row import-button-row">
-        <button id="parseImportFilesBtn" class="button primary" type="button">Read files and map clubs</button>
-        <button id="buildImportPreviewBtn" class="button secondary" type="button" disabled>Build import preview</button>
-        <button id="resetImportCentreBtn" class="button secondary" type="button">Reset importer</button>
-      </div>
-      <p id="importActionStatus" class="action-status" role="status">Choose a single-season player dataset to begin.</p>
-
-      <div id="importClubMetadataPanel" class="import-subpanel hidden">
-        <div class="repair-regression-head">
-          <div>
-            <p class="eyebrow">Club enrichment</p>
-            <h3>Final table, promoted clubs and managers</h3>
-            <p>These values prevent older records from being accepted incorrectly by league-position, promoted/relegated and manager prompts.</p>
-          </div>
-          <span id="importClubMetadataStatus" class="phase-chip">0 clubs ready</span>
-        </div>
-        <div class="import-table-wrap">
-          <table class="import-metadata-table">
-            <thead><tr><th>Source team</th><th>Club name</th><th>Final position</th><th>Promoted</th><th>Manager(s)</th></tr></thead>
-            <tbody id="importClubMetadataRows"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="importPreviewPanel" class="import-subpanel hidden">
-        <div class="summary-grid import-summary-grid">
-          <div class="summary-card"><span>Source rows</span><strong id="importSourceRows">0</strong></div>
-          <div class="summary-card"><span>Matched players</span><strong id="importMatchedPlayers">0</strong></div>
-          <div class="summary-card"><span>New players</span><strong id="importNewPlayers">0</strong></div>
-          <div class="summary-card"><span>Needs a decision</span><strong id="importConflictCount">0</strong></div>
-          <div class="summary-card"><span>Quarantined rows</span><strong id="importQuarantineCount">0</strong></div>
-          <div class="summary-card"><span>Projected seasons</span><strong id="importProjectedSeasons">0</strong></div>
-        </div>
-
-        <div id="importWarnings" class="warnings" aria-live="polite"></div>
-
-        <section id="importConflictPanel" class="import-conflict-panel hidden" aria-labelledby="importConflictHeading">
-          <div class="repair-regression-head">
-            <div><p class="eyebrow">Identity review</p><h3 id="importConflictHeading">Resolve ambiguous footballers</h3></div>
-            <button id="rebuildImportPreviewBtn" class="button secondary" type="button">Apply decisions and rebuild</button>
-          </div>
-          <div id="importConflictList" class="import-conflict-list"></div>
-        </section>
-
-        <section class="import-regression-panel" aria-labelledby="importRegressionHeading">
-          <div class="repair-regression-head">
-            <div><p class="eyebrow">Safety gate</p><h3 id="importRegressionHeading">Import regression checks</h3></div>
-            <button id="runImportChecksBtn" class="button secondary" type="button">Run checks again</button>
-          </div>
-          <div id="importRegressionList" class="repair-regression-list"><div class="repair-empty-state">Build the preview to run the checks.</div></div>
-        </section>
-
-        <div class="import-download-panel">
-          <div>
-            <h3>Protected import package</h3>
-            <p id="importDownloadExplanation">The upload-ready download unlocks only when identity matching, club metadata and all regression checks pass.</p>
-          </div>
-          <button id="downloadImportPackBtn" class="button primary" type="button" disabled>Download review package</button>
-        </div>
-        <p id="importDownloadStatus" class="action-status" role="status"></p>
-      </div>
-    </section>
-
-
-    <section class="panel identity-centre" id="identityConsolidationCentre" aria-labelledby="identityCentreHeading">
-      <div class="panel-heading identity-heading">
-        <div>
-          <p class="eyebrow">Historical imports</p>
-          <h2 id="identityCentreHeading">Player Identity Consolidation</h2>
-          <p>Find duplicate footballers stored under nicknames, full names, spelling variants or encoding differences. The live database is never changed until you download and manually upload a replacement <code>players.js</code>.</p>
-        </div>
-        <span id="identityCentreStatus" class="phase-chip">Ready to scan</span>
-      </div>
-
-      <div class="read-only-banner identity-banner">
-        <strong>Conservative matching</strong>
-        <span>Statistics are never added together. Matching season records are deduplicated, while different seasons are placed under one footballer identity.</span>
-      </div>
-
-      <div class="summary-grid identity-summary-grid">
-        <div class="summary-card"><span>Players scanned</span><strong id="identityPlayersScanned">0</strong></div>
-        <div class="summary-card"><span>Safe merges</span><strong id="identitySafeCount">0</strong></div>
-        <div class="summary-card"><span>Needs review</span><strong id="identityReviewCount">0</strong></div>
-        <div class="summary-card"><span>Protected ambiguities</span><strong id="identityBlockedCount">0</strong></div>
-        <div class="summary-card"><span>Projected players</span><strong id="identityProjectedPlayers">0</strong></div>
-        <div class="summary-card"><span>Projected seasons</span><strong id="identityProjectedSeasons">0</strong></div>
-      </div>
-
-      <div class="button-row identity-actions">
-        <button id="runIdentityScanBtn" class="button primary" type="button">Scan for duplicate identities</button>
-        <button id="selectSafeIdentityBtn" class="button secondary" type="button" disabled>Select safe merges</button>
-        <button id="applyIdentityMergesBtn" class="button secondary" type="button" disabled>Build consolidated preview</button>
-        <button id="resetIdentityBtn" class="button secondary" type="button">Reset identity workspace</button>
-      </div>
-      <p id="identityActionStatus" class="action-status" role="status">Run the scan before importing older seasons.</p>
-
-      <div id="identityResultsPanel" class="identity-results hidden">
-        <div class="identity-toolbar">
-          <label>Show
-            <select id="identityConfidenceFilter">
-              <option value="all">All candidates</option>
-              <option value="safe">Safe merges</option>
-              <option value="review">Needs review</option>
-              <option value="blocked">Protected ambiguities</option>
-            </select>
-          </label>
-          <label>Search
-            <input id="identitySearchInput" type="search" placeholder="Player name, ID or club">
-          </label>
-          <span id="identityShownCount" class="phase-chip">0 candidates</span>
-        </div>
-        <div id="identityCandidateList" class="identity-candidate-list"></div>
-      </div>
-
-      <section id="identityRegressionPanel" class="identity-regression-panel hidden" aria-labelledby="identityRegressionHeading">
-        <div class="repair-regression-head">
-          <div>
-            <p class="eyebrow">Safety gate</p>
-            <h3 id="identityRegressionHeading">Identity regression checks</h3>
-            <p>These checks protect the prompt library, daily challenge, season totals and unique-player scoring.</p>
-          </div>
-          <button id="runIdentityChecksBtn" class="button secondary" type="button">Run checks again</button>
-        </div>
-        <div id="identityRegressionList" class="repair-regression-list"></div>
-      </section>
-
-      <div id="identityDownloadPanel" class="import-download-panel hidden">
-        <div>
-          <h3>Protected identity-consolidation package</h3>
-          <p id="identityDownloadExplanation">The package unlocks only after every blocking check passes.</p>
-        </div>
-        <button id="downloadIdentityPackBtn" class="button primary" type="button" disabled>Download review package</button>
-      </div>
-      <p id="identityDownloadStatus" class="action-status" role="status"></p>
-    </section>
-
-
-
-
-
     <section class="panel" id="leaderboardBackendPanel" aria-labelledby="leaderboardBackendHeading">
       <div class="panel-heading">
         <div><p class="eyebrow">Backend status</p><h2 id="leaderboardBackendHeading">Leaderboard backend health</h2><p class="section-copy">Check whether the browser configuration and four Supabase Edge Functions are ready before the live leaderboard is enabled.</p></div>
@@ -377,9 +168,6 @@
           </button>
           <button class="studio-nav-button" type="button" data-open-workspace="leaderboard" aria-controls="workspace-leaderboard">
             <span class="studio-nav-icon" aria-hidden="true">#</span><span class="studio-nav-copy"><strong>Leaderboard</strong><small>Check Supabase configuration, deployment readiness and backend health.</small></span><span class="studio-nav-badge" data-workspace-badge="leaderboard" aria-hidden="true"></span>
-          </button>
-          <button class="studio-nav-button" type="button" data-open-workspace="imports" aria-controls="workspace-imports">
-            <span class="studio-nav-icon" aria-hidden="true">↥</span><span class="studio-nav-copy"><strong>Historical Imports</strong><small>Import verified historical seasons and review identity matches safely.</small></span><span class="studio-nav-badge" data-workspace-badge="imports" aria-hidden="true"></span>
           </button>
         </nav>
         <div class="studio-sidebar-footer">
@@ -723,16 +511,13 @@
           <section class="studio-workspace" data-workspace="leaderboard" id="workspace-leaderboard" hidden aria-hidden="true" aria-labelledby="workspace-leaderboard-title">
             <header class="workspace-heading"><div><p class="eyebrow">FPL Challenge Studio</p><h1 id="workspace-leaderboard-title">Leaderboard</h1><p>Check Supabase configuration, deployment readiness and backend health.</p></div><a class="workspace-live-link" href="./">Open live game</a></header>
           </section>
-          <section class="studio-workspace" data-workspace="imports" id="workspace-imports" hidden aria-hidden="true" aria-labelledby="workspace-imports-title">
-            <header class="workspace-heading"><div><p class="eyebrow">FPL Challenge Studio</p><h1 id="workspace-imports-title">Historical Imports</h1><p>Import verified historical seasons and review identity matches safely.</p></div><a class="workspace-live-link" href="./">Open live game</a></header>
-          </section>
         </div>
       </div>
     </div>
   </template>
   <!-- STUDIO_NATIVE_WORKSPACE_TEMPLATE_END -->
 
-  <script src="js/admin-stage-one.js?v=1.5.3-residue-prune"></script>
+  <script src="js/admin-stage-one.js?v=1.6.0-imports-retired"></script>
 
 
 
@@ -745,7 +530,7 @@
   <script src="js/certification-approved-null-policy.js?v=1.0.0"></script>
   <script src="challenges/manifest.js?v=2.0.0"></script>
   <script src="js/studio-zip.js?v=1.0.0"></script>
-  <script src="js/admin-core.js?v=19.0.3-publish-copy"></script>
+  <script src="js/admin-core.js?v=19.1.0-imports-retired"></script>
   <script data-nationality-enrichment data-loaded="true" src="nationality-enrichment.js?v=1.1.1"></script>
   <script data-nationality-context-prompt-pack-v1 data-loaded="true" src="js/prompt-nationality-context-pack-v1.js?v=1.0.2"></script>
   <script src="js/admin-weekly-nationality-readiness-gate.js?v=1.0.2"></script>
