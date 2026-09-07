@@ -217,7 +217,7 @@
   waitForConfig();
 })();
 
-/* Studio status authority v1.0.0 — retired repair counters must not override a completed live audit. */
+/* Studio status authority v1.0.1 — keep dashboard status aligned with the completed live audit. */
 (() => {
   "use strict";
   const numberFrom = value => {
@@ -272,7 +272,7 @@
   function start() {
     window.setTimeout(syncFromAudit, 0);
     const observer = new MutationObserver(() => window.setTimeout(syncFromAudit, 0));
-    ["auditStatusTop", "auditCriticalCount", "auditInfoCount", "auditPlayerCount", "repairBlockedCount"].forEach(id => {
+    ["auditStatusTop", "auditCriticalCount", "auditInfoCount", "auditPlayerCount"].forEach(id => {
       const element = document.getElementById(id);
       if (element) observer.observe(element, { childList:true, subtree:true, characterData:true });
     });
