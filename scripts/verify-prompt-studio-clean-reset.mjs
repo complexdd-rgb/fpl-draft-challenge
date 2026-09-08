@@ -42,9 +42,23 @@ const retiredFiles = [
   'js/prompt-curation-review-export-v1.js',
   'js/prompt-curation-curated-package-v1.js',
   'js/curated-shadow-regression-v1.js',
-  'curated-shadow-regression.html'
+  'curated-shadow-regression.html',
+  'js/prompt-refinement-incubator.js',
+  'js/prompt-refinement-survivors-v1.js',
+  'js/prompt-four-star-enforcer.js',
+  'js/prompt-quality-baseline-finalizer.js',
+  'scripts/audit-prompt-curation-v1.mjs',
+  'scripts/verify-prompt-curation-v1.mjs',
+  'scripts/verify-prompt-curation-freeze-v12.mjs',
+  'scripts/audit-refinement-incubator.mjs',
+  'scripts/promote-refinement-survivors.mjs',
+  'scripts/refinement-survivor-appendix.inc.mjs',
+  'scripts/trial-refinement-survivors.mjs',
+  'scripts/verify-refinement-survivors.mjs',
+  '.github/workflows/prompt-curation.yml',
+  '.github/workflows/refinement-incubator-audit.yml'
 ];
-for (const path of retiredFiles) assert(!fs.existsSync(path), `Retired Phase 1 runtime still exists: ${path}`);
+for (const path of retiredFiles) assert(!fs.existsSync(path), `Retired Prompt Studio/Phase 1 file still exists: ${path}`);
 
 for (const token of ['ensurePromptStudio', 'ensurePromptFactory', 'ensureQualityAnalyser', 'ensurePromotion', 'ensureLibraryShards', 'ensureDailyCutover']) {
   assert(bootstrap.includes(token), `Permanent Studio bootstrap is missing ${token}.`);
@@ -70,6 +84,12 @@ assert(!promptStudio.includes('Generate & download paired 144'), 'Phase 1 review
 assert(!promptStudio.includes('Full-library evidence layer'), 'Phase 1 evidence UI remains visible in Prompt Studio.');
 assert(!promptStudio.includes('Full-library survivor builder'), 'Phase 1 survivor UI remains visible in Prompt Studio.');
 
+assert(fs.existsSync('PROMPT_FAMILY_ONBOARDING.md'), 'Permanent future-family onboarding contract is missing.');
+const onboarding = read('PROMPT_FAMILY_ONBOARDING.md');
+for (const token of ['Prompt Builder / Factory', 'Quality Analyser', 'Promotion + source archive', 'versioned curated selector package', 'Shadow-test a real week before cutover']) {
+  assert(onboarding.includes(token), `Future-family onboarding contract is missing: ${token}`);
+}
+
 assert(promptLibrary === 'window.FPL_PROMPT_LIBRARY = [];', 'prompt-library.js must remain an empty staging initializer.');
 assert(shards.includes('window.indexedDB.open'), 'Promoted source shards no longer use durable IndexedDB storage.');
 assert(selectorManifest.kind === 'fpl-prompt-curated-library-selector-manifest', 'Curated selector manifest kind drifted.');
@@ -79,4 +99,4 @@ assert(selectorManifest.survivorIdSha256 === '3d3b0776ca0df171f6017c8e436f167308
 assert(authority.includes('FPL_DAILY_CURATED_AUTHORITY_V1'), 'Curated Daily authority runtime is missing.');
 assert(cutover.includes('EXPECTED_FAMILIES'), 'Daily cutover no longer validates the family boundary.');
 
-console.log('Permanent Prompt Studio boundary verified: Builder, Quality, Promotion/source shards and the frozen 4,897 Daily authority remain; Phase 1 curation runtime is physically retired.');
+console.log('Permanent Prompt Studio boundary verified: Builder, Quality, Promotion/source shards and the frozen 4,897 Daily authority remain; completed curation/refinement runtime and duplicate CI are physically retired.');
