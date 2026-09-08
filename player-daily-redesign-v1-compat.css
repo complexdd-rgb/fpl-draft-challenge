@@ -41,21 +41,49 @@ body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProg
     display:none!important;
   }
 
-  /* v1.1: keep state and position on one compact line, then give the clue full width. */
+  /* v1.1.1: reserve space for the fixed nav and keep jump/focus targets above it. */
+  html:has(body.daily-ui-redesign-v1){
+    scroll-padding-bottom:calc(112px + env(safe-area-inset-bottom))!important;
+  }
+  body.daily-ui-redesign-v1 .app{
+    padding-bottom:calc(118px + env(safe-area-inset-bottom))!important;
+  }
+  body.daily-ui-redesign-v1 #grid .slot{
+    scroll-margin-bottom:calc(112px + env(safe-area-inset-bottom))!important;
+  }
+
+  /* v1.1.1: keep position + state together without allowing injected legacy styles
+     to absolutely position or translate the state chip outside the card. */
   body.daily-ui-redesign-v1 #grid .slot-head{
-    grid-template-columns:auto minmax(0,1fr) auto!important;
-    grid-template-areas:"position . state" "prompt prompt prompt"!important;
+    grid-template-columns:auto auto minmax(0,1fr)!important;
+    grid-template-areas:"position state ." "prompt prompt prompt"!important;
     align-items:center!important;
     column-gap:8px!important;
     row-gap:7px!important;
+    overflow:visible!important;
   }
-  body.daily-ui-redesign-v1 #grid .slot-head .pos{grid-area:position!important}
-  body.daily-ui-redesign-v1 #grid .slot-head .prompt{grid-area:prompt!important}
+  body.daily-ui-redesign-v1 #grid .slot-head .pos{
+    grid-area:position!important;
+    position:static!important;
+    transform:none!important;
+    margin:0!important;
+  }
+  body.daily-ui-redesign-v1 #grid .slot-head .prompt{
+    grid-area:prompt!important;
+    min-width:0!important;
+  }
   body.daily-ui-redesign-v1 #grid .slot-head .daily-state-chip{
     grid-area:state!important;
     grid-column:auto!important;
-    justify-self:end!important;
-    margin-top:0!important;
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    justify-self:start!important;
+    align-self:center!important;
+    width:max-content!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin:0!important;
   }
 
   /* v1.1: Results v2 already owns final/perfect score, so the legacy row becomes detail only. */
