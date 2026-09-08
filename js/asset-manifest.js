@@ -6,15 +6,15 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.8.0-curation-survivors"
+      "version": "3.9.0-post-curation"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "2.9.0-curation-survivors"
+      "version": "3.0.0-post-curation"
     },
     "promptStudioClean": {
       "path": "js/prompt-studio-clean-reset.js",
-      "version": "1.2.0-roadmap-truth"
+      "version": "1.3.0-permanent-workflow"
     },
     "promptStudioCleanCss": {
       "path": "admin-prompt-studio-clean.css",
@@ -59,18 +59,6 @@
     "promptLibraryShardsCssV1": {
       "path": "admin-prompt-library-shards-v1.css",
       "version": "1.2.0-daily-authority"
-    },
-    "promptCurationEvidenceV1": {
-      "path": "js/prompt-curation-evidence-v1.js",
-      "version": "1.0.0"
-    },
-    "promptCurationSurvivorBuilderV1": {
-      "path": "js/prompt-curation-survivor-builder-v1.js",
-      "version": "1.2.0"
-    },
-    "promptCurationReviewExportV1": {
-      "path": "js/prompt-curation-review-export-v1.js",
-      "version": "1.1.0"
     },
     "adminDailyCuratedAuthorityV1": {
       "path": "js/admin-daily-curated-authority-v1.js",
@@ -133,7 +121,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.8.0-curation-survivors",
+    version: "3.9.0-post-curation",
     assets,
     get,
     url

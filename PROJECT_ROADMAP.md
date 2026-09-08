@@ -1,42 +1,50 @@
 # FPL Draft Challenge — Current Roadmap
 
-Updated: 7 September 2026  
-Baseline: post-cleanup `main` after PR #137
+Updated: 8 September 2026
+Baseline: post-curation Daily authority after PR #153
 
-This file is the current project priority order. The architecture/relevance cleanup is complete and must not be restarted unless a concrete regression is found.
+This file is the current project priority order. The architecture/relevance cleanup and Phase 1 prompt curation are complete and must not be restarted unless a concrete regression is found.
 
 ## Completed foundation
 
 - Architecture/relevance cleanup completed through PR #137.
 - Historical Imports and Identity Consolidation retired from the Studio UI/runtime.
 - Doni and Hilario verified as canonical mononyms.
-- Prompt Builder is Live.
+- Prompt Builder / Factory is Live.
 - Quality Analyser is Live.
-- Current promoted source preserved as a 17-family shard export.
-- Daily generation, 77-prompt weekly reservoir, nationality/semantic-diversity logic, certification boundary, publishing, leaderboard and Supabase behaviour remain the protected baseline.
+- Promotion + durable source-shard storage is the maintained provenance path.
+- The original 134,765-prompt / 17-family promoted snapshot remains preserved as source provenance.
+- Phase 1 curation compressed that source to a frozen **4,897-prompt / 17-family** survivor package.
+- PR #153 made those exact 4,897 prompts the Daily generation authority while preserving the source snapshot separately.
+- A real seven-day / 77-prompt production export was verified as 77/77 sourced from the frozen curated package.
+- Daily generation, 77-prompt weekly reservoir, nationality/semantic-diversity logic, certification boundary, publishing, leaderboard and Supabase behaviour remain protected.
 
-## 1. Prompt curation and compression — current phase
+## 1. Prompt curation and compression — COMPLETE
 
-The current promoted export contains 134,765 prompts across 17 families and 2,684 variant groups. Do **not** generate more prompt volume until this pool is curated.
-
-Order:
+Completed sequence:
 
 1. full 17-family balance audit;
-2. variant-group compression audit;
-3. freeze family survivor targets;
-4. create a representative 144-prompt CERTIFY / RESCUE / REJECT calibration batch;
-5. review the batch and tune decision thresholds if necessary;
-6. establish the permanent curation policy;
-7. produce the first frozen curated survivor package;
-8. run full generation/regression checks before any explicit Daily cutover.
+2. variant/material-cell compression audit;
+3. representative 144-prompt calibration;
+4. full 134,765-prompt evidence pass;
+5. decorative/exact-equivalent/material-lane compression;
+6. frozen survivor decision at 4,897 prompts;
+7. exact selector package and cryptographic verification;
+8. browser shadow regression across all supported formations;
+9. explicit Daily authority cutover;
+10. real generated-week verification.
 
-The source export remains immutable provenance. Curation is downstream of Factory / Quality / Promotion and must not silently change Daily generation authority.
+Permanent references:
 
-Primary policy: `PROMPT_CURATION_POLICY.md`.
+- curation rules/evidence history: `PROMPT_CURATION_POLICY.md`;
+- future family process: `PROMPT_FAMILY_ONBOARDING.md`;
+- frozen selector package: `prompt-library-curated-v1/`.
 
-## 2. Daily Challenge UI redesign
+Completed Phase 1 curation/review/incubator runtime should remain retired from Prompt Studio. Future families use the maintained Factory → Quality → Promotion/source archive → explicit versioned curated-authority update path.
 
-Once prompt curation is stable, redesign the player-facing Daily Challenge experience without reopening the generation architecture.
+## 2. Daily Challenge UI redesign — CURRENT PHASE
+
+Redesign the player-facing Daily Challenge experience without reopening the now-verified generation architecture.
 
 Priorities:
 
@@ -47,7 +55,7 @@ Priorities:
 - polished score, perfect-score and efficiency presentation;
 - completion/share/leaderboard flow;
 - accessibility and responsive QA;
-- preserve midnight rollover and current challenge identity/publishing behaviour.
+- preserve midnight rollover, current challenge identity/publishing behaviour and the frozen curated prompt authority.
 
 ## 3. Historical database completion
 
@@ -150,8 +158,9 @@ Old recovery/staging workbooks are provenance. Do not discard a superseded workb
 # Working rules
 
 - Do not restart broad architecture cleanup after PR #137 without a proven blocker/regression.
-- Preserve current Daily generation architecture during prompt curation and UI redesign.
-- Curate before generating more prompt volume.
+- Do not restore completed Phase 1 curation/refinement runtime to Prompt Studio just to add future families.
+- Preserve the current 4,897-prompt Daily authority during the Daily UI redesign.
+- New prompt families must follow `PROMPT_FAMILY_ONBOARDING.md` and require an explicit versioned curated-authority update before entering Daily.
 - Prefer deterministic, auditable transformations over manual hidden state.
 - Keep source exports/workbooks immutable as provenance where practical.
 - Missing optional historical fields should disable only the dependent prompt family rather than block an otherwise valid season where appropriate.
