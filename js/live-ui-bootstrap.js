@@ -1,5 +1,5 @@
-/* FPL Draft Challenge — live presentation bootstrap.
-   Owns optional player-facing presentation/performance layers. */
+/* FPL Draft Challenge — live behavior bootstrap.
+   Owns only the prompt-readiness guard and slot-level render optimisation. */
 (() => {
   "use strict";
 
@@ -17,12 +17,8 @@
       if (window.FPL_PROMPT_FIELD_GUARD) return;
       loadScript("js/prompt-missing-field-guard.js?v=1.0.0", "data-prompt-missing-field-guard", { async: false });
     },
-
-    loadPresentationLayers() {
+    loadPerformanceLayer() {
       loadScript("js/season-select-performance.js", "data-season-select-performance");
-      loadScript("js/autocomplete-layer.js", "data-autocomplete-layer");
-      loadScript("js/visual-overhaul.js", "data-visual-overhaul");
-      loadScript("js/visual-finishing.js", "data-visual-finishing");
     }
   };
 
@@ -30,7 +26,7 @@
 
   const start = () => {
     api.loadPromptMissingFieldGuard();
-    api.loadPresentationLayers();
+    api.loadPerformanceLayer();
   };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
