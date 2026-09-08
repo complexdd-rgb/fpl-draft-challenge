@@ -1,10 +1,10 @@
 # Frozen 4,897-prompt Daily cutover
 
-Date: 8 September 2026  
-Frozen source fingerprint: `shards_134765_1pkuiu3`  
-Frozen survivor count: **4,897**  
-Families: **17**  
-Selected variant groups: **1,307**  
+Date: 8 September 2026
+Frozen source fingerprint: `shards_134765_1pkuiu3`
+Frozen survivor count: **4,897**
+Families: **17**
+Selected variant groups: **1,307**
 Sorted survivor-ID SHA-256: `3d3b0776ca0df171f6017c8e436f167308c4bfdd4d0b74b4e57b6089edff972d`
 
 ## Pre-cutover evidence
