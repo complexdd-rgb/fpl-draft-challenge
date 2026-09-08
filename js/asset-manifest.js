@@ -4,8 +4,8 @@
   "use strict";
 
   const source = {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.9.0-curated-daily" },
-    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "3.0.0-curated-daily" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.8.0-curation-survivors" },
+    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.9.0-curation-survivors" },
     "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.2.0-roadmap-truth" },
     "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
     "promptFactoryMountV1": { "path": "js/prompt-factory-mount-v1.js", "version": "1.0.0" },
@@ -46,7 +46,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.9.0-curated-daily",
+    version: "3.8.0-curation-survivors",
     assets,
     get,
     url
