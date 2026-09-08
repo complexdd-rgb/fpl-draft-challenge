@@ -1,6 +1,6 @@
 # FPL Draft Challenge — Permanent Prompt Curation Policy
 
-Status: Phase 1 calibration-refined
+Status: Phase 1 full-evidence survivor-proposal stage
 Current baseline export: `shards_134765_1pkuiu3`
 Current baseline size: 134,765 promoted prompts · 17 families · 2,684 variant groups
 
@@ -33,10 +33,10 @@ A material cell is the smallest useful gameplay neighbourhood inside a semantic 
 
 - difficulty tier;
 - answer-pool band;
-- answer-player count and, when available, answer-set identity/overlap;
+- answer-player count and answer-set identity/overlap;
 - the numeric/string condition vector and the size of threshold moves on independent axes;
 - position or entity dimensions already encoded by the group;
-- per-condition marginal contribution where available;
+- per-condition marginal contribution;
 - and recognisable player-facing football value.
 
 Two prompts are **not** different material cells merely because one number changed.
@@ -111,6 +111,17 @@ REJECT does not mean the prompt was broken. It remains valid provenance in the i
 
 For exact-stat prompts, adjacent exact values are not automatically distinct survivors. Prefer recognisable benchmarks and materially different answer sets.
 
+### Proposal-only statuses
+
+The automated survivor proposal uses clearer implementation statuses before final curation authority exists:
+
+- `SELECT` — proposed survivor;
+- `HARD_REJECT` — evidence proves the prompt cannot be a final representative, for example a decorative condition;
+- `COLLAPSE` — exact-answer sibling represented by a stronger clean prompt;
+- `DEFER` — clean exact representative outside the current family envelope. This is **not** a final rejection.
+
+`HOLD` remains a temporary calibration term only. It is not a permanent library status now that full marginality and answer-set evidence are available.
+
 ## Survivor envelope
 
 Phase 1 nominal balancing envelope: **5,585 prompts**.
@@ -142,11 +153,13 @@ This is **not a quota to fill**. Family numbers are maximum review envelopes. A 
 
 For every source snapshot and family:
 
-`effective family envelope = min(source family count, family maximum envelope)`
+`effective family envelope = min(clean distinct material available, family maximum envelope)`
 
 The effective snapshot ceiling is the sum of those effective family envelopes. The final survivor count may be lower again after material-equivalence, quality and balance rules are applied.
 
-For the older calibration snapshot `shards_132804_10w85qw`, `season-stats` contains 178 records rather than 185, so its source-limited effective ceiling is **5,578**, not 5,585. That is a calibration fact about that snapshot, not a reason to generate seven replacement prompts.
+The full evidence pass on `shards_134765_1pkuiu3` finds **47,542 clean exact-answer classes** after decorative prompts are excluded. `season-stats` supplies 164 clean exact classes and `champions` 189, so the current evidence-backed first-proposal ceiling is **5,553**, not 5,585. Those families are not padded back to their nominal envelopes.
+
+For the older calibration snapshot `shards_132804_10w85qw`, `season-stats` contained 178 source records rather than 185, giving a source-limited ceiling of **5,578** before the full evidence system existed. That remains a calibration fact about the old snapshot only.
 
 The old diagnostic counts for one/two/three prompts per structural group may still be reported by the audit, but they are diagnostics only and are **not** survivor caps.
 
@@ -164,7 +177,7 @@ Use these as review guards rather than blind quotas:
 - diversify club, manager, nationality and other entity values where the family supports them;
 - do not use broad answer count alone as a quality proxy: a narrow prompt may be excellent if it is memorable and fair.
 
-`season-stats` may remain close to or at its envelope because the family is already small, but individual prompts can still be rejected for weak/redundant material.
+`season-stats` may remain below its old nominal envelope where exact-equivalence proves that fewer clean distinct classes exist. No family is padded merely to satisfy a historical target.
 
 ## Permanent representative 144-prompt calibration batch
 
@@ -212,21 +225,52 @@ Examples from that calibration batch include monotonic siblings with identical a
 
 Because these are nested monotonic filters with unchanged counts, their answer sets are unchanged. The extra threshold does not create a new material cell.
 
-The uploaded batch remains useful **calibration evidence only**. No survivor package should be frozen from it. The current promoted baseline remains the later 134,765-prompt snapshot until a new explicit Promotion replaces it.
+The 144-record batch remains **calibration evidence only**. It does not define the final library.
 
-## Additional evidence required before automatic survivor export
+## Full evidence finding — 8 September 2026
 
-Before the survivor builder is allowed to write the permanent curated library, add or derive these signals where feasible:
+The `shards_134765_1pkuiu3` full-library evidence export supplies the missing evidence across all 134,765 prompts:
 
-- per-condition marginal contribution (answer count with each condition removed);
-- answer-set fingerprint or Jaccard overlap between candidate siblings;
-- monotonic nested-equivalence detection;
-- threshold-vector distance;
-- entity-value concentration within each family;
-- nearest-retained-sibling distance;
-- and final family/position/difficulty/answer-band balance checks.
+- positive-minute player-season rows: **8,008**;
+- players: **2,636**;
+- atomic conditions evaluated/cached: **1,240**;
+- stored answer-count mismatches: **0**;
+- prompts with at least one decorative condition: **58,275**;
+- prompts with an exact-equivalent sibling: **98,148**;
+- prompts with a nearest one-axis Jaccard >= 0.95: **112,602**.
 
-Counts alone are not enough to decide whether two arbitrary multi-condition prompts contain the same players. The nested-equivalence shortcut is safe only where monotonicity guarantees set containment.
+After excluding decorative prompts and collapsing clean exact-equivalent answer sets, **47,542 clean exact-answer classes** remain. A further **28,948 clean prompts** collapse as exact-equivalent siblings.
+
+This evidence resolves the purpose of the 36 calibration HOLD rows: multi-numeric prompts can now be distinguished between genuinely independent conditions and decorative/dominated combinations by removing each condition and measuring the actual answer-set expansion.
+
+### Hard automation boundary now allowed
+
+Before softer balancing, the proposal builder may deterministically:
+
+1. block any stored/recomputed answer-count mismatch;
+2. exclude any prompt with a decorative condition from final-representative status;
+3. collapse exact-equivalent answer sets inside the semantic variant group;
+4. choose the strongest **clean** member of that class using Quality evidence, condition marginality, breadth and recognisable thresholds.
+
+The evidence engine's deterministic `exactEquivalentRepresentativeId` is class identity, not a guarantee that the referenced prompt is the best survivor.
+
+### Soft proposal boundary
+
+The reduction from 47,542 clean exact classes towards the family envelopes remains reviewable. The first proposal may use:
+
+- family maximum envelope;
+- variant-group spread;
+- position spread;
+- difficulty spread;
+- answer-band spread;
+- club/manager/nationality entity spread;
+- coarse threshold-cell spread;
+- threshold recognisability as a soft tie-break;
+- nearest one-axis Jaccard as a soft overlap penalty.
+
+Jaccard >= 0.95 is **not** a universal hard reject. A high-overlap sibling can still add useful difficulty or player-facing contrast.
+
+See `reports/prompt-curation-134765-full-evidence.md` for the per-family hard-pass counts.
 
 ## Reason codes
 
@@ -253,13 +297,21 @@ Recommended permanent reason codes:
 - `weak-evidence-breadth`
 - `manual-exception`
 
+Proposal-only implementation reasons may additionally include:
+
+- `stored-answer-mismatch`
+- `exact-equivalent-sibling`
+- `balanced-clean-exact-representative`
+- `outside-family-envelope`
+- `evidence-missing`
+
 ## Promotion into Daily
 
 Phase 1 does **not** switch Daily generation authority.
 
 The safe sequence is:
 
-`promoted source export -> curation audit -> paired 144 calibration review -> frozen survivor decisions -> curated package verification -> full generation regression -> explicit cutover`
+`promoted source export -> curation audit -> paired 144 calibration review -> full evidence -> survivor proposal -> survivor balance audit -> frozen survivor decisions -> curated package verification -> full generation regression -> explicit cutover`
 
 Until that final explicit cutover, the existing Daily saved-library architecture remains authoritative exactly as it is today.
 
@@ -267,20 +319,19 @@ After prompt curation, the next major product phase remains the **Daily Challeng
 
 ## Tooling
 
-Run:
+The CLI calibration audit remains available:
 
 ```bash
 node scripts/audit-prompt-curation-v1.mjs path/to/fpl-prompt-library-shards-v1-*.json
 ```
 
-The audit writes:
+Prompt Studio now also exposes two read-only full-library stages:
 
-- a full JSON audit;
-- a Markdown balance/compression report;
-- a deterministic 144-record / 48-triad review batch.
+1. **Analyse full library** — builds marginality/fingerprint/Jaccard evidence;
+2. **Build survivor proposal** — hard-collapses evidence-proven redundancy and proposes a balanced family-envelope survivor set.
 
-The browser Studio exporter and CLI audit share the same curation-selection implementation so they cannot silently drift onto different review policies.
+The survivor proposal is not a Daily cutover artifact. It must be reviewed before any permanent survivor package is frozen.
 
 The audit verifies all 17 families, manifest totals, prompt IDs, family ownership, variant-group count and saved Quality status counts before producing results.
 
-Generated CERTIFY/RESCUE/REJECT labels remain calibration proposals until human review and the additional survivor-evidence checks above have been applied.
+Generated CERTIFY/RESCUE/REJECT labels remain calibration proposals. Full-library `SELECT / HARD_REJECT / COLLAPSE / DEFER` statuses remain survivor proposals until the balance audit and explicit survivor freeze are complete.

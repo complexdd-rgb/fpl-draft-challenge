@@ -9,12 +9,16 @@ on:
       - 'scripts/verify-prompt-curation-v1.mjs'
       - 'scripts/verify-prompt-curation-review-export-v1.mjs'
       - 'scripts/verify-prompt-curation-evidence-v1.mjs'
+      - 'scripts/verify-prompt-curation-survivor-builder-v1.mjs'
       - 'js/prompt-curation-review-export-v1.js'
       - 'js/prompt-curation-evidence-v1.js'
+      - 'js/prompt-curation-survivor-builder-v1.js'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
       - 'js/asset-manifest.js'
+      - 'admin.html'
       - 'reports/prompt-curation-phase1-baseline.md'
+      - 'reports/prompt-curation-134765-full-evidence.md'
       - '.github/workflows/prompt-curation.yml'
   push:
     branches: [main]
@@ -25,12 +29,16 @@ on:
       - 'scripts/verify-prompt-curation-v1.mjs'
       - 'scripts/verify-prompt-curation-review-export-v1.mjs'
       - 'scripts/verify-prompt-curation-evidence-v1.mjs'
+      - 'scripts/verify-prompt-curation-survivor-builder-v1.mjs'
       - 'js/prompt-curation-review-export-v1.js'
       - 'js/prompt-curation-evidence-v1.js'
+      - 'js/prompt-curation-survivor-builder-v1.js'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
       - 'js/asset-manifest.js'
+      - 'admin.html'
       - 'reports/prompt-curation-phase1-baseline.md'
+      - 'reports/prompt-curation-134765-full-evidence.md'
       - '.github/workflows/prompt-curation.yml'
 
 permissions:
@@ -61,6 +69,9 @@ jobs:
       - name: Verify full-library evidence invariants
         run: node scripts/verify-prompt-curation-evidence-v1.mjs
 
+      - name: Verify survivor proposal hard-collapse invariants
+        run: node scripts/verify-prompt-curation-survivor-builder-v1.mjs
+
       - name: Confirm curation tooling stays outside Daily generation authority
         shell: bash
         run: |
@@ -68,14 +79,19 @@ jobs:
           ! grep -q 'audit-prompt-curation-v1' js/studio-bootstrap.js
           ! grep -q 'audit-prompt-curation-v1' config/asset-manifest.json
           grep -q 'promptCurationEvidenceV1' config/asset-manifest.json
+          grep -q 'promptCurationSurvivorBuilderV1' config/asset-manifest.json
           grep -q 'promptCurationReviewExportV1' config/asset-manifest.json
           grep -q 'ensureCurationEvidence();' js/studio-bootstrap.js
+          grep -q 'ensureCurationSurvivorBuilder' js/studio-bootstrap.js
           grep -q 'ensureCurationReview();' js/studio-bootstrap.js
           grep -q 'ensureDailyCutover();' js/studio-bootstrap.js
           grep -q 'does not alter Promotion, saved shards, Daily generation or publishing' js/prompt-curation-evidence-v1.js
+          grep -q 'This does not alter Promotion, saved shards, Daily generation or publishing.' js/prompt-curation-survivor-builder-v1.js
           grep -q 'This does not alter Promotion, the saved source snapshot, Daily generation' js/prompt-curation-review-export-v1.js
           ! grep -q 'FPL_DAILY_GENERATION_PROMPT_POOL =' js/prompt-curation-evidence-v1.js
           ! grep -q 'FPL_DAILY_GENERATION_FAMILY_PLAN =' js/prompt-curation-evidence-v1.js
+          ! grep -q 'FPL_DAILY_GENERATION_PROMPT_POOL =' js/prompt-curation-survivor-builder-v1.js
+          ! grep -q 'FPL_DAILY_GENERATION_FAMILY_PLAN =' js/prompt-curation-survivor-builder-v1.js
 
       - name: Reject whitespace errors
         run: git diff --check
