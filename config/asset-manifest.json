@@ -1,9 +1,9 @@
 {
-  "manifestVersion": "3.8.0-curation-survivors",
+  "manifestVersion": "3.9.0-post-curation",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.8.0-curation-survivors" },
-    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.9.0-curation-survivors" },
-    "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.2.0-roadmap-truth" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.9.0-post-curation" },
+    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "3.0.0-post-curation" },
+    "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.2.0-post-curation" },
     "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
     "promptFactoryMountV1": { "path": "js/prompt-factory-mount-v1.js", "version": "1.0.0" },
     "promptFactoryV1": { "path": "js/prompt-factory-v1.js", "version": "1.0.0" },
@@ -15,9 +15,6 @@
     "promptLibraryShardsV1": { "path": "js/prompt-library-shards-v1.js", "version": "1.1.0" },
     "promptLibraryShardsBridgeV1": { "path": "js/prompt-library-shards-promotion-bridge-v1.js", "version": "1.0.0" },
     "promptLibraryShardsCssV1": { "path": "admin-prompt-library-shards-v1.css", "version": "1.2.0-daily-authority" },
-    "promptCurationEvidenceV1": { "path": "js/prompt-curation-evidence-v1.js", "version": "1.0.0" },
-    "promptCurationSurvivorBuilderV1": { "path": "js/prompt-curation-survivor-builder-v1.js", "version": "1.2.0" },
-    "promptCurationReviewExportV1": { "path": "js/prompt-curation-review-export-v1.js", "version": "1.1.0" },
     "adminDailyCuratedAuthorityV1": { "path": "js/admin-daily-curated-authority-v1.js", "version": "1.0.0" },
     "adminDailyLibraryCutoverV1": { "path": "js/admin-daily-library-cutover-v1.js", "version": "1.0.1-history-residue-prune" },
     "dailySemanticDiversityV1": { "path": "js/daily-semantic-diversity-v1.js", "version": "1.0.0" },
