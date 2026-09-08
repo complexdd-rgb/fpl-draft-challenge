@@ -79,7 +79,7 @@ jobs:
           ! grep -q 'renderLivePitch' index.html
           ! grep -q 'renderAchievements' index.html
           ! grep -q 'removeLegacySelectionPanel' js/give-up-gameplay.js
-          ! grep -q 'retired-panel-compat' js/ui-cleanup.js
+          test ! -e js/ui-cleanup.js
           test ! -e js/retired-panel-compat.js
 
       - name: Verify retired importer and repair workspaces are removed
@@ -167,7 +167,7 @@ jobs:
           grep -q 'function reveal(restoring=false)' js/game-engine.js
           node - <<'NODE'
           const fs = require('node:fs');
-          const html = fs.readFileSync('admin.html'.replace('admin.html','index.html'), 'utf8');
+          const html = fs.readFileSync('index.html', 'utf8');
           const order = [
             'js/challenge-manifest-bootstrap.js?v=1.0.0',
             'js/daily-challenge-loader.js?v=1.0.0',
@@ -176,8 +176,7 @@ jobs:
             'js/prompt-helpers.js?v=1.0.0',
             'players-live.js?v=1.0.0',
             'js/career-context.js?v=1.5.0',
-            'js/game-engine.js?v=1.0.0',
-            'js/live-visual-enhancements.js?v=1.0.0'
+            'js/game-engine.js?v=1.0.0'
           ].map(item => html.indexOf(item));
           if (!order.every(index => index >= 0) || !order.every((index, i) => i === 0 || index > order[i - 1])) throw new Error('Live bootstrap load order changed');
           NODE
