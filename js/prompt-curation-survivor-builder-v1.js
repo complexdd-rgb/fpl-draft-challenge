@@ -1,13 +1,15 @@
-/* FPL Draft Challenge — Prompt Curation Survivor Builder v1.0.0
+/* FPL Draft Challenge — Prompt Curation Survivor Builder v1.1.0
    Read-only Phase 1 proposal builder. Consumes the durable promoted shard package plus the
-   full-library curation evidence, performs only evidence-backed hard collapse first, then makes
-   a family-balanced survivor proposal. It never writes Promotion, saved shards or Daily. */
+   full-library curation evidence, performs evidence-backed hard collapse, applies a default
+   survivor-quality floor, then makes a family-balanced proposal. It never writes Promotion,
+   saved shards or Daily. */
 (() => {
   "use strict";
 
   if (window.FPL_PROMPT_CURATION_SURVIVOR_BUILDER_V1?.ready) return;
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
+  const DEFAULT_MIN_QUALITY = 65;
   const FAMILIES = ["season-stats","position-stat","exact-stats","combined-stats","club-stat","league-position","promoted-clubs","relegated-clubs","champions","nationality","career-longevity","club-count","manager","anti-meta","value","minutes-role","composite-story"];
   const TARGETS = {
     "season-stats":185, champions:200, "promoted-clubs":225, "relegated-clubs":225, "club-count":250,
@@ -15,7 +17,7 @@
     value:400, "club-stat":400, nationality:400, manager:400, "minutes-role":400, "composite-story":450, "combined-stats":450
   };
   const ENTITY_FIELDS = new Set(["club","manager","nationality"]);
-  const state = { busy: false, lastPayload: null, lastError: "", status: "" };
+  const state = { busy:false, lastPayload:null, lastError:"", status:"" };
 
   const n = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
   const round = (value, digits = 2) => Math.round(value * 10 ** digits) / 10 ** digits;
@@ -24,6 +26,11 @@
   const operatorOf = condition => String(condition?.operator ?? condition?.op ?? "").trim();
   const answerBand = value => value <= 2 ? "2" : value <= 5 ? "3-5" : value <= 15 ? "6-15" : value <= 40 ? "16-40" : value <= 80 ? "41-80" : value <= 150 ? "81-150" : "151+";
   const difficultyOf = record => ["easy","medium","hard"].includes(String(record?.difficulty || "").toLowerCase()) ? String(record.difficulty).toLowerCase() : "unknown";
+  const numericValue = raw => {
+    if (raw == null || raw === "" || typeof raw === "boolean") return null;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : null;
+  };
 
   function validateInputs(source, evidence) {
     if (source?.kind !== "fpl-prompt-library-family-shards" || !source?.manifest || !Array.isArray(source?.shards)) throw new Error("Saved source is not a Prompt Library family-shard package.");
@@ -55,12 +62,12 @@
   function thresholdCell(record) {
     const parts = [];
     for (const condition of record?.conditions || []) {
-      const value = Number(condition?.value);
-      if (!Number.isFinite(value)) continue;
+      const value = numericValue(condition?.value);
+      if (value == null) continue;
       const field = fieldOf(condition), step = thresholdStep(field);
       parts.push(`${field}:${operatorOf(condition)}:${Math.floor(value / step)}`);
-      const value2 = Number(condition?.value2);
-      if (Number.isFinite(value2)) parts.push(`${field}:upper:${Math.floor(value2 / step)}`);
+      const value2 = numericValue(condition?.value2);
+      if (value2 != null) parts.push(`${field}:upper:${Math.floor(value2 / step)}`);
     }
     return parts.join("|") || "non-numeric";
   }
@@ -69,8 +76,9 @@
     const numeric = [];
     for (const condition of record?.conditions || []) {
       for (const raw of [condition?.value, condition?.value2]) {
-        if (raw == null || raw === "" || !Number.isFinite(Number(raw))) continue;
-        const value = Number(raw), field = fieldOf(condition);
+        const value = numericValue(raw);
+        if (value == null) continue;
+        const field = fieldOf(condition);
         let score = 0;
         if (field === "startingPrice" || field === "finalPrice") score = Number.isInteger(value * 2) ? 1 : 0;
         else if (Number.isInteger(value) && value % 10 === 0) score = 1;
@@ -81,6 +89,27 @@
       }
     }
     return numeric.length ? numeric.reduce((a, b) => a + b, 0) / numeric.length : 0.5;
+  }
+
+  function normaliseLabel(label) {
+    const source = String(label || "");
+    return source
+      .replace(/\b1 goals\b/g, "1 goal")
+      .replace(/\b1 assists\b/g, "1 assist")
+      .replace(/\b1 bonus points\b/g, "1 bonus point")
+      .replace(/\b1 clean sheets\b/g, "1 clean sheet")
+      .replace(/\b1 saves\b/g, "1 save")
+      .replace(/\b1 red cards\b/g, "1 red card")
+      .replace(/\b1 yellow cards\b/g, "1 yellow card")
+      .replace(/\b1 goal involvements\b/g, "1 goal involvement")
+      .replace(/\b1 recorded Premier League seasons\b/g, "1 recorded Premier League season")
+      .replace(/\b1 recorded Premier League clubs\b/g, "1 recorded Premier League club");
+  }
+
+  function curatedRecord(record) {
+    const label = normaliseLabel(record?.label);
+    if (label === String(record?.label || "")) return record;
+    return { ...record, label, sourceLabel:String(record?.label || ""), curationEdits:[...(record?.curationEdits || []), "singular-stat-label"] };
   }
 
   function minMarginalPct(evidence) {
@@ -125,12 +154,12 @@
   function dimensions(candidate) {
     const { record, evidence } = candidate;
     return {
-      group: String(record?.variantGroup || evidence?.variantGroup || ""),
-      position: String(record?.position || evidence?.position || "ANY"),
-      difficulty: difficultyOf(record),
-      answerBand: answerBand(n(evidence?.answerPlayers)),
-      entity: entityKey(record),
-      material: `${String(record?.variantGroup || "")}|${difficultyOf(record)}|${answerBand(n(evidence?.answerPlayers))}|${thresholdCell(record)}`
+      group:String(record?.variantGroup || evidence?.variantGroup || ""),
+      position:String(record?.position || evidence?.position || "ANY"),
+      difficulty:difficultyOf(record),
+      answerBand:answerBand(n(evidence?.answerPlayers)),
+      entity:entityKey(record),
+      material:`${String(record?.variantGroup || "")}|${difficultyOf(record)}|${answerBand(n(evidence?.answerPlayers))}|${thresholdCell(record)}`
     };
   }
 
@@ -155,7 +184,6 @@
       else if (j >= 0.95) score -= 9;
       else if (j >= 0.90) score -= 3;
     }
-
     const minAdded = n(candidate.evidence?.minConditionAddedPlayers, 0);
     const minPct = minMarginalPct(candidate.evidence);
     if (minAdded <= 2) score -= 7;
@@ -166,30 +194,25 @@
   function selectFamily(candidates, target) {
     const remaining = [...candidates];
     const selected = [], selectedIds = new Set();
-    const counts = {
-      group:new Map(), material:new Map(), position:new Map(), difficulty:new Map(), answerBand:new Map(), entity:new Map()
-    };
+    const counts = { group:new Map(), material:new Map(), position:new Map(), difficulty:new Map(), answerBand:new Map(), entity:new Map() };
     const limit = Math.min(target, remaining.length);
-
     while (selected.length < limit && remaining.length) {
       let bestIndex = 0, bestScore = -Infinity;
       for (let index = 0; index < remaining.length; index += 1) {
         const score = dynamicSelectionScore(remaining[index], selectedIds, counts);
         if (score > bestScore || (score === bestScore && String(remaining[index].record.id).localeCompare(String(remaining[bestIndex]?.record?.id || "")) < 0)) {
-          bestScore = score;
-          bestIndex = index;
+          bestScore = score; bestIndex = index;
         }
       }
       const candidate = remaining.splice(bestIndex, 1)[0];
       candidate.selectionScore = round(bestScore, 3);
       candidate.selectionRank = selected.length + 1;
-      selected.push(candidate);
-      selectedIds.add(String(candidate.record.id));
+      selected.push(candidate); selectedIds.add(String(candidate.record.id));
       const d = candidate.dimensions;
       bump(counts.group, d.group); bump(counts.material, d.material); bump(counts.position, d.position);
       bump(counts.difficulty, d.difficulty); bump(counts.answerBand, d.answerBand); bump(counts.entity, d.entity);
     }
-    return { selected, deferred: remaining };
+    return { selected, deferred:remaining };
   }
 
   function countBy(items, key) {
@@ -198,27 +221,19 @@
     return out;
   }
 
-  function buildProposalFromData(source, evidence, { targets = TARGETS } = {}) {
+  function buildProposalFromData(source, evidence, { targets = TARGETS, minQuality = DEFAULT_MIN_QUALITY } = {}) {
     validateInputs(source, evidence);
-    const sourceRecords = source.shards.flatMap(shard => (shard?.records || []).map(record => ({ ...record, family: String(shard?.family || record?.family || "") })));
+    const sourceRecords = source.shards.flatMap(shard => (shard?.records || []).map(record => ({ ...record, family:String(shard?.family || record?.family || "") })));
     const evidenceRecords = evidence.evidenceShards.flatMap(shard => shard?.records || []);
-    const sourceById = new Map(sourceRecords.map(record => [String(record?.id || ""), record]));
     const evidenceById = new Map(evidenceRecords.map(item => [String(item?.id || ""), item]));
-    const decisions = new Map();
-    const classBuckets = new Map();
+    const decisions = new Map(), classBuckets = new Map();
 
     for (const record of sourceRecords) {
       const id = String(record?.id || ""), item = evidenceById.get(id);
-      if (!item) {
-        decisions.set(id, { id, family: record.family, status:"DEFER", reason:"evidence-missing" });
-        continue;
-      }
-      if (item.answerCountMatchesStored === false) {
-        decisions.set(id, { id, family: record.family, status:"HARD_REJECT", reason:"stored-answer-mismatch" });
-        continue;
-      }
+      if (!item) { decisions.set(id, { id, family:record.family, status:"DEFER", reason:"evidence-missing" }); continue; }
+      if (item.answerCountMatchesStored === false) { decisions.set(id, { id, family:record.family, status:"HARD_REJECT", reason:"stored-answer-mismatch" }); continue; }
       if (n(item.decorativeConditionCount) > 0) {
-        decisions.set(id, { id, family: record.family, status:"HARD_REJECT", reason:"decorative-condition", decorativeConditionCount:n(item.decorativeConditionCount) });
+        decisions.set(id, { id, family:record.family, status:"HARD_REJECT", reason:"decorative-condition", decorativeConditionCount:n(item.decorativeConditionCount) });
         continue;
       }
       const key = classKey(item);
@@ -227,13 +242,23 @@
     }
 
     const candidatesByFamily = new Map(FAMILIES.map(family => [family, []]));
+    const cleanClassesByFamily = new Map(FAMILIES.map(family => [family, 0]));
+    const belowFloorByFamily = new Map(FAMILIES.map(family => [family, 0]));
     for (const [key, members] of classBuckets) {
       const ordered = [...members].sort(compareRepresentative), representative = ordered[0];
-      representative.classKey = key;
-      representative.dimensions = dimensions(representative);
+      representative.classKey = key; representative.dimensions = dimensions(representative);
       representative.exactClassCleanSize = ordered.length;
       representative.exactClassReportedSize = n(representative.evidence?.exactEquivalentClassSize, ordered.length);
-      candidatesByFamily.get(representative.record.family)?.push(representative);
+      cleanClassesByFamily.set(representative.record.family, n(cleanClassesByFamily.get(representative.record.family)) + 1);
+      if (n(representative.record?.qualityScore) >= n(minQuality)) {
+        candidatesByFamily.get(representative.record.family)?.push(representative);
+      } else {
+        belowFloorByFamily.set(representative.record.family, n(belowFloorByFamily.get(representative.record.family)) + 1);
+        decisions.set(String(representative.record.id), {
+          id:String(representative.record.id), family:representative.record.family, status:"DEFER", reason:"below-default-quality-floor",
+          qualityScore:n(representative.record?.qualityScore), minQuality:n(minQuality), answerPlayers:n(representative.evidence?.answerPlayers)
+        });
+      }
       for (const member of ordered.slice(1)) {
         decisions.set(String(member.record.id), {
           id:String(member.record.id), family:member.record.family, status:"COLLAPSE", reason:"exact-equivalent-sibling",
@@ -250,82 +275,86 @@
         selectedAll.push(candidate);
         decisions.set(String(candidate.record.id), {
           id:String(candidate.record.id), family, status:"SELECT", reason:"balanced-clean-exact-representative",
-          selectionRank:candidate.selectionRank, selectionScore:candidate.selectionScore,
+          selectionRank:candidate.selectionRank, selectionScore:candidate.selectionScore, qualityScore:n(candidate.record?.qualityScore),
           answerPlayers:n(candidate.evidence?.answerPlayers), answerFingerprint:String(candidate.evidence?.answerFingerprint || ""),
           minConditionAddedPlayers:n(candidate.evidence?.minConditionAddedPlayers), minConditionMarginalPct:round(minMarginalPct(candidate.evidence),2)
         });
       }
       for (const candidate of result.deferred) {
         decisions.set(String(candidate.record.id), {
-          id:String(candidate.record.id), family, status:"DEFER", reason:"outside-family-envelope",
+          id:String(candidate.record.id), family, status:"DEFER", reason:"outside-family-envelope", qualityScore:n(candidate.record?.qualityScore),
           answerPlayers:n(candidate.evidence?.answerPlayers), answerFingerprint:String(candidate.evidence?.answerFingerprint || "")
         });
       }
       familyMetrics.push({
         family,
-        sourcePrompts: sourceRecords.filter(record => record.family === family).length,
-        maximumEnvelope: target,
-        cleanExactClasses: candidates.length,
-        selected: result.selected.length,
-        deferredCleanClasses: result.deferred.length,
-        positions: countBy(result.selected, candidate => candidate.dimensions.position),
-        difficulties: countBy(result.selected, candidate => candidate.dimensions.difficulty),
-        answerBands: countBy(result.selected, candidate => candidate.dimensions.answerBand),
-        variantGroups: new Set(result.selected.map(candidate => candidate.dimensions.group)).size,
-        entities: new Set(result.selected.map(candidate => candidate.dimensions.entity)).size
+        sourcePrompts:sourceRecords.filter(record => record.family === family).length,
+        maximumEnvelope:target,
+        cleanExactClasses:n(cleanClassesByFamily.get(family)),
+        eligibleCleanClasses:candidates.length,
+        belowQualityFloorCleanClasses:n(belowFloorByFamily.get(family)),
+        selected:result.selected.length,
+        deferredEligibleClasses:result.deferred.length,
+        positions:countBy(result.selected, candidate => candidate.dimensions.position),
+        difficulties:countBy(result.selected, candidate => candidate.dimensions.difficulty),
+        answerBands:countBy(result.selected, candidate => candidate.dimensions.answerBand),
+        variantGroups:new Set(result.selected.map(candidate => candidate.dimensions.group)).size,
+        entities:new Set(result.selected.map(candidate => candidate.dimensions.entity)).size
       });
     }
 
     const selectedIds = new Set(selectedAll.map(candidate => String(candidate.record.id)));
-    const survivorShards = source.shards.map(shard => ({
-      family:String(shard?.family || ""),
-      count:(shard?.records || []).filter(record => selectedIds.has(String(record?.id || ""))).length,
-      records:(shard?.records || []).filter(record => selectedIds.has(String(record?.id || "")))
-    }));
+    let labelNormalisations = 0;
+    const survivorShards = source.shards.map(shard => {
+      const records = (shard?.records || []).filter(record => selectedIds.has(String(record?.id || ""))).map(record => {
+        const curated = curatedRecord(record);
+        if (curated !== record) labelNormalisations += 1;
+        return curated;
+      });
+      return { family:String(shard?.family || ""), count:records.length, records };
+    });
     const survivorEvidenceShards = evidence.evidenceShards.map(shard => ({
       family:String(shard?.family || ""),
       count:(shard?.records || []).filter(item => selectedIds.has(String(item?.id || ""))).length,
       records:(shard?.records || []).filter(item => selectedIds.has(String(item?.id || "")))
     }));
     const decisionShards = source.shards.map(shard => ({
-      family:String(shard?.family || ""),
-      count:Array.isArray(shard?.records) ? shard.records.length : 0,
+      family:String(shard?.family || ""), count:Array.isArray(shard?.records) ? shard.records.length : 0,
       records:(shard?.records || []).map(record => decisions.get(String(record?.id || "")) || { id:String(record?.id || ""), family:String(shard?.family || ""), status:"DEFER", reason:"unclassified" })
     }));
     const allDecisions = [...decisions.values()];
-    const effectiveCleanCeiling = familyMetrics.reduce((sum, row) => sum + Math.min(row.cleanExactClasses, row.maximumEnvelope), 0);
+    const effectiveEligibleCeiling = familyMetrics.reduce((sum, row) => sum + Math.min(row.eligibleCleanClasses, row.maximumEnvelope), 0);
 
     return {
       schemaVersion:1,
       kind:"fpl-prompt-curation-survivor-proposal",
       builderVersion:VERSION,
       generatedAt:new Date().toISOString(),
-      source:{
-        promotionFingerprint:String(source.manifest.promotionFingerprint || ""),
-        total:n(source.manifest.total), families:n(source.manifest.families), variantGroups:n(source.manifest.variantGroups)
-      },
-      evidence:{
-        evidenceVersion:String(evidence.evidenceVersion || ""), generatedAt:evidence.generatedAt || null,
-        promotionFingerprint:String(evidence.source.promotionFingerprint || ""), summary:{ ...(evidence.summary || {}) }
-      },
+      source:{ promotionFingerprint:String(source.manifest.promotionFingerprint || ""), total:n(source.manifest.total), families:n(source.manifest.families), variantGroups:n(source.manifest.variantGroups) },
+      evidence:{ evidenceVersion:String(evidence.evidenceVersion || ""), generatedAt:evidence.generatedAt || null, promotionFingerprint:String(evidence.source.promotionFingerprint || ""), summary:{ ...(evidence.summary || {}) } },
       policy:{
         authority:"proposal-only",
         hardRules:["stored-answer-mismatch blocks selection","decorative conditions cannot survive","exact-equivalent answer sets collapse to the strongest clean member"],
+        proposalEligibilityRules:[`default quality score >= ${n(minQuality)}`,"below-floor clean representatives are deferred, never hard-rejected"],
         softRules:["family maximum envelope","variant-group spread","position spread","difficulty spread","answer-band spread","entity spread","coarse threshold-cell spread","nearest one-axis Jaccard penalty","threshold recognisability tie-break"],
         dailyAuthorityChanged:false,
         maximumEnvelopeTotal:Object.values(targets).reduce((sum, value) => sum + n(value), 0),
-        effectiveCleanCeiling
+        effectiveEligibleCeiling,
+        minQuality:n(minQuality)
       },
       summary:{
         sourcePrompts:sourceRecords.length,
         evidencePrompts:evidenceRecords.length,
         selected:selectedAll.length,
-        effectiveCleanCeiling,
+        effectiveEligibleCeiling,
         hardRejectedDecorative:allDecisions.filter(item => item.status === "HARD_REJECT" && item.reason === "decorative-condition").length,
         hardRejectedMismatch:allDecisions.filter(item => item.status === "HARD_REJECT" && item.reason === "stored-answer-mismatch").length,
         collapsedExactEquivalentSiblings:allDecisions.filter(item => item.status === "COLLAPSE").length,
         deferred:allDecisions.filter(item => item.status === "DEFER").length,
-        cleanExactRepresentatives:familyMetrics.reduce((sum, row) => sum + row.cleanExactClasses, 0)
+        deferredBelowQualityFloor:allDecisions.filter(item => item.status === "DEFER" && item.reason === "below-default-quality-floor").length,
+        cleanExactRepresentatives:familyMetrics.reduce((sum, row) => sum + row.cleanExactClasses, 0),
+        eligibleCleanRepresentatives:familyMetrics.reduce((sum, row) => sum + row.eligibleCleanClasses, 0),
+        labelNormalisations
       },
       familyMetrics,
       survivorShards,
@@ -349,7 +378,7 @@
         state.status = "Rebuilding full-library evidence for the current saved snapshot…"; render();
         evidence = await evidenceApi.runSavedPackage();
       }
-      state.status = "Selecting balanced clean representatives…"; render();
+      state.status = "Selecting evidence-backed representatives above the default quality floor…"; render();
       const payload = buildProposalFromData(source, evidence);
       state.lastPayload = payload; state.status = "";
       window.dispatchEvent(new CustomEvent("fpl:prompt-curation-survivor-proposal-ready", { detail:{ version:VERSION, source:payload.source, summary:payload.summary } }));
@@ -395,13 +424,13 @@
     const available = Boolean(manifest?.total && manifest?.families === 17 && window.FPL_PROMPT_CURATION_EVIDENCE_V1?.ready);
     const last = state.lastPayload;
     const summary = last
-      ? `${n(last.summary.selected).toLocaleString("en-GB")} proposed survivors · ${n(last.summary.hardRejectedDecorative).toLocaleString("en-GB")} decorative rejects · ${n(last.summary.collapsedExactEquivalentSiblings).toLocaleString("en-GB")} exact siblings collapsed · ${n(last.summary.deferred).toLocaleString("en-GB")} clean candidates deferred`
-      : "No survivor proposal has been built in this page yet.";
+      ? `${n(last.summary.selected).toLocaleString("en-GB")} proposed survivors · ${n(last.summary.deferredBelowQualityFloor).toLocaleString("en-GB")} below-floor clean prompts deferred · ${n(last.summary.hardRejectedDecorative).toLocaleString("en-GB")} decorative rejects · ${n(last.summary.collapsedExactEquivalentSiblings).toLocaleString("en-GB")} exact siblings collapsed`
+      : `No survivor proposal has been built in this page yet. Default proposal floor: quality ${DEFAULT_MIN_QUALITY}+.`;
     mount.innerHTML = `<section class="prompt-library-shards" aria-labelledby="promptCurationSurvivorBuilderHeading">
-      <div class="prompt-library-shards-head"><div><p class="eyebrow">Curation proposal</p><h3 id="promptCurationSurvivorBuilderHeading">Full-library survivor builder</h3><p>Build the first evidence-backed survivor proposal from the saved promoted library. Hard collapse is deterministic; family-envelope selection remains a reviewable proposal. This does not alter Promotion, saved shards, Daily generation or publishing.</p></div><span class="phase-chip">v${esc(VERSION)}</span></div>
+      <div class="prompt-library-shards-head"><div><p class="eyebrow">Curation proposal</p><h3 id="promptCurationSurvivorBuilderHeading">Full-library survivor builder</h3><p>Build the evidence-backed survivor proposal from the saved promoted library. Family envelopes are ceilings, not quotas: clean prompts below the default quality floor are deferred for possible manual scarcity review instead of being selected just to fill a family. Survivor labels also receive provenance-preserving singular/plural cleanup. This does not alter Promotion, saved shards, Daily generation or publishing.</p></div><span class="phase-chip">v${esc(VERSION)}</span></div>
       <div class="prompt-library-shards-summary"><strong>${available ? `${n(manifest.total).toLocaleString("en-GB")} prompts ready` : "Source/evidence unavailable"}</strong><span>${esc(summary)}</span></div>
       <div class="button-row"><button id="promptCurationSurvivorBuild" class="button primary" type="button" ${!available || state.busy ? "disabled" : ""}>${state.busy ? "Building survivor proposal…" : "Build survivor proposal"}</button><button id="promptCurationSurvivorDownload" class="button secondary" type="button" ${last && !state.busy ? "" : "disabled"}>Download survivor proposal JSON</button></div>
-      <p class="action-status" role="status">${esc(state.lastError || state.status || "SELECT means proposed survivor; COLLAPSE is evidence-safe redundancy removal; DEFER is a clean candidate outside the current family envelope, not a final rejection.")}</p>
+      <p class="action-status" role="status">${esc(state.lastError || state.status || "SELECT means proposed survivor; COLLAPSE is evidence-safe redundancy removal; DEFER includes clean prompts outside the envelope or below the default proposal floor, and is not a final rejection.")}</p>
     </section>`;
     mount.querySelector("#promptCurationSurvivorBuild")?.addEventListener("click", () => runSavedProposal().catch(() => {}));
     mount.querySelector("#promptCurationSurvivorDownload")?.addEventListener("click", () => downloadPayload());
@@ -421,6 +450,7 @@
     ready:true,
     version:VERSION,
     targets:{ ...TARGETS },
+    defaultMinQuality:DEFAULT_MIN_QUALITY,
     buildProposalFromData,
     runSavedProposal,
     getLastPayload:() => state.lastPayload,

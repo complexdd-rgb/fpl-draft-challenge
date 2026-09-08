@@ -66,7 +66,7 @@
     },
     "promptCurationSurvivorBuilderV1": {
       "path": "js/prompt-curation-survivor-builder-v1.js",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     "promptCurationReviewExportV1": {
       "path": "js/prompt-curation-review-export-v1.js",

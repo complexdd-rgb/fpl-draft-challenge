@@ -43,7 +43,7 @@ assert(manifest.assets?.promptLibraryShardsCssV1?.version === '1.2.0-daily-autho
 assert(manifest.assets?.promptCurationEvidenceV1?.path === 'js/prompt-curation-evidence-v1.js', 'Full-library curation evidence is missing from the central manifest.');
 assert(manifest.assets?.promptCurationEvidenceV1?.version === '1.0.0', 'Curation evidence cache version is stale.');
 assert(manifest.assets?.promptCurationSurvivorBuilderV1?.path === 'js/prompt-curation-survivor-builder-v1.js', 'Read-only survivor builder is missing from the central manifest.');
-assert(manifest.assets?.promptCurationSurvivorBuilderV1?.version === '1.0.0', 'Survivor builder cache version is stale.');
+assert(manifest.assets?.promptCurationSurvivorBuilderV1?.version === '1.1.0', 'Survivor builder cache version is stale.');
 assert(manifest.assets?.promptCurationReviewExportV1?.path === 'js/prompt-curation-review-export-v1.js', 'Read-only curation review export is missing from the central manifest.');
 assert(manifest.assets?.promptCurationReviewExportV1?.version === '1.1.0', 'Curation review export cache version is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.path === 'js/admin-daily-library-cutover-v1.js', 'Daily saved-library cutover boundary is missing from the central manifest.');
@@ -72,7 +72,7 @@ assert(generatedManifest.includes('"promptCurationEvidenceV1"'), 'Generated asse
 assert(generatedManifest.includes('"promptCurationSurvivorBuilderV1"'), 'Generated asset manifest does not expose the survivor builder.');
 assert(generatedManifest.includes('"promptCurationReviewExportV1"'), 'Generated asset manifest does not expose the curation review exporter.');
 assert(generatedManifest.includes('"version": "1.0.0"'), 'Generated asset manifest did not retain curation v1 cache tags.');
-assert(generatedManifest.includes('"version": "1.1.0"'), 'Generated asset manifest did not retain the curation review exporter cache tag.');
+assert(generatedManifest.includes('"version": "1.1.0"'), 'Generated asset manifest did not retain current curation cache tags.');
 assert(generatedManifest.includes('"dailySemanticDiversityV1"'), 'Generated asset manifest does not expose the Daily semantic-diversity policy.');
 assert(generatedManifest.includes('"adminScheduleManagerV2"'), 'Generated asset manifest does not expose schedule manager v2.');
 assert(generatedManifest.includes('"version": "1.2.0-daily-authority"'), 'Generated asset manifest did not retain the Daily authority CSS cache tag.');
@@ -118,6 +118,9 @@ assert(curationSurvivors.includes('fpl-prompt-curation-survivor-proposal'), 'Sur
 assert(curationSurvivors.includes('decorative-condition'), 'Survivor builder no longer hard-rejects decorative conditions.');
 assert(curationSurvivors.includes('exact-equivalent-sibling'), 'Survivor builder no longer collapses exact answer-set siblings.');
 assert(curationSurvivors.includes('outside-family-envelope'), 'Survivor builder no longer distinguishes deferred clean classes from hard rejects.');
+assert(curationSurvivors.includes('below-default-quality-floor'), 'Survivor builder no longer defers below-floor clean representatives.');
+assert(curationSurvivors.includes('DEFAULT_MIN_QUALITY = 65'), 'Survivor builder default quality floor drifted.');
+assert(curationSurvivors.includes('singular-stat-label'), 'Survivor builder no longer records label normalisation provenance.');
 assert(curationSurvivors.includes('This does not alter Promotion, saved shards, Daily generation or publishing.'), 'Survivor builder no longer states the read-only Daily boundary.');
 assert(!curationSurvivors.includes('FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Survivor builder must not write the Daily generation pool.');
 assert(!curationSurvivors.includes('FPL_DAILY_GENERATION_FAMILY_PLAN ='), 'Survivor builder must not write the Daily family plan.');
