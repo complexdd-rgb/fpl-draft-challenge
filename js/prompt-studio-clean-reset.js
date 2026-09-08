@@ -1,12 +1,12 @@
-/* FPL Draft Challenge — Prompt Studio clean runtime v1.1.0
-   One canonical Prompt Studio runtime. No legacy Prompt Studio library, pack, incubator,
-   V2/V3/V4 workspace or fallback loader is imported or merged into this boundary. */
+/* FPL Draft Challenge — Prompt Studio clean runtime v1.2.0
+   One canonical Prompt Studio runtime. Builder, quality, promotion/source provenance and the
+   frozen curated Daily authority are the permanent path; Phase 1 curation UI is retired. */
 (() => {
   "use strict";
 
-  if (window.FPL_PROMPT_STUDIO_CLEAN?.version === "1.1.0") return;
+  if (window.FPL_PROMPT_STUDIO_CLEAN?.version === "1.2.0") return;
 
-  const VERSION = "1.1.0";
+  const VERSION = "1.2.0";
   const STORE_KEY = "fplPromptStudioCleanLibraryV1";
   const RESET_MARKER_KEY = "fplPromptStudioCleanResetV1";
   const PAGE_SIZE = 20;
@@ -129,7 +129,7 @@
     const text = `${current.total.toLocaleString("en-GB")} prompts · clean library`;
     document.querySelectorAll("#libraryStatus").forEach(node => {
       node.textContent = text;
-      node.title = "Prompt Studio Clean V1. Only the new canonical library is loaded.";
+      node.title = "Prompt Studio Clean V1. Only the canonical working library is loaded.";
     });
     document.querySelectorAll("[data-workspace-badge=\"prompts\"]").forEach(node => {
       node.textContent = String(current.total);
@@ -251,7 +251,7 @@
     }
 
     if (!library.length) {
-      list.innerHTML = `<div class="prompt-library-empty"><strong>The canonical library is empty</strong><span>This is intentional after the clean reset. The browser is ready; prompts will appear here only when they are added through the new Prompt Studio workflow.</span></div>`;
+      list.innerHTML = `<div class="prompt-library-empty"><strong>The canonical library is empty</strong><span>The browser is ready; prompts appear here only through the current Prompt Studio workflow.</span></div>`;
     } else if (!filtered.length) {
       list.innerHTML = `<div class="prompt-library-empty"><strong>No prompts match these filters</strong><span>Change the search or filters to return to the canonical library.</span></div>`;
     } else {
@@ -349,38 +349,38 @@
         <div>
           <p class="eyebrow">FPL Challenge Studio</p>
           <h1 id="workspace-prompts-title">Prompt Studio</h1>
-          <p>Fresh build. One canonical library, one controller and no legacy prompt packs or fallback loaders.</p>
+          <p>Build and quality-check prompts while the frozen 4,897-prompt survivor library powers Daily generation.</p>
         </div>
         <a class="workspace-live-link" href="./">Open live game</a>
       </header>
-      <section class="panel stage-one-tool-panel" id="promptStudioCleanRoot" data-tool-workspace="prompts" data-tool-title="Prompt Studio clean foundation">
+      <section class="panel stage-one-tool-panel" id="promptStudioCleanRoot" data-tool-workspace="prompts" data-tool-title="Prompt Studio">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Clean foundation</p>
-            <h2>Prompt Studio clean build</h2>
-            <p class="section-copy">The previous Prompt Studio library and V2/V3/V4 loading chain are not part of this runtime. Every new tool now works only against the Clean V1 canonical library.</p>
+            <p class="eyebrow">Prompt workflow</p>
+            <h2>Canonical prompt workspace</h2>
+            <p class="section-copy">Create and inspect prompts against one clean library. Promotion/source shards are retained as provenance; the frozen curated survivor set is independently pinned as Daily authority.</p>
           </div>
           <span class="phase-chip">v${VERSION}</span>
         </div>
 
-        <div class="prompt-clean-status-grid" aria-label="Prompt Studio clean status">
+        <div class="prompt-clean-status-grid" aria-label="Prompt Studio status">
           <div class="prompt-clean-status-card"><span>Canonical prompts</span><strong id="promptStudioCleanCount">${current.total.toLocaleString("en-GB")}</strong></div>
           <div class="prompt-clean-status-card"><span>Enabled</span><strong id="promptStudioEnabledCount">${current.enabled.toLocaleString("en-GB")}</strong></div>
           <div class="prompt-clean-status-card"><span>Disabled</span><strong id="promptStudioDisabledCount">${current.disabled.toLocaleString("en-GB")}</strong></div>
-          <div class="prompt-clean-status-card"><span>Library source</span><strong>Clean V1</strong></div>
+          <div class="prompt-clean-status-card"><span>Daily library</span><strong>4,897 frozen</strong></div>
         </div>
 
         <div class="read-only-banner prompt-clean-boundary">
-          <strong>Ground-up rebuild boundary</strong>
-          <span>Git history preserves the old Studio, but this runtime does not load or merge it. Legacy loaders remain off and old Prompt Studio browser state is cleared.</span>
+          <strong>Curated production boundary</strong>
+          <span>The 134,765-prompt promoted snapshot remains source provenance. Daily generation uses only the cryptographically pinned 4,897 survivors through the curated authority layer.</span>
         </div>
 
         <section class="prompt-library-browser" aria-labelledby="promptLibraryBrowserHeading">
           <div class="prompt-library-browser-head">
             <div>
-              <p class="eyebrow">Library Browser · v1</p>
-              <h3 id="promptLibraryBrowserHeading">Canonical prompt library</h3>
-              <p>Search and inspect exactly what the new Prompt Studio knows about. This browser is read-only; adding and editing prompts will come through the new Prompt Builder rather than hidden browser overrides.</p>
+              <p class="eyebrow">Library Browser</p>
+              <h3 id="promptLibraryBrowserHeading">Canonical working library</h3>
+              <p>Search and inspect the current Prompt Studio library. The browser is read-only; creation and quality decisions stay in the Builder and Quality Analyser.</p>
             </div>
             <div class="prompt-library-browser-actions">
               <button id="promptLibraryResetFiltersBtn" class="button secondary" type="button">Reset filters</button>
@@ -407,10 +407,11 @@
           </div>
         </section>
 
-        <div class="dashboard-action-grid prompt-clean-roadmap" aria-label="Prompt Studio rebuild roadmap">
+        <div class="dashboard-action-grid prompt-clean-roadmap" aria-label="Prompt workflow status">
           <article class="dashboard-action-card"><span class="dashboard-action-icon">+</span><strong>Prompt Builder</strong><small>Create prompts against one explicit schema.</small><em>Live</em></article>
-          <article class="dashboard-action-card"><span class="dashboard-action-icon">Q</span><strong>Quality Analyser</strong><small>Test candidates before anything enters the canonical library.</small><em>Live</em></article>
-          <article class="dashboard-action-card"><span class="dashboard-action-icon">R</span><strong>Refinement Incubator</strong><small>Curate and compress the promoted candidate universe into a balanced survivor library.</small><em>Next</em></article>
+          <article class="dashboard-action-card"><span class="dashboard-action-icon">Q</span><strong>Quality Analyser</strong><small>Test candidates before they are promoted.</small><em>Live</em></article>
+          <article class="dashboard-action-card"><span class="dashboard-action-icon">✓</span><strong>Curated Library</strong><small>4,897 frozen survivors across all 17 families now power Daily generation.</small><em>Live</em></article>
+          <article class="dashboard-action-card"><span class="dashboard-action-icon">XI</span><strong>Daily Challenge redesign</strong><small>Rework the player-facing Daily Challenge experience now that prompt authority is stable.</small><em>Next</em></article>
         </div>
       </section>`;
 
@@ -425,10 +426,7 @@
     clearLegacyBrowserState();
     installStyles();
 
-    // Hard reset the shared array first so only the clean store can repopulate it.
     library.splice(0, library.length);
-
-    // Only the new clean store is eligible to repopulate the library.
     const cleanStore = readCleanStore();
     if (cleanStore.length) library.push(...cleanStore);
     else saveCleanStore();
