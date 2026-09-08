@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "kind": "fpl-prompt-curation-calibration-manifest",
+  "promotionFingerprint": "shards_134765_1pkuiu3",
+  "sourcePrompts": 134765,
+  "reviewTriads": 48,
+  "reviewRecords": 144,
+  "summary": {
+    "confirmedAsProposed": 104,
+    "overrides": 4,
+    "needsEvidence": 36,
+    "calibratedDecisionCounts": {
+      "CERTIFY": 30,
+      "RESCUE": 26,
+      "REJECT": 52,
+      "HOLD": 36
+    },
+    "rejectAutomation": {
+      "safeNestedEquivalent": 31,
+      "guardedMonotonicNearNeighbour": 14,
+      "manualOnlyExactStat": 3
+    }
+  },
+  "defaultRescueProposalFloor": {
+    "qualityScoreGte": 65,
+    "answerPlayersGte": 5,
+    "manualExceptionAllowed": true
+  },
+  "guardedMonotonicRejectRule": {
+    "sameDifficulty": true,
+    "sameAnswerBand": true,
+    "maxRelativeAnswerCountChangeExclusive": 0.2,
+    "requiresMonotonicThresholdMove": true,
+    "excludeOperators": ["eq"]
+  },
+  "holdRule": {
+    "roles": ["CERTIFY", "RESCUE"],
+    "families": [
+      "combined-stats",
+      "career-longevity",
+      "club-count",
+      "value",
+      "minutes-role",
+      "composite-story"
+    ],
+    "reason": "condition-marginality-required"
+  },
+  "rescueOverrides": [
+    {
+      "triadId": "triad_13",
+      "id": "factory_club_stat_fwd_1srg9m7",
+      "from": "RESCUE",
+      "to": "REJECT",
+      "reason": "weak-tail-rescue"
+    },
+    {
+      "triadId": "triad_24",
+      "id": "factory_champions_any_1nilfub",
+      "from": "RESCUE",
+      "to": "REJECT",
+      "reason": "decorative-threshold"
+    },
+    {
+      "triadId": "triad_34",
+      "id": "factory_manager_fwd_1go24x7",
+      "from": "RESCUE",
+      "to": "REJECT",
+      "reason": "weak-tail-rescue"
+    },
+    {
+      "triadId": "triad_35",
+      "id": "factory_manager_gk_whrsne",
+      "from": "RESCUE",
+      "to": "REJECT",
+      "reason": "weak-tail-rescue"
+    }
+  ],
+  "requiredEvidenceBeforeSurvivorFreeze": [
+    "full-answer-player-set-or-fingerprint",
+    "per-condition-removal-answer-count",
+    "per-condition-removal-answer-set",
+    "condition-marginal-expansion",
+    "pairwise-jaccard-overlap",
+    "decorative-condition-flag",
+    "threshold-recognisability-soft-score",
+    "nearest-retained-sibling-check"
+  ],
+  "dailyAuthorityChanged": false
+}
