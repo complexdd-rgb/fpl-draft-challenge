@@ -1,8 +1,8 @@
 # Prompt Curation — 134,765 Survivor Proposal Audit
 
-Date: 8 September 2026  
-Source fingerprint: `shards_134765_1pkuiu3`  
-Builder audited: `prompt-curation-survivor-builder-v1` v1.0.0  
+Date: 8 September 2026
+Source fingerprint: `shards_134765_1pkuiu3`
+Builder audited: `prompt-curation-survivor-builder-v1` v1.0.0
 Proposal records selected: **5,553**
 
 ## Executive finding
