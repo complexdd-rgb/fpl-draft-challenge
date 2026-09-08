@@ -1,0 +1,46 @@
+name: Curated Daily Authority
+
+on:
+  pull_request:
+    paths:
+      - 'js/admin-daily-curated-authority-v1.js'
+      - 'js/studio-bootstrap.js'
+      - 'config/asset-manifest.json'
+      - 'js/asset-manifest.js'
+      - 'prompt-library-curated-v1/**'
+      - 'scripts/verify-daily-curated-authority-v1.mjs'
+      - '.github/workflows/curated-daily-authority.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/admin-daily-curated-authority-v1.js'
+      - 'js/studio-bootstrap.js'
+      - 'config/asset-manifest.json'
+      - 'js/asset-manifest.js'
+      - 'prompt-library-curated-v1/**'
+      - 'scripts/verify-daily-curated-authority-v1.mjs'
+      - '.github/workflows/curated-daily-authority.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check curated authority syntax
+        run: node --check js/admin-daily-curated-authority-v1.js
+      - name: Verify exact curated Daily authority
+        run: node scripts/verify-daily-curated-authority-v1.mjs
+      - name: Verify frozen selector package
+        run: node scripts/verify-prompt-curated-selectors-v1.mjs
+      - name: Verify saved-library generation guard boundary
+        run: node scripts/verify-weekly-certified-snapshot-race.mjs
+      - name: Verify existing Daily cutover boundary
+        run: node scripts/verify-daily-library-cutover-v1.mjs
+      - name: Reject whitespace errors
+        run: git diff --check
