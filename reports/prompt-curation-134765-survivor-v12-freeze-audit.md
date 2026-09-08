@@ -29,7 +29,7 @@ No further global compression pass is justified by the residual-overlap audit be
 - survivor answer-count mismatches: **0**
 - survivors with decorative conditions: **0**
 
-The companion frozen manifest stores all 4,897 selected source IDs by family, so curated-package construction can materialise the exact approved set from the immutable promoted snapshot without copying the 34 MB proposal into the repository.
+The companion freeze manifest stores the source/proposal/decision digests plus the full balance signature. Curated-package construction must reproduce the exact 4,897-ID digest from the immutable promoted snapshot before any authority change; the 34 MB proposal itself does not need to be committed to the repository.
 
 ## Hard-collapse result
 
@@ -44,7 +44,7 @@ The companion frozen manifest stores all 4,897 selected source IDs by family, so
 - below-quality-floor deferred classes: **7,524**
 - final selected survivors: **4,897**
 
-All selected prompts have quality score **>=65**. Mean selected quality is **90.1**.
+All selected prompts have quality score **>=65**. Mean selected quality is **89.9**.
 
 ## Balance
 
@@ -142,7 +142,7 @@ These are small local boundary effects in multi-axis/coarse material cells. Only
 
 For snapshot `shards_134765_1pkuiu3`:
 
-> **The 4,897 IDs in `reports/prompt-curation-134765-survivor-v12-freeze-manifest.json` are the approved Phase 1 survivor set.**
+> **The approved Phase 1 survivor set is the 4,897 selected IDs whose sorted-ID SHA-256 is `3d3b0776ca0df171f6017c8e436f167308c4bfdd4d0b74b4e57b6089edff972d`, produced by the frozen proposal whose SHA-256 is `339b4bb4026fef113d6513dd312eef88ab16b81a2d04c81ebdd273c96cd1f1b9`.**
 
 The source promoted package remains immutable. All other source prompts remain provenance and are not physically destroyed.
 
