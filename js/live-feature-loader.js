@@ -13,20 +13,17 @@
     document.head.appendChild(script);
   };
 
-  // Core live presentation compatibility entrypoint; active presentation startup lives in live-ui-bootstrap.js.
-  loadModule("js/ui-cleanup.js", "data-ui-cleanup");
-  // Cleaner professional challenge header: date/title, formation, database, streak and next challenge only.
+  // Permanent live helpers: prompt/readiness guard + slot-level render optimisation.
+  loadModule("js/live-ui-bootstrap.js", "data-live-ui-bootstrap");
+  // Current challenge header owns date/title, formation, database, streak and next challenge.
   loadModule("js/top-header-polish.js", "data-top-header-polish");
-  // Draft-board card hierarchy plus a hard autocomplete/error layering fix.
-  loadModule("js/draft-board-polish.js", "data-draft-board-polish");
-  // Mobile Results/Ranks compactness, collapsible cards and sticky-overlap finishing pass.
+  // Mobile leaderboard/account compactness remains useful outside the draft-board redesign.
   loadModule("js/mobile-results-cleanup.js", "data-mobile-results-cleanup");
 
-  // Results are deferred until there is something to show.
+  // Results v2 is the single post-game results presentation authority.
   const loadResultsV2 = () => {
     if (!config.resultsV2) return;
     loadModule("js/results-v2.js", "data-results-v2");
-    loadModule("js/results-polish-v3.js", "data-results-polish-v3");
   };
   const scheduleResultsV2 = () => {
     requestAnimationFrame(() => {
@@ -51,9 +48,8 @@
   };
   window.FPL_LOAD_LEADERBOARD_EXTRAS = loadLeaderboardExtras;
 
-  // The feature loader itself is asynchronous. If the leaderboard activated before this
-  // script finished loading, its one-shot visibility event has already fired. Catch up from
-  // the client's durable active flag so team sheets and the other deferred extras still load.
+  // The feature loader itself is asynchronous. If leaderboard activation happened first,
+  // catch up from its durable active flag rather than waiting for a missed one-shot event.
   if (window.FPL_LEADERBOARD_ACTIVE) loadLeaderboardExtras();
   else window.addEventListener("fpl:leaderboard-visible", loadLeaderboardExtras, { once: true });
 })();
