@@ -1,15 +1,16 @@
-/* FPL Draft Challenge — Prompt Curation Survivor Builder v1.1.0
+/* FPL Draft Challenge — Prompt Curation Survivor Builder v1.2.0
    Read-only Phase 1 proposal builder. Consumes the durable promoted shard package plus the
-   full-library curation evidence, performs evidence-backed hard collapse, applies a default
-   survivor-quality floor, then makes a family-balanced proposal. It never writes Promotion,
-   saved shards or Daily. */
+   full-library curation evidence, performs evidence-backed hard collapse, applies the default
+   quality floor, compresses materially repetitive threshold lanes, then makes a family-balanced
+   survivor proposal. It never writes Promotion, saved shards or Daily. */
 (() => {
   "use strict";
 
   if (window.FPL_PROMPT_CURATION_SURVIVOR_BUILDER_V1?.ready) return;
 
-  const VERSION = "1.1.0";
+  const VERSION = "1.2.0";
   const DEFAULT_MIN_QUALITY = 65;
+  const MONOTONIC_OPERATORS = new Set(["gte", "lte", "gt", "lt"]);
   const FAMILIES = ["season-stats","position-stat","exact-stats","combined-stats","club-stat","league-position","promoted-clubs","relegated-clubs","champions","nationality","career-longevity","club-count","manager","anti-meta","value","minutes-role","composite-story"];
   const TARGETS = {
     "season-stats":185, champions:200, "promoted-clubs":225, "relegated-clubs":225, "club-count":250,
@@ -70,6 +71,10 @@
       if (value2 != null) parts.push(`${field}:upper:${Math.floor(value2 / step)}`);
     }
     return parts.join("|") || "non-numeric";
+  }
+
+  function numericConditions(record) {
+    return (record?.conditions || []).filter(condition => numericValue(condition?.value) != null);
   }
 
   function thresholdNiceness(record) {
@@ -163,6 +168,50 @@
     };
   }
 
+  function curationCell(candidate) {
+    const numeric = numericConditions(candidate.record);
+    const singleMonotonic = numeric.length === 1
+      && numericValue(numeric[0]?.value2) == null
+      && MONOTONIC_OPERATORS.has(operatorOf(numeric[0]));
+    if (singleMonotonic) {
+      return {
+        kind:"monotonic-answer-band-lane",
+        key:`${candidate.dimensions.group}|${candidate.dimensions.difficulty}|${candidate.dimensions.answerBand}`
+      };
+    }
+    return { kind:"material-cell", key:candidate.dimensions.material };
+  }
+
+  function compressMaterialCells(candidates, decisions) {
+    const buckets = new Map();
+    for (const candidate of candidates) {
+      const cell = curationCell(candidate);
+      candidate.curationCell = cell;
+      const key = `${cell.kind}|${cell.key}`;
+      if (!buckets.has(key)) buckets.set(key, []);
+      buckets.get(key).push(candidate);
+    }
+
+    const representatives = [];
+    let deferred = 0;
+    for (const members of buckets.values()) {
+      const ordered = [...members].sort(compareRepresentative);
+      const representative = ordered[0];
+      representatives.push(representative);
+      for (const member of ordered.slice(1)) {
+        deferred += 1;
+        decisions.set(String(member.record.id), {
+          id:String(member.record.id), family:member.record.family, status:"DEFER",
+          reason:member.curationCell.kind === "monotonic-answer-band-lane" ? "same-monotonic-answer-band-lane" : "same-material-cell",
+          representativeId:String(representative.record.id), answerPlayers:n(member.evidence?.answerPlayers),
+          answerFingerprint:String(member.evidence?.answerFingerprint || "")
+        });
+      }
+    }
+    representatives.sort(compareRepresentative);
+    return { representatives, deferred, cells:buckets.size };
+  }
+
   const bump = (map, key) => map.set(key, (map.get(key) || 0) + 1);
   const count = (map, key) => map.get(key) || 0;
 
@@ -170,7 +219,6 @@
     const d = candidate.dimensions;
     let score = representativeScore(candidate.record, candidate.evidence);
     score += 30 / Math.sqrt(1 + count(counts.group, d.group));
-    score += 18 / Math.sqrt(1 + count(counts.material, d.material));
     score += 10 / Math.sqrt(1 + count(counts.position, d.position));
     score += 10 / Math.sqrt(1 + count(counts.difficulty, d.difficulty));
     score += 12 / Math.sqrt(1 + count(counts.answerBand, d.answerBand));
@@ -194,7 +242,7 @@
   function selectFamily(candidates, target) {
     const remaining = [...candidates];
     const selected = [], selectedIds = new Set();
-    const counts = { group:new Map(), material:new Map(), position:new Map(), difficulty:new Map(), answerBand:new Map(), entity:new Map() };
+    const counts = { group:new Map(), position:new Map(), difficulty:new Map(), answerBand:new Map(), entity:new Map() };
     const limit = Math.min(target, remaining.length);
     while (selected.length < limit && remaining.length) {
       let bestIndex = 0, bestScore = -Infinity;
@@ -209,8 +257,8 @@
       candidate.selectionRank = selected.length + 1;
       selected.push(candidate); selectedIds.add(String(candidate.record.id));
       const d = candidate.dimensions;
-      bump(counts.group, d.group); bump(counts.material, d.material); bump(counts.position, d.position);
-      bump(counts.difficulty, d.difficulty); bump(counts.answerBand, d.answerBand); bump(counts.entity, d.entity);
+      bump(counts.group, d.group); bump(counts.position, d.position); bump(counts.difficulty, d.difficulty);
+      bump(counts.answerBand, d.answerBand); bump(counts.entity, d.entity);
     }
     return { selected, deferred:remaining };
   }
@@ -241,7 +289,7 @@
       classBuckets.get(key).push({ record, evidence:item });
     }
 
-    const candidatesByFamily = new Map(FAMILIES.map(family => [family, []]));
+    const eligibleByFamily = new Map(FAMILIES.map(family => [family, []]));
     const cleanClassesByFamily = new Map(FAMILIES.map(family => [family, 0]));
     const belowFloorByFamily = new Map(FAMILIES.map(family => [family, 0]));
     for (const [key, members] of classBuckets) {
@@ -251,7 +299,7 @@
       representative.exactClassReportedSize = n(representative.evidence?.exactEquivalentClassSize, ordered.length);
       cleanClassesByFamily.set(representative.record.family, n(cleanClassesByFamily.get(representative.record.family)) + 1);
       if (n(representative.record?.qualityScore) >= n(minQuality)) {
-        candidatesByFamily.get(representative.record.family)?.push(representative);
+        eligibleByFamily.get(representative.record.family)?.push(representative);
       } else {
         belowFloorByFamily.set(representative.record.family, n(belowFloorByFamily.get(representative.record.family)) + 1);
         decisions.set(String(representative.record.id), {
@@ -268,21 +316,27 @@
     }
 
     const selectedAll = [], familyMetrics = [];
+    let materialLaneDeferredTotal = 0;
     for (const family of FAMILIES) {
-      const candidates = (candidatesByFamily.get(family) || []).sort(compareRepresentative);
-      const target = n(targets[family], candidates.length), result = selectFamily(candidates, target);
+      const eligible = (eligibleByFamily.get(family) || []).sort(compareRepresentative);
+      const compressed = compressMaterialCells(eligible, decisions);
+      materialLaneDeferredTotal += compressed.deferred;
+      const target = n(targets[family], compressed.representatives.length);
+      const result = selectFamily(compressed.representatives, target);
       for (const candidate of result.selected) {
         selectedAll.push(candidate);
         decisions.set(String(candidate.record.id), {
-          id:String(candidate.record.id), family, status:"SELECT", reason:"balanced-clean-exact-representative",
-          selectionRank:candidate.selectionRank, selectionScore:candidate.selectionScore, qualityScore:n(candidate.record?.qualityScore),
+          id:String(candidate.record.id), family, status:"SELECT", reason:"balanced-material-representative",
+          selectionRank:candidate.selectionRank, selectionScore:candidate.selectionScore,
+          curationCellKind:candidate.curationCell?.kind || "", curationCellKey:candidate.curationCell?.key || "",
           answerPlayers:n(candidate.evidence?.answerPlayers), answerFingerprint:String(candidate.evidence?.answerFingerprint || ""),
           minConditionAddedPlayers:n(candidate.evidence?.minConditionAddedPlayers), minConditionMarginalPct:round(minMarginalPct(candidate.evidence),2)
         });
       }
       for (const candidate of result.deferred) {
         decisions.set(String(candidate.record.id), {
-          id:String(candidate.record.id), family, status:"DEFER", reason:"outside-family-envelope", qualityScore:n(candidate.record?.qualityScore),
+          id:String(candidate.record.id), family, status:"DEFER", reason:"outside-family-envelope",
+          curationCellKind:candidate.curationCell?.kind || "", curationCellKey:candidate.curationCell?.key || "",
           answerPlayers:n(candidate.evidence?.answerPlayers), answerFingerprint:String(candidate.evidence?.answerFingerprint || "")
         });
       }
@@ -291,10 +345,12 @@
         sourcePrompts:sourceRecords.filter(record => record.family === family).length,
         maximumEnvelope:target,
         cleanExactClasses:n(cleanClassesByFamily.get(family)),
-        eligibleCleanClasses:candidates.length,
+        eligibleCleanClasses:eligible.length,
         belowQualityFloorCleanClasses:n(belowFloorByFamily.get(family)),
+        materialCells:compressed.cells,
+        deferredMaterialLaneClasses:compressed.deferred,
         selected:result.selected.length,
-        deferredEligibleClasses:result.deferred.length,
+        deferredEligibleCells:result.deferred.length,
         positions:countBy(result.selected, candidate => candidate.dimensions.position),
         difficulties:countBy(result.selected, candidate => candidate.dimensions.difficulty),
         answerBands:countBy(result.selected, candidate => candidate.dimensions.answerBand),
@@ -319,24 +375,32 @@
       records:(shard?.records || []).filter(item => selectedIds.has(String(item?.id || "")))
     }));
     const decisionShards = source.shards.map(shard => ({
-      family:String(shard?.family || ""), count:Array.isArray(shard?.records) ? shard.records.length : 0,
+      family:String(shard?.family || ""),
+      count:Array.isArray(shard?.records) ? shard.records.length : 0,
       records:(shard?.records || []).map(record => decisions.get(String(record?.id || "")) || { id:String(record?.id || ""), family:String(shard?.family || ""), status:"DEFER", reason:"unclassified" })
     }));
     const allDecisions = [...decisions.values()];
-    const effectiveEligibleCeiling = familyMetrics.reduce((sum, row) => sum + Math.min(row.eligibleCleanClasses, row.maximumEnvelope), 0);
+    const effectiveEligibleCeiling = familyMetrics.reduce((sum, row) => sum + Math.min(row.materialCells, row.maximumEnvelope), 0);
 
     return {
       schemaVersion:1,
       kind:"fpl-prompt-curation-survivor-proposal",
       builderVersion:VERSION,
       generatedAt:new Date().toISOString(),
-      source:{ promotionFingerprint:String(source.manifest.promotionFingerprint || ""), total:n(source.manifest.total), families:n(source.manifest.families), variantGroups:n(source.manifest.variantGroups) },
-      evidence:{ evidenceVersion:String(evidence.evidenceVersion || ""), generatedAt:evidence.generatedAt || null, promotionFingerprint:String(evidence.source.promotionFingerprint || ""), summary:{ ...(evidence.summary || {}) } },
+      source:{
+        promotionFingerprint:String(source.manifest.promotionFingerprint || ""),
+        total:n(source.manifest.total), families:n(source.manifest.families), variantGroups:n(source.manifest.variantGroups)
+      },
+      evidence:{
+        evidenceVersion:String(evidence.evidenceVersion || ""), generatedAt:evidence.generatedAt || null,
+        promotionFingerprint:String(evidence.source.promotionFingerprint || ""), summary:{ ...(evidence.summary || {}) }
+      },
       policy:{
         authority:"proposal-only",
         hardRules:["stored-answer-mismatch blocks selection","decorative conditions cannot survive","exact-equivalent answer sets collapse to the strongest clean member"],
         proposalEligibilityRules:[`default quality score >= ${n(minQuality)}`,"below-floor clean representatives are deferred, never hard-rejected"],
-        softRules:["family maximum envelope","variant-group spread","position spread","difficulty spread","answer-band spread","entity spread","coarse threshold-cell spread","nearest one-axis Jaccard penalty","threshold recognisability tie-break"],
+        materialCompressionRules:["single monotonic numeric-axis prompts keep at most one representative per semantic group + difficulty + answer band","all other prompts keep at most one representative per coarse material cell","material-lane compression is DEFER, not HARD_REJECT, so explicit manual rescue remains possible"],
+        softRules:["family maximum envelope","variant-group spread","position spread","difficulty spread","answer-band spread","entity spread","nearest one-axis Jaccard penalty","threshold recognisability tie-break"],
         dailyAuthorityChanged:false,
         maximumEnvelopeTotal:Object.values(targets).reduce((sum, value) => sum + n(value), 0),
         effectiveEligibleCeiling,
@@ -352,8 +416,10 @@
         collapsedExactEquivalentSiblings:allDecisions.filter(item => item.status === "COLLAPSE").length,
         deferred:allDecisions.filter(item => item.status === "DEFER").length,
         deferredBelowQualityFloor:allDecisions.filter(item => item.status === "DEFER" && item.reason === "below-default-quality-floor").length,
+        deferredMaterialLaneCompression:materialLaneDeferredTotal,
         cleanExactRepresentatives:familyMetrics.reduce((sum, row) => sum + row.cleanExactClasses, 0),
         eligibleCleanRepresentatives:familyMetrics.reduce((sum, row) => sum + row.eligibleCleanClasses, 0),
+        materialCells:familyMetrics.reduce((sum, row) => sum + row.materialCells, 0),
         labelNormalisations
       },
       familyMetrics,
@@ -378,7 +444,7 @@
         state.status = "Rebuilding full-library evidence for the current saved snapshot…"; render();
         evidence = await evidenceApi.runSavedPackage();
       }
-      state.status = "Selecting evidence-backed representatives above the default quality floor…"; render();
+      state.status = "Compressing material lanes and selecting balanced representatives…"; render();
       const payload = buildProposalFromData(source, evidence);
       state.lastPayload = payload; state.status = "";
       window.dispatchEvent(new CustomEvent("fpl:prompt-curation-survivor-proposal-ready", { detail:{ version:VERSION, source:payload.source, summary:payload.summary } }));
@@ -424,13 +490,13 @@
     const available = Boolean(manifest?.total && manifest?.families === 17 && window.FPL_PROMPT_CURATION_EVIDENCE_V1?.ready);
     const last = state.lastPayload;
     const summary = last
-      ? `${n(last.summary.selected).toLocaleString("en-GB")} proposed survivors · ${n(last.summary.deferredBelowQualityFloor).toLocaleString("en-GB")} below-floor clean prompts deferred · ${n(last.summary.hardRejectedDecorative).toLocaleString("en-GB")} decorative rejects · ${n(last.summary.collapsedExactEquivalentSiblings).toLocaleString("en-GB")} exact siblings collapsed`
-      : `No survivor proposal has been built in this page yet. Default proposal floor: quality ${DEFAULT_MIN_QUALITY}+.`;
+      ? `${n(last.summary.selected).toLocaleString("en-GB")} proposed survivors · ${n(last.summary.deferredMaterialLaneCompression).toLocaleString("en-GB")} material-lane variants deferred · ${n(last.summary.hardRejectedDecorative).toLocaleString("en-GB")} decorative rejects · ${n(last.summary.collapsedExactEquivalentSiblings).toLocaleString("en-GB")} exact siblings collapsed`
+      : "No survivor proposal has been built in this page yet.";
     mount.innerHTML = `<section class="prompt-library-shards" aria-labelledby="promptCurationSurvivorBuilderHeading">
-      <div class="prompt-library-shards-head"><div><p class="eyebrow">Curation proposal</p><h3 id="promptCurationSurvivorBuilderHeading">Full-library survivor builder</h3><p>Build the evidence-backed survivor proposal from the saved promoted library. Family envelopes are ceilings, not quotas: clean prompts below the default quality floor are deferred for possible manual scarcity review instead of being selected just to fill a family. Survivor labels also receive provenance-preserving singular/plural cleanup. This does not alter Promotion, saved shards, Daily generation or publishing.</p></div><span class="phase-chip">v${esc(VERSION)}</span></div>
+      <div class="prompt-library-shards-head"><div><p class="eyebrow">Curation proposal</p><h3 id="promptCurationSurvivorBuilderHeading">Full-library survivor builder</h3><p>Build the evidence-backed survivor proposal from the saved promoted library. Exact answer-set collapse is deterministic; repetitive material lanes are compressed before family-envelope selection. This does not alter Promotion, saved shards, Daily generation or publishing.</p></div><span class="phase-chip">v${esc(VERSION)}</span></div>
       <div class="prompt-library-shards-summary"><strong>${available ? `${n(manifest.total).toLocaleString("en-GB")} prompts ready` : "Source/evidence unavailable"}</strong><span>${esc(summary)}</span></div>
       <div class="button-row"><button id="promptCurationSurvivorBuild" class="button primary" type="button" ${!available || state.busy ? "disabled" : ""}>${state.busy ? "Building survivor proposal…" : "Build survivor proposal"}</button><button id="promptCurationSurvivorDownload" class="button secondary" type="button" ${last && !state.busy ? "" : "disabled"}>Download survivor proposal JSON</button></div>
-      <p class="action-status" role="status">${esc(state.lastError || state.status || "SELECT means proposed survivor; COLLAPSE is evidence-safe redundancy removal; DEFER includes clean prompts outside the envelope or below the default proposal floor, and is not a final rejection.")}</p>
+      <p class="action-status" role="status">${esc(state.lastError || state.status || "SELECT means proposed survivor; exact duplicates are COLLAPSE; below-floor, same-lane and outside-envelope candidates are DEFER so manual rescue remains possible.")}</p>
     </section>`;
     mount.querySelector("#promptCurationSurvivorBuild")?.addEventListener("click", () => runSavedProposal().catch(() => {}));
     mount.querySelector("#promptCurationSurvivorDownload")?.addEventListener("click", () => downloadPayload());
@@ -450,7 +516,7 @@
     ready:true,
     version:VERSION,
     targets:{ ...TARGETS },
-    defaultMinQuality:DEFAULT_MIN_QUALITY,
+    minQuality:DEFAULT_MIN_QUALITY,
     buildProposalFromData,
     runSavedProposal,
     getLastPayload:() => state.lastPayload,

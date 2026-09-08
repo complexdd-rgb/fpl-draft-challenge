@@ -43,7 +43,7 @@ assert(manifest.assets?.promptLibraryShardsCssV1?.version === '1.2.0-daily-autho
 assert(manifest.assets?.promptCurationEvidenceV1?.path === 'js/prompt-curation-evidence-v1.js', 'Full-library curation evidence is missing from the central manifest.');
 assert(manifest.assets?.promptCurationEvidenceV1?.version === '1.0.0', 'Curation evidence cache version is stale.');
 assert(manifest.assets?.promptCurationSurvivorBuilderV1?.path === 'js/prompt-curation-survivor-builder-v1.js', 'Read-only survivor builder is missing from the central manifest.');
-assert(manifest.assets?.promptCurationSurvivorBuilderV1?.version === '1.1.0', 'Survivor builder cache version is stale.');
+assert(manifest.assets?.promptCurationSurvivorBuilderV1?.version === '1.2.0', 'Survivor builder cache version is stale.');
 assert(manifest.assets?.promptCurationReviewExportV1?.path === 'js/prompt-curation-review-export-v1.js', 'Read-only curation review export is missing from the central manifest.');
 assert(manifest.assets?.promptCurationReviewExportV1?.version === '1.1.0', 'Curation review export cache version is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.path === 'js/admin-daily-library-cutover-v1.js', 'Daily saved-library cutover boundary is missing from the central manifest.');
@@ -72,7 +72,8 @@ assert(generatedManifest.includes('"promptCurationEvidenceV1"'), 'Generated asse
 assert(generatedManifest.includes('"promptCurationSurvivorBuilderV1"'), 'Generated asset manifest does not expose the survivor builder.');
 assert(generatedManifest.includes('"promptCurationReviewExportV1"'), 'Generated asset manifest does not expose the curation review exporter.');
 assert(generatedManifest.includes('"version": "1.0.0"'), 'Generated asset manifest did not retain curation v1 cache tags.');
-assert(generatedManifest.includes('"version": "1.1.0"'), 'Generated asset manifest did not retain current curation cache tags.');
+assert(generatedManifest.includes('"version": "1.1.0"'), 'Generated asset manifest did not retain current curation review cache tags.');
+assert(generatedManifest.includes('"version": "1.2.0"'), 'Generated asset manifest did not retain the material-lane survivor builder cache tag.');
 assert(generatedManifest.includes('"dailySemanticDiversityV1"'), 'Generated asset manifest does not expose the Daily semantic-diversity policy.');
 assert(generatedManifest.includes('"adminScheduleManagerV2"'), 'Generated asset manifest does not expose schedule manager v2.');
 assert(generatedManifest.includes('"version": "1.2.0-daily-authority"'), 'Generated asset manifest did not retain the Daily authority CSS cache tag.');
@@ -119,6 +120,9 @@ assert(curationSurvivors.includes('decorative-condition'), 'Survivor builder no 
 assert(curationSurvivors.includes('exact-equivalent-sibling'), 'Survivor builder no longer collapses exact answer-set siblings.');
 assert(curationSurvivors.includes('outside-family-envelope'), 'Survivor builder no longer distinguishes deferred clean classes from hard rejects.');
 assert(curationSurvivors.includes('below-default-quality-floor'), 'Survivor builder no longer defers below-floor clean representatives.');
+assert(curationSurvivors.includes('same-monotonic-answer-band-lane'), 'Survivor builder no longer compresses repetitive monotonic threshold lanes.');
+assert(curationSurvivors.includes('same-material-cell'), 'Survivor builder no longer compresses duplicate coarse material cells.');
+assert(curationSurvivors.includes('materialCompressionRules'), 'Survivor builder no longer exports the permanent material compression policy.');
 assert(curationSurvivors.includes('DEFAULT_MIN_QUALITY = 65'), 'Survivor builder default quality floor drifted.');
 assert(curationSurvivors.includes('singular-stat-label'), 'Survivor builder no longer records label normalisation provenance.');
 assert(curationSurvivors.includes('This does not alter Promotion, saved shards, Daily generation or publishing.'), 'Survivor builder no longer states the read-only Daily boundary.');
@@ -168,7 +172,7 @@ assert(semanticDiversity.includes('rare:bonus'), 'Semantic policy is missing bon
 assert(batchCalendar.includes('semantic.missingRequiredKeys'), 'Batch calendar is missing semantic look-ahead pressure.');
 assert(batchCalendar.includes('semantic.dayClash'), 'Batch calendar is missing the hard same-day semantic guard.');
 
-console.log('Prompt Studio clean boundary verified with full-library curation evidence, read-only survivor proposal builder, paired review export and retired runtime manifest entries physically unadvertised.');
+console.log('Prompt Studio clean boundary verified with full-library curation evidence, material-lane survivor compression, paired review export and retired runtime manifest entries physically unadvertised.');
 
 for (const retiredFile of ['js/prompt-studio-loader.js','js/admin-studio-finish.js','js/career-overlap-wording.js']) {
   assert(!fs.existsSync(retiredFile), `Retired Studio runtime file still exists: ${retiredFile}`);
