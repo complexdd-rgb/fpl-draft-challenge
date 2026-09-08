@@ -53,10 +53,18 @@ requireText(compat, 'calc(100vw - 44px)', 'Mobile autocomplete must span the car
 requireText(compat, ':has(#grid .suggestions:not(.hidden)) .phase45-bottom-nav', 'Mobile bottom navigation must yield while autocomplete is open.');
 requireText(compat, '.daily-squad-count span', 'Compact Live XI progress must retain its /11 completion context.');
 
+// v1.1 polish invariants.
+requireText(compat, 'grid-template-areas:"position . state" "prompt prompt prompt"', 'Mobile clue cards must keep position/state on one row and give the prompt full width.');
+requireText(compat, 'content:"Score details"', 'Results v2 must label the retained secondary score breakdown.');
+requireText(compat, 'div:has(#finalScore)', 'Results v2 must suppress duplicate final-score detail from the legacy score card.');
+requireText(compat, 'div:has(#perfectScore)', 'Results v2 must suppress duplicate perfect-score detail from the legacy score card.');
+requireText(compat, 'clip:rect(0,0,0,0)', 'Compact mobile dock labels must remain screen-reader available rather than being display:none.');
+requireText(compat, 'justify-self:center!important', 'The narrow-mobile completion ring must remain centred.');
+
 if (failures.length) {
-  console.error('Daily UI v1 regression check failed:');
+  console.error('Daily UI v1/v1.1 regression check failed:');
   failures.forEach(item => console.error(`- ${item}`));
   process.exit(1);
 }
 
-console.log('Daily UI v1 presentation-boundary checks passed.');
+console.log('Daily UI v1/v1.1 presentation-boundary checks passed.');
