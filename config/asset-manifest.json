@@ -1,8 +1,8 @@
 {
-  "manifestVersion": "3.8.0-curation-survivors",
+  "manifestVersion": "3.9.0-curated-daily",
   "assets": {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.8.0-curation-survivors" },
-    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "2.9.0-curation-survivors" },
+    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.9.0-curated-daily" },
+    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "3.0.0-curated-daily" },
     "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.2.0-roadmap-truth" },
     "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
     "promptFactoryMountV1": { "path": "js/prompt-factory-mount-v1.js", "version": "1.0.0" },
@@ -18,6 +18,7 @@
     "promptCurationEvidenceV1": { "path": "js/prompt-curation-evidence-v1.js", "version": "1.0.0" },
     "promptCurationSurvivorBuilderV1": { "path": "js/prompt-curation-survivor-builder-v1.js", "version": "1.2.0" },
     "promptCurationReviewExportV1": { "path": "js/prompt-curation-review-export-v1.js", "version": "1.1.0" },
+    "adminDailyCuratedAuthorityV1": { "path": "js/admin-daily-curated-authority-v1.js", "version": "1.0.0" },
     "adminDailyLibraryCutoverV1": { "path": "js/admin-daily-library-cutover-v1.js", "version": "1.0.1-history-residue-prune" },
     "dailySemanticDiversityV1": { "path": "js/daily-semantic-diversity-v1.js", "version": "1.0.0" },
     "adminDailyPublish": { "path": "js/admin-daily-publish.js", "version": "1.1.0-date-identity" },
