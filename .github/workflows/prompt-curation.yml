@@ -13,10 +13,13 @@ on:
       - 'scripts/verify-prompt-curation-freeze-v12.mjs'
       - 'scripts/verify-prompt-curated-selectors-v1.mjs'
       - 'scripts/verify-prompt-curation-curated-package-v1.mjs'
+      - 'scripts/verify-curated-shadow-regression-v1.mjs'
       - 'js/prompt-curation-review-export-v1.js'
       - 'js/prompt-curation-evidence-v1.js'
       - 'js/prompt-curation-survivor-builder-v1.js'
       - 'js/prompt-curation-curated-package-v1.js'
+      - 'js/curated-shadow-regression-v1.js'
+      - 'curated-shadow-regression.html'
       - 'prompt-library-curated-v1/**'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
@@ -40,10 +43,13 @@ on:
       - 'scripts/verify-prompt-curation-freeze-v12.mjs'
       - 'scripts/verify-prompt-curated-selectors-v1.mjs'
       - 'scripts/verify-prompt-curation-curated-package-v1.mjs'
+      - 'scripts/verify-curated-shadow-regression-v1.mjs'
       - 'js/prompt-curation-review-export-v1.js'
       - 'js/prompt-curation-evidence-v1.js'
       - 'js/prompt-curation-survivor-builder-v1.js'
       - 'js/prompt-curation-curated-package-v1.js'
+      - 'js/curated-shadow-regression-v1.js'
+      - 'curated-shadow-regression.html'
       - 'prompt-library-curated-v1/**'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
@@ -95,6 +101,9 @@ jobs:
       - name: Verify curated package materialiser
         run: node scripts/verify-prompt-curation-curated-package-v1.mjs
 
+      - name: Verify curated Daily shadow regression boundary
+        run: node scripts/verify-curated-shadow-regression-v1.mjs
+
       - name: Confirm curation tooling stays outside Daily generation authority
         shell: bash
         run: |
@@ -121,6 +130,8 @@ jobs:
           ! grep -q 'FPL_DAILY_GENERATION_FAMILY_PLAN =' js/prompt-curation-survivor-builder-v1.js
           ! grep -q 'FPL_DAILY_GENERATION_PROMPT_POOL =' js/prompt-curation-curated-package-v1.js
           ! grep -q 'FPL_DAILY_GENERATION_FAMILY_PLAN =' js/prompt-curation-curated-package-v1.js
+          ! grep -q 'FPL_DAILY_GENERATION_PROMPT_POOL =' js/curated-shadow-regression-v1.js
+          ! grep -q 'FPL_DAILY_GENERATION_FAMILY_PLAN =' js/curated-shadow-regression-v1.js
 
       - name: Reject whitespace errors
         run: git diff --check
