@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Curated Daily Shadow Regression</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,system-ui,sans-serif;background:#07150f;color:#f4fff7}body{margin:0;padding:32px}.card{max-width:900px;margin:auto;background:#0d2118;border:1px solid #28533d;border-radius:18px;padding:24px;box-shadow:0 18px 60px #0008}h1{margin:.2rem 0 1rem}p{color:#c8ddcf;line-height:1.55}.row{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0}button{border:0;border-radius:10px;padding:12px 16px;font-weight:700;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.primary{background:#81e6a9;color:#06150d}.secondary{background:#183529;color:#eafff0;border:1px solid #34664d}pre{white-space:pre-wrap;background:#06110c;border-radius:12px;padding:16px;min-height:90px;border:1px solid #1f4533}pre[data-kind="pass"]{border-color:#4cc97c}pre[data-kind="fail"]{border-color:#d85e67}.note{font-size:.9rem;color:#9eb6a5}</style>
+</head>
+<body>
+  <main class="card">
+    <p class="note">Temporary Phase 1 pre-cutover tool · read-only</p>
+    <h1>Curated Daily shadow regression</h1>
+    <p>This page uses the saved promoted snapshot in this browser, reconstructs the frozen 4,897-prompt curated set, rechecks every prompt against the current player database and shadow-builds seven-day reservoirs for every supported formation. It does not publish, alter saved shards, change Daily generation authority or call Supabase.</p>
+    <div class="row"><button id="runShadowRegression" class="primary">Run full shadow regression</button><button id="downloadShadowReport" class="secondary" disabled>Download report JSON</button><a href="admin.html" style="align-self:center;color:#a8e7bf">Back to Studio</a></div>
+    <pre id="shadowOutput" role="status">Ready. The saved 134,765-prompt snapshot must already exist in this browser from Prompt Studio.</pre>
+  </main>
+  <script src="players.js"></script>
+  <script src="js/prompt-library-shards-v1.js?v=1.1.0"></script>
+  <script src="js/prompt-curation-curated-package-v1.js?v=1.0.0"></script>
+  <script src="js/daily-semantic-diversity-v1.js?v=1.0.0"></script>
+  <script src="js/curated-shadow-regression-v1.js?v=1.0.0"></script>
+</body>
+</html>
