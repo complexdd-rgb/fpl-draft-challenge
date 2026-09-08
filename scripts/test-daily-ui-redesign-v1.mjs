@@ -49,6 +49,9 @@ requireText(css, '@media(prefers-reduced-motion:reduce)', 'Reduced-motion suppor
 requireText(css, '@media(forced-colors:active)', 'Forced-colours support must remain present.');
 requireText(css, ':focus-visible', 'Visible keyboard focus styling must remain present.');
 requireText(compat, '#draftProgressDock', 'Compatibility boundary must keep the redesigned progress dock authoritative.');
+requireText(compat, 'calc(100vw - 44px)', 'Mobile autocomplete must span the card rather than expose covered controls beside it.');
+requireText(compat, ':has(#grid .suggestions:not(.hidden)) .phase45-bottom-nav', 'Mobile bottom navigation must yield while autocomplete is open.');
+requireText(compat, '.daily-squad-count span', 'Compact Live XI progress must retain its /11 completion context.');
 
 if (failures.length) {
   console.error('Daily UI v1 regression check failed:');
