@@ -1,7 +1,7 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v2.7.0.
+/* FPL Challenge Studio — single runtime bootstrap owner v2.8.0.
    Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser, Promotion layer,
-   durable family-shard storage, read-only curation review export, Daily cutover, publishing and
-   the centrally owned schedule manager. No legacy Prompt Studio fallback chain is loaded. */
+   durable family-shard storage, full-library curation evidence, read-only curation review export,
+   Daily cutover, publishing and the centrally owned schedule manager. No legacy Prompt Studio fallback chain is loaded. */
 (() => {
   "use strict";
 
@@ -20,6 +20,7 @@
   let qualityAnalyserStarted = false;
   let promotionStarted = false;
   let libraryShardsStarted = false;
+  let curationEvidenceStarted = false;
   let curationReviewStarted = false;
   let dailyCutoverStarted = false;
   let publishingStarted = false;
@@ -79,8 +80,15 @@
     loadAsset("promptCurationReviewExportV1", "data-prompt-curation-review-export-v1", { async: false });
   }
 
+  function ensureCurationEvidence() {
+    if (curationEvidenceStarted) return;
+    curationEvidenceStarted = true;
+    loadAsset("promptCurationEvidenceV1", "data-prompt-curation-evidence-v1", { async: false });
+  }
+
   function ensureLibraryShards() {
     if (libraryShardsStarted) {
+      ensureCurationEvidence();
       ensureCurationReview();
       ensureDailyCutover();
       return;
@@ -88,6 +96,7 @@
     libraryShardsStarted = true;
     loadAsset("promptLibraryShardsV1", "data-prompt-library-shards-v1", { async: false }, () => {
       loadAsset("promptLibraryShardsBridgeV1", "data-prompt-library-shards-bridge-v1", { async: false }, () => {
+        ensureCurationEvidence();
         ensureCurationReview();
         ensureDailyCutover();
       });
@@ -171,7 +180,7 @@
 
     started = true;
     document.documentElement.dataset.studioBootstrap = "loading";
-    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards-curation-review-daily-cutover-schedule-v2";
+    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards-curation-evidence-curation-review-daily-cutover-schedule-v2";
 
     ensurePromptStudio();
     ensurePublishing();
@@ -180,12 +189,13 @@
     document.documentElement.dataset.studioBootstrap = "ready";
     window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
       detail: {
-        version: "2.7.0",
+        version: "2.8.0",
         promptStudio: "clean-v1",
         promptFactory: "v1",
         qualityAnalyser: "v1",
         promotion: "v1",
         libraryShards: "v1",
+        curationEvidence: "v1",
         curationReviewExport: "v1",
         dailyLibraryCutover: "v1",
         scheduleManager: "v2"
@@ -194,7 +204,7 @@
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "2.7.0",
+    version: "2.8.0",
     start,
     loadScript,
     loadAsset,
@@ -203,6 +213,7 @@
     ensureQualityAnalyser,
     ensurePromotion,
     ensureLibraryShards,
+    ensureCurationEvidence,
     ensureCurationReview,
     ensureDailyCutover,
     ensurePublishing,
