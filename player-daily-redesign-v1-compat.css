@@ -31,6 +31,23 @@ body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProg
   }
 }
 
+@media(max-width:720px){
+  body.fpl-visual-overhaul-body.daily-ui-redesign-v1 #grid .suggestions,
+  body.daily-ui-redesign-v1 #grid .suggestions{
+    width:calc(100vw - 44px)!important;
+    max-width:calc(100vw - 44px)!important;
+  }
+  body.daily-ui-redesign-v1:has(#grid .suggestions:not(.hidden)) .phase45-bottom-nav{
+    display:none!important;
+  }
+}
+
+@media(max-width:430px){
+  body.daily-ui-redesign-v1 .daily-squad-count span{
+    display:inline!important;
+  }
+}
+
 body.daily-ui-redesign-v1 #resultsV2Scoreboard{
   margin:12px 0 10px!important;
 }
