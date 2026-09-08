@@ -1,0 +1,46 @@
+name: Daily UI redesign v1
+
+on:
+  pull_request:
+    paths:
+      - index.html
+      - player-daily-redesign-v1.css
+      - player-daily-redesign-v1-compat.css
+      - js/player-daily-redesign-v1.js
+      - reports/daily-challenge-ui-redesign-v1.md
+      - scripts/test-daily-ui-redesign-v1.mjs
+      - .github/workflows/daily-ui-redesign-v1.yml
+
+permissions:
+  contents: read
+
+jobs:
+  presentation-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check presentation script syntax
+        run: node --check js/player-daily-redesign-v1.js
+
+      - name: Check redesign invariants
+        run: node scripts/test-daily-ui-redesign-v1.mjs
+
+      - name: Verify change boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='${{ github.event.pull_request.base.sha }}'
+          HEAD='${{ github.event.pull_request.head.sha }}'
+          git diff --name-only "$BASE" "$HEAD" > /tmp/daily-ui-files.txt
+          cat /tmp/daily-ui-files.txt
+          if grep -Ev '^(index\.html|player-daily-redesign-v1\.css|player-daily-redesign-v1-compat\.css|js/player-daily-redesign-v1\.js|reports/daily-challenge-ui-redesign-v1\.md|scripts/test-daily-ui-redesign-v1\.mjs|\.github/workflows/daily-ui-redesign-v1\.yml)$' /tmp/daily-ui-files.txt | grep -q .; then
+            echo 'Daily UI PR changed files outside the approved presentation/report/test boundary.' >&2
+            exit 1
+          fi
