@@ -22,6 +22,8 @@ for (const [needle, message] of [
   ['role","combobox', 'Player search must expose combobox semantics.'],
   ['role","listbox', 'Autocomplete suggestions must expose listbox semantics.'],
   ['aria-activedescendant', 'Keyboard autocomplete must expose its active option.'],
+  ['aria-describedby', 'Player search must reference its feedback/status message.'],
+  ['tabindex","-1', 'Autocomplete options must stay out of the normal Tab order.'],
   ['role","progressbar', 'Draft completion must expose progressbar semantics.'],
   ['daily-state-chip', 'Draft slots must expose text state chips.'],
   ['dailySquadOverview', 'The live XI overview must remain present.'],
@@ -35,12 +37,14 @@ for (const [needle, message] of [
   ['calculatePerfectXI', 'Presentation code must not calculate the perfect XI.'],
   ['localStorage.setItem', 'Presentation code must not persist game state.'],
   ['fetch(', 'Presentation code must not own network/backend requests.'],
-  ['window.FPL_DAILY_CHALLENGE =', 'Presentation code must not replace challenge identity.']
+  ['window.FPL_DAILY_CHALLENGE =', 'Presentation code must not replace challenge identity.'],
+  ['observe(document.body', 'Presentation code must not install a broad body subtree observer.']
 ]) forbidText(ui, needle, message);
 
 requireText(css, 'grid-template-columns:repeat(2,minmax(0,1fr))', 'Desktop draft board must support a two-column layout.');
 requireText(css, '@media(max-width:900px)', 'Responsive single-column breakpoint must remain present.');
 requireText(css, 'font-size:16px!important', 'Mobile player search must retain 16px input text.');
+requireText(css, '.slot.valid::after{display:none!important}', 'Legacy valid-state checkmark must not overlap the Daily state chip.');
 requireText(css, '@media(prefers-reduced-motion:reduce)', 'Reduced-motion support must remain present.');
 requireText(css, '@media(forced-colors:active)', 'Forced-colours support must remain present.');
 requireText(css, ':focus-visible', 'Visible keyboard focus styling must remain present.');
