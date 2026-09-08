@@ -1,0 +1,43 @@
+/* Daily UI v1 compatibility boundary.
+   These high-specificity rules keep the redesign authoritative over presentation CSS
+   that is still injected asynchronously by the existing live feature loader. */
+
+body.fpl-visual-overhaul-body.daily-ui-redesign-v1 #draftProgressDock,
+body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProgressDock{
+  position:sticky!important;
+  top:8px!important;
+  bottom:auto!important;
+  z-index:1200!important;
+  margin:0 0 12px!important;
+}
+
+@media(max-width:700px){
+  body.fpl-visual-overhaul-body.daily-ui-redesign-v1 #draftProgressDock,
+  body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProgressDock{
+    position:sticky!important;
+    top:5px!important;
+    bottom:auto!important;
+    z-index:1200!important;
+    margin:0 0 10px!important;
+  }
+
+  body.daily-ui-redesign-v1 #results .share-button-group.daily-results-actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+  }
+  body.daily-ui-redesign-v1 #results .share-button-group.daily-results-actions .daily-leaderboard-jump{
+    grid-column:1/-1!important;
+  }
+}
+
+body.daily-ui-redesign-v1 #resultsV2Scoreboard{
+  margin:12px 0 10px!important;
+}
+body.daily-ui-redesign-v1 #results .score-card.results-v2-secondary{
+  margin:10px 0 18px!important;
+  opacity:.72!important;
+}
+body.daily-ui-redesign-v1 #resultsV2Analysis{
+  margin-top:20px!important;
+}
