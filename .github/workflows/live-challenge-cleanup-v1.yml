@@ -1,0 +1,55 @@
+name: Live Challenge cleanup v1
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  certify-live-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check retained live JavaScript syntax
+        run: |
+          node --check js/live-feature-loader.js
+          node --check js/live-ui-bootstrap.js
+          node --check js/top-header-polish.js
+          node --check js/phase45-dashboard.js
+          node --check js/mobile-results-cleanup.js
+          node --check js/results-v2.js
+          node --check js/player-daily-redesign-v1.js
+          node --check js/player-daily-mobile-nav-visibility.js
+
+      - name: Check permanent cleanup invariants
+        run: node scripts/test-live-challenge-cleanup-v1.mjs
+
+      - name: Re-run Daily UI invariants
+        run: node scripts/test-daily-ui-redesign-v1.mjs
+
+      - name: Re-run async live-loader race guard
+        run: node scripts/test-live-feature-loader-race.mjs
+
+      - name: Verify cleanup change boundary
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='${{ github.event.pull_request.base.sha }}'
+          HEAD='${{ github.event.pull_request.head.sha }}'
+          git diff --name-only "$BASE" "$HEAD" > /tmp/live-cleanup-files.txt
+          cat /tmp/live-cleanup-files.txt
+          if grep -Ev '^(index\.html|player-ui-pass-3\.css|player-daily-redesign-v1-compat\.css|js/live-feature-loader\.js|js/live-ui-bootstrap\.js|js/top-header-polish\.js|js/phase45-dashboard\.js|js/mobile-results-cleanup\.js|js/ui-cleanup\.js|js/live-visual-enhancements\.js|js/autocomplete-layer\.js|js/draft-board-polish\.js|js/visual-overhaul\.js|js/visual-finishing\.js|js/results-polish-v3\.js|scripts/test-daily-ui-redesign-v1\.mjs|scripts/test-live-challenge-cleanup-v1\.mjs|reports/live-challenge-cleanup-v1\.md|\.github/workflows/live-challenge-cleanup-v1\.yml|\.github/workflows/daily-ui-redesign-v1\.yml|\.github/workflows/studio-regression\.yml)$' /tmp/live-cleanup-files.txt | grep -q .; then
+            echo 'Live Challenge cleanup changed files outside the approved runtime/presentation/test boundary.' >&2
+            exit 1
+          fi
