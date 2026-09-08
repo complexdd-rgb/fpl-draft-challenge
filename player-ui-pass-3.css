@@ -1,23 +1,5 @@
-/* Player UI Pass 3 — simplify the live hierarchy without changing gameplay. */
-.player-ui-pass-3{
-  display:block!important;
-  margin:12px 0 8px!important;
-}
-.player-ui-pass-3 .phase45-hero{
-  display:block!important;
-  grid-template-columns:1fr!important;
-}
-.player-ui-compact-dashboard{
-  min-height:0!important;
-  padding:16px 18px!important;
-}
-.player-ui-compact-dashboard h2{
-  margin-bottom:12px!important;
-}
-.player-ui-compact-dashboard .phase45-metrics{
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:8px!important;
-}
+/* FPL Draft Challenge — retained local-history/details styles.
+   The retired Phase 4.5 hero/dashboard presentation no longer lives here. */
 .completed-local-note{
   margin:8px 0 14px!important;
 }
@@ -66,16 +48,5 @@
 .result-secondary-duplicate[hidden]{display:none!important}
 
 @media(max-width:720px){
-  .player-ui-compact-dashboard{
-    padding:13px 14px!important;
-  }
-  .player-ui-compact-dashboard .phase45-metrics{
-    grid-template-columns:1fr 1fr!important;
-  }
-  .player-ui-pass-3{
-    margin-top:8px!important;
-  }
-  .player-stats-details > summary{
-    padding:12px 14px;
-  }
+  .player-stats-details > summary{padding:12px 14px}
 }
