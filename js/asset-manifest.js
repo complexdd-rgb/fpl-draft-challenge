@@ -6,11 +6,11 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.7.0-curation-evidence"
+      "version": "3.8.0-curation-survivors"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "2.8.0-curation-evidence"
+      "version": "2.9.0-curation-survivors"
     },
     "promptStudioClean": {
       "path": "js/prompt-studio-clean-reset.js",
@@ -62,6 +62,10 @@
     },
     "promptCurationEvidenceV1": {
       "path": "js/prompt-curation-evidence-v1.js",
+      "version": "1.0.0"
+    },
+    "promptCurationSurvivorBuilderV1": {
+      "path": "js/prompt-curation-survivor-builder-v1.js",
       "version": "1.0.0"
     },
     "promptCurationReviewExportV1": {
@@ -125,7 +129,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.7.0-curation-evidence",
+    version: "3.8.0-curation-survivors",
     assets,
     get,
     url
