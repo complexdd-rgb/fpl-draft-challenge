@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v3.0.0.
+/* FPL Challenge Studio — single runtime bootstrap owner v2.9.0.
    Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser, Promotion layer,
    durable family-shard storage, curation tooling, the frozen curated Daily authority,
    Daily cutover, publishing and the centrally owned schedule manager.
@@ -197,7 +197,7 @@
     document.documentElement.dataset.studioBootstrap = "ready";
     window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
       detail: {
-        version: "3.0.0",
+        version: "2.9.0",
         promptStudio: "clean-v1",
         promptFactory: "v1",
         qualityAnalyser: "v1",
@@ -214,7 +214,7 @@
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "3.0.0",
+    version: "2.9.0",
     start,
     loadScript,
     loadAsset,
