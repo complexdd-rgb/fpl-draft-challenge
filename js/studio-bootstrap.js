@@ -1,8 +1,7 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v2.9.0.
-   Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser, Promotion layer,
-   durable family-shard storage, curation tooling, the frozen curated Daily authority,
-   Daily cutover, publishing and the centrally owned schedule manager.
-   No legacy Prompt Studio fallback chain is loaded. */
+/* FPL Challenge Studio — single runtime bootstrap owner v3.0.0.
+   Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser, Promotion,
+   durable source shards, the frozen curated Daily authority, Daily cutover, publishing and
+   the centrally owned schedule manager. Phase 1 curation/calibration runtimes are retired. */
 (() => {
   "use strict";
 
@@ -21,9 +20,6 @@
   let qualityAnalyserStarted = false;
   let promotionStarted = false;
   let libraryShardsStarted = false;
-  let curationEvidenceStarted = false;
-  let curationSurvivorBuilderStarted = false;
-  let curationReviewStarted = false;
   let dailyCutoverStarted = false;
   let publishingStarted = false;
   let scheduleManagerStarted = false;
@@ -78,41 +74,14 @@
     });
   }
 
-  function ensureCurationReview() {
-    if (curationReviewStarted) return;
-    curationReviewStarted = true;
-    loadAsset("promptCurationReviewExportV1", "data-prompt-curation-review-export-v1", { async: false });
-  }
-
-  function ensureCurationSurvivorBuilder() {
-    if (curationSurvivorBuilderStarted) return;
-    curationSurvivorBuilderStarted = true;
-    loadAsset("promptCurationSurvivorBuilderV1", "data-prompt-curation-survivor-builder-v1", { async: false });
-  }
-
-  function ensureCurationEvidence() {
-    if (curationEvidenceStarted) {
-      ensureCurationSurvivorBuilder();
-      return;
-    }
-    curationEvidenceStarted = true;
-    loadAsset("promptCurationEvidenceV1", "data-prompt-curation-evidence-v1", { async: false }, ensureCurationSurvivorBuilder);
-  }
-
   function ensureLibraryShards() {
     if (libraryShardsStarted) {
-      ensureCurationEvidence();
-      ensureCurationReview();
       ensureDailyCutover();
       return;
     }
     libraryShardsStarted = true;
     loadAsset("promptLibraryShardsV1", "data-prompt-library-shards-v1", { async: false }, () => {
-      loadAsset("promptLibraryShardsBridgeV1", "data-prompt-library-shards-bridge-v1", { async: false }, () => {
-        ensureCurationEvidence();
-        ensureCurationReview();
-        ensureDailyCutover();
-      });
+      loadAsset("promptLibraryShardsBridgeV1", "data-prompt-library-shards-bridge-v1", { async: false }, ensureDailyCutover);
     });
   }
 
@@ -188,7 +157,7 @@
 
     started = true;
     document.documentElement.dataset.studioBootstrap = "loading";
-    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards-curation-evidence-survivors-curation-review-curated-daily-authority-daily-cutover-schedule-v2";
+    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-source-shards-curated-daily-authority-daily-cutover-schedule-v2";
 
     ensurePromptStudio();
     ensurePublishing();
@@ -197,16 +166,13 @@
     document.documentElement.dataset.studioBootstrap = "ready";
     window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
       detail: {
-        version: "2.9.0",
+        version: "3.0.0",
         promptStudio: "clean-v1",
         promptFactory: "v1",
         qualityAnalyser: "v1",
         promotion: "v1",
-        libraryShards: "v1",
-        curationEvidence: "v1",
-        curationSurvivorBuilder: "v1",
-        curationReviewExport: "v1",
-        dailyCuratedAuthority: "v1",
+        libraryShards: "source-provenance-v1",
+        dailyCuratedAuthority: "frozen-4897-v1",
         dailyLibraryCutover: "v1",
         scheduleManager: "v2"
       }
@@ -214,7 +180,7 @@
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "2.9.0",
+    version: "3.0.0",
     start,
     loadScript,
     loadAsset,
@@ -223,9 +189,6 @@
     ensureQualityAnalyser,
     ensurePromotion,
     ensureLibraryShards,
-    ensureCurationEvidence,
-    ensureCurationSurvivorBuilder,
-    ensureCurationReview,
     ensureDailyCutover,
     ensurePublishing,
     ensureScheduleManager
