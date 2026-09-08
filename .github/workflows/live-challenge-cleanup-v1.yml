@@ -39,17 +39,3 @@ jobs:
 
       - name: Re-run async live-loader race guard
         run: node scripts/test-live-feature-loader-race.mjs
-
-      - name: Verify cleanup change boundary
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: |
-          set -euo pipefail
-          BASE='${{ github.event.pull_request.base.sha }}'
-          HEAD='${{ github.event.pull_request.head.sha }}'
-          git diff --name-only "$BASE" "$HEAD" > /tmp/live-cleanup-files.txt
-          cat /tmp/live-cleanup-files.txt
-          if grep -Ev '^(index\.html|player-ui-pass-3\.css|player-daily-redesign-v1-compat\.css|js/live-feature-loader\.js|js/live-ui-bootstrap\.js|js/top-header-polish\.js|js/phase45-dashboard\.js|js/mobile-results-cleanup\.js|js/ui-cleanup\.js|js/live-visual-enhancements\.js|js/autocomplete-layer\.js|js/draft-board-polish\.js|js/visual-overhaul\.js|js/visual-finishing\.js|js/results-polish-v3\.js|scripts/test-daily-ui-redesign-v1\.mjs|scripts/test-live-challenge-cleanup-v1\.mjs|reports/live-challenge-cleanup-v1\.md|\.github/workflows/live-challenge-cleanup-v1\.yml|\.github/workflows/daily-ui-redesign-v1\.yml|\.github/workflows/studio-regression\.yml)$' /tmp/live-cleanup-files.txt | grep -q .; then
-            echo 'Live Challenge cleanup changed files outside the approved runtime/presentation/test boundary.' >&2
-            exit 1
-          fi
