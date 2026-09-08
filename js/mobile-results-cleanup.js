@@ -1,4 +1,5 @@
-/* FPL Draft Challenge — mobile Results/Ranks compactness and overlap finishing pass. */
+/* FPL Draft Challenge — mobile leaderboard/account compactness.
+   Draft-board, bottom-nav and Results layout are owned by the permanent Daily UI. */
 (() => {
   "use strict";
 
@@ -53,12 +54,6 @@
       #liveLeaderboardPanel.account-controls-hidden > #leaderboardSubmitCard{display:none!important}
 
       @media(max-width:700px){
-        body.fpl-visual-overhaul-body .app{padding-bottom:calc(158px + env(safe-area-inset-bottom))!important}
-        body.fpl-visual-overhaul-body.mobile-ui-complete .app{padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
-        body.fpl-visual-overhaul-body .phase45-bottom-nav{bottom:max(8px,env(safe-area-inset-bottom))!important;width:calc(100% - 16px)!important}
-        body.fpl-visual-overhaul-body:not(.mobile-ui-complete) .draft-progress-dock{bottom:calc(72px + env(safe-area-inset-bottom))!important}
-        body.fpl-visual-overhaul-body.mobile-ui-complete .draft-progress-dock{position:relative!important;bottom:auto!important;z-index:2!important;margin-bottom:10px!important}
-
         #liveLeaderboardPanel{scroll-margin-top:12px}
         #liveLeaderboardPanel.is-collapsed{padding:12px 14px!important}
         #liveLeaderboardPanel.is-collapsed .leaderboard-head{flex-direction:row!important;align-items:center!important;gap:10px!important;padding:0!important}
@@ -93,13 +88,6 @@
         #liveLeaderboardPanel .leaderboard-table td{padding:9px 7px!important;font-size:.7rem!important}
         #leaderboardAllTime .leaderboard-table th:nth-child(n+5),
         #leaderboardAllTime .leaderboard-table td:nth-child(n+5){display:none}
-
-        #results{scroll-margin-top:12px}
-        #results .result-hero{gap:10px!important}
-        #results .score-card{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
-        #results .score-card div{padding:9px 7px!important}
-        #results .share-button-group{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
-        #results .share-button-group .btn{width:100%}
       }
 
       @media(max-width:460px){
@@ -108,7 +96,6 @@
         #liveLeaderboardPanel:not(.is-collapsed) .leaderboard-collapse-toggle{margin-left:auto}
         #liveLeaderboardPanel.is-collapsed .leaderboard-head p{max-width:145px}
         #liveLeaderboardPanel .leaderboard-personal-grid{gap:8px!important}
-        #results h2{font-size:1.04rem!important;line-height:1.25}
       }
     `;
     document.head.appendChild(style);
@@ -161,14 +148,18 @@
     return Boolean(host.querySelector("#leaderboardAccountSignOut")) || /syncing is on/i.test(host.textContent || "");
   }
 
+  function challengeComplete() {
+    const progress = String(document.getElementById("dockProgress")?.textContent || "").replace(/\s/g, "");
+    return /^11\/11$/.test(progress) || !document.getElementById("results")?.classList.contains("hidden");
+  }
+
   function syncAccountControls() {
     const panel = document.getElementById("liveLeaderboardPanel");
     const host = document.getElementById("leaderboardAccount");
     if (!panel || !host) return;
-    const complete = document.body.classList.contains("mobile-ui-complete");
     const state = panel.querySelector("#leaderboardState")?.dataset.state || "";
     const submitted = state === "accepted" || state === "duplicate";
-    panel.classList.toggle("account-controls-hidden", host.classList.contains("is-account-collapsed") && (!complete || submitted));
+    panel.classList.toggle("account-controls-hidden", host.classList.contains("is-account-collapsed") && (!challengeComplete() || submitted));
   }
 
   function setAccountCollapsed(host, collapsed, persist = false) {
@@ -212,45 +203,37 @@
       host.appendChild(button);
     }
 
-    const prefStored = (() => { try { return localStorage.getItem(ACCOUNT_COLLAPSE_KEY); } catch { return null; } })();
-    const collapsed = prefStored === null ? signedIn : readPreference(ACCOUNT_COLLAPSE_KEY, signedIn);
-    setAccountCollapsed(host, collapsed);
+    const stored = (() => { try { return localStorage.getItem(ACCOUNT_COLLAPSE_KEY); } catch { return null; } })();
+    setAccountCollapsed(host, stored === null ? signedIn : readPreference(ACCOUNT_COLLAPSE_KEY, signedIn));
 
     if (!accountObserver || accountObserver._host !== host) {
       accountObserver?.disconnect();
-      accountObserver = new MutationObserver(() => scheduleDecorate());
+      accountObserver = new MutationObserver(scheduleDecorate);
       accountObserver._host = host;
-      accountObserver.observe(host, { childList: true, subtree: false });
+      accountObserver.observe(host, { childList:true, subtree:false });
     }
     return true;
   }
 
-  function syncCompletionChrome() {
-    const progress = String(document.getElementById("dockProgress")?.textContent || "").replace(/\s/g, "");
-    const complete = /^11\/11$/.test(progress) || !document.getElementById("results")?.classList.contains("hidden");
-    document.body.classList.toggle("mobile-ui-complete", complete);
-    syncAccountControls();
-  }
-
-  function installCompletionObserver() {
+  function installCompletionObservers() {
     const progress = document.getElementById("dockProgress");
-    if (progress && progress.dataset.mobileCompleteObserver !== "1") {
-      progress.dataset.mobileCompleteObserver = "1";
-      new MutationObserver(syncCompletionChrome).observe(progress, { childList: true, subtree: true, characterData: true });
+    if (progress && progress.dataset.mobileCompetitionObserver !== "1") {
+      progress.dataset.mobileCompetitionObserver = "1";
+      new MutationObserver(syncAccountControls).observe(progress, { childList:true, subtree:true, characterData:true });
     }
     const results = document.getElementById("results");
-    if (results && results.dataset.mobileCompleteObserver !== "1") {
-      results.dataset.mobileCompleteObserver = "1";
-      new MutationObserver(syncCompletionChrome).observe(results, { attributes: true, attributeFilter: ["class"] });
+    if (results && results.dataset.mobileCompetitionObserver !== "1") {
+      results.dataset.mobileCompetitionObserver = "1";
+      new MutationObserver(syncAccountControls).observe(results, { attributes:true, attributeFilter:["class"] });
     }
-    syncCompletionChrome();
   }
 
   function decorate() {
     addStyles();
     const leaderboardReady = decorateLeaderboard();
     const accountReady = decorateAccount();
-    installCompletionObserver();
+    installCompletionObservers();
+    syncAccountControls();
     if (leaderboardReady && accountReady && rootObserver) {
       rootObserver.disconnect();
       rootObserver = null;
@@ -270,13 +253,13 @@
     decorate();
     if (!document.getElementById("liveLeaderboardPanel") || !document.getElementById("leaderboardAccount")) {
       rootObserver = new MutationObserver(scheduleDecorate);
-      rootObserver.observe(document.documentElement, { childList: true, subtree: true });
+      rootObserver.observe(document.documentElement, { childList:true, subtree:true });
     }
-    window.addEventListener("fpl:challenge-completed", syncCompletionChrome);
+    window.addEventListener("fpl:challenge-completed", syncAccountControls);
     window.addEventListener("fpl:account-auth-changed", scheduleDecorate);
     window.addEventListener("fpl:leaderboard-updated", syncAccountControls);
   };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once:true });
   else start();
 })();
