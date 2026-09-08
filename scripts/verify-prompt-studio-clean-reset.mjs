@@ -20,6 +20,7 @@ const semanticDiversity = read('js/daily-semantic-diversity-v1.js');
 const batchCalendar = read('js/admin-batch-calendar.js');
 const shards = read('js/prompt-library-shards-v1.js');
 const curationEvidence = read('js/prompt-curation-evidence-v1.js');
+const curationSurvivors = read('js/prompt-curation-survivor-builder-v1.js');
 const curationReview = read('js/prompt-curation-review-export-v1.js');
 const shardCss = read('admin-prompt-library-shards-v1.css');
 const promptLibrary = read('prompt-library.js')
@@ -29,10 +30,10 @@ const promptLibrary = read('prompt-library.js')
   .replace(/\s+/g, ' ')
   .trim();
 
-assert(manifest.manifestVersion === '3.7.0-curation-evidence', 'Central manifest is not on the curation-evidence boundary.');
-assert(manifest.assets?.assetManifestRuntime?.version === '3.7.0-curation-evidence', 'Asset-manifest runtime cache version is stale.');
+assert(manifest.manifestVersion === '3.8.0-curation-survivors', 'Central manifest is not on the curation-survivors boundary.');
+assert(manifest.assets?.assetManifestRuntime?.version === '3.8.0-curation-survivors', 'Asset-manifest runtime cache version is stale.');
 assert(manifest.assets?.studioBootstrap?.path === 'js/studio-bootstrap.js', 'Central manifest no longer owns the clean Studio bootstrap.');
-assert(manifest.assets?.studioBootstrap?.version === '2.8.0-curation-evidence', 'Studio bootstrap cache version does not include curation evidence v1.');
+assert(manifest.assets?.studioBootstrap?.version === '2.9.0-curation-survivors', 'Studio bootstrap cache version does not include survivor builder v1.');
 assert(manifest.assets?.promptStudioClean?.path === 'js/prompt-studio-clean-reset.js', 'Clean Prompt Studio controller is missing from the central manifest.');
 assert(manifest.assets?.promptFactoryV1?.path === 'js/prompt-factory-v1.js', 'Prompt Factory v1 is missing from the central manifest.');
 assert(manifest.assets?.promptQualityAnalyserV1?.path === 'js/prompt-quality-analyser-v1.js', 'Prompt Quality Analyser v1 is missing from the central manifest.');
@@ -41,6 +42,8 @@ assert(manifest.assets?.promptLibraryShardsV1?.path === 'js/prompt-library-shard
 assert(manifest.assets?.promptLibraryShardsCssV1?.version === '1.2.0-daily-authority', 'Daily saved-library authority display cache tag is stale.');
 assert(manifest.assets?.promptCurationEvidenceV1?.path === 'js/prompt-curation-evidence-v1.js', 'Full-library curation evidence is missing from the central manifest.');
 assert(manifest.assets?.promptCurationEvidenceV1?.version === '1.0.0', 'Curation evidence cache version is stale.');
+assert(manifest.assets?.promptCurationSurvivorBuilderV1?.path === 'js/prompt-curation-survivor-builder-v1.js', 'Read-only survivor builder is missing from the central manifest.');
+assert(manifest.assets?.promptCurationSurvivorBuilderV1?.version === '1.0.0', 'Survivor builder cache version is stale.');
 assert(manifest.assets?.promptCurationReviewExportV1?.path === 'js/prompt-curation-review-export-v1.js', 'Read-only curation review export is missing from the central manifest.');
 assert(manifest.assets?.promptCurationReviewExportV1?.version === '1.1.0', 'Curation review export cache version is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.path === 'js/admin-daily-library-cutover-v1.js', 'Daily saved-library cutover boundary is missing from the central manifest.');
@@ -64,10 +67,11 @@ assert(!stageOne.includes('historyPanel'), 'Stage One still references the remov
 assert(!cutover.includes('historyPanel'), 'Daily cutover still references the removed visible Daily history panel.');
 assert(!dailyMobileCss.includes('#workspace-challenge #historyPanel'), 'Daily mobile CSS still styles the removed History panel.');
 
-assert(generatedManifest.includes('3.7.0-curation-evidence'), 'Generated asset manifest was not refreshed to the curation-evidence boundary.');
+assert(generatedManifest.includes('3.8.0-curation-survivors'), 'Generated asset manifest was not refreshed to the curation-survivors boundary.');
 assert(generatedManifest.includes('"promptCurationEvidenceV1"'), 'Generated asset manifest does not expose the curation evidence engine.');
+assert(generatedManifest.includes('"promptCurationSurvivorBuilderV1"'), 'Generated asset manifest does not expose the survivor builder.');
 assert(generatedManifest.includes('"promptCurationReviewExportV1"'), 'Generated asset manifest does not expose the curation review exporter.');
-assert(generatedManifest.includes('"version": "1.0.0"'), 'Generated asset manifest did not retain the curation evidence cache tag.');
+assert(generatedManifest.includes('"version": "1.0.0"'), 'Generated asset manifest did not retain curation v1 cache tags.');
 assert(generatedManifest.includes('"version": "1.1.0"'), 'Generated asset manifest did not retain the curation review exporter cache tag.');
 assert(generatedManifest.includes('"dailySemanticDiversityV1"'), 'Generated asset manifest does not expose the Daily semantic-diversity policy.');
 assert(generatedManifest.includes('"adminScheduleManagerV2"'), 'Generated asset manifest does not expose schedule manager v2.');
@@ -75,17 +79,18 @@ assert(generatedManifest.includes('"version": "1.2.0-daily-authority"'), 'Genera
 assert(generatedManifest.includes('"adminDailyLibraryCutoverV1"'), 'Generated asset manifest does not expose the Daily cutover module.');
 assert(generatedManifest.includes('"adminDailyGeneratorGuard"'), 'Generated asset manifest does not expose the Daily generation guard.');
 
-for (const token of ['ensurePromptStudio', 'ensurePromptFactory', 'ensureQualityAnalyser', 'ensurePromotion', 'ensureLibraryShards', 'ensureCurationEvidence', 'ensureCurationReview', 'ensureDailyCutover', 'ensurePublishing', 'ensureScheduleManager']) {
+for (const token of ['ensurePromptStudio', 'ensurePromptFactory', 'ensureQualityAnalyser', 'ensurePromotion', 'ensureLibraryShards', 'ensureCurationEvidence', 'ensureCurationSurvivorBuilder', 'ensureCurationReview', 'ensureDailyCutover', 'ensurePublishing', 'ensureScheduleManager']) {
   assert(bootstrap.includes(token), `Clean Studio bootstrap is missing ${token}.`);
 }
 for (const retired of ['ensurePromptRedesign', 'ensurePromptV3', 'ensurePromptLoader', 'ensureCertificationLayer', 'ensureRefinementIncubator']) {
   assert(!bootstrap.includes(retired), `Clean Studio bootstrap still contains retired owner ${retired}.`);
 }
 assert(bootstrap.includes('promptCurationEvidenceV1'), 'Clean Studio bootstrap does not load the full-library curation evidence engine.');
+assert(bootstrap.includes('promptCurationSurvivorBuilderV1'), 'Clean Studio bootstrap does not load the survivor builder.');
 assert(bootstrap.includes('promptCurationReviewExportV1'), 'Clean Studio bootstrap does not load the read-only curation review exporter.');
 assert(bootstrap.includes('adminScheduleManagerV2'), 'Clean Studio bootstrap does not load the centrally owned schedule manager v2.');
-assert(admin.includes('data-studio-bootstrap="1" src="js/studio-bootstrap.js?v=2.8.0-curation-evidence"'), 'admin.html does not load the current single Studio bootstrap directly.');
-assert(admin.includes('src="js/asset-manifest.js?v=3.7.0-curation-evidence"'), 'admin.html does not load the current central asset manifest cache version.');
+assert(admin.includes('data-studio-bootstrap="1" src="js/studio-bootstrap.js?v=2.9.0-curation-survivors"'), 'admin.html does not load the current single Studio bootstrap directly.');
+assert(admin.includes('src="js/asset-manifest.js?v=3.8.0-curation-survivors"'), 'admin.html does not load the current central asset manifest cache version.');
 assert(!admin.includes('js/admin-import-tools.js'), 'admin.html still loads the retired admin-import-tools compatibility shim.');
 assert(!admin.includes('id="libraryManagerPanel"'), 'admin.html still embeds the retired static Prompt Library Manager shell.');
 assert(!admin.includes('STUDIO_NATIVE_PROMPT_WORKSPACE_START'), 'admin.html still embeds the retired static Prompt Studio migration shell.');
@@ -106,6 +111,16 @@ assert(curationEvidence.includes('axisNeighbor'), 'Curation evidence no longer r
 assert(curationEvidence.includes('does not alter Promotion, saved shards, Daily generation or publishing'), 'Curation evidence no longer states the read-only Daily boundary.');
 assert(!curationEvidence.includes('FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Curation evidence must not write the Daily generation pool.');
 assert(!curationEvidence.includes('FPL_DAILY_GENERATION_FAMILY_PLAN ='), 'Curation evidence must not write the Daily family plan.');
+
+assert(curationSurvivors.includes('buildRepositoryPackage'), 'Survivor builder no longer reads the durable saved source.');
+assert(curationSurvivors.includes('getLastPayload'), 'Survivor builder no longer consumes the curation evidence layer.');
+assert(curationSurvivors.includes('fpl-prompt-curation-survivor-proposal'), 'Survivor builder no longer emits the proposal package kind.');
+assert(curationSurvivors.includes('decorative-condition'), 'Survivor builder no longer hard-rejects decorative conditions.');
+assert(curationSurvivors.includes('exact-equivalent-sibling'), 'Survivor builder no longer collapses exact answer-set siblings.');
+assert(curationSurvivors.includes('outside-family-envelope'), 'Survivor builder no longer distinguishes deferred clean classes from hard rejects.');
+assert(curationSurvivors.includes('This does not alter Promotion, saved shards, Daily generation or publishing.'), 'Survivor builder no longer states the read-only Daily boundary.');
+assert(!curationSurvivors.includes('FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Survivor builder must not write the Daily generation pool.');
+assert(!curationSurvivors.includes('FPL_DAILY_GENERATION_FAMILY_PLAN ='), 'Survivor builder must not write the Daily family plan.');
 
 assert(curationReview.includes('buildRepositoryPackage'), 'Curation review export no longer reads the durable saved shard package.');
 assert(curationReview.includes('fpl-prompt-curation-review-batch'), 'Curation review export no longer emits the controlled review package kind.');
@@ -150,7 +165,7 @@ assert(semanticDiversity.includes('rare:bonus'), 'Semantic policy is missing bon
 assert(batchCalendar.includes('semantic.missingRequiredKeys'), 'Batch calendar is missing semantic look-ahead pressure.');
 assert(batchCalendar.includes('semantic.dayClash'), 'Batch calendar is missing the hard same-day semantic guard.');
 
-console.log('Prompt Studio clean boundary verified with full-library curation evidence, paired read-only review export and retired runtime manifest entries physically unadvertised.');
+console.log('Prompt Studio clean boundary verified with full-library curation evidence, read-only survivor proposal builder, paired review export and retired runtime manifest entries physically unadvertised.');
 
 for (const retiredFile of ['js/prompt-studio-loader.js','js/admin-studio-finish.js','js/career-overlap-wording.js']) {
   assert(!fs.existsSync(retiredFile), `Retired Studio runtime file still exists: ${retiredFile}`);
