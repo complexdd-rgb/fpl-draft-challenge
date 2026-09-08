@@ -1,4 +1,4 @@
-/* Daily UI v1 compatibility + v1.1 polish boundary.
+/* Daily UI v1 compatibility + v1.1.2 polish boundary.
    These high-specificity rules keep the redesign authoritative over presentation CSS
    that is still injected asynchronously by the existing live feature loader. */
 
@@ -38,6 +38,11 @@ body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProg
     max-width:calc(100vw - 44px)!important;
   }
   body.daily-ui-redesign-v1:has(#grid .suggestions:not(.hidden)) .phase45-bottom-nav{
+    display:none!important;
+  }
+
+  /* v1.1.2: the sticky draft controls own navigation while the clue grid is visible. */
+  body.daily-ui-redesign-v1.daily-grid-in-view .phase45-bottom-nav{
     display:none!important;
   }
 
