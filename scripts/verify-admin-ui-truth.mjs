@@ -18,9 +18,12 @@ assert(!stage.includes('id: "imports"'), 'Stage One still owns Historical Import
 assert(!stage.includes('dashboardImportStatus'), 'Stage One still tracks Historical Imports status.');
 assert(!baseCss.includes('Historical database import centre'), 'Historical import CSS remains.');
 assert(!baseCss.includes('Player identity consolidation'), 'Identity consolidation CSS remains.');
+
 assert(promptStudio.includes('<strong>Prompt Builder</strong><small>Create prompts against one explicit schema.</small><em>Live</em>'), 'Prompt Builder roadmap status is not Live.');
-assert(promptStudio.includes('<strong>Quality Analyser</strong><small>Test candidates before anything enters the canonical library.</small><em>Live</em>'), 'Quality Analyser roadmap status is not Live.');
-assert(promptStudio.includes('<strong>Refinement Incubator</strong><small>Curate and compress the promoted candidate universe into a balanced survivor library.</small><em>Next</em>'), 'Refinement Incubator roadmap status is not Next.');
+assert(promptStudio.includes('<strong>Quality Analyser</strong><small>Test candidates before they are promoted.</small><em>Live</em>'), 'Quality Analyser roadmap status is not Live.');
+assert(promptStudio.includes('<strong>Curated Library</strong><small>4,897 frozen survivors across all 17 families now power Daily generation.</small><em>Live</em>'), 'Curated Library roadmap status is not Live.');
+assert(promptStudio.includes('<strong>Daily Challenge redesign</strong><small>Rework the player-facing Daily Challenge experience now that prompt authority is stable.</small><em>Next</em>'), 'Daily Challenge redesign is not the next roadmap item.');
+assert(!promptStudio.includes('<strong>Refinement Incubator</strong>'), 'Completed Refinement Incubator still appears in the visible Prompt Studio roadmap.');
 
 const sandbox = { window: { addEventListener: () => {} } };
 vm.runInNewContext(read('players.js'), sandbox, { filename: 'players.js', timeout: 10000 });
@@ -31,4 +34,4 @@ for (const aliases of [['Doni'], ['Hilario', 'Hilário']]) {
   assert(player.mononymVerified === true, `Verified mononym flag missing for ${player.name}`);
 }
 
-console.log('Admin UI truth verified: Historical Imports retired, roadmap statuses current, Doni/Hilario verified mononyms.');
+console.log('Admin UI truth verified: retired imports stay removed, Prompt Studio shows the frozen curated library as Live, Daily redesign is Next, and Doni/Hilario remain verified mononyms.');
