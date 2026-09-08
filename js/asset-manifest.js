@@ -4,32 +4,110 @@
   "use strict";
 
   const source = {
-    "assetManifestRuntime": { "path": "js/asset-manifest.js", "version": "3.9.0-post-curation" },
-    "studioBootstrap": { "path": "js/studio-bootstrap.js", "version": "3.0.0-post-curation" },
-    "promptStudioClean": { "path": "js/prompt-studio-clean-reset.js", "version": "1.3.0-permanent-workflow" },
-    "promptStudioCleanCss": { "path": "admin-prompt-studio-clean.css", "version": "1.1.0-prompt-factory" },
-    "promptFactoryMountV1": { "path": "js/prompt-factory-mount-v1.js", "version": "1.0.0" },
-    "promptFactoryV1": { "path": "js/prompt-factory-v1.js", "version": "1.0.0" },
-    "promptQualityAnalyserMountV1": { "path": "js/prompt-quality-analyser-mount-v1.js", "version": "1.0.0" },
-    "promptQualityAnalyserV1": { "path": "js/prompt-quality-analyser-v1.js", "version": "1.0.0" },
-    "promptQualityAnalyserCssV1": { "path": "admin-prompt-quality-analyser.css", "version": "1.0.0" },
-    "promptPromotionV1": { "path": "js/prompt-promotion-v1.js", "version": "1.0.0" },
-    "promptPromotionCssV1": { "path": "admin-prompt-promotion-v1.css", "version": "1.0.0" },
-    "promptLibraryShardsV1": { "path": "js/prompt-library-shards-v1.js", "version": "1.1.0" },
-    "promptLibraryShardsBridgeV1": { "path": "js/prompt-library-shards-promotion-bridge-v1.js", "version": "1.0.0" },
-    "promptLibraryShardsCssV1": { "path": "admin-prompt-library-shards-v1.css", "version": "1.2.0-daily-authority" },
-    "adminDailyCuratedAuthorityV1": { "path": "js/admin-daily-curated-authority-v1.js", "version": "1.0.0" },
-    "adminDailyLibraryCutoverV1": { "path": "js/admin-daily-library-cutover-v1.js", "version": "1.0.1-history-residue-prune" },
-    "dailySemanticDiversityV1": { "path": "js/daily-semantic-diversity-v1.js", "version": "1.0.0" },
-    "adminDailyPublish": { "path": "js/admin-daily-publish.js", "version": "1.1.0-date-identity" },
-    "adminScheduleManagerV2": { "path": "js/admin-schedule-manager-v2.js", "version": "2.0.0" },
-    "validationEngine": { "path": "js/validation-engine.js", "version": "1.7.1-certification-snapshot" },
-    "adminStageOne": { "path": "js/admin-stage-one.js", "version": "1.6.0-imports-retired" },
-    "careerContext": { "path": "js/career-context.js", "version": "1.5.0" },
-    "adminBatchCalendar": { "path": "js/admin-batch-calendar.js", "version": "3.8.0-preplan-fastpath" },
-    "adminDailyGeneratorGuard": { "path": "js/admin-daily-generator-guard.js", "version": "2.5.0-leader-day-spacing" },
-    "leaderboardConfig": { "path": "js/leaderboard-config.js", "version": "5.1.0-studio-bootstrap" },
-    "repositoryCertifiedPromptPool": { "path": "js/repository-certified-prompt-pool.js", "version": "2.0.0-clean-reset" }
+    "assetManifestRuntime": {
+      "path": "js/asset-manifest.js",
+      "version": "3.9.0-post-curation"
+    },
+    "studioBootstrap": {
+      "path": "js/studio-bootstrap.js",
+      "version": "3.0.0-post-curation"
+    },
+    "promptStudioClean": {
+      "path": "js/prompt-studio-clean-reset.js",
+      "version": "1.3.0-permanent-workflow"
+    },
+    "promptStudioCleanCss": {
+      "path": "admin-prompt-studio-clean.css",
+      "version": "1.1.0-prompt-factory"
+    },
+    "promptFactoryMountV1": {
+      "path": "js/prompt-factory-mount-v1.js",
+      "version": "1.0.0"
+    },
+    "promptFactoryV1": {
+      "path": "js/prompt-factory-v1.js",
+      "version": "1.0.0"
+    },
+    "promptQualityAnalyserMountV1": {
+      "path": "js/prompt-quality-analyser-mount-v1.js",
+      "version": "1.0.0"
+    },
+    "promptQualityAnalyserV1": {
+      "path": "js/prompt-quality-analyser-v1.js",
+      "version": "1.0.0"
+    },
+    "promptQualityAnalyserCssV1": {
+      "path": "admin-prompt-quality-analyser.css",
+      "version": "1.0.0"
+    },
+    "promptPromotionV1": {
+      "path": "js/prompt-promotion-v1.js",
+      "version": "1.0.0"
+    },
+    "promptPromotionCssV1": {
+      "path": "admin-prompt-promotion-v1.css",
+      "version": "1.0.0"
+    },
+    "promptLibraryShardsV1": {
+      "path": "js/prompt-library-shards-v1.js",
+      "version": "1.1.0"
+    },
+    "promptLibraryShardsBridgeV1": {
+      "path": "js/prompt-library-shards-promotion-bridge-v1.js",
+      "version": "1.0.0"
+    },
+    "promptLibraryShardsCssV1": {
+      "path": "admin-prompt-library-shards-v1.css",
+      "version": "1.2.0-daily-authority"
+    },
+    "adminDailyCuratedAuthorityV1": {
+      "path": "js/admin-daily-curated-authority-v1.js",
+      "version": "1.0.0"
+    },
+    "adminDailyLibraryCutoverV1": {
+      "path": "js/admin-daily-library-cutover-v1.js",
+      "version": "1.0.1-history-residue-prune"
+    },
+    "dailySemanticDiversityV1": {
+      "path": "js/daily-semantic-diversity-v1.js",
+      "version": "1.0.0"
+    },
+    "adminDailyPublish": {
+      "path": "js/admin-daily-publish.js",
+      "version": "1.1.0-date-identity"
+    },
+    "adminScheduleManagerV2": {
+      "path": "js/admin-schedule-manager-v2.js",
+      "version": "2.0.0"
+    },
+    "validationEngine": {
+      "path": "js/validation-engine.js",
+      "version": "1.7.1-certification-snapshot"
+    },
+    "adminStageOne": {
+      "path": "js/admin-stage-one.js",
+      "version": "1.6.0-imports-retired"
+    },
+    "careerContext": {
+      "path": "js/career-context.js",
+      "version": "1.5.0"
+    },
+    "adminBatchCalendar": {
+      "path": "js/admin-batch-calendar.js",
+      "version": "3.8.0-preplan-fastpath"
+    },
+    "adminDailyGeneratorGuard": {
+      "path": "js/admin-daily-generator-guard.js",
+      "version": "2.5.0-leader-day-spacing"
+    },
+    "leaderboardConfig": {
+      "path": "js/leaderboard-config.js",
+      "version": "5.1.0-studio-bootstrap"
+    },
+    "repositoryCertifiedPromptPool": {
+      "path": "js/repository-certified-prompt-pool.js",
+      "version": "2.0.0-clean-reset"
+    }
   };
   const assets = Object.freeze(Object.fromEntries(
     Object.entries(source).map(([key, value]) => [key, Object.freeze({ ...value })])
