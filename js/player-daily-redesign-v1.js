@@ -130,12 +130,15 @@
     input.setAttribute("aria-expanded",String(!suggestions.classList.contains("hidden")));
     input.setAttribute("aria-label",`Search player for clue ${index + 1}, ${position}`);
     input.setAttribute("aria-invalid",String(state === "invalid"));
+    const feedback = slot.querySelector(".feedback");
+    if (feedback?.id) input.setAttribute("aria-describedby",feedback.id); else input.removeAttribute("aria-describedby");
     suggestions.setAttribute("role","listbox");
     suggestions.setAttribute("aria-label",`Player suggestions for clue ${index + 1}`);
     let activeId = "";
     suggestions.querySelectorAll("[data-option]").forEach((option,optionIndex) => {
       if (!option.id) option.id = `daily-option-${promptId}-${optionIndex}`;
       option.setAttribute("role","option");
+      option.setAttribute("tabindex","-1");
       const active = option.classList.contains("active");
       option.setAttribute("aria-selected",String(active));
       if (active) activeId = option.id;
@@ -274,7 +277,6 @@
   new MutationObserver(scheduleRefresh).observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
   const results = document.getElementById("results");
   if (results) new MutationObserver(scheduleRefresh).observe(results,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
-  new MutationObserver(scheduleRefresh).observe(document.body,{childList:true,subtree:true});
 
   document.addEventListener("keydown",event=>{ if (event.target?.classList?.contains("player-search")) requestAnimationFrame(scheduleRefresh); },true);
   document.addEventListener("input",event=>{ if (event.target?.classList?.contains("player-search")) scheduleRefresh(); },true);
