@@ -4,6 +4,7 @@ const read = path => fs.readFileSync(path, 'utf8');
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 const shadow = read('js/curated-shadow-regression-v1.js');
 const html = read('curated-shadow-regression.html');
+const enrichment = read('nationality-enrichment.js');
 const manifest = JSON.parse(read('prompt-library-curated-v1/manifest.json'));
 
 for (const token of [
@@ -39,13 +40,24 @@ for (const forbidden of [
 
 for (const token of [
   '<script src="players.js"></script>',
+  'nationality-enrichment.js?v=1.1.1',
   'js/prompt-library-shards-v1.js?v=1.1.0',
   'js/prompt-curation-curated-package-v1.js?v=1.0.0',
   'js/daily-semantic-diversity-v1.js?v=1.0.0',
   'js/curated-shadow-regression-v1.js?v=1.0.0',
   'Run full shadow regression',
+  'same nationality-enriched player database state used by Prompt Studio',
   'does not publish, alter saved shards, change Daily generation authority or call Supabase'
 ]) assert(html.includes(token), `Curated shadow page is missing required token: ${token}`);
+
+const playersIndex = html.indexOf('<script src="players.js"></script>');
+const enrichmentIndex = html.indexOf('nationality-enrichment.js?v=1.1.1');
+const shadowIndex = html.indexOf('js/curated-shadow-regression-v1.js?v=1.0.0');
+assert(playersIndex >= 0 && enrichmentIndex > playersIndex && shadowIndex > enrichmentIndex,
+  'Shadow page must load players.js, then the canonical nationality enrichment, then the shadow evaluator.');
+assert(enrichment.includes('Existing bio.nationality values are never overwritten.'), 'Canonical nationality enrichment contract wording drifted.');
+assert(enrichment.includes('window.FPL_PLAYERS'), 'Canonical nationality enrichment no longer targets window.FPL_PLAYERS.');
+
 assert(!html.includes('admin-daily-publish.js'), 'Shadow page must not load Daily publishing.');
 assert(!html.includes('leaderboard-config.js'), 'Shadow page must not load leaderboard/Supabase configuration.');
 assert(!html.includes('admin-daily-generator-guard.js'), 'Shadow page must not install the production generator guard.');
@@ -108,4 +120,4 @@ for (const [name, needs] of Object.entries(formations)) {
   assert(flowCapacity(targets, needs) === 77, `Curated selector structure cannot fill the ${name} weekly formation flow.`);
 }
 
-console.log('Curated Daily shadow harness verified: exact 4,897 selector structure can fill all seven formations, runtime evaluator/reservoir/day-layout checks are present, and no Daily/publish/Supabase authority path is loaded.');
+console.log('Curated Daily shadow harness verified: canonical nationality enrichment loads before runtime evaluation, exact 4,897 selector structure can fill all seven formations, runtime evaluator/reservoir/day-layout checks are present, and no Daily/publish/Supabase authority path is loaded.');

@@ -11,11 +11,12 @@
   <main class="card">
     <p class="note">Temporary Phase 1 pre-cutover tool · read-only</p>
     <h1>Curated Daily shadow regression</h1>
-    <p>This page uses the saved promoted snapshot in this browser, reconstructs the frozen 4,897-prompt curated set, rechecks every prompt against the current player database and shadow-builds seven-day reservoirs for every supported formation. It does not publish, alter saved shards, change Daily generation authority or call Supabase.</p>
+    <p>This page uses the saved promoted snapshot in this browser, reconstructs the frozen 4,897-prompt curated set, rechecks every prompt against the same nationality-enriched player database state used by Prompt Studio and shadow-builds seven-day reservoirs for every supported formation. It does not publish, alter saved shards, change Daily generation authority or call Supabase.</p>
     <div class="row"><button id="runShadowRegression" class="primary">Run full shadow regression</button><button id="downloadShadowReport" class="secondary" disabled>Download report JSON</button><a href="admin.html" style="align-self:center;color:#a8e7bf">Back to Studio</a></div>
     <pre id="shadowOutput" role="status">Ready. The saved 134,765-prompt snapshot must already exist in this browser from Prompt Studio.</pre>
   </main>
   <script src="players.js"></script>
+  <script data-nationality-enrichment data-loaded="true" src="nationality-enrichment.js?v=1.1.1"></script>
   <script src="js/prompt-library-shards-v1.js?v=1.1.0"></script>
   <script src="js/prompt-curation-curated-package-v1.js?v=1.0.0"></script>
   <script src="js/daily-semantic-diversity-v1.js?v=1.0.0"></script>
