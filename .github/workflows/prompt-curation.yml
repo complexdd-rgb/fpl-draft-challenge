@@ -11,9 +11,13 @@ on:
       - 'scripts/verify-prompt-curation-evidence-v1.mjs'
       - 'scripts/verify-prompt-curation-survivor-builder-v1.mjs'
       - 'scripts/verify-prompt-curation-freeze-v12.mjs'
+      - 'scripts/verify-prompt-curated-selectors-v1.mjs'
+      - 'scripts/verify-prompt-curation-curated-package-v1.mjs'
       - 'js/prompt-curation-review-export-v1.js'
       - 'js/prompt-curation-evidence-v1.js'
       - 'js/prompt-curation-survivor-builder-v1.js'
+      - 'js/prompt-curation-curated-package-v1.js'
+      - 'prompt-library-curated-v1/**'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
       - 'js/asset-manifest.js'
@@ -34,9 +38,13 @@ on:
       - 'scripts/verify-prompt-curation-evidence-v1.mjs'
       - 'scripts/verify-prompt-curation-survivor-builder-v1.mjs'
       - 'scripts/verify-prompt-curation-freeze-v12.mjs'
+      - 'scripts/verify-prompt-curated-selectors-v1.mjs'
+      - 'scripts/verify-prompt-curation-curated-package-v1.mjs'
       - 'js/prompt-curation-review-export-v1.js'
       - 'js/prompt-curation-evidence-v1.js'
       - 'js/prompt-curation-survivor-builder-v1.js'
+      - 'js/prompt-curation-curated-package-v1.js'
+      - 'prompt-library-curated-v1/**'
       - 'js/studio-bootstrap.js'
       - 'config/asset-manifest.json'
       - 'js/asset-manifest.js'
@@ -81,6 +89,12 @@ jobs:
       - name: Verify frozen v1.2 survivor decision
         run: node scripts/verify-prompt-curation-freeze-v12.mjs
 
+      - name: Verify frozen curated selector package
+        run: node scripts/verify-prompt-curated-selectors-v1.mjs
+
+      - name: Verify curated package materialiser
+        run: node scripts/verify-prompt-curation-curated-package-v1.mjs
+
       - name: Confirm curation tooling stays outside Daily generation authority
         shell: bash
         run: |
@@ -97,10 +111,16 @@ jobs:
           grep -q 'does not alter Promotion, saved shards, Daily generation or publishing' js/prompt-curation-evidence-v1.js
           grep -q 'This does not alter Promotion, saved shards, Daily generation or publishing.' js/prompt-curation-survivor-builder-v1.js
           grep -q 'This does not alter Promotion, the saved source snapshot, Daily generation' js/prompt-curation-review-export-v1.js
+          grep -q 'dailyAuthorityChanged:false' js/prompt-curation-curated-package-v1.js
+          grep -q 'productionCutoverApproved:false' js/prompt-curation-curated-package-v1.js
+          ! grep -q 'prompt-curation-curated-package-v1' js/studio-bootstrap.js
+          ! grep -q 'promptCurationCuratedPackageV1' config/asset-manifest.json
           ! grep -q 'FPL_DAILY_GENERATION_PROMPT_POOL =' js/prompt-curation-evidence-v1.js
           ! grep -q 'FPL_DAILY_GENERATION_FAMILY_PLAN =' js/prompt-curation-evidence-v1.js
           ! grep -q 'FPL_DAILY_GENERATION_PROMPT_POOL =' js/prompt-curation-survivor-builder-v1.js
           ! grep -q 'FPL_DAILY_GENERATION_FAMILY_PLAN =' js/prompt-curation-survivor-builder-v1.js
+          ! grep -q 'FPL_DAILY_GENERATION_PROMPT_POOL =' js/prompt-curation-curated-package-v1.js
+          ! grep -q 'FPL_DAILY_GENERATION_FAMILY_PLAN =' js/prompt-curation-curated-package-v1.js
 
       - name: Reject whitespace errors
         run: git diff --check
