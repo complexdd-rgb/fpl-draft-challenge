@@ -1,26 +1,8 @@
-/* Daily UI v1 compatibility + v1.1.2 polish boundary.
-   These high-specificity rules keep the redesign authoritative over presentation CSS
-   that is still injected asynchronously by the existing live feature loader. */
-
-body.fpl-visual-overhaul-body.daily-ui-redesign-v1 #draftProgressDock,
-body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProgressDock{
-  position:sticky!important;
-  top:8px!important;
-  bottom:auto!important;
-  z-index:1200!important;
-  margin:0 0 12px!important;
-}
+/* Daily UI v1.2 responsive/results boundary.
+   Legacy injected visual-overhaul rules have been retired; this file now contains only
+   intentional mobile layout and Results v2 compatibility refinements. */
 
 @media(max-width:700px){
-  body.fpl-visual-overhaul-body.daily-ui-redesign-v1 #draftProgressDock,
-  body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProgressDock{
-    position:sticky!important;
-    top:5px!important;
-    bottom:auto!important;
-    z-index:1200!important;
-    margin:0 0 10px!important;
-  }
-
   body.daily-ui-redesign-v1 #results .share-button-group.daily-results-actions{
     display:grid!important;
     grid-template-columns:1fr 1fr!important;
@@ -32,7 +14,6 @@ body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProg
 }
 
 @media(max-width:720px){
-  body.fpl-visual-overhaul-body.daily-ui-redesign-v1 #grid .suggestions,
   body.daily-ui-redesign-v1 #grid .suggestions{
     width:calc(100vw - 44px)!important;
     max-width:calc(100vw - 44px)!important;
@@ -41,12 +22,11 @@ body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProg
     display:none!important;
   }
 
-  /* v1.1.2: the sticky draft controls own navigation while the clue grid is visible. */
+  /* The sticky draft controls own navigation while the clue grid is visible. */
   body.daily-ui-redesign-v1.daily-grid-in-view .phase45-bottom-nav{
     display:none!important;
   }
 
-  /* v1.1.1: reserve space for the fixed nav and keep jump/focus targets above it. */
   html:has(body.daily-ui-redesign-v1){
     scroll-padding-bottom:calc(112px + env(safe-area-inset-bottom))!important;
   }
@@ -57,8 +37,7 @@ body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProg
     scroll-margin-bottom:calc(112px + env(safe-area-inset-bottom))!important;
   }
 
-  /* v1.1.1: keep position + state together without allowing injected legacy styles
-     to absolutely position or translate the state chip outside the card. */
+  /* Keep position + state together and give the clue its own full-width row. */
   body.daily-ui-redesign-v1 #grid .slot-head{
     grid-template-columns:auto auto minmax(0,1fr)!important;
     grid-template-areas:"position state ." "prompt prompt prompt"!important;
@@ -91,7 +70,7 @@ body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProg
     margin:0!important;
   }
 
-  /* v1.1: Results v2 already owns final/perfect score, so the legacy row becomes detail only. */
+  /* Results v2 owns final/perfect score, so the legacy row becomes detail only. */
   body.daily-ui-redesign-v1 #results:has(#resultsV2Scoreboard) .score-card.results-v2-secondary{
     display:grid!important;
     grid-template-columns:1fr 1fr!important;
@@ -106,11 +85,8 @@ body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProg
 }
 
 @media(max-width:430px){
-  body.daily-ui-redesign-v1 .daily-squad-count span{
-    display:inline!important;
-  }
+  body.daily-ui-redesign-v1 .daily-squad-count span{display:inline!important}
 
-  /* v1.1: keep the sticky dock compact without removing labels from assistive tech. */
   body.daily-ui-redesign-v1 #draftProgressDock{
     gap:5px!important;
     padding:7px!important;
@@ -129,7 +105,6 @@ body.fpl-visual-overhaul-body.daily-ui-redesign-v1.mobile-ui-complete #draftProg
   }
   body.daily-ui-redesign-v1 #draftProgressDock .dock-next{min-height:38px!important}
 
-  /* v1.1: centre the completion hero consistently over older result styles. */
   body.daily-ui-redesign-v1 #results #resultHero{
     grid-template-columns:1fr!important;
     text-align:center!important;
