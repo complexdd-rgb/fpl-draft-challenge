@@ -43,6 +43,12 @@
     return hasSelection ? "selected" : "open";
   }
 
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[char]));
+  }
+
   function ensureSkipLink() {
     if (document.querySelector(".daily-skip-link")) return;
     const link = document.createElement("a");
@@ -61,7 +67,7 @@
     const dock = document.getElementById("draftProgressDock");
     if (dock) dock.setAttribute("aria-label", "Draft progress and navigation");
     const dockLabel = document.querySelector("#draftProgressDock .dock-stat:first-child span");
-    if (dockLabel) dockLabel.textContent = "complete";
+    if (dockLabel && dockLabel.textContent !== "complete") dockLabel.textContent = "complete";
 
     const penalty = document.getElementById("dockPenalty");
     if (penalty) {
@@ -113,6 +119,7 @@
     if (!pitch) return;
 
     const positions = ["FWD", "MID", "DEF", "GK"];
+    const signatures = [];
     let resolved = 0;
     const rows = positions.map(position => {
       const items = challenge.prompts.map((prompt, index) => ({ prompt, index }))
@@ -122,30 +129,32 @@
           const state = slotState(slot);
           if (state === "confirmed" || state === "given-up") resolved++;
           const copy = miniSlotLabel(slot, state, index, position);
-          return `<button class="daily-mini-slot" type="button" data-daily-jump="${prompt.id}" data-state="${state}" aria-label="Clue ${index + 1}, ${position}, ${stateText[state]}. ${copy.primary}"><strong>${escapeHtml(copy.primary)}</strong><span>${escapeHtml(copy.secondary)}</span></button>`;
+          signatures.push(`${prompt.id}|${state}|${copy.primary}|${copy.secondary}`);
+          return `<button class="daily-mini-slot" type="button" data-daily-jump="${prompt.id}" data-state="${state}" aria-label="Clue ${index + 1}, ${position}, ${stateText[state]}. ${escapeHtml(copy.primary)}"><strong>${escapeHtml(copy.primary)}</strong><span>${escapeHtml(copy.secondary)}</span></button>`;
         }).join("");
       return `<div class="daily-mini-line" data-position="${position}">${items}</div>`;
     }).join("");
 
-    if (pitch.innerHTML !== rows) pitch.innerHTML = rows;
-    const count = document.getElementById("dailySquadResolved");
-    if (count) count.textContent = String(resolved);
+    const signature = signatures.join("~");
+    if (pitch.dataset.dailySignature !== signature) {
+      pitch.innerHTML = rows;
+      pitch.dataset.dailySignature = signature;
+    }
 
-    pitch.querySelectorAll("[data-daily-jump]").forEach(button => {
-      if (button.dataset.dailyBound === "1") return;
-      button.dataset.dailyBound = "1";
-      button.addEventListener("click", () => {
+    if (pitch.dataset.dailyJumpBound !== "1") {
+      pitch.dataset.dailyJumpBound = "1";
+      pitch.addEventListener("click", event => {
+        const button = event.target.closest?.("[data-daily-jump]");
+        if (!button || !pitch.contains(button)) return;
         const slot = document.getElementById(`slot-${button.dataset.dailyJump}`);
         slot?.scrollIntoView({ behavior: "smooth", block: "center" });
         setTimeout(() => slot?.querySelector(".player-search, .compact-change, .reopen-give-up")?.focus(), 250);
       });
-    });
-  }
+    }
 
-  function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>"']/g, char => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    }[char]));
+    const count = document.getElementById("dailySquadResolved");
+    const resolvedText = String(resolved);
+    if (count && count.textContent !== resolvedText) count.textContent = resolvedText;
   }
 
   function decorateSuggestions(slot, promptId, index, position, state) {
@@ -198,7 +207,7 @@
         chip.className = "daily-state-chip";
         head.appendChild(chip);
       }
-      chip.textContent = stateText[state];
+      if (chip.textContent !== stateText[state]) chip.textContent = stateText[state];
     }
 
     const feedback = slot.querySelector(".feedback");
@@ -206,8 +215,7 @@
       if (!feedback.id) feedback.id = `daily-feedback-${promptId}`;
       feedback.setAttribute("aria-live", state === "invalid" ? "assertive" : "polite");
       feedback.setAttribute("aria-atomic", "true");
-      if (state === "invalid") feedback.setAttribute("role", "alert");
-      else feedback.setAttribute("role", "status");
+      feedback.setAttribute("role", state === "invalid" ? "alert" : "status");
     }
 
     const season = slot.querySelector(".season-select");
@@ -232,6 +240,7 @@
     const [current, total] = progress.split("/").map(Number);
     const track = document.querySelector("#draftProgressDock .dock-track");
     if (track && Number.isFinite(current) && Number.isFinite(total)) {
+      track.removeAttribute("aria-hidden");
       track.setAttribute("role", "progressbar");
       track.setAttribute("aria-label", "Draft completion");
       track.setAttribute("aria-valuemin", "0");
@@ -247,7 +256,6 @@
 
     results.setAttribute("role", "region");
     const headline = document.getElementById("resultHeadline");
-    if (headline && !headline.id) headline.id = "resultHeadline";
     if (headline?.id) results.setAttribute("aria-labelledby", headline.id);
 
     const hero = document.getElementById("resultHero");
