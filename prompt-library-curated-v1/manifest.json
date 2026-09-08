@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "kind": "fpl-prompt-curated-library-selector-manifest",
+  "packageVersion": "1.0.0",
+  "status": "frozen-pre-cutover",
+  "sourcePromotionFingerprint": "shards_134765_1pkuiu3",
+  "sourcePrompts": 134765,
+  "selected": 4897,
+  "families": 17,
+  "selectedVariantGroups": 1307,
+  "survivorIdSha256": "3d3b0776ca0df171f6017c8e436f167308c4bfdd4d0b74b4e57b6089edff972d",
+  "freezeManifestPath": "reports/prompt-curation-134765-survivor-v12-freeze-manifest.json",
+  "familySelectors": [
+    {
+      "family": "anti-meta",
+      "path": "prompt-library-curated-v1/selectors/anti-meta.json",
+      "count": 153,
+      "sha256": "2b12a15f406f13614e9e25009b9c337058381865f23ebad4eaf2356a03e6232a"
+    },
+    {
+      "family": "career-longevity",
+      "path": "prompt-library-curated-v1/selectors/career-longevity.json",
+      "count": 350,
+      "sha256": "7f715a523fd456c1acd6e8baf87e75a79d347ef1ece8eaef7caeaba576523f37"
+    },
+    {
+      "family": "champions",
+      "path": "prompt-library-curated-v1/selectors/champions.json",
+      "count": 48,
+      "sha256": "cc842488905f63c325bd54ec6e82161e40b19266a711086b59f16d8a074bdb1c"
+    },
+    {
+      "family": "club-count",
+      "path": "prompt-library-curated-v1/selectors/club-count.json",
+      "count": 157,
+      "sha256": "4aba758cd64c3b51055b527e28d127cf9829cb8883f2f7015527c6968eb79779"
+    },
+    {
+      "family": "club-stat",
+      "path": "prompt-library-curated-v1/selectors/club-stat.json",
+      "count": 400,
+      "sha256": "135105be47f7234cbeb868de4cd40595328fc3c580d972dc0dcc32e179d710ce"
+    },
+    {
+      "family": "combined-stats",
+      "path": "prompt-library-curated-v1/selectors/combined-stats.json",
+      "count": 450,
+      "sha256": "56b4d7c03a5bce9f62bb5d531ddae2045f0992165712d60a6df53555951d24ba"
+    },
+    {
+      "family": "composite-story",
+      "path": "prompt-library-curated-v1/selectors/composite-story.json",
+      "count": 450,
+      "sha256": "6e0380da94ab36335aaa69556a813a5f4b3dfd33fcd31330a5b5ff6b330625c3"
+    },
+    {
+      "family": "exact-stats",
+      "path": "prompt-library-curated-v1/selectors/exact-stats.json",
+      "count": 300,
+      "sha256": "f09fbb07c95a2f24b1af24c762172a690d589b7bdc5a43f5b2dd5cf5ebffa0dc"
+    },
+    {
+      "family": "league-position",
+      "path": "prompt-library-curated-v1/selectors/league-position.json",
+      "count": 325,
+      "sha256": "cfd88730a7fd020b207e5465734cecd51f661fd21edd2432cbede1a0e4fdc27f"
+    },
+    {
+      "family": "manager",
+      "path": "prompt-library-curated-v1/selectors/manager.json",
+      "count": 400,
+      "sha256": "7d2dfc0759a98c8ee7f60f38a468179093be2b5e2337bc7c982104aa0e69dadc"
+    },
+    {
+      "family": "minutes-role",
+      "path": "prompt-library-curated-v1/selectors/minutes-role.json",
+      "count": 400,
+      "sha256": "c772f4738d6dde2805995bc42c2bdd8705ff3aa23755d7d2415741be0c1e0cd1"
+    },
+    {
+      "family": "nationality",
+      "path": "prompt-library-curated-v1/selectors/nationality.json",
+      "count": 400,
+      "sha256": "c6878b5b9dad963a0874e3d78a7d3dcd711413257c665d0c7cd2a421519fccf0"
+    },
+    {
+      "family": "position-stat",
+      "path": "prompt-library-curated-v1/selectors/position-stat.json",
+      "count": 291,
+      "sha256": "88f6bb5105d9956336ecd433e5c32b4c65293833440252ad42ce72a7f5d357b3"
+    },
+    {
+      "family": "promoted-clubs",
+      "path": "prompt-library-curated-v1/selectors/promoted-clubs.json",
+      "count": 155,
+      "sha256": "4e8622f2696e8a4129675dbb86c0d1340c51ae6a9099d2f273ed52f954bee07f"
+    },
+    {
+      "family": "relegated-clubs",
+      "path": "prompt-library-curated-v1/selectors/relegated-clubs.json",
+      "count": 155,
+      "sha256": "b37d9dd35d337a278b9731d92017bc643217506c5536b2a7f4f727bb74e27d5f"
+    },
+    {
+      "family": "season-stats",
+      "path": "prompt-library-curated-v1/selectors/season-stats.json",
+      "count": 63,
+      "sha256": "82fbc240ffd0e780540e163a568d11b69e488adbce6c555541b61abc5c192c67"
+    },
+    {
+      "family": "value",
+      "path": "prompt-library-curated-v1/selectors/value.json",
+      "count": 400,
+      "sha256": "f16a14d2ba840fa36120cb9334f0e4625cf482d3fc0cb6e189249034df7c019b"
+    }
+  ],
+  "authority": {
+    "dailyAuthorityChanged": false,
+    "productionCutoverApproved": false
+  }
+}
