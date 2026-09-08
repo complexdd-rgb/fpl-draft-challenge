@@ -8,7 +8,7 @@ This report reconciles the historical-database project state from three evidence
 2. surviving File Library masters/checkpoints;
 3. recorded project-chat completion checkpoints.
 
-It is deliberately conservative. `COMPLETE` means the relevant historical recovery lane was explicitly closed. `VERIFY` means substantial work exists but the final canonical artifact or production state was not independently proven in this audit. `PARTIAL` means an explicit unfinished checkpoint survives. `CONFLICT` means surviving records disagree materially and must be reconciled before the season is frozen.
+It is deliberately conservative. `COMPLETE` means the relevant historical recovery lane was explicitly closed. `VERIFY` means substantial work exists but the final canonical artifact or production state was not independently proven in this audit. `PARTIAL` means an explicit unfinished checkpoint survives. `RECONCILED` means a previously conflicting lineage has been resolved, but the final canonical artifact/enrichment still needs closure.
 
 The File Library search index is not an exhaustive archive listing, so failure to surface an old generated workbook is **not** treated as proof that the workbook never existed.
 
@@ -31,7 +31,7 @@ The File Library search index is not an exhaustive archive listing, so failure t
 | `DONE + IMPORTED` | Historical master completed and imported into the app with permanent post-import checks. |
 | `VERIFY` | Strong/advanced work exists, but final master/import/certification state needs one focused verification pass. |
 | `PARTIAL` | Surviving evidence explicitly says work remains. |
-| `CONFLICT` | Surviving checkpoints disagree materially; reconcile before using as authority. |
+| `RECONCILED` | A prior source/checkpoint conflict has been resolved, but final artifact/enrichment closure is still outstanding. |
 
 ## Season-by-season ledger
 
@@ -66,7 +66,7 @@ The File Library search index is not an exhaustive archive listing, so failure t
 | **1999/00** | **DONE / VERIFY ARTIFACT** | Explicit completion checkpoint: 752 frozen players; 20/20 clubs at 418 starts; 8,360 total starts; 1,027 player-attributed goals against 1,060 club goals. | Artifact verification only; then freeze. | Strong chat checkpoint |
 | **1998/99** | **DONE / VERIFY ARTIFACT** | Final completion checkpoint superseded earlier in-progress state: 740 frozen canonical identities; 489/489 relevant identities matched; 20/20 clubs at 418 starts; 8,360 starts; 943 player-attributed goals. Earlier audit identified 25 multi-club players and resolved Everton's 11-start gap as Francis Jeffers. | Artifact verification only; then freeze. | Strong chat checkpoint |
 | **1997/98** | **DONE / VERIFY ARTIFACT** | Explicit completion checkpoint: `FPL_1997-98_RECOVERY_MASTER_v2_STATBUNKER_ENRICHED_COMPLETE_2026-09-01.xlsx`; 705 canonical players; 20/20 clubs; 8,360 starts; 26 multi-club identities; scorer totals reconciled. | Artifact verification only; then freeze. | Strong chat checkpoint |
-| **1996/97** | **CONFLICT — RECONCILE FIRST** | Two surviving checkpoints disagree materially. One REVIEW state reports 658 canonical ENGZIP players, 421 matched and 14/20 clubs recovered with six uncached clubs. Another later COMPLETE claim reports 672 frozen identities, 575 StatBunker core rows, 570 matched, 9,108 starts, 1,133 goals and 67 send-offs. Neither final workbook surfaced in this File Library audit. | **Priority reconciliation:** locate both candidate artifacts/source lineage, establish the true ENGZIP canonical population and prove which checkpoint supersedes the other. Do not proceed on the assumption that either count is correct. | Conflict |
+| **1996/97** | **RECONCILED / PARTIAL — 658 CANONICAL** | The 658-vs-672 conflict is resolved at the lineage level. FootballSquads contains **672 raw named rows** across the 20 clubs; Derby closes the raw total at 35 rows. Same-season re-registrations/intra-PL transfers mean raw rows are not unique people; the earlier deduplicated **658-player canonical checkpoint remains the working authority**. The later `672 / 9,108 starts / 1,133 goals / 67 send-offs` COMPLETE checkpoint is quarantined because its aggregates fail hard league controls: **8,360 starts**, **970 league goals**, and **43 red cards**. See `reports/1996-97-reconciliation-2026-09-08.md`. | Locate the original 658-row master or deterministically reconstruct it from the frozen raw backbone with a 14-occurrence dedupe ledger; then finish StatBunker enrichment to 20/20 clubs and audit every club to 418 starts / league to 8,360 before issuing the final one-sheet master. | High on reconciliation; final artifact not yet physically verified |
 | **1995/96** | **DONE / VERIFY ARTIFACT** | Project checkpoint says the season was completed before work moved to 1996/97. | Locate final master and verify audit markers; no broad re-harvest unless artifact disproves completion. | Strong chat sequence |
 | **1994/95** | **DONE / VERIFY ARTIFACT** | StatBunker programme was run sequentially from 1993/94 forward and had progressed past 1995/96. | Locate final master and verify audit markers. | Strong chat sequence, artifact not surfaced |
 | **1993/94** | **DONE / VERIFY ARTIFACT** | First season of the StatBunker enrichment programme; project thread explicitly finished it before moving to the next season. ENGZIP remains frozen authority. | Locate final master and verify audit markers. Do **not** restart from scratch. | Strong chat sequence, artifact not surfaced |
@@ -85,9 +85,9 @@ The ENGZIP / FootballSquads population/identity/club backbone was harvested thro
 
 The surviving 2007/08 checkpoint explicitly records incomplete carrier coverage and 39 launch-list follow-ups. This is a genuine data-completion job, not an artifact-finding exercise.
 
-### 4. 1996/97 must be reconciled before it can stay marked complete
+### 4. 1996/97 population conflict is reconciled; final master is still open
 
-The 658-vs-672 canonical-population disagreement is too large to wave away as a minor later correction without source proof. This should be resolved before any downstream price model is trained on the early seasons.
+The later 672-player COMPLETE claim is no longer accepted as a competing canonical population. The 672 count reconciles to raw FootballSquads named rows, while the later checkpoint's 9,108 starts, 1,133 goals and 67 send-offs fail the season's hard controls. The working canonical population is therefore the earlier 658-player deduplicated backbone. The remaining task is artifact recovery/reconstruction plus completion of the enrichment/audit, not another population debate.
 
 ### 5. 2008/09–2010/11 require closure/import verification rather than broad source recovery
 
@@ -103,7 +103,7 @@ The current repository verifier explicitly protects the deferred all-season stat
 
 ## Recommended execution order
 
-1. **Resolve 1996/97 conflict** — small, high-value integrity task; establish one canonical truth.
+1. **Finish the reconciled 1996/97 master** — locate/reconstruct the 658-row canonical backbone, materialise the 14-occurrence dedupe ledger, complete StatBunker enrichment and force the 8,360-start audit.
 2. **Finish 2007/08** — first clearly unfinished season by surviving artifact evidence.
 3. **Close 2008/09, 2009/10 and 2010/11** — verify final masters, remaining FPL-native gaps, prices and import state; no repeated bulk harvesting.
 4. **Verify 2002/03–2004/05 final artifacts** — promote/freeze if clean.
