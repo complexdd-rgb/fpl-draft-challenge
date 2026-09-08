@@ -1,7 +1,7 @@
-/* FPL Challenge Studio — single runtime bootstrap owner v2.9.0.
+/* FPL Challenge Studio — single runtime bootstrap owner v3.0.0.
    Prompt Studio uses one clean controller, Prompt Factory, Quality Analyser, Promotion layer,
-   durable family-shard storage, full-library curation evidence, survivor proposal builder,
-   read-only curation review export, Daily cutover, publishing and the centrally owned schedule manager.
+   durable family-shard storage, curation tooling, the frozen curated Daily authority,
+   Daily cutover, publishing and the centrally owned schedule manager.
    No legacy Prompt Studio fallback chain is loaded. */
 (() => {
   "use strict";
@@ -73,7 +73,9 @@
   function ensureDailyCutover() {
     if (dailyCutoverStarted) return;
     dailyCutoverStarted = true;
-    loadAsset("adminDailyLibraryCutoverV1", "data-admin-daily-library-cutover-v1", { async: false });
+    loadAsset("adminDailyCuratedAuthorityV1", "data-admin-daily-curated-authority-v1", { async: false }, () => {
+      loadAsset("adminDailyLibraryCutoverV1", "data-admin-daily-library-cutover-v1", { async: false });
+    });
   }
 
   function ensureCurationReview() {
@@ -151,12 +153,7 @@
       return;
     }
     promptStudioStarted = true;
-    loadAsset(
-      "promptStudioClean",
-      "data-prompt-studio-clean",
-      { async: false },
-      ensurePromptFactory
-    );
+    loadAsset("promptStudioClean", "data-prompt-studio-clean", { async: false }, ensurePromptFactory);
   }
 
   function ensureScheduleManager() {
@@ -191,7 +188,7 @@
 
     started = true;
     document.documentElement.dataset.studioBootstrap = "loading";
-    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards-curation-evidence-survivors-curation-review-daily-cutover-schedule-v2";
+    document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-shards-curation-evidence-survivors-curation-review-curated-daily-authority-daily-cutover-schedule-v2";
 
     ensurePromptStudio();
     ensurePublishing();
@@ -200,7 +197,7 @@
     document.documentElement.dataset.studioBootstrap = "ready";
     window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
       detail: {
-        version: "2.9.0",
+        version: "3.0.0",
         promptStudio: "clean-v1",
         promptFactory: "v1",
         qualityAnalyser: "v1",
@@ -209,6 +206,7 @@
         curationEvidence: "v1",
         curationSurvivorBuilder: "v1",
         curationReviewExport: "v1",
+        dailyCuratedAuthority: "v1",
         dailyLibraryCutover: "v1",
         scheduleManager: "v2"
       }
@@ -216,7 +214,7 @@
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({
-    version: "2.9.0",
+    version: "3.0.0",
     start,
     loadScript,
     loadAsset,
