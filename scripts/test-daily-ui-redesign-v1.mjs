@@ -16,7 +16,7 @@ const forbidText = (source, needle, message) => {
 };
 
 requireText(index, 'player-daily-redesign-v1.css?v=1.0.0', 'index.html must load the Daily UI v1 stylesheet.');
-requireText(index, 'player-daily-redesign-v1-compat.css?v=1.1.2', 'index.html must cache-bust the Daily UI v1.1.2 compatibility polish.');
+requireText(index, 'player-daily-redesign-v1-compat.css?v=1.2.0', 'index.html must load the consolidated Daily UI v1.2 compatibility boundary.');
 requireText(index, 'js/player-daily-redesign-v1.js?v=1.0.0', 'index.html must load the Daily UI v1 presentation script.');
 requireText(index, 'js/player-daily-mobile-nav-visibility.js?v=1.1.2', 'index.html must load the mobile draft-board nav visibility helper.');
 
@@ -62,14 +62,14 @@ requireText(css, '.slot.valid::after{display:none!important}', 'Legacy valid-sta
 requireText(css, '@media(prefers-reduced-motion:reduce)', 'Reduced-motion support must remain present.');
 requireText(css, '@media(forced-colors:active)', 'Forced-colours support must remain present.');
 requireText(css, ':focus-visible', 'Visible keyboard focus styling must remain present.');
-requireText(compat, '#draftProgressDock', 'Compatibility boundary must keep the redesigned progress dock authoritative.');
+requireText(compat, '#draftProgressDock', 'Responsive boundary must keep compact mobile draft-progress controls.');
 requireText(compat, 'calc(100vw - 44px)', 'Mobile autocomplete must span the card rather than expose covered controls beside it.');
 requireText(compat, ':has(#grid .suggestions:not(.hidden)) .phase45-bottom-nav', 'Mobile bottom navigation must yield while autocomplete is open.');
 requireText(compat, '.daily-squad-count span', 'Compact Live XI progress must retain its /11 completion context.');
 
-// v1.1/v1.1.1/v1.1.2 polish invariants.
+// v1.1 through v1.2 polish invariants.
 requireText(compat, 'grid-template-areas:"position state ." "prompt prompt prompt"', 'Mobile clue cards must keep position/state together and give the prompt full width.');
-requireText(compat, 'position:static!important', 'Mobile state/position elements must resist injected absolute-position legacy styles.');
+requireText(compat, 'position:static!important', 'Mobile state/position elements must remain in normal card flow.');
 requireText(compat, 'padding-bottom:calc(118px + env(safe-area-inset-bottom))', 'Mobile app content must reserve space for the fixed bottom navigation.');
 requireText(compat, 'scroll-padding-bottom:calc(112px + env(safe-area-inset-bottom))', 'Mobile focus/jump targets must stay above the fixed bottom navigation.');
 requireText(compat, 'daily-grid-in-view .phase45-bottom-nav', 'Mobile bottom navigation must disappear while the draft board is visible.');
@@ -80,9 +80,9 @@ requireText(compat, 'clip:rect(0,0,0,0)', 'Compact mobile dock labels must remai
 requireText(compat, 'justify-self:center!important', 'The narrow-mobile completion ring must remain centred.');
 
 if (failures.length) {
-  console.error('Daily UI v1/v1.1/v1.1.2 regression check failed:');
+  console.error('Daily UI v1-v1.2 regression check failed:');
   failures.forEach(item => console.error(`- ${item}`));
   process.exit(1);
 }
 
-console.log('Daily UI v1/v1.1/v1.1.2 presentation-boundary checks passed.');
+console.log('Daily UI v1-v1.2 presentation-boundary checks passed.');
