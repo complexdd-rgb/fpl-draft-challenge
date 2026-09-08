@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-08",
+  "phase": "post-curation-prompt-studio-cleanup",
+  "dailyAuthority": {
+    "selectedPrompts": 4897,
+    "families": 17,
+    "survivorIdSha256": "3d3b0776ca0df171f6017c8e436f167308c4bfdd4d0b74b4e57b6089edff972d",
+    "changedByCleanup": false
+  },
+  "permanentPromptStudioPath": [
+    "prompt-factory",
+    "quality-analyser",
+    "promotion-source-shards",
+    "explicit-versioned-curated-authority-update"
+  ],
+  "retiredRuntime": [
+    "curation-review-export",
+    "curation-evidence",
+    "curation-survivor-builder",
+    "pre-cutover-curated-package",
+    "shadow-regression-page",
+    "refinement-incubator",
+    "refinement-survivors",
+    "four-star-enforcer",
+    "quality-baseline-finalizer"
+  ],
+  "futureFamilyContract": "PROMPT_FAMILY_ONBOARDING.md"
+}
