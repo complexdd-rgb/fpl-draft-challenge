@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "kind": "fpl-prompt-curation-frozen-survivor-manifest",
+  "status": "freeze-approved",
+  "promotionFingerprint": "shards_134765_1pkuiu3",
+  "sourcePrompts": 134765,
+  "families": 17,
+  "variantGroups": 2684,
+  "builderVersion": "1.2.0",
+  "proposalGeneratedAt": "2026-09-08T11:51:38.868Z",
+  "proposalSha256": "339b4bb4026fef113d6513dd312eef88ab16b81a2d04c81ebdd273c96cd1f1b9",
+  "survivorIdSha256": "3d3b0776ca0df171f6017c8e436f167308c4bfdd4d0b74b4e57b6089edff972d",
+  "decisionLedgerSha256": "5dfb2516e04421190e0ccc5d46a84c760c24e453220493d52048772776048e84",
+  "selected": 4897,
+  "quality": {
+    "minimum": 65,
+    "maximum": 100,
+    "mean": 89.885
+  },
+  "difficulty": {
+    "easy": 2420,
+    "medium": 1658,
+    "hard": 819
+  },
+  "positions": {
+    "ANY": 1423,
+    "MID": 999,
+    "DEF": 964,
+    "FWD": 805,
+    "GK": 706
+  },
+  "answerBands": {
+    "16-40": 1557,
+    "6-15": 1337,
+    "41-80": 1016,
+    "81-150": 522,
+    "151+": 254,
+    "3-5": 201,
+    "2": 10
+  },
+  "familyCounts": {
+    "anti-meta": 153,
+    "career-longevity": 350,
+    "champions": 48,
+    "club-count": 157,
+    "club-stat": 400,
+    "combined-stats": 450,
+    "composite-story": 450,
+    "exact-stats": 300,
+    "league-position": 325,
+    "manager": 400,
+    "minutes-role": 400,
+    "nationality": 400,
+    "position-stat": 291,
+    "promoted-clubs": 155,
+    "relegated-clubs": 155,
+    "season-stats": 63,
+    "value": 400
+  },
+  "familiesAtMaximumEnvelope": [
+    "exact-stats",
+    "combined-stats",
+    "club-stat",
+    "league-position",
+    "nationality",
+    "career-longevity",
+    "manager",
+    "value",
+    "minutes-role",
+    "composite-story"
+  ],
+  "nearNeighborPairs": {
+    "jaccard90Plus": 64,
+    "jaccard95Plus": 10,
+    "jaccard98Plus": 2,
+    "jaccard99Plus": 1
+  },
+  "crossSemanticExactAnswerSets": {
+    "duplicateFingerprintGroups": 75,
+    "extraSurvivorRecords": 86,
+    "maxClassSize": 3
+  },
+  "entityCoverage": {
+    "manager": {
+      "distinct": 52,
+      "minPerEntity": 4,
+      "maxPerEntity": 16
+    },
+    "nationality": {
+      "distinct": 49,
+      "minPerEntity": 1,
+      "maxPerEntity": 43
+    },
+    "clubStat": {
+      "distinct": 30,
+      "minPerEntity": 4,
+      "maxPerEntity": 21
+    }
+  },
+  "structuralValidation": {
+    "duplicateIds": 0,
+    "disabled": 0,
+    "nonPass": 0,
+    "missingLabels": 0,
+    "emptyConditions": 0,
+    "decorativeSurvivors": 0,
+    "answerCountMismatchSurvivors": 0
+  },
+  "policy": {
+    "dailyAuthorityChanged": false,
+    "sourceSnapshotImmutable": true,
+    "freezeMeaning": "The exact 4,897 selected IDs are frozen by the survivorIdSha256 digest and the source proposal by proposalSha256. Curated-package construction must reproduce that set before any Daily cutover."
+  }
+}

@@ -10,6 +10,7 @@ on:
       - 'scripts/verify-prompt-curation-review-export-v1.mjs'
       - 'scripts/verify-prompt-curation-evidence-v1.mjs'
       - 'scripts/verify-prompt-curation-survivor-builder-v1.mjs'
+      - 'scripts/verify-prompt-curation-freeze-v12.mjs'
       - 'js/prompt-curation-review-export-v1.js'
       - 'js/prompt-curation-evidence-v1.js'
       - 'js/prompt-curation-survivor-builder-v1.js'
@@ -19,6 +20,8 @@ on:
       - 'admin.html'
       - 'reports/prompt-curation-phase1-baseline.md'
       - 'reports/prompt-curation-134765-full-evidence.md'
+      - 'reports/prompt-curation-134765-survivor-v12-freeze-audit.md'
+      - 'reports/prompt-curation-134765-survivor-v12-freeze-manifest.json'
       - '.github/workflows/prompt-curation.yml'
   push:
     branches: [main]
@@ -30,6 +33,7 @@ on:
       - 'scripts/verify-prompt-curation-review-export-v1.mjs'
       - 'scripts/verify-prompt-curation-evidence-v1.mjs'
       - 'scripts/verify-prompt-curation-survivor-builder-v1.mjs'
+      - 'scripts/verify-prompt-curation-freeze-v12.mjs'
       - 'js/prompt-curation-review-export-v1.js'
       - 'js/prompt-curation-evidence-v1.js'
       - 'js/prompt-curation-survivor-builder-v1.js'
@@ -39,6 +43,8 @@ on:
       - 'admin.html'
       - 'reports/prompt-curation-phase1-baseline.md'
       - 'reports/prompt-curation-134765-full-evidence.md'
+      - 'reports/prompt-curation-134765-survivor-v12-freeze-audit.md'
+      - 'reports/prompt-curation-134765-survivor-v12-freeze-manifest.json'
       - '.github/workflows/prompt-curation.yml'
 
 permissions:
@@ -71,6 +77,9 @@ jobs:
 
       - name: Verify survivor proposal hard-collapse invariants
         run: node scripts/verify-prompt-curation-survivor-builder-v1.mjs
+
+      - name: Verify frozen v1.2 survivor decision
+        run: node scripts/verify-prompt-curation-freeze-v12.mjs
 
       - name: Confirm curation tooling stays outside Daily generation authority
         shell: bash
