@@ -5,11 +5,14 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <title>FPL Draft Challenge</title>
 <link rel="stylesheet" href="player-game.css?v=1.0.0">
-<link rel="stylesheet" href="player-ui-pass-3.css?v=1.0.0">
+<link rel="stylesheet" href="player-ui-pass-3.css?v=1.1.0">
 <link rel="stylesheet" href="player-daily-redesign-v1.css?v=1.0.0">
-<link rel="stylesheet" href="player-daily-redesign-v1-compat.css?v=1.1.2">
+<link rel="stylesheet" href="player-daily-redesign-v1-compat.css?v=1.2.0">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/icon-192.svg" sizes="192x192">
 <meta name="theme-color" content="#0b2017">
+<meta name="application-name" content="FPL Draft Challenge">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FPL Challenge">
@@ -28,9 +31,6 @@
 </div>
 </header>
 
-<section class="phase45-shell player-ui-pass-3" id="phase45Shell">
-  <section class="phase45-hero" id="phase45Hero"></section>
-</section>
 <p class="completed-local-note hidden" id="completedLocalNote">Today’s challenge is already completed on this device. Your saved result has been restored.</p>
 
 <div class="section-heading">
@@ -107,7 +107,6 @@
 <script src="players-live.js?v=1.0.0"></script>
 <script src="js/career-context.js?v=1.5.0"></script>
 <script src="js/game-engine.js?v=1.0.0"></script>
-<script src="js/live-visual-enhancements.js?v=1.0.0"></script>
 
 <div class="phase45-bottom-nav" id="phase45BottomNav" aria-label="Quick navigation">
   <button type="button" data-jump="top"><span>🏠</span>Today</button>
@@ -125,7 +124,7 @@
   </div>
 </div>
 
-<script src="js/phase45-dashboard.js?v=1.0.0"></script>
+<script src="js/phase45-dashboard.js?v=1.1.0"></script>
 <!-- Live leaderboard, accounts and player-facing competition features. -->
 <script src="js/leaderboard-config.js?v=5.0.0"></script>
 <script src="js/leaderboard-client.js?v=5.0.0"></script>
