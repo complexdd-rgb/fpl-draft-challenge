@@ -1,9 +1,9 @@
 # FPL Draft Challenge — Current Roadmap
 
 Updated: 8 September 2026
-Baseline: post-curation Daily authority after PR #153
+Baseline: post-Live-Challenge-cleanup main after PR #159
 
-This file is the current project priority order. The architecture/relevance cleanup and Phase 1 prompt curation are complete and must not be restarted unless a concrete regression is found.
+This file is the current project priority order. The architecture/relevance cleanup, prompt curation, Prompt Studio cleanup, Daily Challenge redesign and Live Challenge runtime cleanup are complete and must not be restarted unless a concrete regression is found.
 
 ## Completed foundation
 
@@ -17,7 +17,10 @@ This file is the current project priority order. The architecture/relevance clea
 - Phase 1 curation compressed that source to a frozen **4,897-prompt / 17-family** survivor package.
 - PR #153 made those exact 4,897 prompts the Daily generation authority while preserving the source snapshot separately.
 - A real seven-day / 77-prompt production export was verified as 77/77 sourced from the frozen curated package.
-- Daily generation, 77-prompt weekly reservoir, nationality/semantic-diversity logic, certification boundary, publishing, leaderboard and Supabase behaviour remain protected.
+- Prompt Studio cleanup is complete and guarded against retired-workspace regression.
+- Daily Challenge UI v1/v1.1 and the mobile follow-up fixes are merged.
+- PR #159 completed the Live Challenge KEEP / CONSOLIDATE / RETIRE / DELETE sweep and added permanent cleanup regression coverage.
+- Daily generation, 77-prompt weekly reservoir, nationality/semantic-diversity logic, publishing, leaderboard and Supabase behaviour remain protected.
 
 ## 1. Prompt curation and compression — COMPLETE
 
@@ -42,35 +45,53 @@ Permanent references:
 
 Completed Phase 1 curation/review/incubator runtime should remain retired from Prompt Studio. Future families use the maintained Factory → Quality → Promotion/source archive → explicit versioned curated-authority update path.
 
-## 2. Daily Challenge UI redesign — CURRENT PHASE
+## 2. Daily Challenge UI + Live Challenge cleanup — COMPLETE
 
-Redesign the player-facing Daily Challenge experience without reopening the now-verified generation architecture.
+The player-facing redesign and follow-up architecture cleanup are now frozen unless a concrete user-facing regression is demonstrated.
 
-Priorities:
+Completed boundary includes:
 
-- cleaner challenge/pitch layout on desktop and mobile;
-- stronger prompt readability and hierarchy;
-- clearer selected / invalid / confirmed / Give Up states;
-- autocomplete that never hides behind cards or feedback;
-- polished score, perfect-score and efficiency presentation;
-- completion/share/leaderboard flow;
-- accessibility and responsive QA;
-- preserve midnight rollover, current challenge identity/publishing behaviour and the frozen curated prompt authority.
+- cleaner desktop/mobile challenge hierarchy;
+- explicit Open / Selected / Invalid / Confirmed / Given Up states;
+- accessible autocomplete and progress semantics;
+- Live XI overview and sticky drafting progress;
+- Results v2 as the permanent post-game results authority;
+- mobile navigation fixes;
+- removal of superseded theme/autocomplete/draft/results runtime layers;
+- permanent Daily UI, loader-race and Live Challenge cleanup regression guards.
 
-## 3. Historical database completion
+Preserve midnight rollover, current challenge identity/publishing behaviour, scoring, Give Up, leaderboard and the frozen curated prompt authority.
 
-Return to the season-master programme after the Daily UI redesign.
+## 3. Historical database completion — CURRENT PHASE
+
+The permanent season-status authority for the start of this phase is:
+
+- `reports/historical-season-status-audit-2026-09-08.md`
+
+Do **not** restart the historical programme from 1993/94. ENGZIP / FootballSquads is already frozen as the population/identity/club backbone. Resume from the real unresolved frontier identified by the audit.
+
+Current execution order:
+
+1. reconcile the conflicting 1996/97 completion records and establish one canonical master;
+2. finish 2007/08, the first clearly unfinished season in surviving artifact evidence;
+3. close 2008/09, 2009/10 and 2010/11 by verifying their latest masters, genuine FPL-native gaps, price state and import/certification disposition — do not re-harvest already exhausted bulk sources;
+4. verify the final canonical artifacts for 2002/03–2004/05;
+5. verify the claimed-complete early masters rather than rebuilding them;
+6. create one definitive frozen historical-master index with one authoritative single-sheet master per season.
+
+Standing rules:
 
 - keep ENGZIP / FootballSquads as the frozen population/identity/club backbone;
-- complete StatBunker and other prompt-relevant enrichment season by season;
+- complete only genuinely missing StatBunker and other prompt-relevant enrichment;
 - retain nationality as a standard recovery field;
 - preserve source/provenance and uncertainty flags;
 - certify each season before treating it as production-ready;
-- do not substitute conventional football assists for historical FPL assists.
+- do not substitute conventional football assists for historical FPL assists;
+- 2011/12 is closed/imported and must not be reopened.
 
 ## 4. Historical starting-price modelling
 
-After the historical database is substantially complete:
+After the historical database is substantially complete and the master index is frozen:
 
 - build a transparent pre-FPL starting-price model for seasons before official FPL pricing exists;
 - use the same model only for genuinely unrecoverable prices in later seasons where appropriate;
@@ -82,7 +103,7 @@ After the historical database is substantially complete:
 
 Before broader launch/product work:
 
-- all-season database certification;
+- true all-season database certification;
 - curated prompt-library certification;
 - Daily generation regression across formations/families/diversity constraints;
 - null/missing-field safety;
@@ -92,6 +113,8 @@ Before broader launch/product work:
 - leaderboard/Supabase submission and restore behaviour;
 - desktop/mobile cross-browser pass;
 - new/returning/guest/signed-in user journeys.
+
+The current workflow named `All-season certification` is a deferred-boundary guard; it is **not** evidence that every historical season has already passed true all-season database certification.
 
 ## 6. Product expansion
 
@@ -159,7 +182,7 @@ Old recovery/staging workbooks are provenance. Do not discard a superseded workb
 
 - Do not restart broad architecture cleanup after PR #137 without a proven blocker/regression.
 - Do not restore completed Phase 1 curation/refinement runtime to Prompt Studio just to add future families.
-- Preserve the current 4,897-prompt Daily authority during the Daily UI redesign.
+- Preserve the current 4,897-prompt Daily authority while historical work proceeds.
 - New prompt families must follow `PROMPT_FAMILY_ONBOARDING.md` and require an explicit versioned curated-authority update before entering Daily.
 - Prefer deterministic, auditable transformations over manual hidden state.
 - Keep source exports/workbooks immutable as provenance where practical.
