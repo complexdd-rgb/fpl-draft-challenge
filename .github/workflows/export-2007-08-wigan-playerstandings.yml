@@ -1,0 +1,24 @@
+name: Export 2007-08 Wigan PlayerStandings
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/export-2007-08-wigan-playerstandings.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Wigan PlayerStandings through Reader
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          curl --retry 3 --retry-delay 2 --max-time 90 -fsSL 'https://r.jina.ai/https://www.statbunker.com/competitions/PlayerStandings?comp_id=200&club_id=85' -o out/Wigan_Athletic.md
+          grep -q 'Wigan Athletic' out/Wigan_Athletic.md
+          wc -c out/Wigan_Athletic.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wigan-playerstandings-2007-08
+          path: out
+          retention-days: 30
