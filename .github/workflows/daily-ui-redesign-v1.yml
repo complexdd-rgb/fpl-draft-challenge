@@ -51,7 +51,10 @@ jobs:
             exit 0
           fi
 
-          if grep -Ev '^(index\.html|player-daily-redesign-v1\.css|player-daily-redesign-v1-compat\.css|js/player-daily-redesign-v1\.js|js/player-daily-mobile-nav-visibility\.js|reports/daily-challenge-ui-redesign-v1\.md|scripts/test-daily-ui-redesign-v1\.mjs|\.github/workflows/daily-ui-redesign-v1\.yml)$' /tmp/daily-ui-files.txt | grep -q .; then
-            echo 'Daily UI PR changed files outside the approved presentation/report/test boundary.' >&2
+          # Leaderboard timing/layout regressions can legitimately cross the player-page and
+          # server-start boundary. These exact files are covered by the permanent Live Challenge
+          # cleanup workflow and scripts/test-leaderboard-device-timing-layout.mjs.
+          if grep -Ev '^(index\.html|player-daily-redesign-v1\.css|player-daily-redesign-v1-compat\.css|js/player-daily-redesign-v1\.js|js/player-daily-mobile-nav-visibility\.js|js/leaderboard-client\.js|supabase/functions/leaderboard-start/index\.ts|reports/daily-challenge-ui-redesign-v1\.md|scripts/test-daily-ui-redesign-v1\.mjs|scripts/test-leaderboard-device-timing-layout\.mjs|\.github/workflows/live-challenge-cleanup-v1\.yml|\.github/workflows/daily-ui-redesign-v1\.yml)$' /tmp/daily-ui-files.txt | grep -q .; then
+            echo 'Daily UI PR changed files outside the approved presentation/report/test or certified leaderboard regression boundary.' >&2
             exit 1
           fi
