@@ -1,0 +1,56 @@
+name: Temporary 1996-97 completion harvest
+
+on:
+  push:
+    branches:
+      - harvest-1996-97-six-clubs
+    paths:
+      - scripts/harvest-1996-97-completion.mjs
+      - .github/workflows/harvest-1996-97.yml
+
+permissions:
+  contents: write
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: harvest-1996-97-six-clubs
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install HTML parser
+        run: npm install --no-save cheerio@1.0.0
+
+      - name: Harvest and hard-audit sources
+        run: node scripts/harvest-1996-97-completion.mjs
+
+      - name: Show harvest summary
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const sb = JSON.parse(fs.readFileSync('data/recovery/1996-97/statbunker-six-club-season-appearances.json'));
+          const nat = JSON.parse(fs.readFileSync('data/recovery/1996-97/footballsquads-nationality-harvest.json'));
+          console.log('Six-club start total:', sb.totalStartSum);
+          for (const c of sb.clubs) console.log(`${c.club}: rows=${c.rowCount}, starts=${c.startSum}`);
+          console.log('FootballSquads source rows:', nat.sourceRowCount);
+          for (const c of nat.clubs) console.log(`${c.club}: nationality rows=${c.rowCount}`);
+          NODE
+
+      - name: Commit harvested source tables
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/recovery/1996-97/statbunker-six-club-season-appearances.json data/recovery/1996-97/footballsquads-nationality-harvest.json
+          if git diff --cached --quiet; then
+            echo 'Harvest outputs already current.'
+            exit 0
+          fi
+          git commit -m 'Harvest remaining 1996-97 historical source tables'
+          git push origin HEAD:harvest-1996-97-six-clubs
