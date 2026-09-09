@@ -1,0 +1,65 @@
+name: Export adjacent historical nationality evidence
+
+on:
+  push:
+    branches:
+      - research/1996-97-nationality-closeout
+    paths:
+      - .github/workflows/export-historical-nationality-window.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build historical nationality evidence file
+        shell: python
+        run: |
+          import csv
+          import json
+          import pathlib
+          import urllib.request
+
+          rows = []
+          headers = {'User-Agent': 'fpl-draft-challenge-recovery'}
+          for year in range(1992, 2002):
+              directory_url = f'https://api.github.com/repos/Samoilov2004/premier_league_dataset/contents/dataset/DATA_JSON/Season_{year}'
+              try:
+                  with urllib.request.urlopen(urllib.request.Request(directory_url, headers=headers), timeout=30) as response:
+                      entries = json.load(response)
+              except Exception:
+                  continue
+              for entry in entries:
+                  if not entry.get('name', '').endswith('.json'):
+                      continue
+                  source_url = entry['download_url']
+                  with urllib.request.urlopen(urllib.request.Request(source_url, headers=headers), timeout=30) as response:
+                      payload = json.load(response)
+                  club_name = entry['name'].rsplit('_', 2)[0].replace('_FC', '').replace('_AFC', '').replace('_', ' ')
+                  for player in payload.get('players', []):
+                      nations = player.get('nationality') or []
+                      rows.append({
+                          'source_season': f'{year}/{str(year + 1)[-2:]}',
+                          'club_source_name': club_name,
+                          'player': player.get('name', ''),
+                          'date_of_birth': player.get('dateOfBirth', ''),
+                          'transfermarkt_player_id': player.get('id', ''),
+                          'nationality_raw': ' | '.join(nations),
+                          'nationality_primary': nations[0] if nations else '',
+                          'source_url': source_url,
+                      })
+
+          output = pathlib.Path('data/recovery/1996-97/transfermarkt-nationality-history-1992-2001.csv')
+          output.parent.mkdir(parents=True, exist_ok=True)
+          with output.open('w', newline='', encoding='utf-8') as handle:
+              writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+              writer.writeheader()
+              writer.writerows(rows)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nationality-history-1992-2001
+          path: data/recovery/1996-97/transfermarkt-nationality-history-1992-2001.csv
+          if-no-files-found: error
