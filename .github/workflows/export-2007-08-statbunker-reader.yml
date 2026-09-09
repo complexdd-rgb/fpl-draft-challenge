@@ -1,0 +1,50 @@
+name: Export 2007-08 StatBunker reader harvest
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/export-2007-08-statbunker-reader.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch public StatBunker pages through Reader
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          python3 - <<'PY'
+          import subprocess, os, json, time
+          pages = {
+            'season_appearances': 'https://www.statbunker.com/competitions/SeasonAppearances?comp_id=200',
+            'player_standings': 'https://www.statbunker.com/competitions/PlayerStandings?comp_id=200',
+            'goals': 'https://www.statbunker.com/competitions/TopGoalScorers?comp_id=200',
+            'assists_conventional': 'https://www.statbunker.com/competitions/MostAssists?comp_id=200',
+            'yellow_cards': 'https://www.statbunker.com/competitions/TopYellowCards?comp_id=200',
+            'red_cards': 'https://www.statbunker.com/competitions/TopRedCards?comp_id=200',
+            'keeper_clean_sheets': 'https://www.statbunker.com/competitions/Top10KeepersCleanSheets?comp_id=200',
+            'goals_conceded': 'https://www.statbunker.com/competitions/Top10GoalsConceded?comp_id=200',
+            'penalties': 'https://www.statbunker.com/competitions/Penalties?comp_id=200',
+            'competition_nationalities': 'https://www.statbunker.com/competitions/FantasyFootballNationalitiesStats?comp_id=200'
+          }
+          meta={}
+          for key,url in pages.items():
+            target=f'out/{key}.md'
+            reader='https://r.jina.ai/'+url
+            try:
+              p=subprocess.run(['curl','-L','--max-time','90','-sS',reader,'-o',target],capture_output=True,text=True)
+              size=os.path.getsize(target) if os.path.exists(target) else 0
+              text=open(target,encoding='utf-8',errors='replace').read() if size else ''
+              ok=(p.returncode==0 and size>500 and 'Premier League 07/08' in text)
+              meta[key]={'url':url,'reader_url':reader,'returncode':p.returncode,'bytes':size,'ok':ok,'stderr':p.stderr[-500:]}
+            except Exception as e:
+              meta[key]={'url':url,'ok':False,'error':repr(e)}
+            time.sleep(1)
+          open('out/meta.json','w').write(json.dumps(meta,indent=2))
+          print(json.dumps(meta,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: statbunker-reader-2007-08
+          path: out
+          retention-days: 30
