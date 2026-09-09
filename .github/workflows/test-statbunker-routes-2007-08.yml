@@ -1,0 +1,24 @@
+name: Test StatBunker routes 2007-08
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/test-statbunker-routes-2007-08.yml]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Try public StatBunker hosts and browser headers
+        run: |
+          set +e
+          for host in www.statbunker.com blog.statbunker.com dr.statbunker.com ww.statbunker.com; do
+            echo "=== $host ==="
+            curl -L --max-time 20 -sS -o /tmp/out.html -w 'status=%{http_code} bytes=%{size_download}\n' \
+              -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/152 Safari/537.36' \
+              -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+              -H 'Accept-Language: en-GB,en;q=0.9' \
+              -H 'Referer: https://www.google.com/' \
+              "https://$host/competitions/SeasonAppearances?club_id=3&comp_id=200"
+            head -c 100 /tmp/out.html | tr '\n' ' '; echo
+          done
