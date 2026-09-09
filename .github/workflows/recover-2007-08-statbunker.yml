@@ -1,0 +1,76 @@
+name: Recover 2007-08 StatBunker
+
+on:
+  push:
+    branches:
+      - research/2007-08-statbunker-enrichment
+    paths:
+      - .github/workflows/recover-2007-08-statbunker.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests pandas lxml beautifulsoup4 html5lib
+      - name: Harvest StatBunker tables
+        run: |
+          python - <<'PY'
+          import os, re, json, time
+          import requests, pandas as pd
+          from bs4 import BeautifulSoup
+          from urllib.parse import urljoin
+
+          out='out'; os.makedirs(out, exist_ok=True)
+          base='https://www.statbunker.com/competitions/'
+          pages={
+            'season_appearances':'SeasonAppearances?comp_id=200',
+            'player_standings':'PlayerStandings?comp_id=200',
+            'goals':'TopGoalScorers?comp_id=200',
+            'yellow_cards':'TopYellowCards?comp_id=200',
+            'red_cards':'TopRedCards?comp_id=200',
+            'assists_conventional':'MostAssists?comp_id=200',
+            'goalkeeper_clean_sheets':'Top10KeepersCleanSheets?comp_id=200',
+            'goals_conceded':'Top10GoalsConceded?comp_id=200',
+            'penalties':'Penalties?comp_id=200',
+            'fantasy_players':'FantasyFootballPlayersStats?comp_id=200'
+          }
+          sess=requests.Session(); sess.headers.update({'User-Agent':'Mozilla/5.0 historical-research/1.0'})
+          meta={}
+          for key,rel in pages.items():
+            url=urljoin(base,rel)
+            try:
+              r=sess.get(url,timeout=60); r.raise_for_status()
+              open(f'{out}/{key}.html','w',encoding='utf-8').write(r.text)
+              tables=pd.read_html(r.text)
+              meta[key]={'url':url,'status':r.status_code,'tables':[]}
+              for i,t in enumerate(tables):
+                # Flatten multi-index headers and keep only nonempty tables.
+                if isinstance(t.columns,pd.MultiIndex):
+                  t.columns=[' | '.join(str(x) for x in col if str(x)!='nan').strip(' |') for col in t.columns]
+                t.columns=[str(c).strip() for c in t.columns]
+                if len(t)==0: continue
+                fn=f'{out}/{key}-{i}.csv'; t.to_csv(fn,index=False)
+                meta[key]['tables'].append({'index':i,'rows':len(t),'cols':list(t.columns),'file':fn})
+            except Exception as e:
+              meta[key]={'url':url,'error':repr(e)}
+            time.sleep(0.5)
+          open(f'{out}/meta.json','w').write(json.dumps(meta,indent=2))
+          print(json.dumps(meta,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: statbunker-2007-08-harvest
+          path: out
+          retention-days: 30
