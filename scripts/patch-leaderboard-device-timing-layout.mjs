@@ -26,16 +26,4 @@ replaceOnce(
   '<script src="js/leaderboard-client.js?v=5.1.0"></script>'
 );
 
-replaceOnce(
-  '.github/workflows/live-challenge-cleanup-v1.yml',
-  '          node --check js/player-daily-mobile-nav-visibility.js\n',
-  '          node --check js/player-daily-mobile-nav-visibility.js\n          node --check js/leaderboard-client.js\n'
-);
-
-replaceOnce(
-  '.github/workflows/live-challenge-cleanup-v1.yml',
-  '      - name: Re-run Daily UI invariants\n        run: node scripts/test-daily-ui-redesign-v1.mjs\n',
-  '      - name: Check leaderboard device timing + layout invariants\n        run: node scripts/test-leaderboard-device-timing-layout.mjs\n\n      - name: Re-run Daily UI invariants\n        run: node scripts/test-daily-ui-redesign-v1.mjs\n'
-);
-
-console.log('Leaderboard timing/layout patch applied.');
+console.log('Leaderboard timing/layout player patch applied.');
