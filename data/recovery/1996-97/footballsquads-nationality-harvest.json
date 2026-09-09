@@ -1,0 +1,112 @@
+{
+  "generatedAt": "2026-09-09T09:43:10.145Z",
+  "season": "1996/97",
+  "source": "FootballSquads",
+  "complete": false,
+  "clubsParsed": 0,
+  "clubsFailed": 20,
+  "sourceRowCount": 0,
+  "clubs": [],
+  "errors": [
+    {
+      "club": "Arsenal",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/arsenal.htm",
+      "error": "Arsenal: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Aston Villa",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/avilla.htm",
+      "error": "Aston Villa: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Blackburn Rovers",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/blackbrn.htm",
+      "error": "Blackburn Rovers: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Chelsea",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/chelsea.htm",
+      "error": "Chelsea: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Coventry City",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/coventry.htm",
+      "error": "Coventry City: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Derby County",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/derby.htm",
+      "error": "Derby County: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Everton",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/everton.htm",
+      "error": "Everton: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Leeds United",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/leeds.htm",
+      "error": "Leeds United: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Leicester City",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/leicester.htm",
+      "error": "Leicester City: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Liverpool",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/liverpool.htm",
+      "error": "Liverpool: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Manchester United",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/manutd.htm",
+      "error": "Manchester United: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Middlesbrough",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/middles.htm",
+      "error": "Middlesbrough: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Newcastle United",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/newcas.htm",
+      "error": "Newcastle United: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Nottingham Forest",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/nottmf.htm",
+      "error": "Nottingham Forest: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Sheffield Wednesday",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/sheffwed.htm",
+      "error": "Sheffield Wednesday: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Southampton",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/southam.htm",
+      "error": "Southampton: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Sunderland",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/sunder.htm",
+      "error": "Sunderland: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Tottenham Hotspur",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/tottenha.htm",
+      "error": "Tottenham Hotspur: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "West Ham United",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/westham.htm",
+      "error": "West Ham United: could not parse FootballSquads rows (parsed=1)"
+    },
+    {
+      "club": "Wimbledon",
+      "sourceUrl": "https://www.footballsquads.co.uk/eng/1996-1997/faprem/wimbled.htm",
+      "error": "Wimbledon: could not parse FootballSquads rows (parsed=1)"
+    }
+  ]
+}
