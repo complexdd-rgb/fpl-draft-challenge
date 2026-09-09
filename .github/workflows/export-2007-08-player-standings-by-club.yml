@@ -1,0 +1,35 @@
+name: Export 2007-08 PlayerStandings by club
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/export-2007-08-player-standings-by-club.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch club PlayerStandings through Reader
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          declare -A clubs=(
+            [Arsenal]=5 [Aston_Villa]=24 [Birmingham_City]=48 [Blackburn_Rovers]=34 [Bolton_Wanderers]=29
+            [Chelsea]=8 [Derby_County]=9 [Everton]=10 [Fulham]=55 [Liverpool]=4
+            [Manchester_City]=14 [Manchester_United]=3 [Middlesbrough]=15 [Newcastle_United]=16 [Portsmouth]=59
+            [Reading]=746 [Sunderland]=23 [Tottenham_Hotspur]=19 [West_Ham_United]=21 [Wigan_Athletic]=78
+          )
+          for club in "${!clubs[@]}"; do
+            id="${clubs[$club]}"
+            url="https://r.jina.ai/https://www.statbunker.com/competitions/PlayerStandings?comp_id=200&club_id=$id"
+            echo "Fetching $club ($id)"
+            curl --retry 3 --retry-delay 2 --max-time 90 -fsSL "$url" -o "out/${club}.md"
+            grep -q 'Premier League 07/08' "out/${club}.md"
+          done
+          wc -c out/*.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: player-standings-by-club-2007-08
+          path: out
+          retention-days: 30
