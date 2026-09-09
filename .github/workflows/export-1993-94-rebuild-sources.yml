@@ -1,0 +1,67 @@
+name: Export 1993-94 rebuild sources
+on:
+  push:
+    branches: [research/1993-94-master-rebuild]
+    paths: [.github/workflows/export-1993-94-rebuild-sources.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harvest FootballSquads and StatBunker source pages
+        run: |
+          set -euo pipefail
+          mkdir -p out/footballsquads out/statbunker
+          python3 - <<'PY'
+          import subprocess, os, json, time
+          clubs = {
+            'Arsenal':'arsenal','Aston Villa':'avilla','Blackburn Rovers':'blackbrn','Chelsea':'chelsea',
+            'Coventry City':'coventry','Everton':'everton','Ipswich Town':'ipswich','Leeds United':'leeds',
+            'Liverpool':'liverpool','Manchester City':'mancity','Manchester United':'manutd','Newcastle United':'newcas',
+            'Norwich City':'norwich','Oldham Athletic':'oldham','Queens Park Rangers':'qpr','Sheffield United':'sheffu',
+            'Sheffield Wednesday':'sheffwed','Southampton':'soton','Swindon Town':'swindon','Tottenham Hotspur':'tottenhm',
+            'West Ham United':'westham','Wimbledon':'wimbledon'
+          }
+          meta={'footballsquads':{},'statbunker':{},'rsssf':{}}
+          for club,slug in clubs.items():
+            url=f'https://www.footballsquads.co.uk/eng/1993-1994/faprem/{slug}.htm'
+            reader='https://r.jina.ai/'+url
+            target=f'out/footballsquads/{slug}.md'
+            p=subprocess.run(['curl','-L','--max-time','90','-sS',reader,'-o',target],capture_output=True,text=True)
+            text=open(target,encoding='utf-8',errors='replace').read() if os.path.exists(target) else ''
+            ok=p.returncode==0 and len(text)>500 and '1993/94' in text
+            meta['footballsquads'][club]={'slug':slug,'url':url,'reader_url':reader,'bytes':len(text.encode()),'ok':ok,'stderr':p.stderr[-300:]}
+            time.sleep(.5)
+          pages={
+            'season_appearances':'https://www.statbunker.com/competitions/SeasonAppearances?comp_id=12',
+            'player_standings':'https://www.statbunker.com/competitions/PlayerStandings?comp_id=12',
+            'goals':'https://www.statbunker.com/competitions/TopGoalScorers?comp_id=12',
+            'assists_conventional':'https://www.statbunker.com/competitions/MostAssists?comp_id=12',
+            'yellow_cards':'https://www.statbunker.com/competitions/TopYellowCards?comp_id=12',
+            'red_cards':'https://www.statbunker.com/competitions/TopRedCards?comp_id=12',
+            'keeper_clean_sheets':'https://www.statbunker.com/competitions/Top10KeepersCleanSheets?comp_id=12',
+            'goals_conceded':'https://www.statbunker.com/competitions/Top10GoalsConceded?comp_id=12',
+            'penalties':'https://www.statbunker.com/competitions/Penalties?comp_id=12',
+            'nationalities':'https://www.statbunker.com/competitions/OldestAppearances?comp_id=12'
+          }
+          for key,url in pages.items():
+            reader='https://r.jina.ai/'+url
+            target=f'out/statbunker/{key}.md'
+            p=subprocess.run(['curl','-L','--max-time','90','-sS',reader,'-o',target],capture_output=True,text=True)
+            text=open(target,encoding='utf-8',errors='replace').read() if os.path.exists(target) else ''
+            ok=p.returncode==0 and len(text)>500 and 'Premier League 93/94' in text
+            meta['statbunker'][key]={'url':url,'reader_url':reader,'bytes':len(text.encode()),'ok':ok,'stderr':p.stderr[-300:]}
+            time.sleep(.5)
+          rsssf='https://www.rsssf.org/tablese/eng94.html'
+          p=subprocess.run(['curl','-L','--max-time','90','-sS','https://r.jina.ai/'+rsssf,'-o','out/rsssf_eng94.md'],capture_output=True,text=True)
+          text=open('out/rsssf_eng94.md',encoding='utf-8',errors='replace').read() if os.path.exists('out/rsssf_eng94.md') else ''
+          meta['rsssf']={'url':rsssf,'bytes':len(text.encode()),'ok':p.returncode==0 and len(text)>1000,'stderr':p.stderr[-300:]}
+          open('out/meta.json','w').write(json.dumps(meta,indent=2))
+          print(json.dumps(meta,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rebuild-sources-1993-94
+          path: out
+          retention-days: 30
