@@ -1,0 +1,20 @@
+name: Test Jina StatBunker 2007-08
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/test-jina-statbunker-2007-08.yml]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch StatBunker through Reader
+        run: |
+          set -e
+          url='https://r.jina.ai/https://www.statbunker.com/competitions/SeasonAppearances?comp_id=200'
+          curl -L --max-time 60 -sS "$url" -o /tmp/statbunker.md
+          wc -c /tmp/statbunker.md
+          grep -n -m1 'Premier League 07/08 Most appearances' /tmp/statbunker.md
+          grep -n -m1 'Marcus Hahnemann' /tmp/statbunker.md
+          tail -n 5 /tmp/statbunker.md
