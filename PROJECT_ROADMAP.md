@@ -1,7 +1,7 @@
 # FPL Draft Challenge — Current Roadmap
 
-Updated: 8 September 2026
-Baseline: historical season audit after PR #160
+Updated: 9 September 2026
+Baseline: historical database phase after PR #161
 
 This file is the current project priority order. The architecture/relevance cleanup, prompt curation, Prompt Studio cleanup, Daily Challenge redesign and Live Challenge runtime cleanup are complete and must not be restarted unless a concrete regression is found.
 
@@ -21,78 +21,59 @@ This file is the current project priority order. The architecture/relevance clea
 - Daily Challenge UI v1/v1.1 and the mobile follow-up fixes are merged.
 - PR #159 completed the Live Challenge KEEP / CONSOLIDATE / RETIRE / DELETE sweep and added permanent cleanup regression coverage.
 - PR #160 froze the season-by-season historical status audit and made Historical Database Completion the current phase.
+- PR #161 quarantined the invalid later 1996/97 COMPLETE checkpoint.
 - Daily generation, 77-prompt weekly reservoir, nationality/semantic-diversity logic, publishing, leaderboard and Supabase behaviour remain protected.
 
 ## 1. Prompt curation and compression — COMPLETE
 
-Completed sequence:
-
-1. full 17-family balance audit;
-2. variant/material-cell compression audit;
-3. representative 144-prompt calibration;
-4. full 134,765-prompt evidence pass;
-5. decorative/exact-equivalent/material-lane compression;
-6. frozen survivor decision at 4,897 prompts;
-7. exact selector package and cryptographic verification;
-8. browser shadow regression across all supported formations;
-9. explicit Daily authority cutover;
-10. real generated-week verification.
+The frozen Daily authority remains **4,897 prompts across 17 families**. Future families use the maintained Factory → Quality → Promotion/source archive → explicit versioned curated-authority update path. Do not restart the retired Phase 1 curation/incubator runtime.
 
 Permanent references:
 
-- curation rules/evidence history: `PROMPT_CURATION_POLICY.md`;
-- future family process: `PROMPT_FAMILY_ONBOARDING.md`;
-- frozen selector package: `prompt-library-curated-v1/`.
-
-Completed Phase 1 curation/review/incubator runtime should remain retired from Prompt Studio. Future families use the maintained Factory → Quality → Promotion/source archive → explicit versioned curated-authority update path.
+- `PROMPT_CURATION_POLICY.md`
+- `PROMPT_FAMILY_ONBOARDING.md`
+- `prompt-library-curated-v1/`
 
 ## 2. Daily Challenge UI + Live Challenge cleanup — COMPLETE
 
-The player-facing redesign and follow-up architecture cleanup are now frozen unless a concrete user-facing regression is demonstrated.
-
-Completed boundary includes:
-
-- cleaner desktop/mobile challenge hierarchy;
-- explicit Open / Selected / Invalid / Confirmed / Given Up states;
-- accessible autocomplete and progress semantics;
-- Live XI overview and sticky drafting progress;
-- Results v2 as the permanent post-game results authority;
-- mobile navigation fixes;
-- removal of superseded theme/autocomplete/draft/results runtime layers;
-- permanent Daily UI, loader-race and Live Challenge cleanup regression guards.
-
-Preserve midnight rollover, current challenge identity/publishing behaviour, scoring, Give Up, leaderboard and the frozen curated prompt authority.
+The player-facing redesign and follow-up architecture cleanup are frozen unless a concrete regression is demonstrated. Preserve challenge identity/loading, midnight rollover, scoring, Give Up, archive, Results v2, leaderboard and the frozen curated prompt authority.
 
 ## 3. Historical database completion — CURRENT PHASE
 
-The permanent season-status authority for the start of this phase is:
+Starting authorities:
 
 - `reports/historical-season-status-audit-2026-09-08.md`
+- `reports/1996-97-reconciliation-2026-09-08.md` (corrected 9 September after the physical review master was recovered)
 
-The 1996/97 population conflict has now been reconciled in:
+Do **not** restart the historical programme from 1993/94. ENGZIP / FootballSquads is already frozen as the population/identity/club backbone.
 
-- `reports/1996-97-reconciliation-2026-09-08.md`
+### Current execution order
 
-Do **not** restart the historical programme from 1993/94. ENGZIP / FootballSquads is already frozen as the population/identity/club backbone. Resume from the real unresolved frontier identified by the audit.
+1. **Finish 1996/97 using the recovered physical v2 REVIEW master**:
+   - keep exactly **658 canonical identities**;
+   - preserve the workbook-proven **671 FootballSquads source rows → 658 canonical identities** reconciliation;
+   - preserve the exact **13 duplicate source occurrences = 11 multi-club identities + 2 same-club re-registrations**;
+   - retain the already-audited **421 direct StatBunker matches / 14 clubs / 5,852 starts = 14 × 418**;
+   - recover only the six missing direct StatBunker club tables: **Aston Villa, Blackburn Rovers, Derby County, Liverpool, Southampton and Wimbledon**;
+   - force **418 starts per club / 8,360 league-wide**;
+   - then recover nationality, currently **0/658**, and finish goals/provenance/unresolved-field audit;
+   - export exactly one canonical single-sheet COMPLETE master.
+2. Finish 2007/08, the next clearly unfinished season in surviving artifact evidence.
+3. Close 2008/09, 2009/10 and 2010/11 by verifying their latest masters, genuine FPL-native gaps, price state and import/certification disposition — do not re-harvest already exhausted bulk sources.
+4. Verify the final canonical artifacts for 2002/03–2004/05.
+5. Verify the claimed-complete early masters rather than rebuilding them.
+6. Create one definitive frozen historical-master index with one authoritative single-sheet master per season.
 
-Current execution order:
+### 1996/97 safeguards
 
-1. **finish 1996/97 from the reconciled 658-player canonical lineage**: locate the original 658-row candidate or deterministically reconstruct it from the 672 raw FootballSquads rows, materialise the 14-occurrence dedupe ledger, complete 20/20 StatBunker enrichment and force 418 starts per club / 8,360 league-wide;
-2. finish 2007/08, the first clearly unfinished season in surviving artifact evidence;
-3. close 2008/09, 2009/10 and 2010/11 by verifying their latest masters, genuine FPL-native gaps, price state and import/certification disposition — do not re-harvest already exhausted bulk sources;
-4. verify the final canonical artifacts for 2002/03–2004/05;
-5. verify the claimed-complete early masters rather than rebuilding them;
-6. create one definitive frozen historical-master index with one authoritative single-sheet master per season.
+- The recovered v2 REVIEW workbook is the **authoritative working master**.
+- The previous inferred `672 raw / 14 duplicates` arithmetic is superseded by direct workbook evidence: **671 / 13**.
+- The later `672 identities / 9,108 starts / 1,133 goals / 67 send-offs / COMPLETE` checkpoint remains quarantined and must never be used as a production source.
+- Hard controls are **418 starts per club / 8,360 starts league-wide / 970 league goals**.
+- Historical Wimbledon must not be overwritten by StatBunker's later Milton Keynes Dons label.
+- Do not add StatBunker-only unmatched names to the frozen ENGZIP population.
 
-1996/97 safeguards:
-
-- `672` is the reconciled raw FootballSquads named-row count, **not** the unique-player target;
-- `658` is the working canonical unique-player authority until the physical master is recovered/rebuilt;
-- the later `672 / 9,108 starts / 1,133 goals / 67 send-offs` COMPLETE checkpoint is quarantined and must never be used as a production source;
-- hard controls are 418 starts per club / **8,360 starts** league-wide and **970 league goals**;
-- historical Wimbledon must not be overwritten by a later StatBunker Milton Keynes Dons label.
-
-Standing rules:
+### Standing historical rules
 
 - keep ENGZIP / FootballSquads as the frozen population/identity/club backbone;
 - complete only genuinely missing StatBunker and other prompt-relevant enrichment;
@@ -100,6 +81,7 @@ Standing rules:
 - preserve source/provenance and uncertainty flags;
 - certify each season before treating it as production-ready;
 - do not substitute conventional football assists for historical FPL assists;
+- final historical season masters remain **single-sheet workbooks**;
 - 2011/12 is closed/imported and must not be reopened.
 
 ## 4. Historical starting-price modelling
@@ -146,21 +128,13 @@ Only after the production boundary is green:
 
 # Standard historical workbook model
 
-Use this as the default structure whenever a season is rebuilt, consolidated or expanded.
-
 ## One active workbook per season
 
-Maintain one canonical active workbook for each season, for example:
-
-- `FPL_2011-12_MASTER.xlsx`
-- `FPL_2010-11_MASTER.xlsx`
-- `FPL_2009-10_MASTER.xlsx`
-
-The final season master remains a **single-sheet workbook**. All usable stats, provenance, audit/status fields, identity flags and later price/model metadata belong as columns in that one master sheet. Temporary staging files are allowed during research, but extra worksheets must not become part of the final master.
+Maintain one canonical active workbook for each season. The final season master remains a **single-sheet workbook**. All usable stats, provenance, audit/status fields, identity flags and later price/model metadata belong as columns in that one master sheet. Temporary staging files are allowed during research, but extra worksheets must not become part of the final master.
 
 ## One row per player-season
 
-Keep all relevant data for that player-season on the same row. Include where available:
+Keep all relevant data for that player-season on the same row, including where available:
 
 - identity: player ID, player name, club, position;
 - prompt-relevant statistics: minutes, goals, clean sheets, saves, goals conceded, cards and related fields;
