@@ -1,0 +1,74 @@
+name: Recover 1996-97 nationalities
+
+on:
+  push:
+    branches:
+      - research/1996-97-nationality-closeout
+    paths:
+      - .github/workflows/recover-1996-97-nationalities.yml
+
+permissions:
+  contents: write
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/1996-97-nationality-closeout
+      - name: Harvest Transfermarkt-derived 1996/97 squad nationalities
+        shell: python
+        run: |
+          import csv, json, pathlib, urllib.request
+
+          api = 'https://api.github.com/repos/Samoilov2004/premier_league_dataset/contents/dataset/DATA_JSON/Season_1996'
+          req = urllib.request.Request(api, headers={'User-Agent':'fpl-draft-challenge-recovery'})
+          with urllib.request.urlopen(req, timeout=30) as r:
+              entries = json.load(r)
+
+          rows = []
+          for entry in entries:
+              if not entry.get('name','').endswith('.json'):
+                  continue
+              url = entry['download_url']
+              req = urllib.request.Request(url, headers={'User-Agent':'fpl-draft-challenge-recovery'})
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  payload = json.load(r)
+              club_file = entry['name']
+              club_name = club_file.rsplit('_', 2)[0].replace('_FC','').replace('_AFC','').replace('_',' ')
+              for p in payload.get('players', []):
+                  nations = p.get('nationality') or []
+                  rows.append({
+                      'club_source_name': club_name,
+                      'player': p.get('name',''),
+                      'date_of_birth': p.get('dateOfBirth',''),
+                      'transfermarkt_player_id': p.get('id',''),
+                      'nationality_raw': ' | '.join(nations),
+                      'nationality_primary': nations[0] if nations else '',
+                      'position_source': p.get('position',''),
+                      'source_url': url,
+                  })
+
+          out = pathlib.Path('data/recovery/1996-97/transfermarkt-nationality-harvest.csv')
+          out.parent.mkdir(parents=True, exist_ok=True)
+          with out.open('w', newline='', encoding='utf-8') as f:
+              w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+              w.writeheader(); w.writerows(rows)
+
+          meta = {
+              'season':'1996/97',
+              'source':'Samoilov2004/premier_league_dataset (Transfermarkt-derived)',
+              'clubFiles': len([e for e in entries if e.get('name','').endswith('.json')]),
+              'sourceRows': len(rows),
+              'policy':'Raw nationality/citizenship evidence only. Final football nationality follows project senior-international precedence policy.',
+              'sourceRepository':'https://github.com/Samoilov2004/premier_league_dataset'
+          }
+          pathlib.Path('data/recovery/1996-97/transfermarkt-nationality-harvest-meta.json').write_text(json.dumps(meta, indent=2)+'\n', encoding='utf-8')
+      - name: Commit harvest
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/recovery/1996-97/transfermarkt-nationality-harvest.csv data/recovery/1996-97/transfermarkt-nationality-harvest-meta.json
+          git commit -m 'Research: add 1996/97 nationality harvest' || exit 0
+          git push
