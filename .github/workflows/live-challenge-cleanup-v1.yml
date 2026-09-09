@@ -30,9 +30,13 @@ jobs:
           node --check js/results-v2.js
           node --check js/player-daily-redesign-v1.js
           node --check js/player-daily-mobile-nav-visibility.js
+          node --check js/leaderboard-client.js
 
       - name: Check permanent cleanup invariants
         run: node scripts/test-live-challenge-cleanup-v1.mjs
+
+      - name: Check leaderboard device timing + layout invariants
+        run: node scripts/test-leaderboard-device-timing-layout.mjs
 
       - name: Re-run Daily UI invariants
         run: node scripts/test-daily-ui-redesign-v1.mjs
