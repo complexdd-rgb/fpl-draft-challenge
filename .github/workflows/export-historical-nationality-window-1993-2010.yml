@@ -1,0 +1,57 @@
+name: Export historical nationality evidence 1993-2010
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/export-historical-nationality-window-1993-2010.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - name: Harvest Transfermarkt-derived squad nationality evidence
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import requests,csv,json,os,re,time
+          s=requests.Session(); s.headers['User-Agent']='fpl-draft-challenge-historical-research'
+          rows=[]; summary=[]
+          base='https://api.github.com/repos/Samoilov2004/premier_league_dataset/contents/dataset/DATA_JSON/Season_{}'
+          for year in range(1993,2011):
+            r=s.get(base.format(year),timeout=60)
+            if r.status_code != 200:
+              summary.append({'season_start':year,'club_files':0,'rows':0,'status':r.status_code}); continue
+            files=r.json(); n0=len(rows); clubs=0
+            for f in files:
+              if f.get('type')!='file' or not f['name'].endswith('.json'): continue
+              clubs += 1
+              d=s.get(f['download_url'],timeout=60); d.raise_for_status(); data=d.json()
+              club=re.sub(r'_\d+_'+str(year)+r'\.json$','',f['name']).replace('_',' ')
+              club=club.replace(' FC','').replace(' AFC','')
+              for p in data.get('players',[]):
+                nat=p.get('nationality') or []
+                if isinstance(nat,str): nat=[nat]
+                rows.append({
+                  'season':f'{year}/{str(year+1)[-2:]}','season_start':year,'club_source_name':club,
+                  'player':p.get('name',''),'date_of_birth':p.get('dateOfBirth',''),
+                  'transfermarkt_player_id':p.get('id',''),'nationality_raw':' | '.join(nat),
+                  'nationality_primary':nat[0] if nat else '','position_source':p.get('position',''),
+                  'source_url':f['download_url']})
+            summary.append({'season_start':year,'club_files':clubs,'rows':len(rows)-n0,'status':200})
+            time.sleep(.2)
+          os.makedirs('out',exist_ok=True)
+          cols=['season','season_start','club_source_name','player','date_of_birth','transfermarkt_player_id','nationality_raw','nationality_primary','position_source','source_url']
+          with open('out/historical-nationality-evidence-1993-2010.csv','w',newline='',encoding='utf-8') as fh:
+            w=csv.DictWriter(fh,fieldnames=cols); w.writeheader(); w.writerows(rows)
+          with open('out/summary.json','w',encoding='utf-8') as fh: json.dump(summary,fh,indent=2)
+          print(json.dumps({'total_rows':len(rows),'seasons':summary},indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: historical-nationality-evidence-1993-2010
+          path: out
+          retention-days: 30
