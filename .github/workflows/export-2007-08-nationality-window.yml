@@ -1,0 +1,51 @@
+name: Export 2007-08 nationality window
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/export-2007-08-nationality-window.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - name: Harvest adjacent Transfermarkt-derived PL squad evidence
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import requests,csv,json,os,re,time
+          s=requests.Session(); s.headers['User-Agent']='historical-research'
+          rows=[]; meta={}
+          for year in range(2003,2011):
+            api=f'https://api.github.com/repos/Samoilov2004/premier_league_dataset/contents/dataset/DATA_JSON/Season_{year}'
+            r=s.get(api,timeout=60)
+            if r.status_code!=200:
+              meta[str(year)]={'status':r.status_code}; continue
+            files=r.json(); count=0
+            for f in files:
+              if f.get('type')!='file' or not f['name'].endswith('.json'): continue
+              d=s.get(f['download_url'],timeout=60).json(); count+=1
+              club=re.sub(fr'_\d+_{year}\.json$','',f['name']).replace('_',' ')
+              club=club.replace(' FC','').replace(' AFC','')
+              for p in d.get('players',[]):
+                nations=p.get('nationality') or []
+                if isinstance(nations,str): nations=[nations]
+                rows.append({'season_start':year,'club_source_name':club,'player':p.get('name',''),'date_of_birth':p.get('dateOfBirth',''),'transfermarkt_player_id':p.get('id',''),'nationality_raw':' | '.join(nations),'nationality_primary':nations[0] if nations else '','position_source':p.get('position',''),'source_url':f['download_url']})
+              time.sleep(.05)
+            meta[str(year)]={'clubFiles':count}
+          os.makedirs('out',exist_ok=True)
+          cols=['season_start','club_source_name','player','date_of_birth','transfermarkt_player_id','nationality_raw','nationality_primary','position_source','source_url']
+          with open('out/transfermarkt-nationality-window-2003-2010.csv','w',newline='',encoding='utf-8') as fh:
+            w=csv.DictWriter(fh,fieldnames=cols); w.writeheader(); w.writerows(rows)
+          open('out/meta.json','w').write(json.dumps({'rows':len(rows),'seasons':meta},indent=2))
+          print(json.dumps({'rows':len(rows),'seasons':meta},indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nationality-window-2003-2010
+          path: out
+          retention-days: 30
