@@ -1,0 +1,54 @@
+name: Export 2007-08 nationality evidence
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/export-2007-08-nationality.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Harvest Transfermarkt-derived 2007 squad nationalities
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import requests, csv, json, os, re
+          api='https://api.github.com/repos/Samoilov2004/premier_league_dataset/contents/dataset/DATA_JSON/Season_2007'
+          s=requests.Session(); s.headers['User-Agent']='historical-research'
+          files=s.get(api,timeout=60).json()
+          rows=[]
+          for f in files:
+            if f.get('type')!='file' or not f['name'].endswith('.json'): continue
+            data=s.get(f['download_url'],timeout=60).json()
+            club=re.sub(r'_\d+_2007\.json$','',f['name']).replace('_',' ')
+            club=club.replace(' FC','').replace(' AFC','')
+            for p in data.get('players',[]):
+              nations=p.get('nationality') or []
+              if isinstance(nations,str): nations=[nations]
+              rows.append({
+                'club_source_name':club,
+                'player':p.get('name',''),
+                'date_of_birth':p.get('dateOfBirth',''),
+                'transfermarkt_player_id':p.get('id',''),
+                'nationality_raw':' | '.join(nations),
+                'nationality_primary':nations[0] if nations else '',
+                'position_source':p.get('position',''),
+                'source_url':f['download_url']
+              })
+          os.makedirs('out',exist_ok=True)
+          cols=['club_source_name','player','date_of_birth','transfermarkt_player_id','nationality_raw','nationality_primary','position_source','source_url']
+          with open('out/transfermarkt-nationality-2007.csv','w',newline='',encoding='utf-8') as fh:
+            w=csv.DictWriter(fh,fieldnames=cols); w.writeheader(); w.writerows(rows)
+          meta={'season':'2007/08','clubFiles':len([x for x in files if x.get('type')=='file' and x['name'].endswith('.json')]),'sourceRows':len(rows),'source':'Samoilov2004/premier_league_dataset (Transfermarkt-derived)','policy':'Raw nationality/citizenship evidence only; final football nationality uses project senior-international precedence policy.'}
+          open('out/meta.json','w').write(json.dumps(meta,indent=2))
+          print(json.dumps(meta,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nationality-2007-08
+          path: out
+          retention-days: 30
