@@ -1,0 +1,8 @@
+{
+  "season": "1996/97",
+  "source": "Samoilov2004/premier_league_dataset (Transfermarkt-derived)",
+  "clubFiles": 20,
+  "sourceRows": 611,
+  "policy": "Raw nationality/citizenship evidence only. Final football nationality follows project senior-international precedence policy.",
+  "sourceRepository": "https://github.com/Samoilov2004/premier_league_dataset"
+}
