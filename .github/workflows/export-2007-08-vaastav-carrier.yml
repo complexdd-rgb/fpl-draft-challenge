@@ -1,0 +1,52 @@
+name: Export 2007-08 Vaastav FPL carriers
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/export-2007-08-vaastav-carrier.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Vaastav and extract exact 2007/08 season-history rows
+        run: |
+          set -euo pipefail
+          git clone --depth=1 https://github.com/vaastav/Fantasy-Premier-League.git vaastav
+          python - <<'PY'
+          import csv, glob, os, json
+          out=[]
+          for path in glob.glob('vaastav/data/*/players/*/history.csv'):
+              try:
+                  with open(path, encoding='utf-8-sig', newline='') as f:
+                      rows=list(csv.DictReader(f))
+              except Exception:
+                  continue
+              for r in rows:
+                  if r.get('season_name')!='2007/08':
+                      continue
+                  folder=os.path.basename(os.path.dirname(path))
+                  r={**r,'carrier_folder':folder,'carrier_path':path.replace('vaastav/','https://github.com/vaastav/Fantasy-Premier-League/blob/master/')}
+                  out.append(r)
+          # dedupe identical element_code + 2007/08 tuples repeated across later carrier seasons
+          fields=['assists','bonus','clean_sheets','element_code','end_cost','goals_conceded','goals_scored','minutes','own_goals','penalties_missed','penalties_saved','red_cards','saves','season_name','start_cost','total_points','yellow_cards']
+          best={}
+          for r in out:
+              key=(r.get('element_code'),)+tuple(r.get(k,'') for k in fields)
+              best.setdefault(key,r)
+          rows=list(best.values())
+          os.makedirs('out',exist_ok=True)
+          cols=['carrier_folder','carrier_path'] + list(next(iter(rows),{}).keys())
+          # preserve unique order
+          seen=set(); cols=[x for x in cols if not (x in seen or seen.add(x))]
+          with open('out/vaastav-2007-08-fpl-history.csv','w',newline='',encoding='utf-8') as f:
+              w=csv.DictWriter(f,fieldnames=cols,extrasaction='ignore'); w.writeheader(); w.writerows(rows)
+          meta={'season':'2007/08','rawRows':len(out),'dedupedRows':len(rows),'source':'vaastav/Fantasy-Premier-League later-player history.csv exact season_name=2007/08'}
+          open('out/meta.json','w').write(json.dumps(meta,indent=2))
+          print(json.dumps(meta,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vaastav-2007-08-fpl-carrier
+          path: out
+          retention-days: 30
