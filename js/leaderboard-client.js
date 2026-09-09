@@ -10,7 +10,7 @@
 
   const CLIENT_KEY = "fpl-v5-leaderboard-client-id";
   const NAME_KEY = "fpl-v5-leaderboard-display-name";
-  const ATTEMPT_PREFIX = "fpl-v5-leaderboard-attempt-";
+  const ATTEMPT_PREFIX = "fpl-v5.1-leaderboard-attempt-";
   const SUBMITTED_PREFIX = "fpl-v5-leaderboard-submitted-";
   const GAME_STORE = `fpl-v2-${challenge.id}`;
   const STATUS = Object.freeze({ IDLE:"idle", CONNECTING:"connecting", READY:"ready", VERIFYING:"verifying", ACCEPTED:"accepted", OFFLINE:"offline", ERROR:"error", DUPLICATE:"duplicate" });
@@ -129,8 +129,8 @@
       <div class="leaderboard-personal hidden" id="leaderboardPersonal"></div>
       <div class="leaderboard-podium" id="leaderboardPodium"></div>
       <div class="leaderboard-table-wrap"><table class="leaderboard-table"><thead><tr><th>#</th><th>Player</th><th>Score</th><th>Efficiency</th><th>Time</th><th>Pen.</th></tr></thead><tbody id="leaderboardRows"></tbody></table></div>`;
-    const anchor=document.getElementById("phase45Shell")||document.getElementById("localHistory")||document.querySelector("main");
-    if(anchor?.parentNode)anchor.insertAdjacentElement("afterend",shell); else document.querySelector("main")?.appendChild(shell);
+    const main=document.querySelector("main.app")||document.querySelector("main");
+    if(main)main.appendChild(shell); else document.body.appendChild(shell);
 
     const input=document.getElementById("leaderboardDisplayName"); input.value=localStorage.getItem(NAME_KEY)||""; if(validName(input.value))input.disabled=true;
     input.addEventListener("input",()=>{localStorage.setItem(NAME_KEY,input.value.trim());renderNameState();updateSubmitButton();});
