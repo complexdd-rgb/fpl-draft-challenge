@@ -77,7 +77,7 @@ Do **not** restart the historical programme from 1993/94. ENGZIP / FootballSquad
 
 Current execution order:
 
-1. **finish 1996/97 from the reconciled 658-player canonical lineage**: locate the original 658-row candidate or deterministically reconstruct it from the 672 raw FootballSquads rows, materialise the 14-occurrence dedupe ledger, complete 20/20 StatBunker enrichment and force 418 starts per club / 8,360 league-wide;
+1. **finish 1996/97 from the physically verified 658-player master**: StatBunker SeasonAppearances is now 20/20 club complete and reconciles to 8,360 starts; close the remaining 30-goal residual and nationality review before freezing the season;
 2. finish 2007/08, the first clearly unfinished season in surviving artifact evidence;
 3. close 2008/09, 2009/10 and 2010/11 by verifying their latest masters, genuine FPL-native gaps, price state and import/certification disposition — do not re-harvest already exhausted bulk sources;
 4. verify the final canonical artifacts for 2002/03–2004/05;
@@ -86,10 +86,10 @@ Current execution order:
 
 1996/97 safeguards:
 
-- `672` is the reconciled raw FootballSquads named-row count, **not** the unique-player target;
-- `658` is the working canonical unique-player authority until the physical master is recovered/rebuilt;
-- the later `672 / 9,108 starts / 1,133 goals / 67 send-offs` COMPLETE checkpoint is quarantined and must never be used as a production source;
-- hard controls are 418 starts per club / **8,360 starts** league-wide and **970 league goals**;
+- the uploaded v2 REVIEW master proves **671 FootballSquads source rows → 658 canonical identities**, with 13 duplicate source occurrences (11 multi-club + 2 re-registration);
+- the 658-row canonical master is now physically verified and has been advanced to a v3 StatBunker-complete REVIEW workbook;
+- the later `672 / 9,108 starts / 1,133 goals / 67 send-offs` COMPLETE checkpoint remains quarantined and must never be used as a production source;
+- StatBunker direct club coverage is now **20/20**, with 418 starts per club / **8,360 starts** league-wide; player-goal support totals 940 versus 970 official league goals, leaving a 30-goal review residual;
 - historical Wimbledon must not be overwritten by a later StatBunker Milton Keynes Dons label.
 
 Standing rules:
