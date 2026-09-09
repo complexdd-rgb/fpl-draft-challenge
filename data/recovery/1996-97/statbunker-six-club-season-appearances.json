@@ -1,0 +1,1533 @@
+{
+  "generatedAt": "2026-09-09T09:42:57.602Z",
+  "season": "1996/97",
+  "compId": 9,
+  "expectedClubs": 6,
+  "totalStartSum": 2508,
+  "clubs": [
+    {
+      "club": "Aston Villa",
+      "statbunkerRawClub": "Aston Villa",
+      "clubId": 24,
+      "compId": 9,
+      "sourceUrl": "https://statbunker.com/competitions/SeasonAppearances?club_id=24&comp_id=9",
+      "rowCount": 25,
+      "startSum": 418,
+      "rows": [
+        {
+          "player": "Alan Wright",
+          "total": 38,
+          "start": 38,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 1
+        },
+        {
+          "player": "Ugo Ehiogu",
+          "total": 38,
+          "start": 38,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 3
+        },
+        {
+          "player": "Dwight Yorke",
+          "total": 37,
+          "start": 37,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 3,
+          "goals": 17
+        },
+        {
+          "player": "Andy Townsend",
+          "total": 34,
+          "start": 34,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 2,
+          "goals": 2
+        },
+        {
+          "player": "Fernando Nelson",
+          "total": 34,
+          "start": 33,
+          "sub": 2,
+          "cameOn": 1,
+          "off": 4,
+          "goals": 0
+        },
+        {
+          "player": "Ian Taylor",
+          "total": 34,
+          "start": 29,
+          "sub": 5,
+          "cameOn": 5,
+          "off": 2,
+          "goals": 2
+        },
+        {
+          "player": "Steve Staunton",
+          "total": 30,
+          "start": 30,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 5,
+          "goals": 2
+        },
+        {
+          "player": "Savo Milosevic",
+          "total": 30,
+          "start": 29,
+          "sub": 1,
+          "cameOn": 1,
+          "off": 8,
+          "goals": 9
+        },
+        {
+          "player": "Mark Draper",
+          "total": 29,
+          "start": 28,
+          "sub": 3,
+          "cameOn": 1,
+          "off": 10,
+          "goals": 0
+        },
+        {
+          "player": "Gareth Southgate",
+          "total": 28,
+          "start": 28,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 1
+        },
+        {
+          "player": "Sasa Curcic",
+          "total": 22,
+          "start": 17,
+          "sub": 11,
+          "cameOn": 5,
+          "off": 10,
+          "goals": 0
+        },
+        {
+          "player": "Mark Bosnich",
+          "total": 20,
+          "start": 20,
+          "sub": 3,
+          "cameOn": 0,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Michael Oakes",
+          "total": 20,
+          "start": 18,
+          "sub": 19,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Tommy Johnson",
+          "total": 20,
+          "start": 10,
+          "sub": 16,
+          "cameOn": 10,
+          "off": 2,
+          "goals": 4
+        },
+        {
+          "player": "Riccardo Scimeca",
+          "total": 17,
+          "start": 11,
+          "sub": 15,
+          "cameOn": 6,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Julian Joachim",
+          "total": 15,
+          "start": 3,
+          "sub": 33,
+          "cameOn": 12,
+          "off": 2,
+          "goals": 3
+        },
+        {
+          "player": "Carl Tiler",
+          "total": 11,
+          "start": 9,
+          "sub": 9,
+          "cameOn": 2,
+          "off": 1,
+          "goals": 1
+        },
+        {
+          "player": "David Hughes",
+          "total": 7,
+          "start": 4,
+          "sub": 8,
+          "cameOn": 3,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Lee Hendrie",
+          "total": 4,
+          "start": 0,
+          "sub": 16,
+          "cameOn": 4,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Gareth Farrelly",
+          "total": 3,
+          "start": 1,
+          "sub": 17,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Scott Murray",
+          "total": 1,
+          "start": 1,
+          "sub": 8,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Neil Davis",
+          "total": 0,
+          "start": 0,
+          "sub": 1,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Paul McGrath",
+          "total": 0,
+          "start": 0,
+          "sub": 7,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Adam Rachel",
+          "total": 0,
+          "start": 0,
+          "sub": 14,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Stuart Brock",
+          "total": 0,
+          "start": 0,
+          "sub": 2,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        }
+      ]
+    },
+    {
+      "club": "Blackburn Rovers",
+      "statbunkerRawClub": "Blackburn Rovers",
+      "clubId": 34,
+      "compId": 9,
+      "sourceUrl": "https://statbunker.com/competitions/SeasonAppearances?club_id=34&comp_id=9",
+      "rowCount": 26,
+      "startSum": 418,
+      "rows": [
+        {
+          "player": "Tim Sherwood",
+          "total": 37,
+          "start": 37,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 3,
+          "goals": 3
+        },
+        {
+          "player": "Jeff Kenna",
+          "total": 37,
+          "start": 37,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 3,
+          "goals": 0
+        },
+        {
+          "player": "Henning Berg",
+          "total": 36,
+          "start": 36,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 2
+        },
+        {
+          "player": "Tim Flowers",
+          "total": 36,
+          "start": 36,
+          "sub": 2,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Colin Hendry",
+          "total": 35,
+          "start": 35,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 3,
+          "goals": 1
+        },
+        {
+          "player": "Kevin Gallacher",
+          "total": 34,
+          "start": 34,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 10,
+          "goals": 10
+        },
+        {
+          "player": "Garry Flitcroft",
+          "total": 28,
+          "start": 27,
+          "sub": 3,
+          "cameOn": 1,
+          "off": 8,
+          "goals": 3
+        },
+        {
+          "player": "Jason Wilcox",
+          "total": 28,
+          "start": 26,
+          "sub": 4,
+          "cameOn": 2,
+          "off": 5,
+          "goals": 2
+        },
+        {
+          "player": "Graeme Le Saux",
+          "total": 26,
+          "start": 26,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 1
+        },
+        {
+          "player": "Chris Sutton",
+          "total": 25,
+          "start": 24,
+          "sub": 1,
+          "cameOn": 1,
+          "off": 3,
+          "goals": 11
+        },
+        {
+          "player": "Billy McKinlay",
+          "total": 25,
+          "start": 23,
+          "sub": 6,
+          "cameOn": 2,
+          "off": 3,
+          "goals": 1
+        },
+        {
+          "player": "Lars Bohinen",
+          "total": 23,
+          "start": 17,
+          "sub": 13,
+          "cameOn": 6,
+          "off": 0,
+          "goals": 2
+        },
+        {
+          "player": "George Donis",
+          "total": 22,
+          "start": 11,
+          "sub": 20,
+          "cameOn": 11,
+          "off": 4,
+          "goals": 2
+        },
+        {
+          "player": "Graham Fenton",
+          "total": 13,
+          "start": 5,
+          "sub": 14,
+          "cameOn": 8,
+          "off": 0,
+          "goals": 1
+        },
+        {
+          "player": "Stuart Ripley",
+          "total": 13,
+          "start": 5,
+          "sub": 12,
+          "cameOn": 8,
+          "off": 3,
+          "goals": 0
+        },
+        {
+          "player": "Ian Pearce",
+          "total": 12,
+          "start": 7,
+          "sub": 8,
+          "cameOn": 5,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Per Pedersen",
+          "total": 11,
+          "start": 6,
+          "sub": 6,
+          "cameOn": 5,
+          "off": 8,
+          "goals": 1
+        },
+        {
+          "player": "Paul Warhurst",
+          "total": 11,
+          "start": 5,
+          "sub": 16,
+          "cameOn": 6,
+          "off": 3,
+          "goals": 2
+        },
+        {
+          "player": "Chris Coleman",
+          "total": 8,
+          "start": 8,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Nicky Marker",
+          "total": 7,
+          "start": 5,
+          "sub": 24,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Gary Croft",
+          "total": 5,
+          "start": 4,
+          "sub": 11,
+          "cameOn": 1,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Shay Given",
+          "total": 2,
+          "start": 2,
+          "sub": 36,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Niklas Gudmundsson",
+          "total": 2,
+          "start": 0,
+          "sub": 7,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "James Beattie",
+          "total": 1,
+          "start": 1,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Damien Duff",
+          "total": 1,
+          "start": 1,
+          "sub": 4,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Marlon Broomes",
+          "total": 0,
+          "start": 0,
+          "sub": 3,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        }
+      ]
+    },
+    {
+      "club": "Derby County",
+      "statbunkerRawClub": "Derby County",
+      "clubId": 9,
+      "compId": 9,
+      "sourceUrl": "https://statbunker.com/competitions/SeasonAppearances?club_id=9&comp_id=9",
+      "rowCount": 29,
+      "startSum": 418,
+      "rows": [
+        {
+          "player": "Jacob Laursen",
+          "total": 36,
+          "start": 35,
+          "sub": 1,
+          "cameOn": 1,
+          "off": 7,
+          "goals": 1
+        },
+        {
+          "player": "Christian Dailly",
+          "total": 36,
+          "start": 31,
+          "sub": 5,
+          "cameOn": 5,
+          "off": 6,
+          "goals": 3
+        },
+        {
+          "player": "Gary Rowett",
+          "total": 35,
+          "start": 35,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 2,
+          "goals": 2
+        },
+        {
+          "player": "Chris Powell",
+          "total": 35,
+          "start": 35,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 4,
+          "goals": 0
+        },
+        {
+          "player": "Aljosa Asanovic",
+          "total": 34,
+          "start": 34,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 11,
+          "goals": 6
+        },
+        {
+          "player": "Darryl Powell",
+          "total": 33,
+          "start": 27,
+          "sub": 6,
+          "cameOn": 6,
+          "off": 5,
+          "goals": 1
+        },
+        {
+          "player": "Russell Hoult",
+          "total": 32,
+          "start": 31,
+          "sub": 6,
+          "cameOn": 1,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Dean Sturridge",
+          "total": 30,
+          "start": 29,
+          "sub": 1,
+          "cameOn": 1,
+          "off": 5,
+          "goals": 11
+        },
+        {
+          "player": "Ashley Ward",
+          "total": 30,
+          "start": 25,
+          "sub": 6,
+          "cameOn": 5,
+          "off": 7,
+          "goals": 8
+        },
+        {
+          "player": "Paul McGrath",
+          "total": 24,
+          "start": 23,
+          "sub": 2,
+          "cameOn": 1,
+          "off": 4,
+          "goals": 0
+        },
+        {
+          "player": "Lee Carsley",
+          "total": 24,
+          "start": 15,
+          "sub": 13,
+          "cameOn": 9,
+          "off": 3,
+          "goals": 0
+        },
+        {
+          "player": "Igor Stimac",
+          "total": 21,
+          "start": 21,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 1
+        },
+        {
+          "player": "Paul Simpson",
+          "total": 19,
+          "start": 0,
+          "sub": 31,
+          "cameOn": 19,
+          "off": 0,
+          "goals": 2
+        },
+        {
+          "player": "Sean Flynn",
+          "total": 17,
+          "start": 10,
+          "sub": 16,
+          "cameOn": 7,
+          "off": 3,
+          "goals": 1
+        },
+        {
+          "player": "Robin Van Der Laan",
+          "total": 16,
+          "start": 15,
+          "sub": 8,
+          "cameOn": 1,
+          "off": 7,
+          "goals": 2
+        },
+        {
+          "player": "Ron Willems",
+          "total": 16,
+          "start": 7,
+          "sub": 17,
+          "cameOn": 9,
+          "off": 7,
+          "goals": 2
+        },
+        {
+          "player": "Paul Trollope",
+          "total": 14,
+          "start": 13,
+          "sub": 3,
+          "cameOn": 1,
+          "off": 1,
+          "goals": 1
+        },
+        {
+          "player": "Marco Gabbiadini",
+          "total": 14,
+          "start": 5,
+          "sub": 10,
+          "cameOn": 9,
+          "off": 4,
+          "goals": 0
+        },
+        {
+          "player": "Dean Yates",
+          "total": 10,
+          "start": 8,
+          "sub": 5,
+          "cameOn": 2,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Matt Carbon",
+          "total": 10,
+          "start": 6,
+          "sub": 11,
+          "cameOn": 4,
+          "off": 4,
+          "goals": 0
+        },
+        {
+          "player": "Paulo Wanchope",
+          "total": 5,
+          "start": 2,
+          "sub": 3,
+          "cameOn": 3,
+          "off": 2,
+          "goals": 1
+        },
+        {
+          "player": "Paul Parker",
+          "total": 4,
+          "start": 4,
+          "sub": 2,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Mart Poom",
+          "total": 4,
+          "start": 4,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Martin Taylor",
+          "total": 3,
+          "start": 3,
+          "sub": 28,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Mauricio Solis",
+          "total": 2,
+          "start": 0,
+          "sub": 4,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Marino Rahmberg",
+          "total": 1,
+          "start": 0,
+          "sub": 4,
+          "cameOn": 1,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Andrew Quy",
+          "total": 0,
+          "start": 0,
+          "sub": 3,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Nick Wright",
+          "total": 0,
+          "start": 0,
+          "sub": 2,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Kevin Cooper",
+          "total": 0,
+          "start": 0,
+          "sub": 3,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        }
+      ]
+    },
+    {
+      "club": "Liverpool",
+      "statbunkerRawClub": "Liverpool",
+      "clubId": 4,
+      "compId": 9,
+      "sourceUrl": "https://statbunker.com/competitions/SeasonAppearances?club_id=4&comp_id=9",
+      "rowCount": 25,
+      "startSum": 418,
+      "rows": [
+        {
+          "player": "David James",
+          "total": 38,
+          "start": 38,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Stig Inge Bjornebye",
+          "total": 38,
+          "start": 38,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 3,
+          "goals": 2
+        },
+        {
+          "player": "Steve McManaman",
+          "total": 37,
+          "start": 37,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 7
+        },
+        {
+          "player": "Jason McAteer",
+          "total": 37,
+          "start": 36,
+          "sub": 1,
+          "cameOn": 1,
+          "off": 2,
+          "goals": 1
+        },
+        {
+          "player": "John Barnes",
+          "total": 35,
+          "start": 34,
+          "sub": 3,
+          "cameOn": 1,
+          "off": 2,
+          "goals": 4
+        },
+        {
+          "player": "Mark Wright",
+          "total": 33,
+          "start": 33,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 3,
+          "goals": 0
+        },
+        {
+          "player": "Robbie Fowler",
+          "total": 32,
+          "start": 32,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 4,
+          "goals": 18
+        },
+        {
+          "player": "Michael Thomas",
+          "total": 31,
+          "start": 29,
+          "sub": 5,
+          "cameOn": 2,
+          "off": 2,
+          "goals": 3
+        },
+        {
+          "player": "Stan Collymore",
+          "total": 30,
+          "start": 25,
+          "sub": 10,
+          "cameOn": 5,
+          "off": 9,
+          "goals": 12
+        },
+        {
+          "player": "Dominic Matteo",
+          "total": 26,
+          "start": 22,
+          "sub": 11,
+          "cameOn": 4,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Jamie Redknapp",
+          "total": 23,
+          "start": 18,
+          "sub": 11,
+          "cameOn": 5,
+          "off": 0,
+          "goals": 2
+        },
+        {
+          "player": "Patrik Berger",
+          "total": 23,
+          "start": 13,
+          "sub": 19,
+          "cameOn": 10,
+          "off": 5,
+          "goals": 6
+        },
+        {
+          "player": "Phil Babb",
+          "total": 22,
+          "start": 21,
+          "sub": 3,
+          "cameOn": 1,
+          "off": 4,
+          "goals": 1
+        },
+        {
+          "player": "Neil Ruddock",
+          "total": 17,
+          "start": 15,
+          "sub": 19,
+          "cameOn": 2,
+          "off": 3,
+          "goals": 1
+        },
+        {
+          "player": "Bjorn Tore Kvarme",
+          "total": 15,
+          "start": 15,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Steve Harkness",
+          "total": 7,
+          "start": 5,
+          "sub": 7,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Mark Kennedy",
+          "total": 5,
+          "start": 0,
+          "sub": 25,
+          "cameOn": 5,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "John Scales",
+          "total": 3,
+          "start": 3,
+          "sub": 1,
+          "cameOn": 0,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Rob Jones",
+          "total": 2,
+          "start": 2,
+          "sub": 2,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Michael Owen",
+          "total": 2,
+          "start": 1,
+          "sub": 3,
+          "cameOn": 1,
+          "off": 0,
+          "goals": 1
+        },
+        {
+          "player": "Jamie Carragher",
+          "total": 2,
+          "start": 1,
+          "sub": 8,
+          "cameOn": 1,
+          "off": 0,
+          "goals": 1
+        },
+        {
+          "player": "David Thompson",
+          "total": 2,
+          "start": 0,
+          "sub": 4,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Lee Jones",
+          "total": 2,
+          "start": 0,
+          "sub": 19,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Jamie Cassidy",
+          "total": 0,
+          "start": 0,
+          "sub": 1,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Tony Warner",
+          "total": 0,
+          "start": 0,
+          "sub": 38,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        }
+      ]
+    },
+    {
+      "club": "Southampton",
+      "statbunkerRawClub": "Southampton",
+      "clubId": 18,
+      "compId": 9,
+      "sourceUrl": "https://statbunker.com/competitions/SeasonAppearances?club_id=18&comp_id=9",
+      "rowCount": 32,
+      "startSum": 418,
+      "rows": [
+        {
+          "player": "Jim Magilton",
+          "total": 37,
+          "start": 31,
+          "sub": 7,
+          "cameOn": 6,
+          "off": 7,
+          "goals": 4
+        },
+        {
+          "player": "Matt Le Tissier",
+          "total": 31,
+          "start": 25,
+          "sub": 6,
+          "cameOn": 6,
+          "off": 8,
+          "goals": 13
+        },
+        {
+          "player": "Egil Ostenstad",
+          "total": 30,
+          "start": 29,
+          "sub": 1,
+          "cameOn": 1,
+          "off": 5,
+          "goals": 9
+        },
+        {
+          "player": "Robbie Slater",
+          "total": 30,
+          "start": 22,
+          "sub": 9,
+          "cameOn": 8,
+          "off": 3,
+          "goals": 2
+        },
+        {
+          "player": "Claus Lundekvam",
+          "total": 29,
+          "start": 28,
+          "sub": 2,
+          "cameOn": 1,
+          "off": 3,
+          "goals": 0
+        },
+        {
+          "player": "Richard Dryden",
+          "total": 29,
+          "start": 28,
+          "sub": 5,
+          "cameOn": 1,
+          "off": 3,
+          "goals": 1
+        },
+        {
+          "player": "Alan Neilson",
+          "total": 29,
+          "start": 24,
+          "sub": 8,
+          "cameOn": 5,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Eyal Berkovic",
+          "total": 28,
+          "start": 26,
+          "sub": 4,
+          "cameOn": 2,
+          "off": 12,
+          "goals": 4
+        },
+        {
+          "player": "Matthew Oakley",
+          "total": 28,
+          "start": 23,
+          "sub": 5,
+          "cameOn": 5,
+          "off": 11,
+          "goals": 3
+        },
+        {
+          "player": "Simon Charlton",
+          "total": 27,
+          "start": 24,
+          "sub": 3,
+          "cameOn": 3,
+          "off": 8,
+          "goals": 0
+        },
+        {
+          "player": "Ulrich van Gobbel",
+          "total": 25,
+          "start": 24,
+          "sub": 2,
+          "cameOn": 1,
+          "off": 3,
+          "goals": 1
+        },
+        {
+          "player": "Jason Dodd",
+          "total": 23,
+          "start": 23,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 3,
+          "goals": 1
+        },
+        {
+          "player": "Maik Taylor",
+          "total": 18,
+          "start": 18,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Francis Benali",
+          "total": 18,
+          "start": 14,
+          "sub": 8,
+          "cameOn": 4,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Neil Maddison",
+          "total": 18,
+          "start": 14,
+          "sub": 19,
+          "cameOn": 4,
+          "off": 5,
+          "goals": 1
+        },
+        {
+          "player": "Gordon Watson",
+          "total": 15,
+          "start": 7,
+          "sub": 11,
+          "cameOn": 8,
+          "off": 6,
+          "goals": 2
+        },
+        {
+          "player": "Dave Beasant",
+          "total": 14,
+          "start": 13,
+          "sub": 21,
+          "cameOn": 1,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Ken Monkou",
+          "total": 13,
+          "start": 8,
+          "sub": 5,
+          "cameOn": 5,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Mickey Evans",
+          "total": 12,
+          "start": 8,
+          "sub": 4,
+          "cameOn": 4,
+          "off": 0,
+          "goals": 4
+        },
+        {
+          "player": "Neil Shipperley",
+          "total": 10,
+          "start": 9,
+          "sub": 1,
+          "cameOn": 1,
+          "off": 3,
+          "goals": 1
+        },
+        {
+          "player": "Neil Heaney",
+          "total": 8,
+          "start": 4,
+          "sub": 4,
+          "cameOn": 4,
+          "off": 5,
+          "goals": 1
+        },
+        {
+          "player": "Graham Potter",
+          "total": 8,
+          "start": 2,
+          "sub": 12,
+          "cameOn": 6,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Matthew Robinson",
+          "total": 7,
+          "start": 3,
+          "sub": 5,
+          "cameOn": 4,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Steve Basham",
+          "total": 6,
+          "start": 1,
+          "sub": 19,
+          "cameOn": 5,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "David Hughes",
+          "total": 6,
+          "start": 1,
+          "sub": 6,
+          "cameOn": 5,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Chris Woods",
+          "total": 4,
+          "start": 4,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Neil Moss",
+          "total": 3,
+          "start": 3,
+          "sub": 15,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Barry Venison",
+          "total": 2,
+          "start": 2,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Russ Watkinson",
+          "total": 2,
+          "start": 0,
+          "sub": 3,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Christer Warren",
+          "total": 1,
+          "start": 0,
+          "sub": 2,
+          "cameOn": 1,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Ali Dia",
+          "total": 1,
+          "start": 0,
+          "sub": 1,
+          "cameOn": 1,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Darryl Flahavan",
+          "total": 0,
+          "start": 0,
+          "sub": 2,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        }
+      ]
+    },
+    {
+      "club": "Wimbledon",
+      "statbunkerRawClub": "Milton Keynes Dons",
+      "clubId": 22,
+      "compId": 9,
+      "sourceUrl": "https://statbunker.com/competitions/SeasonAppearances?club_id=22&comp_id=9",
+      "rowCount": 25,
+      "startSum": 418,
+      "rows": [
+        {
+          "player": "Chris Perry",
+          "total": 37,
+          "start": 37,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 2,
+          "goals": 1
+        },
+        {
+          "player": "Neil Sullivan",
+          "total": 36,
+          "start": 36,
+          "sub": 1,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Kenny Cunningham",
+          "total": 36,
+          "start": 36,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Marcus Gayle",
+          "total": 36,
+          "start": 34,
+          "sub": 2,
+          "cameOn": 2,
+          "off": 13,
+          "goals": 8
+        },
+        {
+          "player": "Neal Ardley",
+          "total": 34,
+          "start": 33,
+          "sub": 2,
+          "cameOn": 1,
+          "off": 5,
+          "goals": 2
+        },
+        {
+          "player": "Robbie Earle",
+          "total": 32,
+          "start": 32,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 3,
+          "goals": 7
+        },
+        {
+          "player": "Alan Kimble",
+          "total": 31,
+          "start": 28,
+          "sub": 7,
+          "cameOn": 3,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Efan Ekoku",
+          "total": 30,
+          "start": 28,
+          "sub": 2,
+          "cameOn": 2,
+          "off": 17,
+          "goals": 11
+        },
+        {
+          "player": "Vinnie Jones",
+          "total": 29,
+          "start": 29,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 7,
+          "goals": 3
+        },
+        {
+          "player": "Oyvind Leonhardsen",
+          "total": 27,
+          "start": 27,
+          "sub": 1,
+          "cameOn": 0,
+          "off": 8,
+          "goals": 5
+        },
+        {
+          "player": "Dean Blackwell",
+          "total": 27,
+          "start": 22,
+          "sub": 7,
+          "cameOn": 5,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Dean Holdsworth",
+          "total": 25,
+          "start": 10,
+          "sub": 16,
+          "cameOn": 15,
+          "off": 3,
+          "goals": 5
+        },
+        {
+          "player": "Brian McAllister",
+          "total": 23,
+          "start": 19,
+          "sub": 12,
+          "cameOn": 4,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Peter Fear",
+          "total": 18,
+          "start": 9,
+          "sub": 19,
+          "cameOn": 9,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Jon Goodman",
+          "total": 13,
+          "start": 6,
+          "sub": 14,
+          "cameOn": 7,
+          "off": 6,
+          "goals": 1
+        },
+        {
+          "player": "Mick Harford",
+          "total": 13,
+          "start": 3,
+          "sub": 25,
+          "cameOn": 10,
+          "off": 1,
+          "goals": 1
+        },
+        {
+          "player": "Andy Clarke",
+          "total": 11,
+          "start": 4,
+          "sub": 16,
+          "cameOn": 7,
+          "off": 2,
+          "goals": 1
+        },
+        {
+          "player": "Ben Thatcher",
+          "total": 9,
+          "start": 9,
+          "sub": 0,
+          "cameOn": 0,
+          "off": 1,
+          "goals": 0
+        },
+        {
+          "player": "Jason Euell",
+          "total": 7,
+          "start": 4,
+          "sub": 5,
+          "cameOn": 3,
+          "off": 0,
+          "goals": 2
+        },
+        {
+          "player": "Duncan Jupp",
+          "total": 6,
+          "start": 6,
+          "sub": 9,
+          "cameOn": 0,
+          "off": 2,
+          "goals": 0
+        },
+        {
+          "player": "Stewart Castledine",
+          "total": 6,
+          "start": 4,
+          "sub": 2,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 1
+        },
+        {
+          "player": "Paul Heald",
+          "total": 2,
+          "start": 2,
+          "sub": 24,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Alan Reeves",
+          "total": 2,
+          "start": 0,
+          "sub": 12,
+          "cameOn": 2,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Carl Cort",
+          "total": 1,
+          "start": 0,
+          "sub": 1,
+          "cameOn": 1,
+          "off": 0,
+          "goals": 0
+        },
+        {
+          "player": "Brendan Murphy",
+          "total": 0,
+          "start": 0,
+          "sub": 13,
+          "cameOn": 0,
+          "off": 0,
+          "goals": 0
+        }
+      ]
+    }
+  ]
+}
