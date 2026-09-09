@@ -1,0 +1,38 @@
+name: Probe 1993-94 FootballSquads slugs
+on:
+  push:
+    branches: [research/1993-94-master-rebuild]
+    paths: [.github/workflows/probe-1993-94-footballsquads-slugs.yml]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe likely historical slugs
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          python3 - <<'PY'
+          import subprocess,os,json,re,time
+          candidates=['southam','southamp','southampton','saints','soton','tottenha','tottenham','totten','tottenhm','spurs','wimbled','wimbledon']
+          out=[]
+          for slug in candidates:
+            url=f'https://www.footballsquads.co.uk/eng/1993-1994/faprem/{slug}.htm'
+            p=subprocess.run(['curl','-L','--max-time','60','-sS','https://r.jina.ai/'+url],capture_output=True,text=True)
+            text=p.stdout or ''
+            title=''
+            m=re.search(r'^Title:\s*(.*)$',text,re.M)
+            if m:title=m.group(1).strip()
+            ok=p.returncode==0 and '404 Not Found' not in text and 'FootballSquads' in title
+            out.append({'slug':slug,'ok':ok,'title':title,'bytes':len(text.encode()),'url':url})
+            if ok: open(f'out/{slug}.md','w',encoding='utf-8').write(text)
+            time.sleep(.3)
+          open('out/probe.json','w').write(json.dumps(out,indent=2))
+          print(json.dumps(out,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: footballsquads-slug-probe-1993-94
+          path: out
+          retention-days: 30
