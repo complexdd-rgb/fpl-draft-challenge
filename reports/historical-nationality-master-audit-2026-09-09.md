@@ -76,7 +76,7 @@ This proves that the nationality **research/source lane** no longer needs a broa
 | 2007/08 | `MASTER VERIFIED COMPLETE` | 758/758 nationality resolved and physically written to `FPL_2007-08_RECOVERY_MASTER_v3_STATBUNKER_NATIONALITY_COMPLETE_REVIEW_2026-09-09.xlsx`. Confidence: 744 HIGH, 14 MEDIUM_HIGH. FPL-native lane remains open independently. |
 | 2008/09 | `VERIFY MASTER` | StatBunker recovery is already complete; locate latest one-sheet master and inspect/propagate nationality. No StatBunker re-harvest. |
 | 2009/10 | `VERIFY MASTER` | StatBunker recovery is already harvested; locate latest one-sheet master and inspect/propagate nationality. No StatBunker re-harvest. |
-| 2010/11 | `NATIONALITY MISSING — PHYSICALLY VERIFIED` | Surviving one-sheet master inspected in File Library has no nationality column. Create a nationality-enriched successor from the latest canonical master once the binary is available, preserving all existing FPL-native/StatBunker fields. |
+| 2010/11 | `MASTER VERIFIED COMPLETE` | 544/544 nationality resolved and physically written to `FPL_2010-11_SINGLE_SHEET_MASTER_v5_V12_NATIONALITY_COMPLETE_REVIEW_2026-09-09.xlsx`. Match profile: 502 exact same-season squad identities, 41 deterministic aliases, 1 project senior-international override; all HIGH confidence. Population remains 544 and existing FPL-native / StatBunker fields are preserved. The separate FPL-assist/frontier recovery lane remains open. |
 
 ## App-level nationality is a separate layer
 
