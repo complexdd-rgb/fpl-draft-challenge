@@ -1,0 +1,26 @@
+name: Export 1996-97 nationality harvest
+
+on:
+  push:
+    branches:
+      - research/1996-97-nationality-closeout
+    paths:
+      - .github/workflows/export-1996-97-nationality-harvest.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/1996-97-nationality-closeout
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nationality-harvest-1996-97
+          path: |
+            data/recovery/1996-97/transfermarkt-nationality-harvest.csv
+            data/recovery/1996-97/transfermarkt-nationality-harvest-meta.json
+          if-no-files-found: error
