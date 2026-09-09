@@ -1,0 +1,65 @@
+name: Export 2007-08 StatBunker player minutes
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/export-2007-08-statbunker-minutes.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harvest 2007/08 minutes from player histories
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import urllib.request, re, csv, os, time, concurrent.futures
+          def get(url, timeout=90):
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 historical-research'})
+              with urllib.request.urlopen(req,timeout=timeout) as r:
+                  return r.read().decode('utf-8','replace')
+          season=get('https://r.jina.ai/https://www.statbunker.com/competitions/SeasonAppearances?comp_id=200')
+          ids={}
+          for m in re.finditer(r'([^\]\n]+)\]\(https://www\.statbunker\.com/players/GetHistoryStats\?player_id=(\d+)',season):
+              name=re.sub(r'.*\)\s*','',m.group(1)).strip()
+              ids[int(m.group(2))]=name
+          print('ids',len(ids))
+          def fetch_one(item):
+              pid,name=item
+              url=f'https://r.jina.ai/https://www.statbunker.com/players/GetHistoryStats?player_id={pid}'
+              for attempt in range(4):
+                  try:
+                      txt=get(url)
+                      lines=[ln for ln in txt.splitlines() if 'Premier League 07/08' in ln]
+                      if not lines: return (pid,name,None,'NO_0708_ROW',url)
+                      # History row contains Start | Sub | CO | Off | MP | ... | Goals
+                      ln=lines[0]
+                      cells=[re.sub(r'\[[^\]]*\]\([^)]*\)','',c).strip() for c in ln.strip().strip('|').split('|')]
+                      nums=[]
+                      for c in cells:
+                          cc=c.replace(',','').strip()
+                          if re.fullmatch(r'-?\d+(?:\.\d+)?',cc): nums.append(float(cc))
+                          elif cc=='-': nums.append(0.0)
+                      # MP is the fifth numeric stat after season/club labels: Start, Sub, CO, Off, MP.
+                      if len(nums)>=5:
+                          return (pid,name,int(nums[4]),'MATCHED',url)
+                      return (pid,name,None,'PARSE_FAILED',url)
+                  except Exception as e:
+                      if attempt==3: return (pid,name,None,'ERROR:'+type(e).__name__,url)
+                      time.sleep(1.5*(attempt+1))
+          results=[]
+          with concurrent.futures.ThreadPoolExecutor(max_workers=10) as ex:
+              for i,res in enumerate(ex.map(fetch_one,ids.items()),1):
+                  results.append(res)
+                  if i%50==0: print('done',i)
+          os.makedirs('out',exist_ok=True)
+          with open('out/statbunker-player-minutes-2007-08.csv','w',newline='',encoding='utf-8') as f:
+              w=csv.writer(f); w.writerow(['statbunker_player_id','player','minutes','status','source_url']); w.writerows(results)
+          print('matched',sum(1 for x in results if x[3]=='MATCHED'),'total',len(results))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: statbunker-minutes-2007-08
+          path: out
+          retention-days: 30
