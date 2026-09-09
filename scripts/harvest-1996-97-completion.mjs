@@ -60,7 +60,7 @@ async function fetchText(url, attempts = 4) {
       const response = await fetch(url, {
         headers: {
           'user-agent': USER_AGENT,
-          'accept': 'text/html,application/xhtml+xml',
+          accept: 'text/html,application/xhtml+xml',
           'accept-language': 'en-GB,en;q=0.9',
         },
         redirect: 'follow',
@@ -82,8 +82,7 @@ function findTableByHeaders($, required) {
   let found = null;
   $('table').each((_, table) => {
     if (found) return;
-    const firstRows = $(table).find('tr').slice(0, 4);
-    const headerText = clean(firstRows.text()).toLowerCase();
+    const headerText = clean($(table).find('tr').slice(0, 4).text()).toLowerCase();
     if (required.every(token => headerText.includes(token.toLowerCase()))) found = table;
   });
   return found;
@@ -97,11 +96,7 @@ function parseStatBunker(html, meta) {
   const rows = [];
   $(table).find('tr').each((_, tr) => {
     const cells = $(tr).find('th,td').map((__, td) => clean($(td).text())).get();
-    if (cells.length < 7) return;
-    if (cells[0].toLowerCase() === 'players') return;
-    if (!cells[0] || cells[0].toLowerCase().includes('total =')) return;
-
-    // Club-filtered SeasonAppearances columns: Players | Total | Start | Sub | CO | Off | Goals | More
+    if (cells.length < 7 || cells[0].toLowerCase() === 'players' || !cells[0]) return;
     const total = toNumber(cells[1]);
     const start = toNumber(cells[2]);
     const sub = toNumber(cells[3]);
@@ -109,23 +104,12 @@ function parseStatBunker(html, meta) {
     const off = toNumber(cells[5]);
     const goals = toNumber(cells[6]);
     if ([total, start, sub, cameOn, off, goals].some(v => v === null)) return;
-
-    rows.push({
-      player: cells[0],
-      total,
-      start,
-      sub,
-      cameOn,
-      off,
-      goals,
-    });
+    rows.push({ player: cells[0], total, start, sub, cameOn, off, goals });
   });
 
   const playerRows = rows.filter(r => r.player && !/^\d+$/.test(r.player));
   const startSum = playerRows.reduce((sum, r) => sum + r.start, 0);
-  if (startSum !== 418) {
-    throw new Error(`${meta.club}: expected 418 starts, parsed ${startSum} across ${playerRows.length} rows`);
-  }
+  if (startSum !== 418) throw new Error(`${meta.club}: expected 418 starts, parsed ${startSum}`);
 
   return {
     club: meta.club,
@@ -141,54 +125,36 @@ function parseStatBunker(html, meta) {
 
 function parseFootballSquads(html, club, url) {
   const $ = cheerio.load(html);
-  const candidates = [];
+  const bodyText = clean($('body').text());
+  const rows = [];
 
-  $('table').each((_, table) => {
-    const tableRows = [];
-    $(table).find('tr').each((__, tr) => {
-      const cells = $(tr).find('th,td').map((___, td) => clean($(td).text())).get();
-      if (cells.length) tableRows.push(cells);
-    });
-    if (tableRows.length) candidates.push(tableRows);
+  // Modern/table-style fallback.
+  $('table tr').each((_, tr) => {
+    const cells = $(tr).find('th,td').map((__, td) => clean($(td).text())).get();
+    if (cells.length >= 4 && /^[A-Z]{3}$/i.test(cells[2] || '')) {
+      rows.push({ name: cells[1], nationality: cells[2].toUpperCase(), position: cells[3] });
+    }
   });
 
-  let best = null;
-  for (const tableRows of candidates) {
-    const headerIndex = tableRows.findIndex(row => {
-      const lower = row.map(x => x.toLowerCase());
-      return lower.some(x => x === 'name') && lower.some(x => x === 'nat' || x === 'nationality') && lower.some(x => x === 'pos' || x === 'position');
-    });
-    if (headerIndex >= 0) {
-      const headers = tableRows[headerIndex].map(x => x.toLowerCase());
-      const nameIndex = headers.findIndex(x => x === 'name');
-      const natIndex = headers.findIndex(x => x === 'nat' || x === 'nationality');
-      const posIndex = headers.findIndex(x => x === 'pos' || x === 'position');
-      const parsed = tableRows.slice(headerIndex + 1)
-        .filter(row => row.length > Math.max(nameIndex, natIndex, posIndex))
-        .map(row => ({ name: clean(row[nameIndex]), nationality: clean(row[natIndex]), position: clean(row[posIndex]) }))
-        .filter(row => row.name && row.nationality && !/^(name|player)$/i.test(row.name));
-      if (!best || parsed.length > best.length) best = parsed;
+  // Older FootballSquads pages can render as preformatted/comma-separated lines.
+  if (rows.length < 20) {
+    const text = $('pre').length ? $('pre').text() : bodyText;
+    for (const rawLine of String(text).split(/\r?\n/)) {
+      const line = clean(rawLine);
+      if (!line) continue;
+      const parts = line.split(',').map(clean);
+      if (parts.length >= 4 && /^[A-Z]{3}$/i.test(parts[2] || '')) {
+        rows.push({ name: parts[1], nationality: parts[2].toUpperCase(), position: parts[3] });
+      }
     }
   }
 
-  if (!best || best.length < 20) {
-    // Fallback for pages whose table uses implicit column order: Number | Name | Nat | Pos | ...
-    for (const tableRows of candidates) {
-      const parsed = tableRows
-        .filter(row => row.length >= 4)
-        .map(row => ({ name: clean(row[1]), nationality: clean(row[2]), position: clean(row[3]) }))
-        .filter(row => row.name && row.nationality && !/^(name|player|nat)$/i.test(row.name) && /^[A-Z]{3}$/i.test(row.nationality));
-      if (!best || parsed.length > best.length) best = parsed;
-    }
-  }
-
-  if (!best || best.length < 20) {
-    throw new Error(`${club}: could not parse FootballSquads rows (best=${best?.length ?? 0})`);
-  }
-
-  return { club, sourceUrl: url, rowCount: best.length, rows: best };
+  const deduped = [...new Map(rows.filter(r => r.name).map(r => [`${r.name}\u0000${r.nationality}\u0000${r.position}`, r])).values()];
+  if (deduped.length < 20) throw new Error(`${club}: could not parse FootballSquads rows (parsed=${deduped.length})`);
+  return { club, sourceUrl: url, rowCount: deduped.length, rows: deduped };
 }
 
+// StatBunker completion is the primary lane. Persist it as soon as its hard controls pass.
 const statbunker = [];
 for (const meta of statbunkerClubs) {
   const url = `https://statbunker.com/competitions/SeasonAppearances?club_id=${meta.clubId}&comp_id=9`;
@@ -197,16 +163,6 @@ for (const meta of statbunkerClubs) {
   const parsed = parseStatBunker(html, meta);
   console.log(`  ${parsed.rowCount} rows; ${parsed.startSum} starts`);
   statbunker.push(parsed);
-}
-
-const footballSquadsNationality = [];
-for (const [club, slug] of footballSquads) {
-  const url = `https://www.footballsquads.co.uk/eng/1996-1997/faprem/${slug}`;
-  console.log(`Fetching FootballSquads ${club}: ${url}`);
-  const html = await fetchText(url);
-  const parsed = parseFootballSquads(html, club, url);
-  console.log(`  ${parsed.rowCount} nationality rows`);
-  footballSquadsNationality.push(parsed);
 }
 
 const statOut = {
@@ -218,17 +174,36 @@ const statOut = {
   clubs: statbunker,
 };
 if (statOut.totalStartSum !== 6 * 418) throw new Error(`Six-club start audit failed: ${statOut.totalStartSum}`);
+fs.writeFileSync(path.join(OUT_DIR, 'statbunker-six-club-season-appearances.json'), `${JSON.stringify(statOut, null, 2)}\n`);
+console.log(`StatBunker six-club harvest complete: ${statOut.totalStartSum} starts.`);
+
+// Nationality is valuable but must not be allowed to discard a successful six-club StatBunker harvest.
+const footballSquadsNationality = [];
+const nationalityErrors = [];
+for (const [club, slug] of footballSquads) {
+  const url = `https://www.footballsquads.co.uk/eng/1996-1997/faprem/${slug}`;
+  console.log(`Fetching FootballSquads ${club}: ${url}`);
+  try {
+    const html = await fetchText(url);
+    const parsed = parseFootballSquads(html, club, url);
+    console.log(`  ${parsed.rowCount} nationality rows`);
+    footballSquadsNationality.push(parsed);
+  } catch (error) {
+    console.error(`  NATIONALITY DEFERRED — ${club}: ${error.message}`);
+    nationalityErrors.push({ club, sourceUrl: url, error: error.message });
+  }
+}
 
 const natOut = {
   generatedAt: new Date().toISOString(),
   season: '1996/97',
   source: 'FootballSquads',
-  clubs: footballSquadsNationality,
+  complete: nationalityErrors.length === 0,
+  clubsParsed: footballSquadsNationality.length,
+  clubsFailed: nationalityErrors.length,
   sourceRowCount: footballSquadsNationality.reduce((sum, c) => sum + c.rowCount, 0),
+  clubs: footballSquadsNationality,
+  errors: nationalityErrors,
 };
-
-fs.writeFileSync(path.join(OUT_DIR, 'statbunker-six-club-season-appearances.json'), `${JSON.stringify(statOut, null, 2)}\n`);
 fs.writeFileSync(path.join(OUT_DIR, 'footballsquads-nationality-harvest.json'), `${JSON.stringify(natOut, null, 2)}\n`);
-
-console.log(`StatBunker six-club harvest complete: ${statOut.totalStartSum} starts.`);
-console.log(`FootballSquads nationality harvest complete: ${natOut.sourceRowCount} source rows.`);
+console.log(`FootballSquads nationality pass: ${natOut.clubsParsed}/20 clubs, ${natOut.sourceRowCount} parsed rows, ${natOut.clubsFailed} deferred.`);
