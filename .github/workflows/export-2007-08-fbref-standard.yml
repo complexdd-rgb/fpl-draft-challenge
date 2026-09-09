@@ -1,0 +1,25 @@
+name: Export 2007-08 FBref standard player table
+on:
+  push:
+    branches: [research/2007-08-statbunker-enrichment]
+    paths: [.github/workflows/export-2007-08-fbref-standard.yml]
+permissions:
+  contents: read
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch FBref player standard stats through Reader
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          url='https://r.jina.ai/https://fbref.com/en/comps/9/2007-2008/stats/2007-2008-Premier-League-Stats'
+          curl --retry 3 --retry-delay 3 --max-time 120 -fsSL "$url" -o out/fbref-standard-2007-08.md
+          grep -q '2007-2008 Premier League' out/fbref-standard-2007-08.md
+          wc -c out/fbref-standard-2007-08.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fbref-standard-2007-08
+          path: out
+          retention-days: 30
