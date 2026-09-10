@@ -1,0 +1,133 @@
+name: Recover 2007-08 FPL carrier
+
+on:
+  push:
+    branches:
+      - research/2007-08-statbunker-enrichment
+    paths:
+      - .github/workflows/recover-2007-08-ffs-carrier.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/2007-08-statbunker-enrichment
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install parser dependencies
+        run: pip install pandas lxml requests beautifulsoup4
+      - name: Harvest FFScout carrier and probe official archive
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import io, json, re
+          import pandas as pd
+          import requests
+
+          out = Path('research/2007-08-fpl-recovery')
+          out.mkdir(parents=True, exist_ok=True)
+          session = requests.Session()
+          session.headers.update({'User-Agent': 'Mozilla/5.0 historical-research/1.0'})
+
+          pages = {
+              'GK': 'https://www.fantasyfootballscout.co.uk/fantasy-premier-league-goalkeepers',
+              'DEF': 'https://www.fantasyfootballscout.co.uk/fantasy-premier-league-defenders',
+              'MID': 'https://www.fantasyfootballscout.co.uk/fantasy-premier-league-midfielders',
+              'FWD': 'https://www.fantasyfootballscout.co.uk/fantasy-premier-league-forwards',
+          }
+          carrier_parts = []
+          meta = {'pages': {}, 'archive_probes': {}}
+
+          for cat, url in pages.items():
+              r = session.get(url, timeout=45)
+              r.raise_for_status()
+              (out / f'ffscout_{cat.lower()}.html').write_text(r.text, encoding='utf-8')
+              tables = pd.read_html(io.StringIO(r.text))
+              chosen = None
+              for t in tables:
+                  cols = [str(c).strip() for c in t.columns]
+                  if 'Player' in cols and 'Mins' in cols and 'Pts' in cols:
+                      chosen = t.copy()
+                      break
+              if chosen is None:
+                  raise RuntimeError(f'No carrier table found for {cat}')
+              chosen.columns = [str(c).strip() for c in chosen.columns]
+              chosen['ffs_2008_09_category'] = cat
+              chosen['source_url'] = url
+              raw_name = chosen['Player'].astype(str).str.strip()
+              chosen['outside_pl_2007_08_flag'] = raw_name.str.endswith('*')
+              chosen['carrier_player_name'] = raw_name.str.rstrip('*').str.strip()
+              chosen['Mins'] = pd.to_numeric(chosen['Mins'], errors='coerce')
+              chosen['Pts'] = pd.to_numeric(chosen['Pts'], errors='coerce')
+              chosen['Starts'] = pd.to_numeric(chosen.get('Starts'), errors='coerce')
+              chosen['carrier_status'] = 'EXCLUDE_ZERO_OR_OUTSIDE_PL'
+              clean_mask = (~chosen['outside_pl_2007_08_flag']) & (chosen['Mins'].fillna(0) > 0)
+              chosen.loc[clean_mask, 'carrier_status'] = 'CLEAN_POSITIVE_MINUTES'
+              bad_gn = (cat == 'DEF') & chosen['carrier_player_name'].str.casefold().eq('neville') & chosen['Club'].astype(str).str.upper().eq('MUN') & (chosen['Mins'] == 3238) & (chosen['Starts'].fillna(0) == 0) & (chosen['Pts'].fillna(0) == 0)
+              chosen.loc[bad_gn, 'carrier_status'] = 'QUARANTINE_GARY_NEVILLE_CORRUPT_ROW'
+              carrier_parts.append(chosen)
+              meta['pages'][cat] = {
+                  'url': url,
+                  'http_status': r.status_code,
+                  'rows_in_table': int(len(chosen)),
+                  'positive_pl_rows_including_quarantine': int(clean_mask.sum()),
+                  'clean_rows': int((chosen['carrier_status'] == 'CLEAN_POSITIVE_MINUTES').sum()),
+              }
+
+          carrier = pd.concat(carrier_parts, ignore_index=True, sort=False)
+          carrier.to_csv(out / 'ffscout-2007-08-carrier-all.csv', index=False)
+          clean = carrier[carrier['carrier_status'] == 'CLEAN_POSITIVE_MINUTES'].copy()
+          clean.to_csv(out / 'ffscout-2007-08-carrier-clean.csv', index=False)
+          quarantine = carrier[carrier['carrier_status'].str.startswith('QUARANTINE')].copy()
+          quarantine.to_csv(out / 'ffscout-2007-08-carrier-quarantine.csv', index=False)
+          meta['carrier_totals'] = {
+              'all_rows': int(len(carrier)),
+              'clean_positive_minute_rows': int(len(clean)),
+              'quarantined_rows': int(len(quarantine)),
+              'clean_by_category': clean.groupby('ffs_2008_09_category').size().to_dict(),
+          }
+
+          probes = {
+              'official_launch_exact': 'https://web.archive.org/web/20070810212948id_/http://fantasy.premierleague.com/playerlist.html',
+              'official_launch_exact_normal': 'https://web.archive.org/web/20070810212948/http://fantasy.premierleague.com/playerlist.html',
+              'playerlist_cdx_2007': 'https://web.archive.org/cdx/search/cdx?url=fantasy.premierleague.com/playerlist.html&from=2007&to=2007&output=json&filter=statuscode:200&filter=mimetype:text/html&fl=timestamp,original,statuscode,digest&collapse=digest',
+              'stats_cdx_2007_08': 'https://web.archive.org/cdx/search/cdx?url=fantasy.premierleague.com/M/stats.mc*&from=2007&to=2008&output=json&filter=statuscode:200&fl=timestamp,original,statuscode,digest&collapse=digest',
+          }
+          for key, url in probes.items():
+              try:
+                  r = session.get(url, timeout=60)
+                  meta['archive_probes'][key] = {'url': url, 'status': r.status_code, 'bytes': len(r.content), 'final_url': r.url}
+                  suffix = 'json' if 'cdx' in key else 'html'
+                  (out / f'{key}.{suffix}').write_bytes(r.content)
+                  if key.startswith('official_launch') and r.ok and len(r.text) > 1000:
+                      try:
+                          tabs = pd.read_html(io.StringIO(r.text))
+                          for i, t in enumerate(tabs):
+                              t.to_csv(out / f'{key}-table-{i:02d}.csv', index=False)
+                          meta['archive_probes'][key]['tables'] = len(tabs)
+                      except Exception as e:
+                          meta['archive_probes'][key]['table_parse_error'] = repr(e)
+              except Exception as e:
+                  meta['archive_probes'][key] = {'url': url, 'error': repr(e)}
+
+          (out / 'harvest-meta.json').write_text(json.dumps(meta, indent=2, sort_keys=True), encoding='utf-8')
+          print(json.dumps(meta, indent=2, sort_keys=True))
+          PY
+      - name: Commit recovered research material
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/2007-08-fpl-recovery
+          if git diff --cached --quiet; then
+            echo "No recovered material changed"
+          else
+            git commit -m "research: materialise 2007/08 FFScout FPL carrier"
+            git push origin HEAD:research/2007-08-statbunker-enrichment
+          fi
