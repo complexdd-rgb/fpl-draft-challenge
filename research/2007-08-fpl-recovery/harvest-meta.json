@@ -1,0 +1,71 @@
+{
+  "archive_probes": {
+    "official_launch_exact": {
+      "bytes": 42689,
+      "final_url": "https://web.archive.org/web/20070810212948id_/http://fantasy.premierleague.com/playerlist.html",
+      "status": 200,
+      "tables": 12,
+      "url": "https://web.archive.org/web/20070810212948id_/http://fantasy.premierleague.com/playerlist.html"
+    },
+    "official_launch_exact_normal": {
+      "bytes": 44330,
+      "final_url": "https://web.archive.org/web/20070810212948/http://fantasy.premierleague.com/playerlist.html",
+      "status": 200,
+      "tables": 12,
+      "url": "https://web.archive.org/web/20070810212948/http://fantasy.premierleague.com/playerlist.html"
+    },
+    "playerlist_cdx_2007": {
+      "bytes": 2464,
+      "final_url": "https://web.archive.org/cdx/search/cdx?url=fantasy.premierleague.com/playerlist.html&from=2007&to=2007&output=json&filter=statuscode:200&filter=mimetype:text/html&fl=timestamp,original,statuscode,digest&collapse=digest",
+      "status": 200,
+      "url": "https://web.archive.org/cdx/search/cdx?url=fantasy.premierleague.com/playerlist.html&from=2007&to=2007&output=json&filter=statuscode:200&filter=mimetype:text/html&fl=timestamp,original,statuscode,digest&collapse=digest"
+    },
+    "stats_cdx_2007_08": {
+      "bytes": 3,
+      "final_url": "https://web.archive.org/cdx/search/cdx?url=fantasy.premierleague.com/M/stats.mc*&from=2007&to=2008&output=json&filter=statuscode:200&fl=timestamp,original,statuscode,digest&collapse=digest",
+      "status": 200,
+      "url": "https://web.archive.org/cdx/search/cdx?url=fantasy.premierleague.com/M/stats.mc*&from=2007&to=2008&output=json&filter=statuscode:200&fl=timestamp,original,statuscode,digest&collapse=digest"
+    }
+  },
+  "carrier_totals": {
+    "all_rows": 464,
+    "clean_by_category": {
+      "DEF": 126,
+      "FWD": 74,
+      "GK": 33,
+      "MID": 134
+    },
+    "clean_positive_minute_rows": 367,
+    "quarantined_rows": 1
+  },
+  "pages": {
+    "DEF": {
+      "clean_rows": 126,
+      "http_status": 200,
+      "positive_pl_rows_including_quarantine": 127,
+      "rows_in_table": 156,
+      "url": "https://www.fantasyfootballscout.co.uk/fantasy-premier-league-defenders"
+    },
+    "FWD": {
+      "clean_rows": 74,
+      "http_status": 200,
+      "positive_pl_rows_including_quarantine": 74,
+      "rows_in_table": 94,
+      "url": "https://www.fantasyfootballscout.co.uk/fantasy-premier-league-forwards"
+    },
+    "GK": {
+      "clean_rows": 33,
+      "http_status": 200,
+      "positive_pl_rows_including_quarantine": 33,
+      "rows_in_table": 48,
+      "url": "https://www.fantasyfootballscout.co.uk/fantasy-premier-league-goalkeepers"
+    },
+    "MID": {
+      "clean_rows": 134,
+      "http_status": 200,
+      "positive_pl_rows_including_quarantine": 134,
+      "rows_in_table": 166,
+      "url": "https://www.fantasyfootballscout.co.uk/fantasy-premier-league-midfielders"
+    }
+  }
+}
