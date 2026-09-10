@@ -1,0 +1,139 @@
+name: Parse 2007-08 official FPL launch
+
+on:
+  push:
+    branches:
+      - research/2007-08-statbunker-enrichment
+    paths:
+      - .github/workflows/parse-2007-08-official-launch.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/2007-08-statbunker-enrichment
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install parser dependencies
+        run: pip install pandas beautifulsoup4 lxml
+      - name: Parse launch list and crosswalk carrier
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import pandas as pd
+          import json, re, unicodedata
+
+          out = Path('research/2007-08-fpl-recovery')
+          html = (out / 'official_launch_exact.html').read_text(encoding='utf-8')
+          soup = BeautifulSoup(html, 'html.parser')
+          pos_map = {'Goalkeepers':'GK','Defenders':'DEF','Midfielders':'MID','Forwards':'FWD'}
+          rows=[]
+          for h2 in soup.find_all('h2'):
+              title=h2.get_text(' ',strip=True)
+              if title not in pos_map:
+                  continue
+              pos=pos_map[title]
+              node=h2.find_next_sibling()
+              while node is not None and getattr(node,'name',None)!='h2':
+                  for table in node.find_all('table', class_='playercontent') if hasattr(node,'find_all') else []:
+                      for tr in table.find_all('tr'):
+                          cells=[c.get_text(' ',strip=True) for c in tr.find_all('td', recursive=False)]
+                          if len(cells)==4:
+                              player,team,prior,cost=cells
+                              rows.append({'launch_position':pos,'launch_player':player,'launch_team':team,'points_2006_07':prior,'start_price_m':cost,'launch_source_url':'https://web.archive.org/web/20070810212948id_/http://fantasy.premierleague.com/playerlist.html'})
+                  node=node.find_next_sibling() if hasattr(node,'find_next_sibling') else None
+          launch=pd.DataFrame(rows).drop_duplicates().reset_index(drop=True)
+          launch['points_2006_07']=pd.to_numeric(launch['points_2006_07'],errors='coerce')
+          launch['start_price_m']=pd.to_numeric(launch['start_price_m'],errors='coerce')
+          launch.to_csv(out/'official-fpl-2007-08-launch-list.csv',index=False)
+
+          clean=pd.read_csv(out/'ffscout-2007-08-carrier-clean.csv')
+          def norm(s):
+              s=unicodedata.normalize('NFKD',str(s)).encode('ascii','ignore').decode('ascii').lower()
+              s=s.replace('&',' and ')
+              return re.sub(r'[^a-z0-9]+','',s)
+          def toks(s):
+              s=unicodedata.normalize('NFKD',str(s)).encode('ascii','ignore').decode('ascii').lower()
+              return [x for x in re.split(r'[^a-z0-9]+',s) if x]
+          launch['name_norm']=launch.launch_player.map(norm)
+          clean['name_norm']=clean.carrier_player_name.map(norm)
+
+          expected_followups = {
+            'Ross Turnbull','Armand Traore','Curtis Davies','Gretar Steinsson','Juliano Belletti','Brede Hangeland','Elliot Omozusi','Martin Skrtel','Jonathan Grounds','Habib Beye','Lucien Aubey','Danny Higginbotham','Gilberto','Alan Hutton','Chris Gunter','James Tomkins','Erik Edman','Maynor Figueroa','Alex Song','Johann Vogel','Tamir Cohen','Leon Andreasen','Lucas Leiva','Damien Plessis','Nery Castillo','Mohamed Shawky','Andy Reid','Roy O Donovan','Jamie O Hara','Wilson Palacios','Erik Nevland','Eddie Johnson','Felipe Caicedo','Afonso Alves','Rade Prica','Kenwyne Jones','Martyn Waghorn','Freddie Sears','Marlon King'
+          }
+          expected_norm={norm(x) for x in expected_followups}
+
+          # Team-code support for ties only. Carrier clubs are 2008/09 and may differ after transfers.
+          code_to_launch = {
+            'ARS':'Arsenal','AVL':'Aston Villa','BIR':'Birmingham','BLA':'Blackburn','BOL':'Bolton','CHE':'Chelsea','DER':'Derby','EVE':'Everton','FUL':'Fulham','LIV':'Liverpool','MCY':'Man. City','MID':'Middlesbrough','MUN':'Man. United','NEW':'Newcastle','POR':'Portsmouth','REA':'Reading','SUN':'Sunderland','TOT':'Tottenham','WHM':'West Ham','WIG':'Wigan'
+          }
+          xrows=[]
+          for _,r in clean.iterrows():
+              rn=r['name_norm']
+              cand=launch[launch.name_norm.eq(rn)].copy()
+              method='EXACT_DISPLAY_NAME'
+              # Common FPL display-name order variants / punctuation variants.
+              if cand.empty:
+                  rt=toks(r['carrier_player_name'])
+                  # Match same token set for A Cole / Cole A style.
+                  cand=launch[launch.launch_player.map(lambda x: sorted(toks(x))==sorted(rt))].copy()
+                  method='TOKEN_SET_DISPLAY_NAME'
+              if len(cand)>1:
+                  team=code_to_launch.get(str(r.get('Club','')).upper())
+                  same=cand[cand.launch_team.eq(team)] if team else cand.iloc[0:0]
+                  if len(same)==1:
+                      cand=same
+                      method += '+TEAM_TIEBREAK'
+              if len(cand)>1:
+                  samepos=cand[cand.launch_position.eq(r['ffs_2008_09_category'])]
+                  if len(samepos)==1:
+                      cand=samepos
+                      method += '+CATEGORY_TIEBREAK'
+              rec=r.to_dict()
+              if len(cand)==1:
+                  c=cand.iloc[0]
+                  rec.update({'launch_match_status':'MATCHED','launch_match_method':method,'launch_position':c.launch_position,'launch_player':c.launch_player,'launch_team':c.launch_team,'points_2006_07':c.points_2006_07,'start_price_m':c.start_price_m,'launch_source_url':c.launch_source_url})
+              elif len(cand)==0:
+                  rec.update({'launch_match_status':'UNMATCHED','launch_match_method':'NO_LAUNCH_ROW','launch_position':None,'launch_player':None,'launch_team':None,'points_2006_07':None,'start_price_m':None,'launch_source_url':None})
+              else:
+                  rec.update({'launch_match_status':'AMBIGUOUS','launch_match_method':method+'+MULTIPLE_REMAIN','launch_position':None,'launch_player':' | '.join(cand.launch_player.astype(str)),'launch_team':' | '.join(cand.launch_team.astype(str)),'points_2006_07':None,'start_price_m':None,'launch_source_url':None})
+              rec['expected_later_addition']=rn in expected_norm
+              xrows.append(rec)
+          cross=pd.DataFrame(xrows)
+          cross.to_csv(out/'ffscout-carrier-to-official-launch-crosswalk.csv',index=False)
+          cross[cross.launch_match_status.ne('MATCHED')].to_csv(out/'ffscout-carrier-launch-unmatched.csv',index=False)
+
+          summary={
+            'launch_rows':int(len(launch)),
+            'launch_by_position':launch.groupby('launch_position').size().to_dict(),
+            'carrier_clean_rows':int(len(clean)),
+            'matched':int((cross.launch_match_status=='MATCHED').sum()),
+            'unmatched':int((cross.launch_match_status=='UNMATCHED').sum()),
+            'ambiguous':int((cross.launch_match_status=='AMBIGUOUS').sum()),
+            'expected_later_addition_rows':int(cross.expected_later_addition.sum()),
+            'nonmatched_names':cross.loc[cross.launch_match_status.ne('MATCHED'),'carrier_player_name'].astype(str).tolist(),
+            'unexpected_nonmatches':cross.loc[cross.launch_match_status.ne('MATCHED') & ~cross.expected_later_addition,'carrier_player_name'].astype(str).tolist(),
+            'expected_followups_that_matched':cross.loc[(cross.launch_match_status=='MATCHED') & cross.expected_later_addition,'carrier_player_name'].astype(str).tolist(),
+          }
+          (out/'launch-crosswalk-summary.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
+          print(json.dumps(summary,indent=2))
+          PY
+      - name: Commit parsed launch/crosswalk files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/2007-08-fpl-recovery/official-fpl-2007-08-launch-list.csv research/2007-08-fpl-recovery/ffscout-carrier-to-official-launch-crosswalk.csv research/2007-08-fpl-recovery/ffscout-carrier-launch-unmatched.csv research/2007-08-fpl-recovery/launch-crosswalk-summary.json
+          if git diff --cached --quiet; then
+            echo "No parsed files changed"
+          else
+            git commit -m "research: parse official 2007/08 FPL launch list"
+            git push origin HEAD:research/2007-08-statbunker-enrichment
+          fi
