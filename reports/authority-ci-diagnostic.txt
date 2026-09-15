@@ -1,0 +1,12 @@
+js/admin-daily-curated-authority-v1.js:100
+        if (await sha256Text(raw) !== String(descriptor.sha256 || "")) throw new Error(`Selector SHA-256 mismatch for ${descriptor.family}.`);
+                                                                             ^
+
+Error: Selector SHA-256 mismatch for club-count.
+    at js/admin-daily-curated-authority-v1.js:100:78
+    at async js/admin-daily-curated-authority-v1.js:194:26
+    at async file:///home/runner/work/fpl-draft-challenge/fpl-draft-challenge/scripts/verify-daily-curated-authority-v1.mjs:91:17
+
+Node.js v22.23.2
+
+exit_status=1
