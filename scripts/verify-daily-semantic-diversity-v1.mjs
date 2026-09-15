@@ -3,11 +3,35 @@ import vm from 'node:vm';
 
 const source = fs.readFileSync('js/daily-semantic-diversity-v1.js', 'utf8');
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
-const sandbox = { window: {} };
+const answerSets = new Map();
+const sandbox = {
+  window: {
+    __TEST_LIBRARY: [],
+    FPL_STUDIO_API: {
+      getPromptStats(prompt) {
+        const values = answerSets.get(String(prompt?.id || '')) || [];
+        if (!values.length) return null;
+        return {
+          bestAnswer: values[0],
+          bestByPlayer: { values: () => values }
+        };
+      },
+      getPromptLibrary() {
+        return sandbox.window.__TEST_LIBRARY;
+      }
+    }
+  },
+  document: {
+    querySelector(selector) {
+      return selector === '#batchStartDate' ? { value: '2026-09-15' } : null;
+    }
+  }
+};
 sandbox.window.window = sandbox.window;
 vm.runInNewContext(source, sandbox, { filename: 'js/daily-semantic-diversity-v1.js' });
 const api = sandbox.window.FPL_DAILY_SEMANTIC_DIVERSITY;
 assert(api?.version === '1.0.0', 'Semantic diversity API did not initialise.');
+assert(api?.policyRevision === '1.1.0', 'Top-answer diversity policy revision did not initialise.');
 
 const record = (id, family, position, conditions, variantGroup = '') => ({ id, family, position, conditions, variantGroup });
 const prompt = (id, label, family, position, recordValue) => ({
@@ -90,4 +114,43 @@ assert(pressureSeven.impossible.has('entity:manager:david-moyes'), 'A seven-prom
 assert(api.missingRequiredKeys([moyes50], pressureSix.required).length === 0, 'Required semantic pressure was not satisfied by a matching prompt.');
 assert(api.missingRequiredKeys([pep60], pressureSix.required).includes('entity:manager:david-moyes'), 'A different manager incorrectly satisfied David Moyes pressure.');
 
-console.log('Daily semantic diversity v1 verified: David Moyes threshold variants and defender bonus clusters are blocked on the same day, weekly one-per-day pressure is enforced, and distinct concepts remain available.');
+const answerRecord = (playerId, playerName, points) => ({ playerId, playerName, name: playerName, points });
+const leaderA = { id: 'leader-a', label: 'Leader A prompt', family: 'season-stats', position: 'MID' };
+const sameLeader = { id: 'same-leader', label: 'Same leader prompt', family: 'position-stat', position: 'MID' };
+const sharedPodium = { id: 'shared-podium', label: 'Shared podium prompt', family: 'club-stat', position: 'MID' };
+const freshAnswers = { id: 'fresh-answers', label: 'Fresh answers prompt', family: 'anti-meta', position: 'MID' };
+answerSets.set('leader-a', [
+  answerRecord('p1', 'One Player', 220), answerRecord('p2', 'Two Player', 190), answerRecord('p3', 'Three Player', 180)
+]);
+answerSets.set('same-leader', [
+  answerRecord('p1', 'One Player', 210), answerRecord('p4', 'Four Player', 185), answerRecord('p5', 'Five Player', 170)
+]);
+answerSets.set('shared-podium', [
+  answerRecord('p6', 'Six Player', 215), answerRecord('p1', 'One Player', 200), answerRecord('p7', 'Seven Player', 175)
+]);
+answerSets.set('fresh-answers', [
+  answerRecord('p8', 'Eight Player', 205), answerRecord('p9', 'Nine Player', 190), answerRecord('p10', 'Ten Player', 180)
+]);
+
+const profile = api.topAnswerProfile(leaderA);
+assert(profile.leaderId === 'p1', 'Top-answer profile did not identify the highest-points player as leader.');
+assert(profile.top3Ids.join('|') === 'p1|p2|p3', 'Top-answer profile did not retain the expected top three answer players.');
+
+const answerCounts = api.commitWeekly(leaderA, null);
+const sameLeaderLoad = api.weeklyLoad(sameLeader, answerCounts);
+const sharedPodiumLoad = api.weeklyLoad(sharedPodium, answerCounts);
+const freshLoad = api.weeklyLoad(freshAnswers, answerCounts);
+assert(sameLeaderLoad > sharedPodiumLoad, 'Repeated #1 answer was not penalised more strongly than top-three overlap.');
+assert(sharedPodiumLoad > freshLoad, 'Top-three answer overlap was not penalised across the weekly reservoir.');
+
+sandbox.window.__TEST_LIBRARY = [leaderA, sameLeader, sharedPodium, freshAnswers];
+sandbox.window.FPL_CHALLENGE_MANIFEST = {
+  challenges: [{ date: '2026-09-14', promptIds: ['leader-a'] }]
+};
+const recentLeaderLoad = api.recentAnswerLoad(sameLeader);
+const recentPodiumLoad = api.recentAnswerLoad(sharedPodium);
+const recentFreshLoad = api.recentAnswerLoad(freshAnswers);
+assert(recentLeaderLoad > recentPodiumLoad, 'Previous-week leader carry-over was not penalised more strongly than top-three carry-over.');
+assert(recentPodiumLoad > recentFreshLoad, 'Previous-week top-three carry-over pressure was not applied.');
+
+console.log('Daily semantic diversity v1 verified: semantic clashes still work, weekly one-per-day pressure is preserved, repeated #1/top-three answer players are down-ranked across the reservoir, and the previous seven days add carry-over pressure.');

@@ -70,7 +70,7 @@
     },
     "dailySemanticDiversityV1": {
       "path": "js/daily-semantic-diversity-v1.js",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     "adminDailyPublish": {
       "path": "js/admin-daily-publish.js",
