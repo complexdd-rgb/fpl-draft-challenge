@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "kind": "fpl-prompt-curation-family-addition-freeze",
+  "status": "freeze-approved",
+  "sourcePromotionFingerprint": "shards_144252_h2yx4a",
+  "sourcePrompts": 144252,
+  "sourceFamilies": 18,
+  "sourceVariantGroups": 2753,
+  "family": "exclude-top-result",
+  "sourceFamilyPrompts": 588,
+  "playableAnswerWindow": {"min":6,"max":100},
+  "playableCandidates": 279,
+  "playableVariantGroups": 23,
+  "selectionMethod": "For each playable variant group, sort by answer-player count and retain up to three evenly spaced low/mid/high answer-pool thresholds.",
+  "selected": 62,
+  "selectedVariantGroups": 23,
+  "positions": {"ANY":12,"GK":14,"DEF":12,"MID":12,"FWD":12},
+  "difficulty": {"easy":26,"medium":20,"hard":16},
+  "quality": {"minimum":72,"maximum":99,"mean":89.387},
+  "selectorSha256": "1ad5b6b7010246e4db1cce4574d8462ee93bf01e705d4763b8cf81f909281a69",
+  "survivorIdSha256": "ebeb29a15d4fde2c229399dd1c03ec8c862c344995d4da76efba4897e5b57709",
+  "selectedIds": [
+    "factory_exclude_top_result_any_10vurky","factory_exclude_top_result_any_1bhprkf","factory_exclude_top_result_any_1f39mlk","factory_exclude_top_result_any_1iox8kd","factory_exclude_top_result_any_1uy1qgp","factory_exclude_top_result_any_62n9ab","factory_exclude_top_result_any_76k9zq","factory_exclude_top_result_any_7ih4ri","factory_exclude_top_result_any_of4fks","factory_exclude_top_result_any_ro7ubq","factory_exclude_top_result_any_tiffb3","factory_exclude_top_result_any_ys1wif",
+    "factory_exclude_top_result_def_13sc7ac","factory_exclude_top_result_def_15dfxy5","factory_exclude_top_result_def_1bqozcl","factory_exclude_top_result_def_1d70jyz","factory_exclude_top_result_def_1ly95rq","factory_exclude_top_result_def_1n3c6wi","factory_exclude_top_result_def_4k6j7o","factory_exclude_top_result_def_4lqxa","factory_exclude_top_result_def_hvbxz7","factory_exclude_top_result_def_kvh2gf","factory_exclude_top_result_def_mptc9l","factory_exclude_top_result_def_vodt14",
+    "factory_exclude_top_result_fwd_13cqpym","factory_exclude_top_result_fwd_16863s4","factory_exclude_top_result_fwd_1dl1bd1","factory_exclude_top_result_fwd_1q72jyf","factory_exclude_top_result_fwd_1sdqgg1","factory_exclude_top_result_fwd_1v197lx","factory_exclude_top_result_fwd_bqasls","factory_exclude_top_result_fwd_c6x9el","factory_exclude_top_result_fwd_hlqvbp","factory_exclude_top_result_fwd_mm80ui","factory_exclude_top_result_fwd_vlkt3r","factory_exclude_top_result_fwd_wfyndo",
+    "factory_exclude_top_result_gk_1233pbm","factory_exclude_top_result_gk_15yjfy7","factory_exclude_top_result_gk_1b45x1x","factory_exclude_top_result_gk_1ctm66v","factory_exclude_top_result_gk_1gnx1q7","factory_exclude_top_result_gk_1hxobe3","factory_exclude_top_result_gk_1neqhyp","factory_exclude_top_result_gk_1ww987x","factory_exclude_top_result_gk_7skol3","factory_exclude_top_result_gk_ex1kmv","factory_exclude_top_result_gk_hpa5ba","factory_exclude_top_result_gk_rcqww5","factory_exclude_top_result_gk_tkzpxt","factory_exclude_top_result_gk_v6f7yq",
+    "factory_exclude_top_result_mid_11l1de0","factory_exclude_top_result_mid_15wprod","factory_exclude_top_result_mid_1byo56l","factory_exclude_top_result_mid_1f6pynl","factory_exclude_top_result_mid_1f7lc96","factory_exclude_top_result_mid_1gyrb1","factory_exclude_top_result_mid_1hc30fw","factory_exclude_top_result_mid_1o3roox","factory_exclude_top_result_mid_1p4m4wp","factory_exclude_top_result_mid_1tzx3it","factory_exclude_top_result_mid_d53a2q","factory_exclude_top_result_mid_e6iwt9"
+  ]
+}

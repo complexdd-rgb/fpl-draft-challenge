@@ -1,6 +1,6 @@
 /* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.5.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
-   runtime-retests each selected prompt, preserves exact rotation, matches the real 17-family
+   runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
 (() => {
   "use strict";
@@ -28,7 +28,7 @@
   });
   const ANTI_META_FAMILIES = new Set([
     "club-stat", "league-position", "promoted-clubs", "relegated-clubs", "career-longevity",
-    "club-count", "manager", "anti-meta", "value", "minutes-role", "composite-story"
+    "club-count", "manager", "anti-meta", "exclude-top-result", "value", "minutes-role", "composite-story"
   ]);
   const STAT_TAG_BY_FIELD = Object.freeze({
     points: "points",
@@ -165,7 +165,7 @@
     guardChip = document.createElement("span");
     guardChip.id = "dailyGeneratorGuardChip";
     guardChip.className = "phase-chip";
-    guardChip.textContent = "17-family pool checking…";
+    guardChip.textContent = "18-family pool checking…";
     guardChip.style.marginLeft = "8px";
     if (manifestChip?.parentElement) manifestChip.insertAdjacentElement("afterend", guardChip);
     else status?.insertAdjacentElement("beforebegin", guardChip);
@@ -193,7 +193,7 @@
     const initial = cutoverState();
     if (initial?.ready) return true;
     window.FPL_STUDIO_BOOTSTRAP?.ensureDailyCutover?.();
-    setStatus("Validating the saved promoted 17-family library before generation…", "working");
+    setStatus("Validating the saved promoted 18-family library before generation…", "working");
     const deadline = Date.now() + CUTOVER_WAIT_MS;
     while (Date.now() < deadline) {
       const api = window.FPL_DAILY_LIBRARY_CUTOVER_V1;
@@ -593,7 +593,7 @@
 
     const targets = allocateFamilyTargets(cutover.familyIndex);
     if (!targets || Object.values(targets).reduce((sum, value) => sum + Number(value || 0), 0) !== WEEKLY_PROMPTS) {
-      throw new Error("The 17-family proportional weekly target could not be allocated to 77 prompt slots.");
+      throw new Error("The 18-family proportional weekly target could not be allocated to 77 prompt slots.");
     }
     const families = Object.keys(targets).filter(family => targets[family] > 0);
     const positionNeeds = weeklyPositionNeeds();

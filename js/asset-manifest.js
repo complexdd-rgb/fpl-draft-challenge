@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "3.9.0-post-curation"
+      "version": "4.0.0-prompts-v2"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -62,11 +62,11 @@
     },
     "adminDailyCuratedAuthorityV1": {
       "path": "js/admin-daily-curated-authority-v1.js",
-      "version": "1.0.0"
+      "version": "2.0.0"
     },
     "adminDailyLibraryCutoverV1": {
       "path": "js/admin-daily-library-cutover-v1.js",
-      "version": "1.0.1-history-residue-prune"
+      "version": "1.1.0-exclude-top-result"
     },
     "dailySemanticDiversityV1": {
       "path": "js/daily-semantic-diversity-v1.js",
@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.5.0-leader-day-spacing"
+      "version": "2.5.1-18-family"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
@@ -121,7 +121,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "3.9.0-post-curation",
+    version: "4.0.0-prompts-v2",
     assets,
     get,
     url
