@@ -2,7 +2,7 @@
 
 Status: permanent post-curation workflow
 
-The live Daily generator is currently pinned to the frozen **4,897-prompt / 17-family** curated selector package. Adding or experimenting with a new prompt family must never alter that authority implicitly.
+The live Daily generator is pinned to the versioned **4,959-prompt / 18-family** curated selector package. The original **4,897-prompt / 17-family** package remains preserved as immutable legacy provenance. Adding or experimenting with another prompt family must never alter Daily authority implicitly.
 
 ## Permanent workflow
 
@@ -33,17 +33,17 @@ The live Daily generator is currently pinned to the frozen **4,897-prompt / 17-f
    - Keep only material additions that justify changing the curated package.
 
 7. **Create a new versioned curated selector package.**
-   - Never edit the current frozen 4,897 identity silently.
+   - Never edit an existing frozen selector identity silently.
    - Update the selector manifest/count/family metadata and hashes as one deliberate versioned change.
-   - If a new family becomes live, the family count must change explicitly from 17 and the authority verifier must be updated in the same PR.
+   - Preserve older selector packages as provenance and layer new reviewed additions into a new package version.
 
 8. **Update the curated Daily authority explicitly.**
-   - `js/admin-daily-curated-authority-v1.js` remains the authority boundary.
+   - `js/admin-daily-curated-authority-v1.js` remains the compatibility authority boundary.
    - Update its expected selector identity/count/family contract only after the new curated package is ready.
    - Source/provenance storage remains separate from Daily authority.
 
 9. **Run mandatory regression gates.**
-   - `scripts/verify-prompt-curated-selectors-v1.mjs`
+   - curated selector/authority integrity checks
    - `scripts/verify-daily-curated-authority-v1.mjs`
    - `scripts/verify-daily-library-cutover-v1.mjs`
    - Factory, Quality, Promotion and source-shard verifiers
@@ -55,6 +55,13 @@ The live Daily generator is currently pinned to the frozen **4,897-prompt / 17-f
     - Generate all supported formations without publishing.
     - Confirm the week is unique, balanced, clash-free and contains only IDs from the proposed curated package.
     - Only then merge the authority update.
+
+## Current authority lineage
+
+- **v1:** 4,897 prompts · 17 families · 1,307 selected variant groups.
+- **v2:** 4,959 prompts · 18 families · 1,330 selected variant groups.
+- v2 preserves all 4,897 v1 identities and adds 62 reviewed `exclude-top-result` prompts selected from the 144,252-prompt / 18-family promoted source.
+- Exclude Top Result is executed with an explicit `playerId:notEquals` condition; it does not mutate the underlying canonical player data or ordinary prompt families.
 
 ## What stays in Prompt Studio
 
