@@ -43,8 +43,9 @@ sandbox.window.dispatchEvent = () => true;
 vm.runInNewContext(source, sandbox, { filename:'prompt-factory-v1.js' });
 const factory = sandbox.window.FPL_PROMPT_FACTORY_V1;
 assert(factory?.ready === true, 'Prompt Factory API did not initialise.');
-assert(factory.version === '1.0.0', 'Prompt Factory version mismatch.');
-assert(factory.families.length === 17, `Expected 17 families, found ${factory.families.length}.`);
+assert(factory.version === '1.1.0', 'Prompt Factory version mismatch.');
+assert(factory.families.length === 18, `Expected 18 families, found ${factory.families.length}.`);
+assert(factory.families.some(item => item.id === 'exclude-top-result'), 'Exclude-top-result family is missing from Factory definitions.');
 
 const seasonStats = await factory.runFamily('season-stats', { renderProgress:false });
 assert(seasonStats.generated > 0, 'Season-stat family generated no candidates.');
@@ -59,7 +60,16 @@ const value = await factory.runFamily('value', { renderProgress:false });
 assert(value.generated > 0, 'Value family generated no candidates.');
 assert(value.candidates.some(item => item.conditions.some(condition => condition.field === 'startingPrice')), 'Value candidates do not contain starting-price conditions.');
 
+const excludeTop = await factory.runFamily('exclude-top-result', { renderProgress:false });
+assert(excludeTop.generated > 0, 'Exclude-top-result family generated no candidates.');
+assert(excludeTop.playable > 0, 'Exclude-top-result family found no playable candidates in the smoke dataset.');
+const excludedCandidates = excludeTop.candidates.filter(item => item.conditions.some(condition => condition.field === 'playerId' && condition.operator === 'notEquals'));
+assert(excludedCandidates.length > 0, 'Exclude-top-result candidates do not contain playerId notEquals conditions.');
+assert(excludedCandidates.some(item => item.conditions.some(condition => condition.field === 'playerId' && condition.operator === 'notEquals' && condition.value === 'p1')), 'Highest-points player p1 was not selected as an exclusion target.');
+assert(excludedCandidates.some(item => /excluding One Player/.test(item.label)), 'Exclude-top-result wording does not name the excluded top player.');
+assert(excludedCandidates.every(item => !item.conditions.every(condition => condition.field !== 'playerId')), 'Exclude-top-result candidate leaked without an exclusion condition.');
+
 assert(canonical.length === 0, 'Prompt Factory mutated the canonical prompt library during candidate exploration.');
 assert(sandbox.window.FPL_PROMPT_LIBRARY.length === 0, 'Prompt Factory published candidates into window.FPL_PROMPT_LIBRARY.');
 
-console.log(`Prompt Factory behavioural smoke test passed: ${seasonStats.generated} season-stat, ${nationality.generated} nationality and ${value.generated} value candidates explored without publishing.`);
+console.log(`Prompt Factory behavioural smoke test passed: ${seasonStats.generated} season-stat, ${nationality.generated} nationality, ${value.generated} value and ${excludeTop.generated} exclude-top-result candidates explored without publishing.`);
