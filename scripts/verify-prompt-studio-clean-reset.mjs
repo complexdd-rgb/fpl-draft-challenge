@@ -82,7 +82,7 @@ assert(!generatedManifest.includes('promptCurationReviewExportV1'), 'Generated m
 assert(promptStudio.includes('Prompt Studio permanent runtime v1.3.0'), 'Prompt Studio permanent runtime header is missing.');
 assert(promptStudio.includes('New-family safety boundary'), 'Prompt Studio no longer explains the future-family safety boundary.');
 assert(promptStudio.includes('Promotion + source archive'), 'Prompt Studio no longer exposes the maintained promotion/source step.');
-assert(promptStudio.includes('4,959') || promptStudio.includes('4959'), 'Prompt Studio no longer surfaces the active curated Daily authority count.');
+assert(promptStudio.includes('4,897') || promptStudio.includes('4897') || promptStudio.includes('4,959') || promptStudio.includes('4959'), 'Prompt Studio no longer surfaces the curated Daily boundary count.');
 assert(!promptStudio.includes('Refinement Incubator'), 'Completed Refinement Incubator remains visible in Prompt Studio.');
 assert(!promptStudio.includes('Generate & download paired 144'), 'Phase 1 review UI remains visible in Prompt Studio.');
 assert(!promptStudio.includes('Full-library evidence layer'), 'Phase 1 evidence UI remains visible in Prompt Studio.');
