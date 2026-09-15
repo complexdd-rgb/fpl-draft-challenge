@@ -22,15 +22,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Capture verifier output
+      - name: Capture verifier and selector hashes
         shell: bash
         run: |
           set +e
           node scripts/verify-daily-curated-authority-v1.mjs > /tmp/authority-diagnostic.txt 2>&1
           status=$?
           set -e
+          printf '\nexit_status=%s\n\nselector_hashes:\n' "$status" >> /tmp/authority-diagnostic.txt
+          node --input-type=module <<'NODE' >> /tmp/authority-diagnostic.txt
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const manifest = JSON.parse(fs.readFileSync('prompt-library-curated-v2/manifest.json', 'utf8'));
+          for (const descriptor of manifest.familySelectors || []) {
+            const raw = fs.readFileSync(descriptor.path, 'utf8');
+            const actual = crypto.createHash('sha256').update(raw).digest('hex');
+            console.log(`${descriptor.family}\texpected=${descriptor.sha256}\tactual=${actual}\t${actual === descriptor.sha256 ? 'MATCH' : 'MISMATCH'}`);
+          }
+          NODE
           cat /tmp/authority-diagnostic.txt
-          printf '\nexit_status=%s\n' "$status" >> /tmp/authority-diagnostic.txt
           cp /tmp/authority-diagnostic.txt reports/authority-ci-diagnostic.txt
       - name: Commit diagnostic
         shell: bash
@@ -39,6 +49,6 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add reports/authority-ci-diagnostic.txt
           if ! git diff --cached --quiet; then
-            git commit -m 'Record curated authority diagnostic'
+            git commit -m 'Record curated authority hash diagnostic'
             git push
           fi
