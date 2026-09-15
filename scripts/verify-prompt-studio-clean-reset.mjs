@@ -20,7 +20,7 @@ const promptLibrary = read('prompt-library.js')
   .trim();
 
 assert(manifest.manifestVersion === '4.0.0-prompts-v2', 'Central manifest is not on the 18-family prompt-v2 boundary.');
-assert(manifest.assets?.assetManifestRuntime?.version === '4.0.0-prompts-v2', 'Asset manifest runtime cache tag is stale.');
+assert(manifest.assets?.assetManifestRuntime?.version === '4.0.1-adaptive-reservoir', 'Asset manifest runtime cache tag is stale.');
 assert(manifest.assets?.studioBootstrap?.version === '3.0.0-post-curation', 'Studio bootstrap cache tag is stale.');
 assert(manifest.assets?.promptStudioClean?.version === '1.3.0-permanent-workflow', 'Prompt Studio permanent workflow cache tag is stale.');
 assert(manifest.assets?.adminDailyCuratedAuthorityV1?.version === '2.0.0', 'Curated Daily authority cache tag is stale.');

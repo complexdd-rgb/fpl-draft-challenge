@@ -121,7 +121,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "4.0.1-adaptive-reservoir",
+    version: "4.0.0-prompts-v2",
     assets,
     get,
     url

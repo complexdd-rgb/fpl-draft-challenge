@@ -1,5 +1,5 @@
 {
-  "manifestVersion": "4.0.1-adaptive-reservoir",
+  "manifestVersion": "4.0.0-prompts-v2",
   "assets": {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
