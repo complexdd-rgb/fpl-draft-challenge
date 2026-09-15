@@ -152,7 +152,7 @@ const familyWeights = [
   ['nationality', 120], ['season-stats', 400], ['position-stat', 350], ['exact-stats', 300],
   ['combined-stats', 280], ['club-stat', 250], ['league-position', 220], ['promoted-clubs', 90],
   ['relegated-clubs', 90], ['champions', 80], ['career-longevity', 180], ['club-count', 160],
-  ['manager', 140], ['anti-meta', 200], ['value', 170], ['minutes-role', 210], ['composite-story', 190]
+  ['manager', 140], ['anti-meta', 200], ['exclude-top-result', 62], ['value', 170], ['minutes-role', 210], ['composite-story', 190]
 ];
 const nationalityTarget = 7;
 const otherFamilies = familyWeights.filter(([family]) => family !== 'nationality');

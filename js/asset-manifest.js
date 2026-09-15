@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.5.0-leader-day-spacing"
+      "version": "2.5.1-18-family"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
