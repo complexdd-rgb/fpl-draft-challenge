@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.5.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.5.2.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.5.0";
+  const VERSION = "2.5.2";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -485,6 +485,17 @@
   async function certifyCandidate(record, position, limits, cutoverApi, cache) {
     const key = `${record.id}|${position}`;
     if (cache.has(key)) return cache.get(key);
+
+    // Reject candidates that cannot fit the answer window before the expensive
+    // runtime stats scan. ANY prompts still get a live count when their stored
+    // total is above the maximum because a position-specific slice may fit.
+    const stored = Number(record?.qualityEvidence?.answerPlayers || 0);
+    const sourcePosition = String(record?.position || "").toUpperCase();
+    if (!Number.isFinite(stored) || stored < limits.min || (sourcePosition !== "ANY" && stored > limits.max)) {
+      cache.set(key, null);
+      return null;
+    }
+
     const prompt = cutoverApi.materialiseRecord(record, position);
     if (!prompt || typeof prompt.test !== "function") {
       cache.set(key, null);
@@ -502,7 +513,6 @@
       return null;
     }
     const count = Number(stats?.playerCount || 0);
-    const stored = Number(record?.qualityEvidence?.answerPlayers || 0);
     const evidenceConsistent = record.position === "ANY" ? count > 0 && count <= stored : count === stored;
     if (!evidenceConsistent || count < limits.min || count > limits.max) {
       cache.set(key, null);
@@ -627,7 +637,7 @@
             scanned += 1;
             if (prompt) certifiedByPosition[position].push({ record, prompt });
             if (scanned > 0 && scanned % 80 === 0) {
-              setStatus(`Runtime-certifying the 17-family weekly reservoir · ${scanned.toLocaleString("en-GB")} compact candidates checked…`, "working");
+              setStatus(`Runtime-certifying the 18-family weekly reservoir · ${scanned.toLocaleString("en-GB")} compact candidates checked…`, "working");
               await new Promise(resolve => setTimeout(resolve, 0));
             }
           }
