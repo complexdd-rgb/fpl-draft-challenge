@@ -1,65 +1,72 @@
-name: Diagnose curated authority
+name: Finalize 18-family generator wiring
 
 on:
   push:
     branches:
-      - 'prompt-studio-*'
+      - 'prompt-studio-finalize-18-family-prompts'
     paths:
       - '.github/workflows/diagnose-curated-authority.yml'
-      - 'scripts/verify-daily-curated-authority-v1.mjs'
-      - 'js/admin-daily-curated-authority-v1.js'
-      - 'prompt-library-curated-v1/**'
-      - 'prompt-library-curated-v2/**'
 
 permissions:
   contents: write
 
 jobs:
-  diagnose:
+  finalize:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Capture verifier and selector hashes
+      - name: Apply final 18-family copy, tagging and fixture updates
         shell: bash
         run: |
-          set +e
-          node scripts/verify-daily-curated-authority-v1.mjs > /tmp/authority-diagnostic.txt 2>&1
-          status=$?
-          set -e
-          printf '\nexit_status=%s\n\nselector_hashes:\n' "$status" >> /tmp/authority-diagnostic.txt
-          node --input-type=module <<'NODE' >> /tmp/authority-diagnostic.txt
-          import fs from 'node:fs';
-          import crypto from 'node:crypto';
-          const manifest = JSON.parse(fs.readFileSync('prompt-library-curated-v2/manifest.json', 'utf8'));
-          for (const descriptor of manifest.familySelectors || []) {
-            const raw = fs.readFileSync(descriptor.path, 'utf8');
-            const nodeHash = crypto.createHash('sha256').update(raw).digest('hex');
-            const digest = await crypto.webcrypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
-            const webHash = [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join('');
-            console.log(JSON.stringify({
-              family: descriptor.family,
-              expected: descriptor.sha256,
-              expectedLength: String(descriptor.sha256).length,
-              nodeHash,
-              webHash,
-              nodeEquals: nodeHash === descriptor.sha256,
-              webEquals: webHash === descriptor.sha256,
-              expectedCodes: [...String(descriptor.sha256)].map(char => char.charCodeAt(0))
-            }));
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          guard_path = Path('js/admin-daily-generator-guard.js')
+          guard = guard_path.read_text()
+          replacements = {
+              'matches the real 17-family': 'matches the real 18-family',
+              '17-family pool checking…': '18-family pool checking…',
+              'Validating the saved promoted 17-family library before generation…': 'Validating the saved promoted 18-family library before generation…',
+              'The 17-family proportional weekly target could not be allocated to 77 prompt slots.': 'The 18-family proportional weekly target could not be allocated to 77 prompt slots.',
+              '"club-count", "manager", "anti-meta", "value", "minutes-role", "composite-story"': '"club-count", "manager", "anti-meta", "exclude-top-result", "value", "minutes-role", "composite-story"'
           }
-          NODE
-          cat /tmp/authority-diagnostic.txt
-          cp /tmp/authority-diagnostic.txt reports/authority-ci-diagnostic.txt
-      - name: Commit diagnostic
+          for old, new in replacements.items():
+              if old not in guard:
+                  raise SystemExit(f'Missing expected guard token: {old}')
+              guard = guard.replace(old, new)
+          guard_path.write_text(guard)
+
+          verifier_path = Path('scripts/verify-weekly-certified-snapshot-race.mjs')
+          verifier = verifier_path.read_text()
+          old = "['manager', 140], ['anti-meta', 200], ['value', 170], ['minutes-role', 210], ['composite-story', 190]"
+          new = "['manager', 140], ['anti-meta', 200], ['exclude-top-result', 62], ['value', 170], ['minutes-role', 210], ['composite-story', 190]"
+          if old not in verifier:
+              raise SystemExit('Missing weekly family-weight fixture token')
+          verifier = verifier.replace(old, new)
+          verifier_path.write_text(verifier)
+
+          config_path = Path('config/asset-manifest.json')
+          config = json.loads(config_path.read_text())
+          config['assets']['adminDailyGeneratorGuard']['version'] = '2.5.1-18-family'
+          config_path.write_text(json.dumps(config, indent=2) + '\n')
+
+          Path('reports/authority-ci-diagnostic.txt').unlink(missing_ok=True)
+          Path('.github/workflows/diagnose-curated-authority.yml').unlink(missing_ok=True)
+          PY
+
+          node scripts/build-asset-manifest-runtime.mjs
+          node --check js/admin-daily-generator-guard.js
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+
+      - name: Commit final wiring and remove diagnostics
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add reports/authority-ci-diagnostic.txt
-          if ! git diff --cached --quiet; then
-            git commit -m 'Record WebCrypto authority diagnostic'
-            git push
-          fi
+          git add -A
+          git commit -m 'Finalize 18-family generator wiring'
+          git push
