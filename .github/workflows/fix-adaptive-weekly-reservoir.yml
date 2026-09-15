@@ -1,0 +1,82 @@
+name: Apply adaptive weekly reservoir fix
+
+on:
+  push:
+    branches:
+      - 'fix/adaptive-weekly-reservoir-certification'
+    paths:
+      - '.github/workflows/fix-adaptive-weekly-reservoir.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply adaptive reservoir patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('js/admin-daily-generator-guard.js')
+          s = p.read_text()
+          s = s.replace('saved-library generation guard v2.5.2.', 'saved-library generation guard v2.5.3.')
+          s = s.replace('const VERSION = "2.5.2";', 'const VERSION = "2.5.3";')
+          s = s.replace('const diversityExtra = Math.max(24, Math.ceil(need * 3));', 'const diversityExtra = anyOffset < 2\n            ? Math.max(8, Math.ceil(need * 2))\n            : Math.max(16, Math.ceil(need * 3));')
+          anchor = '''        candidatePools.set(family, certifiedByPosition);\n      }\n\n      const allocation = solveFamilyPositionFlow(families, targets, positionNeeds, candidatePools);'''
+          replacement = '''        candidatePools.set(family, certifiedByPosition);\n      }\n\n      setStatus(`Selecting the 77-prompt reservoir from ${scanned.toLocaleString("en-GB")} checked candidates · diversity layout ${anyOffset + 1}/${POSITION_ORDER.length}…`, "working");\n      await new Promise(resolve => setTimeout(resolve, 0));\n\n      const allocation = solveFamilyPositionFlow(families, targets, positionNeeds, candidatePools);'''
+          if anchor not in s:
+              raise SystemExit('selection status anchor not found')
+          s = s.replace(anchor, replacement, 1)
+          s = s.replace('source: "saved-promoted-17-family-library"', 'source: "saved-promoted-18-family-library"')
+          s = s.replace('The saved 17-family library could not fill the selected formation', 'The saved 18-family library could not fill the selected formation')
+          s = s.replace('17-family proportional cycle', '18-family proportional cycle')
+          s = s.replace('the 17-family targets were preserved', 'the 18-family targets were preserved')
+          p.write_text(s)
+
+          for test in ['scripts/verify-all-season-certification-gate.mjs','scripts/verify-weekly-certified-snapshot-race.mjs']:
+              q = Path(test)
+              t = q.read_text().replace('saved-library generation guard v2.5.2', 'saved-library generation guard v2.5.3')
+              q.write_text(t)
+
+          q = Path('config/asset-manifest.json')
+          t = q.read_text()
+          t = t.replace('"manifestVersion": "4.0.0-prompts-v2"', '"manifestVersion": "4.0.1-adaptive-reservoir"', 1)
+          oldv = '"version": "2.5.2-fast-certification"'
+          if oldv not in t:
+              raise SystemExit('guard asset version anchor not found')
+          t = t.replace(oldv, '"version": "2.5.3-adaptive-reservoir"', 1)
+          q.write_text(t)
+          PY
+
+      - name: Rebuild generated wiring
+        shell: bash
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-native-daily-workspace.mjs
+          node scripts/build-studio-cache-tags.mjs
+
+      - name: Verify
+        shell: bash
+        run: |
+          node --check js/admin-daily-generator-guard.js
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          node scripts/verify-daily-curated-authority-v1.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+
+      - name: Commit
+        shell: bash
+        run: |
+          rm .github/workflows/fix-adaptive-weekly-reservoir.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Make weekly reservoir certification adaptive'
+          git push
