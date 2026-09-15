@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.5.1-18-family"
+      "version": "2.5.2-fast-certification"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
