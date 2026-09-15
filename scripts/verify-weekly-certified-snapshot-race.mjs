@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.5.2',
+  'saved-library generation guard v2.5.3',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex)',
@@ -61,7 +61,10 @@ assert(batch.includes('? buildWeeklyReservoirRotationState(basePools)'), 'Guarde
 assert(guard.includes('function topAnswerDiversityAudit(prompts)'), '77-prompt reservoir does not audit top-answer player uniqueness.');
 assert(guard.includes('leftLeaderLoad - rightLeaderLoad'), '77-prompt reservoir does not prefer unused weekly top-answer players.');
 assert(guard.includes('selectionGroups.sort((left, right) =>'), '77-prompt reservoir does not give constrained top-answer groups first choice.');
-assert(guard.includes('const diversityExtra = Math.max(24, Math.ceil(need * 3));'), '77-prompt reservoir does not certify enough alternatives for leader diversity.');
+assert(guard.includes('const diversityExtra = anyOffset < 2'), '77-prompt reservoir does not use adaptive diversity sizing.');
+assert(guard.includes('Math.max(8, Math.ceil(need * 2))'), '77-prompt reservoir is missing the fast initial diversity buffer.');
+assert(guard.includes('Math.max(16, Math.ceil(need * 3))'), '77-prompt reservoir is missing the wider fallback diversity buffer.');
+assert(guard.includes('Selecting the 77-prompt reservoir from'), '77-prompt reservoir does not expose post-certification selection progress.');
 assert(guard.includes('topAnswerDiversity: frozenTopAnswerDiversity'), '77-prompt reservoir does not expose its top-answer diversity audit.');
 assert(!batch.includes('Regenerate from a later rotation point rather than relaxing the nationality quota.'), 'Generator still recommends moving the fixed schedule date to escape a rotation conflict.');
 assert(guard.includes('window.FPL_STUDIO_SCHEDULE?.scheduled || []'), 'Weekly reservoir does not consume authoritative Supabase prompt history.');
