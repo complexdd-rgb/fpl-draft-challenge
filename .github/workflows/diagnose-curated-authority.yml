@@ -1,0 +1,44 @@
+name: Diagnose curated authority
+
+on:
+  push:
+    branches:
+      - 'prompt-studio-*'
+    paths:
+      - '.github/workflows/diagnose-curated-authority.yml'
+      - 'scripts/verify-daily-curated-authority-v1.mjs'
+      - 'js/admin-daily-curated-authority-v1.js'
+      - 'prompt-library-curated-v1/**'
+      - 'prompt-library-curated-v2/**'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Capture verifier output
+        shell: bash
+        run: |
+          set +e
+          node scripts/verify-daily-curated-authority-v1.mjs > /tmp/authority-diagnostic.txt 2>&1
+          status=$?
+          set -e
+          cat /tmp/authority-diagnostic.txt
+          printf '\nexit_status=%s\n' "$status" >> /tmp/authority-diagnostic.txt
+          cp /tmp/authority-diagnostic.txt reports/authority-ci-diagnostic.txt
+      - name: Commit diagnostic
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/authority-ci-diagnostic.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record curated authority diagnostic'
+            git push
+          fi
