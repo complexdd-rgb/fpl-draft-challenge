@@ -60,15 +60,27 @@ const thinButValid = {
   evidence: evidence({ answerPlayers:2, answerRecords:2, seasons:1, clubs:1, nationalities:2, knownRows:35, eligibleRows:100, coverage:35 })
 };
 
+const excludedTop = {
+  id: 'mid_points_100_excluding_p1', family: 'exclude-top-result', position: 'MID',
+  label: 'Midfielder with at least 100 FPL points — excluding One Player',
+  conditions: [
+    { field:'points', operator:'gte', value:100 },
+    { field:'playerId', operator:'notEquals', value:'p1' }
+  ],
+  evidence: evidence({ answerPlayers:12 })
+};
+
 const results = {
   nationality: { survivors:2, survivorCandidates:[brazilFive, brazilFiveFive] },
   value: { survivors:1, survivorCandidates:[exactDuplicate] },
-  'season-stats': { survivors:1, survivorCandidates:[thinButValid] }
+  'season-stats': { survivors:1, survivorCandidates:[thinButValid] },
+  'exclude-top-result': { survivors:1, survivorCandidates:[excludedTop] }
 };
 const families = [
   { id:'nationality', label:'Nationality' },
   { id:'value', label:'Value' },
-  { id:'season-stats', label:'Season stats' }
+  { id:'season-stats', label:'Season stats' },
+  { id:'exclude-top-result', label:'Exclude top result' }
 ];
 const canonical = [];
 const documentStub = {
@@ -82,7 +94,7 @@ const documentStub = {
 const sandbox = {
   window: {
     FPL_PROMPT_LIBRARY:canonical,
-    FPL_PROMPT_FACTORY_V1:{ ready:true, version:'1.0.0', families, getResults:() => results }
+    FPL_PROMPT_FACTORY_V1:{ ready:true, version:'1.1.0', families, getResults:() => results }
   },
   document:documentStub,
   console,
@@ -98,24 +110,28 @@ sandbox.window.dispatchEvent = () => true;
 vm.runInNewContext(source, sandbox, { filename:'prompt-quality-analyser-v1.js' });
 const analyser = sandbox.window.FPL_PROMPT_QUALITY_ANALYSER_V1;
 assert(analyser?.ready === true, 'Quality Analyser API did not initialise.');
-assert(analyser.version === '1.0.0', 'Quality Analyser version mismatch.');
+assert(analyser.version === '1.1.0', 'Quality Analyser version mismatch.');
 
 await analyser.analyseAll();
 const summary = analyser.getSummary();
-assert(summary.analysed === 4, `Expected 4 analysed candidates, found ${summary.analysed}.`);
-assert(summary.pass === 2, `Expected both close Brazil price variants to pass, found ${summary.pass} passes.`);
+assert(summary.analysed === 5, `Expected 5 analysed candidates, found ${summary.analysed}.`);
+assert(summary.pass === 3, `Expected three automatic passes, found ${summary.pass}.`);
 assert(summary.review === 1, `Expected one thin-but-valid candidate to be retained for review, found ${summary.review}.`);
 assert(summary.rejected === 1, `Expected only the exact duplicate to be rejected, found ${summary.rejected}.`);
 
 const passes = analyser.getQualityCandidates();
-assert(passes.length === 2, 'Automatic-pass pool should contain both close threshold variants.');
+assert(passes.length === 3, 'Automatic-pass pool should contain both close threshold variants plus exclude-top-result.');
 assert(passes.every(item => item.id !== exactDuplicate.id), 'Exact duplicate leaked into the pass pool.');
-assert(passes[0].variantGroup === passes[1].variantGroup, 'Close £5.0m / £5.5m variants were not tagged into the same variant group.');
-assert(passes[0].id !== passes[1].id, 'Close variants were incorrectly collapsed into one prompt.');
+const brazilPasses = passes.filter(item => item.family === 'nationality');
+assert(brazilPasses.length === 2 && brazilPasses[0].variantGroup === brazilPasses[1].variantGroup, 'Close £5.0m / £5.5m variants were not tagged into the same variant group.');
+assert(brazilPasses[0].id !== brazilPasses[1].id, 'Close variants were incorrectly collapsed into one prompt.');
+const excludedPass = passes.find(item => item.id === excludedTop.id);
+assert(excludedPass, 'Exclude-top-result candidate did not pass Quality Analysis.');
+assert(excludedPass.conditions.some(condition => condition.field === 'playerId' && condition.operator === 'notEquals' && condition.value === 'p1'), 'Quality output lost the playerId notEquals exclusion condition.');
 
 const retained = analyser.getQualityCandidates({ includeReview:true });
-assert(retained.length === 3, 'Review candidate was not retained alongside automatic passes.');
+assert(retained.length === 4, 'Review candidate was not retained alongside automatic passes.');
 assert(retained.some(item => item.id === thinButValid.id && item.qualityStatus === 'review'), 'Thin-but-valid prompt was not preserved in Review.');
 assert(canonical.length === 0, 'Quality Analyser mutated the canonical prompt library.');
 
-console.log(`Prompt Quality Analyser behavioural smoke test passed: ${summary.pass} close variants passed, ${summary.review} retained for review, ${summary.rejected} exact duplicate rejected, ${summary.variantGroups} variant groups.`);
+console.log(`Prompt Quality Analyser behavioural smoke test passed: ${summary.pass} candidates passed including exclude-top-result, ${summary.review} retained for review, ${summary.rejected} exact duplicate rejected, ${summary.variantGroups} variant groups.`);
