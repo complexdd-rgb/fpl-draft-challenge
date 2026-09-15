@@ -26,7 +26,7 @@
     },
     "promptFactoryV1": {
       "path": "js/prompt-factory-v1.js",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     "promptQualityAnalyserMountV1": {
       "path": "js/prompt-quality-analyser-mount-v1.js",
@@ -34,7 +34,7 @@
     },
     "promptQualityAnalyserV1": {
       "path": "js/prompt-quality-analyser-v1.js",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     "promptQualityAnalyserCssV1": {
       "path": "admin-prompt-quality-analyser.css",
