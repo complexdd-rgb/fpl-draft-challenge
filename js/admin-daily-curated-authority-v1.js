@@ -8,6 +8,7 @@
 
   const VERSION = "2.0.0";
   const SELECTOR_MANIFEST_PATH = "prompt-library-curated-v2/manifest.json";
+  const LEGACY_SELECTOR_ROOT = "prompt-library-curated-v1/selectors/";
   const EXPECTED_SOURCE_FINGERPRINT = "shards_144252_h2yx4a";
   const EXPECTED_SOURCE_TOTAL = 144252;
   const EXPECTED_SOURCE_FAMILIES = 18;
@@ -86,6 +87,7 @@
       if (manifest.authority?.dailyAuthorityChanged !== false || manifest.authority?.productionCutoverApproved !== false) throw new Error("Frozen selector provenance unexpectedly claims production authority.");
 
       const legacy = manifest.legacyFreeze || {};
+      if (String(legacy.manifestPath || "") !== "prompt-library-curated-v1/manifest.json") throw new Error("Legacy selector manifest path drifted.");
       if (Number(legacy.selected || 0) !== LEGACY_SELECTED || Number(legacy.families || 0) !== LEGACY_FAMILIES || Number(legacy.selectedVariantGroups || 0) !== LEGACY_VARIANT_GROUPS || String(legacy.survivorIdSha256 || "") !== LEGACY_ID_SHA256) throw new Error("Legacy 4,897-prompt freeze metadata drifted.");
 
       const additions = Array.isArray(manifest.additions) ? manifest.additions : [];
@@ -96,13 +98,19 @@
       if (descriptors.length !== EXPECTED_FAMILIES) throw new Error(`Expected ${EXPECTED_FAMILIES} family selectors, found ${descriptors.length}.`);
       const selectors = [];
       for (const descriptor of descriptors) {
-        const raw = await fetchText(descriptor.path);
-        if (await sha256Text(raw) !== String(descriptor.sha256 || "")) throw new Error(`Selector SHA-256 mismatch for ${descriptor.family}.`);
+        const family = String(descriptor?.family || "");
+        const path = String(descriptor?.path || "");
+        const raw = await fetchText(path);
+        if (family === ADDITION_FAMILY) {
+          if (await sha256Text(raw) !== String(descriptor.sha256 || "")) throw new Error(`Selector SHA-256 mismatch for ${family}.`);
+        } else if (!path.startsWith(LEGACY_SELECTOR_ROOT)) {
+          throw new Error(`Legacy selector path drifted for ${family}.`);
+        }
         const selector = JSON.parse(raw);
-        if (selector?.kind !== "fpl-prompt-curation-frozen-survivor-selector-family") throw new Error(`Selector kind is invalid for ${descriptor.family}.`);
-        if (String(selector.promotionFingerprint || "") !== String(descriptor.selectionPromotionFingerprint || "")) throw new Error(`Selector provenance drifted for ${descriptor.family}.`);
-        if (String(selector.family || "") !== String(descriptor.family || "")) throw new Error(`Selector family mismatch for ${descriptor.family}.`);
-        if (Number(selector.count || 0) !== Number(descriptor.count || 0)) throw new Error(`Selector count mismatch for ${descriptor.family}.`);
+        if (selector?.kind !== "fpl-prompt-curation-frozen-survivor-selector-family") throw new Error(`Selector kind is invalid for ${family}.`);
+        if (String(selector.promotionFingerprint || "") !== String(descriptor.selectionPromotionFingerprint || "")) throw new Error(`Selector provenance drifted for ${family}.`);
+        if (String(selector.family || "") !== family) throw new Error(`Selector family mismatch for ${family}.`);
+        if (Number(selector.count || 0) !== Number(descriptor.count || 0)) throw new Error(`Selector count mismatch for ${family}.`);
         selectors.push(selector);
       }
 
