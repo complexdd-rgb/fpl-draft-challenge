@@ -1,12 +1,12 @@
-/* FPL Challenge Studio — Daily saved-library cutover boundary v1.0.1.
-   Validates the promoted family-shard snapshot and provides lazy, deterministic prompt
-   rehydration for Daily Challenge. It does not make this pool production-authoritative. */
+/* FPL Challenge Studio — Daily saved-library cutover boundary v1.1.0.
+   Validates the active curated 18-family package and lazily rehydrates self-contained
+   Daily prompts, including Exclude Top Result playerId:notEquals rules. */
 (() => {
   "use strict";
 
   if (window.FPL_DAILY_LIBRARY_CUTOVER_V1?.ready) return;
 
-  const VERSION = "1.0.1";
+  const VERSION = "1.1.0";
   const EXPECTED_FAMILIES = Object.freeze([
     "season-stats",
     "position-stat",
@@ -22,6 +22,7 @@
     "club-count",
     "manager",
     "anti-meta",
+    "exclude-top-result",
     "value",
     "minutes-role",
     "composite-story"
@@ -33,9 +34,9 @@
     "minutes", "startingPrice", "ageAtSeasonStart", "yellowCards", "redCards",
     "goalsConceded", "leaguePosition", "careerSeasonCount", "careerClubCount", "club",
     "manager", "nationality", "outsideBigSix", "champions", "topFour", "bottomHalf",
-    "relegated", "promoted"
+    "relegated", "promoted", "playerId"
   ]);
-  const VALID_OPERATORS = new Set(["eq", "gte", "lte", "gt", "lt", "between", "eqText", "contains", "isTrue", "isFalse"]);
+  const VALID_OPERATORS = new Set(["eq", "gte", "lte", "gt", "lt", "between", "eqText", "contains", "isTrue", "isFalse", "notEquals"]);
   const BIG_SIX = Object.freeze(["Arsenal", "Chelsea", "Liverpool", "Man City", "Man Utd", "Spurs"]);
   const POSITION_LABELS = Object.freeze({ GK: "Goalkeeper", DEF: "Defender", MID: "Midfielder", FWD: "Forward" });
   const YIELD_EVERY = 4000;
@@ -44,7 +45,7 @@
     status: "waiting",
     ready: false,
     running: false,
-    reason: "Waiting for the saved promoted Prompt Library snapshot.",
+    reason: "Waiting for the curated Prompt Library package.",
     manifest: null,
     total: 0,
     familyCount: 0,
@@ -90,6 +91,7 @@
     if (!record.conditions.every(condition => VALID_FIELDS.has(String(condition?.field || "")))) return "unsupported condition field";
     if (!record.conditions.every(condition => VALID_OPERATORS.has(String(condition?.operator || "")))) return "unsupported condition operator";
     if (!record.conditions.every(condition => condition.operator !== "between" || condition.value2 !== undefined)) return "between condition is missing its upper value";
+    if (!record.conditions.every(condition => condition.operator !== "notEquals" || String(condition.value ?? "").trim() !== "")) return "notEquals condition is missing its excluded value";
     if (!["pass", "review"].includes(String(record.qualityStatus || ""))) return "prompt did not pass Promotion quality status";
     if (record.enabled === false) return "prompt is disabled";
     if (!Number.isFinite(Number(record.qualityEvidence?.answerPlayers)) || Number(record.qualityEvidence.answerPlayers) < 2) return "stored quality evidence has fewer than two answer players";
@@ -103,18 +105,36 @@
     });
   }
 
-  function setFailure(reason) {
-    state.status = "blocked";
-    state.ready = false;
-    state.reason = String(reason || "Saved Prompt Library certification failed.");
-    state.indexedAt = new Date().toISOString();
-    dispatchState();
-    return false;
+  function getState() {
+    return Object.freeze({
+      version: VERSION,
+      status: state.status,
+      ready: state.ready,
+      running: state.running,
+      reason: state.reason,
+      total: state.total,
+      families: state.familyCount,
+      invalid: state.invalidCount,
+      duplicates: state.duplicateCount,
+      invalidSamples: state.invalidSamples.map(item => ({ ...item })),
+      manifest: state.manifest ? { ...state.manifest } : null,
+      familyIndex: familyIndex(),
+      indexedAt: state.indexedAt
+    });
   }
 
   function dispatchState() {
     window.dispatchEvent(new CustomEvent("fpl:daily-library-cutover-state", { detail: getState() }));
     window.FPL_PROMPT_LIBRARY_SHARDS_V1?.render?.();
+  }
+
+  function setFailure(reason) {
+    state.status = "blocked";
+    state.ready = false;
+    state.reason = String(reason || "Curated Prompt Library certification failed.");
+    state.indexedAt = new Date().toISOString();
+    dispatchState();
+    return false;
   }
 
   async function refresh() {
@@ -131,7 +151,7 @@
     state.running = true;
     state.status = "indexing";
     state.ready = false;
-    state.reason = "Validating the saved promoted library for Daily Challenge use.";
+    state.reason = "Validating the curated 18-family Daily library.";
     state.invalidCount = 0;
     state.duplicateCount = 0;
     state.invalidSamples = [];
@@ -143,18 +163,17 @@
       const payload = await shards.buildRepositoryPackage();
       const manifest = payload?.manifest;
       const packageShards = Array.isArray(payload?.shards) ? payload.shards : [];
-      if (!manifest || !packageShards.length) return setFailure("No saved promoted Prompt Library snapshot is available.");
-      if (Number(manifest.families || 0) !== EXPECTED_FAMILIES.length) {
-        return setFailure(`Expected ${EXPECTED_FAMILIES.length} promoted families, found ${Number(manifest.families || 0)}.`);
-      }
+      if (!manifest || !packageShards.length) return setFailure("No curated Prompt Library package is available.");
+      if (Number(manifest.families || 0) !== EXPECTED_FAMILIES.length) return setFailure(`Expected ${EXPECTED_FAMILIES.length} curated families, found ${Number(manifest.families || 0)}.`);
 
       const shardNames = new Set(packageShards.map(shard => String(shard?.family || "")));
       const missingFamilies = EXPECTED_FAMILIES.filter(family => !shardNames.has(family));
-      if (missingFamilies.length) return setFailure(`Saved library is missing families: ${missingFamilies.join(", ")}.`);
+      if (missingFamilies.length) return setFailure(`Curated library is missing families: ${missingFamilies.join(", ")}.`);
 
       let visited = 0;
       for (const shard of packageShards) {
         const family = String(shard?.family || "");
+        if (!EXPECTED_FAMILIES.includes(family)) return setFailure(`Curated library contains unknown family ${family}.`);
         const records = Array.isArray(shard?.records) ? shard.records : [];
         for (const raw of records) {
           visited += 1;
@@ -167,13 +186,7 @@
             state.duplicateCount += 1;
             if (state.invalidSamples.length < 12) state.invalidSamples.push({ id, family, reason: "duplicate prompt ID" });
           } else {
-            const record = Object.freeze({
-              ...raw,
-              id,
-              family,
-              position: String(raw.position),
-              conditions: Object.freeze(raw.conditions.map(condition => Object.freeze(cloneCondition(condition))))
-            });
+            const record = Object.freeze({ ...raw, id, family, position: String(raw.position), conditions: Object.freeze(raw.conditions.map(condition => Object.freeze(cloneCondition(condition)))) });
             state.recordsById.set(id, record);
             state.byFamily.get(family)?.push(record);
           }
@@ -182,18 +195,16 @@
       }
 
       const total = state.recordsById.size;
-      if (visited !== Number(manifest.total || 0)) return setFailure(`Saved manifest expected ${Number(manifest.total || 0).toLocaleString("en-GB")} records but ${visited.toLocaleString("en-GB")} were inspected.`);
-      if (state.invalidCount || state.duplicateCount) {
-        return setFailure(`${state.invalidCount.toLocaleString("en-GB")} invalid and ${state.duplicateCount.toLocaleString("en-GB")} duplicate promoted records must be resolved before cutover.`);
-      }
-      if (total !== Number(manifest.total || 0)) return setFailure("The indexed promoted-library total does not match its saved manifest.");
+      if (visited !== Number(manifest.total || 0)) return setFailure(`Curated manifest expected ${Number(manifest.total || 0).toLocaleString("en-GB")} records but ${visited.toLocaleString("en-GB")} were inspected.`);
+      if (state.invalidCount || state.duplicateCount) return setFailure(`${state.invalidCount.toLocaleString("en-GB")} invalid and ${state.duplicateCount.toLocaleString("en-GB")} duplicate curated records must be resolved before generation.`);
+      if (total !== Number(manifest.total || 0)) return setFailure("The indexed curated total does not match its manifest.");
 
       state.manifest = lightweightManifest(manifest);
       state.total = total;
       state.familyCount = EXPECTED_FAMILIES.length;
       state.status = "ready";
       state.ready = true;
-      state.reason = "Saved promoted library passed the Daily structural certification boundary. Generation authority has not switched yet.";
+      state.reason = "Curated 18-family library passed the Daily structural certification boundary.";
       state.indexedAt = new Date().toISOString();
       dispatchState();
       window.dispatchEvent(new CustomEvent("fpl:daily-library-cutover-ready", { detail: getState() }));
@@ -211,18 +222,11 @@
       const records = state.byFamily.get(family) || [];
       const byPosition = { ANY: 0, GK: 0, DEF: 0, MID: 0, FWD: 0 };
       for (const record of records) byPosition[record.position] = (byPosition[record.position] || 0) + 1;
-      return {
-        family,
-        total: records.length,
-        byPosition,
-        compatible: Object.fromEntries(POSITION_ORDER.map(position => [position, byPosition[position] + byPosition.ANY]))
-      };
+      return { family, total: records.length, byPosition, compatible: Object.fromEntries(POSITION_ORDER.map(position => [position, byPosition[position] + byPosition.ANY])) };
     });
   }
 
-  function conditionSource(conditions) {
-    return JSON.stringify(conditions.map(cloneCondition));
-  }
+  function conditionSource(conditions) { return JSON.stringify(conditions.map(cloneCondition)); }
 
   function buildTestSource(conditions) {
     const encoded = conditionSource(conditions);
@@ -235,6 +239,7 @@
       `    if (field === "goalInvolvements") { const goals = number(p?.goals), assists = number(p?.assists); return goals == null || assists == null ? null : goals + assists; }\n` +
       `    if (field === "careerSeasonCount") return number(p?._career?.seasonCount);\n` +
       `    if (field === "careerClubCount") return number(p?._career?.clubCount);\n` +
+      `    if (field === "playerId") return String(p?._career?.playerId ?? p?.playerId ?? "").trim();\n` +
       `    if (field === "nationality") return String(window.FPL_CAREER_EVOLUTION_CONTEXT?.nationalityForPlayer?.(p?._career?.playerId ?? p?.playerId) || "").trim();\n` +
       `    if (field === "outsideBigSix") return p?.club ? !${bigSix}.includes(String(p.club)) : null;\n` +
       `    if (field === "champions") return typeof p?.champions === "boolean" ? p.champions : (number(p?.leaguePosition) == null ? null : number(p.leaguePosition) === 1);\n` +
@@ -248,6 +253,7 @@
       `    if (condition.operator === "isTrue") return actual === true;\n` +
       `    if (condition.operator === "isFalse") return actual === false;\n` +
       `    if (condition.operator === "eqText") return text(actual) !== "" && text(actual) === text(condition.value);\n` +
+      `    if (condition.operator === "notEquals") return text(actual) !== "" && text(actual) !== text(condition.value);\n` +
       `    if (condition.operator === "contains") return Array.isArray(actual) && actual.some(item => text(item) === text(condition.value));\n` +
       `    const actualNumber = number(actual), wanted = number(condition.value);\n` +
       `    if (actualNumber == null || wanted == null) return false;\n` +
@@ -321,25 +327,6 @@
     return compatible.slice(start, start + take).map(record => materialiseRecord(record, position)).filter(Boolean);
   }
 
-  function getState() {
-    return Object.freeze({
-      version: VERSION,
-      status: state.status,
-      ready: state.ready,
-      running: state.running,
-      reason: state.reason,
-      total: state.total,
-      families: state.familyCount,
-      invalid: state.invalidCount,
-      duplicates: state.duplicateCount,
-      invalidSamples: state.invalidSamples.map(item => ({ ...item })),
-      manifest: state.manifest ? { ...state.manifest } : null,
-      familyIndex: familyIndex(),
-      indexedAt: state.indexedAt
-    });
-  }
-
-
   function initialise() {
     refresh();
     window.addEventListener("fpl:prompt-library-shards-saved", refresh);
@@ -354,10 +341,7 @@
     positions: POSITION_ORDER,
     refresh,
     getState,
-    getCompactRecord: id => {
-      const record = state.recordsById.get(String(id || ""));
-      return record ? { ...record, conditions: record.conditions.map(cloneCondition) } : null;
-    },
+    getCompactRecord: id => { const record = state.recordsById.get(String(id || "")); return record ? { ...record, conditions: record.conditions.map(cloneCondition) } : null; },
     buildTestSource,
     compileConditions,
     materialiseRecord,
