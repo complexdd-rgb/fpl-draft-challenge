@@ -1,0 +1,57 @@
+name: Repin adaptive reservoir boundary
+
+on:
+  push:
+    branches:
+      - 'fix/adaptive-weekly-reservoir-certification'
+    paths:
+      - '.github/workflows/fix-adaptive-boundary.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Repin architecture boundary
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('config/asset-manifest.json')
+          s = p.read_text().replace('"manifestVersion": "4.0.1-adaptive-reservoir"', '"manifestVersion": "4.0.0-prompts-v2"', 1)
+          p.write_text(s)
+
+          p = Path('scripts/verify-prompt-studio-clean-reset.mjs')
+          s = p.read_text().replace("assert(manifest.assets?.assetManifestRuntime?.version === '4.0.0-prompts-v2', 'Asset manifest runtime cache tag is stale.');", "assert(manifest.assets?.assetManifestRuntime?.version === '4.0.1-adaptive-reservoir', 'Asset manifest runtime cache tag is stale.');", 1)
+          p.write_text(s)
+          PY
+      - name: Rebuild generated wiring
+        shell: bash
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-native-daily-workspace.mjs
+          node scripts/build-studio-cache-tags.mjs
+      - name: Verify
+        shell: bash
+        run: |
+          node scripts/verify-prompt-studio-clean-reset.mjs
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          node scripts/verify-daily-curated-authority-v1.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node --check js/admin-daily-generator-guard.js
+      - name: Commit
+        shell: bash
+        run: |
+          rm .github/workflows/fix-adaptive-boundary.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Repin prompt-v2 architecture boundary'
+          git push
