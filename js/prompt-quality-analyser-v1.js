@@ -1,4 +1,4 @@
-/* FPL Draft Challenge — Prompt Quality Analyser v1.0.0
+/* FPL Draft Challenge — Prompt Quality Analyser v1.1.0
    Analyses Prompt Factory survivors without publishing them. Exact duplicates can be rejected;
    useful threshold variants are preserved and tagged into stable variant groups for later weekly spacing. */
 (() => {
@@ -6,14 +6,14 @@
 
   if (window.FPL_PROMPT_QUALITY_ANALYSER_V1?.ready) return;
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
   const BATCH_SIZE = 500;
   const VALID_POSITIONS = new Set(["ANY", "GK", "DEF", "MID", "FWD"]);
-  const VALID_OPERATORS = new Set(["eq", "gte", "lte", "gt", "lt", "between", "eqText", "contains", "isTrue", "isFalse"]);
+  const VALID_OPERATORS = new Set(["eq", "gte", "lte", "gt", "lt", "between", "eqText", "contains", "notEquals", "isTrue", "isFalse"]);
   const VALID_FIELDS = new Set([
     "points", "goals", "assists", "goalInvolvements", "cleanSheets", "bonus", "saves", "minutes",
     "startingPrice", "ageAtSeasonStart", "yellowCards", "redCards", "goalsConceded", "leaguePosition",
-    "careerSeasonCount", "careerClubCount", "club", "manager", "nationality", "outsideBigSix", "champions",
+    "careerSeasonCount", "careerClubCount", "club", "manager", "nationality", "playerId", "outsideBigSix", "champions",
     "topFour", "bottomHalf", "relegated", "promoted"
   ]);
   const NUMERIC_OPERATORS = new Set(["eq", "gte", "lte", "gt", "lt", "between"]);
@@ -108,7 +108,7 @@
     if (NUMERIC_OPERATORS.has(operator)) {
       return `${field}:${operator}:${operator === "between" ? "#:#" : "#"}`;
     }
-    if (operator === "eqText" || operator === "contains") {
+    if (["eqText", "contains", "notEquals"].includes(operator)) {
       return `${field}:${operator}:${slug(condition.value)}`;
     }
     return `${field}:${operator}`;
@@ -139,7 +139,7 @@
     for (const condition of candidate.conditions || []) {
       if (!VALID_FIELDS.has(String(condition?.field || ""))) issues.push(`Unsupported field: ${condition?.field || "missing"}.`);
       if (!VALID_OPERATORS.has(String(condition?.operator || ""))) issues.push(`Unsupported operator: ${condition?.operator || "missing"}.`);
-      if (["eqText", "contains"].includes(condition?.operator) && !String(condition?.value ?? "").trim()) issues.push(`Missing value for ${condition.field}.`);
+      if (["eqText", "contains", "notEquals"].includes(condition?.operator) && !String(condition?.value ?? "").trim()) issues.push(`Missing value for ${condition.field}.`);
       if (NUMERIC_OPERATORS.has(condition?.operator) && !Number.isFinite(Number(condition?.value))) issues.push(`Non-numeric value for ${condition.field}.`);
       if (condition?.operator === "between" && !Number.isFinite(Number(condition?.value2))) issues.push(`Missing upper value for ${condition.field}.`);
     }
