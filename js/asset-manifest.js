@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.0-prompts-v2"
+      "version": "4.0.1-adaptive-reservoir"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.5.2-fast-certification"
+      "version": "2.5.3-adaptive-reservoir"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
@@ -121,7 +121,7 @@
   };
 
   window.FPL_ASSET_MANIFEST = Object.freeze({
-    version: "4.0.0-prompts-v2",
+    version: "4.0.1-adaptive-reservoir",
     assets,
     get,
     url

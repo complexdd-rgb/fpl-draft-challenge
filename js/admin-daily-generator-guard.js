@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.5.2.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.5.3.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.5.2";
+  const VERSION = "2.5.3";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -629,7 +629,9 @@
           // Top-answer diversity is decided at reservoir selection, so certify a materially
           // wider alternative set than the family/position minimum. This gives the selector
           // enough different leaders to avoid Salah/Robertson/TAA-style weekly clustering.
-          const diversityExtra = Math.max(24, Math.ceil(need * 3));
+          const diversityExtra = anyOffset < 2
+            ? Math.max(8, Math.ceil(need * 2))
+            : Math.max(16, Math.ceil(need * 3));
           const certifyLimit = Math.min(assigned[position].length, need + diversityExtra);
           for (const record of assigned[position]) {
             if (certifiedByPosition[position].length >= certifyLimit) break;
@@ -644,6 +646,9 @@
         }
         candidatePools.set(family, certifiedByPosition);
       }
+
+      setStatus(`Selecting the 77-prompt reservoir from ${scanned.toLocaleString("en-GB")} checked candidates · diversity layout ${anyOffset + 1}/${POSITION_ORDER.length}…`, "working");
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       const allocation = solveFamilyPositionFlow(families, targets, positionNeeds, candidatePools);
       if (!allocation) continue;
@@ -743,7 +748,7 @@
       });
       const plan = Object.freeze({
         version: VERSION,
-        source: "saved-promoted-17-family-library",
+        source: "saved-promoted-18-family-library",
         promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
         total: WEEKLY_PROMPTS,
         targets: Object.freeze({ ...targets }),
@@ -771,7 +776,7 @@
     }
 
     if (bestReservoir) return bestReservoir;
-    throw new Error("The saved 17-family library could not fill the selected formation with 77 runtime-certified prompts while preserving family targets and the one-per-day semantic cap. Expand variant diversity in the affected families.");
+    throw new Error("The saved 18-family library could not fill the selected formation with 77 runtime-certified prompts while preserving family targets and the one-per-day semantic cap. Expand variant diversity in the affected families.");
   }
 
   function installGenerationSnapshot(reservoir) {
@@ -852,7 +857,7 @@
       setStatus("Building the proportional 77-prompt generation reservoir from unused saved prompts…", "working");
       const reservoir = await buildCertifiedReservoir();
       generationSnapshot = installGenerationSnapshot(reservoir);
-      setStatus(`77 runtime-certified prompts locked · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · 17-family proportional cycle · ${reservoir.plan.cycleFamilies.length ? `${reservoir.plan.cycleFamilies.length} family cycle reset(s)` : "unused prompts preferred"}. Generating week…`, "working");
+      setStatus(`77 runtime-certified prompts locked · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · 18-family proportional cycle · ${reservoir.plan.cycleFamilies.length ? `${reservoir.plan.cycleFamilies.length} family cycle reset(s)` : "unused prompts preferred"}. Generating week…`, "working");
 
       const generator = window.FPL_STUDIO_BATCH_CALENDAR?.generate;
       if (typeof generator !== "function") {
@@ -872,7 +877,7 @@
       const diversityText = dayAudit
         ? `${dayAudit.uniquePlayers} unique top-answer players · max ${dayAudit.maxAppearanceDays} leader day(s) for one player · ${dayAudit.spacingViolationCount} spacing exception(s)`
         : "leader-day audit unavailable";
-      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 17-family targets were preserved, no same-day semantic clashes were allowed, and the 3-day leader-spacing audit finished at ${diversityText}.`, "pass");
+      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 18-family targets were preserved, no same-day semantic clashes were allowed, and the 3-day leader-spacing audit finished at ${diversityText}.`, "pass");
       window.dispatchEvent(new CustomEvent("fpl:daily-saved-library-week-certified", { detail: { ...reservoir.plan } }));
     } catch (error) {
       console.error(error);
