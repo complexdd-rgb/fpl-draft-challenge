@@ -36,8 +36,19 @@ jobs:
           const manifest = JSON.parse(fs.readFileSync('prompt-library-curated-v2/manifest.json', 'utf8'));
           for (const descriptor of manifest.familySelectors || []) {
             const raw = fs.readFileSync(descriptor.path, 'utf8');
-            const actual = crypto.createHash('sha256').update(raw).digest('hex');
-            console.log(`${descriptor.family}\texpected=${descriptor.sha256}\tactual=${actual}\t${actual === descriptor.sha256 ? 'MATCH' : 'MISMATCH'}`);
+            const nodeHash = crypto.createHash('sha256').update(raw).digest('hex');
+            const digest = await crypto.webcrypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+            const webHash = [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, '0')).join('');
+            console.log(JSON.stringify({
+              family: descriptor.family,
+              expected: descriptor.sha256,
+              expectedLength: String(descriptor.sha256).length,
+              nodeHash,
+              webHash,
+              nodeEquals: nodeHash === descriptor.sha256,
+              webEquals: webHash === descriptor.sha256,
+              expectedCodes: [...String(descriptor.sha256)].map(char => char.charCodeAt(0))
+            }));
           }
           NODE
           cat /tmp/authority-diagnostic.txt
@@ -49,6 +60,6 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add reports/authority-ci-diagnostic.txt
           if ! git diff --cached --quiet; then
-            git commit -m 'Record curated authority hash diagnostic'
+            git commit -m 'Record WebCrypto authority diagnostic'
             git push
           fi
