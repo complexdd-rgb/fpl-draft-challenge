@@ -45,9 +45,19 @@ jobs:
               t = q.read_text().replace('saved-library generation guard v2.5.2', 'saved-library generation guard v2.5.3')
               q.write_text(t)
 
+          q = Path('scripts/verify-weekly-certified-snapshot-race.mjs')
+          t = q.read_text()
+          old = "assert(guard.includes('const diversityExtra = Math.max(24, Math.ceil(need * 3));'), '77-prompt reservoir does not certify enough alternatives for leader diversity.');"
+          new = "assert(guard.includes('const diversityExtra = anyOffset < 2'), '77-prompt reservoir does not use adaptive diversity sizing.');\nassert(guard.includes('Math.max(8, Math.ceil(need * 2))'), '77-prompt reservoir is missing the fast initial diversity buffer.');\nassert(guard.includes('Math.max(16, Math.ceil(need * 3))'), '77-prompt reservoir is missing the wider fallback diversity buffer.');\nassert(guard.includes('Selecting the 77-prompt reservoir from'), '77-prompt reservoir does not expose post-certification selection progress.');"
+          if old not in t:
+              raise SystemExit('old diversity verifier assertion not found')
+          t = t.replace(old, new, 1)
+          q.write_text(t)
+
           q = Path('config/asset-manifest.json')
           t = q.read_text()
           t = t.replace('"manifestVersion": "4.0.0-prompts-v2"', '"manifestVersion": "4.0.1-adaptive-reservoir"', 1)
+          t = t.replace('"version": "4.0.0-prompts-v2"', '"version": "4.0.1-adaptive-reservoir"', 1)
           oldv = '"version": "2.5.2-fast-certification"'
           if oldv not in t:
               raise SystemExit('guard asset version anchor not found')
