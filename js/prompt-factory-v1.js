@@ -1,4 +1,4 @@
-/* FPL Draft Challenge — Prompt Factory v1.0.0
+/* FPL Draft Challenge — Prompt Factory v1.1.0
    Clean candidate exploration engine. Generates and evaluates prompt candidates by family,
    but never writes them into the canonical library. */
 (() => {
@@ -6,7 +6,7 @@
 
   if (window.FPL_PROMPT_FACTORY_V1?.ready) return;
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
   const MAX_CANDIDATES_PER_FAMILY = 60000;
   const POSITION_LABELS = Object.freeze({ ANY: "Player", GK: "Goalkeeper", DEF: "Defender", MID: "Midfielder", FWD: "Forward" });
   const POSITION_ORDER = Object.freeze(["ANY", "GK", "DEF", "MID", "FWD"]);
@@ -46,6 +46,7 @@
     { id: "club-count", label: "Career club count", description: "Number-of-clubs prompts and combinations." },
     { id: "manager", label: "Manager", description: "Manager relationships combined with output thresholds." },
     { id: "anti-meta", label: "Anti-meta", description: "Lower-profile contexts, ceilings and non-obvious combinations." },
+    { id: "exclude-top-result", label: "Exclude top result", description: "Useful stat prompts with the highest-FPL-points matching player explicitly removed." },
     { id: "value", label: "Value", description: "Starting-price ceilings combined with output." },
     { id: "minutes-role", label: "Minutes + role", description: "Playing-time thresholds combined with role output." },
     { id: "composite-story", label: "Composite stories", description: "Three-condition context + output prompt stories." }
@@ -106,6 +107,7 @@
 
   function fieldValue(row, field) {
     const record = row.record || {};
+    if (field === "playerId") return row.player?.playerId || null;
     if (field === "goalInvolvements") {
       const goals = number(record.goals);
       const assists = number(record.assists);
@@ -132,7 +134,7 @@
     const value = fieldValue(row, condition.field);
     if (condition.operator === "contains") return Array.isArray(value) ? value.length > 0 : Boolean(String(value || "").trim());
     if (["isTrue", "isFalse"].includes(condition.operator)) return typeof value === "boolean";
-    if (["eqText"].includes(condition.operator)) return Boolean(String(value || "").trim());
+    if (["eqText", "notEquals"].includes(condition.operator)) return Boolean(String(value || "").trim()) && Boolean(String(condition.value ?? "").trim());
     return number(value) != null;
   }
 
@@ -141,6 +143,7 @@
     if (condition.operator === "isTrue") return actual === true;
     if (condition.operator === "isFalse") return actual === false;
     if (condition.operator === "eqText") return String(actual || "").trim().toLowerCase() === String(condition.value || "").trim().toLowerCase();
+    if (condition.operator === "notEquals") return String(actual || "").trim().toLowerCase() !== String(condition.value || "").trim().toLowerCase();
     if (condition.operator === "contains") return Array.isArray(actual) && actual.some(item => String(item).trim().toLowerCase() === String(condition.value || "").trim().toLowerCase());
     const actualNumber = number(actual);
     const wanted = number(condition.value);
@@ -210,9 +213,14 @@
     return { field, operator: wanted ? "isTrue" : "isFalse", value: wanted };
   }
 
+  function exclusionCondition(answer) {
+    return { field: "playerId", operator: "notEquals", value: answer.playerId, label: answer.playerName };
+  }
+
   function conditionPhrase(condition) {
     const config = FIELD_CONFIG[condition.field];
     const value = condition.value;
+    if (condition.field === "playerId" && condition.operator === "notEquals") return `excluding ${condition.label || value}`;
     if (condition.field === "club") return `who played for ${value}`;
     if (condition.field === "manager") return `managed by ${value}`;
     if (condition.field === "nationality") return `with ${value} nationality`;
@@ -260,8 +268,9 @@
 
   function wording(position, conditions) {
     const noun = POSITION_LABELS[position] || "Player";
-    const phrases = conditions.map(conditionPhrase).filter(Boolean);
-    return `${noun}${phrases.length ? ` ${phrases.join(" and ")}` : ""}`;
+    const standard = conditions.filter(condition => !(condition.field === "playerId" && condition.operator === "notEquals")).map(conditionPhrase).filter(Boolean);
+    const exclusions = conditions.filter(condition => condition.field === "playerId" && condition.operator === "notEquals").map(conditionPhrase).filter(Boolean);
+    return `${noun}${standard.length ? ` ${standard.join(" and ")}` : ""}${exclusions.length ? ` — ${exclusions.join(" and ")}` : ""}`;
   }
 
   function stableId(family, position, conditions) {
@@ -314,6 +323,28 @@
     if (position === "GK") return ["points", "saves", "cleanSheets", "bonus"];
     if (position === "DEF") return ["points", "cleanSheets", "goals", "assists", "bonus"];
     return ["points", "goals", "assists", "goalInvolvements", "bonus"];
+  }
+
+  function topAnswerForConditions(position, conditions) {
+    const matchedPlayers = new Set();
+    const bestByPlayer = new Map();
+    for (const row of positionRows(position)) {
+      if (!conditions.every(condition => known(row, condition))) continue;
+      if (!conditions.every(condition => matches(row, condition))) continue;
+      const playerId = String(row.player?.playerId || "").trim();
+      if (!playerId) continue;
+      matchedPlayers.add(playerId);
+      const points = number(row.record?.points);
+      if (points == null) continue;
+      const playerName = String(row.player?.name || playerId);
+      const season = String(row.record?.season || "");
+      const current = bestByPlayer.get(playerId);
+      if (!current || points > current.points || (points === current.points && season > current.season)) {
+        bestByPlayer.set(playerId, { playerId, playerName, points, season });
+      }
+    }
+    if (matchedPlayers.size < 3 || bestByPlayer.size !== matchedPlayers.size) return null;
+    return [...bestByPlayer.values()].sort((a, b) => b.points - a.points || a.playerName.localeCompare(b.playerName) || a.playerId.localeCompare(b.playerId))[0] || null;
   }
 
   function generateFamily(family) {
@@ -400,6 +431,17 @@
         for (const context of contexts) {
           for (const points of thresholdConditions("points", position, ["lte", "gte"])) add(position, [context, points]);
           for (const field of primaryOutputFields(position).filter(name => name !== "points")) for (const stat of thresholdConditions(field, position, ["gte"])) add(position, [context, stat]);
+        }
+      }
+    }
+
+    if (family === "exclude-top-result") {
+      for (const position of POSITION_ORDER) {
+        for (const field of primaryOutputFields(position).slice(0, 4)) {
+          for (const output of thresholdConditions(field, position, ["gte"])) {
+            const topAnswer = topAnswerForConditions(position, [output]);
+            if (topAnswer) add(position, [output, exclusionCondition(topAnswer)]);
+          }
         }
       }
     }
@@ -519,6 +561,7 @@
     state.results.set(family, result);
     renderFamilyTable();
     if (state.selectedFamily === family) renderCandidatePreview();
+    window.dispatchEvent(new CustomEvent("fpl:prompt-factory-results-changed", { detail: { family, generated: result.generated, survivors: result.survivors } }));
     return result;
   }
 
@@ -581,6 +624,7 @@
     renderFamilyTable();
     renderCandidatePreview();
     setStatus("Factory results cleared. The canonical library is unchanged.");
+    window.dispatchEvent(new CustomEvent("fpl:prompt-factory-results-changed", { detail: { cleared: true } }));
   }
 
   function totals() {
