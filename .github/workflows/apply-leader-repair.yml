@@ -1,0 +1,193 @@
+name: Apply leader repair
+
+on:
+  push:
+    branches:
+      - 'fix/constraint-aware-leader-selection'
+    paths:
+      - '.github/workflows/apply-leader-repair.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply constraint-aware leader repair
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  raise SystemExit(f'{label} anchor not found')
+              return text.replace(old, new, 1)
+
+          p = Path('js/admin-daily-generator-guard.js')
+          s = p.read_text()
+          s = replace_once(s, 'saved-library generation guard v2.6.3.', 'saved-library generation guard v2.6.4.', 'guard header')
+          s = replace_once(s, 'const VERSION = "2.6.3";', 'const VERSION = "2.6.4";', 'guard version')
+
+          anchor = '''  function assignAnyRecords(records, positionNeeds, offset = 0) {'''
+          helper = '''  function repairLeaderCap(selectedEntries, selectionGroups, semantic) {
+    const groups = new Map(selectionGroups.map(group => [`${group.family}|${group.position}`, group]));
+    const entries = selectedEntries.map(entry => ({ ...entry }));
+    const maxSwaps = Math.min(32, WEEKLY_PROMPTS);
+    let swaps = 0;
+
+    while (swaps < maxSwaps) {
+      const leaderCounts = new Map();
+      for (const entry of entries) {
+        const leader = promptTopAnswerKey(entry.candidate.prompt);
+        if (leader) leaderCounts.set(leader, Number(leaderCounts.get(leader) || 0) + 1);
+      }
+      const overloaded = [...leaderCounts.entries()]
+        .filter(([, count]) => count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)
+        .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0];
+      if (!overloaded) return { entries, swaps };
+
+      const [overloadedLeader] = overloaded;
+      const selectedSourceIds = new Set(entries.map(entry => String(entry.candidate.record.id || "")));
+      const victimIndexes = entries
+        .map((entry, index) => ({ entry, index }))
+        .filter(item => promptTopAnswerKey(item.entry.candidate.prompt) === overloadedLeader)
+        .sort((left, right) => {
+          const leftGroup = groups.get(left.entry.groupKey);
+          const rightGroup = groups.get(right.entry.groupKey);
+          return Number(rightGroup?.available?.length || 0) - Number(leftGroup?.available?.length || 0);
+        })
+        .map(item => item.index);
+
+      let repaired = false;
+      for (const index of victimIndexes) {
+        const current = entries[index];
+        const group = groups.get(current.groupKey);
+        if (!group) continue;
+
+        const semanticCounts = new Map();
+        const otherLeaderCounts = new Map();
+        for (let entryIndex = 0; entryIndex < entries.length; entryIndex += 1) {
+          if (entryIndex === index) continue;
+          const prompt = entries[entryIndex].candidate.prompt;
+          semantic.commitWeekly(prompt, semanticCounts);
+          const leader = promptTopAnswerKey(prompt);
+          if (leader) otherLeaderCounts.set(leader, Number(otherLeaderCounts.get(leader) || 0) + 1);
+        }
+
+        const currentSourceId = String(current.candidate.record.id || "");
+        const choices = (group.available || [])
+          .filter(candidate => {
+            const sourceId = String(candidate.record.id || "");
+            if (!sourceId || sourceId === currentSourceId || selectedSourceIds.has(sourceId)) return false;
+            if (!semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH)) return false;
+            const leader = promptTopAnswerKey(candidate.prompt);
+            return !leader || Number(otherLeaderCounts.get(leader) || 0) < WEEKLY_LEADER_FALLBACK_PROMPT_CAP;
+          })
+          .sort((left, right) => {
+            const leftLeader = promptTopAnswerKey(left.prompt);
+            const rightLeader = promptTopAnswerKey(right.prompt);
+            const leftLeaderLoad = leftLeader ? Number(otherLeaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;
+            const rightLeaderLoad = rightLeader ? Number(otherLeaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;
+            const leftRelief = excludedTopPlayerId(left.prompt) === overloadedLeader ? 1 : 0;
+            const rightRelief = excludedTopPlayerId(right.prompt) === overloadedLeader ? 1 : 0;
+            return rightRelief - leftRelief
+              || leftLeaderLoad - rightLeaderLoad
+              || semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts);
+          });
+
+        const replacement = choices[0];
+        if (!replacement) continue;
+        entries[index] = { ...current, candidate: replacement };
+        swaps += 1;
+        repaired = true;
+        break;
+      }
+
+      if (!repaired) return null;
+    }
+
+    return null;
+  }
+
+'''
+          s = replace_once(s, anchor, helper + anchor, 'leader repair helper')
+
+          s = replace_once(
+              s,
+              '      const prompts = [];\n      const sourceIds = new Set();',
+              '      const prompts = [];\n      const selectedEntries = [];\n      const sourceIds = new Set();',
+              'selected entry tracking'
+          )
+          s = replace_once(
+              s,
+              '          prompts.push(candidate.prompt);\n          sourceIds.add(sourceId);',
+              '          prompts.push(candidate.prompt);\n          selectedEntries.push({ groupKey: `${group.family}|${group.position}`, candidate });\n          sourceIds.add(sourceId);',
+              'selected entry append'
+          )
+
+          old = '''      if (collision || prompts.length !== WEEKLY_PROMPTS || sourceIds.size !== WEEKLY_PROMPTS) continue;\n\n      // Greedy assembly is allowed to finish so a constrained family/position group cannot\n      // dead-end the whole week merely because a leader reached the preferred count of two.\n      // We still reject any completed reservoir that would require one player to lead more than\n      // three prompts, because same-day uniqueness plus the hard three-day policy could not place it.\n      const provisionalTopAnswerDiversity = topAnswerDiversityAudit(prompts);\n      if (provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)) continue;'''
+          new = '''      if (collision || prompts.length !== WEEKLY_PROMPTS || sourceIds.size !== WEEKLY_PROMPTS) continue;\n\n      // Greedy assembly is fast, but it can over-use one leader before a later constrained group\n      // gets its turn. Repair that completed selection in-place by swapping within the same\n      // family/position group. This preserves every quota while making the max-three rule part\n      // of the actual search rather than merely rejecting an otherwise recoverable reservoir.\n      const repairedSelection = repairLeaderCap(selectedEntries, selectionGroups, semantic);\n      if (!repairedSelection) continue;\n      const leaderRepairSwaps = repairedSelection.swaps;\n      if (leaderRepairSwaps) {\n        prompts.splice(0, prompts.length, ...repairedSelection.entries.map(entry => entry.candidate.prompt));\n        sourceIds.clear();\n        for (const entry of repairedSelection.entries) sourceIds.add(String(entry.candidate.record.id || ""));\n      }\n\n      const provisionalTopAnswerDiversity = topAnswerDiversityAudit(prompts);\n      if (provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)) continue;'''
+          s = replace_once(s, old, new, 'post-greedy leader repair')
+
+          s = replace_once(
+              s,
+              '        runtimeCandidatesChecked: scanned,\n        antiMetaCount,',
+              '        runtimeCandidatesChecked: scanned,\n        leaderRepairSwaps,\n        antiMetaCount,',
+              'leader repair plan metadata'
+          )
+          p.write_text(s)
+
+          for path in ['scripts/verify-weekly-certified-snapshot-race.mjs', 'scripts/verify-all-season-certification-gate.mjs']:
+              q = Path(path)
+              t = q.read_text().replace('saved-library generation guard v2.6.3', 'saved-library generation guard v2.6.4')
+              q.write_text(t)
+
+          q = Path('scripts/verify-weekly-certified-snapshot-race.mjs')
+          t = q.read_text()
+          needle = "assert(guard.includes('provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)'), 'Completed reservoir does not enforce the hard max-three leader cap.');"
+          replacement = needle + "\nassert(guard.includes('function repairLeaderCap(selectedEntries, selectionGroups, semantic)'), 'Reservoir does not repair leader overload inside fixed family/position groups.');\nassert(guard.includes('leaderRepairSwaps'), 'Reservoir plan does not expose leader-repair swaps.');\nassert(guard.includes('selectedEntries.push({ groupKey:'), 'Greedy selection does not retain group membership for bounded leader repair.');"
+          t = replace_once(t, needle, replacement, 'leader repair verifier assertions')
+          q.write_text(t)
+
+          manifest_path = Path('config/asset-manifest.json')
+          manifest = json.loads(manifest_path.read_text())
+          manifest['assets']['assetManifestRuntime']['version'] = '4.0.6-leader-repair'
+          manifest['assets']['adminDailyGeneratorGuard']['version'] = '2.6.4-leader-repair'
+          manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
+
+          q = Path('scripts/verify-prompt-studio-clean-reset.mjs')
+          t = q.read_text().replace("4.0.5-reservoir-pool-cache", "4.0.6-leader-repair")
+          q.write_text(t)
+          PY
+
+      - name: Rebuild generated Studio wiring
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-native-daily-workspace.mjs
+          node scripts/build-studio-cache-tags.mjs
+
+      - name: Verify leader repair
+        run: |
+          node --check js/admin-daily-generator-guard.js
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-weekly-top-answer-diversity.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-daily-curated-authority-v1.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          node scripts/verify-prompt-studio-clean-reset.mjs
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add js/admin-daily-generator-guard.js scripts/verify-weekly-certified-snapshot-race.mjs scripts/verify-all-season-certification-gate.mjs scripts/verify-prompt-studio-clean-reset.mjs config/asset-manifest.json js/asset-manifest.js admin.html
+          git commit -m 'Repair weekly leader overload within fixed groups'
+          git push origin HEAD:fix/constraint-aware-leader-selection
