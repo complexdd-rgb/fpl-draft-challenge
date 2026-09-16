@@ -10,10 +10,10 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.6.1',
+  'saved-library generation guard v2.6.2',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
-  'function allocateFamilyTargets(familyIndex)',
+  'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN)',
   'async function buildCertifiedReservoir()',
   'function solveFamilyPositionFlow(',
   'window.FPL_DAILY_GENERATION_PROMPT_POOL = prompts;',
@@ -67,6 +67,9 @@ assert(guard.includes('Math.max(16, Math.ceil(need * 3))'), '77-prompt reservoir
 assert(guard.includes('Selecting the 77-prompt reservoir from'), '77-prompt reservoir does not expose post-certification selection progress.');
 assert(guard.includes('topAnswerDiversity: frozenTopAnswerDiversity'), '77-prompt reservoir does not expose its top-answer diversity audit.');
 assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4'), 'Exclude Top Result does not have its diversity-relief floor.');
+assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MAX = 8'), 'Exclude Top Result does not have its bounded dynamic-relief ceiling.');
+assert(guard.includes('for (let excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN; excludeTarget <= EXCLUDE_TOP_RESULT_WEEKLY_MAX; excludeTarget += 1)'), 'Reservoir does not escalate Exclude Top Result relief when the base family mix is leader-concentrated.');
+assert(guard.includes('if (bestReservoir) return bestReservoir;'), 'Reservoir does not stop at the smallest successful Exclude Top Result relief level.');
 assert(guard.includes('provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)'), 'Completed reservoir does not enforce the hard max-three leader cap.');
 assert(!guard.includes('&& (!leaderKey || leaderLoad < reservoirLeaderCap)'), 'Preferred leader count is still a hard greedy filter.');
 assert(guard.includes('rightReliefLoad - leftReliefLoad'), 'Exclude Top Result prompts are not prioritised against overloaded leaders.');

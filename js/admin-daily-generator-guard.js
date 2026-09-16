@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.1.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.2.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.6.1";
+  const VERSION = "2.6.2";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -16,6 +16,7 @@
   const CUTOVER_WAIT_MS = 30000;
   const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;
   const EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4;
+  const EXCLUDE_TOP_RESULT_WEEKLY_MAX = 8;
   const WEEKLY_LEADER_PREFERRED_PROMPT_CAP = 2;
   const WEEKLY_LEADER_FALLBACK_PROMPT_CAP = 3;
   const SEMANTIC_WAIT_MS = 10000;
@@ -336,7 +337,7 @@
     return recent;
   }
 
-  function allocateFamilyTargets(familyIndex) {
+  function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN) {
     const rows = (familyIndex || []).filter(row => Number(row?.total || 0) > 0);
     if (!rows.length) return null;
     const targets = Object.fromEntries(rows.map(row => [row.family, 0]));
@@ -369,8 +370,8 @@
     // Exclude Top Result is a deliberate diversity relief family, not just a tiny proportional
     // family. Keep a small weekly floor so common superstar leaders can be actively displaced
     // while retaining at least one prompt from every other non-nationality family.
-    if (Object.hasOwn(targets, "exclude-top-result") && targets["exclude-top-result"] < EXCLUDE_TOP_RESULT_WEEKLY_MIN) {
-      let needed = EXCLUDE_TOP_RESULT_WEEKLY_MIN - targets["exclude-top-result"];
+    if (Object.hasOwn(targets, "exclude-top-result") && targets["exclude-top-result"] < excludeTarget) {
+      let needed = excludeTarget - targets["exclude-top-result"];
       while (needed > 0) {
         const donor = others
           .filter(row => row.family !== "exclude-top-result" && Number(targets[row.family] || 0) > 1)
@@ -630,11 +631,15 @@
       throw new Error("The saved shard package changed after Daily certification. Refresh Studio before generating.");
     }
 
-    const targets = allocateFamilyTargets(cutover.familyIndex);
-    if (!targets || Object.values(targets).reduce((sum, value) => sum + Number(value || 0), 0) !== WEEKLY_PROMPTS) {
-      throw new Error("The 18-family proportional weekly target could not be allocated to 77 prompt slots.");
+    const targetPlans = [];
+    for (let excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN; excludeTarget <= EXCLUDE_TOP_RESULT_WEEKLY_MAX; excludeTarget += 1) {
+      const targets = allocateFamilyTargets(cutover.familyIndex, excludeTarget);
+      if (!targets || Object.values(targets).reduce((sum, value) => sum + Number(value || 0), 0) !== WEEKLY_PROMPTS) continue;
+      targetPlans.push({ excludeTarget, targets });
     }
-    const families = Object.keys(targets).filter(family => targets[family] > 0);
+    if (!targetPlans.length) {
+      throw new Error("The 18-family weekly target could not be allocated to 77 prompt slots, even with Exclude Top Result relief.");
+    }
     const positionNeeds = weeklyPositionNeeds();
     const usedIds = knownUsedSourceIds();
     const recentIds = knownRecentSourceIds(7);
@@ -642,9 +647,13 @@
     const runtimeCache = new Map();
     const cycleFamilies = new Set();
     const shardByFamily = new Map(payload.shards.map(shard => [String(shard.family), shard]));
-    let bestReservoir = null;
 
-    for (let anyOffset = 0; anyOffset < POSITION_ORDER.length; anyOffset += 1) {
+    for (const targetPlan of targetPlans) {
+      const targets = targetPlan.targets;
+      const families = Object.keys(targets).filter(family => targets[family] > 0);
+      let bestReservoir = null;
+
+      for (let anyOffset = 0; anyOffset < POSITION_ORDER.length; anyOffset += 1) {
       const candidatePools = new Map();
       let scanned = 0;
       for (const family of families) {
@@ -676,7 +685,7 @@
         candidatePools.set(family, certifiedByPosition);
       }
 
-      setStatus(`Selecting the 77-prompt reservoir from ${scanned.toLocaleString("en-GB")} checked candidates · diversity layout ${anyOffset + 1}/${POSITION_ORDER.length}…`, "working");
+      setStatus(`Selecting the 77-prompt reservoir from ${scanned.toLocaleString("en-GB")} checked candidates · ${Number(targets["exclude-top-result"] || 0)} Exclude Top Result prompts · diversity layout ${anyOffset + 1}/${POSITION_ORDER.length}…`, "working");
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const allocation = solveFamilyPositionFlow(families, targets, positionNeeds, candidatePools);
@@ -798,6 +807,7 @@
         promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
         total: WEEKLY_PROMPTS,
         targets: Object.freeze({ ...targets }),
+        excludeTopResultTarget: Number(targets["exclude-top-result"] || 0),
         positionNeeds: Object.freeze({ ...positionNeeds }),
         cycleFamilies: Object.freeze([...cycleFamilies]),
         knownUsedSourceIds: usedIds.size,
@@ -819,10 +829,15 @@
       // A fully unique weekly leader set is optimal; otherwise try the remaining ANY-position
       // assignments and keep the reservoir with the fewest unavoidable/recycled leader slots.
       if (frozenTopAnswerDiversity.repeatSlots === 0) return reservoir;
+      }
+
+      // Use the smallest Exclude Top Result relief level that can produce a valid reservoir.
+      // This preserves the normal family mix when possible, while allowing extra exclusion
+      // prompts to displace over-concentrated superstar-led slots only when needed.
+      if (bestReservoir) return bestReservoir;
     }
 
-    if (bestReservoir) return bestReservoir;
-    throw new Error("The saved 18-family library could not build a 77-prompt reservoir while preserving formation, family, semantic and max-three leader constraints. Exclude Top Result relief was applied, but no valid layout was found.");
+    throw new Error(`The saved 18-family library could not build a 77-prompt reservoir while preserving formation, semantic and max-three leader constraints, even after increasing Exclude Top Result relief from ${EXCLUDE_TOP_RESULT_WEEKLY_MIN} to ${EXCLUDE_TOP_RESULT_WEEKLY_MAX} prompts.`);
   }
 
   function installGenerationSnapshot(reservoir) {
