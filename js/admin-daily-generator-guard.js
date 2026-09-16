@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.2.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.3.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.6.2";
+  const VERSION = "2.6.3";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -647,6 +647,17 @@
     const runtimeCache = new Map();
     const cycleFamilies = new Set();
     const shardByFamily = new Map(payload.shards.map(shard => [String(shard.family), shard]));
+    const maxTargets = {};
+    for (const plan of targetPlans) {
+      for (const [family, value] of Object.entries(plan.targets || {})) {
+        maxTargets[family] = Math.max(Number(maxTargets[family] || 0), Number(value || 0));
+      }
+    }
+    const orderedRecordsByFamily = new Map();
+    for (const [family, shard] of shardByFamily.entries()) {
+      orderedRecordsByFamily.set(family, recordOrder(Array.isArray(shard?.records) ? shard.records : [], usedIds, recentIds));
+    }
+    const candidatePoolCache = new Map();
 
     for (const targetPlan of targetPlans) {
       const targets = targetPlan.targets;
@@ -654,38 +665,45 @@
       let bestReservoir = null;
 
       for (let anyOffset = 0; anyOffset < POSITION_ORDER.length; anyOffset += 1) {
-      const candidatePools = new Map();
-      let scanned = 0;
-      for (const family of families) {
-        const shard = shardByFamily.get(family);
-        const raw = recordOrder(Array.isArray(shard?.records) ? shard.records : [], usedIds, recentIds);
-        if (raw.filter(record => !usedIds.has(String(record?.id || ""))).length < targets[family]) cycleFamilies.add(family);
-        const assigned = assignAnyRecords(raw, positionNeeds, anyOffset);
-        const certifiedByPosition = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
-        for (const position of POSITION_ORDER) {
-          const need = Math.min(targets[family], positionNeeds[position]);
-          // Top-answer diversity is decided at reservoir selection, so certify a materially
-          // wider alternative set than the family/position minimum. This gives the selector
-          // enough different leaders to avoid Salah/Robertson/TAA-style weekly clustering.
-          const diversityExtra = anyOffset < 2
-            ? Math.max(8, Math.ceil(need * 2))
-            : Math.max(16, Math.ceil(need * 3));
-          const certifyLimit = Math.min(assigned[position].length, need + diversityExtra);
-          for (const record of assigned[position]) {
-            if (certifiedByPosition[position].length >= certifyLimit) break;
-            const prompt = await certifyCandidate(record, position, limits, cutoverApi, runtimeCache);
-            scanned += 1;
-            if (prompt) certifiedByPosition[position].push({ record, prompt });
-            if (scanned > 0 && scanned % 80 === 0) {
-              setStatus(`Runtime-certifying the 18-family weekly reservoir · ${scanned.toLocaleString("en-GB")} compact candidates checked…`, "working");
-              await new Promise(resolve => setTimeout(resolve, 0));
+      let candidatePools;
+      let scanned;
+      const cachedLayout = candidatePoolCache.get(anyOffset);
+      if (cachedLayout) {
+        candidatePools = cachedLayout.candidatePools;
+        scanned = cachedLayout.scanned;
+      } else {
+        candidatePools = new Map();
+        scanned = 0;
+        for (const family of families) {
+          const raw = orderedRecordsByFamily.get(family) || [];
+          if (raw.filter(record => !usedIds.has(String(record?.id || ""))).length < Number(maxTargets[family] || 0)) cycleFamilies.add(family);
+          const assigned = assignAnyRecords(raw, positionNeeds, anyOffset);
+          const certifiedByPosition = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
+          for (const position of POSITION_ORDER) {
+            const need = Math.min(Number(maxTargets[family] || targets[family] || 0), positionNeeds[position]);
+            // Certify once at the widest family requirement needed by any 4→8 relief plan.
+            // Later relief levels reuse this exact pool instead of rescanning the promoted library.
+            const diversityExtra = anyOffset < 2
+              ? Math.max(8, Math.ceil(need * 2))
+              : Math.max(16, Math.ceil(need * 3));
+            const certifyLimit = Math.min(assigned[position].length, need + diversityExtra);
+            for (const record of assigned[position]) {
+              if (certifiedByPosition[position].length >= certifyLimit) break;
+              const prompt = await certifyCandidate(record, position, limits, cutoverApi, runtimeCache);
+              scanned += 1;
+              if (prompt) certifiedByPosition[position].push({ record, prompt });
+              if (scanned > 0 && scanned % 80 === 0) {
+                setStatus(`Runtime-certifying candidate pool · layout ${anyOffset + 1}/${POSITION_ORDER.length} · ${scanned.toLocaleString("en-GB")} compact candidates checked…`, "working");
+                await new Promise(resolve => setTimeout(resolve, 0));
+              }
             }
           }
+          candidatePools.set(family, certifiedByPosition);
         }
-        candidatePools.set(family, certifiedByPosition);
+        candidatePoolCache.set(anyOffset, Object.freeze({ candidatePools, scanned }));
       }
 
-      setStatus(`Selecting the 77-prompt reservoir from ${scanned.toLocaleString("en-GB")} checked candidates · ${Number(targets["exclude-top-result"] || 0)} Exclude Top Result prompts · diversity layout ${anyOffset + 1}/${POSITION_ORDER.length}…`, "working");
+      setStatus(`Selecting the 77-prompt reservoir from ${scanned.toLocaleString("en-GB")} checked candidates · ${Number(targets["exclude-top-result"] || 0)} Exclude Top Result prompts · diversity layout ${anyOffset + 1}/${POSITION_ORDER.length} · ${cachedLayout ? "cached candidate pool" : "fresh candidate pool"}…`, "working");
       await new Promise(resolve => setTimeout(resolve, 0));
 
       const allocation = solveFamilyPositionFlow(families, targets, positionNeeds, candidatePools);

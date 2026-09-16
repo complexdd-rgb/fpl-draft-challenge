@@ -21,7 +21,7 @@ const promptLibrary = read('prompt-library.js')
 
 // The prompt-v2 architecture identity stays fixed while runtime asset versions may advance for safe generator hotfixes.
 assert(manifest.manifestVersion === '4.0.0-prompts-v2', 'Central manifest is not on the 18-family prompt-v2 boundary.');
-assert(manifest.assets?.assetManifestRuntime?.version === '4.0.4-dynamic-exclusion-relief', 'Asset manifest runtime cache tag is stale.');
+assert(manifest.assets?.assetManifestRuntime?.version === '4.0.5-reservoir-pool-cache', 'Asset manifest runtime cache tag is stale.');
 assert(manifest.assets?.studioBootstrap?.version === '3.0.0-post-curation', 'Studio bootstrap cache tag is stale.');
 assert(manifest.assets?.promptStudioClean?.version === '1.3.0-permanent-workflow', 'Prompt Studio permanent workflow cache tag is stale.');
 assert(manifest.assets?.adminDailyCuratedAuthorityV1?.version === '2.0.0', 'Curated Daily authority cache tag is stale.');
