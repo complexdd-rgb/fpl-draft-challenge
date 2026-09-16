@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.3.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.4.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.6.3";
+  const VERSION = "2.6.4";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -490,6 +490,86 @@
     };
   }
 
+  function repairLeaderCap(selectedEntries, selectionGroups, semantic) {
+    const groups = new Map(selectionGroups.map(group => [`${group.family}|${group.position}`, group]));
+    const entries = selectedEntries.map(entry => ({ ...entry }));
+    const maxSwaps = Math.min(32, WEEKLY_PROMPTS);
+    let swaps = 0;
+
+    while (swaps < maxSwaps) {
+      const leaderCounts = new Map();
+      for (const entry of entries) {
+        const leader = promptTopAnswerKey(entry.candidate.prompt);
+        if (leader) leaderCounts.set(leader, Number(leaderCounts.get(leader) || 0) + 1);
+      }
+      const overloaded = [...leaderCounts.entries()]
+        .filter(([, count]) => count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)
+        .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0];
+      if (!overloaded) return { entries, swaps };
+
+      const [overloadedLeader] = overloaded;
+      const selectedSourceIds = new Set(entries.map(entry => String(entry.candidate.record.id || "")));
+      const victimIndexes = entries
+        .map((entry, index) => ({ entry, index }))
+        .filter(item => promptTopAnswerKey(item.entry.candidate.prompt) === overloadedLeader)
+        .sort((left, right) => {
+          const leftGroup = groups.get(left.entry.groupKey);
+          const rightGroup = groups.get(right.entry.groupKey);
+          return Number(rightGroup?.available?.length || 0) - Number(leftGroup?.available?.length || 0);
+        })
+        .map(item => item.index);
+
+      let repaired = false;
+      for (const index of victimIndexes) {
+        const current = entries[index];
+        const group = groups.get(current.groupKey);
+        if (!group) continue;
+
+        const semanticCounts = new Map();
+        const otherLeaderCounts = new Map();
+        for (let entryIndex = 0; entryIndex < entries.length; entryIndex += 1) {
+          if (entryIndex === index) continue;
+          const prompt = entries[entryIndex].candidate.prompt;
+          semantic.commitWeekly(prompt, semanticCounts);
+          const leader = promptTopAnswerKey(prompt);
+          if (leader) otherLeaderCounts.set(leader, Number(otherLeaderCounts.get(leader) || 0) + 1);
+        }
+
+        const currentSourceId = String(current.candidate.record.id || "");
+        const choices = (group.available || [])
+          .filter(candidate => {
+            const sourceId = String(candidate.record.id || "");
+            if (!sourceId || sourceId === currentSourceId || selectedSourceIds.has(sourceId)) return false;
+            if (!semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH)) return false;
+            const leader = promptTopAnswerKey(candidate.prompt);
+            return !leader || Number(otherLeaderCounts.get(leader) || 0) < WEEKLY_LEADER_FALLBACK_PROMPT_CAP;
+          })
+          .sort((heft, right) => {
+            const leftLeader = promptTopAnswerKey(left.prompt);
+            const rightLeader = promptTopAnswerKey(right.prompt);
+            const leftLeaderLoad = leftLeader ? Number(otherLeaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;
+            const rightLeaderLoad = rightLeader ? Number(otherLeaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;
+            const leftRelief = excludedTopPlayerId(left.prompt) === overloadedLeader ? 1 : 0;
+            const rightRelief = excludedTopPlayerId(right.prompt) === overloadedLeader ? 1 : 0;
+            return rightRelief - leftRelief
+              || leftLeaderLoad - rightLeaderLoad
+              || semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts);
+            });
+
+        const replacement = choices[0];
+        if (!replacement) continue;
+        entries[index] = { ...current, candidate: replacement };
+        swaps += 1;
+        repaired = true;
+        break;
+      }
+
+      if (!repaired) return null;
+    }
+
+    return null;
+  }
+
   function assignAnyRecords(records, positionNeeds, offset = 0) {
     const assigned = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
     const anyLoads = Object.fromEntries(POSITION_ORDER.map(position => [position, 0]));
@@ -712,6 +792,7 @@
       const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
       if (!semantic?.canAddWeekly) throw new Error("The Daily semantic-diversity policy is unavailable while selecting the weekly reservoir.");
       const prompts = [];
+      const selectedEntries = [];
       const sourceIds = new Set();
       const semanticCounts = new Map();
       const leaderCounts = new Map();
@@ -773,6 +854,7 @@
           if (!candidate) break;
           const sourceId = String(candidate.record.id || "");
           prompts.push(candidate.prompt);
+          selectedEntries.push({ groupKey: `${group.family}|${group.position}`, candidate });
           sourceIds.add(sourceId);
           semantic.commitWeekly(candidate.prompt, semanticCounts);
           const leaderKey = promptTopAnswerKey(candidate.prompt);
@@ -786,10 +868,19 @@
       }
       if (collision || prompts.length !== WEEKLY_PROMPTS || sourceIds.size !== WEEKLY_PROMPTS) continue;
 
-      // Greedy assembly is allowed to finish so a constrained family/position group cannot
-      // dead-end the whole week merely because a leader reached the preferred count of two.
-      // We still reject any completed reservoir that would require one player to lead more than
-      // three prompts, because same-day uniqueness plus the hard three-day policy could not place it.
+      // Greedy assembly is fast, but it can over-use one leader before a later constrained group
+      // gets its turn. Repair that completed selection in-place by swapping within the same
+      // family/position group. This preserves every quota while making the max-three rule part
+      // of the actual search rather than merely rejecting an otherwise recoverable reservoir.
+      const repairedSelection = repairLeaderCap(selectedEntries, selectionGroups, semantic);
+      if (!repairedSelection) continue;
+      const leaderRepairSwaps = repairedSelection.swaps;
+      if (leaderRepairSwaps) {
+        prompts.splice(0, prompts.length, ...repairedSelection.entries.map(entry => entry.candidate.prompt));
+        sourceIds.clear();
+        for (const entry of repairedSelection.entries) sourceIds.add(String(entry.candidate.record.id || ""));
+      }
+
       const provisionalTopAnswerDiversity = topAnswerDiversityAudit(prompts);
       if (provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)) continue;
 
@@ -831,6 +922,7 @@
         knownUsedSourceIds: usedIds.size,
         recentSourceIds: recentIds.size,
         runtimeCandidatesChecked: scanned,
+        leaderRepairSwaps,
         antiMetaCount,
         nationalityCount,
         topAnswerDiversity: frozenTopAnswerDiversity,
