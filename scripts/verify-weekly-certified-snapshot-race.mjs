@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.6.0',
+  'saved-library generation guard v2.6.1',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex)',
@@ -67,7 +67,8 @@ assert(guard.includes('Math.max(16, Math.ceil(need * 3))'), '77-prompt reservoir
 assert(guard.includes('Selecting the 77-prompt reservoir from'), '77-prompt reservoir does not expose post-certification selection progress.');
 assert(guard.includes('topAnswerDiversity: frozenTopAnswerDiversity'), '77-prompt reservoir does not expose its top-answer diversity audit.');
 assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4'), 'Exclude Top Result does not have its diversity-relief floor.');
-assert(guard.includes('reservoirLeaderCap = anyOffset < 2'), 'Reservoir does not enforce preferred-two / fallback-three leader caps.');
+assert(guard.includes('provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)'), 'Completed reservoir does not enforce the hard max-three leader cap.');
+assert(!guard.includes('&& (!leaderKey || leaderLoad < reservoirLeaderCap)'), 'Preferred leader count is still a hard greedy filter.');
 assert(guard.includes('rightReliefLoad - leftReliefLoad'), 'Exclude Top Result prompts are not prioritised against overloaded leaders.');
 assert(guard.includes('Same-day top answers must be unique.'), 'Final weekly certification does not reject same-day repeated leaders.');
 assert(!batch.includes('Regenerate from a later rotation point rather than relaxing the nationality quota.'), 'Generator still recommends moving the fixed schedule date to escape a rotation conflict.');

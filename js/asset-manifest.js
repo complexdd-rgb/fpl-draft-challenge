@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.2-leader-uniqueness"
+      "version": "4.0.3-exclusion-relief"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.6.0-leader-uniqueness"
+      "version": "2.6.1-exclusion-relief"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
