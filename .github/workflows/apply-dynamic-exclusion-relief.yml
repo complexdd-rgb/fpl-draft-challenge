@@ -76,7 +76,6 @@ jobs:
           s = replace_once(s, old, new, 'dynamic relief completion')
           p.write_text(s)
 
-          # Update guard-focused regression assertions.
           for path in ['scripts/verify-weekly-certified-snapshot-race.mjs', 'scripts/verify-all-season-certification-gate.mjs']:
               q = Path(path)
               t = q.read_text().replace('saved-library generation guard v2.6.1', 'saved-library generation guard v2.6.2')
@@ -93,7 +92,6 @@ jobs:
           )
           q.write_text(t)
 
-          # Cache bust only the runtime pieces that changed.
           manifest_path = Path('config/asset-manifest.json')
           manifest = json.loads(manifest_path.read_text())
           manifest['assets']['assetManifestRuntime']['version'] = '4.0.4-dynamic-exclusion-relief'
@@ -131,3 +129,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'Escalate Exclude Top Result relief dynamically'
           git push origin "HEAD:${GITHUB_REF_NAME}"
+
+# second push triggers this workflow after creation
