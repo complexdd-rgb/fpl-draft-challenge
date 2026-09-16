@@ -1,0 +1,95 @@
+name: Apply reservoir pool cache
+
+on:
+  push:
+    branches:
+      - 'perf/reuse-certified-reservoir-pools'
+    paths:
+      - '.github/workflows/apply-reservoir-pool-cache.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reuse certified candidate pools across relief levels
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import re
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  raise SystemExit(f'{label} anchor not found')
+              return text.replace(old, new, 1)
+
+          p = Path('js/admin-daily-generator-guard.js')
+          s = p.read_text()
+          s = replace_once(s, 'saved-library generation guard v2.6.2.', 'saved-library generation guard v2.6.3.', 'guard header')
+          s = replace_once(s, 'const VERSION = "2.6.2";', 'const VERSION = "2.6.3";', 'guard version')
+
+          old = '''    const runtimeCache = new Map();\n    const cycleFamilies = new Set();\n    const shardByFamily = new Map(payload.shards.map(shard => [String(shard.family), shard]));\n\n    for (const targetPlan of targetPlans) {'''
+          new = '''    const runtimeCache = new Map();\n    const cycleFamilies = new Set();\n    const shardByFamily = new Map(payload.shards.map(shard => [String(shard.family), shard]));\n    const maxTargets = {};\n    for (const plan of targetPlans) {\n      for (const [family, value] of Object.entries(plan.targets || {})) {\n        maxTargets[family] = Math.max(Number(maxTargets[family] || 0), Number(value || 0));\n      }\n    }\n    const orderedRecordsByFamily = new Map();\n    for (const [family, shard] of shardByFamily.entries()) {\n      orderedRecordsByFamily.set(family, recordOrder(Array.isArray(shard?.records) ? shard.records : [], usedIds, recentIds));\n    }\n    const candidatePoolCache = new Map();\n\n    for (const targetPlan of targetPlans) {'''
+          s = replace_once(s, old, new, 'pool cache setup')
+
+          pattern = re.compile(r'''      const candidatePools = new Map\(\);\n      let scanned = 0;\n      for \(const family of families\) \{.*?        candidatePools\.set\(family, certifiedByPosition\);\n      \}\n\n      setStatus\(`Selecting the 77-prompt reservoir from \$\{scanned\.toLocaleString\("en-GB"\)\} checked candidates · \$\{Number\(targets\["exclude-top-result"\] \|\| 0\)\} Exclude Top Result prompts · diversity layout \$\{anyOffset \+ 1\}/\$\{POSITION_ORDER\.length\}…`, "working"\);''', re.S)
+          replacement = '''      let candidatePools;\n      let scanned;\n      const cachedLayout = candidatePoolCache.get(anyOffset);\n      if (cachedLayout) {\n        candidatePools = cachedLayout.candidatePools;\n        scanned = cachedLayout.scanned;\n      } else {\n        candidatePools = new Map();\n        scanned = 0;\n        for (const family of families) {\n          const raw = orderedRecordsByFamily.get(family) || [];\n          if (raw.filter(record => !usedIds.has(String(record?.id || ""))).length < Number(maxTargets[family] || 0)) cycleFamilies.add(family);\n          const assigned = assignAnyRecords(raw, positionNeeds, anyOffset);\n          const certifiedByPosition = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));\n          for (const position of POSITION_ORDER) {\n            const need = Math.min(Number(maxTargets[family] || targets[family] || 0), positionNeeds[position]);\n            // Certify once at the widest family requirement needed by any 4→8 relief plan.\n            // Later relief levels reuse this exact pool instead of rescanning the promoted library.\n            const diversityExtra = anyOffset < 2\n              ? Math.max(8, Math.ceil(need * 2))\n              : Math.max(16, Math.ceil(need * 3));\n            const certifyLimit = Math.min(assigned[position].length, need + diversityExtra);\n            for (const record of assigned[position]) {\n              if (certifiedByPosition[position].length >= certifyLimit) break;\n              const prompt = await certifyCandidate(record, position, limits, cutoverApi, runtimeCache);\n              scanned += 1;\n              if (prompt) certifiedByPosition[position].push({ record, prompt });\n              if (scanned > 0 && scanned % 80 === 0) {\n                setStatus(`Runtime-certifying candidate pool · layout ${anyOffset + 1}/${POSITION_ORDER.length} · ${scanned.toLocaleString("en-GB")} compact candidates checked…`, "working");\n                await new Promise(resolve => setTimeout(resolve, 0));\n              }\n            }\n          }\n          candidatePools.set(family, certifiedByPosition);\n        }\n        candidatePoolCache.set(anyOffset, Object.freeze({ candidatePools, scanned }));\n      }\n\n      setStatus(`Selecting the 77-prompt reservoir from ${scanned.toLocaleString("en-GB")} checked candidates · ${Number(targets["exclude-top-result"] || 0)} Exclude Top Result prompts · diversity layout ${anyOffset + 1}/${POSITION_ORDER.length} · ${cachedLayout ? "cached candidate pool" : "fresh candidate pool"}…`, "working");'''
+          s, count = pattern.subn(replacement, s, count=1)
+          if count != 1:
+              raise SystemExit(f'candidate pool block replacement count={count}')
+
+          p.write_text(s)
+
+          for path in ['scripts/verify-weekly-certified-snapshot-race.mjs', 'scripts/verify-all-season-certification-gate.mjs']:
+              q = Path(path)
+              t = q.read_text().replace('saved-library generation guard v2.6.2', 'saved-library generation guard v2.6.3')
+              q.write_text(t)
+
+          q = Path('scripts/verify-weekly-certified-snapshot-race.mjs')
+          t = q.read_text()
+          anchor = "assert(guard.includes('Math.max(16, Math.ceil(need * 3))'), '77-prompt reservoir is missing the wider fallback diversity buffer.');"
+          addition = anchor + "\nassert(guard.includes('const candidatePoolCache = new Map();'), '77-prompt reservoir does not cache certified candidate pools by positional layout.');\nassert(guard.includes('const cachedLayout = candidatePoolCache.get(anyOffset);'), 'Relief levels do not reuse a previously certified positional-layout pool.');\nassert(guard.includes('const maxTargets = {};'), 'Certified candidate pools are not sized for the widest dynamic relief plan.');\nassert(guard.includes('const orderedRecordsByFamily = new Map();'), 'Family source ordering is still recalculated for every relief/layout attempt.');\nassert(guard.includes('cached candidate pool'), 'Generator progress does not expose cached candidate-pool reuse.');"
+          t = replace_once(t, anchor, addition, 'pool-cache verifier assertions')
+          q.write_text(t)
+
+          manifest_path = Path('config/asset-manifest.json')
+          manifest = json.loads(manifest_path.read_text())
+          manifest['assets']['assetManifestRuntime']['version'] = '4.0.5-reservoir-pool-cache'
+          manifest['assets']['adminDailyGeneratorGuard']['version'] = '2.6.3-reservoir-pool-cache'
+          manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
+
+          q = Path('scripts/verify-prompt-studio-clean-reset.mjs')
+          t = q.read_text().replace("4.0.4-dynamic-exclusion-relief", "4.0.5-reservoir-pool-cache")
+          q.write_text(t)
+          PY
+      - name: Rebuild generated Studio wiring
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-native-daily-workspace.mjs
+          node scripts/build-studio-cache-tags.mjs
+      - name: Verify optimisation
+        run: |
+          node --check js/admin-daily-generator-guard.js
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-weekly-top-answer-diversity.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-daily-curated-authority-v1.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          node scripts/verify-prompt-studio-clean-reset.mjs
+      - name: Commit optimisation
+        shell: bash
+        run: |
+          git rm .github/workflows/apply-reservoir-pool-cache.yml
+          git add js/admin-daily-generator-guard.js config/asset-manifest.json js/asset-manifest.js admin.html scripts/verify-weekly-certified-snapshot-race.mjs scripts/verify-all-season-certification-gate.mjs scripts/verify-prompt-studio-clean-reset.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Reuse certified reservoir pools across relief levels'
+          git push origin HEAD:perf/reuse-certified-reservoir-pools
