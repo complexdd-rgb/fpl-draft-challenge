@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.6.2',
+  'saved-library generation guard v2.6.3',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN)',
@@ -64,6 +64,11 @@ assert(guard.includes('selectionGroups.sort((left, right) =>'), '77-prompt reser
 assert(guard.includes('const diversityExtra = anyOffset < 2'), '77-prompt reservoir does not use adaptive diversity sizing.');
 assert(guard.includes('Math.max(8, Math.ceil(need * 2))'), '77-prompt reservoir is missing the fast initial diversity buffer.');
 assert(guard.includes('Math.max(16, Math.ceil(need * 3))'), '77-prompt reservoir is missing the wider fallback diversity buffer.');
+assert(guard.includes('const candidatePoolCache = new Map();'), '77-prompt reservoir does not cache certified candidate pools by positional layout.');
+assert(guard.includes('const cachedLayout = candidatePoolCache.get(anyOffset);'), 'Relief levels do not reuse a previously certified positional-layout pool.');
+assert(guard.includes('const maxTargets = {};'), 'Certified candidate pools are not sized for the widest dynamic relief plan.');
+assert(guard.includes('const orderedRecordsByFamily = new Map();'), 'Family source ordering is still recalculated for every relief/layout attempt.');
+assert(guard.includes('cached candidate pool'), 'Generator progress does not expose cached candidate-pool reuse.');
 assert(guard.includes('Selecting the 77-prompt reservoir from'), '77-prompt reservoir does not expose post-certification selection progress.');
 assert(guard.includes('topAnswerDiversity: frozenTopAnswerDiversity'), '77-prompt reservoir does not expose its top-answer diversity audit.');
 assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4'), 'Exclude Top Result does not have its diversity-relief floor.');
