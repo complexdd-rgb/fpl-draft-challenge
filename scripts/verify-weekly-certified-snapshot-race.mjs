@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.5.3',
+  'saved-library generation guard v2.6.0',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex)',
@@ -66,6 +66,10 @@ assert(guard.includes('Math.max(8, Math.ceil(need * 2))'), '77-prompt reservoir 
 assert(guard.includes('Math.max(16, Math.ceil(need * 3))'), '77-prompt reservoir is missing the wider fallback diversity buffer.');
 assert(guard.includes('Selecting the 77-prompt reservoir from'), '77-prompt reservoir does not expose post-certification selection progress.');
 assert(guard.includes('topAnswerDiversity: frozenTopAnswerDiversity'), '77-prompt reservoir does not expose its top-answer diversity audit.');
+assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4'), 'Exclude Top Result does not have its diversity-relief floor.');
+assert(guard.includes('reservoirLeaderCap = anyOffset < 2'), 'Reservoir does not enforce preferred-two / fallback-three leader caps.');
+assert(guard.includes('rightReliefLoad - leftReliefLoad'), 'Exclude Top Result prompts are not prioritised against overloaded leaders.');
+assert(guard.includes('Same-day top answers must be unique.'), 'Final weekly certification does not reject same-day repeated leaders.');
 assert(!batch.includes('Regenerate from a later rotation point rather than relaxing the nationality quota.'), 'Generator still recommends moving the fixed schedule date to escape a rotation conflict.');
 assert(guard.includes('window.FPL_STUDIO_SCHEDULE?.scheduled || []'), 'Weekly reservoir does not consume authoritative Supabase prompt history.');
 assert(guard.includes('row?.manifest_entry'), 'Weekly reservoir does not read stored Supabase manifest prompt IDs.');
@@ -107,7 +111,7 @@ for (const token of [
   'const promptSource = generationSnapshot || (Array.isArray(apiLibrary) ? apiLibrary : globalLibrary);',
   'semantic.dayClash(choice, existing)',
   'semantic.missingRequiredKeys(draft, semanticPressure.required)',
-  'same-day semantic-diversity guard'
+  'same-day semantic/top-answer uniqueness'
 ]) {
   assert(batch.includes(token), `Weekly generator is missing immutable saved-library snapshot source: ${token}`);
 }

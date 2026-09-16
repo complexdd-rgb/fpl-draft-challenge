@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.5.3.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,13 +8,16 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.5.3";
+  const VERSION = "2.6.0";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
   const LONDON_TIMEZONE = "Europe/London";
   const CUTOVER_WAIT_MS = 30000;
   const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;
+  const EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4;
+  const WEEKLY_LEADER_PREFERRED_PROMPT_CAP = 2;
+  const WEEKLY_LEADER_FALLBACK_PROMPT_CAP = 3;
   const SEMANTIC_WAIT_MS = 10000;
   const POSITION_ORDER = Object.freeze(["GK", "DEF", "MID", "FWD"]);
   const FORMATIONS = Object.freeze({
@@ -362,6 +365,26 @@
     let left = remaining - allocated;
     remainders.sort((a, b) => b.remainder - a.remainder || b.weight - a.weight || a.family.localeCompare(b.family));
     for (let index = 0; index < left; index += 1) targets[remainders[index % remainders.length].family] += 1;
+
+    // Exclude Top Result is a deliberate diversity relief family, not just a tiny proportional
+    // family. Keep a small weekly floor so common superstar leaders can be actively displaced
+    // while retaining at least one prompt from every other non-nationality family.
+    if (Object.hasOwn(targets, "exclude-top-result") && targets["exclude-top-result"] < EXCLUDE_TOP_RESULT_WEEKLY_MIN) {
+      let needed = EXCLUDE_TOP_RESULT_WEEKLY_MIN - targets["exclude-top-result"];
+      while (needed > 0) {
+        const donor = others
+          .filter(row => row.family !== "exclude-top-result" && Number(targets[row.family] || 0) > 1)
+          .sort((leftRow, rightRow) =>
+            Number(targets[rightRow.family] || 0) - Number(targets[leftRow.family] || 0)
+            || Number(rightRow.total || 0) - Number(leftRow.total || 0)
+            || String(leftRow.family).localeCompare(String(rightRow.family))
+          )[0];
+        if (!donor) break;
+        targets[donor.family] -= 1;
+        targets["exclude-top-result"] += 1;
+        needed -= 1;
+      }
+    }
     return targets;
   }
 
@@ -433,6 +456,12 @@
 
   function promptTopAnswerKey(prompt) {
     return String(promptTopAnswer(prompt)?.playerId || "");
+  }
+
+  function excludedTopPlayerId(prompt) {
+    if (String(prompt?.family || "") !== "exclude-top-result") return "";
+    const condition = (prompt.conditions || []).find(item => item?.field === "playerId" && item?.operator === "notEquals");
+    return String(condition?.value || "");
   }
 
   function topAnswerDiversityAudit(prompts) {
@@ -686,6 +715,8 @@
         || POSITION_ORDER.indexOf(left.position) - POSITION_ORDER.indexOf(right.position)
       );
 
+      const reservoirLeaderCap = anyOffset < 2 ? WEEKLY_LEADER_PREFERRED_PROMPT_CAP : WEEKLY_LEADER_FALLBACK_PROMPT_CAP;
+
       for (const group of selectionGroups) {
         const { required, available } = group;
         let added = 0;
@@ -693,14 +724,24 @@
           const choices = available
             .filter(candidate => {
               const sourceId = String(candidate.record.id || "");
-              return sourceId && !sourceIds.has(sourceId) && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);
+              const leaderKey = promptTopAnswerKey(candidate.prompt);
+              const leaderLoad = leaderKey ? Number(leaderCounts.get(leaderKey) || 0) : 0;
+              return sourceId
+                && !sourceIds.has(sourceId)
+                && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH)
+                && (!leaderKey || leaderLoad < reservoirLeaderCap);
             })
             .sort((left, right) => {
               const leftLeader = promptTopAnswerKey(left.prompt);
               const rightLeader = promptTopAnswerKey(right.prompt);
               const leftLeaderLoad = leftLeader ? Number(leaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;
               const rightLeaderLoad = rightLeader ? Number(leaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;
-              return leftLeaderLoad - rightLeaderLoad
+              const leftRelief = excludedTopPlayerId(left.prompt);
+              const rightRelief = excludedTopPlayerId(right.prompt);
+              const leftReliefLoad = leftRelief ? Number(leaderCounts.get(leftRelief) || 0) : 0;
+              const rightReliefLoad = rightRelief ? Number(leaderCounts.get(rightRelief) || 0) : 0;
+              return rightReliefLoad - leftReliefLoad
+                || leftLeaderLoad - rightLeaderLoad
                 || semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts);
             });
           const candidate = choices[0];
@@ -817,6 +858,11 @@
       const dayPrompts = result.promptIds.map(id => snapshotPromptById.get(String(id))).filter(Boolean);
       const semanticIssues = semantic?.dayIssues?.(dayPrompts) || [];
       if (semanticIssues.length) return { ok: false, reason: `${day} contains overly similar prompts: ${semanticIssues[0].description}.` };
+      const dayLeaderDiversity = topAnswerDiversityAudit(dayPrompts);
+      if (dayLeaderDiversity.repeatSlots) {
+        const repeated = dayLeaderDiversity.repeatedPlayers[0];
+        return { ok: false, reason: `${day} repeats top-answer player ${repeated?.name || repeated?.playerId || "unknown"} across ${repeated?.count || 2} prompts. Same-day top answers must be unique.` };
+      }
       weekIds.push(...result.promptIds.map(String));
     }
 
@@ -857,7 +903,7 @@
       setStatus("Building the proportional 77-prompt generation reservoir from unused saved prompts…", "working");
       const reservoir = await buildCertifiedReservoir();
       generationSnapshot = installGenerationSnapshot(reservoir);
-      setStatus(`77 runtime-certified prompts locked · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · 18-family proportional cycle · ${reservoir.plan.cycleFamilies.length ? `${reservoir.plan.cycleFamilies.length} family cycle reset(s)` : "unused prompts preferred"}. Generating week…`, "working");
+      setStatus(`77 runtime-certified prompts locked · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · 18-family cycle · ${reservoir.plan.targets?.["exclude-top-result"] || 0} Exclude Top Result relief prompts · ${reservoir.plan.cycleFamilies.length ? `${reservoir.plan.cycleFamilies.length} family cycle reset(s)` : "unused prompts preferred"}. Generating week…`, "working");
 
       const generator = window.FPL_STUDIO_BATCH_CALENDAR?.generate;
       if (typeof generator !== "function") {
@@ -877,7 +923,7 @@
       const diversityText = dayAudit
         ? `${dayAudit.uniquePlayers} unique top-answer players · max ${dayAudit.maxAppearanceDays} leader day(s) for one player · ${dayAudit.spacingViolationCount} spacing exception(s)`
         : "leader-day audit unavailable";
-      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 18-family targets were preserved, no same-day semantic clashes were allowed, and the 3-day leader-spacing audit finished at ${diversityText}.`, "pass");
+      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 18-family targets were preserved, no same-day semantic clashes or repeated top-answer players were allowed, and the 3-day leader-spacing audit finished at ${diversityText}.`, "pass");
       window.dispatchEvent(new CustomEvent("fpl:daily-saved-library-week-certified", { detail: { ...reservoir.plan } }));
     } catch (error) {
       console.error(error);
