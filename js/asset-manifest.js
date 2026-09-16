@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.3-exclusion-relief"
+      "version": "4.0.4-dynamic-exclusion-relief"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.6.1-exclusion-relief"
+      "version": "2.6.2-dynamic-exclusion-relief"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
