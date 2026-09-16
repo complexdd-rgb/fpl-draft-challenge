@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.4.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.5.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.6.4";
+  const VERSION = "2.6.5";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -570,6 +570,97 @@
     return null;
   }
 
+  function searchLeaderCappedSelection(selectionGroups, semantic, nodeLimit = 8000) {
+    const groups = selectionGroups.map(group => ({
+      ...group,
+      groupKey: `${group.family}|${group.position}`,
+      available: [...(group.available || [])]
+    }));
+    const selectedEntries = [];
+    let nodes = 0;
+    let bestDepth = 0;
+    let exhausted = false;
+
+    function searchGroup(groupIndex, sourceIds, leaderCounts, semanticCounts) {
+      bestDepth = Math.max(bestDepth, selectedEntries.length);
+      if (groupIndex >= groups.length) return selectedEntries.map(entry => ({ ...entry }));
+      if (nodes >= nodeLimit) {
+        exhausted = true;
+        return null;
+      }
+      const group = groups[groupIndex];
+      return chooseWithinGroup(group, groupIndex, 0, Number(group.required || 0), sourceIds, leaderCounts, semanticCounts);
+    }
+
+    function chooseWithinGroup(group, groupIndex, startIndex, remaining, sourceIds, leaderCounts, semanticCounts) {
+      bestDepth = Math.max(bestDepth, selectedEntries.length);
+      if (remaining <= 0) return searchGroup(groupIndex + 1, sourceIds, leaderCounts, semanticCounts);
+      if (nodes >= nodeLimit) {
+        exhausted = true;
+        return null;
+      }
+
+      const options = group.available
+        .map((candidate, index) => ({ candidate, index }))
+        .filter(({ candidate, index }) => {
+          if (index < startIndex) return false;
+          const sourceId = String(candidate.record?.id || "");
+          if (!sourceId || sourceIds.has(sourceId)) return false;
+          if (!semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH)) return false;
+          const leader = promptTopAnswerKey(candidate.prompt);
+          return !leader || Number(leaderCounts.get(leader) || 0) < WEEKLY_LEADER_FALLBACK_PROMPT_CAP;
+        })
+        .sort((left, right) => {
+          const leftLeader = promptTopAnswerKey(left.candidate.prompt);
+          const rightLeader = promptTopAnswerKey(right.candidate.prompt);
+          const leftLeaderLoad = leftLeader ? Number(leaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;
+          const rightLeaderLoad = rightLeader ? Number(leaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;
+          const leftRelief = excludedTopPlayerId(left.candidate.prompt);
+          const rightRelief = excludedTopPlayerId(right.candidate.prompt);
+          const leftReliefLoad = leftRelief ? Number(leaderCounts.get(leftRelief) || 0) : 0;
+          const rightReliefLoad = rightRelief ? Number(leaderCounts.get(rightRelief) || 0) : 0;
+          return rightReliefLoad - leftReliefLoad
+            || leftLeaderLoad - rightLeaderLoad
+            || semantic.weeklyLoad(left.candidate.prompt, semanticCounts) - semantic.weeklyLoad(right.candidate.prompt, semanticCounts)
+            || String(left.candidate.record?.id || "").localeCompare(String(right.candidate.record?.id || ""));
+        });
+
+      if (options.length < remaining) return null;
+      for (const option of options) {
+        nodes += 1;
+        if (nodes > nodeLimit) {
+          exhausted = true;
+          return null;
+        }
+        const candidate = option.candidate;
+        const sourceId = String(candidate.record?.id || "");
+        const nextSourceIds = new Set(sourceIds);
+        nextSourceIds.add(sourceId);
+        const nextLeaderCounts = new Map(leaderCounts);
+        const leader = promptTopAnswerKey(candidate.prompt);
+        if (leader) nextLeaderCounts.set(leader, Number(nextLeaderCounts.get(leader) || 0) + 1);
+        const nextSemanticCounts = new Map(semanticCounts);
+        semantic.commitWeekly(candidate.prompt, nextSemanticCounts);
+        selectedEntries.push({ groupKey: group.groupKey, candidate });
+        const result = chooseWithinGroup(
+          group,
+          groupIndex,
+          option.index + 1,
+          remaining - 1,
+          nextSourceIds,
+          nextLeaderCounts,
+          nextSemanticCounts
+        );
+        if (result) return result;
+        selectedEntries.pop();
+      }
+      return null;
+    }
+
+    const entries = searchGroup(0, new Set(), new Map(), new Map());
+    return { entries, nodes, bestDepth, exhausted, swaps: 0 };
+  }
+
   function assignAnyRecords(records, positionNeeds, offset = 0) {
     const assigned = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
     const anyLoads = Object.fromEntries(POSITION_ORDER.map(position => [position, 0]));
@@ -872,14 +963,22 @@
       // gets its turn. Repair that completed selection in-place by swapping within the same
       // family/position group. This preserves every quota while making the max-three rule part
       // of the actual search rather than merely rejecting an otherwise recoverable reservoir.
-      const repairedSelection = repairLeaderCap(selectedEntries, selectionGroups, semantic);
-      if (!repairedSelection) continue;
-      const leaderRepairSwaps = repairedSelection.swaps;
-      if (leaderRepairSwaps) {
-        prompts.splice(0, prompts.length, ...repairedSelection.entries.map(entry => entry.candidate.prompt));
-        sourceIds.clear();
-        for (const entry of repairedSelection.entries) sourceIds.add(String(entry.candidate.record.id || ""));
+      let resolvedSelection = repairLeaderCap(selectedEntries, selectionGroups, semantic);
+      let leaderSearchNodes = 0;
+      let leaderSearchBestDepth = 0;
+      if (!resolvedSelection) {
+        setStatus(`Greedy reservoir needs alternate choices · bounded leader search · ${Number(targets["exclude-top-result"] || 0)} Exclude Top Result prompts · layout ${anyOffset + 1}/${POSITION_ORDER.length}…`, "working");
+        await new Promise(resolve => setTimeout(resolve, 0));
+        const searchedSelection = searchLeaderCappedSelection(selectionGroups, semantic);
+        leaderSearchNodes = Number(searchedSelection?.nodes || 0);
+        leaderSearchBestDepth = Number(searchedSelection?.bestDepth || 0);
+        if (!searchedSelection?.entries) continue;
+        resolvedSelection = searchedSelection;
       }
+      const leaderRepairSwaps = Number(resolvedSelection.swaps || 0);
+      prompts.splice(0, prompts.length, ...resolvedSelection.entries.map(entry => entry.candidate.prompt));
+      sourceIds.clear();
+      for (const entry of resolvedSelection.entries) sourceIds.add(String(entry.candidate.record.id || ""));
 
       const provisionalTopAnswerDiversity = topAnswerDiversityAudit(prompts);
       if (provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)) continue;
@@ -923,6 +1022,8 @@
         recentSourceIds: recentIds.size,
         runtimeCandidatesChecked: scanned,
         leaderRepairSwaps,
+        leaderSearchNodes,
+        leaderSearchBestDepth,
         antiMetaCount,
         nationalityCount,
         topAnswerDiversity: frozenTopAnswerDiversity,
@@ -947,7 +1048,7 @@
       if (bestReservoir) return bestReservoir;
     }
 
-    throw new Error(`The saved 18-family library could not build a 77-prompt reservoir while preserving formation, semantic and max-three leader constraints, even after increasing Exclude Top Result relief from ${EXCLUDE_TOP_RESULT_WEEKLY_MIN} to ${EXCLUDE_TOP_RESULT_WEEKLY_MAX} prompts.`);
+    throw new Error(`The saved 18-family library could not build a 77-prompt reservoir while preserving formation, semantic and max-three leader constraints, even after increasing Exclude Top Result relief from ${EXCLUDE_TOP_RESULT_WEEKLY_MIN} to ${EXCLUDE_TOP_RESULT_WEEKLY_MAX} prompts and running bounded alternate-choice search.`);
   }
 
   function installGenerationSnapshot(reservoir) {

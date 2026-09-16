@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.6.4',
+  'saved-library generation guard v2.6.5',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN)',
@@ -77,6 +77,9 @@ assert(guard.includes('for (let excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN; e
 assert(guard.includes('if (bestReservoir) return bestReservoir;'), 'Reservoir does not stop at the smallest successful Exclude Top Result relief level.');
 assert(guard.includes('provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)'), 'Completed reservoir does not enforce the hard max-three leader cap.');
 assert(guard.includes('function repairLeaderCap(selectedEntries, selectionGroups, semantic)'), 'Reservoir does not repair leader overload inside fixed family/position groups.');
+assert(guard.includes('function searchLeaderCappedSelection(selectionGroups, semantic, nodeLimit = 8000)'), 'Reservoir does not have a bounded backtracking fallback after local repair fails.');
+assert(guard.includes('leaderSearchNodes'), 'Reservoir plan does not expose bounded leader-search work.');
+assert(guard.includes('bounded alternate-choice search'), 'Final generation failure does not distinguish exhaustion of the bounded alternate-choice search.');
 assert(guard.includes('leaderRepairSwaps'), 'Reservoir plan does not expose leader-repair swaps.');
 assert(guard.includes('selectedEntries.push({ groupKey:'), 'Greedy selection does not retain group membership for bounded leader repair.');
 assert(!guard.includes('&& (!leaderKey || leaderLoad < reservoirLeaderCap)'), 'Preferred leader count is still a hard greedy filter.');
