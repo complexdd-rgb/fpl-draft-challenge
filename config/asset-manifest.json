@@ -3,7 +3,7 @@
   "assets": {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.1-adaptive-reservoir"
+      "version": "4.0.2-leader-uniqueness"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -91,11 +91,11 @@
     },
     "adminBatchCalendar": {
       "path": "js/admin-batch-calendar.js",
-      "version": "3.8.0-preplan-fastpath"
+      "version": "3.9.0-leader-uniqueness"
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.5.3-adaptive-reservoir"
+      "version": "2.6.0-leader-uniqueness"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",

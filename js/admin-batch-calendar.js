@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine v3.8.0: preplanned fast-path date-identified seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.9.0: preplanned fast-path date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
@@ -815,6 +815,7 @@
       }
       const semanticIssues = semantic.dayIssues(prompts);
       if (semanticIssues.length) return { ok: false, reason: semanticIssues[0].message };
+      if (sameDayLeaderRepeatCount(prompts)) return { ok: false, reason: "The leader-day pre-plan repeats a top-answer player on the same day." };
       if (semantic.missingRequiredKeys(prompts, semanticPressure.required).length) {
         return { ok: false, reason: "The leader-day pre-plan did not place a semantic backlog item required on this day." };
       }
@@ -867,8 +868,9 @@
       if (draft.filter(isAntiMeta).length < settings.minAntiMeta) continue;
       if (semantic.dayIssues(draft).length) continue;
       if (semantic.missingRequiredKeys(draft, semanticPressure.required).length) continue;
-      // Three separate leader days is the weekly hard ceiling. Repeated prompts on this same
-      // day are fine because the current day is only committed once after the XI passes.
+      // A Daily XI must not repeat the same #1 answer player. Cross-day repeats remain
+      // governed by the preferred two-day / hard three-day weekly policy.
+      if (sameDayLeaderRepeatCount(draft)) continue;
       if ([...weeklyLeaderIds(draft)].some(playerId => weeklyLeaderHistory(weeklyLeaderDays, playerId).length >= WEEKLY_LEADER_HARD_DAY_CAP)) continue;
 
       const signature = draft.map(prompt => prompt.id).join("|");
@@ -888,7 +890,7 @@
 
     if (!candidates.length) return {
       ok: false,
-      reason: "No complete XI could satisfy exact rotation, formation, the hard same-day semantic-diversity guard and the strict three-leader-day weekly cap."
+      reason: "No complete XI could satisfy exact rotation, formation, same-day semantic/top-answer uniqueness and the strict three-leader-day weekly cap."
     };
     candidates.sort((left, right) => left.balance - right.balance || left.naiveScore - right.naiveScore);
     const nationalityCandidates = candidates.filter(candidate =>
@@ -944,7 +946,7 @@
     };
   }
 
-  const ANSWER_DIVERSITY_POLICY_VERSION = 6;
+  const ANSWER_DIVERSITY_POLICY_VERSION = 7;
   const ANSWER_DIVERSITY_POOL_SIZE = 16;
   const WEEKLY_LEADER_MIN_DAY_GAP = 3;
   const WEEKLY_LEADER_PREFERRED_DAY_CAP = 2;
@@ -992,6 +994,19 @@
     return currentDraft.some(item => core.getPromptStats(item)?.bestAnswer?.playerId === leaderId);
   }
 
+  function sameDayLeaderRepeatCount(draft) {
+    const counts = new Map();
+    let repeats = 0;
+    for (const prompt of draft || []) {
+      const leaderId = String(core.getPromptStats(prompt)?.bestAnswer?.playerId || "");
+      if (!leaderId) continue;
+      const next = Number(counts.get(leaderId) || 0) + 1;
+      counts.set(leaderId, next);
+      if (next > 1) repeats += 1;
+    }
+    return repeats;
+  }
+
   function answerDiversityPenalty(draft) {
     const leaders = new Map();
     const clubs = new Map();
@@ -1011,6 +1026,7 @@
       scoreBands.set(band, (scoreBands.get(band) || 0) + 1);
     }
 
+    for (const count of leaders.values()) if (count > 1) penalty += (count - 1) * 5000;
     for (const count of clubs.values()) if (count > 2) penalty += (count - 2) * 10;
     for (const count of seasons.values()) if (count > 3) penalty += (count - 3) * 6;
     for (const count of scoreBands.values()) if (count > 4) penalty += (count - 4) * 3;
@@ -1113,6 +1129,7 @@
     }
     minimum = Math.max(minimum, nationalityCount);
     for (const count of hardKeyCounts.values()) minimum = Math.max(minimum, count);
+    if (!group.synthetic) minimum = Math.max(minimum, group.prompts.length);
     return minimum;
   }
 
@@ -1163,6 +1180,7 @@
       const antiMeta = isAntiMeta(prompt);
       const candidates = daySet.filter(dayIndex => {
         const day = days[dayIndex];
+        if (!group.synthetic && day.promptIds.some(id => group.promptById.has(id))) return false;
         if (day.positionCounts[position] >= Number(requiredFormation[position] || 0)) return false;
         if (nationality && day.nationalityCount >= DAILY_PROMPT_MIX_TARGET.nationality) return false;
         if (keys.some(key => day.hardKeys.has(key))) return false;
@@ -1282,6 +1300,7 @@
         if (days[dayIndex].nationalityCount !== DAILY_PROMPT_MIX_TARGET.nationality) return false;
         if (days[dayIndex].antiMetaCount < settings.minAntiMeta) return false;
         if (semantic.dayIssues(promptsForDay).length) return false;
+        if (sameDayLeaderRepeatCount(promptsForDay)) return false;
         return Object.keys(requiredFormation).every(position => days[dayIndex].positionCounts[position] === requiredFormation[position]);
       });
       if (!valid) continue;
@@ -1331,7 +1350,7 @@
     return {
       ok: false,
       terminal: false,
-      reason: `No complete 77-prompt leader-day pre-plan satisfied formation, one nationality per day, anti-meta minimums, same-day semantic diversity and the hard max-3 leader rule. Most constrained leaders: ${constrained || "none identified"}.`
+      reason: `No complete 77-prompt leader-day pre-plan satisfied formation, one nationality per day, anti-meta minimums, same-day semantic/top-answer uniqueness and the hard max-3 leader rule. Most constrained leaders: ${constrained || "none identified"}.`
     };
   }
 
@@ -1377,6 +1396,8 @@
       options = semantic.filterDayCompatible(options, currentDraft);
       if (!options.length) return null;
     }
+    const freshLeaderOptions = options.filter(prompt => !leaderRepeatedInDraft(prompt, currentDraft));
+    if (freshLeaderOptions.length) options = freshLeaderOptions;
     const usedFamilies = new Set(currentDraft.map(promptFamily));
     const familyFreshOptions = options.filter(prompt => !usedFamilies.has(promptFamily(prompt)));
     if (familyFreshOptions.length) options = familyFreshOptions;
@@ -1408,9 +1429,7 @@
       const leaderId = core.getPromptStats(prompt)?.bestAnswer?.playerId;
       const sameDayLeader = Boolean(leaderId && currentDraft.some(item => core.getPromptStats(item)?.bestAnswer?.playerId === leaderId));
       if (sameDayLeader) {
-        // Multiple prompts led by the same player on one Daily Challenge count as one leader day.
-        // A small grouping preference helps concentrate unavoidable repeats instead of spreading them.
-        weight *= 1.2;
+        weight /= 1000;
       } else if (leaderId) {
         const history = weeklyLeaderHistory(weeklyLeaderDays, leaderId);
         const lastDay = history.length ? history[history.length - 1] : null;
@@ -1989,7 +2008,7 @@
       (() => {
         const audit = weeklyTopAnswerDiversity();
         if (!audit) return "Audit unavailable.";
-        return `${audit.uniquePlayers} unique top-answer players across ${audit.playerDayAppearances} leader-day appearances. Same-day repeats are allowed. The certified 77-prompt reservoir is pre-planned across all seven days before XI generation, repeat days target a ${audit.minDayGap}-day gap, ${audit.preferredDayCap} days/player is preferred and ${audit.hardDayCap} is a hard maximum. Spacing exceptions: ${audit.spacingViolationCount}; players needing a third day: ${audit.preferredCapBreachCount}; hard-cap breaches: ${audit.hardCapBreachCount}.`;
+        return `${audit.uniquePlayers} unique top-answer players across ${audit.playerDayAppearances} leader-day appearances. Same-day top-answer repeats are blocked. The certified 77-prompt reservoir is pre-planned across all seven days before XI generation, repeat days target a ${audit.minDayGap}-day gap, ${audit.preferredDayCap} days/player is preferred and ${audit.hardDayCap} is a hard maximum. Spacing exceptions: ${audit.spacingViolationCount}; players needing a third day: ${audit.preferredCapBreachCount}; hard-cap breaches: ${audit.hardCapBreachCount}.`;
       })(),
       "",
       "UPLOAD ORDER",
