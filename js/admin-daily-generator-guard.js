@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.1.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
    proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.6.0";
+  const VERSION = "2.6.1";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -715,7 +715,8 @@
         || POSITION_ORDER.indexOf(left.position) - POSITION_ORDER.indexOf(right.position)
       );
 
-      const reservoirLeaderCap = anyOffset < 2 ? WEEKLY_LEADER_PREFERRED_PROMPT_CAP : WEEKLY_LEADER_FALLBACK_PROMPT_CAP;
+      // Leader count 2 is a preference during greedy selection, not a hard per-group gate.
+      // The completed 77-prompt reservoir is checked against the hard max-three ceiling below.
 
       for (const group of selectionGroups) {
         const { required, available } = group;
@@ -724,12 +725,9 @@
           const choices = available
             .filter(candidate => {
               const sourceId = String(candidate.record.id || "");
-              const leaderKey = promptTopAnswerKey(candidate.prompt);
-              const leaderLoad = leaderKey ? Number(leaderCounts.get(leaderKey) || 0) : 0;
               return sourceId
                 && !sourceIds.has(sourceId)
-                && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH)
-                && (!leaderKey || leaderLoad < reservoirLeaderCap);
+                && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);
             })
             .sort((left, right) => {
               const leftLeader = promptTopAnswerKey(left.prompt);
@@ -760,6 +758,13 @@
         }
       }
       if (collision || prompts.length !== WEEKLY_PROMPTS || sourceIds.size !== WEEKLY_PROMPTS) continue;
+
+      // Greedy assembly is allowed to finish so a constrained family/position group cannot
+      // dead-end the whole week merely because a leader reached the preferred count of two.
+      // We still reject any completed reservoir that would require one player to lead more than
+      // three prompts, because same-day uniqueness plus the hard three-day policy could not place it.
+      const provisionalTopAnswerDiversity = topAnswerDiversityAudit(prompts);
+      if (provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)) continue;
 
       const familyCounts = {};
       const positionCounts = {};
@@ -817,7 +822,7 @@
     }
 
     if (bestReservoir) return bestReservoir;
-    throw new Error("The saved 18-family library could not fill the selected formation with 77 runtime-certified prompts while preserving family targets and the one-per-day semantic cap. Expand variant diversity in the affected families.");
+    throw new Error("The saved 18-family library could not build a 77-prompt reservoir while preserving formation, family, semantic and max-three leader constraints. Exclude Top Result relief was applied, but no valid layout was found.");
   }
 
   function installGenerationSnapshot(reservoir) {
