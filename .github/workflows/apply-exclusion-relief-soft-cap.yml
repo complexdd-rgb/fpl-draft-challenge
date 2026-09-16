@@ -1,0 +1,113 @@
+name: Apply exclusion relief reservoir fix
+
+on:
+  push:
+    branches:
+      - 'fix/exclusion-relief-reservoir'
+    paths:
+      - '.github/workflows/apply-exclusion-relief-soft-cap.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply reservoir soft-cap fix
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  raise SystemExit(f'{label} anchor not found')
+              return text.replace(old, new, 1)
+
+          p = Path('js/admin-daily-generator-guard.js')
+          s = p.read_text()
+          s = replace_once(s, 'saved-library generation guard v2.6.0.', 'saved-library generation guard v2.6.1.', 'guard header')
+          s = replace_once(s, 'const VERSION = "2.6.0";', 'const VERSION = "2.6.1";', 'guard version')
+          s = replace_once(
+              s,
+              '      const reservoirLeaderCap = anyOffset < 2 ? WEEKLY_LEADER_PREFERRED_PROMPT_CAP : WEEKLY_LEADER_FALLBACK_PROMPT_CAP;\n\n',
+              '      // Leader count 2 is a preference during greedy selection, not a hard per-group gate.\n      // The completed 77-prompt reservoir is checked against the hard max-three ceiling below.\n\n',
+              'remove greedy leader cap'
+          )
+          s = replace_once(
+              s,
+              '''            .filter(candidate => {\n              const sourceId = String(candidate.record.id || "");\n              const leaderKey = promptTopAnswerKey(candidate.prompt);\n              const leaderLoad = leaderKey ? Number(leaderCounts.get(leaderKey) || 0) : 0;\n              return sourceId\n                && !sourceIds.has(sourceId)\n                && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH)\n                && (!leaderKey || leaderLoad < reservoirLeaderCap);\n            })''',
+              '''            .filter(candidate => {\n              const sourceId = String(candidate.record.id || "");\n              return sourceId\n                && !sourceIds.has(sourceId)\n                && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);\n            })''',
+              'soften greedy leader filter'
+          )
+          s = replace_once(
+              s,
+              '      const familyCounts = {};',
+              '''      // Greedy assembly is allowed to finish so a constrained family/position group cannot\n      // dead-end the whole week merely because a leader reached the preferred count of two.\n      // We still reject any completed reservoir that would require one player to lead more than\n      // three prompts, because same-day uniqueness plus the hard three-day policy could not place it.\n      const provisionalTopAnswerDiversity = topAnswerDiversityAudit(prompts);\n      if (provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)) continue;\n\n      const familyCounts = {};''',
+              'completed reservoir hard cap'
+          )
+          s = s.replace(
+              'The saved 18-family library could not fill the selected formation with 77 runtime-certified prompts while preserving family targets and the one-per-day semantic cap. Expand variant diversity in the affected families.',
+              'The saved 18-family library could not build a 77-prompt reservoir while preserving formation, family, semantic and max-three leader constraints. Exclude Top Result relief was applied, but no valid layout was found.'
+          )
+          p.write_text(s)
+
+          # Update guard-version verifiers and replace the obsolete greedy-cap assertion.
+          for path in ['scripts/verify-all-season-certification-gate.mjs', 'scripts/verify-weekly-certified-snapshot-race.mjs']:
+              p = Path(path)
+              s = p.read_text().replace('saved-library generation guard v2.6.0', 'saved-library generation guard v2.6.1')
+              p.write_text(s)
+
+          p = Path('scripts/verify-weekly-certified-snapshot-race.mjs')
+          s = p.read_text()
+          s = s.replace(
+              "assert(guard.includes('reservoirLeaderCap = anyOffset < 2'), 'Reservoir does not enforce preferred-two / fallback-three leader caps.');",
+              "assert(guard.includes('provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)'), 'Completed reservoir does not enforce the hard max-three leader cap.');\nassert(!guard.includes('&& (!leaderKey || leaderLoad < reservoirLeaderCap)'), 'Preferred leader count is still a hard greedy filter.');"
+          )
+          p.write_text(s)
+
+          # Cache/version wiring: only runtime asset identity changes.
+          p = Path('config/asset-manifest.json')
+          s = p.read_text()
+          s = replace_once(s, '"version": "4.0.2-leader-uniqueness"', '"version": "4.0.3-exclusion-relief"', 'asset runtime version')
+          s = replace_once(s, '"version": "2.6.0-leader-uniqueness"', '"version": "2.6.1-exclusion-relief"', 'guard asset version')
+          p.write_text(s)
+
+          p = Path('scripts/verify-prompt-studio-clean-reset.mjs')
+          s = p.read_text().replace("manifest.assets?.assetManifestRuntime?.version === '4.0.2-leader-uniqueness'", "manifest.assets?.assetManifestRuntime?.version === '4.0.3-exclusion-relief'")
+          p.write_text(s)
+          PY
+
+      - name: Rebuild generated wiring
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-native-daily-workspace.mjs
+          node scripts/build-studio-cache-tags.mjs
+
+      - name: Verify
+        run: |
+          node --check js/admin-daily-generator-guard.js
+          node --check js/admin-batch-calendar.js
+          node scripts/verify-weekly-top-answer-diversity.mjs
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          node scripts/verify-daily-curated-authority-v1.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-prompt-studio-clean-reset.mjs
+          git diff --check
+
+      - name: Commit
+        run: |
+          rm -f .github/workflows/apply-same-day-top-answer-uniqueness.yml
+          rm -f .github/workflows/retry-same-day-top-answer-uniqueness.yml
+          rm -f .github/workflows/apply-exclusion-relief-soft-cap.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Make weekly leader cap a post-selection constraint'
+          git push origin HEAD
