@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Apply Generator v3 reset
         run: python3 scripts/apply-generator-v3.py
       - name: Rebuild Studio wiring
@@ -28,7 +28,8 @@ jobs:
           node scripts/verify-weekly-top-answer-diversity.mjs
           node scripts/verify-daily-semantic-diversity-v1.mjs
           node scripts/verify-daily-curated-authority-v1.mjs
-          node scripts/verify-all-season-certification-boundary.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          node scripts/verify-daily-library-cutover-v1.mjs
           node scripts/verify-prompt-studio-clean-reset.mjs
       - name: Commit reset
         run: |
