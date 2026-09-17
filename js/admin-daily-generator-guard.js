@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.6.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.7.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, keeps all 18 families represented
    without percentage quotas and caps close semantic variants so one concept cannot flood a seven-day week. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.6.6";
+  const VERSION = "2.6.7";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -79,6 +79,7 @@
   let generationRunning = false;
   let guardChip = null;
   let lastPlan = null;
+  const promptTopAnswerCache = new WeakMap();
 
   function setStatus(message, state = "neutral") {
     if (!status) return;
@@ -444,7 +445,11 @@
   }
 
   function promptTopAnswer(prompt) {
-    return core.getPromptStats(prompt)?.bestAnswer || null;
+    if (!prompt || typeof prompt !== "object") return null;
+    if (promptTopAnswerCache.has(prompt)) return promptTopAnswerCache.get(prompt);
+    const best = core.getPromptStats(prompt)?.bestAnswer || null;
+    promptTopAnswerCache.set(prompt, best);
+    return best;
   }
 
   function promptTopAnswerKey(prompt) {
@@ -536,7 +541,7 @@
             const leader = promptTopAnswerKey(candidate.prompt);
             return !leader || Number(otherLeaderCounts.get(leader) || 0) < WEEKLY_LEADER_FALLBACK_PROMPT_CAP;
           })
-          .sort((heft, right) => {
+          .sort((left, right) => {
             const leftLeader = promptTopAnswerKey(left.prompt);
             const rightLeader = promptTopAnswerKey(right.prompt);
             const leftLeaderLoad = leftLeader ? Number(otherLeaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;

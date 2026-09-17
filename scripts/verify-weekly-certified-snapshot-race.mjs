@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.6.6',
+  'saved-library generation guard v2.6.7',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN, balanceOffset = 0)',
@@ -59,6 +59,9 @@ assert(batch.includes('function buildWeeklyReservoirRotationState(basePools)'), 
 assert(batch.includes('let rotationState = generationSnapshot'), 'Batch generator does not distinguish guarded reservoir rotation from legacy history replay or cannot reset that state between full-week layout attempts.');
 assert(batch.includes('? buildWeeklyReservoirRotationState(basePools)'), 'Guarded reservoir still replays old schedule history into its fresh 77-prompt cycle.');
 assert(guard.includes('function topAnswerDiversityAudit(prompts)'), '77-prompt reservoir does not audit top-answer player uniqueness.');
+assert(guard.includes('const promptTopAnswerCache = new WeakMap();'), 'Top-answer diversity still recalculates prompt stats instead of caching them per prompt.');
+assert(guard.includes('if (promptTopAnswerCache.has(prompt)) return promptTopAnswerCache.get(prompt);'), 'Top-answer cache is declared but not reused.');
+assert(!guard.includes('.sort((heft, right) =>'), 'Leader-repair sorter still contains the broken left-hand callback variable.');
 assert(guard.includes('leftLeaderLoad - rightLeaderLoad'), '77-prompt reservoir does not prefer unused weekly top-answer players.');
 assert(guard.includes('selectionGroups.sort((left, right) =>'), '77-prompt reservoir does not give constrained top-answer groups first choice.');
 assert(guard.includes('const diversityExtra = anyOffset < 2'), '77-prompt reservoir does not use adaptive diversity sizing.');
