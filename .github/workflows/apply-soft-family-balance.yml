@@ -1,0 +1,46 @@
+name: Apply soft family balance
+
+on:
+  push:
+    branches:
+      - 'fix/soft-family-balance'
+    paths:
+      - '.github/workflows/apply-soft-family-balance.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply soft family balance patch
+        run: python scripts/patch-soft-family-balance.py
+      - name: Rebuild generated Studio wiring
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-native-daily-workspace.mjs
+          node scripts/build-studio-cache-tags.mjs
+      - name: Verify soft family balance
+        run: |
+          node --check js/admin-daily-generator-guard.js
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-weekly-top-answer-diversity.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-daily-curated-authority-v1.mjs
+          node scripts/verify-all-season-certification-gate.mjs
+          node scripts/verify-prompt-studio-clean-reset.mjs
+      - name: Commit patch and remove one-shot files
+        shell: bash
+        run: |
+          rm scripts/patch-soft-family-balance.py
+          rm .github/workflows/apply-soft-family-balance.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Replace proportional family quotas with balanced coverage'
+          git push origin HEAD:fix/soft-family-balance
