@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v3.0.1',
+  'saved-library generation guard v3.0.2',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN, balanceOffset = 0)',
@@ -63,8 +63,9 @@ assert(guard.includes('const promptTopAnswerCache = new WeakMap();'), 'Top-answe
 assert(guard.includes('const GENERATOR_V3_ATTEMPTS = 10;'), 'Generator v3 does not use a bounded scored-attempt budget.');
 assert(guard.includes('GENERATOR_V3_POOL_MULTIPLIER = 3'), 'Generator v3 candidate pool is missing its compact multiplier.');
 assert(guard.includes('Generator v3 · shortlisting from stored evidence'), 'Generator v3 does not expose stored-evidence shortlist progress.');
-assert(guard.includes('Generator v3 · runtime-certifying selected prompts'), 'Generator v3 does not defer runtime certification to the selected reservoir.');
-assert(guard.includes('source: "generator-v3-runtime-shortlist"'), 'Generator v3 plan identity is missing.');
+assert(guard.includes('async function certifyChoice(candidate, attempt, phase)'), 'Generator v3 does not runtime-certify ranked replacements in place.');
+assert(guard.includes('for (const candidate of choices)'), 'Generator v3 does not walk ranked replacements after a runtime failure.');
+assert(guard.includes('source: "generator-v3-immediate-runtime-replacement"'), 'Generator v3 plan identity is missing.');
 assert(guard.includes('score -= leaderLoad * leaderLoad * 30'), 'Generator v3 does not strongly penalise repeated top-answer leaders.');
 assert(guard.includes('score -= familyLoad * 5'), 'Generator v3 does not softly balance prompt families.');
 assert(guard.includes('excludedLoad * 35'), 'Exclude Top Result is not rewarded when it relieves an over-used leader.');

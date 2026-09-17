@@ -1,14 +1,14 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.0.1.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.0.2.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
-   runtime-retests each selected prompt, preserves exact rotation, keeps all 18 families represented
-   with a fast scored reservoir: shortlist from stored evidence, runtime-certify only selected prompts, then hand off to the existing seven-day validator. */
+   runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
+   with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
 (() => {
   "use strict";
 
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.0.1";
+  const VERSION = "3.0.2";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -926,7 +926,29 @@
       return pools[position].filter(candidate => !candidate.invalid && !state.sourceIds.has(sourceIdOf(candidate)));
     }
 
-    function reserveSpecial(state, predicate, target, attempt) {
+    let best = null;
+    let runtimeCandidatesChecked = 0;
+
+    async function certifyChoice(candidate, attempt, phase) {
+      if (candidate.runtimeCertified) return true;
+      if (candidate.invalid) return false;
+      if (runtimeCandidatesChecked % 5 === 0) {
+        setStatus(`Generator v3 · runtime-certifying ${phase} · attempt ${attempt + 1}/${GENERATOR_V3_ATTEMPTS} · ${runtimeCandidatesChecked + 1} checked…`, "working");
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      const certified = await certifyCandidate(candidate.record, candidate.position, limits, cutoverApi, runtimeCache);
+      runtimeCandidatesChecked += 1;
+      if (!certified) {
+        candidate.invalid = true;
+        return false;
+      }
+      candidate.prompt = certified;
+      candidate.leaderKey = promptTopAnswerKey(certified);
+      candidate.runtimeCertified = true;
+      return true;
+    }
+
+    async function reserveSpecial(state, predicate, target, attempt, phase) {
       while (state.selected.filter(item => predicate(item)).length < target) {
         const choices = [];
         for (const position of POSITION_ORDER) {
@@ -935,18 +957,23 @@
         }
         if (!choices.length) return false;
         choices.sort((a, b) => scoreCandidate(b, state, attempt) - scoreCandidate(a, state, attempt));
-        commit(state, choices[0]);
+        let committed = false;
+        for (const candidate of choices) {
+          if (!await certifyChoice(candidate, attempt, phase)) continue;
+          commit(state, candidate);
+          committed = true;
+          break;
+        }
+        if (!committed) return false;
       }
       return true;
     }
 
-    let best = null;
-    let runtimeCandidatesChecked = 0;
     for (let attempt = 0; attempt < GENERATOR_V3_ATTEMPTS; attempt += 1) {
       const state = createState();
-      if (!reserveSpecial(state, candidate => familyOf(candidate) === "nationality", NATIONALITY_WEEKLY_TARGET, attempt)) continue;
-      if (!reserveSpecial(state, candidate => familyOf(candidate) === "exclude-top-result", EXCLUDE_TOP_RESULT_WEEKLY_MIN, attempt)) continue;
-      if (!reserveSpecial(state, candidate => isAntiMeta(candidate.prompt), antiMetaRequired, attempt)) continue;
+      if (!await reserveSpecial(state, candidate => familyOf(candidate) === "nationality", NATIONALITY_WEEKLY_TARGET, attempt, "nationality floor")) continue;
+      if (!await reserveSpecial(state, candidate => familyOf(candidate) === "exclude-top-result", EXCLUDE_TOP_RESULT_WEEKLY_MIN, attempt, "Exclude Top Result floor")) continue;
+      if (!await reserveSpecial(state, candidate => isAntiMeta(candidate.prompt), antiMetaRequired, attempt, "anti-meta floor")) continue;
 
       while (state.selected.length < WEEKLY_PROMPTS) {
         const remainingPositions = POSITION_ORDER.filter(position => Number(state.positionCounts.get(position) || 0) < positionNeeds[position]);
@@ -962,33 +989,19 @@
         const choices = candidatesForPosition(position, state);
         if (!choices.length) break;
         choices.sort((a, b) => scoreCandidate(b, state, attempt) - scoreCandidate(a, state, attempt));
-        commit(state, choices[0]);
+        let committed = false;
+        for (const candidate of choices) {
+          if (!await certifyChoice(candidate, attempt, `${position} replacements`)) continue;
+          commit(state, candidate);
+          committed = true;
+          break;
+        }
+        if (!committed) break;
       }
 
       if (state.selected.length !== WEEKLY_PROMPTS || state.sourceIds.size !== WEEKLY_PROMPTS) continue;
       if (POSITION_ORDER.some(position => Number(state.positionCounts.get(position) || 0) !== positionNeeds[position])) continue;
       if (state.nationalityCount < NATIONALITY_WEEKLY_TARGET || state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN || state.antiMetaCount < antiMetaRequired) continue;
-
-      // Runtime-certify only the provisional 77. Successful prompts stay cached and are reused
-      // by later scored attempts and by the seven-day generator; failures are removed from the pool.
-      let runtimeFailed = false;
-      for (let index = 0; index < state.selected.length; index += 1) {
-        const candidate = state.selected[index];
-        const certified = await certifyCandidate(candidate.record, candidate.position, limits, cutoverApi, runtimeCache);
-        runtimeCandidatesChecked += 1;
-        if (!certified) {
-          candidate.invalid = true;
-          runtimeFailed = true;
-          break;
-        }
-        candidate.prompt = certified;
-        candidate.leaderKey = promptTopAnswerKey(certified);
-        if ((index + 1) % 10 === 0 || index + 1 === WEEKLY_PROMPTS) {
-          setStatus(`Generator v3 · runtime-certifying selected prompts · attempt ${attempt + 1}/${GENERATOR_V3_ATTEMPTS} · ${index + 1}/${WEEKLY_PROMPTS}…`, "working");
-          await new Promise(resolve => setTimeout(resolve, 0));
-        }
-      }
-      if (runtimeFailed) continue;
 
       const prompts = state.selected.map(item => item.prompt);
       const diversity = topAnswerDiversityAudit(prompts);
@@ -1004,7 +1017,7 @@
       if (diversity.repeatSlots <= 8 && maxLeader <= 3) break;
     }
 
-    if (!best) throw new Error("Generator v3 could not assemble and runtime-certify a valid 77-prompt reservoir from the shortlisted candidate pool.");
+    if (!best) throw new Error("Generator v3 exhausted the shortlisted runtime-valid replacements before it could assemble a valid 77-prompt reservoir.");
 
     const prompts = Object.freeze(best.state.selected.map(item => Object.freeze(item.prompt)));
     const ids = new Set(prompts.map(prompt => String(prompt.id)));
@@ -1015,7 +1028,7 @@
     });
     const plan = Object.freeze({
       version: VERSION,
-      source: "generator-v3-runtime-shortlist",
+      source: "generator-v3-immediate-runtime-replacement",
       promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
       total: WEEKLY_PROMPTS,
       targets: Object.freeze({ ...familyCounts }),
