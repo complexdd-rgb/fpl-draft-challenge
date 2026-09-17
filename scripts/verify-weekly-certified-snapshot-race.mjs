@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.6.5',
+  'saved-library generation guard v2.7.0',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN)',
@@ -72,9 +72,9 @@ assert(guard.includes('cached candidate pool'), 'Generator progress does not exp
 assert(guard.includes('Selecting the 77-prompt reservoir from'), '77-prompt reservoir does not expose post-certification selection progress.');
 assert(guard.includes('topAnswerDiversity: frozenTopAnswerDiversity'), '77-prompt reservoir does not expose its top-answer diversity audit.');
 assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4'), 'Exclude Top Result does not have its diversity-relief floor.');
-assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MAX = 8'), 'Exclude Top Result does not have its bounded dynamic-relief ceiling.');
-assert(guard.includes('for (let excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN; excludeTarget <= EXCLUDE_TOP_RESULT_WEEKLY_MAX; excludeTarget += 1)'), 'Reservoir does not escalate Exclude Top Result relief when the base family mix is leader-concentrated.');
-assert(guard.includes('if (bestReservoir) return bestReservoir;'), 'Reservoir does not stop at the smallest successful Exclude Top Result relief level.');
+assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MAX = 10'), 'Exclude Top Result does not have its flexible safety ceiling.');
+assert(guard.includes('for (let excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN; excludeTarget <= EXCLUDE_TOP_RESULT_WEEKLY_MAX; excludeTarget += 1)'), 'Reservoir does not try flexible family-bound plans across the Exclude Top Result safety range.');
+assert(guard.includes('if (bestReservoir) return bestReservoir;'), 'Reservoir does not stop at the first successful flexible family-bound plan.');
 assert(guard.includes('provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)'), 'Completed reservoir does not enforce the hard max-three leader cap.');
 assert(guard.includes('function repairLeaderCap(selectedEntries, selectionGroups, semantic)'), 'Reservoir does not repair leader overload inside fixed family/position groups.');
 assert(guard.includes('function searchLeaderCappedSelection(selectionGroups, semantic, nodeLimit = 8000)'), 'Reservoir does not have a bounded backtracking fallback after local repair fails.');
@@ -168,33 +168,33 @@ badWeek[6].promptIds[10] = badWeek[0].promptIds[0];
 const badIds = badWeek.flatMap(day => day.promptIds);
 assert(new Set(badIds).size === 76, 'Duplicate-prompt fixture did not reproduce the weekly consumption failure.');
 
-// The proportional plan has a hard nationality floor of seven while all other non-empty
-// families get at least one weekly slot before proportional remainder allocation.
-const familyWeights = [
-  ['nationality', 120], ['season-stats', 400], ['position-stat', 350], ['exact-stats', 300],
-  ['combined-stats', 280], ['club-stat', 250], ['league-position', 220], ['promoted-clubs', 90],
-  ['relegated-clubs', 90], ['champions', 80], ['career-longevity', 180], ['club-count', 160],
-  ['manager', 140], ['anti-meta', 200], ['exclude-top-result', 62], ['value', 170], ['minutes-role', 210], ['composite-story', 190]
+// Flexible family allocation must ignore promoted-library percentages. Nationality remains
+// exactly seven, Exclude Top Result has a diversity floor, and every ordinary family stays
+// within the configured weekly bounds while the complete mix still sums to 77.
+const familyNames = [
+  'nationality', 'season-stats', 'position-stat', 'exact-stats', 'combined-stats', 'club-stat',
+  'league-position', 'promoted-clubs', 'relegated-clubs', 'champions', 'career-longevity',
+  'club-count', 'manager', 'anti-meta', 'exclude-top-result', 'value', 'minutes-role', 'composite-story'
 ];
-const nationalityTarget = 7;
-const otherFamilies = familyWeights.filter(([family]) => family !== 'nationality');
-const remaining = 77 - nationalityTarget - otherFamilies.length;
-assert(remaining >= 0, 'Family-floor fixture exceeds the 77-prompt weekly reservoir.');
-const weightTotal = otherFamilies.reduce((sum, [, weight]) => sum + weight, 0);
-const allocations = Object.fromEntries(familyWeights.map(([family]) => [family, family === 'nationality' ? 7 : 1]));
-const remainders = [];
-let allocated = 0;
-for (const [family, weight] of otherFamilies) {
-  const raw = remaining * weight / weightTotal;
-  const floor = Math.floor(raw);
-  allocations[family] += floor;
-  allocated += floor;
-  remainders.push({ family, remainder: raw - floor, weight });
+const flexibleTargets = Object.fromEntries(familyNames.map(family => [family, 0]));
+flexibleTargets.nationality = 7;
+flexibleTargets['exclude-top-result'] = 4;
+const ordinaryFamilies = familyNames.filter(family => !['nationality', 'exclude-top-result'].includes(family)).sort();
+for (const family of ordinaryFamilies) flexibleTargets[family] = 1;
+let flexibleRemaining = 77 - Object.values(flexibleTargets).reduce((sum, value) => sum + value, 0);
+let flexibleCursor = 0;
+while (flexibleRemaining > 0) {
+  const family = ordinaryFamilies[flexibleCursor % ordinaryFamilies.length];
+  flexibleCursor += 1;
+  if (flexibleTargets[family] >= 6) continue;
+  flexibleTargets[family] += 1;
+  flexibleRemaining -= 1;
 }
-remainders.sort((a, b) => b.remainder - a.remainder || b.weight - a.weight || a.family.localeCompare(b.family));
-for (let index = 0; index < remaining - allocated; index += 1) allocations[remainders[index].family] += 1;
-assert(Object.values(allocations).reduce((sum, value) => sum + value, 0) === 77, 'Proportional family allocation does not sum to 77.');
-assert(allocations.nationality === 7, 'Nationality target is not fixed at seven prompts per week.');
-assert(otherFamilies.every(([family]) => allocations[family] >= 1), 'A non-empty promoted family lost its weekly representation floor.');
+assert(Object.values(flexibleTargets).reduce((sum, value) => sum + value, 0) === 77, 'Flexible family allocation does not sum to 77.');
+assert(flexibleTargets.nationality === 7, 'Nationality target is not fixed at seven prompts per week.');
+assert(flexibleTargets['exclude-top-result'] >= 4, 'Exclude Top Result lost its weekly diversity floor.');
+assert(ordinaryFamilies.every(family => flexibleTargets[family] >= 1 && flexibleTargets[family] <= 6), 'An ordinary family escaped the flexible weekly bounds.');
+assert(!guard.includes('remaining * Number(row.total || 0) / weightTotal'), 'Weekly family allocation still derives hard percentages from promoted-library family size.');
+assert(guard.includes('familyAllocationMode: "balanced-bounds"'), 'Reservoir plan does not expose flexible family allocation mode.');
 
 console.log('Saved-library generation snapshot verified: immutable 77-prompt reservoir, semantic spread, date-only identity, full Supabase generation history and real-file-only GitHub fallback export are protected.');

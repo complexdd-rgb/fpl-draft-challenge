@@ -1,14 +1,14 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.5.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.7.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
-   runtime-retests each selected prompt, preserves exact rotation, matches the real 18-family
-   proportions and caps close semantic variants so one concept cannot flood a seven-day week. */
+   runtime-retests each selected prompt, preserves exact rotation, represents all 18 families
+   without enforcing source-library percentages, and caps close semantic variants so one concept cannot flood a seven-day week. */
 (() => {
   "use strict";
 
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.6.5";
+  const VERSION = "2.7.0";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -16,7 +16,9 @@
   const CUTOVER_WAIT_MS = 30000;
   const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;
   const EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4;
-  const EXCLUDE_TOP_RESULT_WEEKLY_MAX = 8;
+  const EXCLUDE_TOP_RESULT_WEEKLY_MAX = 10;
+  const ORDINARY_FAMILY_WEEKLY_MIN = 1;
+  const ORDINARY_FAMILY_WEEKLY_MAX = 6;
   const WEEKLY_LEADER_PREFERRED_PROMPT_CAP = 2;
   const WEEKLY_LEADER_FALLBACK_PROMPT_CAP = 3;
   const SEMANTIC_WAIT_MS = 10000;
@@ -340,51 +342,46 @@
   function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN) {
     const rows = (familyIndex || []).filter(row => Number(row?.total || 0) > 0);
     if (!rows.length) return null;
-    const targets = Object.fromEntries(rows.map(row => [row.family, 0]));
     const nationality = rows.find(row => row.family === "nationality");
-    if (!nationality) return null;
+    const exclusion = rows.find(row => row.family === "exclude-top-result");
+    if (!nationality || !exclusion) return null;
+
+    // Family source size is deliberately NOT used as a weekly percentage. The curated source
+    // only decides whether a family exists; generation uses balanced minimum/maximum bounds.
+    const targets = Object.fromEntries(rows.map(row => [row.family, 0]));
     targets.nationality = NATIONALITY_WEEKLY_TARGET;
+    targets["exclude-top-result"] = Math.max(
+      EXCLUDE_TOP_RESULT_WEEKLY_MIN,
+      Math.min(EXCLUDE_TOP_RESULT_WEEKLY_MAX, Number(excludeTarget || EXCLUDE_TOP_RESULT_WEEKLY_MIN))
+    );
 
-    const others = rows.filter(row => row.family !== "nationality");
-    let remaining = WEEKLY_PROMPTS - NATIONALITY_WEEKLY_TARGET;
-    for (const row of others) {
-      targets[row.family] = 1;
-      remaining -= 1;
-    }
-    if (remaining < 0) return null;
+    const ordinary = rows
+      .filter(row => !["nationality", "exclude-top-result"].includes(row.family))
+      .map(row => String(row.family))
+      .sort((left, right) => left.localeCompare(right));
+    for (const family of ordinary) targets[family] = ORDINARY_FAMILY_WEEKLY_MIN;
 
-    const weightTotal = others.reduce((sum, row) => sum + Number(row.total || 0), 0);
-    const remainders = [];
-    let allocated = 0;
-    for (const row of others) {
-      const raw = weightTotal ? remaining * Number(row.total || 0) / weightTotal : 0;
-      const floor = Math.floor(raw);
-      targets[row.family] += floor;
-      allocated += floor;
-      remainders.push({ family: row.family, remainder: raw - floor, weight: Number(row.total || 0) });
-    }
-    let left = remaining - allocated;
-    remainders.sort((a, b) => b.remainder - a.remainder || b.weight - a.weight || a.family.localeCompare(b.family));
-    for (let index = 0; index < left; index += 1) targets[remainders[index % remainders.length].family] += 1;
+    let remaining = WEEKLY_PROMPTS - Object.values(targets).reduce((sum, value) => sum + Number(value || 0), 0);
+    if (remaining < 0 || !ordinary.length) return null;
 
-    // Exclude Top Result is a deliberate diversity relief family, not just a tiny proportional
-    // family. Keep a small weekly floor so common superstar leaders can be actively displaced
-    // while retaining at least one prompt from every other non-nationality family.
-    if (Object.hasOwn(targets, "exclude-top-result") && targets["exclude-top-result"] < excludeTarget) {
-      let needed = excludeTarget - targets["exclude-top-result"];
-      while (needed > 0) {
-        const donor = others
-          .filter(row => row.family !== "exclude-top-result" && Number(targets[row.family] || 0) > 1)
-          .sort((leftRow, rightRow) =>
-            Number(targets[rightRow.family] || 0) - Number(targets[leftRow.family] || 0)
-            || Number(rightRow.total || 0) - Number(leftRow.total || 0)
-            || String(leftRow.family).localeCompare(String(rightRow.family))
-          )[0];
-        if (!donor) break;
-        targets[donor.family] -= 1;
-        targets["exclude-top-result"] += 1;
-        needed -= 1;
+    // Rotate which families receive the spare balanced slots as exclusion relief changes, so
+    // no family is permanently favoured by alphabetical/source order. Ordinary families stay
+    // within a small safety ceiling; the selector can therefore favour quality/diversity rather
+    // than recreating the promoted-library percentages.
+    const rotationOffset = Math.max(0, Number(targets["exclude-top-result"] || 0) - EXCLUDE_TOP_RESULT_WEEKLY_MIN) % ordinary.length;
+    let cursor = 0;
+    let stalled = 0;
+    while (remaining > 0) {
+      const family = ordinary[(rotationOffset + cursor) % ordinary.length];
+      cursor += 1;
+      if (Number(targets[family] || 0) >= ORDINARY_FAMILY_WEEKLY_MAX) {
+        stalled += 1;
+        if (stalled >= ordinary.length) return null;
+        continue;
       }
+      targets[family] += 1;
+      remaining -= 1;
+      stalled = 0;
     }
     return targets;
   }
@@ -809,7 +806,7 @@
       targetPlans.push({ excludeTarget, targets });
     }
     if (!targetPlans.length) {
-      throw new Error("The 18-family weekly target could not be allocated to 77 prompt slots, even with Exclude Top Result relief.");
+      throw new Error("The flexible 18-family weekly bounds could not be allocated to 77 prompt slots.");
     }
     const positionNeeds = weeklyPositionNeeds();
     const usedIds = knownUsedSourceIds();
@@ -998,7 +995,7 @@
       if (nationalityCount !== NATIONALITY_WEEKLY_TARGET) continue;
       const antiMetaRequired = Math.max(0, Number(minAntiMetaInput?.value) || 0) * DAYS_IN_BATCH;
       if (antiMetaCount < antiMetaRequired) {
-        throw new Error(`The proportional pool contains ${antiMetaCount} anti-meta prompts, below the configured weekly minimum of ${antiMetaRequired}. Lower the advanced anti-meta minimum or expand anti-meta-compatible saved prompts.`);
+        throw new Error(`The flexible family pool contains ${antiMetaCount} anti-meta prompts, below the configured weekly minimum of ${antiMetaRequired}. Lower the advanced anti-meta minimum or expand anti-meta-compatible saved prompts.`);
       }
 
       const frozenPrompts = Object.freeze(prompts.map(prompt => Object.freeze(prompt)));
@@ -1015,6 +1012,9 @@
         promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
         total: WEEKLY_PROMPTS,
         targets: Object.freeze({ ...targets }),
+        familyAllocationMode: "balanced-bounds",
+        ordinaryFamilyMin: ORDINARY_FAMILY_WEEKLY_MIN,
+        ordinaryFamilyMax: ORDINARY_FAMILY_WEEKLY_MAX,
         excludeTopResultTarget: Number(targets["exclude-top-result"] || 0),
         positionNeeds: Object.freeze({ ...positionNeeds }),
         cycleFamilies: Object.freeze([...cycleFamilies]),
@@ -1042,13 +1042,13 @@
       if (frozenTopAnswerDiversity.repeatSlots === 0) return reservoir;
       }
 
-      // Use the smallest Exclude Top Result relief level that can produce a valid reservoir.
-      // This preserves the normal family mix when possible, while allowing extra exclusion
-      // prompts to displace over-concentrated superstar-led slots only when needed.
+      // Use the first balanced family-bound plan that can produce a valid reservoir.
+      // Family counts are not tied to promoted-library percentages; Exclude Top Result may
+      // expand within its safety bounds when that improves leader diversity.
       if (bestReservoir) return bestReservoir;
     }
 
-    throw new Error(`The saved 18-family library could not build a 77-prompt reservoir while preserving formation, semantic and max-three leader constraints, even after increasing Exclude Top Result relief from ${EXCLUDE_TOP_RESULT_WEEKLY_MIN} to ${EXCLUDE_TOP_RESULT_WEEKLY_MAX} prompts and running bounded alternate-choice search.`);
+    throw new Error(`The saved 18-family library could not build a 77-prompt reservoir while preserving formation, semantic and max-three leader constraints across the flexible family-bound plans and bounded alternate-choice search.`);
   }
 
   function installGenerationSnapshot(reservoir) {
@@ -1131,10 +1131,10 @@
         return;
       }
 
-      setStatus("Building the proportional 77-prompt generation reservoir from unused saved prompts…", "working");
+      setStatus("Building the flexible 77-prompt generation reservoir from unused saved prompts…", "working");
       const reservoir = await buildCertifiedReservoir();
       generationSnapshot = installGenerationSnapshot(reservoir);
-      setStatus(`77 runtime-certified prompts locked · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · 18-family cycle · ${reservoir.plan.targets?.["exclude-top-result"] || 0} Exclude Top Result relief prompts · ${reservoir.plan.cycleFamilies.length ? `${reservoir.plan.cycleFamilies.length} family cycle reset(s)` : "unused prompts preferred"}. Generating week…`, "working");
+      setStatus(`77 runtime-certified prompts locked · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · 18-family flexible mix · ${reservoir.plan.targets?.["exclude-top-result"] || 0} Exclude Top Result prompts · ${reservoir.plan.cycleFamilies.length ? `${reservoir.plan.cycleFamilies.length} family cycle reset(s)` : "unused prompts preferred"}. Generating week…`, "working");
 
       const generator = window.FPL_STUDIO_BATCH_CALENDAR?.generate;
       if (typeof generator !== "function") {
@@ -1154,7 +1154,7 @@
       const diversityText = dayAudit
         ? `${dayAudit.uniquePlayers} unique top-answer players · max ${dayAudit.maxAppearanceDays} leader day(s) for one player · ${dayAudit.spacingViolationCount} spacing exception(s)`
         : "leader-day audit unavailable";
-      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 18-family targets were preserved, no same-day semantic clashes or repeated top-answer players were allowed, and the 3-day leader-spacing audit finished at ${diversityText}.`, "pass");
+      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the flexible 18-family bounds were preserved, no same-day semantic clashes or repeated top-answer players were allowed, and the 3-day leader-spacing audit finished at ${diversityText}.`, "pass");
       window.dispatchEvent(new CustomEvent("fpl:daily-saved-library-week-certified", { detail: { ...reservoir.plan } }));
     } catch (error) {
       console.error(error);

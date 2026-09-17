@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.7-bounded-reservoir-search"
+      "version": "4.0.8-flexible-family-allocation"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "2.6.5-bounded-reservoir-search"
+      "version": "2.7.0-flexible-family-allocation"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
