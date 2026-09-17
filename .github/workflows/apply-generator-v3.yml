@@ -4,6 +4,7 @@ on:
     branches: [fix/generator-v3-reset]
     paths:
       - 'scripts/apply-generator-v3.py'
+      - 'scripts/apply-generator-v3-verifiers.py'
       - '.github/workflows/apply-generator-v3.yml'
 permissions:
   contents: write
@@ -16,7 +17,9 @@ jobs:
         with:
           node-version: '22'
       - name: Apply Generator v3 reset
-        run: python3 scripts/apply-generator-v3.py
+        run: |
+          python3 scripts/apply-generator-v3.py
+          python3 scripts/apply-generator-v3-verifiers.py
       - name: Rebuild Studio wiring
         run: |
           node scripts/build-asset-manifest-runtime.mjs
@@ -33,7 +36,7 @@ jobs:
           node scripts/verify-prompt-studio-clean-reset.mjs
       - name: Commit reset
         run: |
-          rm -f scripts/apply-generator-v3.py .github/workflows/apply-generator-v3.yml
+          rm -f scripts/apply-generator-v3.py scripts/apply-generator-v3-verifiers.py .github/workflows/apply-generator-v3.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
