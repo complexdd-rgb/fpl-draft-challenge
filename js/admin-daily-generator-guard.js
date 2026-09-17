@@ -1,14 +1,14 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v2.6.7.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.0.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, keeps all 18 families represented
-   without percentage quotas and caps close semantic variants so one concept cannot flood a seven-day week. */
+   with a fast scored reservoir: certify once, select 77, then hand off to the existing seven-day validator. */
 (() => {
   "use strict";
 
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "2.6.7";
+  const VERSION = "3.0.0";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -20,6 +20,9 @@
   const WEEKLY_LEADER_PREFERRED_PROMPT_CAP = 2;
   const WEEKLY_LEADER_FALLBACK_PROMPT_CAP = 3;
   const SEMANTIC_WAIT_MS = 10000;
+  const GENERATOR_V3_ATTEMPTS = 10;
+  const GENERATOR_V3_POOL_MULTIPLIER = 3;
+  const GENERATOR_V3_POOL_BUFFER = 20;
   const POSITION_ORDER = Object.freeze(["GK", "DEF", "MID", "FWD"]);
   const FORMATIONS = Object.freeze({
     "4-4-2": { GK: 1, DEF: 4, MID: 4, FWD: 2 },
@@ -799,260 +802,214 @@
       throw new Error("The saved shard package changed after Daily certification. Refresh Studio before generating.");
     }
 
-    const targetPlans = [];
-    const targetSignatures = new Set();
-    const balancePlanCount = 4;
-    for (let excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN; excludeTarget <= EXCLUDE_TOP_RESULT_WEEKLY_MAX; excludeTarget += 1) {
-      for (let balanceOffset = 0; balanceOffset < balancePlanCount; balanceOffset += 1) {
-        const targets = allocateFamilyTargets(cutover.familyIndex, excludeTarget, balanceOffset);
-        if (!targets || Object.values(targets).reduce((sum, value) => sum + Number(value || 0), 0) !== WEEKLY_PROMPTS) continue;
-        const signature = JSON.stringify(Object.entries(targets).sort(([left], [right]) => left.localeCompare(right)));
-        if (targetSignatures.has(signature)) continue;
-        targetSignatures.add(signature);
-        targetPlans.push({ excludeTarget, balanceOffset, targets });
-      }
-    }
-    if (!targetPlans.length) {
-      throw new Error("The 18-family weekly coverage floor could not be allocated to 77 prompt slots, even with Exclude Top Result relief.");
-    }
     const positionNeeds = weeklyPositionNeeds();
+    const limits = answerLimits();
     const usedIds = knownUsedSourceIds();
     const recentIds = knownRecentSourceIds(7);
-    const limits = answerLimits();
     const runtimeCache = new Map();
-    const cycleFamilies = new Set();
-    const shardByFamily = new Map(payload.shards.map(shard => [String(shard.family), shard]));
-    const maxTargets = {};
-    for (const plan of targetPlans) {
-      for (const [family, value] of Object.entries(plan.targets || {})) {
-        maxTargets[family] = Math.max(Number(maxTargets[family] || 0), Number(value || 0));
-      }
-    }
-    const orderedRecordsByFamily = new Map();
-    for (const [family, shard] of shardByFamily.entries()) {
-      orderedRecordsByFamily.set(family, recordOrder(Array.isArray(shard?.records) ? shard.records : [], usedIds, recentIds));
-    }
-    const candidatePoolCache = new Map();
+    const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
+    const antiMetaRequired = Math.max(0, Number(minAntiMetaInput?.value) || 0) * DAYS_IN_BATCH;
+    const poolTargets = Object.fromEntries(POSITION_ORDER.map(position => [
+      position,
+      Math.max(positionNeeds[position] * GENERATOR_V3_POOL_MULTIPLIER, positionNeeds[position] + GENERATOR_V3_POOL_BUFFER)
+    ]));
+    const pools = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
 
-    for (const targetPlan of targetPlans) {
-      const targets = targetPlan.targets;
-      const families = Object.keys(targets).filter(family => targets[family] > 0);
-      let bestReservoir = null;
+    // V3 deliberately samples the 18 families in round-robin order. Library size no longer
+    // creates a quota: each family gets repeated opportunities to contribute good candidates.
+    const queues = payload.shards.map(shard => ({
+      family: String(shard.family || ""),
+      rows: recordOrder(Array.isArray(shard.records) ? shard.records : [], usedIds, recentIds),
+      cursor: 0
+    })).filter(queue => queue.family && queue.rows.length);
 
-      for (let anyOffset = 0; anyOffset < POSITION_ORDER.length; anyOffset += 1) {
-      let candidatePools;
-      let scanned;
-      const cachedLayout = candidatePoolCache.get(anyOffset);
-      if (cachedLayout) {
-        candidatePools = cachedLayout.candidatePools;
-        scanned = cachedLayout.scanned;
-      } else {
-        candidatePools = new Map();
-        scanned = 0;
-        for (const family of families) {
-          const raw = orderedRecordsByFamily.get(family) || [];
-          if (raw.filter(record => !usedIds.has(String(record?.id || ""))).length < Number(maxTargets[family] || 0)) cycleFamilies.add(family);
-          const assigned = assignAnyRecords(raw, positionNeeds, anyOffset);
-          const certifiedByPosition = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
-          for (const position of POSITION_ORDER) {
-            const need = Math.min(Number(maxTargets[family] || targets[family] || 0), positionNeeds[position]);
-            // Certify once at the widest family requirement needed by any 4→8 relief plan.
-            // Later relief levels reuse this exact pool instead of rescanning the promoted library.
-            const diversityExtra = anyOffset < 2
-              ? Math.max(8, Math.ceil(need * 2))
-              : Math.max(16, Math.ceil(need * 3));
-            const certifyLimit = Math.min(assigned[position].length, need + diversityExtra);
-            for (const record of assigned[position]) {
-              if (certifiedByPosition[position].length >= certifyLimit) break;
-              const prompt = await certifyCandidate(record, position, limits, cutoverApi, runtimeCache);
-              scanned += 1;
-              if (prompt) certifiedByPosition[position].push({ record, prompt });
-              if (scanned > 0 && scanned % 80 === 0) {
-                setStatus(`Runtime-certifying candidate pool · layout ${anyOffset + 1}/${POSITION_ORDER.length} · ${scanned.toLocaleString("en-GB")} compact candidates checked…`, "working");
-                await new Promise(resolve => setTimeout(resolve, 0));
-              }
-            }
+    let scanned = 0;
+    let progress = true;
+    while (progress && POSITION_ORDER.some(position => pools[position].length < poolTargets[position])) {
+      progress = false;
+      for (const queue of queues) {
+        const record = queue.rows[queue.cursor++];
+        if (!record) continue;
+        progress = true;
+        const sourcePosition = String(record?.position || "").toUpperCase();
+        const positions = POSITION_ORDER.includes(sourcePosition) ? [sourcePosition] : sourcePosition === "ANY" ? POSITION_ORDER : [];
+        for (const position of positions) {
+          if (pools[position].length >= poolTargets[position]) continue;
+          const prompt = await certifyCandidate(record, position, limits, cutoverApi, runtimeCache);
+          scanned += 1;
+          if (prompt) pools[position].push({ record, prompt, position });
+          if (scanned % 60 === 0) {
+            setStatus(`Generator v3 · certifying candidates once · ${scanned.toLocaleString("en-GB")} checked…`, "working");
+            await new Promise(resolve => setTimeout(resolve, 0));
           }
-          candidatePools.set(family, certifiedByPosition);
         }
-        candidatePoolCache.set(anyOffset, Object.freeze({ candidatePools, scanned }));
       }
-
-      setStatus(`Selecting the 77-prompt reservoir from ${scanned.toLocaleString("en-GB")} checked candidates · ${Number(targets["exclude-top-result"] || 0)} Exclude Top Result prompts · diversity layout ${anyOffset + 1}/${POSITION_ORDER.length} · ${cachedLayout ? "cached candidate pool" : "fresh candidate pool"}…`, "working");
       await new Promise(resolve => setTimeout(resolve, 0));
-
-      const allocation = solveFamilyPositionFlow(families, targets, positionNeeds, candidatePools);
-      if (!allocation) continue;
-
-      const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
-      if (!semantic?.canAddWeekly) throw new Error("The Daily semantic-diversity policy is unavailable while selecting the weekly reservoir.");
-      const prompts = [];
-      const selectedEntries = [];
-      const sourceIds = new Set();
-      const semanticCounts = new Map();
-      const leaderCounts = new Map();
-      let collision = false;
-      const selectionGroups = [];
-      for (const family of families) {
-        for (const position of POSITION_ORDER) {
-          const required = allocation[family][position];
-          if (!required) continue;
-          const available = candidatePools.get(family)?.[position] || [];
-          const distinctLeaders = new Set(available.map(candidate => promptTopAnswerKey(candidate.prompt)).filter(Boolean)).size;
-          selectionGroups.push({
-            family,
-            position,
-            required,
-            available,
-            leaderSlack: distinctLeaders - required
-          });
-        }
-      }
-      // Constrained family/position groups choose first. Flexible groups therefore cannot
-      // consume a leader that a later group effectively needs, which materially reduces
-      // avoidable weekly repeats before the normal unused-leader preference is applied.
-      selectionGroups.sort((left, right) =>
-        left.leaderSlack - right.leaderSlack
-        || left.available.length - right.available.length
-        || left.family.localeCompare(right.family)
-        || POSITION_ORDER.indexOf(left.position) - POSITION_ORDER.indexOf(right.position)
-      );
-
-      // Leader count 2 is a preference during greedy selection, not a hard per-group gate.
-      // The completed 77-prompt reservoir is checked against the hard max-three ceiling below.
-
-      for (const group of selectionGroups) {
-        const { required, available } = group;
-        let added = 0;
-        while (added < required) {
-          const choices = available
-            .filter(candidate => {
-              const sourceId = String(candidate.record.id || "");
-              return sourceId
-                && !sourceIds.has(sourceId)
-                && semantic.canAddWeekly(candidate.prompt, semanticCounts, DAYS_IN_BATCH);
-            })
-            .sort((left, right) => {
-              const leftLeader = promptTopAnswerKey(left.prompt);
-              const rightLeader = promptTopAnswerKey(right.prompt);
-              const leftLeaderLoad = leftLeader ? Number(leaderCounts.get(leftLeader) || 0) : WEEKLY_PROMPTS;
-              const rightLeaderLoad = rightLeader ? Number(leaderCounts.get(rightLeader) || 0) : WEEKLY_PROMPTS;
-              const leftRelief = excludedTopPlayerId(left.prompt);
-              const rightRelief = excludedTopPlayerId(right.prompt);
-              const leftReliefLoad = leftRelief ? Number(leaderCounts.get(leftRelief) || 0) : 0;
-              const rightReliefLoad = rightRelief ? Number(leaderCounts.get(rightRelief) || 0) : 0;
-              return rightReliefLoad - leftReliefLoad
-                || leftLeaderLoad - rightLeaderLoad
-                || semantic.weeklyLoad(left.prompt, semanticCounts) - semantic.weeklyLoad(right.prompt, semanticCounts);
-            });
-          const candidate = choices[0];
-          if (!candidate) break;
-          const sourceId = String(candidate.record.id || "");
-          prompts.push(candidate.prompt);
-          selectedEntries.push({ groupKey: `${group.family}|${group.position}`, candidate });
-          sourceIds.add(sourceId);
-          semantic.commitWeekly(candidate.prompt, semanticCounts);
-          const leaderKey = promptTopAnswerKey(candidate.prompt);
-          if (leaderKey) leaderCounts.set(leaderKey, Number(leaderCounts.get(leaderKey) || 0) + 1);
-          added += 1;
-        }
-        if (added !== required) {
-          collision = true;
-          break;
-        }
-      }
-      if (collision || prompts.length !== WEEKLY_PROMPTS || sourceIds.size !== WEEKLY_PROMPTS) continue;
-
-      // Greedy assembly is fast, but it can over-use one leader before a later constrained group
-      // gets its turn. Repair that completed selection in-place by swapping within the same
-      // family/position group. This preserves every quota while making the max-three rule part
-      // of the actual search rather than merely rejecting an otherwise recoverable reservoir.
-      let resolvedSelection = repairLeaderCap(selectedEntries, selectionGroups, semantic);
-      let leaderSearchNodes = 0;
-      let leaderSearchBestDepth = 0;
-      if (!resolvedSelection) {
-        setStatus(`Greedy reservoir needs alternate choices · bounded leader search · ${Number(targets["exclude-top-result"] || 0)} Exclude Top Result prompts · layout ${anyOffset + 1}/${POSITION_ORDER.length}…`, "working");
-        await new Promise(resolve => setTimeout(resolve, 0));
-        const searchedSelection = searchLeaderCappedSelection(selectionGroups, semantic);
-        leaderSearchNodes = Number(searchedSelection?.nodes || 0);
-        leaderSearchBestDepth = Number(searchedSelection?.bestDepth || 0);
-        if (!searchedSelection?.entries) continue;
-        resolvedSelection = searchedSelection;
-      }
-      const leaderRepairSwaps = Number(resolvedSelection.swaps || 0);
-      prompts.splice(0, prompts.length, ...resolvedSelection.entries.map(entry => entry.candidate.prompt));
-      sourceIds.clear();
-      for (const entry of resolvedSelection.entries) sourceIds.add(String(entry.candidate.record.id || ""));
-
-      const provisionalTopAnswerDiversity = topAnswerDiversityAudit(prompts);
-      if (provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)) continue;
-
-      const familyCounts = {};
-      const positionCounts = {};
-      let antiMetaCount = 0;
-      let nationalityCount = 0;
-      for (const prompt of prompts) {
-        familyCounts[prompt.family] = (familyCounts[prompt.family] || 0) + 1;
-        positionCounts[prompt.position] = (positionCounts[prompt.position] || 0) + 1;
-        if (prompt.tags?.includes("anti-meta")) antiMetaCount += 1;
-        if (prompt.family === "nationality") nationalityCount += 1;
-      }
-      if (families.some(family => familyCounts[family] !== targets[family])) continue;
-      if (POSITION_ORDER.some(position => positionCounts[position] !== positionNeeds[position])) continue;
-      if (nationalityCount !== NATIONALITY_WEEKLY_TARGET) continue;
-      const antiMetaRequired = Math.max(0, Number(minAntiMetaInput?.value) || 0) * DAYS_IN_BATCH;
-      if (antiMetaCount < antiMetaRequired) {
-        throw new Error(`The balanced weekly pool contains ${antiMetaCount} anti-meta prompts, below the configured weekly minimum of ${antiMetaRequired}. Lower the advanced anti-meta minimum or expand anti-meta-compatible saved prompts.`);
-      }
-
-      const frozenPrompts = Object.freeze(prompts.map(prompt => Object.freeze(prompt)));
-      const ids = new Set(frozenPrompts.map(prompt => String(prompt.id)));
-      if (ids.size !== WEEKLY_PROMPTS) continue;
-      const topAnswerDiversity = topAnswerDiversityAudit(frozenPrompts);
-      const frozenTopAnswerDiversity = Object.freeze({
-        ...topAnswerDiversity,
-        repeatedPlayers: Object.freeze(topAnswerDiversity.repeatedPlayers.map(item => Object.freeze({ ...item })))
-      });
-      const plan = Object.freeze({
-        version: VERSION,
-        source: "saved-promoted-18-family-library",
-        promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
-        total: WEEKLY_PROMPTS,
-        targets: Object.freeze({ ...targets }),
-        excludeTopResultTarget: Number(targets["exclude-top-result"] || 0),
-        positionNeeds: Object.freeze({ ...positionNeeds }),
-        cycleFamilies: Object.freeze([...cycleFamilies]),
-        knownUsedSourceIds: usedIds.size,
-        recentSourceIds: recentIds.size,
-        runtimeCandidatesChecked: scanned,
-        leaderRepairSwaps,
-        leaderSearchNodes,
-        leaderSearchBestDepth,
-        antiMetaCount,
-        nationalityCount,
-        topAnswerDiversity: frozenTopAnswerDiversity,
-        semanticDiversityVersion: String(window.FPL_DAILY_SEMANTIC_DIVERSITY?.version || ""),
-        semanticWeeklyCap: DAYS_IN_BATCH
-      });
-      const reservoir = { prompts: frozenPrompts, ids, plan };
-      if (!bestReservoir
-        || frozenTopAnswerDiversity.repeatSlots < bestReservoir.plan.topAnswerDiversity.repeatSlots
-        || (frozenTopAnswerDiversity.repeatSlots === bestReservoir.plan.topAnswerDiversity.repeatSlots
-          && frozenTopAnswerDiversity.uniquePlayers > bestReservoir.plan.topAnswerDiversity.uniquePlayers)) {
-        bestReservoir = reservoir;
-      }
-      // A fully unique weekly leader set is optimal; otherwise try the remaining ANY-position
-      // assignments and keep the reservoir with the fewest unavoidable/recycled leader slots.
-      if (frozenTopAnswerDiversity.repeatSlots === 0) return reservoir;
-      }
-
-      // Use the smallest Exclude Top Result relief level that can produce a valid reservoir.
-      // Family coverage is balanced rather than proportional to library size, so extra exclusion
-      // prompts can displace over-concentrated superstar-led slots without preserving percentages.
-      if (bestReservoir) return bestReservoir;
     }
 
-    throw new Error(`The saved 18-family library could not build a 77-prompt reservoir while preserving formation, family coverage, semantic and max-three leader constraints, even after increasing Exclude Top Result relief from ${EXCLUDE_TOP_RESULT_WEEKLY_MIN} to ${EXCLUDE_TOP_RESULT_WEEKLY_MAX} prompts and running bounded alternate-choice search.`);
+    const short = POSITION_ORDER.filter(position => pools[position].length < positionNeeds[position]);
+    if (short.length) throw new Error(`Generator v3 could not certify enough ${short.join(", ")} prompts for the selected formation.`);
+
+    const candidateBySource = new Map();
+    for (const position of POSITION_ORDER) {
+      for (const candidate of pools[position]) {
+        const sourceId = String(candidate.record?.id || "");
+        if (!sourceId) continue;
+        if (!candidateBySource.has(sourceId)) candidateBySource.set(sourceId, []);
+        candidateBySource.get(sourceId).push(candidate);
+      }
+    }
+
+    const hash = value => {
+      let h = 2166136261;
+      for (const char of String(value || "")) h = Math.imul(h ^ char.charCodeAt(0), 16777619);
+      return h >>> 0;
+    };
+
+    const isAntiMeta = prompt => Array.isArray(prompt?.tags) && prompt.tags.includes("anti-meta");
+    const familyOf = candidate => String(candidate?.prompt?.family || candidate?.record?.family || "");
+    const sourceIdOf = candidate => String(candidate?.record?.id || "");
+    const leaderOf = candidate => promptTopAnswerKey(candidate.prompt);
+
+    function scoreCandidate(candidate, state, attempt) {
+      const family = familyOf(candidate);
+      const sourceId = sourceIdOf(candidate);
+      const leader = leaderOf(candidate);
+      const quality = Number(candidate.record?.qualityScore || 0);
+      const familyLoad = Number(state.familyCounts.get(family) || 0);
+      const leaderLoad = leader ? Number(state.leaderCounts.get(leader) || 0) : 0;
+      const semanticLoad = semantic?.weeklyLoad ? Number(semantic.weeklyLoad(candidate.prompt, state.semanticCounts) || 0) : 0;
+      const excluded = excludedTopPlayerId(candidate.prompt);
+      const excludedLoad = excluded ? Number(state.leaderCounts.get(excluded) || 0) : 0;
+      let score = quality;
+      if (!usedIds.has(sourceId)) score += 28;
+      else if (recentIds.has(sourceId)) score -= 32;
+      else score -= 8;
+      if (familyLoad === 0) score += 24;
+      score -= familyLoad * 5;
+      score -= leaderLoad * leaderLoad * 30;
+      score -= semanticLoad * 8;
+      score += excludedLoad * 35;
+      if (family === "nationality" && state.nationalityCount < NATIONALITY_WEEKLY_TARGET) score += 90;
+      if (family === "exclude-top-result" && state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN) score += 105;
+      if (isAntiMeta(candidate.prompt) && state.antiMetaCount < antiMetaRequired) score += 42;
+      score += (hash(`${sourceId}|${candidate.position}|${attempt}`) % 1000) / 10000;
+      return score;
+    }
+
+    function createState() {
+      return {
+        selected: [], sourceIds: new Set(), positionCounts: new Map(), familyCounts: new Map(), leaderCounts: new Map(),
+        semanticCounts: new Map(), nationalityCount: 0, excludeCount: 0, antiMetaCount: 0
+      };
+    }
+
+    function commit(state, candidate) {
+      const sourceId = sourceIdOf(candidate);
+      const family = familyOf(candidate);
+      const leader = leaderOf(candidate);
+      state.selected.push(candidate);
+      state.sourceIds.add(sourceId);
+      state.positionCounts.set(candidate.position, Number(state.positionCounts.get(candidate.position) || 0) + 1);
+      state.familyCounts.set(family, Number(state.familyCounts.get(family) || 0) + 1);
+      if (leader) state.leaderCounts.set(leader, Number(state.leaderCounts.get(leader) || 0) + 1);
+      if (semantic?.commitWeekly) semantic.commitWeekly(candidate.prompt, state.semanticCounts);
+      if (family === "nationality") state.nationalityCount += 1;
+      if (family === "exclude-top-result") state.excludeCount += 1;
+      if (isAntiMeta(candidate.prompt)) state.antiMetaCount += 1;
+    }
+
+    function candidatesForPosition(position, state) {
+      return pools[position].filter(candidate => !state.sourceIds.has(sourceIdOf(candidate)));
+    }
+
+    function reserveSpecial(state, predicate, target, attempt) {
+      while (state.selected.filter(item => predicate(item)).length < target) {
+        const choices = [];
+        for (const position of POSITION_ORDER) {
+          if (Number(state.positionCounts.get(position) || 0) >= positionNeeds[position]) continue;
+          for (const candidate of candidatesForPosition(position, state)) if (predicate(candidate)) choices.push(candidate);
+        }
+        if (!choices.length) return false;
+        choices.sort((a, b) => scoreCandidate(b, state, attempt) - scoreCandidate(a, state, attempt));
+        commit(state, choices[0]);
+      }
+      return true;
+    }
+
+    let best = null;
+    for (let attempt = 0; attempt < GENERATOR_V3_ATTEMPTS; attempt += 1) {
+      const state = createState();
+      if (!reserveSpecial(state, candidate => familyOf(candidate) === "nationality", NATIONALITY_WEEKLY_TARGET, attempt)) continue;
+      if (!reserveSpecial(state, candidate => familyOf(candidate) === "exclude-top-result", EXCLUDE_TOP_RESULT_WEEKLY_MIN, attempt)) continue;
+      if (!reserveSpecial(state, candidate => isAntiMeta(candidate.prompt), antiMetaRequired, attempt)) continue;
+
+      while (state.selected.length < WEEKLY_PROMPTS) {
+        const remainingPositions = POSITION_ORDER.filter(position => Number(state.positionCounts.get(position) || 0) < positionNeeds[position]);
+        if (!remainingPositions.length) break;
+        remainingPositions.sort((a, b) => {
+          const aNeed = positionNeeds[a] - Number(state.positionCounts.get(a) || 0);
+          const bNeed = positionNeeds[b] - Number(state.positionCounts.get(b) || 0);
+          const aAvail = candidatesForPosition(a, state).length;
+          const bAvail = candidatesForPosition(b, state).length;
+          return (aAvail / Math.max(1, aNeed)) - (bAvail / Math.max(1, bNeed)) || POSITION_ORDER.indexOf(a) - POSITION_ORDER.indexOf(b);
+        });
+        const position = remainingPositions[0];
+        const choices = candidatesForPosition(position, state);
+        if (!choices.length) break;
+        choices.sort((a, b) => scoreCandidate(b, state, attempt) - scoreCandidate(a, state, attempt));
+        commit(state, choices[0]);
+      }
+
+      if (state.selected.length !== WEEKLY_PROMPTS || state.sourceIds.size !== WEEKLY_PROMPTS) continue;
+      if (POSITION_ORDER.some(position => Number(state.positionCounts.get(position) || 0) !== positionNeeds[position])) continue;
+      if (state.nationalityCount < NATIONALITY_WEEKLY_TARGET || state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN || state.antiMetaCount < antiMetaRequired) continue;
+
+      const prompts = state.selected.map(item => item.prompt);
+      const diversity = topAnswerDiversityAudit(prompts);
+      const maxLeader = diversity.repeatedPlayers.length ? Math.max(...diversity.repeatedPlayers.map(item => item.count)) : 1;
+      const familyLoads = [...state.familyCounts.values()];
+      const familyConcentration = familyLoads.reduce((sum, count) => sum + count * count, 0);
+      const recentCount = state.selected.filter(item => recentIds.has(sourceIdOf(item))).length;
+      const objective = diversity.repeatSlots * 120 + maxLeader * 45 + familyConcentration * 2 + recentCount * 35;
+      if (!best || objective < best.objective) best = { state, diversity, objective };
+
+      setStatus(`Generator v3 · scored attempt ${attempt + 1}/${GENERATOR_V3_ATTEMPTS} · ${diversity.uniquePlayers}/77 unique top answers…`, "working");
+      await new Promise(resolve => setTimeout(resolve, 0));
+      if (diversity.repeatSlots <= 8 && maxLeader <= 3) break;
+    }
+
+    if (!best) throw new Error("Generator v3 could not assemble a valid 77-prompt reservoir from the certified candidate pool.");
+
+    const prompts = Object.freeze(best.state.selected.map(item => Object.freeze(item.prompt)));
+    const ids = new Set(prompts.map(prompt => String(prompt.id)));
+    const familyCounts = Object.fromEntries(best.state.familyCounts);
+    const frozenTopAnswerDiversity = Object.freeze({
+      ...best.diversity,
+      repeatedPlayers: Object.freeze(best.diversity.repeatedPlayers.map(item => Object.freeze({ ...item })))
+    });
+    const plan = Object.freeze({
+      version: VERSION,
+      source: "generator-v3-fast-scored-reservoir",
+      promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
+      total: WEEKLY_PROMPTS,
+      targets: Object.freeze({ ...familyCounts }),
+      excludeTopResultTarget: Number(best.state.excludeCount || 0),
+      positionNeeds: Object.freeze({ ...positionNeeds }),
+      cycleFamilies: Object.freeze([]),
+      knownUsedSourceIds: usedIds.size,
+      recentSourceIds: recentIds.size,
+      runtimeCandidatesChecked: scanned,
+      leaderRepairSwaps: 0,
+      leaderSearchNodes: 0,
+      leaderSearchBestDepth: 0,
+      antiMetaCount: best.state.antiMetaCount,
+      nationalityCount: best.state.nationalityCount,
+      topAnswerDiversity: frozenTopAnswerDiversity,
+      semanticDiversityVersion: String(window.FPL_DAILY_SEMANTIC_DIVERSITY?.version || ""),
+      semanticWeeklyCap: DAYS_IN_BATCH
+    });
+    return { prompts, ids, plan };
   }
 
   function installGenerationSnapshot(reservoir) {
@@ -1135,10 +1092,10 @@
         return;
       }
 
-      setStatus("Building the proportional 77-prompt generation reservoir from unused saved prompts…", "working");
+      setStatus("Generator v3 · building a fast scored 77-prompt reservoir…", "working");
       const reservoir = await buildCertifiedReservoir();
       generationSnapshot = installGenerationSnapshot(reservoir);
-      setStatus(`77 runtime-certified prompts locked · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · 18-family cycle · ${reservoir.plan.targets?.["exclude-top-result"] || 0} Exclude Top Result relief prompts · ${reservoir.plan.cycleFamilies.length ? `${reservoir.plan.cycleFamilies.length} family cycle reset(s)` : "unused prompts preferred"}. Generating week…`, "working");
+      setStatus(`77 prompts locked by Generator v3 · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · ${reservoir.plan.targets?.["exclude-top-result"] || 0} Exclude Top Result prompts · unused prompts preferred. Generating week…`, "working");
 
       const generator = window.FPL_STUDIO_BATCH_CALENDAR?.generate;
       if (typeof generator !== "function") {
@@ -1158,7 +1115,7 @@
       const diversityText = dayAudit
         ? `${dayAudit.uniquePlayers} unique top-answer players · max ${dayAudit.maxAppearanceDays} leader day(s) for one player · ${dayAudit.spacingViolationCount} spacing exception(s)`
         : "leader-day audit unavailable";
-      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the 18-family targets were preserved, no same-day semantic clashes or repeated top-answer players were allowed, and the 3-day leader-spacing audit finished at ${diversityText}.`, "pass");
+      setStatus(`Seven-day generation passed the saved-library guard: all 77 runtime-certified prompts were consumed exactly once, the fast scored reservoir was consumed, and no same-day semantic clashes or repeated top-answer players were allowed, and the 3-day leader-spacing audit finished at ${diversityText}.`, "pass");
       window.dispatchEvent(new CustomEvent("fpl:daily-saved-library-week-certified", { detail: { ...reservoir.plan } }));
     } catch (error) {
       console.error(error);

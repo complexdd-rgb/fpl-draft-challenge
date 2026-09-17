@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.6.7',
+  'saved-library generation guard v3.0.0',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN, balanceOffset = 0)',
@@ -60,35 +60,16 @@ assert(batch.includes('let rotationState = generationSnapshot'), 'Batch generato
 assert(batch.includes('? buildWeeklyReservoirRotationState(basePools)'), 'Guarded reservoir still replays old schedule history into its fresh 77-prompt cycle.');
 assert(guard.includes('function topAnswerDiversityAudit(prompts)'), '77-prompt reservoir does not audit top-answer player uniqueness.');
 assert(guard.includes('const promptTopAnswerCache = new WeakMap();'), 'Top-answer diversity still recalculates prompt stats instead of caching them per prompt.');
-assert(guard.includes('if (promptTopAnswerCache.has(prompt)) return promptTopAnswerCache.get(prompt);'), 'Top-answer cache is declared but not reused.');
-assert(!guard.includes('.sort((heft, right) =>'), 'Leader-repair sorter still contains the broken left-hand callback variable.');
-assert(guard.includes('leftLeaderLoad - rightLeaderLoad'), '77-prompt reservoir does not prefer unused weekly top-answer players.');
-assert(guard.includes('selectionGroups.sort((left, right) =>'), '77-prompt reservoir does not give constrained top-answer groups first choice.');
-assert(guard.includes('const diversityExtra = anyOffset < 2'), '77-prompt reservoir does not use adaptive diversity sizing.');
-assert(guard.includes('Math.max(8, Math.ceil(need * 2))'), '77-prompt reservoir is missing the fast initial diversity buffer.');
-assert(guard.includes('Math.max(16, Math.ceil(need * 3))'), '77-prompt reservoir is missing the wider fallback diversity buffer.');
-assert(guard.includes('const candidatePoolCache = new Map();'), '77-prompt reservoir does not cache certified candidate pools by positional layout.');
-assert(guard.includes('const cachedLayout = candidatePoolCache.get(anyOffset);'), 'Relief levels do not reuse a previously certified positional-layout pool.');
-assert(guard.includes('const maxTargets = {};'), 'Certified candidate pools are not sized for the widest dynamic relief plan.');
-assert(guard.includes('const orderedRecordsByFamily = new Map();'), 'Family source ordering is still recalculated for every relief/layout attempt.');
-assert(guard.includes('cached candidate pool'), 'Generator progress does not expose cached candidate-pool reuse.');
-assert(guard.includes('Selecting the 77-prompt reservoir from'), '77-prompt reservoir does not expose post-certification selection progress.');
-assert(guard.includes('topAnswerDiversity: frozenTopAnswerDiversity'), '77-prompt reservoir does not expose its top-answer diversity audit.');
-assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4'), 'Exclude Top Result does not have its diversity-relief floor.');
-assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MAX = 8'), 'Exclude Top Result does not have its bounded dynamic-relief ceiling.');
-assert(guard.includes('for (let excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN; excludeTarget <= EXCLUDE_TOP_RESULT_WEEKLY_MAX; excludeTarget += 1)'), 'Reservoir does not escalate Exclude Top Result relief when the base family mix is leader-concentrated.');
-assert(guard.includes('const balancePlanCount = 4;'), 'Reservoir does not explore alternate balanced family plans after removing proportional quotas.');
-assert(guard.includes('Family size in the curated library is no longer a weekly percentage quota.'), 'Weekly family allocation still depends on curated-library percentages.');
-assert(guard.includes('if (bestReservoir) return bestReservoir;'), 'Reservoir does not stop at the smallest successful Exclude Top Result relief level.');
-assert(guard.includes('provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)'), 'Completed reservoir does not enforce the hard max-three leader cap.');
-assert(guard.includes('function repairLeaderCap(selectedEntries, selectionGroups, semantic)'), 'Reservoir does not repair leader overload inside fixed family/position groups.');
-assert(guard.includes('function searchLeaderCappedSelection(selectionGroups, semantic, nodeLimit = 8000)'), 'Reservoir does not have a bounded backtracking fallback after local repair fails.');
-assert(guard.includes('leaderSearchNodes'), 'Reservoir plan does not expose bounded leader-search work.');
-assert(guard.includes('bounded alternate-choice search'), 'Final generation failure does not distinguish exhaustion of the bounded alternate-choice search.');
-assert(guard.includes('leaderRepairSwaps'), 'Reservoir plan does not expose leader-repair swaps.');
-assert(guard.includes('selectedEntries.push({ groupKey:'), 'Greedy selection does not retain group membership for bounded leader repair.');
-assert(!guard.includes('&& (!leaderKey || leaderLoad < reservoirLeaderCap)'), 'Preferred leader count is still a hard greedy filter.');
-assert(guard.includes('rightReliefLoad - leftReliefLoad'), 'Exclude Top Result prompts are not prioritised against overloaded leaders.');
+assert(guard.includes('const GENERATOR_V3_ATTEMPTS = 10;'), 'Generator v3 does not use a bounded scored-attempt budget.');
+assert(guard.includes('GENERATOR_V3_POOL_MULTIPLIER = 3'), 'Generator v3 candidate pool is missing its compact multiplier.');
+assert(guard.includes('Generator v3 · certifying candidates once'), 'Generator v3 does not expose one-pass certification progress.');
+assert(guard.includes('source: "generator-v3-fast-scored-reservoir"'), 'Generator v3 plan identity is missing.');
+assert(guard.includes('score -= leaderLoad * leaderLoad * 30'), 'Generator v3 does not strongly penalise repeated top-answer leaders.');
+assert(guard.includes('score -= familyLoad * 5'), 'Generator v3 does not softly balance prompt families.');
+assert(guard.includes('excludedLoad * 35'), 'Exclude Top Result is not rewarded when it relieves an over-used leader.');
+assert(guard.includes('NATIONALITY_WEEKLY_TARGET'), 'Generator v3 lost the weekly nationality floor.');
+assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN'), 'Generator v3 lost the Exclude Top Result floor.');
+assert(!guard.includes('.sort((heft, right) =>'), 'Generator guard contains the broken leader-repair sorter spelling.');
 assert(guard.includes('Same-day top answers must be unique.'), 'Final weekly certification does not reject same-day repeated leaders.');
 assert(!batch.includes('Regenerate from a later rotation point rather than relaxing the nationality quota.'), 'Generator still recommends moving the fixed schedule date to escape a rotation conflict.');
 assert(guard.includes('window.FPL_STUDIO_SCHEDULE?.scheduled || []'), 'Weekly reservoir does not consume authoritative Supabase prompt history.');
