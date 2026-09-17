@@ -25,7 +25,7 @@ jobs:
         run: |
           node --check js/admin-daily-generator-guard.js
           node scripts/verify-weekly-certified-snapshot-race.mjs
-          node scripts/verify-answer-diversity-policy.mjs
+          node scripts/verify-weekly-top-answer-diversity.mjs
           node scripts/verify-daily-semantic-diversity-v1.mjs
           node scripts/verify-daily-curated-authority-v1.mjs
           node scripts/verify-all-season-certification-boundary.mjs
