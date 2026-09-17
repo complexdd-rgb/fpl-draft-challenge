@@ -1,0 +1,40 @@
+name: Apply Generator v3
+on:
+  push:
+    branches: [fix/generator-v3-reset]
+    paths:
+      - 'scripts/apply-generator-v3.py'
+      - '.github/workflows/apply-generator-v3.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Apply Generator v3 reset
+        run: python3 scripts/apply-generator-v3.py
+      - name: Rebuild Studio wiring
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          node scripts/build-studio-cache-tags.mjs
+      - name: Verify Generator v3
+        run: |
+          node --check js/admin-daily-generator-guard.js
+          node scripts/verify-weekly-certified-snapshot-race.mjs
+          node scripts/verify-answer-diversity-policy.mjs
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-daily-curated-authority-v1.mjs
+          node scripts/verify-all-season-certification-boundary.mjs
+          node scripts/verify-prompt-studio-clean-reset.mjs
+      - name: Commit reset
+        run: |
+          rm -f scripts/apply-generator-v3.py .github/workflows/apply-generator-v3.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Reset weekly generation engine to Generator v3' || exit 0
+          git push
