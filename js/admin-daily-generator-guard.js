@@ -1,14 +1,14 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.0.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.0.1.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests each selected prompt, preserves exact rotation, keeps all 18 families represented
-   with a fast scored reservoir: certify once, select 77, then hand off to the existing seven-day validator. */
+   with a fast scored reservoir: shortlist from stored evidence, runtime-certify only selected prompts, then hand off to the existing seven-day validator. */
 (() => {
   "use strict";
 
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.0.0";
+  const VERSION = "3.0.1";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -719,6 +719,7 @@
       cache.set(key, null);
       return null;
     }
+    promptTopAnswerCache.set(prompt, stats?.bestAnswer || null);
     const certified = Object.freeze(prompt);
     cache.set(key, certified);
     return certified;
@@ -815,15 +816,26 @@
     ]));
     const pools = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
 
-    // V3 deliberately samples the 18 families in round-robin order. Library size no longer
-    // creates a quota: each family gets repeated opportunities to contribute good candidates.
+    function materialiseShortlistCandidate(record, position) {
+      const stored = Number(record?.qualityEvidence?.answerPlayers || 0);
+      const sourcePosition = String(record?.position || "").toUpperCase();
+      if (!Number.isFinite(stored) || stored < limits.min || (sourcePosition !== "ANY" && stored > limits.max)) return null;
+      const prompt = cutoverApi.materialiseRecord(record, position);
+      if (!prompt || typeof prompt.test !== "function") return null;
+      prompt.tags = semanticTags(record, prompt);
+      if (semantic?.fromRecord) prompt.semanticDiversity = semantic.fromRecord(record, position, prompt.label);
+      return { record, prompt, position, storedAnswerPlayers: stored, invalid: false, leaderKey: "" };
+    }
+
+    // Shortlist cheaply from the already-certified quality evidence. Runtime player scans are
+    // intentionally deferred until a prompt is actually selected for the provisional 77.
     const queues = payload.shards.map(shard => ({
       family: String(shard.family || ""),
       rows: recordOrder(Array.isArray(shard.records) ? shard.records : [], usedIds, recentIds),
       cursor: 0
     })).filter(queue => queue.family && queue.rows.length);
 
-    let scanned = 0;
+    let shortlisted = 0;
     let progress = true;
     while (progress && POSITION_ORDER.some(position => pools[position].length < poolTargets[position])) {
       progress = false;
@@ -835,11 +847,12 @@
         const positions = POSITION_ORDER.includes(sourcePosition) ? [sourcePosition] : sourcePosition === "ANY" ? POSITION_ORDER : [];
         for (const position of positions) {
           if (pools[position].length >= poolTargets[position]) continue;
-          const prompt = await certifyCandidate(record, position, limits, cutoverApi, runtimeCache);
-          scanned += 1;
-          if (prompt) pools[position].push({ record, prompt, position });
-          if (scanned % 60 === 0) {
-            setStatus(`Generator v3 · certifying candidates once · ${scanned.toLocaleString("en-GB")} checked…`, "working");
+          const candidate = materialiseShortlistCandidate(record, position);
+          if (!candidate) continue;
+          pools[position].push(candidate);
+          shortlisted += 1;
+          if (shortlisted % 80 === 0) {
+            setStatus(`Generator v3 · shortlisting from stored evidence · ${shortlisted.toLocaleString("en-GB")} candidates prepared…`, "working");
             await new Promise(resolve => setTimeout(resolve, 0));
           }
         }
@@ -848,17 +861,7 @@
     }
 
     const short = POSITION_ORDER.filter(position => pools[position].length < positionNeeds[position]);
-    if (short.length) throw new Error(`Generator v3 could not certify enough ${short.join(", ")} prompts for the selected formation.`);
-
-    const candidateBySource = new Map();
-    for (const position of POSITION_ORDER) {
-      for (const candidate of pools[position]) {
-        const sourceId = String(candidate.record?.id || "");
-        if (!sourceId) continue;
-        if (!candidateBySource.has(sourceId)) candidateBySource.set(sourceId, []);
-        candidateBySource.get(sourceId).push(candidate);
-      }
-    }
+    if (short.length) throw new Error(`Generator v3 could not shortlist enough ${short.join(", ")} prompts for the selected formation.`);
 
     const hash = value => {
       let h = 2166136261;
@@ -869,7 +872,7 @@
     const isAntiMeta = prompt => Array.isArray(prompt?.tags) && prompt.tags.includes("anti-meta");
     const familyOf = candidate => String(candidate?.prompt?.family || candidate?.record?.family || "");
     const sourceIdOf = candidate => String(candidate?.record?.id || "");
-    const leaderOf = candidate => promptTopAnswerKey(candidate.prompt);
+    const leaderOf = candidate => String(candidate?.leaderKey || "");
 
     function scoreCandidate(candidate, state, attempt) {
       const family = familyOf(candidate);
@@ -920,7 +923,7 @@
     }
 
     function candidatesForPosition(position, state) {
-      return pools[position].filter(candidate => !state.sourceIds.has(sourceIdOf(candidate)));
+      return pools[position].filter(candidate => !candidate.invalid && !state.sourceIds.has(sourceIdOf(candidate)));
     }
 
     function reserveSpecial(state, predicate, target, attempt) {
@@ -938,6 +941,7 @@
     }
 
     let best = null;
+    let runtimeCandidatesChecked = 0;
     for (let attempt = 0; attempt < GENERATOR_V3_ATTEMPTS; attempt += 1) {
       const state = createState();
       if (!reserveSpecial(state, candidate => familyOf(candidate) === "nationality", NATIONALITY_WEEKLY_TARGET, attempt)) continue;
@@ -965,6 +969,27 @@
       if (POSITION_ORDER.some(position => Number(state.positionCounts.get(position) || 0) !== positionNeeds[position])) continue;
       if (state.nationalityCount < NATIONALITY_WEEKLY_TARGET || state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN || state.antiMetaCount < antiMetaRequired) continue;
 
+      // Runtime-certify only the provisional 77. Successful prompts stay cached and are reused
+      // by later scored attempts and by the seven-day generator; failures are removed from the pool.
+      let runtimeFailed = false;
+      for (let index = 0; index < state.selected.length; index += 1) {
+        const candidate = state.selected[index];
+        const certified = await certifyCandidate(candidate.record, candidate.position, limits, cutoverApi, runtimeCache);
+        runtimeCandidatesChecked += 1;
+        if (!certified) {
+          candidate.invalid = true;
+          runtimeFailed = true;
+          break;
+        }
+        candidate.prompt = certified;
+        candidate.leaderKey = promptTopAnswerKey(certified);
+        if ((index + 1) % 10 === 0 || index + 1 === WEEKLY_PROMPTS) {
+          setStatus(`Generator v3 · runtime-certifying selected prompts · attempt ${attempt + 1}/${GENERATOR_V3_ATTEMPTS} · ${index + 1}/${WEEKLY_PROMPTS}…`, "working");
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+      if (runtimeFailed) continue;
+
       const prompts = state.selected.map(item => item.prompt);
       const diversity = topAnswerDiversityAudit(prompts);
       const maxLeader = diversity.repeatedPlayers.length ? Math.max(...diversity.repeatedPlayers.map(item => item.count)) : 1;
@@ -979,7 +1004,7 @@
       if (diversity.repeatSlots <= 8 && maxLeader <= 3) break;
     }
 
-    if (!best) throw new Error("Generator v3 could not assemble a valid 77-prompt reservoir from the certified candidate pool.");
+    if (!best) throw new Error("Generator v3 could not assemble and runtime-certify a valid 77-prompt reservoir from the shortlisted candidate pool.");
 
     const prompts = Object.freeze(best.state.selected.map(item => Object.freeze(item.prompt)));
     const ids = new Set(prompts.map(prompt => String(prompt.id)));
@@ -990,7 +1015,7 @@
     });
     const plan = Object.freeze({
       version: VERSION,
-      source: "generator-v3-fast-scored-reservoir",
+      source: "generator-v3-runtime-shortlist",
       promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
       total: WEEKLY_PROMPTS,
       targets: Object.freeze({ ...familyCounts }),
@@ -999,7 +1024,8 @@
       cycleFamilies: Object.freeze([]),
       knownUsedSourceIds: usedIds.size,
       recentSourceIds: recentIds.size,
-      runtimeCandidatesChecked: scanned,
+      runtimeCandidatesChecked,
+      shortlistedCandidates: shortlisted,
       leaderRepairSwaps: 0,
       leaderSearchNodes: 0,
       leaderSearchBestDepth: 0,
