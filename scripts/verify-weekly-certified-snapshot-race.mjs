@@ -10,10 +10,10 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v2.6.5',
+  'saved-library generation guard v2.6.6',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
-  'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN)',
+  'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN, balanceOffset = 0)',
   'async function buildCertifiedReservoir()',
   'function solveFamilyPositionFlow(',
   'window.FPL_DAILY_GENERATION_PROMPT_POOL = prompts;',
@@ -74,6 +74,8 @@ assert(guard.includes('topAnswerDiversity: frozenTopAnswerDiversity'), '77-promp
 assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4'), 'Exclude Top Result does not have its diversity-relief floor.');
 assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MAX = 8'), 'Exclude Top Result does not have its bounded dynamic-relief ceiling.');
 assert(guard.includes('for (let excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN; excludeTarget <= EXCLUDE_TOP_RESULT_WEEKLY_MAX; excludeTarget += 1)'), 'Reservoir does not escalate Exclude Top Result relief when the base family mix is leader-concentrated.');
+assert(guard.includes('const balancePlanCount = 4;'), 'Reservoir does not explore alternate balanced family plans after removing proportional quotas.');
+assert(guard.includes('Family size in the curated library is no longer a weekly percentage quota.'), 'Weekly family allocation still depends on curated-library percentages.');
 assert(guard.includes('if (bestReservoir) return bestReservoir;'), 'Reservoir does not stop at the smallest successful Exclude Top Result relief level.');
 assert(guard.includes('provisionalTopAnswerDiversity.repeatedPlayers.some(item => item.count > WEEKLY_LEADER_FALLBACK_PROMPT_CAP)'), 'Completed reservoir does not enforce the hard max-three leader cap.');
 assert(guard.includes('function repairLeaderCap(selectedEntries, selectionGroups, semantic)'), 'Reservoir does not repair leader overload inside fixed family/position groups.');
@@ -168,33 +170,29 @@ badWeek[6].promptIds[10] = badWeek[0].promptIds[0];
 const badIds = badWeek.flatMap(day => day.promptIds);
 assert(new Set(badIds).size === 76, 'Duplicate-prompt fixture did not reproduce the weekly consumption failure.');
 
-// The proportional plan has a hard nationality floor of seven while all other non-empty
-// families get at least one weekly slot before proportional remainder allocation.
+// The balanced plan has a hard nationality floor of seven, a deliberate Exclude Top Result
+// floor, and at least one slot for every other active family. Curated-library size is not a quota.
 const familyWeights = [
   ['nationality', 120], ['season-stats', 400], ['position-stat', 350], ['exact-stats', 300],
   ['combined-stats', 280], ['club-stat', 250], ['league-position', 220], ['promoted-clubs', 90],
   ['relegated-clubs', 90], ['champions', 80], ['career-longevity', 180], ['club-count', 160],
   ['manager', 140], ['anti-meta', 200], ['exclude-top-result', 62], ['value', 170], ['minutes-role', 210], ['composite-story', 190]
 ];
-const nationalityTarget = 7;
-const otherFamilies = familyWeights.filter(([family]) => family !== 'nationality');
-const remaining = 77 - nationalityTarget - otherFamilies.length;
-assert(remaining >= 0, 'Family-floor fixture exceeds the 77-prompt weekly reservoir.');
-const weightTotal = otherFamilies.reduce((sum, [, weight]) => sum + weight, 0);
-const allocations = Object.fromEntries(familyWeights.map(([family]) => [family, family === 'nationality' ? 7 : 1]));
-const remainders = [];
-let allocated = 0;
-for (const [family, weight] of otherFamilies) {
-  const raw = remaining * weight / weightTotal;
-  const floor = Math.floor(raw);
-  allocations[family] += floor;
-  allocated += floor;
-  remainders.push({ family, remainder: raw - floor, weight });
+const allocations = Object.fromEntries(familyWeights.map(([family]) => [family, 1]));
+allocations.nationality = 7;
+allocations['exclude-top-result'] = 4;
+const regularFamilies = familyWeights.map(([family]) => family).filter(family => !['nationality', 'exclude-top-result'].includes(family)).sort();
+let remaining = 77 - Object.values(allocations).reduce((sum, value) => sum + value, 0);
+while (remaining > 0) {
+  regularFamilies.sort((left, right) => allocations[left] - allocations[right] || left.localeCompare(right));
+  allocations[regularFamilies[0]] += 1;
+  remaining -= 1;
 }
-remainders.sort((a, b) => b.remainder - a.remainder || b.weight - a.weight || a.family.localeCompare(b.family));
-for (let index = 0; index < remaining - allocated; index += 1) allocations[remainders[index].family] += 1;
-assert(Object.values(allocations).reduce((sum, value) => sum + value, 0) === 77, 'Proportional family allocation does not sum to 77.');
+assert(Object.values(allocations).reduce((sum, value) => sum + value, 0) === 77, 'Balanced family allocation does not sum to 77.');
 assert(allocations.nationality === 7, 'Nationality target is not fixed at seven prompts per week.');
-assert(otherFamilies.every(([family]) => allocations[family] >= 1), 'A non-empty promoted family lost its weekly representation floor.');
+assert(allocations['exclude-top-result'] === 4, 'Exclude Top Result floor is not retained in balanced allocation.');
+assert(regularFamilies.every(family => allocations[family] >= 1), 'A non-empty promoted family lost its weekly representation floor.');
+const regularCounts = regularFamilies.map(family => allocations[family]);
+assert(Math.max(...regularCounts) - Math.min(...regularCounts) <= 1, 'Balanced family allocation is still behaving like a proportional weighting.');
 
 console.log('Saved-library generation snapshot verified: immutable 77-prompt reservoir, semantic spread, date-only identity, full Supabase generation history and real-file-only GitHub fallback export are protected.');
