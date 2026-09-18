@@ -69,6 +69,14 @@
 
     byId("runGeneratorProductionCertificationBtn")?.addEventListener("click", run);
     byId("downloadGeneratorProductionCertificationBtn")?.addEventListener("click", download);
+    document.addEventListener("click", event => {
+      if (!running) return;
+      const target = event.target instanceof Element ? event.target.closest("#publishWeekSupabaseBtn") : null;
+      if (!target) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      setUi("Publishing is locked while the read-only production certification sweep is running.", "neutral", "Running");
+    }, true);
   }
 
   function setUi(message, state = "neutral", badge = null) {
