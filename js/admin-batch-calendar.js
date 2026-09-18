@@ -1336,11 +1336,7 @@
         if (days[dayIndex].antiMetaCount < settings.minAntiMeta) return false;
         if (semantic.dayIssues(promptsForDay).length) return false;
         if (sameDayLeaderRepeatCount(promptsForDay)) return false;
-        if (!Object.keys(requiredFormation).every(position => days[dayIndex].positionCounts[position] === requiredFormation[position])) return false;
-        const perfect = calculatePerfectXI(promptsForDay);
-        if (!perfect.possible) return false;
-        if (settings.maxPerfectScore > 0 && perfect.score > settings.maxPerfectScore) return false;
-        return true;
+        return Object.keys(requiredFormation).every(position => days[dayIndex].positionCounts[position] === requiredFormation[position]);
       });
       if (!valid) continue;
 
@@ -1363,6 +1359,13 @@
         for (let index = 1; index < values.length; index += 1) if (values[index] - values[index - 1] < WEEKLY_LEADER_MIN_DAY_GAP) spacingViolations += 1;
       }
       const score = spacingViolations * 10000 + thirdDayPlayers * 1000 + [...leaderDays.values()].reduce((sum, set) => sum + set.size, 0);
+      if (best && score >= best.score) continue;
+      const perfectWeek = dayPrompts.every(promptsForDay => {
+        const perfect = calculatePerfectXI(promptsForDay);
+        if (!perfect.possible) return false;
+        return !(settings.maxPerfectScore > 0 && perfect.score > settings.maxPerfectScore);
+      });
+      if (!perfectWeek) continue;
       const candidate = {
         ok: true,
         dayPromptIds: days.map(day => new Set(day.promptIds)),
