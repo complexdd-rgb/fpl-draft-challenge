@@ -10,6 +10,12 @@ function isIsoDate(value: unknown) {
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ""));
 }
 
+function databaseError(error: unknown, operation: string) {
+  const row = error && typeof error === "object" ? error as Record<string, unknown> : {};
+  const message = text(row.message, 500) || text(row.details, 500) || text(row.hint, 500);
+  return httpError(500, message ? `${operation}: ${message}` : `${operation} failed.`);
+}
+
 function londonDateKey(date = new Date()) {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
@@ -101,7 +107,7 @@ Deno.serve(async (req) => {
       .select("user_id")
       .eq("user_id", user.id)
       .maybeSingle();
-    if (adminError) throw adminError;
+    if (adminError) throw databaseError(adminError, "Admin access check failed");
     if (!adminRow) throw httpError(403, "This account is not allowed to publish daily challenges.");
 
     const body = await bodyJson(req);
@@ -115,7 +121,7 @@ Deno.serve(async (req) => {
         .eq("active", true)
         .order("release_date", { ascending: true })
         .limit(400);
-      if (error) throw error;
+      if (error) throw databaseError(error, "Schedule status query failed");
       return json({ admin: true, today, scheduled: data || [] });
     }
 
@@ -132,7 +138,7 @@ Deno.serve(async (req) => {
         p_published_by: user.id,
         p_dates: dates
       });
-      if (removeError) throw removeError;
+      if (removeError) throw databaseError(removeError, "Schedule removal failed");
 
       const ordered = dates.slice().sort();
       return json({
@@ -163,7 +169,7 @@ Deno.serve(async (req) => {
       p_published_by: user.id,
       p_challenges: ordered
     });
-    if (publishError) throw publishError;
+    if (publishError) throw databaseError(publishError, "Challenge publishing failed");
 
     return json({
       published: Number(published) || ordered.length,
