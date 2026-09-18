@@ -25,6 +25,10 @@
   const ADDITION_SELECTED = 62;
   const ADDITION_VARIANT_GROUPS = 23;
   const ADDITION_ID_SHA256 = "ebeb29a15d4fde2c229399dd1c03ec8c862c344995d4da76efba4897e5b57709";
+  const CACHE_DB = "fpl-daily-curated-authority-v2";
+  const CACHE_STORE = "packages";
+  const CACHE_KEY = "active";
+  const CACHE_SCHEMA = 1;
 
   const sourceApi = window.FPL_PROMPT_LIBRARY_SHARDS_V1;
   if (!sourceApi?.ready || typeof sourceApi.buildRepositoryPackage !== "function") {
@@ -39,6 +43,72 @@
   let lastError = "";
 
   const familyPrefix = family => `factory_${String(family || "").replaceAll("-", "_")}_`;
+
+  function openCacheDb() {
+    if (!window.indexedDB) return Promise.resolve(null);
+    return new Promise((resolve, reject) => {
+      const request = window.indexedDB.open(CACHE_DB, CACHE_SCHEMA);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(CACHE_STORE)) db.createObjectStore(CACHE_STORE);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("Curated authority cache could not be opened."));
+    });
+  }
+
+  async function readCachedPackage() {
+    const db = await openCacheDb();
+    if (!db) return null;
+    try {
+      return await new Promise((resolve, reject) => {
+        const request = db.transaction(CACHE_STORE, "readonly").objectStore(CACHE_STORE).get(CACHE_KEY);
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error || new Error("Curated authority cache could not be read."));
+      });
+    } finally {
+      db.close();
+    }
+  }
+
+  async function writeCachedPackage(payload) {
+    const db = await openCacheDb();
+    if (!db) return false;
+    try {
+      await new Promise((resolve, reject) => {
+        const transaction = db.transaction(CACHE_STORE, "readwrite");
+        transaction.objectStore(CACHE_STORE).put(payload, CACHE_KEY);
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error || new Error("Curated authority cache could not be written."));
+        transaction.onabort = () => reject(transaction.error || new Error("Curated authority cache write was aborted."));
+      });
+      return true;
+    } finally {
+      db.close();
+    }
+  }
+
+  function cachedPackageProblem(payload, definition) {
+    if (!payload || payload.kind !== "fpl-prompt-library-family-shards" || !payload.manifest || !Array.isArray(payload.shards)) return "shape";
+    if (Number(payload.manifest.total || 0) !== EXPECTED_SELECTED || Number(payload.manifest.families || 0) !== EXPECTED_FAMILIES || Number(payload.manifest.variantGroups || 0) !== EXPECTED_VARIANT_GROUPS) return "counts";
+    if (String(payload.manifest.promotionFingerprint || "") !== EXPECTED_SOURCE_FINGERPRINT) return "source";
+    if (String(payload.freeze?.selectionCompositeSha256 || "") !== definition.digest) return "digest";
+    if (String(payload.authority?.authority || "") !== "frozen-curated-4959-v2") return "authority";
+    if (payload.shards.length !== EXPECTED_FAMILIES) return "families";
+    const ids = new Set();
+    let total = 0;
+    for (const shard of payload.shards) {
+      const family = String(shard?.family || "");
+      const records = Array.isArray(shard?.records) ? shard.records : [];
+      total += records.length;
+      for (const record of records) {
+        const id = String(record?.id || "");
+        if (!id || ids.has(id) || selectedRecordProblem(record, family)) return "records";
+        ids.add(id);
+      }
+    }
+    return total === EXPECTED_SELECTED && ids.size === EXPECTED_SELECTED ? "" : "total";
+  }
 
   function selectorIds(selector) {
     const family = String(selector?.family || "");
@@ -200,11 +270,25 @@
     if (curatedPromise) return curatedPromise;
     curatedPromise = (async () => {
       const definition = await loadDefinition();
+      try {
+        const cached = await readCachedPackage();
+        if (cached && !cachedPackageProblem(cached, definition)) {
+          lastPackage = cached;
+          lastError = "";
+          window.dispatchEvent(new CustomEvent("fpl:daily-curated-authority-ready", { detail: { version: VERSION, manifest: cached.manifest, freeze: cached.freeze, authority: cached.authority, cache: "hit" } }));
+          return cached;
+        }
+      } catch (error) {
+        console.warn("Curated Daily authority cache read failed; rebuilding from source.", error);
+      }
+
       const source = await sourceBuilder();
       const payload = materialise(source, definition);
       lastPackage = payload;
       lastError = "";
-      window.dispatchEvent(new CustomEvent("fpl:daily-curated-authority-ready", { detail: { version: VERSION, manifest: payload.manifest, freeze: payload.freeze, authority: payload.authority } }));
+      try { await writeCachedPackage(payload); }
+      catch (error) { console.warn("Curated Daily authority cache write failed; continuing with in-memory authority.", error); }
+      window.dispatchEvent(new CustomEvent("fpl:daily-curated-authority-ready", { detail: { version: VERSION, manifest: payload.manifest, freeze: payload.freeze, authority: payload.authority, cache: "rebuilt" } }));
       return payload;
     })().catch(error => { lastError = error?.message || String(error); throw error; }).finally(() => { curatedPromise = null; });
     return curatedPromise;

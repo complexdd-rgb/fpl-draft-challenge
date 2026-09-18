@@ -105,5 +105,16 @@ const bootstrap = read('js/studio-bootstrap.js');
 assert(bootstrap.indexOf('loadAsset("adminDailyCuratedAuthorityV1"') >= 0 && bootstrap.indexOf('loadAsset("adminDailyLibraryCutoverV1"') > bootstrap.indexOf('loadAsset("adminDailyCuratedAuthorityV1"'), 'Studio bootstrap does not preserve authority-before-cutover order.');
 const authoritySource = read('js/admin-daily-curated-authority-v1.js');
 for (const forbidden of ['FPL_DAILY_GENERATION_PROMPT_POOL =', 'FPL_DAILY_GENERATION_FAMILY_PLAN =', 'persistSnapshot(', 'saveCurrentPromotion(', 'supabase.functions']) assert(!authoritySource.includes(forbidden), `Curated authority contains forbidden direct generation/persistence path: ${forbidden}`);
+for (const token of [
+  'const CACHE_DB = "fpl-daily-curated-authority-v2";',
+  'async function readCachedPackage()',
+  'async function writeCachedPackage(payload)',
+  'function cachedPackageProblem(payload, definition)',
+  'const cached = await readCachedPackage();',
+  'if (cached && !cachedPackageProblem(cached, definition))',
+  'await writeCachedPackage(payload);',
+  'cache: "hit"',
+  'cache: "rebuilt"'
+]) assert(authoritySource.includes(token), `Curated authority cache path is missing: ${token}`);
 
 console.log('Curated Daily authority v2 verified: legacy 4,897 selectors remain intact, 62 Exclude Top Result prompts extend Daily to 4,959 prompts / 18 families, and the 144,252 promoted source remains provenance.');
