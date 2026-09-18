@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.22-generator-certification"
+      "version": "4.0.23-exact-nationality"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "3.2.0-reservoir-retry"
+      "version": "3.2.1-exact-nationality"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
