@@ -48,6 +48,8 @@ for (const token of [
   'function excludedTopPlayerId(prompt)',
   'score -= leaderLoad * leaderLoad * 30',
   'score += excludedLoad * 35',
+  'const WEEKLY_LEADER_HARD_PROMPT_CAP = 3;',
+  'maxLeader > WEEKLY_LEADER_HARD_PROMPT_CAP',
   'semantic.canAddWeekly(candidate.prompt, state.semanticCounts, DAYS_IN_BATCH)',
   'Same-day top answers must be unique.'
 ]) {
