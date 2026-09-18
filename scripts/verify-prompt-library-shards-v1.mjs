@@ -74,6 +74,8 @@ assert(!source.includes('renderDaily'), 'Retired Daily balance renderer returned
 assert(!source.includes('WEEKLY_PROMPT_SLOTS'), 'Shard storage still contains proportional weekly planning.');
 assert(!source.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL'), 'Shard storage still reads the obsolete pre-cutover production-pool state.');
 assert(!source.includes('FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Shard storage must not itself take over Daily generation authority.');
+assert(!source.includes('if (manifest && canonicalLibrary().length === 0) await restoreSaved()'), 'Saved 100k+ source shards are still auto-restored into mutable staging on boot.');
+assert(source.includes('promptShardRestore'), 'Explicit restore control was lost while removing automatic restore.');
 assert(!css.includes('daily-library-balance') && !css.includes('daily-family-row'), 'Retired Daily balance CSS is still shipped with source-archive storage.');
 
 console.log('Prompt Library Shards v1.2.0 smoke test passed: durable promotion/source shards remain, while obsolete Daily balance and pre-cutover authority UI are removed.');
