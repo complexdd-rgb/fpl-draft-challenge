@@ -714,6 +714,7 @@
       return pools[position].filter(candidate =>
         !candidate.invalid
         && !state.sourceIds.has(sourceIdOf(candidate))
+        && !(familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET)
         && (!semantic?.canAddWeekly || semantic.canAddWeekly(candidate.prompt, state.semanticCounts, DAYS_IN_BATCH))
       );
     }
