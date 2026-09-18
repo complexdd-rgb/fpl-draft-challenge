@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v3.1.0',
+  'saved-library generation guard v3.1.1',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'async function buildCertifiedReservoir()',
@@ -72,6 +72,10 @@ assert(guard.includes('score -= leaderLoad * leaderLoad * 30'), 'Generator v3 do
 assert(guard.includes('score -= familyLoad * 5'), 'Generator v3 does not softly balance prompt families.');
 assert(guard.includes('excludedLoad * 35'), 'Exclude Top Result is not rewarded when it relieves an over-used leader.');
 assert(guard.includes('NATIONALITY_WEEKLY_TARGET'), 'Generator v3 lost the weekly nationality floor.');
+assert(guard.includes('const WEEKLY_LEADER_HARD_PROMPT_CAP = 3;'), 'Generator v3 lost the hard weekly leader prompt cap.');
+assert(guard.includes('state.nationalityCount !== NATIONALITY_WEEKLY_TARGET'), 'Generator v3 no longer requires exactly seven nationality prompts in the reservoir.');
+assert(guard.includes('maxLeader > WEEKLY_LEADER_HARD_PROMPT_CAP'), 'Generator v3 can still hand a 4+ prompt leader group to the day allocator.');
+assert(guard.includes('function canCommitCandidate(state, candidate)'), 'Generator v3 does not re-check hard invariants after runtime certification.');
 assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN'), 'Generator v3 lost the Exclude Top Result floor.');
 assert(!guard.includes('.sort((heft, right) =>'), 'Generator guard contains the broken leader-repair sorter spelling.');
 assert(guard.includes('Same-day top answers must be unique.'), 'Final weekly certification does not reject same-day repeated leaders.');
