@@ -1,79 +1,30 @@
 import fs from 'node:fs';
-import vm from 'node:vm';
 
-const listeners = new Map();
-const window = {
-  location: { pathname: '/' },
-  setTimeout,
-  clearTimeout,
-  addEventListener(type, handler) {
-    if (!listeners.has(type)) listeners.set(type, []);
-    listeners.get(type).push(handler);
-  },
-  dispatchEvent(event) {
-    for (const handler of listeners.get(event?.type) || []) handler(event);
-  }
-};
-const sandbox = {
-  window,
-  document: {
-    readyState: 'complete',
-    querySelector: () => null,
-    write: () => {}
-  },
-  console,
-  setTimeout,
-  clearTimeout,
-  CustomEvent: class CustomEvent {
-    constructor(type, init = {}) { this.type = type; this.detail = init.detail; }
-  }
-};
-vm.createContext(sandbox);
+const readiness = fs.readFileSync('js/prompt-field-readiness.js', 'utf8');
+const cutover = fs.readFileSync('js/admin-daily-library-cutover-v1.js', 'utf8');
+const authority = fs.readFileSync('js/admin-daily-curated-authority-v1.js', 'utf8');
+const admin = fs.readFileSync('admin.html', 'utf8');
 
-const run = path => vm.runInContext(fs.readFileSync(path, 'utf8'), sandbox, { filename: path });
-run('players.js');
-run('js/career-context.js');
-run('prompt-library.js');
-
-window.FPL_STUDIO_API = {
-  getPromptLibrary: () => window.FPL_PROMPT_LIBRARY
-};
-
-run('nationality-enrichment.js');
-run('js/prompt-nationality-context-pack-v1.js');
-
-const pack = window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1;
-if (!pack?.ready || pack.version !== '1.0.2' || Number(pack.availableCount) < 4) {
-  throw new Error(`Nationality context pack was not genuinely ready for weekly generation (${pack?.availableCount || 0} usable, ${pack?.installedCount || 0} newly installed).`);
+if (fs.existsSync('js/prompt-nationality-context-pack-v1.js')) {
+  throw new Error('Retired nationality staging prompt pack still exists.');
+}
+if (readiness.includes('prompt-nationality-context-pack-v1.js')) {
+  throw new Error('Field readiness still auto-loads the retired nationality staging pack.');
+}
+if (!readiness.includes('nationality-enrichment.js?v=1.1.1')) {
+  throw new Error('Field readiness no longer loads nationality enrichment context.');
+}
+if (!authority.includes('EXPECTED_FAMILIES = 18') || !authority.includes('EXPECTED_SELECTED = 4959')) {
+  throw new Error('Curated Daily authority no longer pins the 4,959 / 18-family boundary.');
+}
+if (!cutover.includes('"nationality"') || !cutover.includes('field === "nationality"')) {
+  throw new Error('Daily cutover no longer supports curated nationality conditions.');
+}
+if (!admin.includes('data-nationality-enrichment data-loaded="true"')) {
+  throw new Error('Studio no longer loads canonical nationality enrichment.');
+}
+if (admin.includes('data-nationality-context-prompt-pack-v1')) {
+  throw new Error('Studio still loads the retired nationality staging pack.');
 }
 
-const prompts = window.FPL_PROMPT_LIBRARY.filter(prompt => pack.ids.includes(prompt.id));
-if (prompts.length !== Number(pack.availableCount)) {
-  throw new Error(`Nationality pack availability mismatch: metadata says ${pack.availableCount}, library contains ${prompts.length}.`);
-}
-const positions = new Set(prompts.map(prompt => prompt.position));
-for (const position of ['DEF', 'MID', 'FWD']) {
-  if (!positions.has(position)) throw new Error(`Nationality context pack has no ${position} prompt.`);
-}
-for (const prompt of prompts) {
-  if (!String(prompt.family || '').startsWith('nationality-context-v1:')) throw new Error(`Unexpected nationality prompt family: ${prompt.id}`);
-  if (!Array.isArray(prompt.tags) || !prompt.tags.includes('nationality')) throw new Error(`Nationality prompt is missing its nationality tag: ${prompt.id}`);
-  if (!(Number(prompt.answerPool) > 0)) throw new Error(`Nationality prompt has an empty answer pool: ${prompt.id}`);
-}
-
-const readinessSource = fs.readFileSync('js/prompt-field-readiness.js', 'utf8');
-const enrichmentIndex = readinessSource.indexOf('nationality-enrichment.js?v=1.1.1');
-const contextIndex = readinessSource.indexOf('prompt-nationality-context-pack-v1.js?v=1.0.2');
-if (enrichmentIndex < 0 || contextIndex < 0 || enrichmentIndex >= contextIndex) {
-  throw new Error('Studio does not load nationality enrichment before the current weekly nationality prompt pack.');
-}
-
-const weeklySource = fs.readFileSync('js/admin-batch-calendar.js', 'utf8');
-if (!weeklySource.includes('counts.nationality === plan.nationality')) {
-  throw new Error('Weekly generation does not enforce the exact daily nationality quota.');
-}
-if (!weeklySource.includes('mix.nationality - promptMixPlan.nationality')) {
-  throw new Error('Weekly generation does not penalise excess nationality prompts.');
-}
-
-console.log(`Weekly nationality readiness verified with ${prompts.length} real usable prompts across ${[...positions].sort().join(', ')}.`);
+console.log('Weekly nationality readiness verified: curated nationality prompts use canonical enrichment directly, with no legacy staging-pack injection.');
