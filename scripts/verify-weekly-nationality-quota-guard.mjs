@@ -19,9 +19,9 @@ for (const token of [
 for (const token of [
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'state.nationalityCount < NATIONALITY_WEEKLY_TARGET',
-  'state.nationalityCount < NATIONALITY_WEEKLY_TARGET ||'
+  'state.nationalityCount !== NATIONALITY_WEEKLY_TARGET'
 ]) {
   if (!guard.includes(token)) throw new Error(`Reservoir generator lost its weekly nationality floor: ${token}`);
 }
 
-console.log('Weekly nationality invariant verified without polling: Generator v3 reserves seven nationality prompts and final day validation requires exactly one per Daily XI.');
+console.log('Weekly nationality invariant verified without polling: Generator v3 locks the reservoir to exactly seven nationality prompts and final day validation requires exactly one per Daily XI.');
