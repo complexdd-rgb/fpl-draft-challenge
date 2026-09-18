@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — publish a validated date-identified seven-day package directly to Supabase v1.1.0. */
+/* FPL Challenge Studio — publish a validated date-identified seven-day package directly to Supabase v1.1.1. */
 (() => {
   "use strict";
 
@@ -328,6 +328,13 @@
     try {
       const files = captureGeneratedPackage();
       const challenges = buildPublishPayload(files);
+      const serverToday = String(scheduleApi.today || "");
+      const nonFuture = serverToday ? challenges.filter(item => String(item.releaseDate || "") <= serverToday) : [];
+      if (nonFuture.length) {
+        const firstInvalid = String(nonFuture[0]?.releaseDate || "");
+        const tomorrow = window.FPL_STUDIO_BATCH_CALENDAR?.addDaysIso?.(serverToday, 1) || "";
+        throw new Error(`This generated package starts on ${firstInvalid}, which is no longer publishable. Supabase protects today and past challenge dates. Generate a fresh batch${tomorrow ? ` starting ${tomorrow}` : ""} and publish that instead.`);
+      }
       setStatus(`Publishing ${challenges.length} validated challenge${challenges.length === 1 ? "" : "s"} and private verifiers to Supabase…`, "working");
       const result = await api({ action: "publish", challenges });
       await refreshScheduleStatus();
