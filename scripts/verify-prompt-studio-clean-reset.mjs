@@ -21,10 +21,10 @@ const promptLibrary = read('prompt-library.js')
 
 // The prompt-v2 architecture identity stays fixed while runtime asset versions may advance for safe generator hotfixes.
 assert(manifest.manifestVersion === '4.0.0-prompts-v2', 'Central manifest is not on the 18-family prompt-v2 boundary.');
-assert(manifest.assets?.assetManifestRuntime?.version === '4.0.15-studio-authority-truth', 'Asset manifest runtime cache tag is stale.');
+assert(manifest.assets?.assetManifestRuntime?.version === '4.0.16-curated-cache', 'Asset manifest runtime cache tag is stale.');
 assert(manifest.assets?.studioBootstrap?.version === '3.0.1-authority-truth', 'Studio bootstrap cache tag is stale.');
 assert(manifest.assets?.promptStudioClean?.version === '1.3.1-authority-truth', 'Prompt Studio permanent workflow cache tag is stale.');
-assert(manifest.assets?.adminDailyCuratedAuthorityV1?.version === '2.0.0', 'Curated Daily authority cache tag is stale.');
+assert(manifest.assets?.adminDailyCuratedAuthorityV1?.version === '2.0.1-curated-cache', 'Curated Daily authority cache tag is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.version === '1.1.0-exclude-top-result', 'Daily cutover cache tag is stale.');
 
 for (const key of [
@@ -84,7 +84,7 @@ assert(bootstrap.includes('clean-v1-factory-quality-promotion-source-shards-cura
 
 assert(generatedManifest.includes('4.0.0-prompts-v2'), 'Generated manifest is not on the 18-family prompt-v2 boundary.');
 assert(generatedManifest.includes('1.3.1-authority-truth'), 'Generated manifest is missing the permanent Prompt Studio cache tag.');
-assert(generatedManifest.includes('2.0.0'), 'Generated manifest is missing the curated authority v2 cache tag.');
+assert(generatedManifest.includes('2.0.1-curated-cache'), 'Generated manifest is missing the curated authority v2 cache tag.');
 assert(!generatedManifest.includes('promptCurationEvidenceV1'), 'Generated manifest still advertises curation evidence.');
 assert(!generatedManifest.includes('promptCurationSurvivorBuilderV1'), 'Generated manifest still advertises survivor builder.');
 assert(!generatedManifest.includes('promptCurationReviewExportV1'), 'Generated manifest still advertises review export.');
