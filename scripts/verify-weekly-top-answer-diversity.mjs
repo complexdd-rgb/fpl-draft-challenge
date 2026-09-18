@@ -4,7 +4,7 @@ const batch = fs.readFileSync("js/admin-batch-calendar.js", "utf8");
 const guard = fs.readFileSync("js/admin-daily-generator-guard.js", "utf8");
 const checks = [
   ["policy v7", "const ANSWER_DIVERSITY_POLICY_VERSION = 7;"],
-  ["three-day target", "const WEEKLY_LEADER_MIN_DAY_GAP = 3;"],
+  ["three-day hard spacing", "const WEEKLY_LEADER_MIN_DAY_GAP = 3;"],
   ["two-day preferred cap", "const WEEKLY_LEADER_PREFERRED_DAY_CAP = 2;"],
   ["three-day hard cap", "const WEEKLY_LEADER_HARD_DAY_CAP = 3;"],
   ["day history arrays", "function weeklyLeaderHistory(weeklyLeaderDays, playerId)"],
@@ -24,8 +24,10 @@ const checks = [
   ["preplan audit", "leaderPreplan: lastLeaderPreplan ? { ...lastLeaderPreplan } : null"],
   ["actual week audit", "function weeklyTopAnswerDiversity()"],
   ["spacing audit", "spacingViolationCount"],
+  ["hard spacing rejection", "if (spacingViolations) continue;"],
   ["audit exported", "getTopAnswerDayAudit"],
-  ["guard uses day audit", "getTopAnswerDayAudit?.()"]
+  ["guard uses day audit", "getTopAnswerDayAudit?.()"],
+  ["guard hard-spacing certification", "leaderAudit.spacingViolationCount"]
 ];
 for (const [label, token] of checks) {
   if (!(batch.includes(token) || guard.includes(token))) throw new Error(`Missing leader-day diversity check: ${label}`);
