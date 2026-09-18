@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Generator v3.2 production certification runner v1.0.0.
+/* FPL Challenge Studio — Generator v3.2 production certification runner v1.0.1.
    Read-only shadow sweep: runs the real seven-day generator once for every supported formation,
    captures certification evidence, clears each shadow batch, and never publishes to Supabase. */
 (() => {
@@ -7,7 +7,7 @@
   if (window.__FPL_DAILY_PRODUCTION_CERTIFICATION_V1__) return;
   window.__FPL_DAILY_PRODUCTION_CERTIFICATION_V1__ = true;
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.0.1";
   const FORMATION_ORDER = Object.freeze(["4-4-2", "4-3-3", "3-4-3", "3-5-2", "5-3-2", "5-4-1", "4-2-3-1"]);
   const DAYS = 7;
   const PROMPTS_PER_DAY = 11;
@@ -120,7 +120,8 @@
       if (String(result.formation || "") !== formation) issues.push(`${day} formation is ${result.formation || "missing"}, expected ${formation}.`);
       if (!sameCounts(result.formationCounts, expected)) issues.push(`${day} formation counts do not match ${formation}.`);
       if (Number(result.promptMix?.nationality || 0) !== 1) issues.push(`${day} does not contain exactly one nationality prompt.`);
-      if (Number(result.antiMetaCount || 0) < minAntiMeta) issues.push(`${day} anti-meta count is below ${minAntiMeta}.`);
+      if (!Number.isFinite(Number(result.antiMetaCount))) issues.push(`${day} is missing anti-meta certification evidence.`);
+      else if (Number(result.antiMetaCount) < minAntiMeta) issues.push(`${day} anti-meta count ${Number(result.antiMetaCount)} is below ${minAntiMeta}.`);
       if ((result.issues || []).length) issues.push(`${day}: ${result.issues[0]}`);
     }
     if (representedFamilies !== 18) issues.push(`Expected all 18 prompt families; got ${representedFamilies}.`);
