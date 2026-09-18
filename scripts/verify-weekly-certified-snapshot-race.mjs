@@ -13,7 +13,7 @@ for (const token of [
   'saved-library generation guard v3.2.0',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
-  'async function buildCertifiedReservoir()',
+  'async function buildCertifiedReservoir(reservoirRetry = 0, runtimeCache = new Map(), discouragedSourceIds = new Set())',
   'function generationHistorySnapshot(days = 7)',
   'function syncGenerationAvailability()',
   'window.FPL_DAILY_GENERATION_PROMPT_POOL = prompts;',
