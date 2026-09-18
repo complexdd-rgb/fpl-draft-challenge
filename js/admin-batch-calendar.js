@@ -96,6 +96,9 @@
   let batchManifest = null;
   let generationToken = 0;
   let lastLeaderPreplan = null;
+  let lastTiming = null;
+  const nowMs = () => globalThis.performance?.now ? globalThis.performance.now() : Date.now();
+  const roundMs = value => Math.round(Number(value || 0) * 10) / 10;
 
   initialise();
 
@@ -173,6 +176,9 @@
   async function generateSevenDayBatch() {
     clearBatch(false);
     lastLeaderPreplan = null;
+    const generationStarted = nowMs();
+    const timing = { leaderPlanningMs: 0, allocationMs: 0, validationMs: 0, totalMs: 0 };
+    lastTiming = null;
     const token = ++generationToken;
     const settings = settingsFromUi();
     const startDate = elements.startDate?.value;
@@ -230,7 +236,7 @@
     const missingBase = Object.keys(requiredFormation).filter(position => basePools[position].length < requiredFormation[position]);
     if (missingBase.length) {
       setStatus(`Not enough eligible ${missingBase.join(", ")} prompts for a seven-day batch. Adjust the answer limits.`, "fail");
-      elements.generateButton.disabled = false;
+      if (!window.FPL_DAILY_GENERATOR_GUARD) elements.generateButton.disabled = false;
       return;
     }
 
@@ -284,9 +290,11 @@
         const planningPrompts = generationSnapshot
           ? [...new Map(Object.values(basePools).flat().map(prompt => [String(prompt.id), prompt])).values()]
           : null;
+        const leaderPlanningStarted = nowMs();
         const leaderPreplan = planningPrompts
           ? buildLeaderDayPreplan(planningPrompts, requiredFormation, settings, layoutAttempt.plannerSalt)
           : null;
+        timing.leaderPlanningMs += nowMs() - leaderPlanningStarted;
         if (leaderPreplan && !leaderPreplan.ok) {
           lastLayoutFailure = leaderPreplan.reason;
           if (leaderPreplan.terminal) break;
@@ -321,6 +329,7 @@
         await yieldToBrowser();
 
         const promptMixPlan = buildPromptMixQuotaPlan({ basePools: dayBasePools, exactPlan, familyPlan });
+        const allocationStarted = nowMs();
         const generated = await generateCandidateForDay({
           basePools: dayBasePools,
           settings,
@@ -335,6 +344,7 @@
           date,
           token
         });
+        timing.allocationMs += nowMs() - allocationStarted;
 
         if (token !== generationToken) return;
         if (!generated.ok) {
@@ -358,7 +368,9 @@
           perfectScore: perfect.score,
           prompts
         };
+        const validationStarted = nowMs();
         const validation = validateChallenge(challenge, perfect, settings, exactPlan, familyPlan, promptMixPlan, generated.quotaRelaxed);
+        timing.validationMs += nowMs() - validationStarted;
         const source = buildChallengeSource(challenge);
 
         const result = {
@@ -422,12 +434,28 @@
         promptLabels: (result.prompts || []).map(prompt => prompt.label)
       })));
       if (elements.downloadButton) elements.downloadButton.disabled = false;
+      timing.totalMs = nowMs() - generationStarted;
+      lastTiming = Object.freeze({
+        leaderPlanningMs: roundMs(timing.leaderPlanningMs),
+        allocationMs: roundMs(timing.allocationMs),
+        validationMs: roundMs(timing.validationMs),
+        totalMs: roundMs(timing.totalMs)
+      });
       setStatus(`All ${DAYS_IN_BATCH} challenges passed. The calendar ZIP is ready for ${friendlyDate(batchDates[0])}–${friendlyDate(batchDates[batchDates.length - 1])}.`, "pass");
     } catch (error) {
       console.error(error);
       setStatus(`The seven-day generator stopped: ${error instanceof Error ? error.message : String(error)}`, "fail");
     } finally {
-      elements.generateButton.disabled = false;
+      if (!lastTiming) {
+        timing.totalMs = nowMs() - generationStarted;
+        lastTiming = Object.freeze({
+          leaderPlanningMs: roundMs(timing.leaderPlanningMs),
+          allocationMs: roundMs(timing.allocationMs),
+          validationMs: roundMs(timing.validationMs),
+          totalMs: roundMs(timing.totalMs)
+        });
+      }
+      if (!window.FPL_DAILY_GENERATOR_GUARD) elements.generateButton.disabled = false;
     }
   }
 
@@ -2164,6 +2192,7 @@
       familyCooldownRelaxedPositions: [...(result.familyCooldownRelaxedPositions || [])]
     })),
     getTopAnswerDayAudit: () => JSON.parse(JSON.stringify(weeklyTopAnswerDiversity())),
+    getTiming: () => lastTiming ? { ...lastTiming } : null,
     getManifest: () => batchManifest ? JSON.parse(JSON.stringify(batchManifest)) : null,
     getSources: () => batchResults.filter(result => result.source).map(result => ({ date: result.releaseDate, source: result.source })),
     addDaysIso,
