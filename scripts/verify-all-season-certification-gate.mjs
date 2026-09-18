@@ -22,7 +22,7 @@ assert(repositoryPool.includes('total: 0'), 'Repository production prompt pool i
 assert(!repositoryPool.includes('851'), 'All-season boundary still contains the retired 851-prompt population.');
 
 for (const token of [
-  'saved-library generation guard v3.2.1',
+  'saved-library generation guard v3.2.2',
   'async function buildCertifiedReservoir(reservoirRetry = 0, runtimeCache = new Map(), discouragedSourceIds = new Set())',
   'window.FPL_DAILY_GENERATION_PROMPT_POOL = prompts;',
   'const uniqueWeekIds = new Set(weekIds);',

@@ -3,7 +3,7 @@
   "assets": {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.23-exact-nationality"
+      "version": "4.0.24-hard-spacing-cert"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -91,11 +91,11 @@
     },
     "adminBatchCalendar": {
       "path": "js/admin-batch-calendar.js",
-      "version": "3.10.1-weekly-layout-fix"
+      "version": "3.11.0-hard-spacing"
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "3.2.1-exact-nationality"
+      "version": "3.2.2-hard-spacing"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
@@ -107,7 +107,7 @@
     },
     "adminGeneratorProductionCertificationV1": {
       "path": "js/admin-generator-production-certification-v1.js",
-      "version": "1.0.0"
+      "version": "1.0.1-evidence"
     }
   }
 }
