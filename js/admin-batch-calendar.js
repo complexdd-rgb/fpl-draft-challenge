@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine v3.10.1: preplanned fast-path date-identified seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.11.0: preplanned fast-path date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
@@ -1358,7 +1358,8 @@
         if (values.length > WEEKLY_LEADER_PREFERRED_DAY_CAP) thirdDayPlayers += 1;
         for (let index = 1; index < values.length; index += 1) if (values[index] - values[index - 1] < WEEKLY_LEADER_MIN_DAY_GAP) spacingViolations += 1;
       }
-      const score = spacingViolations * 10000 + thirdDayPlayers * 1000 + [...leaderDays.values()].reduce((sum, set) => sum + set.size, 0);
+      if (spacingViolations) continue;
+      const score = thirdDayPlayers * 1000 + [...leaderDays.values()].reduce((sum, set) => sum + set.size, 0);
       if (best && score >= best.score) continue;
       const perfectWeek = dayPrompts.every(promptsForDay => {
         const perfect = calculatePerfectXI(promptsForDay);
@@ -1392,7 +1393,7 @@
     return {
       ok: false,
       terminal: false,
-      reason: `No complete 77-prompt leader-day pre-plan satisfied formation, one nationality per day, anti-meta minimums, same-day semantic/top-answer uniqueness, an exact 11-unique-player perfect XI and the hard max-3 leader rule. Most constrained leaders: ${constrained || "none identified"}.`
+      reason: `No complete 77-prompt leader-day pre-plan satisfied formation, one nationality per day, anti-meta minimums, same-day semantic/top-answer uniqueness, hard 3-day leader spacing, an exact 11-unique-player perfect XI and the hard max-3 leader rule. Most constrained leaders: ${constrained || "none identified"}.`
     };
   }
 
@@ -1863,7 +1864,7 @@
 
     const topAnswerAudit = weeklyTopAnswerDiversity();
     const topAnswerSummary = topAnswerAudit
-      ? `<div class="batch-summary"><strong>Leader-day diversity: ${topAnswerAudit.uniquePlayers} unique top-answer players</strong><span>pre-planned before XI generation · 3-day spacing target · preferred max 2 days/player · hard max 3 · ${topAnswerAudit.hardCapBreachCount ? `${topAnswerAudit.hardCapBreachCount} hard-cap breach(es)` : "no 4+ day leaders"} · ${topAnswerAudit.spacingViolationCount ? `${topAnswerAudit.spacingViolationCount} spacing exception(s)` : "no spacing exceptions"} · same-day repeats allowed</span></div>`
+      ? `<div class="batch-summary"><strong>Leader-day diversity: ${topAnswerAudit.uniquePlayers} unique top-answer players</strong><span>pre-planned before XI generation · hard 3-day leader spacing · preferred max 2 days/player · hard max 3 · ${topAnswerAudit.hardCapBreachCount ? `${topAnswerAudit.hardCapBreachCount} hard-cap breach(es)` : "no 4+ day leaders"} · ${topAnswerAudit.spacingViolationCount ? `${topAnswerAudit.spacingViolationCount} spacing breach(es)` : "spacing rule passed"} · same-day repeats allowed</span></div>`
       : "";
     elements.review.innerHTML = `${topAnswerSummary}<div class="batch-table-wrap"><table class="batch-table">
       <thead><tr><th>Date</th><th>Challenge</th><th>Difficulty</th><th>Formation</th><th>Perfect</th><th>Anti-meta</th><th>Validation</th></tr></thead>
@@ -2200,6 +2201,7 @@
       issues: Array.isArray(result.issues) ? [...result.issues] : [],
       promptIds: [...(result.promptIds || [])],
       promptFamilies: [...(result.promptFamilies || [])],
+      antiMetaCount: Number(result.antiMetaCount || 0),
       promptMix: { ...(result.promptMix || {}) },
       promptMixTarget: { ...(result.promptMixTarget || {}) },
       promptMixQuotaRelaxed: Boolean(result.promptMixQuotaRelaxed),
