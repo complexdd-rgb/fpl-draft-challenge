@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.1.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.1.1.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
    with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.1.0";
+  const VERSION = "3.1.1";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -16,6 +16,7 @@
   const CUTOVER_WAIT_MS = 30000;
   const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;
   const EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4;
+  const WEEKLY_LEADER_HARD_PROMPT_CAP = 3;
   const SEMANTIC_WAIT_MS = 10000;
   const GENERATOR_V3_ATTEMPTS = 10;
   const GENERATOR_V3_POOL_MULTIPLIER = 3;
@@ -684,11 +685,18 @@
       if (isAntiMeta(candidate.prompt)) state.antiMetaCount += 1;
     }
 
+    function canCommitCandidate(state, candidate) {
+      if (familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET) return false;
+      const leader = leaderOf(candidate);
+      if (leader && Number(state.leaderCounts.get(leader) || 0) >= WEEKLY_LEADER_HARD_PROMPT_CAP) return false;
+      return !semantic?.canAddWeekly || semantic.canAddWeekly(candidate.prompt, state.semanticCounts, DAYS_IN_BATCH);
+    }
+
     function candidatesForPosition(position, state) {
       return pools[position].filter(candidate =>
         !candidate.invalid
         && !state.sourceIds.has(sourceIdOf(candidate))
-        && (!semantic?.canAddWeekly || semantic.canAddWeekly(candidate.prompt, state.semanticCounts, DAYS_IN_BATCH))
+        && canCommitCandidate(state, candidate)
       );
     }
 
@@ -731,6 +739,7 @@
         let committed = false;
         for (const candidate of choices) {
           if (!await certifyChoice(candidate, attempt, phase)) continue;
+          if (!canCommitCandidate(state, candidate)) continue;
           commit(state, candidate);
           committed = true;
           break;
@@ -768,6 +777,7 @@
         let committed = false;
         for (const candidate of choices) {
           if (!await certifyChoice(candidate, attempt, `${position} replacements`)) continue;
+          if (!canCommitCandidate(state, candidate)) continue;
           commit(state, candidate);
           committed = true;
           break;
@@ -780,11 +790,12 @@
 
       if (state.selected.length !== WEEKLY_PROMPTS || state.sourceIds.size !== WEEKLY_PROMPTS) continue;
       if (POSITION_ORDER.some(position => Number(state.positionCounts.get(position) || 0) !== positionNeeds[position])) continue;
-      if (state.nationalityCount < NATIONALITY_WEEKLY_TARGET || state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN || state.antiMetaCount < antiMetaRequired) continue;
+      if (state.nationalityCount !== NATIONALITY_WEEKLY_TARGET || state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN || state.antiMetaCount < antiMetaRequired) continue;
 
       const prompts = state.selected.map(item => item.prompt);
       const diversity = topAnswerDiversityAudit(prompts);
       const maxLeader = diversity.repeatedPlayers.length ? Math.max(...diversity.repeatedPlayers.map(item => item.count)) : 1;
+      if (maxLeader > WEEKLY_LEADER_HARD_PROMPT_CAP) continue;
       const familyLoads = [...state.familyCounts.values()];
       const familyConcentration = familyLoads.reduce((sum, count) => sum + count * count, 0);
       const recentCount = state.selected.filter(item => recentIds.has(sourceIdOf(item))).length;
@@ -793,7 +804,7 @@
 
       setStatus(`Generator v3 · scored attempt ${attempt + 1}/${GENERATOR_V3_ATTEMPTS} · ${diversity.uniquePlayers}/77 unique top answers…`, "working");
       await new Promise(resolve => setTimeout(resolve, 0));
-      if (diversity.repeatSlots <= 8 && maxLeader <= 3) break;
+      if (diversity.repeatSlots <= 8 && maxLeader <= WEEKLY_LEADER_HARD_PROMPT_CAP) break;
     }
 
     if (!best) throw new Error("Generator v3 exhausted the full saved-library lazy refill path before it could assemble a valid 77-prompt reservoir.");
@@ -822,6 +833,7 @@
       topAnswerDiversity: frozenTopAnswerDiversity,
       semanticDiversityVersion: String(window.FPL_DAILY_SEMANTIC_DIVERSITY?.version || ""),
       semanticWeeklyCap: DAYS_IN_BATCH,
+      leaderPromptCap: WEEKLY_LEADER_HARD_PROMPT_CAP,
       timings: Object.freeze({
         shortlistMs: roundMs(shortlistMs),
         runtimeCertificationMs: roundMs(runtimeCertificationMs),
