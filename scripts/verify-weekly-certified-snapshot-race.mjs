@@ -81,7 +81,8 @@ assert(batch.includes('getLastFailure: () => String(lastFailure || "")'), 'Batch
 assert(guard.includes('getLastFailure?.()'), 'Outer Daily guard still discards the batch generator failure reason.');
 assert(batch.includes('const perfect = calculatePerfectXI(promptsForDay);'), 'Leader preplanner does not reject days without an exact unique-player XI.');
 assert(batch.includes('if (!perfect.possible) return false;'), 'Leader preplanner can still hand off an impossible perfect XI.');
-assert(batch.includes('if (settings.maxPerfectScore > 0 && perfect.score > settings.maxPerfectScore) return false;'), 'Leader preplanner ignores the configured perfect-score ceiling.');
+assert(batch.includes('return !(settings.maxPerfectScore > 0 && perfect.score > settings.maxPerfectScore);'), 'Leader preplanner ignores the configured perfect-score ceiling.');
+assert(batch.includes('if (best && score >= best.score) continue;'), 'Leader preplanner runs expensive perfect-XI checks for non-competitive structural plans.');
 assert(guard.includes('runtimeCertificationMs'), 'Generator timing does not include runtime certification.');
 assert(guard.includes('reservoirSelectionMs'), 'Generator timing does not include reservoir selection.');
 assert(guard.includes('finalValidationMs'), 'Generator timing does not include final validation.');
