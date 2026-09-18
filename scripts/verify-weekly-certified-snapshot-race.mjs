@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v3.1.2',
+  'saved-library generation guard v3.1.3',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'async function buildCertifiedReservoir()',
@@ -69,6 +69,11 @@ assert(guard.includes('async function refillPosition(position, targetAdds = GENE
 assert(guard.includes('async function refillOpenPositions(state'), 'Generator v3 does not lazily refill special-floor candidate pools.');
 assert(guard.includes('source: "generator-v3-lazy-refill"'), 'Generator v3 plan identity is missing.');
 assert(guard.includes('score -= leaderLoad * leaderLoad * 30'), 'Generator v3 does not strongly penalise repeated top-answer leaders.');
+assert(guard.includes('const WEEKLY_LEADER_PROMPT_CAP = 3;'), 'Generator v3 reservoir does not mirror the batch hard max-three leader rule.');
+assert(guard.includes('function canCommitCandidate(state, candidate)'), 'Generator v3 has no hard reservoir leader admission guard.');
+assert(guard.includes('Number(state.leaderCounts.get(leader) || 0) < WEEKLY_LEADER_PROMPT_CAP'), 'Generator v3 can still admit a fourth prompt with the same top-answer leader.');
+assert(guard.includes('if (!canCommitCandidate(state, candidate)) continue;'), 'Generator v3 does not enforce the leader cap at candidate commit time.');
+assert(guard.includes('if (maxLeader > WEEKLY_LEADER_PROMPT_CAP) continue;'), 'Generator v3 can still accept an impossible max-4+ reservoir as best.');
 assert(guard.includes('score -= familyLoad * 5'), 'Generator v3 does not softly balance prompt families.');
 assert(guard.includes('excludedLoad * 35'), 'Exclude Top Result is not rewarded when it relieves an over-used leader.');
 assert(guard.includes('NATIONALITY_WEEKLY_TARGET'), 'Generator v3 lost the weekly nationality floor.');
