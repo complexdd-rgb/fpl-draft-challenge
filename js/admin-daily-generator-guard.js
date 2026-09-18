@@ -936,6 +936,7 @@
       runtimeCertified: 0,
       runtimeCertificationMs: 0,
       reservoirSelectionMs: 0,
+      reservoirAttempts: 0,
       leaderPlanningMs: 0,
       sevenDayAllocationMs: 0,
       batchValidationMs: 0,
@@ -979,7 +980,19 @@
       let certification = null;
       for (let weekAttempt = 0; weekAttempt < GENERATOR_V3_WEEK_ATTEMPTS; weekAttempt += 1) {
         setStatus(`Generator v3 · building certified 77-prompt reservoir ${weekAttempt + 1}/${GENERATOR_V3_WEEK_ATTEMPTS}…`, "working");
-        reservoir = await buildCertifiedReservoir(weekAttempt, sharedRuntimeCache, discouragedSourceIds);
+        timing.reservoirAttempts = weekAttempt + 1;
+        try {
+          reservoir = await buildCertifiedReservoir(weekAttempt, sharedRuntimeCache, discouragedSourceIds);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          const retryableBuildFailure = /exhausted the full saved-library lazy refill path/i.test(message);
+          if (retryableBuildFailure && weekAttempt < GENERATOR_V3_WEEK_ATTEMPTS - 1) {
+            setStatus(`Reservoir ${weekAttempt + 1}/${GENERATOR_V3_WEEK_ATTEMPTS} could not satisfy the stricter retry mix. Trying another certified reservoir…`, "working");
+            await new Promise(resolve => setTimeout(resolve, 0));
+            continue;
+          }
+          throw error;
+        }
         timing.shortlistMs += Number(reservoir.plan.timings?.shortlistMs || 0);
         timing.runtimeCertified += Number(reservoir.plan.runtimeCandidatesChecked || 0);
         timing.runtimeCertificationMs += Number(reservoir.plan.timings?.runtimeCertificationMs || 0);
