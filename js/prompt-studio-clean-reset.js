@@ -1,16 +1,16 @@
-/* FPL Draft Challenge — Prompt Studio permanent runtime v1.3.0
+/* FPL Draft Challenge — Prompt Studio permanent runtime v1.3.1
    Maintains a small staging library for future prompt-family work while Daily generation
    remains isolated behind the frozen curated authority. */
 (() => {
   "use strict";
 
-  if (window.FPL_PROMPT_STUDIO_CLEAN?.version === "1.3.0") return;
+  if (window.FPL_PROMPT_STUDIO_CLEAN?.version === "1.3.1") return;
 
-  const VERSION = "1.3.0";
+  const VERSION = "1.3.1";
   const STORE_KEY = "fplPromptStudioCleanLibraryV1";
   const RESET_MARKER_KEY = "fplPromptStudioCleanResetV1";
   const PAGE_SIZE = 20;
-  const DAILY_CURATED_COUNT = 4897;
+  const DAILY_CURATED_COUNT = 4959;
   const LEGACY_STORAGE_KEYS = [
     "fplChallengeStudioPromptManagerV1",
     "fplPromptQualityIncubatorV2",
