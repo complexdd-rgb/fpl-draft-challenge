@@ -97,6 +97,7 @@
   let generationToken = 0;
   let lastLeaderPreplan = null;
   let lastTiming = null;
+  let lastFailure = "";
   const nowMs = () => globalThis.performance?.now ? globalThis.performance.now() : Date.now();
   const roundMs = value => Math.round(Number(value || 0) * 10) / 10;
 
@@ -176,6 +177,7 @@
   async function generateSevenDayBatch() {
     clearBatch(false);
     lastLeaderPreplan = null;
+    lastFailure = "";
     const generationStarted = nowMs();
     const timing = { leaderPlanningMs: 0, allocationMs: 0, validationMs: 0, totalMs: 0 };
     lastTiming = null;
@@ -420,10 +422,11 @@
       }
 
       if (!layoutCompleted) {
+        lastFailure = `Batch layout failed after ${layoutAttempts.length} complete arrangement attempts. ${lastLayoutFailure}`;
         batchResults = [];
         virtualSchedule.splice(virtualScheduleBaselineLength);
         renderBatchReview();
-        setStatus(`Batch layout failed after ${layoutAttempts.length} complete arrangement attempts. ${lastLayoutFailure}`, "fail");
+        setStatus(lastFailure, "fail");
         return;
       }
 
@@ -444,7 +447,8 @@
       setStatus(`All ${DAYS_IN_BATCH} challenges passed. The calendar ZIP is ready for ${friendlyDate(batchDates[0])}–${friendlyDate(batchDates[batchDates.length - 1])}.`, "pass");
     } catch (error) {
       console.error(error);
-      setStatus(`The seven-day generator stopped: ${error instanceof Error ? error.message : String(error)}`, "fail");
+      lastFailure = `The seven-day generator stopped: ${error instanceof Error ? error.message : String(error)}`;
+      setStatus(lastFailure, "fail");
     } finally {
       if (!lastTiming) {
         timing.totalMs = nowMs() - generationStarted;
@@ -1329,7 +1333,11 @@
         if (days[dayIndex].antiMetaCount < settings.minAntiMeta) return false;
         if (semantic.dayIssues(promptsForDay).length) return false;
         if (sameDayLeaderRepeatCount(promptsForDay)) return false;
-        return Object.keys(requiredFormation).every(position => days[dayIndex].positionCounts[position] === requiredFormation[position]);
+        if (!Object.keys(requiredFormation).every(position => days[dayIndex].positionCounts[position] === requiredFormation[position])) return false;
+        const perfect = calculatePerfectXI(promptsForDay);
+        if (!perfect.possible) return false;
+        if (settings.maxPerfectScore > 0 && perfect.score > settings.maxPerfectScore) return false;
+        return true;
       });
       if (!valid) continue;
 
@@ -1378,7 +1386,7 @@
     return {
       ok: false,
       terminal: false,
-      reason: `No complete 77-prompt leader-day pre-plan satisfied formation, one nationality per day, anti-meta minimums, same-day semantic/top-answer uniqueness and the hard max-3 leader rule. Most constrained leaders: ${constrained || "none identified"}.`
+      reason: `No complete 77-prompt leader-day pre-plan satisfied formation, one nationality per day, anti-meta minimums, same-day semantic/top-answer uniqueness, an exact 11-unique-player perfect XI and the hard max-3 leader rule. Most constrained leaders: ${constrained || "none identified"}.`
     };
   }
 
@@ -2193,6 +2201,7 @@
     })),
     getTopAnswerDayAudit: () => JSON.parse(JSON.stringify(weeklyTopAnswerDiversity())),
     getTiming: () => lastTiming ? { ...lastTiming } : null,
+    getLastFailure: () => String(lastFailure || ""),
     getManifest: () => batchManifest ? JSON.parse(JSON.stringify(batchManifest)) : null,
     getSources: () => batchResults.filter(result => result.source).map(result => ({ date: result.releaseDate, source: result.source })),
     addDaysIso,
