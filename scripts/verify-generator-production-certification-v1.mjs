@@ -60,6 +60,7 @@ assert(asset?.path === 'js/admin-generator-production-certification-v1.js', 'Cen
 assert(asset?.version === '1.0.0', 'Production certification runner version drifted.');
 assert(manifest.assets?.adminDailyGeneratorGuard?.version === '3.2.1-exact-nationality', 'Production certification must remain pinned to Generator v3.2.1.');
 assert(guard.includes('familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET'), 'Generator can still admit nationality prompts after the exact weekly quota is filled.');
+assert(guard.includes('!(familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET)'), 'Generator still exposes excess nationality prompts as position candidates after quota fill.');
 assert(guard.includes('state.nationalityCount !== NATIONALITY_WEEKLY_TARGET'), 'Generator does not defensively require exactly seven nationality prompts before accepting a reservoir.');
 
 console.log("Generator v3.2.1 production certification runner boundary verified.");
