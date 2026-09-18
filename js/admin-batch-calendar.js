@@ -190,7 +190,8 @@
     const formationSlots = formationSequence(formation);
 
     if (!isIsoDate(startDate)) {
-      setStatus("Choose a valid first challenge date.", "fail");
+      lastFailure = "Choose a valid first challenge date.";
+      setStatus(lastFailure, "fail");
       return;
     }
 
@@ -209,7 +210,8 @@
     const promptSource = generationSnapshot || (Array.isArray(apiLibrary) ? apiLibrary : globalLibrary);
     const promptLibrary = [...new Map(promptSource.filter(prompt => prompt?.id).map(prompt => [String(prompt.id), prompt])).values()];
     if (!promptLibrary.length) {
-      setStatus("The prompt library is unavailable. Reload Studio before generating the week.", "fail");
+      lastFailure = "The prompt library is unavailable. Reload Studio before generating the week.";
+      setStatus(lastFailure, "fail");
       return;
     }
 
@@ -237,7 +239,8 @@
     const basePools = buildBasePools(promptLibrary, settings, new Set());
     const missingBase = Object.keys(requiredFormation).filter(position => basePools[position].length < requiredFormation[position]);
     if (missingBase.length) {
-      setStatus(`Not enough eligible ${missingBase.join(", ")} prompts for a seven-day batch. Adjust the answer limits.`, "fail");
+      lastFailure = `Not enough eligible ${missingBase.join(", ")} prompts for a seven-day batch. Adjust the answer limits.`;
+      setStatus(lastFailure, "fail");
       if (!window.FPL_DAILY_GENERATOR_GUARD) elements.generateButton.disabled = false;
       return;
     }
