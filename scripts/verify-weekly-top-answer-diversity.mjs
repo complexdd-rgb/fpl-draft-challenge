@@ -51,6 +51,8 @@ for (const token of [
   'semantic.canAddWeekly(candidate.prompt, state.semanticCounts, DAYS_IN_BATCH)',
   'Same-day top answers must be unique.',
   'const WEEKLY_LEADER_PROMPT_CAP = 3;',
+  'const GENERATOR_V3_WEEK_ATTEMPTS = 4;',
+  'effectiveLeaderPromptCap',
   'function canCommitCandidate(state, candidate)',
   'Number(state.leaderCounts.get(leader) || 0) < WEEKLY_LEADER_PROMPT_CAP',
   'if (maxLeader > WEEKLY_LEADER_PROMPT_CAP) continue;'
