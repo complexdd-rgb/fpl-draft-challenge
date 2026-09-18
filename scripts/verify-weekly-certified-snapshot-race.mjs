@@ -79,9 +79,9 @@ assert(guard.includes('Rebuilding a different certified 77'), 'Generator retry p
 assert(guard.includes('const sharedRuntimeCache = new Map();'), 'Runtime certification cache is not reused across alternate reservoirs.');
 assert(guard.includes('timing.reservoirAttempts = weekAttempt + 1;'), 'Generator timing does not record reservoir attempts.');
 assert(guard.includes('function canCommitCandidate(state, candidate)'), 'Generator v3 has no hard reservoir leader admission guard.');
-assert(guard.includes('Number(state.leaderCounts.get(leader) || 0) < WEEKLY_LEADER_PROMPT_CAP'), 'Generator v3 can still admit a fourth prompt with the same top-answer leader.');
+assert(guard.includes('Number(state.leaderCounts.get(leader) || 0) < effectiveLeaderPromptCap'), 'Generator v3 can still admit a fourth prompt with the same top-answer leader.');
 assert(guard.includes('if (!canCommitCandidate(state, candidate)) continue;'), 'Generator v3 does not enforce the leader cap at candidate commit time.');
-assert(guard.includes('if (maxLeader > WEEKLY_LEADER_PROMPT_CAP) continue;'), 'Generator v3 can still accept an impossible max-4+ reservoir as best.');
+assert(guard.includes('if (maxLeader > effectiveLeaderPromptCap) continue;'), 'Generator v3 can still accept an impossible max-4+ reservoir as best.');
 assert(guard.includes('score -= familyLoad * 5'), 'Generator v3 does not softly balance prompt families.');
 assert(guard.includes('excludedLoad * 35'), 'Exclude Top Result is not rewarded when it relieves an over-used leader.');
 assert(guard.includes('NATIONALITY_WEEKLY_TARGET'), 'Generator v3 lost the weekly nationality floor.');
