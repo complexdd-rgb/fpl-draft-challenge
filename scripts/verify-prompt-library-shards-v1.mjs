@@ -39,7 +39,7 @@ sandbox.window.dispatchEvent = () => true;
 vm.runInNewContext(source, sandbox, { filename:'prompt-library-shards-v1.js' });
 const shards = sandbox.window.FPL_PROMPT_LIBRARY_SHARDS_V1;
 assert(shards?.ready === true, 'Prompt Library Shards API did not initialise.');
-assert(shards.version === '1.1.0', 'Prompt Library Shards version mismatch.');
+assert(shards.version === '1.2.0', 'Prompt Library Shards version mismatch.');
 
 const records = [
   { id:'value_brazil_5_0', family:'value', position:'MID', variantGroup:'vg_mid_price_brazil', qualityStatus:'pass' },
@@ -69,16 +69,13 @@ assert(!source.includes('localStorage.setItem'), '100k+ shard persistence must n
 assert(bridge.includes('fpl:prompt-library-changed'), 'Promotion bridge does not listen to canonical-library changes.');
 assert(bridge.includes('prompt-promotion-v1'), 'Promotion bridge does not restrict auto-save to verified Promotion output.');
 
-assert(source.includes('promptLibraryDailyBalanceMount'), 'Daily Challenge saved-library balance mount is missing.');
-assert(source.includes('17-family balance and rotation coverage'), 'Daily Challenge family-balance heading is missing.');
-assert(source.includes('WEEKLY_PROMPT_SLOTS = 77'), 'Daily family share planning is not based on the seven-day 77-slot week.');
-assert(source.includes('Future published schedule'), 'Daily view is missing spoiler-safe future schedule context.');
-assert(source.includes('promptIds') && source.includes('FPL_CHALLENGE_MANIFEST'), 'Known used coverage is not grounded in challenge history.');
-assert(source.includes('future Supabase prompt IDs and family details are deliberately not included'), 'Future scheduled prompts are not explicitly protected from the usage view.');
+assert(!source.includes('promptLibraryDailyBalanceMount'), 'Retired Daily balance mount returned to shard storage.');
+assert(!source.includes('renderDaily'), 'Retired Daily balance renderer returned to shard storage.');
+assert(!source.includes('WEEKLY_PROMPT_SLOTS'), 'Shard storage still contains proportional weekly planning.');
+assert(!source.includes('FPL_REPOSITORY_CERTIFIED_PROMPT_POOL'), 'Shard storage still reads the obsolete pre-cutover production-pool state.');
 assert(!source.includes('FPL_DAILY_GENERATION_PROMPT_POOL ='), 'Shard storage must not itself take over Daily generation authority.');
+assert(!source.includes('if (manifest && canonicalLibrary().length === 0) await restoreSaved()'), 'Saved 100k+ source shards are still auto-restored into mutable staging on boot.');
+assert(source.includes('promptShardRestore'), 'Explicit restore control was lost while removing automatic restore.');
+assert(!css.includes('daily-library-balance') && !css.includes('daily-family-row'), 'Retired Daily balance CSS is still shipped with source-archive storage.');
 
-assert(css.includes('Active saved promoted library'), 'Daily balance display does not show the saved library as the active Daily source.');
-assert(css.includes('77-prompt reservoir is structurally and runtime verified'), 'Daily balance display does not explain the runtime verification boundary.');
-assert(css.includes('SOURCE ACTIVE'), 'Daily balance display is missing the active-source chip.');
-
-console.log('Prompt Library Shards v1.1.0 smoke test passed: durable shards plus Daily 17-family balance are present, with active generation authority explicitly delegated to the runtime-certified 77-prompt guard.');
+console.log('Prompt Library Shards v1.2.0 smoke test passed: durable promotion/source shards remain, while obsolete Daily balance and pre-cutover authority UI are removed.');

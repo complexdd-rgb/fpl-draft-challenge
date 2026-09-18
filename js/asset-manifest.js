@@ -6,15 +6,15 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.14-generator-core"
+      "version": "4.0.15-studio-authority-truth"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "3.0.0-post-curation"
+      "version": "3.0.1-authority-truth"
     },
     "promptStudioClean": {
       "path": "js/prompt-studio-clean-reset.js",
-      "version": "1.3.0-permanent-workflow"
+      "version": "1.3.1-authority-truth"
     },
     "promptStudioCleanCss": {
       "path": "admin-prompt-studio-clean.css",
@@ -50,7 +50,7 @@
     },
     "promptLibraryShardsV1": {
       "path": "js/prompt-library-shards-v1.js",
-      "version": "1.1.0"
+      "version": "1.2.0-source-archive"
     },
     "promptLibraryShardsBridgeV1": {
       "path": "js/prompt-library-shards-promotion-bridge-v1.js",
@@ -58,7 +58,7 @@
     },
     "promptLibraryShardsCssV1": {
       "path": "admin-prompt-library-shards-v1.css",
-      "version": "1.2.0-daily-authority"
+      "version": "1.3.0-source-archive"
     },
     "adminDailyCuratedAuthorityV1": {
       "path": "js/admin-daily-curated-authority-v1.js",

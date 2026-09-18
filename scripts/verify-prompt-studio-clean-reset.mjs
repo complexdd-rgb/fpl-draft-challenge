@@ -21,9 +21,9 @@ const promptLibrary = read('prompt-library.js')
 
 // The prompt-v2 architecture identity stays fixed while runtime asset versions may advance for safe generator hotfixes.
 assert(manifest.manifestVersion === '4.0.0-prompts-v2', 'Central manifest is not on the 18-family prompt-v2 boundary.');
-assert(manifest.assets?.assetManifestRuntime?.version === '4.0.14-generator-core', 'Asset manifest runtime cache tag is stale.');
-assert(manifest.assets?.studioBootstrap?.version === '3.0.0-post-curation', 'Studio bootstrap cache tag is stale.');
-assert(manifest.assets?.promptStudioClean?.version === '1.3.0-permanent-workflow', 'Prompt Studio permanent workflow cache tag is stale.');
+assert(manifest.assets?.assetManifestRuntime?.version === '4.0.15-studio-authority-truth', 'Asset manifest runtime cache tag is stale.');
+assert(manifest.assets?.studioBootstrap?.version === '3.0.1-authority-truth', 'Studio bootstrap cache tag is stale.');
+assert(manifest.assets?.promptStudioClean?.version === '1.3.1-authority-truth', 'Prompt Studio permanent workflow cache tag is stale.');
 assert(manifest.assets?.adminDailyCuratedAuthorityV1?.version === '2.0.0', 'Curated Daily authority cache tag is stale.');
 assert(manifest.assets?.adminDailyLibraryCutoverV1?.version === '1.1.0-exclude-top-result', 'Daily cutover cache tag is stale.');
 
@@ -60,7 +60,16 @@ const retiredFiles = [
   'scripts/trial-refinement-survivors.mjs',
   'scripts/verify-refinement-survivors.mjs',
   '.github/workflows/prompt-curation.yml',
-  '.github/workflows/refinement-incubator-audit.yml'
+  '.github/workflows/refinement-incubator-audit.yml',
+  'js/prompt-nationality-context-pack-v1.js',
+  'js/prompt-field-readiness.js',
+  'js/prompt-field-readiness-panel.js',
+  'js/historical-season-field-manifest.js',
+  'js/historical-prompt-unlock-audit.js',
+  'js/prompt-historical-safe-pack-v1.js',
+  'js/prompt-historical-era-pack-v1.js',
+  'scripts/check-historical-safe-prompt-pack.mjs',
+  '.github/workflows/historical-safe-prompts.yml'
 ];
 for (const path of retiredFiles) assert(!fs.existsSync(path), `Retired Prompt Studio/Phase 1 file still exists: ${path}`);
 
@@ -74,16 +83,21 @@ assert(bootstrap.includes('adminDailyCuratedAuthorityV1'), 'Bootstrap no longer 
 assert(bootstrap.includes('clean-v1-factory-quality-promotion-source-shards-curated-daily-authority-daily-cutover'), 'Permanent architecture marker drifted.');
 
 assert(generatedManifest.includes('4.0.0-prompts-v2'), 'Generated manifest is not on the 18-family prompt-v2 boundary.');
-assert(generatedManifest.includes('1.3.0-permanent-workflow'), 'Generated manifest is missing the permanent Prompt Studio cache tag.');
+assert(generatedManifest.includes('1.3.1-authority-truth'), 'Generated manifest is missing the permanent Prompt Studio cache tag.');
 assert(generatedManifest.includes('2.0.0'), 'Generated manifest is missing the curated authority v2 cache tag.');
 assert(!generatedManifest.includes('promptCurationEvidenceV1'), 'Generated manifest still advertises curation evidence.');
 assert(!generatedManifest.includes('promptCurationSurvivorBuilderV1'), 'Generated manifest still advertises survivor builder.');
 assert(!generatedManifest.includes('promptCurationReviewExportV1'), 'Generated manifest still advertises review export.');
 
-assert(promptStudio.includes('Prompt Studio permanent runtime v1.3.0'), 'Prompt Studio permanent runtime header is missing.');
+assert(promptStudio.includes('Prompt Studio permanent runtime v1.3.1'), 'Prompt Studio permanent runtime header is missing.');
 assert(promptStudio.includes('New-family safety boundary'), 'Prompt Studio no longer explains the future-family safety boundary.');
 assert(promptStudio.includes('Promotion + source archive'), 'Prompt Studio no longer exposes the maintained promotion/source step.');
-assert(promptStudio.includes('4,897') || promptStudio.includes('4897') || promptStudio.includes('4,959') || promptStudio.includes('4959'), 'Prompt Studio no longer surfaces the curated Daily boundary count.');
+assert(promptStudio.includes('4959'), 'Prompt Studio no longer surfaces the active 4,959-prompt Daily boundary.');
+assert(!promptStudio.includes('4897'), 'Prompt Studio UI/runtime still advertises the legacy 4,897-prompt authority.');
+assert(bootstrap.includes('dailyCuratedAuthority: "frozen-4959-v2"'), 'Studio bootstrap metadata does not identify the active 4,959/18-family authority.');
+assert(!bootstrap.includes('frozen-4897-v1'), 'Studio bootstrap still advertises the legacy authority.');
+assert(!shards.includes('17-family balance and rotation coverage'), 'Shard storage still renders the obsolete 17-family Daily balance.');
+assert(!shards.includes('Proportional family plan'), 'Shard storage still renders proportional family targets after Generator v3 cutover.');
 assert(!promptStudio.includes('Refinement Incubator'), 'Completed Refinement Incubator remains visible in Prompt Studio.');
 assert(!promptStudio.includes('Generate & download paired 144'), 'Phase 1 review UI remains visible in Prompt Studio.');
 assert(!promptStudio.includes('Full-library evidence layer'), 'Phase 1 evidence UI remains visible in Prompt Studio.');
