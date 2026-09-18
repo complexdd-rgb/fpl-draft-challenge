@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.1.0";
+  const VERSION = "3.1.1";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -78,6 +78,7 @@
   if (!core || !generateButton || !startDateInput) return;
 
   let generationRunning = false;
+  let scheduleRefreshPromise = null;
   let guardChip = null;
   let lastPlan = null;
   let lastTiming = null;
@@ -219,14 +220,20 @@
   }
 
   async function refreshServerSchedule() {
+    if (scheduleRefreshPromise) return scheduleRefreshPromise;
     const schedule = window.FPL_STUDIO_SCHEDULE;
     if (typeof schedule?.refresh !== "function") return false;
-    try {
-      await schedule.refresh();
-      return schedule.status === "ready";
-    } catch (_) {
-      return false;
-    }
+    scheduleRefreshPromise = (async () => {
+      try {
+        await schedule.refresh();
+        return schedule.status === "ready";
+      } catch (_) {
+        return false;
+      } finally {
+        scheduleRefreshPromise = null;
+      }
+    })();
+    return scheduleRefreshPromise;
   }
 
   async function waitForServerSchedule(timeoutMs = 10000) {
@@ -234,12 +241,15 @@
     setStatus("Refreshing the live Supabase schedule before generation…", "working");
     while (Date.now() < deadline) {
       const schedule = window.FPL_STUDIO_SCHEDULE;
+      if (schedule?.status === "ready") {
+        updateGuardChip();
+        return true;
+      }
+      if (schedule?.status === "unavailable") return false;
       if (typeof schedule?.refresh === "function") {
-        if (await refreshServerSchedule()) {
-          updateGuardChip();
-          return true;
-        }
-        if (schedule.status === "unavailable") return false;
+        const ready = await refreshServerSchedule();
+        if (ready) updateGuardChip();
+        return ready;
       }
       await new Promise(resolve => setTimeout(resolve, 100));
     }
