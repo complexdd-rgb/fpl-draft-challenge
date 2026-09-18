@@ -124,7 +124,7 @@
       if ((result.issues || []).length) issues.push(`${day}: ${result.issues[0]}`);
     }
     if (representedFamilies !== 18) issues.push(`Expected all 18 prompt families; got ${representedFamilies}.`);
-    if (Number(plan?.nationalityCount || 0) < DAYS) issues.push("Weekly nationality floor was not met.");
+    if (Number(plan?.nationalityCount || 0) !== DAYS) issues.push(`Weekly nationality count is ${Number(plan?.nationalityCount || 0)}; expected exactly ${DAYS}.`);
     if (Number(plan?.excludeTopResultTarget || 0) < 4) issues.push("Exclude Top Result weekly floor was not met.");
     if (Number(plan?.leaderPromptCap || 0) > 3) issues.push("Reservoir leader prompt cap exceeded 3.");
     if (!leaderAudit) issues.push("Top-answer day audit is unavailable.");
