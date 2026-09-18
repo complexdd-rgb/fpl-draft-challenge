@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine v3.9.0: preplanned fast-path date-identified seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.10.1: preplanned fast-path date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
