@@ -27,7 +27,10 @@ for (const token of [
   'fpl-generator-v3-production-certification',
   'fpl:generator-production-certification-complete',
   'Download certification JSON',
-  'This does not publish or alter the Supabase schedule.'
+  'This does not publish or alter the Supabase schedule.',
+  'event.target instanceof Element ? event.target.closest("#publishWeekSupabaseBtn") : null',
+  'event.stopImmediatePropagation();',
+  'Publishing is locked while the read-only production certification sweep is running.'
 ]) {
   assert(runner.includes(token), `Production certification runner is missing: ${token}`);
 }
