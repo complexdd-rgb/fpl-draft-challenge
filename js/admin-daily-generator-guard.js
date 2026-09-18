@@ -812,7 +812,7 @@
 
       setStatus(`Generator v3 · scored attempt ${attempt + 1}/${GENERATOR_V3_ATTEMPTS} · ${diversity.uniquePlayers}/77 unique top answers…`, "working");
       await new Promise(resolve => setTimeout(resolve, 0));
-      if (diversity.repeatSlots <= 8 && maxLeader <= 3) break;
+      if (diversity.repeatSlots <= 8 && maxLeader <= WEEKLY_LEADER_PROMPT_CAP) break;
     }
 
     if (!best) throw new Error("Generator v3 exhausted the full saved-library lazy refill path before it could assemble a valid 77-prompt reservoir.");
