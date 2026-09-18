@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v3.1.4',
+  'saved-library generation guard v3.2.0',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'async function buildCertifiedReservoir()',
@@ -70,6 +70,14 @@ assert(guard.includes('async function refillOpenPositions(state'), 'Generator v3
 assert(guard.includes('source: "generator-v3-lazy-refill"'), 'Generator v3 plan identity is missing.');
 assert(guard.includes('score -= leaderLoad * leaderLoad * 30'), 'Generator v3 does not strongly penalise repeated top-answer leaders.');
 assert(guard.includes('const WEEKLY_LEADER_PROMPT_CAP = 3;'), 'Generator v3 reservoir does not mirror the batch hard max-three leader rule.');
+assert(guard.includes('const GENERATOR_V3_WEEK_ATTEMPTS = 4;'), 'Generator v3 does not have a bounded alternate-reservoir retry budget.');
+assert(guard.includes('async function buildCertifiedReservoir(reservoirRetry = 0, runtimeCache = new Map(), discouragedSourceIds = new Set())'), 'Reservoir builder does not accept retry feedback.');
+assert(guard.includes('discouragedSourceIds.has(sourceId)'), 'Failed reservoir prompt IDs are not de-prioritised on retry.');
+assert(guard.includes('effectiveLeaderPromptCap'), 'Alternate reservoirs do not tighten leader pressure.');
+assert(guard.includes('/Batch layout failed after/i.test(batchFailure)'), 'Global seven-day layout failure does not trigger an alternate reservoir.');
+assert(guard.includes('Rebuilding a different certified 77'), 'Generator retry progress is not surfaced to Studio.');
+assert(guard.includes('const sharedRuntimeCache = new Map();'), 'Runtime certification cache is not reused across alternate reservoirs.');
+assert(guard.includes('timing.reservoirAttempts = weekAttempt + 1;'), 'Generator timing does not record reservoir attempts.');
 assert(guard.includes('function canCommitCandidate(state, candidate)'), 'Generator v3 has no hard reservoir leader admission guard.');
 assert(guard.includes('Number(state.leaderCounts.get(leader) || 0) < WEEKLY_LEADER_PROMPT_CAP'), 'Generator v3 can still admit a fourth prompt with the same top-answer leader.');
 assert(guard.includes('if (!canCommitCandidate(state, candidate)) continue;'), 'Generator v3 does not enforce the leader cap at candidate commit time.');
