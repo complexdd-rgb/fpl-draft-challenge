@@ -5,6 +5,7 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
 
 const runner = read("js/admin-generator-production-certification-v1.js");
 const admin = read("admin.html");
+const guard = read("js/admin-daily-generator-guard.js");
 const manifest = JSON.parse(read("config/asset-manifest.json"));
 
 for (const token of [
@@ -14,6 +15,7 @@ for (const token of [
   'batch.clear?.(false);',
   'uniqueIds.size !== WEEKLY_PROMPTS',
   'result.promptMix?.nationality',
+  'Number(plan?.nationalityCount || 0) !== DAYS',
   'result.antiMetaCount',
   'representedFamilies !== 18',
   'excludeTopResultTarget',
@@ -56,6 +58,9 @@ assert(bootstrapIndex < 0 || certIndex < bootstrapIndex, 'Production certificati
 const asset = manifest.assets?.adminGeneratorProductionCertificationV1;
 assert(asset?.path === 'js/admin-generator-production-certification-v1.js', 'Central asset manifest is missing the production certification runner.');
 assert(asset?.version === '1.0.0', 'Production certification runner version drifted.');
-assert(manifest.assets?.adminDailyGeneratorGuard?.version === '3.2.0-reservoir-retry', 'Production certification must remain pinned to Generator v3.2.0.');
+assert(manifest.assets?.adminDailyGeneratorGuard?.version === '3.2.1-exact-nationality', 'Production certification must remain pinned to Generator v3.2.1.');
+assert(guard.includes('familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET'), 'Generator can still admit nationality prompts after the exact weekly quota is filled.');
+assert(guard.includes('!(familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET)'), 'Generator still exposes excess nationality prompts as position candidates after quota fill.');
+assert(guard.includes('state.nationalityCount !== NATIONALITY_WEEKLY_TARGET'), 'Generator does not defensively require exactly seven nationality prompts before accepting a reservoir.');
 
-console.log("Generator v3.2 production certification runner boundary verified.");
+console.log("Generator v3.2.1 production certification runner boundary verified.");

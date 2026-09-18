@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.2.0.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.2.1.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
    with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.2.0";
+  const VERSION = "3.2.1";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -690,6 +690,7 @@
     }
 
     function canCommitCandidate(state, candidate) {
+      if (familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET) return false;
       const leader = leaderOf(candidate);
       return !leader || Number(state.leaderCounts.get(leader) || 0) < effectiveLeaderPromptCap;
     }
@@ -713,6 +714,7 @@
       return pools[position].filter(candidate =>
         !candidate.invalid
         && !state.sourceIds.has(sourceIdOf(candidate))
+        && !(familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET)
         && (!semantic?.canAddWeekly || semantic.canAddWeekly(candidate.prompt, state.semanticCounts, DAYS_IN_BATCH))
       );
     }
@@ -807,7 +809,7 @@
 
       if (state.selected.length !== WEEKLY_PROMPTS || state.sourceIds.size !== WEEKLY_PROMPTS) continue;
       if (POSITION_ORDER.some(position => Number(state.positionCounts.get(position) || 0) !== positionNeeds[position])) continue;
-      if (state.nationalityCount < NATIONALITY_WEEKLY_TARGET || state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN || state.antiMetaCount < antiMetaRequired) continue;
+      if (state.nationalityCount !== NATIONALITY_WEEKLY_TARGET || state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN || state.antiMetaCount < antiMetaRequired) continue;
 
       const prompts = state.selected.map(item => item.prompt);
       const diversity = topAnswerDiversityAudit(prompts);
