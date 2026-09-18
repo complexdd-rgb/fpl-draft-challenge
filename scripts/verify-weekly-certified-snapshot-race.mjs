@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v3.2.1',
+  'saved-library generation guard v3.2.2',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'async function buildCertifiedReservoir(reservoirRetry = 0, runtimeCache = new Map(), discouragedSourceIds = new Set())',
@@ -210,3 +210,7 @@ const badIds = badWeek.flatMap(day => day.promptIds);
 assert(new Set(badIds).size === 76, 'Duplicate-prompt fixture did not reproduce the weekly consumption failure.');
 
 console.log('Saved-library generation snapshot verified: immutable 77-prompt reservoir, semantic spread, date-only identity, full Supabase generation history and real-file-only GitHub fallback export are protected.');
+
+assert(batch.includes('antiMetaCount: Number(result.antiMetaCount || 0)'), 'Batch result clone does not expose anti-meta evidence to the certification runner.');
+assert(batch.includes('if (spacingViolations) continue;'), 'Leader preplanner can still accept a 3-day spacing breach.');
+assert(guard.includes('leaderAudit.spacingViolationCount'), 'Saved-library guard does not fail closed on spacing breaches.');
