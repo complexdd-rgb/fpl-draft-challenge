@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v3.1.0',
+  'saved-library generation guard v3.1.1',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'async function buildCertifiedReservoir()',
@@ -90,6 +90,9 @@ assert(shortlistStart >= 0 && shortlistEnd > shortlistStart, 'Shortlist material
 assert(!guard.slice(shortlistStart, shortlistEnd).includes('cutoverApi.materialiseRecord'), 'Shortlisting still compiles executable prompts before runtime certification.');
 assert(!batch.includes('Regenerate from a later rotation point rather than relaxing the nationality quota.'), 'Generator still recommends moving the fixed schedule date to escape a rotation conflict.');
 assert(guard.includes('window.FPL_STUDIO_SCHEDULE?.scheduled || []'), 'Weekly reservoir does not consume authoritative Supabase prompt history.');
+assert(guard.includes('let scheduleRefreshPromise = null;'), 'Generator does not coalesce concurrent schedule refreshes.');
+assert(guard.includes('if (scheduleRefreshPromise) return scheduleRefreshPromise;'), 'Generator can still start duplicate Supabase schedule refreshes.');
+assert(!guard.includes('if (await refreshServerSchedule()) {'), 'Schedule readiness loop can still repeatedly invoke the Supabase refresh.');
 assert(guard.includes('row?.manifest_entry'), 'Weekly reservoir does not read stored Supabase manifest prompt IDs.');
 assert(guard.includes('function generationHistorySnapshot(days = 7)'), 'Weekly reservoir does not build one shared used/recent history snapshot.');
 assert(guard.includes('...interleaveSemanticGroups(recycled)'), 'Weekly reservoir does not prefer older recycled prompts before recent ones.');
