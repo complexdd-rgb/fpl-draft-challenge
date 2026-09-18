@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.1.4.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.2.0.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
    with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.1.4";
+  const VERSION = "3.2.0";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -22,6 +22,7 @@
   const GENERATOR_V3_POOL_MULTIPLIER = 3;
   const GENERATOR_V3_POOL_BUFFER = 20;
   const GENERATOR_V3_REFILL_BATCH = 18;
+  const GENERATOR_V3_WEEK_ATTEMPTS = 4;
   const POSITION_ORDER = Object.freeze(["GK", "DEF", "MID", "FWD"]);
   const FORMATIONS = Object.freeze({
     "4-4-2": { GK: 1, DEF: 4, MID: 4, FWD: 2 },
@@ -494,7 +495,7 @@
     return certified;
   }
 
-  async function buildCertifiedReservoir() {
+  async function buildCertifiedReservoir(reservoirRetry = 0, runtimeCache = new Map(), discouragedSourceIds = new Set()) {
     const cutoverApi = window.FPL_DAILY_LIBRARY_CUTOVER_V1;
     const cutover = cutoverApi?.getState?.();
     if (!cutover?.ready) throw new Error(cutover?.reason || "The saved promoted library is not certified for Daily use.");
@@ -509,7 +510,10 @@
     const history = generationHistorySnapshot(7);
     const usedIds = history.used;
     const recentIds = history.recent;
-    const runtimeCache = new Map();
+    const retryIndex = Math.max(0, Number(reservoirRetry) || 0);
+    const effectiveLeaderPromptCap = retryIndex > 0 && retryIndex < GENERATOR_V3_WEEK_ATTEMPTS - 1
+      ? Math.max(2, WEEKLY_LEADER_PROMPT_CAP - 1)
+      : WEEKLY_LEADER_PROMPT_CAP;
     const buildStarted = nowMs();
     let shortlistMs = 0;
     let runtimeCertificationMs = 0;
@@ -671,7 +675,10 @@
       if (family === "nationality" && state.nationalityCount < NATIONALITY_WEEKLY_TARGET) score += 90;
       if (family === "exclude-top-result" && state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN) score += 105;
       if (isAntiMeta(candidate.prompt) && state.antiMetaCount < antiMetaRequired) score += 42;
-      score += (hash(`${sourceId}|${candidate.position}|${attempt}`) % 1000) / 10000;
+      if (retryIndex > 0 && discouragedSourceIds.has(sourceId)) score -= 18;
+      if (retryIndex > 0 && leaderLoad) score -= leaderLoad * retryIndex * 6;
+      const jitterScale = retryIndex > 0 ? 6 : 0.1;
+      score += ((hash(`${sourceId}|${candidate.position}|${attempt}|${retryIndex}`) % 1000) / 1000) * jitterScale;
       return score;
     }
 
@@ -684,7 +691,7 @@
 
     function canCommitCandidate(state, candidate) {
       const leader = leaderOf(candidate);
-      return !leader || Number(state.leaderCounts.get(leader) || 0) < WEEKLY_LEADER_PROMPT_CAP;
+      return !leader || Number(state.leaderCounts.get(leader) || 0) < effectiveLeaderPromptCap;
     }
 
     function commit(state, candidate) {
@@ -805,7 +812,7 @@
       const prompts = state.selected.map(item => item.prompt);
       const diversity = topAnswerDiversityAudit(prompts);
       const maxLeader = diversity.repeatedPlayers.length ? Math.max(...diversity.repeatedPlayers.map(item => item.count)) : 1;
-      if (maxLeader > WEEKLY_LEADER_PROMPT_CAP) continue;
+      if (maxLeader > effectiveLeaderPromptCap) continue;
       const familyLoads = [...state.familyCounts.values()];
       const familyConcentration = familyLoads.reduce((sum, count) => sum + count * count, 0);
       const recentCount = state.selected.filter(item => recentIds.has(sourceIdOf(item))).length;
@@ -814,7 +821,7 @@
 
       setStatus(`Generator v3 · scored attempt ${attempt + 1}/${GENERATOR_V3_ATTEMPTS} · ${diversity.uniquePlayers}/77 unique top answers…`, "working");
       await new Promise(resolve => setTimeout(resolve, 0));
-      if (diversity.repeatSlots <= 8 && maxLeader <= WEEKLY_LEADER_PROMPT_CAP) break;
+      if (diversity.repeatSlots <= 8 && maxLeader <= effectiveLeaderPromptCap) break;
     }
 
     if (!best) throw new Error("Generator v3 exhausted the full saved-library lazy refill path before it could assemble a valid 77-prompt reservoir.");
@@ -829,7 +836,8 @@
     const plan = Object.freeze({
       version: VERSION,
       source: "generator-v3-lazy-refill",
-      leaderPromptCap: WEEKLY_LEADER_PROMPT_CAP,
+      reservoirRetry: retryIndex + 1,
+      leaderPromptCap: effectiveLeaderPromptCap,
       promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
       total: WEEKLY_PROMPTS,
       targets: Object.freeze({ ...familyCounts }),
@@ -959,34 +967,56 @@
         return;
       }
 
-      setStatus("Generator v3 · building a fast scored 77-prompt reservoir…", "working");
-      const reservoir = await buildCertifiedReservoir();
-      timing.shortlistMs = Number(reservoir.plan.timings?.shortlistMs || 0);
-      timing.runtimeCertified = Number(reservoir.plan.runtimeCandidatesChecked || 0);
-      timing.runtimeCertificationMs = Number(reservoir.plan.timings?.runtimeCertificationMs || 0);
-      timing.reservoirSelectionMs = Number(reservoir.plan.timings?.reservoirSelectionMs || 0);
-      generationSnapshot = installGenerationSnapshot(reservoir);
-      setStatus(`77 prompts locked by Generator v3 · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · ${reservoir.plan.targets?.["exclude-top-result"] || 0} Exclude Top Result prompts · unused prompts preferred. Generating week…`, "working");
-
       const generator = window.FPL_STUDIO_BATCH_CALENDAR?.generate;
       if (typeof generator !== "function") {
         setStatus("The seven-day generator is unavailable. Reload Studio and try again.", "fail");
         return;
       }
 
-      await generator();
-      const batchTiming = window.FPL_STUDIO_BATCH_CALENDAR?.getTiming?.() || {};
-      timing.leaderPlanningMs = Number(batchTiming.leaderPlanningMs || 0);
-      timing.sevenDayAllocationMs = Number(batchTiming.allocationMs || batchTiming.totalMs || 0);
-      timing.batchValidationMs = Number(batchTiming.validationMs || 0);
-      const finalValidationStarted = nowMs();
-      const certification = certifyGeneratedResults(generationSnapshot);
-      timing.finalValidationMs = roundMs(nowMs() - finalValidationStarted);
-      if (!certification.ok) {
+      const sharedRuntimeCache = new Map();
+      const discouragedSourceIds = new Set();
+      let reservoir = null;
+      let certification = null;
+      for (let weekAttempt = 0; weekAttempt < GENERATOR_V3_WEEK_ATTEMPTS; weekAttempt += 1) {
+        setStatus(`Generator v3 · building certified 77-prompt reservoir ${weekAttempt + 1}/${GENERATOR_V3_WEEK_ATTEMPTS}…`, "working");
+        reservoir = await buildCertifiedReservoir(weekAttempt, sharedRuntimeCache, discouragedSourceIds);
+        timing.shortlistMs += Number(reservoir.plan.timings?.shortlistMs || 0);
+        timing.runtimeCertified += Number(reservoir.plan.runtimeCandidatesChecked || 0);
+        timing.runtimeCertificationMs += Number(reservoir.plan.timings?.runtimeCertificationMs || 0);
+        timing.reservoirSelectionMs += Number(reservoir.plan.timings?.reservoirSelectionMs || 0);
+        generationSnapshot = installGenerationSnapshot(reservoir);
+        setStatus(`77 prompts locked · reservoir ${weekAttempt + 1}/${GENERATOR_V3_WEEK_ATTEMPTS} · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · leader cap ${reservoir.plan.leaderPromptCap} · generating week…`, "working");
+
+        await generator();
+        const batchTiming = window.FPL_STUDIO_BATCH_CALENDAR?.getTiming?.() || {};
+        timing.leaderPlanningMs += Number(batchTiming.leaderPlanningMs || 0);
+        timing.sevenDayAllocationMs += Number(batchTiming.allocationMs || batchTiming.totalMs || 0);
+        timing.batchValidationMs += Number(batchTiming.validationMs || 0);
+        const finalValidationStarted = nowMs();
+        certification = certifyGeneratedResults(generationSnapshot);
+        timing.finalValidationMs += roundMs(nowMs() - finalValidationStarted);
+        if (certification.ok) break;
+
+        const batchFailure = String(window.FPL_STUDIO_BATCH_CALENDAR?.getLastFailure?.() || "");
+        const retryableLayoutFailure = /Batch layout failed after/i.test(batchFailure);
+        for (const prompt of reservoir.prompts || []) discouragedSourceIds.add(sourceIdFromPromptId(prompt?.sourcePromptId || prompt?.id));
+        try { generationSnapshot?.clear?.(); } catch (_) {}
+        generationSnapshot = null;
         window.FPL_STUDIO_BATCH_CALENDAR?.clear?.();
-        setStatus(`Saved-library certification failed: ${certification.reason} The batch was cleared and cannot be published.`, "fail");
+
+        if (!retryableLayoutFailure || weekAttempt >= GENERATOR_V3_WEEK_ATTEMPTS - 1) {
+          setStatus(`Saved-library certification failed: ${certification.reason} The batch was cleared and cannot be published.`, "fail");
+          return;
+        }
+        setStatus(`Reservoir ${weekAttempt + 1}/${GENERATOR_V3_WEEK_ATTEMPTS} was valid but could not be arranged across seven days. Rebuilding a different certified 77…`, "working");
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+
+      if (!reservoir || !certification?.ok) {
+        setStatus("Generator v3 exhausted its alternate certified reservoirs without finding an arrangeable seven-day week.", "fail");
         return;
       }
+
       updateGuardChip();
       const dayAudit = window.FPL_STUDIO_BATCH_CALENDAR?.getTopAnswerDayAudit?.();
       const diversityText = dayAudit
@@ -994,7 +1024,7 @@
         : "leader-day audit unavailable";
       timing.totalGenerationMs = roundMs(nowMs() - generationStarted);
       lastTiming = Object.freeze({ ...timing });
-      setStatus(`Seven-day generation passed: 77/77 unique prompts · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · ${timing.runtimeCertified} runtime-certified · ${(timing.totalGenerationMs / 1000).toFixed(1)}s total · ${diversityText}.`, "pass");
+      setStatus(`Seven-day generation passed: 77/77 unique prompts · reservoir ${reservoir.plan.reservoirRetry}/${GENERATOR_V3_WEEK_ATTEMPTS} · ${reservoir.plan.topAnswerDiversity.uniquePlayers}/77 unique top-answer players · ${timing.runtimeCertified} runtime-certified checks · ${(timing.totalGenerationMs / 1000).toFixed(1)}s total · ${diversityText}.`, "pass");
       window.dispatchEvent(new CustomEvent("fpl:daily-saved-library-week-certified", { detail: { ...reservoir.plan, timing: { ...lastTiming } } }));
     } catch (error) {
       console.error(error);
