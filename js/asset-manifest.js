@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.21-reservoir-retry"
+      "version": "4.0.22-generator-certification"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -107,6 +107,10 @@
     "repositoryCertifiedPromptPool": {
       "path": "js/repository-certified-prompt-pool.js",
       "version": "2.0.0-clean-reset"
+    },
+    "adminGeneratorProductionCertificationV1": {
+      "path": "js/admin-generator-production-certification-v1.js",
+      "version": "1.0.0"
     }
   };
   const assets = Object.freeze(Object.fromEntries(

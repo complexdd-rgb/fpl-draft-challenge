@@ -19,6 +19,7 @@ for (const key of [
   'adminStageOne',
   'adminBatchCalendar',
   'adminDailyGeneratorGuard',
+  'adminGeneratorProductionCertificationV1',
   'studioBootstrap',
   'leaderboardConfig'
 ]) {
