@@ -1,117 +1,43 @@
 import fs from 'node:fs';
-import vm from 'node:vm';
 
 const admin = fs.readFileSync('admin.html', 'utf8');
 const manifest = JSON.parse(fs.readFileSync('config/asset-manifest.json', 'utf8'));
+const guard = fs.readFileSync('js/admin-daily-generator-guard.js', 'utf8');
 const batchAsset = manifest.assets?.adminBatchCalendar;
-if (!batchAsset?.path || !batchAsset?.version) throw new Error('Central manifest is missing adminBatchCalendar ownership.');
+const guardAsset = manifest.assets?.adminDailyGeneratorGuard;
+if (!batchAsset?.path || !batchAsset?.version || !guardAsset?.path || !guardAsset?.version) {
+  throw new Error('Central manifest is missing Daily generator ownership.');
+}
 
-const expectedOrder = [
-  'nationality-enrichment.js?v=',
-  'js/prompt-nationality-context-pack-v1.js?v=',
-  'js/admin-weekly-nationality-readiness-gate.js?v=',
-  `${batchAsset.path}?v=${batchAsset.version}`
-];
-let lastIndex = -1;
-for (const asset of expectedOrder) {
-  const index = admin.indexOf(asset);
-  if (index < 0) throw new Error(`Missing cache-busted weekly nationality asset: ${asset}`);
-  if (index <= lastIndex) throw new Error(`Weekly nationality assets are not ordered safely: ${asset}`);
-  lastIndex = index;
+const enrichmentIndex = admin.indexOf('nationality-enrichment.js?v=');
+const batchIndex = admin.indexOf(`${batchAsset.path}?v=${batchAsset.version}`);
+const guardIndex = admin.indexOf(`${guardAsset.path}?v=${guardAsset.version}`);
+if (enrichmentIndex < 0 || batchIndex <= enrichmentIndex || guardIndex <= batchIndex) {
+  throw new Error('Nationality context, batch calendar and Generator v3 are not ordered safely.');
 }
 if (!admin.includes('<button id="generateWeekBtn" class="button primary" type="button" disabled aria-busy="true">')) {
   throw new Error('Seven-day Generate button is not fail-closed in admin.html.');
 }
-if (!admin.includes('data-nationality-enrichment data-loaded="true"')) {
-  throw new Error('Nationality enrichment is not marked as the canonical loaded Studio script.');
-}
-if (!admin.includes('data-nationality-context-prompt-pack-v1 data-loaded="true"')) {
-  throw new Error('Nationality context pack is not marked as the canonical loaded Studio script.');
-}
-
-const source = fs.readFileSync('js/admin-weekly-nationality-readiness-gate.js', 'utf8');
-for (const token of [
-  'pack?.ready === true',
-  'availableCount',
-  'REQUIRED_POSITIONS',
-  'button.disabled = true',
-  'button.disabled = false',
-  'fpl:prompt-library-changed',
-  'fpl:prompt-tools-ready',
-  'fpl:prompt-field-readiness-ready'
+for (const retired of [
+  'js/admin-weekly-nationality-readiness-gate.js',
+  'js/admin-weekly-nationality-quota-guard.js',
+  'data-nationality-context-prompt-pack-v1'
 ]) {
-  if (!source.includes(token)) throw new Error(`Weekly nationality gate is missing: ${token}`);
+  if (admin.includes(retired)) throw new Error(`Legacy nationality generation wiring remains in admin.html: ${retired}`);
+}
+for (const token of [
+  'function syncGenerationAvailability()',
+  'Boolean(cutoverState()?.ready)',
+  'window.FPL_STUDIO_SCHEDULE?.status === "ready"',
+  'generateButton.disabled = generationRunning || !ready',
+  'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
+  'familyOf(candidate) === "nationality"',
+  'syncGenerationAvailability();'
+]) {
+  if (!guard.includes(token)) throw new Error(`Generator v3 readiness/nationality ownership is missing: ${token}`);
+}
+if (guard.includes('FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1')) {
+  throw new Error('Generator v3 still depends on the retired staging nationality prompt pack.');
 }
 
-const listeners = new Map();
-const button = {
-  disabled: true,
-  dataset: {},
-  attrs: new Map([['aria-busy', 'true']]),
-  setAttribute(name, value) { this.attrs.set(name, String(value)); },
-  removeAttribute(name) { this.attrs.delete(name); }
-};
-const status = { textContent: '', dataset: { state: 'neutral' } };
-const window = {
-  FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1: undefined,
-  addEventListener(type, handler) {
-    if (!listeners.has(type)) listeners.set(type, new Set());
-    listeners.get(type).add(handler);
-  },
-  removeEventListener(type, handler) {
-    listeners.get(type)?.delete(handler);
-  },
-  dispatchEvent(event) {
-    for (const handler of [...(listeners.get(event.type) || [])]) handler(event);
-  }
-};
-const sandbox = {
-  window,
-  document: {
-    querySelector(selector) {
-      if (selector === '#generateWeekBtn') return button;
-      if (selector === '#batchStatus') return status;
-      return null;
-    }
-  },
-  setTimeout,
-  clearTimeout,
-  console
-};
-vm.createContext(sandbox);
-vm.runInContext(source, sandbox, { filename: 'js/admin-weekly-nationality-readiness-gate.js' });
-
-if (button.disabled !== true || button.dataset.nationalityReady !== 'false') {
-  throw new Error('Gate did not keep seven-day generation blocked while nationality pack was absent.');
-}
-
-window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1 = Object.freeze({
-  ready: true,
-  version: '1.0.2',
-  availableCount: 0,
-  positions: []
-});
-window.dispatchEvent({ type: 'fpl:prompt-library-changed' });
-if (button.disabled !== true) {
-  throw new Error('Gate incorrectly unlocked for a ready=true pack with zero usable nationality prompts.');
-}
-
-window.FPL_NATIONALITY_CONTEXT_PROMPT_PACK_V1 = Object.freeze({
-  ready: true,
-  version: '1.0.2',
-  availableCount: 7,
-  positions: ['DEF', 'MID', 'FWD']
-});
-window.dispatchEvent({ type: 'fpl:prompt-library-changed' });
-
-if (button.disabled !== false || button.dataset.nationalityReady !== 'true') {
-  throw new Error('Gate did not unlock seven-day generation after usable nationality prompts became ready.');
-}
-if (button.attrs.has('aria-busy')) {
-  throw new Error('Gate left aria-busy set after nationality readiness.');
-}
-if (window.FPL_WEEKLY_NATIONALITY_READINESS_GATE?.ready?.() !== true) {
-  throw new Error('Gate readiness API does not reflect real usable nationality-pack readiness.');
-}
-
-console.log(`Weekly nationality generation gate verified: empty ready packs remain blocked; real usable packs unlock; ${batchAsset.path} is manifest-owned at ${batchAsset.version}.`);
+console.log(`Generator readiness verified: the curated cutover + live schedule own the fail-closed Generate button, while nationality coverage comes from the frozen authority. ${batchAsset.path}@${batchAsset.version}`);
