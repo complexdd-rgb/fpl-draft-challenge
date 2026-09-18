@@ -1,0 +1,50 @@
+name: Generator production certification runner
+
+on:
+  pull_request:
+    paths:
+      - 'admin.html'
+      - 'config/asset-manifest.json'
+      - 'js/asset-manifest.js'
+      - 'js/admin-generator-production-certification-v1.js'
+      - 'scripts/build-asset-manifest-runtime.mjs'
+      - 'scripts/build-studio-cache-tags.mjs'
+      - 'scripts/verify-generator-production-certification-v1.mjs'
+      - '.github/workflows/generator-production-certification.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'admin.html'
+      - 'config/asset-manifest.json'
+      - 'js/asset-manifest.js'
+      - 'js/admin-generator-production-certification-v1.js'
+      - 'scripts/build-asset-manifest-runtime.mjs'
+      - 'scripts/build-studio-cache-tags.mjs'
+      - 'scripts/verify-generator-production-certification-v1.mjs'
+      - '.github/workflows/generator-production-certification.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check certification runner syntax
+        run: node --check js/admin-generator-production-certification-v1.js
+      - name: Verify read-only certification boundary
+        run: node scripts/verify-generator-production-certification-v1.mjs
+      - name: Verify generated asset manifest is current
+        run: |
+          node scripts/build-asset-manifest-runtime.mjs
+          git diff --exit-code -- js/asset-manifest.js
+      - name: Verify Studio cache tags are current
+        run: |
+          node scripts/build-studio-cache-tags.mjs
+          git diff --exit-code -- admin.html
+      - name: Check whitespace
+        run: git diff --check
