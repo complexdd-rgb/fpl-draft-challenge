@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.1.3.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.1.4.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
    with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.1.3";
+  const VERSION = "3.1.4";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -163,9 +163,11 @@
 
   function expectedNext() {
     const rows = combinedSchedule();
-    if (!rows.length) return { date: addDaysIso(londonToday(), 1), latest: null };
+    const tomorrow = addDaysIso(String(window.FPL_STUDIO_SCHEDULE?.today || londonToday()), 1);
+    if (!rows.length) return { date: tomorrow, latest: null };
     const latest = rows[rows.length - 1];
-    return { date: addDaysIso(latest.date, 1), latest };
+    const afterLatest = addDaysIso(latest.date, 1);
+    return { date: afterLatest > tomorrow ? afterLatest : tomorrow, latest };
   }
 
   function installGuardChip() {
