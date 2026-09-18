@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.18-weekly-layout-fix"
+      "version": "4.0.19-reservoir-leader-cap"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "3.1.2-weekly-layout-fix"
+      "version": "3.1.3-reservoir-leader-cap"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
