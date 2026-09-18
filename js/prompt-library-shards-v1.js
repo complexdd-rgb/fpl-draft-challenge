@@ -412,8 +412,7 @@
 
   async function initialiseStorage() {
     ensureMount();
-    const manifest = await readSavedManifest();
-    if (manifest && canonicalLibrary().length === 0) await restoreSaved();
+    await readSavedManifest();
   }
 
   function install() {
