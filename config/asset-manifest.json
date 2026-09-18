@@ -3,7 +3,7 @@
   "assets": {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.16-curated-cache"
+      "version": "4.0.17-single-schedule-refresh"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -95,7 +95,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "3.1.0-core-cleanup"
+      "version": "3.1.1-single-schedule-refresh"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
