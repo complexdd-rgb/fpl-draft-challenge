@@ -119,6 +119,14 @@ const addIsoDays = (iso, amount) => {
   return new Date(Date.UTC(year, month - 1, day + amount)).toISOString().slice(0, 10);
 };
 const dated = (start, count, source) => Array.from({ length: count }, (_, index) => ({ date: addIsoDays(start, index), source }));
+const nextPublishableDate = (latest, today) => {
+  const tomorrow = addIsoDays(today, 1);
+  if (!latest) return tomorrow;
+  const afterLatest = addIsoDays(latest, 1);
+  return afterLatest > tomorrow ? afterLatest : tomorrow;
+};
+assert(nextPublishableDate('2026-09-16', '2026-09-18') === '2026-09-19', 'Future publish boundary still chooses the stale 17 September gap instead of UK tomorrow.');
+assert(nextPublishableDate('2026-09-25', '2026-09-18') === '2026-09-26', 'Future publish boundary no longer advances beyond an already-future schedule.');
 const staleRepo = dated('2026-08-01', 17, 'repo');
 const authoritativeServer = dated('2026-08-18', 20, 'server');
 const newWeek = dated('2026-09-07', 7, 'batch');
