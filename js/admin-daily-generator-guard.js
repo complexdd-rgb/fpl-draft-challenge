@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.2.1.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.2.2.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
    with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.2.1";
+  const VERSION = "3.2.2";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -917,6 +917,17 @@
     }
     const missing = [...snapshot.ids].filter(id => !uniqueWeekIds.has(id));
     if (missing.length) return { ok: false, reason: `${missing.length} runtime-certified reservoir prompt(s) were not consumed by the week.` };
+
+    const leaderAudit = window.FPL_STUDIO_BATCH_CALENDAR?.getTopAnswerDayAudit?.();
+    if (!leaderAudit) return { ok: false, reason: "The generator did not expose a weekly top-answer audit." };
+    if (Number(leaderAudit.spacingViolationCount || 0) !== 0) {
+      const breach = leaderAudit.spacingViolations?.[0];
+      return { ok: false, reason: `The week breaks the hard 3-day top-answer spacing rule${breach?.name ? ` for ${breach.name}` : ""}.` };
+    }
+    if (Number(leaderAudit.hardCapBreachCount || 0) !== 0 || Number(leaderAudit.maxAppearanceDays || 0) > 3) {
+      return { ok: false, reason: "The week exceeds the hard max-three top-answer leader rule." };
+    }
+
     const topAnswerDiversity = topAnswerDiversityAudit(snapshot.prompts || []);
     return { ok: true, reason: "", topAnswerDiversity };
   }
