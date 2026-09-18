@@ -60,7 +60,16 @@ const retiredFiles = [
   'scripts/trial-refinement-survivors.mjs',
   'scripts/verify-refinement-survivors.mjs',
   '.github/workflows/prompt-curation.yml',
-  '.github/workflows/refinement-incubator-audit.yml'
+  '.github/workflows/refinement-incubator-audit.yml',
+  'js/prompt-nationality-context-pack-v1.js',
+  'js/prompt-field-readiness.js',
+  'js/prompt-field-readiness-panel.js',
+  'js/historical-season-field-manifest.js',
+  'js/historical-prompt-unlock-audit.js',
+  'js/prompt-historical-safe-pack-v1.js',
+  'js/prompt-historical-era-pack-v1.js',
+  'scripts/check-historical-safe-prompt-pack.mjs',
+  '.github/workflows/historical-safe-prompts.yml'
 ];
 for (const path of retiredFiles) assert(!fs.existsSync(path), `Retired Prompt Studio/Phase 1 file still exists: ${path}`);
 
