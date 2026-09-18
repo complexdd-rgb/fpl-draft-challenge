@@ -1,6 +1,6 @@
 # FPL Draft Challenge — Architecture Map
 
-Updated: 7 September 2026
+Updated: 18 September 2026
 
 This map records the current runtime ownership after the Prompt Studio clean reset and the Studio relevance cleanup. Historical migration scripts are not runtime architecture.
 
@@ -14,7 +14,7 @@ The repository has five active areas:
 4. **Weekly engine** — seven-day generation from the saved promoted library.
 5. **Historical data** — player-season database, field readiness and validation/certification tooling.
 
-Candidate tools must never silently change production membership. Daily generation consumes only the explicitly saved promoted family-shard snapshot after its generation guard certifies the weekly reservoir.
+Candidate tools must never silently change production membership. Daily generation consumes only the explicitly versioned **4,959-prompt / 18-family curated authority** after its generation guard certifies the weekly reservoir. The larger promoted source/archive remains provenance and promotion input, not direct Daily production membership.
 
 ## 2. Live game
 
@@ -76,14 +76,19 @@ The old V2/V3/V4 Prompt Studio runtimes, compatibility shims, prompt lazy-loader
 
 ## 5. Daily generation
 
+Production baseline: **Generator v3.2.3**.
+
 ```text
-saved promoted 17-family snapshot
-→ Daily library cutover validation
-→ weekly generation guard
-→ immutable 77-prompt reservoir
+frozen 4,959-prompt / 18-family curated authority
+→ Daily cutover validation + curated authority cache
+→ cheap evidence shortlist
+→ bounded runtime certification
+→ certified 77-prompt reservoir
+→ alternate-reservoir retry when a valid 77 cannot be arranged
 → seven dated 11-prompt challenges
-→ nationality / semantic / leader-day spacing policies
+→ exact nationality / semantic / leader-day spacing policies
 → exact unique-player perfect-XI validation
+→ final weekly certification
 → review + ZIP
 → explicit Supabase publish
 ```
@@ -92,14 +97,20 @@ Protected invariants:
 
 - 7 days × 11 prompts;
 - 77 unique prompt IDs in a successful week;
-- exactly one nationality prompt per day;
-- all required prompt families represented;
+- exactly **7 nationality prompts per reservoir** and exactly one nationality prompt per day;
+- all **18 curated prompt families** represented in every accepted reservoir;
+- Exclude Top Result and anti-meta weekly floors preserved;
 - formation totals remain exact;
 - semantic clashes are guarded;
-- same top-answer player may lead multiple prompts on one day, but cross-day repeats target a three-day gap;
+- same-day top-answer duplicates are forbidden;
+- repeated top-answer leaders must respect a hard **3-day spacing rule**;
 - two leader appearance days per player is preferred and three is the hard weekly maximum;
-- the perfect XI uses unique footballers;
-- partial/failed weeks cannot publish as valid packages.
+- the perfect XI uses 11 unique footballers;
+- a failed/unarrangeable certified reservoir may be replaced by a bounded alternate certified reservoir;
+- partial/failed weeks cannot publish as valid packages;
+- publishing is future-only and never occurs merely because generation succeeded.
+
+The production certification runner `js/admin-generator-production-certification-v1.js` is read-only. It runs the real generator across all seven supported formations, clears each shadow batch and cannot publish while the sweep is active. Generator v3.2.3 passed the 7/7 formation sweep on 18 September 2026.
 
 ### Browser rotation history
 
@@ -119,11 +130,17 @@ Publishing never occurs merely because a week was generated.
 
 ## 7. Certification boundary
 
-Full repository all-season prompt certification remains deliberately deferred after the clean reset. `repository-certified-prompt-pool.js` is pinned to zero production prompts.
+**Daily generation is production-certified at Generator v3.2.3.** The permanent evidence record is:
 
-`validation-engine.js` still supports an explicit frozen `FPL_VALIDATION_CERTIFICATION_PROMPT_POOL` snapshot so a future certification run can lock one deliberately supplied prompt set without reading mutable browser state mid-run.
+- `reports/generator-v3-2-3-production-certification-2026-09-18.md`
 
-Current CI protects this state through `scripts/verify-all-season-certification-gate.mjs`. Daily generation is separate: it uses the saved promoted library only after the 77-prompt weekly reservoir passes structural, runtime and semantic checks.
+The Daily certification sweep passed all seven supported formations against the 4,959-prompt / 18-family authority, including exact nationality, full family coverage, hard leader spacing and alternate-reservoir retry behaviour.
+
+Full **all-season historical database certification** remains a separate deferred boundary. `repository-certified-prompt-pool.js` remains pinned to zero production prompts for that future all-season repository-wide certification path.
+
+`validation-engine.js` still supports an explicit frozen `FPL_VALIDATION_CERTIFICATION_PROMPT_POOL` snapshot so a future all-season certification run can lock one deliberately supplied prompt set without reading mutable browser state mid-run.
+
+Current CI protects both boundaries through the Generator production-certification, weekly snapshot/diversity and all-season certification guards.
 
 ## 8. Generated wiring
 
@@ -153,12 +170,14 @@ Some older generation/quality modules remain because diagnostic and refinement s
 
 They are **not** Prompt Studio runtime owners. Offline diagnostic/refinement helpers are now loaded only by their direct analysis callers and are no longer advertised through the live asset manifest. Remove their source files only after those remaining diagnostics, audits and survivor-growth workflows have been migrated or retired.
 
-## 10. Remaining cleanup order
+## 10. Current execution order
 
-1. Continue auditing the remaining `js/admin-core.js` phases and remove only controllers with no surviving runtime caller.
-2. Audit offline legacy quality/generator helpers and their remaining diagnostic callers.
-3. Continue removing demonstrably dead migration/static residue without disturbing the clean runtime.
-4. Continue the Daily Challenge UI redesign on top of the now-clean runtime architecture.
-5. Return to Prompt Factory/Quality/Promotion survivor-library growth.
+1. Keep Generator v3.2.3 frozen unless a reproducible production regression is demonstrated.
+2. Return to **Historical Database Completion**, starting with the advanced 2010/11 single-sheet master and its remaining import/certification blockers.
+3. Continue through the unresolved historical-season frontier without re-harvesting already exhausted sources.
+4. Build the historical starting-price model only after the canonical master index is substantially frozen.
+5. Run true all-season production certification after historical database completion.
+
+Offline cleanup may continue only when it is clearly isolated from the frozen production runtime and does not displace the active historical-data phase.
 
 Update this document when a real runtime authority changes; do not keep historical migration architecture here.

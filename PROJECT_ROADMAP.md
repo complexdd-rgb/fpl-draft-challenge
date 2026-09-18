@@ -1,7 +1,7 @@
 # FPL Draft Challenge — Current Roadmap
 
-Updated: 8 September 2026
-Baseline: historical season audit after PR #160
+Updated: 18 September 2026
+Baseline: Generator v3.2.3 production certification after PR #192
 
 This file is the current project priority order. The architecture/relevance cleanup, prompt curation, Prompt Studio cleanup, Daily Challenge redesign and Live Challenge runtime cleanup are complete and must not be restarted unless a concrete regression is found.
 
@@ -13,14 +13,16 @@ This file is the current project priority order. The architecture/relevance clea
 - Prompt Builder / Factory is Live.
 - Quality Analyser is Live.
 - Promotion + durable source-shard storage is the maintained provenance path.
-- The original 134,765-prompt / 17-family promoted snapshot remains preserved as source provenance.
-- Phase 1 curation compressed that source to a frozen **4,897-prompt / 17-family** survivor package.
-- PR #153 made those exact 4,897 prompts the Daily generation authority while preserving the source snapshot separately.
-- A real seven-day / 77-prompt production export was verified as 77/77 sourced from the frozen curated package.
+- The promoted source/archive remains preserved separately as provenance.
+- The production Daily authority is the frozen **4,959-prompt / 18-family** curated package, including the Exclude Top Result family.
+- The original **4,897-prompt / 17-family** curated package remains preserved as immutable legacy provenance.
+- Real seven-day / 77-prompt production exports have been verified as 77/77 sourced from the frozen curated authority.
 - Prompt Studio cleanup is complete and guarded against retired-workspace regression.
 - Daily Challenge UI v1/v1.1 and the mobile follow-up fixes are merged.
 - PR #159 completed the Live Challenge KEEP / CONSOLIDATE / RETIRE / DELETE sweep and added permanent cleanup regression coverage.
 - PR #160 froze the season-by-season historical status audit and made Historical Database Completion the current phase.
+- PRs #181–#192 completed the Generator v3 simplification/reliability pass and closed the discovered reservoir, nationality, spacing and family-coverage regressions.
+- Generator **v3.2.3** passed the full **7/7 formation production-certification sweep** against the 4,959-prompt / 18-family authority and is now the frozen Daily production baseline.
 - Daily generation, 77-prompt weekly reservoir, nationality/semantic-diversity logic, publishing, leaderboard and Supabase behaviour remain protected.
 
 ## 1. Prompt curation and compression — COMPLETE
@@ -32,17 +34,18 @@ Completed sequence:
 3. representative 144-prompt calibration;
 4. full 134,765-prompt evidence pass;
 5. decorative/exact-equivalent/material-lane compression;
-6. frozen survivor decision at 4,897 prompts;
-7. exact selector package and cryptographic verification;
-8. browser shadow regression across all supported formations;
-9. explicit Daily authority cutover;
-10. real generated-week verification.
+6. frozen original survivor decision at 4,897 prompts / 17 families;
+7. explicit versioned extension to the current 4,959-prompt / 18-family Daily authority;
+8. exact selector package and cryptographic verification;
+9. browser shadow/production regression across all supported formations;
+10. explicit Daily authority cutover and real generated-week verification.
 
 Permanent references:
 
 - curation rules/evidence history: `PROMPT_CURATION_POLICY.md`;
 - future family process: `PROMPT_FAMILY_ONBOARDING.md`;
-- frozen selector package: `prompt-library-curated-v1/`.
+- current curated selector package: `prompt-library-curated-v2/`;
+- Generator production freeze evidence: `reports/generator-v3-2-3-production-certification-2026-09-18.md`.
 
 Completed Phase 1 curation/review/incubator runtime should remain retired from Prompt Studio. Future families use the maintained Factory → Quality → Promotion/source archive → explicit versioned curated-authority update path.
 
@@ -77,12 +80,13 @@ Do **not** restart the historical programme from 1993/94. ENGZIP / FootballSquad
 
 Current execution order:
 
-1. **finish 1996/97 from the physically verified 658-player master**: StatBunker SeasonAppearances is now 20/20 club complete and reconciles to 8,360 starts; close the remaining 30-goal residual and nationality review before freezing the season;
-2. finish 2007/08, the first clearly unfinished season in surviving artifact evidence;
-3. close 2008/09, 2009/10 and 2010/11 by verifying their latest masters, genuine FPL-native gaps, price state and import/certification disposition — do not re-harvest already exhausted bulk sources;
-4. verify the final canonical artifacts for 2002/03–2004/05;
-5. verify the claimed-complete early masters rather than rebuilding them;
-6. create one definitive frozen historical-master index with one authoritative single-sheet master per season.
+1. **finish 2010/11 first**: resume from the latest one-sheet master and current FPL-native recovery checkpoint, quantify only the remaining genuine blockers, close what is realistically recoverable, then import/certify without re-harvesting exhausted bulk sources;
+2. finish 1996/97 from the physically verified 658-player master: close the remaining 30-goal residual and nationality review before freezing the season;
+3. finish 2007/08, the first clearly unfinished older season in surviving artifact evidence;
+4. close/verify 2008/09 and 2009/10 from their latest masters and existing harvested evidence;
+5. verify the final canonical artifacts for 2002/03–2004/05;
+6. verify the claimed-complete early masters rather than rebuilding them;
+7. create one definitive frozen historical-master index with one authoritative single-sheet master per season.
 
 1996/97 safeguards:
 
@@ -195,7 +199,7 @@ Old recovery/staging workbooks are provenance. Do not discard a superseded workb
 
 - Do not restart broad architecture cleanup after PR #137 without a proven blocker/regression.
 - Do not restore completed Phase 1 curation/refinement runtime to Prompt Studio just to add future families.
-- Preserve the current 4,897-prompt Daily authority while historical work proceeds.
+- Preserve the frozen **4,959-prompt / 18-family Generator v3.2.3 Daily authority** while historical work proceeds.
 - New prompt families must follow `PROMPT_FAMILY_ONBOARDING.md` and require an explicit versioned curated-authority update before entering Daily.
 - Prefer deterministic, auditable transformations over manual hidden state.
 - Keep source exports/workbooks immutable as provenance where practical.
