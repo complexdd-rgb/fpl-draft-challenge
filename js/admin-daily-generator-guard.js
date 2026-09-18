@@ -328,7 +328,7 @@
     return { used, recent };
   }
 
-  function semanticTags(  function semanticTags(record, prompt) {
+  function semanticTags(record, prompt) {
     const tags = new Set(Array.isArray(prompt?.tags) ? prompt.tags : []);
     tags.add(`family:${record.family}`);
     if (record.family === "nationality") tags.add("nationality");
@@ -439,7 +439,7 @@
     };
   }
 
-  async function certifyCandidate(  async function certifyCandidate(record, position, limits, cutoverApi, cache) {
+  async function certifyCandidate(record, position, limits, cutoverApi, cache) {
     const key = `${record.id}|${position}`;
     if (cache.has(key)) return cache.get(key);
 
@@ -481,7 +481,7 @@
     return certified;
   }
 
-  async function buildCertifiedReservoir() {  async function buildCertifiedReservoir() {
+  async function buildCertifiedReservoir() {
     const cutoverApi = window.FPL_DAILY_LIBRARY_CUTOVER_V1;
     const cutover = cutoverApi?.getState?.();
     if (!cutover?.ready) throw new Error(cutover?.reason || "The saved promoted library is not certified for Daily use.");
