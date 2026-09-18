@@ -59,7 +59,7 @@ assert(bootstrapIndex < 0 || certIndex < bootstrapIndex, 'Production certificati
 const asset = manifest.assets?.adminGeneratorProductionCertificationV1;
 assert(asset?.path === 'js/admin-generator-production-certification-v1.js', 'Central asset manifest is missing the production certification runner.');
 assert(asset?.version === '1.0.1-evidence', 'Production certification runner version drifted.');
-assert(manifest.assets?.adminDailyGeneratorGuard?.version === '3.2.2-hard-spacing', 'Production certification must remain pinned to Generator v3.2.2.');
+assert(manifest.assets?.adminDailyGeneratorGuard?.version === '3.2.3-all-family-floor', 'Production certification must remain pinned to Generator v3.2.3.');
 assert(manifest.assets?.adminBatchCalendar?.version === '3.11.0-hard-spacing', 'Production certification must remain pinned to the hard-spacing batch calendar.');
 assert(guard.includes('familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET'), 'Generator can still admit nationality prompts after the exact weekly quota is filled.');
 assert(guard.includes('!(familyOf(candidate) === "nationality" && state.nationalityCount >= NATIONALITY_WEEKLY_TARGET)'), 'Generator still exposes excess nationality prompts as position candidates after quota fill.');
@@ -68,5 +68,8 @@ const batch = read("js/admin-batch-calendar.js");
 assert(batch.includes('antiMetaCount: Number(result.antiMetaCount || 0)'), 'Batch getResults does not expose anti-meta certification evidence.');
 assert(batch.includes('if (spacingViolations) continue;'), 'Batch leader preplanner can still accept a spacing breach.');
 assert(guard.includes('leaderAudit.spacingViolationCount'), 'Generator final certification does not fail closed on spacing breaches.');
+assert(guard.includes('async function reserveFamilyCoverage(state, attempt)'), 'Generator does not reserve all curated prompt families.');
+assert(guard.includes('expectedFamilies.some(family => Number(state.familyCounts.get(family) || 0) === 0)'), 'Generator can accept a reservoir with a missing curated family.');
+assert(guard.includes('familyCoverageTarget: expectedFamilies.length'), 'Generator family coverage target is not exposed to certification.');
 
-console.log("Generator v3.2.2 production certification runner boundary verified.");
+console.log("Generator v3.2.3 production certification runner boundary verified.");
