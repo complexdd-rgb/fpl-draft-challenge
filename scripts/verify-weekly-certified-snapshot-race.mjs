@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v3.1.3',
+  'saved-library generation guard v3.1.4',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'async function buildCertifiedReservoir()',
@@ -106,6 +106,11 @@ assert(guard.includes('if (scheduleRefreshPromise) return scheduleRefreshPromise
 assert(!guard.includes('if (await refreshServerSchedule()) {'), 'Schedule readiness loop can still repeatedly invoke the Supabase refresh.');
 assert(guard.includes('row?.manifest_entry'), 'Weekly reservoir does not read stored Supabase manifest prompt IDs.');
 assert(guard.includes('function generationHistorySnapshot(days = 7)'), 'Weekly reservoir does not build one shared used/recent history snapshot.');
+assert(guard.includes('const tomorrow = addDaysIso(String(window.FPL_STUDIO_SCHEDULE?.today || londonToday()), 1);'), 'Generator does not floor the next publish date at UK tomorrow.');
+assert(guard.includes('return { date: afterLatest > tomorrow ? afterLatest : tomorrow, latest };'), 'Generator can still choose a past/today schedule date when Supabase only accepts future dates.');
+assert(publish.includes('Supabase protects today and past challenge dates.'), 'Studio publish preflight does not explain the future-only server boundary.');
+assert(publishEdge.includes('function databaseError(error: unknown, operation: string)'), 'Daily publish Edge Function does not normalize Supabase/Postgres errors.');
+assert(publishEdge.includes('Challenge publishing failed'), 'Daily publish RPC errors can still collapse to the generic leaderboard fallback.');
 assert(guard.includes('...interleaveSemanticGroups(recycled)'), 'Weekly reservoir does not prefer older recycled prompts before recent ones.');
 assert(batch.includes('settings.avoidRecent && !generationSnapshot'), 'Guarded batch still applies a second hard browser freshness block after reservoir certification.');
 
