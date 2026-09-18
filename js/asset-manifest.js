@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.13-lazy-refill"
+      "version": "4.0.14-generator-core"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -94,11 +94,11 @@
     },
     "adminBatchCalendar": {
       "path": "js/admin-batch-calendar.js",
-      "version": "3.9.0-leader-uniqueness"
+      "version": "3.10.0-generation-timing"
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "3.0.3-lazy-refill"
+      "version": "3.1.0-core-cleanup"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",

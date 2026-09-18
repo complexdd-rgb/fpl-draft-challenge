@@ -46,10 +46,13 @@ if (minimumDays(13, 4) <= 3) throw new Error("Thirteen defender-led prompts shou
 for (const token of [
   'const EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4;',
   'function excludedTopPlayerId(prompt)',
-  'rightReliefLoad - leftReliefLoad',
-  'WEEKLY_LEADER_PREFERRED_PROMPT_CAP = 2',
-  'WEEKLY_LEADER_FALLBACK_PROMPT_CAP = 3',
+  'score -= leaderLoad * leaderLoad * 30',
+  'score += excludedLoad * 35',
+  'semantic.canAddWeekly(candidate.prompt, state.semanticCounts, DAYS_IN_BATCH)',
   'Same-day top answers must be unique.'
 ]) {
   if (!guard.includes(token)) throw new Error(`Missing reservoir uniqueness / exclusion-relief check: ${token}`);
+}
+for (const retired of ['WEEKLY_LEADER_PREFERRED_PROMPT_CAP', 'WEEKLY_LEADER_FALLBACK_PROMPT_CAP', 'rightReliefLoad - leftReliefLoad']) {
+  if (guard.includes(retired)) throw new Error(`Retired v2 reservoir solver residue remains: ${retired}`);
 }

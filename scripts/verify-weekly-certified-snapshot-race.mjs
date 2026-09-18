@@ -10,12 +10,12 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v3.0.3',
+  'saved-library generation guard v3.1.0',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
-  'function allocateFamilyTargets(familyIndex, excludeTarget = EXCLUDE_TOP_RESULT_WEEKLY_MIN, balanceOffset = 0)',
   'async function buildCertifiedReservoir()',
-  'function solveFamilyPositionFlow(',
+  'function generationHistorySnapshot(days = 7)',
+  'function syncGenerationAvailability()',
   'window.FPL_DAILY_GENERATION_PROMPT_POOL = prompts;',
   'window.FPL_DAILY_GENERATION_FAMILY_PLAN = reservoir.plan;',
   'const uniqueWeekIds = new Set(weekIds);',
@@ -75,10 +75,23 @@ assert(guard.includes('NATIONALITY_WEEKLY_TARGET'), 'Generator v3 lost the weekl
 assert(guard.includes('EXCLUDE_TOP_RESULT_WEEKLY_MIN'), 'Generator v3 lost the Exclude Top Result floor.');
 assert(!guard.includes('.sort((heft, right) =>'), 'Generator guard contains the broken leader-repair sorter spelling.');
 assert(guard.includes('Same-day top answers must be unique.'), 'Final weekly certification does not reject same-day repeated leaders.');
+assert(guard.includes('getLastTiming: () => lastTiming'), 'Generator does not expose run timing instrumentation.');
+assert(batch.includes('getTiming: () => lastTiming'), 'Batch generator does not expose allocation timing instrumentation.');
+assert(guard.includes('runtimeCertificationMs'), 'Generator timing does not include runtime certification.');
+assert(guard.includes('reservoirSelectionMs'), 'Generator timing does not include reservoir selection.');
+assert(guard.includes('finalValidationMs'), 'Generator timing does not include final validation.');
+for (const retired of ['function allocateFamilyTargets(', 'function repairLeaderCap(', 'function searchLeaderCappedSelection(', 'function assignAnyRecords(', 'function solveFamilyPositionFlow(']) {
+  assert(!guard.includes(retired), `Retired pre-v3 solver code remains: ${retired}`);
+}
+assert(!guard.includes('deferred[position].shift()'), 'Lazy refill still removes from the front of arrays.');
+const shortlistStart = guard.indexOf('function materialiseShortlistCandidate(record, position)');
+const shortlistEnd = guard.indexOf('// Shortlist cheaply', shortlistStart);
+assert(shortlistStart >= 0 && shortlistEnd > shortlistStart, 'Shortlist materialiser block is missing.');
+assert(!guard.slice(shortlistStart, shortlistEnd).includes('cutoverApi.materialiseRecord'), 'Shortlisting still compiles executable prompts before runtime certification.');
 assert(!batch.includes('Regenerate from a later rotation point rather than relaxing the nationality quota.'), 'Generator still recommends moving the fixed schedule date to escape a rotation conflict.');
 assert(guard.includes('window.FPL_STUDIO_SCHEDULE?.scheduled || []'), 'Weekly reservoir does not consume authoritative Supabase prompt history.');
 assert(guard.includes('row?.manifest_entry'), 'Weekly reservoir does not read stored Supabase manifest prompt IDs.');
-assert(guard.includes('function knownRecentSourceIds(days = 7)'), 'Weekly reservoir does not isolate the most recent seven days for late reuse.');
+assert(guard.includes('function generationHistorySnapshot(days = 7)'), 'Weekly reservoir does not build one shared used/recent history snapshot.');
 assert(guard.includes('...interleaveSemanticGroups(recycled)'), 'Weekly reservoir does not prefer older recycled prompts before recent ones.');
 assert(batch.includes('settings.avoidRecent && !generationSnapshot'), 'Guarded batch still applies a second hard browser freshness block after reservoir certification.');
 
@@ -157,30 +170,5 @@ const badWeek = goodWeek.map(day => ({ ...day, promptIds: [...day.promptIds] }))
 badWeek[6].promptIds[10] = badWeek[0].promptIds[0];
 const badIds = badWeek.flatMap(day => day.promptIds);
 assert(new Set(badIds).size === 76, 'Duplicate-prompt fixture did not reproduce the weekly consumption failure.');
-
-// The balanced plan has a hard nationality floor of seven, a deliberate Exclude Top Result
-// floor, and at least one slot for every other active family. Curated-library size is not a quota.
-const familyWeights = [
-  ['nationality', 120], ['season-stats', 400], ['position-stat', 350], ['exact-stats', 300],
-  ['combined-stats', 280], ['club-stat', 250], ['league-position', 220], ['promoted-clubs', 90],
-  ['relegated-clubs', 90], ['champions', 80], ['career-longevity', 180], ['club-count', 160],
-  ['manager', 140], ['anti-meta', 200], ['exclude-top-result', 62], ['value', 170], ['minutes-role', 210], ['composite-story', 190]
-];
-const allocations = Object.fromEntries(familyWeights.map(([family]) => [family, 1]));
-allocations.nationality = 7;
-allocations['exclude-top-result'] = 4;
-const regularFamilies = familyWeights.map(([family]) => family).filter(family => !['nationality', 'exclude-top-result'].includes(family)).sort();
-let remaining = 77 - Object.values(allocations).reduce((sum, value) => sum + value, 0);
-while (remaining > 0) {
-  regularFamilies.sort((left, right) => allocations[left] - allocations[right] || left.localeCompare(right));
-  allocations[regularFamilies[0]] += 1;
-  remaining -= 1;
-}
-assert(Object.values(allocations).reduce((sum, value) => sum + value, 0) === 77, 'Balanced family allocation does not sum to 77.');
-assert(allocations.nationality === 7, 'Nationality target is not fixed at seven prompts per week.');
-assert(allocations['exclude-top-result'] === 4, 'Exclude Top Result floor is not retained in balanced allocation.');
-assert(regularFamilies.every(family => allocations[family] >= 1), 'A non-empty promoted family lost its weekly representation floor.');
-const regularCounts = regularFamilies.map(family => allocations[family]);
-assert(Math.max(...regularCounts) - Math.min(...regularCounts) <= 1, 'Balanced family allocation is still behaving like a proportional weighting.');
 
 console.log('Saved-library generation snapshot verified: immutable 77-prompt reservoir, semantic spread, date-only identity, full Supabase generation history and real-file-only GitHub fallback export are protected.');
