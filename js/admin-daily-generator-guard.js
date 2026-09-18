@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.0.2.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.0.3.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
    with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.0.2";
+  const VERSION = "3.0.3";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -23,6 +23,7 @@
   const GENERATOR_V3_ATTEMPTS = 10;
   const GENERATOR_V3_POOL_MULTIPLIER = 3;
   const GENERATOR_V3_POOL_BUFFER = 20;
+  const GENERATOR_V3_REFILL_BATCH = 18;
   const POSITION_ORDER = Object.freeze(["GK", "DEF", "MID", "FWD"]);
   const FORMATIONS = Object.freeze({
     "4-4-2": { GK: 1, DEF: 4, MID: 4, FWD: 2 },
@@ -834,6 +835,7 @@
       rows: recordOrder(Array.isArray(shard.records) ? shard.records : [], usedIds, recentIds),
       cursor: 0
     })).filter(queue => queue.family && queue.rows.length);
+    const deferred = Object.fromEntries(POSITION_ORDER.map(position => [position, []]));
 
     let shortlisted = 0;
     let progress = true;
@@ -846,7 +848,10 @@
         const sourcePosition = String(record?.position || "").toUpperCase();
         const positions = POSITION_ORDER.includes(sourcePosition) ? [sourcePosition] : sourcePosition === "ANY" ? POSITION_ORDER : [];
         for (const position of positions) {
-          if (pools[position].length >= poolTargets[position]) continue;
+          if (pools[position].length >= poolTargets[position]) {
+            deferred[position].push(record);
+            continue;
+          }
           const candidate = materialiseShortlistCandidate(record, position);
           if (!candidate) continue;
           pools[position].push(candidate);
@@ -862,6 +867,61 @@
 
     const short = POSITION_ORDER.filter(position => pools[position].length < positionNeeds[position]);
     if (short.length) throw new Error(`Generator v3 could not shortlist enough ${short.join(", ")} prompts for the selected formation.`);
+
+    async function refillPosition(position, targetAdds = GENERATOR_V3_REFILL_BATCH) {
+      let added = 0;
+      while (deferred[position].length && added < targetAdds) {
+        const record = deferred[position].shift();
+        const candidate = materialiseShortlistCandidate(record, position);
+        if (!candidate) continue;
+        pools[position].push(candidate);
+        shortlisted += 1;
+        added += 1;
+      }
+
+      let rounds = 0;
+      while (added < targetAdds) {
+        let progressed = false;
+        for (const queue of queues) {
+          const record = queue.rows[queue.cursor++];
+          if (!record) continue;
+          progressed = true;
+          const sourcePosition = String(record?.position || "").toUpperCase();
+          const positions = POSITION_ORDER.includes(sourcePosition) ? [sourcePosition] : sourcePosition === "ANY" ? POSITION_ORDER : [];
+          for (const compatiblePosition of positions) {
+            if (compatiblePosition === position && added < targetAdds) {
+              const candidate = materialiseShortlistCandidate(record, compatiblePosition);
+              if (candidate) {
+                pools[compatiblePosition].push(candidate);
+                shortlisted += 1;
+                added += 1;
+              }
+            } else {
+              deferred[compatiblePosition].push(record);
+            }
+          }
+          if (added >= targetAdds) break;
+        }
+        if (!progressed) break;
+        rounds += 1;
+        if (rounds % 4 === 0) await new Promise(resolve => setTimeout(resolve, 0));
+      }
+
+      if (added) {
+        setStatus(`Generator v3 · lazy-refilled ${position} shortlist by ${added} · ${shortlisted.toLocaleString("en-GB")} candidates prepared…`, "working");
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      return added;
+    }
+
+    async function refillOpenPositions(state, perPosition = Math.max(6, Math.ceil(GENERATOR_V3_REFILL_BATCH / 2))) {
+      let added = 0;
+      for (const position of POSITION_ORDER) {
+        if (Number(state.positionCounts.get(position) || 0) >= positionNeeds[position]) continue;
+        added += await refillPosition(position, perPosition);
+      }
+      return added;
+    }
 
     const hash = value => {
       let h = 2166136261;
@@ -955,7 +1015,10 @@
           if (Number(state.positionCounts.get(position) || 0) >= positionNeeds[position]) continue;
           for (const candidate of candidatesForPosition(position, state)) if (predicate(candidate)) choices.push(candidate);
         }
-        if (!choices.length) return false;
+        if (!choices.length) {
+          if (!await refillOpenPositions(state)) return false;
+          continue;
+        }
         choices.sort((a, b) => scoreCandidate(b, state, attempt) - scoreCandidate(a, state, attempt));
         let committed = false;
         for (const candidate of choices) {
@@ -964,7 +1027,7 @@
           committed = true;
           break;
         }
-        if (!committed) return false;
+        if (!committed && !await refillOpenPositions(state)) return false;
       }
       return true;
     }
@@ -986,8 +1049,12 @@
           return (aAvail / Math.max(1, aNeed)) - (bAvail / Math.max(1, bNeed)) || POSITION_ORDER.indexOf(a) - POSITION_ORDER.indexOf(b);
         });
         const position = remainingPositions[0];
-        const choices = candidatesForPosition(position, state);
-        if (!choices.length) break;
+        let choices = candidatesForPosition(position, state);
+        if (!choices.length) {
+          if (!await refillPosition(position)) break;
+          choices = candidatesForPosition(position, state);
+          if (!choices.length) continue;
+        }
         choices.sort((a, b) => scoreCandidate(b, state, attempt) - scoreCandidate(a, state, attempt));
         let committed = false;
         for (const candidate of choices) {
@@ -996,7 +1063,10 @@
           committed = true;
           break;
         }
-        if (!committed) break;
+        if (!committed) {
+          if (!await refillPosition(position)) break;
+          continue;
+        }
       }
 
       if (state.selected.length !== WEEKLY_PROMPTS || state.sourceIds.size !== WEEKLY_PROMPTS) continue;
@@ -1017,7 +1087,7 @@
       if (diversity.repeatSlots <= 8 && maxLeader <= 3) break;
     }
 
-    if (!best) throw new Error("Generator v3 exhausted the shortlisted runtime-valid replacements before it could assemble a valid 77-prompt reservoir.");
+    if (!best) throw new Error("Generator v3 exhausted the full saved-library lazy refill path before it could assemble a valid 77-prompt reservoir.");
 
     const prompts = Object.freeze(best.state.selected.map(item => Object.freeze(item.prompt)));
     const ids = new Set(prompts.map(prompt => String(prompt.id)));
@@ -1028,7 +1098,7 @@
     });
     const plan = Object.freeze({
       version: VERSION,
-      source: "generator-v3-immediate-runtime-replacement",
+      source: "generator-v3-lazy-refill",
       promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
       total: WEEKLY_PROMPTS,
       targets: Object.freeze({ ...familyCounts }),
