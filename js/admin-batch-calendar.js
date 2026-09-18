@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Theme & Formation Engine v3.9.0: preplanned fast-path date-identified seven-day challenge calendar generator.
+/* FPL Challenge Studio — Theme & Formation Engine v3.10.1: preplanned fast-path date-identified seven-day challenge calendar generator.
    Builds seven dated, validated challenges for the Phase 1 UK-midnight loader.
    This module is deliberately separate from admin-core.js so the existing single-draft
    generator, Prompt Studio, certification tools and database logic remain untouched. */
@@ -97,6 +97,7 @@
   let generationToken = 0;
   let lastLeaderPreplan = null;
   let lastTiming = null;
+  let lastFailure = "";
   const nowMs = () => globalThis.performance?.now ? globalThis.performance.now() : Date.now();
   const roundMs = value => Math.round(Number(value || 0) * 10) / 10;
 
@@ -176,6 +177,7 @@
   async function generateSevenDayBatch() {
     clearBatch(false);
     lastLeaderPreplan = null;
+    lastFailure = "";
     const generationStarted = nowMs();
     const timing = { leaderPlanningMs: 0, allocationMs: 0, validationMs: 0, totalMs: 0 };
     lastTiming = null;
@@ -188,7 +190,8 @@
     const formationSlots = formationSequence(formation);
 
     if (!isIsoDate(startDate)) {
-      setStatus("Choose a valid first challenge date.", "fail");
+      lastFailure = "Choose a valid first challenge date.";
+      setStatus(lastFailure, "fail");
       return;
     }
 
@@ -207,7 +210,8 @@
     const promptSource = generationSnapshot || (Array.isArray(apiLibrary) ? apiLibrary : globalLibrary);
     const promptLibrary = [...new Map(promptSource.filter(prompt => prompt?.id).map(prompt => [String(prompt.id), prompt])).values()];
     if (!promptLibrary.length) {
-      setStatus("The prompt library is unavailable. Reload Studio before generating the week.", "fail");
+      lastFailure = "The prompt library is unavailable. Reload Studio before generating the week.";
+      setStatus(lastFailure, "fail");
       return;
     }
 
@@ -235,7 +239,8 @@
     const basePools = buildBasePools(promptLibrary, settings, new Set());
     const missingBase = Object.keys(requiredFormation).filter(position => basePools[position].length < requiredFormation[position]);
     if (missingBase.length) {
-      setStatus(`Not enough eligible ${missingBase.join(", ")} prompts for a seven-day batch. Adjust the answer limits.`, "fail");
+      lastFailure = `Not enough eligible ${missingBase.join(", ")} prompts for a seven-day batch. Adjust the answer limits.`;
+      setStatus(lastFailure, "fail");
       if (!window.FPL_DAILY_GENERATOR_GUARD) elements.generateButton.disabled = false;
       return;
     }
@@ -420,10 +425,11 @@
       }
 
       if (!layoutCompleted) {
+        lastFailure = `Batch layout failed after ${layoutAttempts.length} complete arrangement attempts. ${lastLayoutFailure}`;
         batchResults = [];
         virtualSchedule.splice(virtualScheduleBaselineLength);
         renderBatchReview();
-        setStatus(`Batch layout failed after ${layoutAttempts.length} complete arrangement attempts. ${lastLayoutFailure}`, "fail");
+        setStatus(lastFailure, "fail");
         return;
       }
 
@@ -444,7 +450,8 @@
       setStatus(`All ${DAYS_IN_BATCH} challenges passed. The calendar ZIP is ready for ${friendlyDate(batchDates[0])}–${friendlyDate(batchDates[batchDates.length - 1])}.`, "pass");
     } catch (error) {
       console.error(error);
-      setStatus(`The seven-day generator stopped: ${error instanceof Error ? error.message : String(error)}`, "fail");
+      lastFailure = `The seven-day generator stopped: ${error instanceof Error ? error.message : String(error)}`;
+      setStatus(lastFailure, "fail");
     } finally {
       if (!lastTiming) {
         timing.totalMs = nowMs() - generationStarted;
@@ -1352,6 +1359,13 @@
         for (let index = 1; index < values.length; index += 1) if (values[index] - values[index - 1] < WEEKLY_LEADER_MIN_DAY_GAP) spacingViolations += 1;
       }
       const score = spacingViolations * 10000 + thirdDayPlayers * 1000 + [...leaderDays.values()].reduce((sum, set) => sum + set.size, 0);
+      if (best && score >= best.score) continue;
+      const perfectWeek = dayPrompts.every(promptsForDay => {
+        const perfect = calculatePerfectXI(promptsForDay);
+        if (!perfect.possible) return false;
+        return !(settings.maxPerfectScore > 0 && perfect.score > settings.maxPerfectScore);
+      });
+      if (!perfectWeek) continue;
       const candidate = {
         ok: true,
         dayPromptIds: days.map(day => new Set(day.promptIds)),
@@ -1378,7 +1392,7 @@
     return {
       ok: false,
       terminal: false,
-      reason: `No complete 77-prompt leader-day pre-plan satisfied formation, one nationality per day, anti-meta minimums, same-day semantic/top-answer uniqueness and the hard max-3 leader rule. Most constrained leaders: ${constrained || "none identified"}.`
+      reason: `No complete 77-prompt leader-day pre-plan satisfied formation, one nationality per day, anti-meta minimums, same-day semantic/top-answer uniqueness, an exact 11-unique-player perfect XI and the hard max-3 leader rule. Most constrained leaders: ${constrained || "none identified"}.`
     };
   }
 
@@ -2193,6 +2207,7 @@
     })),
     getTopAnswerDayAudit: () => JSON.parse(JSON.stringify(weeklyTopAnswerDiversity())),
     getTiming: () => lastTiming ? { ...lastTiming } : null,
+    getLastFailure: () => String(lastFailure || ""),
     getManifest: () => batchManifest ? JSON.parse(JSON.stringify(batchManifest)) : null,
     getSources: () => batchResults.filter(result => result.source).map(result => ({ date: result.releaseDate, source: result.source })),
     addDaysIso,

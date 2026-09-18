@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.1.1.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.1.2.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
    with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.1.1";
+  const VERSION = "3.1.2";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -864,8 +864,9 @@
     if (!Array.isArray(results)) return { ok: false, reason: "The generator did not expose a result list." };
     if (results.length !== DAYS_IN_BATCH) {
       const last = results[results.length - 1];
-      const detail = last?.issues?.[0] || "generation stopped before all seven days completed";
-      return { ok: false, reason: `Only ${results.length}/${DAYS_IN_BATCH} days were produced: ${detail}.` };
+      const batchFailure = String(window.FPL_STUDIO_BATCH_CALENDAR?.getLastFailure?.() || "").trim();
+      const detail = batchFailure || last?.issues?.[0] || "generation stopped before all seven days completed";
+      return { ok: false, reason: `Only ${results.length}/${DAYS_IN_BATCH} days were produced: ${detail.replace(/[.]+$/, "")}.` };
     }
 
     const semantic = window.FPL_DAILY_SEMANTIC_DIVERSITY;
