@@ -685,7 +685,11 @@
     }
 
     function candidatesForPosition(position, state) {
-      return pools[position].filter(candidate => !candidate.invalid && !state.sourceIds.has(sourceIdOf(candidate)));
+      return pools[position].filter(candidate =>
+        !candidate.invalid
+        && !state.sourceIds.has(sourceIdOf(candidate))
+        && (!semantic?.canAddWeekly || semantic.canAddWeekly(candidate.prompt, state.semanticCounts, DAYS_IN_BATCH))
+      );
     }
 
     let best = null;
@@ -809,14 +813,10 @@
       targets: Object.freeze({ ...familyCounts }),
       excludeTopResultTarget: Number(best.state.excludeCount || 0),
       positionNeeds: Object.freeze({ ...positionNeeds }),
-      cycleFamilies: Object.freeze([]),
       knownUsedSourceIds: usedIds.size,
       recentSourceIds: recentIds.size,
       runtimeCandidatesChecked,
       shortlistedCandidates: shortlisted,
-      leaderRepairSwaps: 0,
-      leaderSearchNodes: 0,
-      leaderSearchBestDepth: 0,
       antiMetaCount: best.state.antiMetaCount,
       nationalityCount: best.state.nationalityCount,
       topAnswerDiversity: frozenTopAnswerDiversity,
