@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.1.2.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.1.3.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
    with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.1.2";
+  const VERSION = "3.1.3";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -16,6 +16,7 @@
   const CUTOVER_WAIT_MS = 30000;
   const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;
   const EXCLUDE_TOP_RESULT_WEEKLY_MIN = 4;
+  const WEEKLY_LEADER_PROMPT_CAP = 3;
   const SEMANTIC_WAIT_MS = 10000;
   const GENERATOR_V3_ATTEMPTS = 10;
   const GENERATOR_V3_POOL_MULTIPLIER = 3;
@@ -679,6 +680,11 @@
       };
     }
 
+    function canCommitCandidate(state, candidate) {
+      const leader = leaderOf(candidate);
+      return !leader || Number(state.leaderCounts.get(leader) || 0) < WEEKLY_LEADER_PROMPT_CAP;
+    }
+
     function commit(state, candidate) {
       const sourceId = sourceIdOf(candidate);
       const family = familyOf(candidate);
@@ -741,6 +747,7 @@
         let committed = false;
         for (const candidate of choices) {
           if (!await certifyChoice(candidate, attempt, phase)) continue;
+          if (!canCommitCandidate(state, candidate)) continue;
           commit(state, candidate);
           committed = true;
           break;
@@ -778,6 +785,7 @@
         let committed = false;
         for (const candidate of choices) {
           if (!await certifyChoice(candidate, attempt, `${position} replacements`)) continue;
+          if (!canCommitCandidate(state, candidate)) continue;
           commit(state, candidate);
           committed = true;
           break;
@@ -795,6 +803,7 @@
       const prompts = state.selected.map(item => item.prompt);
       const diversity = topAnswerDiversityAudit(prompts);
       const maxLeader = diversity.repeatedPlayers.length ? Math.max(...diversity.repeatedPlayers.map(item => item.count)) : 1;
+      if (maxLeader > WEEKLY_LEADER_PROMPT_CAP) continue;
       const familyLoads = [...state.familyCounts.values()];
       const familyConcentration = familyLoads.reduce((sum, count) => sum + count * count, 0);
       const recentCount = state.selected.filter(item => recentIds.has(sourceIdOf(item))).length;
@@ -818,6 +827,7 @@
     const plan = Object.freeze({
       version: VERSION,
       source: "generator-v3-lazy-refill",
+      leaderPromptCap: WEEKLY_LEADER_PROMPT_CAP,
       promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
       total: WEEKLY_PROMPTS,
       targets: Object.freeze({ ...familyCounts }),
