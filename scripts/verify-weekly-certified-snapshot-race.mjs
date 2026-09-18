@@ -10,7 +10,7 @@ const assert = (condition, message) => {
 };
 
 for (const token of [
-  'saved-library generation guard v3.2.2',
+  'saved-library generation guard v3.2.3',
   'const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;',
   'const NATIONALITY_WEEKLY_TARGET = DAYS_IN_BATCH;',
   'async function buildCertifiedReservoir(reservoirRetry = 0, runtimeCache = new Map(), discouragedSourceIds = new Set())',
@@ -214,3 +214,7 @@ console.log('Saved-library generation snapshot verified: immutable 77-prompt res
 assert(batch.includes('antiMetaCount: Number(result.antiMetaCount || 0)'), 'Batch result clone does not expose anti-meta evidence to the certification runner.');
 assert(batch.includes('if (spacingViolations) continue;'), 'Leader preplanner can still accept a 3-day spacing breach.');
 assert(guard.includes('leaderAudit.spacingViolationCount'), 'Saved-library guard does not fail closed on spacing breaches.');
+
+assert(guard.includes('async function reserveFamilyCoverage(state, attempt)'), 'Generator v3 does not hard-reserve every curated family.');
+assert(guard.includes('expectedFamilies.some(family => Number(state.familyCounts.get(family) || 0) === 0)'), 'Generator v3 can accept a 17-family reservoir.');
+assert(guard.includes('familyCoverageTarget: expectedFamilies.length'), 'Generator v3 does not expose its all-family coverage target.');

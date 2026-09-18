@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.24-hard-spacing-cert"
+      "version": "4.0.25-all-family-floor"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "3.2.2-hard-spacing"
+      "version": "3.2.3-all-family-floor"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",

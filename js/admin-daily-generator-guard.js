@@ -1,4 +1,4 @@
-/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.2.2.
+/* FPL Challenge Studio — Daily Challenge scheduler + saved-library generation guard v3.2.3.
    Builds one immutable 77-prompt reservoir from the structurally certified promoted library,
    runtime-retests selected prompts, preserves exact rotation, keeps all 18 families represented
    with a fast scored reservoir: shortlist from stored evidence, immediately replace runtime failures, then hand off to the existing seven-day validator. */
@@ -8,7 +8,7 @@
   if (window.__FPL_DAILY_GENERATOR_GUARD_V2__) return;
   window.__FPL_DAILY_GENERATOR_GUARD_V2__ = true;
 
-  const VERSION = "3.2.2";
+  const VERSION = "3.2.3";
   const DAYS_IN_BATCH = 7;
   const PROMPTS_PER_DAY = 11;
   const WEEKLY_PROMPTS = DAYS_IN_BATCH * PROMPTS_PER_DAY;
@@ -504,6 +504,12 @@
     if (String(payload.manifest.promotionFingerprint || "") !== String(cutover.manifest?.promotionFingerprint || "")) {
       throw new Error("The saved shard package changed after Daily certification. Refresh Studio before generating.");
     }
+    const expectedFamilies = Object.freeze([...new Set(
+      payload.shards.map(shard => String(shard?.family || "")).filter(Boolean)
+    )].sort());
+    if (expectedFamilies.length !== 18) {
+      throw new Error(`Generator v3 expected the frozen 18-family authority but found ${expectedFamilies.length} families.`);
+    }
 
     const positionNeeds = weeklyPositionNeeds();
     const limits = answerLimits();
@@ -768,11 +774,50 @@
       return true;
     }
 
+    async function reserveFamilyCoverage(state, attempt) {
+      while (true) {
+        const missingFamilies = expectedFamilies.filter(family => Number(state.familyCounts.get(family) || 0) === 0);
+        if (!missingFamilies.length) return true;
+
+        const ranked = missingFamilies.map(family => {
+          const choices = [];
+          for (const position of POSITION_ORDER) {
+            if (Number(state.positionCounts.get(position) || 0) >= positionNeeds[position]) continue;
+            for (const candidate of candidatesForPosition(position, state)) {
+              if (familyOf(candidate) === family) choices.push(candidate);
+            }
+          }
+          return { family, choices };
+        }).sort((left, right) =>
+          left.choices.length - right.choices.length
+          || left.family.localeCompare(right.family)
+        );
+
+        const target = ranked.find(entry => entry.choices.length);
+        if (!target) {
+          if (!await refillOpenPositions(state)) return false;
+          continue;
+        }
+
+        target.choices.sort((a, b) => scoreCandidate(b, state, attempt) - scoreCandidate(a, state, attempt));
+        let committed = false;
+        for (const candidate of target.choices) {
+          if (!await certifyChoice(candidate, attempt, `${target.family} family floor`)) continue;
+          if (!canCommitCandidate(state, candidate)) continue;
+          commit(state, candidate);
+          committed = true;
+          break;
+        }
+        if (!committed && !await refillOpenPositions(state)) return false;
+      }
+    }
+
     const reservoirSelectionStarted = nowMs();
     for (let attempt = 0; attempt < GENERATOR_V3_ATTEMPTS; attempt += 1) {
       const state = createState();
       if (!await reserveSpecial(state, candidate => familyOf(candidate) === "nationality", NATIONALITY_WEEKLY_TARGET, attempt, "nationality floor")) continue;
       if (!await reserveSpecial(state, candidate => familyOf(candidate) === "exclude-top-result", EXCLUDE_TOP_RESULT_WEEKLY_MIN, attempt, "Exclude Top Result floor")) continue;
+      if (!await reserveFamilyCoverage(state, attempt)) continue;
       if (!await reserveSpecial(state, candidate => isAntiMeta(candidate.prompt), antiMetaRequired, attempt, "anti-meta floor")) continue;
 
       while (state.selected.length < WEEKLY_PROMPTS) {
@@ -809,6 +854,7 @@
 
       if (state.selected.length !== WEEKLY_PROMPTS || state.sourceIds.size !== WEEKLY_PROMPTS) continue;
       if (POSITION_ORDER.some(position => Number(state.positionCounts.get(position) || 0) !== positionNeeds[position])) continue;
+      if (expectedFamilies.some(family => Number(state.familyCounts.get(family) || 0) === 0)) continue;
       if (state.nationalityCount !== NATIONALITY_WEEKLY_TARGET || state.excludeCount < EXCLUDE_TOP_RESULT_WEEKLY_MIN || state.antiMetaCount < antiMetaRequired) continue;
 
       const prompts = state.selected.map(item => item.prompt);
@@ -843,6 +889,8 @@
       promotionFingerprint: String(payload.manifest.promotionFingerprint || ""),
       total: WEEKLY_PROMPTS,
       targets: Object.freeze({ ...familyCounts }),
+      familyCoverageTarget: expectedFamilies.length,
+      expectedFamilies,
       excludeTopResultTarget: Number(best.state.excludeCount || 0),
       positionNeeds: Object.freeze({ ...positionNeeds }),
       knownUsedSourceIds: usedIds.size,
