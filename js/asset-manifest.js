@@ -100,10 +100,6 @@
       "path": "js/admin-daily-generator-guard.js",
       "version": "3.2.0-reservoir-retry"
     },
-    "adminGeneratorProductionCertificationV1": {
-      "path": "js/admin-generator-production-certification-v1.js",
-      "version": "1.0.0"
-    },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",
       "version": "5.1.0-studio-bootstrap"
@@ -111,6 +107,10 @@
     "repositoryCertifiedPromptPool": {
       "path": "js/repository-certified-prompt-pool.js",
       "version": "2.0.0-clean-reset"
+    },
+    "adminGeneratorProductionCertificationV1": {
+      "path": "js/admin-generator-production-certification-v1.js",
+      "version": "1.0.0"
     }
   };
   const assets = Object.freeze(Object.fromEntries(
