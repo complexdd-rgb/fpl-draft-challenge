@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.15-studio-authority-truth"
+      "version": "4.0.16-curated-cache"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -62,7 +62,7 @@
     },
     "adminDailyCuratedAuthorityV1": {
       "path": "js/admin-daily-curated-authority-v1.js",
-      "version": "2.0.0"
+      "version": "2.0.1-curated-cache"
     },
     "adminDailyLibraryCutoverV1": {
       "path": "js/admin-daily-library-cutover-v1.js",
