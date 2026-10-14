@@ -107,6 +107,21 @@ test('stable runtime stats reuse the answer profile', () => {
   assert.equal(api.topAnswerProfile(candidate), api.topAnswerProfile(candidate));
 });
 
+test('an empty prompt registry can rank answers without accessing unavailable history', () => {
+  const { window, api, prompt } = fixture();
+  window.FPL_STUDIO_PHASE3 = { getHistory() { throw new Error('Browser history unavailable'); } };
+  assert.equal(api.recentAnswerLoad(prompt('one', 'p1')), 0);
+});
+
+test('history pressure appears when an initially empty prompt registry becomes available', () => {
+  const { window, api, prompt } = fixture();
+  const one = prompt('one', 'p1');
+  window.FPL_CHALLENGE_MANIFEST = { challenges: [{ date: '2026-10-14', promptIds: ['one'] }] };
+  assert.equal(api.recentAnswerLoad(one), 0);
+  window.FPL_PROMPT_LIBRARY.push(one);
+  assert(api.recentAnswerLoad(one) > 0);
+});
+
 test('carry-over counts appearance days once and uses only the preceding seven days', () => {
   const { window, api, prompt } = fixture();
   const one = prompt('one', 'p1');

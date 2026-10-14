@@ -26,12 +26,12 @@ This prevents a player who dominated the end of one generated week from immediat
 
 ## Runtime answer freshness
 
-Policy revision 1.1.1 repairs two stale-cache paths in the existing pressure:
+Policy revision 1.1.2 repairs two stale-cache paths in the existing pressure:
 
 - answer profiles follow the Studio runtime stats object, so an empty shortlist profile is replaced after certification invalidates and recomputes the stats;
 - recent-week counts follow the actual per-day leader and top-three snapshot, so same-length schedule edits and refreshed answer stats update carry-over pressure.
 
-The penalty weights remain unchanged. An unavailable stats API is retried when Studio becomes ready. Stable stats reuse the cached profile. History pressure still requires scheduled IDs to resolve through the Studio prompt library.
+The penalty weights remain unchanged. An unavailable stats API is retried when Studio becomes ready. Stable stats reuse the cached profile. History pressure still requires scheduled IDs to resolve through the Studio prompt library. An empty registry skips history processing because its carry-over pressure is zero; each call rechecks the registry so pressure returns when prompts become available.
 
 Run `node scripts/verify-daily-answer-pressure-freshness.mjs` for regression coverage using the real Studio stats evaluator. The Studio Architecture Verification workflow runs this check alongside the existing semantic policy tests. The seven-formation production certification remains the check for the original saved source and live schedule.
 

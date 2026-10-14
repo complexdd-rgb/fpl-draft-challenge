@@ -1,9 +1,10 @@
-/* FPL Challenge Studio — Daily semantic diversity policy v1 API / policy revision 1.1.1.
+/* FPL Challenge Studio — Daily semantic diversity policy v1 API / policy revision 1.1.2.
    Normalises threshold variants into shared concepts so the weekly reservoir and each
    generated day can prevent near-duplicate prompts from clustering together.
    Revision 1.1.0 also adds soft whole-week pressure against repeatedly surfacing the same
    highest-scoring and top-three answer players, including recent-week carry-over pressure.
-   Revision 1.1.1 keeps that pressure current after runtime certification and schedule edits. */
+   Revision 1.1.2 keeps that pressure current after runtime certification and schedule edits,
+   and skips history work while no scheduled prompts can resolve through the Studio library. */
 (() => {
   "use strict";
 
@@ -12,7 +13,7 @@
   // Keep the public API major/minor version stable because the existing generator guard
   // deliberately checks for v1.0.0. policyRevision is the cache-busted behaviour revision.
   const VERSION = "1.0.0";
-  const POLICY_REVISION = "1.1.1";
+  const POLICY_REVISION = "1.1.2";
   const DEFAULT_WEEKLY_CAP = 7;
   const ANSWER_POOL_SIZE = 3;
   const RECENT_ANSWER_DAYS = 7;
@@ -23,6 +24,7 @@
   const ENTITY_FIELDS = new Set(["manager", "club", "nationality", "teammate"]);
   const RARE_FIELDS = new Set(["bonus"]);
   const POSITION_WORDS = /\b(goalkeeper|keeper|defender|midfielder|forward|player)\b/gi;
+  const EMPTY_RECENT_ANSWERS = Object.freeze({ leaders: new Map(), top3: new Map(), days: 0 });
   const topAnswerProfileCache = new WeakMap();
   let recentAnswerCacheKey = "";
   let recentAnswerCache = null;
@@ -285,8 +287,11 @@
 
   function recentAnswerCounts() {
     const start = generationStartDate();
-    if (!start) return { leaders: new Map(), top3: new Map(), days: 0 };
+    if (!start) return EMPTY_RECENT_ANSWERS;
     const { index } = promptIndex();
+    // With no resolvable prompts, carry-over pressure is necessarily zero. The
+    // registry is checked again on every call so later library readiness is seen.
+    if (!index.size) return EMPTY_RECENT_ANSWERS;
     const entries = recentScheduleEntries();
     const cutoff = addDaysIso(start, -RECENT_ANSWER_DAYS);
     const byDate = new Map();
