@@ -6,7 +6,7 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.25-all-family-floor"
+      "version": "4.0.26-answer-pressure"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
@@ -70,7 +70,7 @@
     },
     "dailySemanticDiversityV1": {
       "path": "js/daily-semantic-diversity-v1.js",
-      "version": "1.1.0"
+      "version": "1.1.1"
     },
     "adminDailyPublish": {
       "path": "js/admin-daily-publish.js",
