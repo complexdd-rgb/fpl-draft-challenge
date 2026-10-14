@@ -1,8 +1,10 @@
-/* FPL Challenge Studio — Daily semantic diversity policy v1 API / policy revision 1.1.0.
+/* FPL Challenge Studio — Daily semantic diversity policy v1 API / policy revision 1.1.2.
    Normalises threshold variants into shared concepts so the weekly reservoir and each
    generated day can prevent near-duplicate prompts from clustering together.
    Revision 1.1.0 also adds soft whole-week pressure against repeatedly surfacing the same
-   highest-scoring and top-three answer players, including recent-week carry-over pressure. */
+   highest-scoring and top-three answer players, including recent-week carry-over pressure.
+   Revision 1.1.2 keeps that pressure current after runtime certification and schedule edits,
+   and skips history work while no scheduled prompts can resolve through the Studio library. */
 (() => {
   "use strict";
 
@@ -11,7 +13,7 @@
   // Keep the public API major/minor version stable because the existing generator guard
   // deliberately checks for v1.0.0. policyRevision is the cache-busted behaviour revision.
   const VERSION = "1.0.0";
-  const POLICY_REVISION = "1.1.0";
+  const POLICY_REVISION = "1.1.2";
   const DEFAULT_WEEKLY_CAP = 7;
   const ANSWER_POOL_SIZE = 3;
   const RECENT_ANSWER_DAYS = 7;
@@ -22,7 +24,8 @@
   const ENTITY_FIELDS = new Set(["manager", "club", "nationality", "teammate"]);
   const RARE_FIELDS = new Set(["bonus"]);
   const POSITION_WORDS = /\b(goalkeeper|keeper|defender|midfielder|forward|player)\b/gi;
-  const topAnswerProfileCache = new Map();
+  const EMPTY_RECENT_ANSWERS = Object.freeze({ leaders: new Map(), top3: new Map(), days: 0 });
+  const topAnswerProfileCache = new WeakMap();
   let recentAnswerCacheKey = "";
   let recentAnswerCache = null;
 
@@ -192,10 +195,10 @@
   }
 
   function topAnswerProfile(prompt) {
-    const cacheKey = String(prompt?.id || prompt?.sourcePromptId || "");
-    if (cacheKey && topAnswerProfileCache.has(cacheKey)) return topAnswerProfileCache.get(cacheKey);
-
     const stats = promptStats(prompt);
+    // Studio replaces the stats object when runtime certification invalidates a
+    // cheap shortlist scan. An ID-only cache would retain its empty answer pool.
+    if (stats && topAnswerProfileCache.has(stats)) return topAnswerProfileCache.get(stats);
     const values = typeof stats?.bestByPlayer?.values === "function" ? [...stats.bestByPlayer.values()] : [];
     if (!values.length && stats?.bestAnswer) values.push(stats.bestAnswer);
     const seen = new Set();
@@ -223,7 +226,7 @@
       top3Ids: Object.freeze(ordered.map(record => record.playerId)),
       records: Object.freeze(ordered)
     });
-    if (cacheKey) topAnswerProfileCache.set(cacheKey, profile);
+    if (stats) topAnswerProfileCache.set(stats, profile);
     return profile;
   }
 
@@ -284,12 +287,12 @@
 
   function recentAnswerCounts() {
     const start = generationStartDate();
-    if (!start) return { leaders: new Map(), top3: new Map(), days: 0 };
-    const { index, size } = promptIndex();
+    if (!start) return EMPTY_RECENT_ANSWERS;
+    const { index } = promptIndex();
+    // With no resolvable prompts, carry-over pressure is necessarily zero. The
+    // registry is checked again on every call so later library readiness is seen.
+    if (!index.size) return EMPTY_RECENT_ANSWERS;
     const entries = recentScheduleEntries();
-    const key = `${start}|${size}|${entries.length}|${entries.map(entry => `${entry.date}:${entry.promptIds.length}`).join(",")}`;
-    if (key === recentAnswerCacheKey && recentAnswerCache) return recentAnswerCache;
-
     const cutoff = addDaysIso(start, -RECENT_ANSWER_DAYS);
     const byDate = new Map();
     for (const entry of entries) {
@@ -305,6 +308,12 @@
       }
       byDate.set(entry.date, day);
     }
+
+    // Cache the actual answer-day snapshot, not just row/prompt counts: replacing
+    // a scheduled ID or refreshing its stats can change pressure at the same size.
+    const key = JSON.stringify([start, [...byDate].sort(([left], [right]) => left.localeCompare(right))
+      .map(([date, day]) => [date, [...day.leaders].sort(), [...day.top3].sort()])]);
+    if (key === recentAnswerCacheKey && recentAnswerCache) return recentAnswerCache;
 
     const leaders = new Map();
     const top3 = new Map();

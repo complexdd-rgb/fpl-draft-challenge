@@ -147,7 +147,9 @@ jobs:
           node scripts/verify-daily-library-cutover-v1.mjs
 
       - name: Verify Daily semantic diversity guard
-        run: node scripts/verify-daily-semantic-diversity-v1.mjs
+        run: |
+          node scripts/verify-daily-semantic-diversity-v1.mjs
+          node scripts/verify-daily-answer-pressure-freshness.mjs
 
       - name: Verify immutable weekly reservoir
         run: node scripts/verify-weekly-certified-snapshot-race.mjs
@@ -199,6 +201,7 @@ jobs:
           node --check scripts/verify-daily-curated-authority-v1.mjs
           node --check scripts/verify-daily-library-cutover-v1.mjs
           node --check scripts/verify-daily-semantic-diversity-v1.mjs
+          node --check scripts/verify-daily-answer-pressure-freshness.mjs
           node --check scripts/verify-weekly-certified-snapshot-race.mjs
           node --check scripts/verify-weekly-nationality-generation-gate.mjs
           node --check scripts/verify-weekly-nationality-hard-reservation.mjs
