@@ -1035,6 +1035,9 @@
         return;
       }
 
+      // Recent published answers stay immutable throughout this week, just like
+      // the certified reservoir. Avoid rebuilding history for every candidate.
+      window.FPL_DAILY_SEMANTIC_DIVERSITY?.beginRecentAnswerSnapshot?.();
       const sharedRuntimeCache = new Map();
       const discouragedSourceIds = new Set();
       let reservoir = null;
@@ -1074,7 +1077,8 @@
         const batchFailure = String(window.FPL_STUDIO_BATCH_CALENDAR?.getLastFailure?.() || "");
         const retryableLayoutFailure = /Batch layout failed after/i.test(batchFailure);
         for (const prompt of reservoir.prompts || []) discouragedSourceIds.add(sourceIdFromPromptId(prompt?.sourcePromptId || prompt?.id));
-        try { generationSnapshot?.clear?.(); } catch (_) {}
+        window.FPL_DAILY_SEMANTIC_DIVERSITY?.endRecentAnswerSnapshot?.();
+      try { generationSnapshot?.clear?.(); } catch (_) {}
         generationSnapshot = null;
         window.FPL_STUDIO_BATCH_CALENDAR?.clear?.();
 
@@ -1104,6 +1108,7 @@
       console.error(error);
       setStatus(`Daily Challenge guard stopped generation: ${error instanceof Error ? error.message : String(error)}`, "fail");
     } finally {
+      window.FPL_DAILY_SEMANTIC_DIVERSITY?.endRecentAnswerSnapshot?.();
       try { generationSnapshot?.clear?.(); } catch (_) {}
       if (!timing.totalGenerationMs) timing.totalGenerationMs = roundMs(nowMs() - generationStarted);
       if (!lastTiming) lastTiming = Object.freeze({ ...timing });

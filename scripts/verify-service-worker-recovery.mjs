@@ -1,0 +1,40 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const handlers = {}, stores = new Map();
+const key = request => new URL(typeof request === 'string' ? request : request.url, 'https://fixture.test/').href;
+const open = async name => {
+  if (!stores.has(name)) stores.set(name, new Map());
+  const rows = stores.get(name);
+  return { async addAll(){}, async put(request,response){rows.set(key(request), response)}, async match(request){return rows.get(key(request))}, async keys(){return [...rows.keys()].map(url=>({url}))}, async delete(request){return rows.delete(key(request))} };
+};
+const caches = { open, async keys(){return [...stores.keys()]}, async delete(name){return stores.delete(name)}, async match(request){for (const rows of stores.values()) if(rows.has(key(request))) return rows.get(key(request))} };
+let network = async () => new Response('good', {headers:{'content-type':'application/javascript'}});
+vm.runInNewContext(fs.readFileSync('sw.js','utf8'), { self:{location:{origin:'https://fixture.test'}, addEventListener(type,fn){handlers[type]=fn}, skipWaiting(){},clients:{claim(){}}}, caches, fetch:(...args)=>network(...args), URL, Request, Response });
+async function request(path, mode='same-origin'){
+  const waits=[];let response;
+  handlers.fetch({request:{url:key(path),method:'GET',mode},respondWith(p){response=p},waitUntil(p){waits.push(p)}});
+  const result=await response; await Promise.all(waits);return result;
+}
+await request('/js/game-engine.js?v=1');
+network=async()=>new Response('outage',{status:503});
+await request('/js/game-engine.js?v=1');
+network=async()=>new Response('<html>hosting fallback</html>',{headers:{'content-type':'text/html'}});
+await request('/js/game-engine.js?v=1');
+network=async()=>{throw new Error('offline')};
+assert.equal(await (await request('/js/game-engine.js?v=1')).text(),'good','Failed or HTML responses must not overwrite cached JS');
+const name=(await caches.keys()).find(n=>n.startsWith('fpl-draft-challenge-'));
+await (await open(name)).put('./',new Response('<html>offline</html>'));
+const missing=await request('/js/missing.js');
+assert.ok(!missing || !(await missing.text()).includes('<html>'),'An asset cannot fall back to HTML');
+assert.equal(await (await request('/offline','navigate')).text(),'<html>offline</html>');
+let calls=0;network=async()=>{calls++;return new Response('fresh',{headers:{'content-type':'application/javascript'}})};
+await request('/nationality-enrichment.js');await request('/nationality-enrichment.js');
+assert.equal(calls,2,'Root enrichment must revalidate');
+for(let i=0;i<150;i++) await request(`/js/game-engine.js?v=${i}`);
+assert.ok(stores.get(name).size < 140,'Version query strings must not grow the asset cache');
+await open('another-app-cache');await open('fpl-draft-challenge-old');
+let activation;handlers.activate({waitUntil(p){activation=p}});await activation;
+assert.ok(stores.has('another-app-cache'),'Activation must preserve other apps');
+assert.ok(!stores.has('fpl-draft-challenge-old'));
+console.log('PASS successful asset caching, navigation-only fallback, enrichment freshness, cache bounds and isolation');

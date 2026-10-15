@@ -447,3 +447,22 @@ window.FPL_PLAYERS = [{"playerId":"aaron-anselmino","name":"Aaron Anselmino","se
     }
   });
 })();
+
+/* Preserve historical source claims while reconciling fields populated by later layers.
+   Values and price policies are unchanged; unverified secondary attribution stays explicit. */
+(() => {
+  for (const player of window.FPL_PLAYERS || []) for (const record of player.seasons || []) {
+    const source = record.source;
+    if (!Array.isArray(source?.unavailableFields)) continue;
+    const populatedFields = source.unavailableFields.filter(field => record[field] !== null && record[field] !== undefined);
+    if (!populatedFields.length) continue;
+    source.availabilityReconciliation = {
+      previousUnavailableFields: [...source.unavailableFields],
+      previousSecondaryStatisticsStatus: source.secondaryStatisticsStatus,
+      populatedFields,
+      attributionStatus: "pending-review"
+    };
+    source.unavailableFields = source.unavailableFields.filter(field => !populatedFields.includes(field));
+    source.secondaryStatisticsStatus = "populated-secondary-values-attribution-pending-review";
+  }
+})();

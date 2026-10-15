@@ -31,6 +31,6 @@ requireText(client, 'const main=document.querySelector("main.app")||document.que
 requireText(client, 'if(main)main.appendChild(shell); else document.body.appendChild(shell);', 'Leaderboard must append inside the app when available.');
 forbidText(client, 'const anchor=document.getElementById("phase45Shell")||document.getElementById("localHistory")||document.querySelector("main");', 'Retired Phase 4.5/localHistory fallback must not return.');
 
-requireText(index, 'js/leaderboard-client.js?v=5.1.0', 'Leaderboard client cache key must be bumped for the timing/layout fix.');
+requireText(index, 'js/leaderboard-client.js?v=audit-20261014', 'Leaderboard client cache key must be bumped for the timing/layout fix.');
 
 console.log('Leaderboard device timing + layout regression invariants passed.');

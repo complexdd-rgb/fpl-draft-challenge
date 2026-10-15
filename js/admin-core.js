@@ -48,6 +48,7 @@
   const recentPromptIds = new Set(Array.isArray(window.FPL_RECENT_PROMPT_IDS) ? window.FPL_RECENT_PROMPT_IDS : []);
   const records = [];
   const statsCache = new Map();
+  let statsRevision = 0;
   let selectedPrompts = [];
   let currentPerfect = null;
 
@@ -856,11 +857,14 @@
     getPromptStats,
     getPromptLibrary: () => promptLibrary,
     isPromptSelected: promptId => selectedPrompts.some(prompt => prompt.id === promptId),
+    getPromptStatsRevision: () => statsRevision,
     invalidatePromptStats: promptId => {
+      statsRevision += 1;
       if (promptId) statsCache.delete(promptId);
       else statsCache.clear();
     },
     refreshLibrary: ({ recalculateDraft = true } = {}) => {
+      statsRevision += 1;
       statsCache.clear();
       updateLibraryStatus("checked");
       if (recalculateDraft && selectedPrompts.length) refreshDraft();

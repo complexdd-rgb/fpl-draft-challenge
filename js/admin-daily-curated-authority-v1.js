@@ -95,19 +95,25 @@
     if (String(payload.freeze?.selectionCompositeSha256 || "") !== definition.digest) return "digest";
     if (String(payload.authority?.authority || "") !== "frozen-curated-4959-v2") return "authority";
     if (payload.shards.length !== EXPECTED_FAMILIES) return "families";
+    const expectedFamilies = new Map(definition.selectors.map(selector => [String(selector.family), new Set(selectorIds(selector))]));
     const ids = new Set();
+    const variantGroups = new Set();
     let total = 0;
     for (const shard of payload.shards) {
       const family = String(shard?.family || "");
       const records = Array.isArray(shard?.records) ? shard.records : [];
+      const wanted = expectedFamilies.get(family);
+      if (!wanted || records.length !== wanted.size) return "family-membership";
+      expectedFamilies.delete(family);
       total += records.length;
       for (const record of records) {
         const id = String(record?.id || "");
-        if (!id || ids.has(id) || selectedRecordProblem(record, family)) return "records";
+        if (!id || ids.has(id) || !wanted.has(id) || selectedRecordProblem(record, family)) return "records";
         ids.add(id);
+        if (record.variantGroup) variantGroups.add(String(record.variantGroup));
       }
     }
-    return total === EXPECTED_SELECTED && ids.size === EXPECTED_SELECTED ? "" : "total";
+    return total === EXPECTED_SELECTED && ids.size === EXPECTED_SELECTED && expectedFamilies.size === 0 && variantGroups.size === EXPECTED_VARIANT_GROUPS ? "" : "total";
   }
 
   function selectorIds(selector) {

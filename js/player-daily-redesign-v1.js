@@ -26,7 +26,8 @@
     if (slot.classList.contains("compact-confirmed")) return "confirmed";
     if (slot.querySelector(".feedback.bad")) return "invalid";
     const search = slot.querySelector(".player-search");
-    return Boolean(slot.querySelector(".selected-meta")) || Boolean(search?.value?.trim()) ? "selected" : "open";
+    const meta = slot.querySelector(".selected-meta");
+    return Boolean(meta && !meta.classList.contains("fpl-reserved-meta")) || Boolean(search?.value?.trim()) ? "selected" : "open";
   }
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[char]);

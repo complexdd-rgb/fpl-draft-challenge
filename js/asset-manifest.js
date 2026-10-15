@@ -6,11 +6,11 @@
   const source = {
     "assetManifestRuntime": {
       "path": "js/asset-manifest.js",
-      "version": "4.0.27-answer-pressure-fast-path"
+      "version": "4.0.28-audit-repairs"
     },
     "studioBootstrap": {
       "path": "js/studio-bootstrap.js",
-      "version": "3.0.1-authority-truth"
+      "version": "3.0.1-audit-20261014"
     },
     "promptStudioClean": {
       "path": "js/prompt-studio-clean-reset.js",
@@ -50,7 +50,7 @@
     },
     "promptLibraryShardsV1": {
       "path": "js/prompt-library-shards-v1.js",
-      "version": "1.2.0-source-archive"
+      "version": "1.2.0-audit-20261014"
     },
     "promptLibraryShardsBridgeV1": {
       "path": "js/prompt-library-shards-promotion-bridge-v1.js",
@@ -62,15 +62,15 @@
     },
     "adminDailyCuratedAuthorityV1": {
       "path": "js/admin-daily-curated-authority-v1.js",
-      "version": "2.0.1-curated-cache"
+      "version": "2.0.1-audit-20261014"
     },
     "adminDailyLibraryCutoverV1": {
       "path": "js/admin-daily-library-cutover-v1.js",
-      "version": "1.1.0-exclude-top-result"
+      "version": "1.1.0-audit-20261014"
     },
     "dailySemanticDiversityV1": {
       "path": "js/daily-semantic-diversity-v1.js",
-      "version": "1.1.2"
+      "version": "1.1.3"
     },
     "adminDailyPublish": {
       "path": "js/admin-daily-publish.js",
@@ -82,7 +82,7 @@
     },
     "validationEngine": {
       "path": "js/validation-engine.js",
-      "version": "1.7.1-certification-snapshot"
+      "version": "1.7.1-audit-20261014"
     },
     "adminStageOne": {
       "path": "js/admin-stage-one.js",
@@ -98,7 +98,7 @@
     },
     "adminDailyGeneratorGuard": {
       "path": "js/admin-daily-generator-guard.js",
-      "version": "3.2.3-all-family-floor"
+      "version": "3.2.3-audit-20261014"
     },
     "leaderboardConfig": {
       "path": "js/leaderboard-config.js",

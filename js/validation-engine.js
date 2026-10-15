@@ -725,34 +725,22 @@
     return (hash >>> 0).toString(16).padStart(8, "0");
   }
 
+  // Canonicalise every answer input, including cross-season career evidence. Source
+  // annotations are provenance, not predicate inputs; omit them from this cache key.
+  function answerSnapshot(value) {
+    if (typeof value === "function") return String(value);
+    if (Array.isArray(value)) return value.map(answerSnapshot);
+    if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).filter(key => key !== "source").sort().map(key => [key, answerSnapshot(value[key])]));
+    return value;
+  }
+
   function seasonFingerprint(seasonLabel, entries, prompts) {
-    const recordSignature = entries
-      .slice()
-      .sort((a, b) => a.player.playerId.localeCompare(b.player.playerId))
-      .map(({ player, record }) => [
-        player.playerId,
-        record.club,
-        record.position,
-        record.points,
-        record.minutes,
-        record.goals,
-        record.assists,
-        record.startingPrice,
-        record.finalPrice,
-        record.leaguePosition,
-        record.ageAtSeasonStart,
-        (record.managers || []).join("/"),
-        record.champions,
-        record.topFour,
-        record.bottomHalf,
-        record.relegated,
-        record.promoted
-      ].join("~"))
-      .join("|");
-    const promptSignature = prompts
-      .map(prompt => `${prompt.id}~${prompt.position}~${prompt.label}~${String(prompt.test)}`)
-      .join("|");
-    return `${seasonLabel}-${hashText(`${recordSignature}::${promptSignature}`)}`;
+    const records = entries.slice().sort((a, b) => a.player.playerId.localeCompare(b.player.playerId)).map(({ record }) => answerSnapshot(record));
+    // Relationship anchors may never appear in this season. Their careers still
+    // affect overlap/teammate answers, so include the complete player population.
+    const players = getPlayers().slice().sort((a, b) => a.playerId.localeCompare(b.playerId)).map(answerSnapshot);
+    const rules = prompts.slice().sort((a, b) => String(a.id).localeCompare(String(b.id))).map(answerSnapshot);
+    return `${seasonLabel}-${hashText(JSON.stringify({ schema: "answer-inputs-v2", players, records, rules }))}`;
   }
 
   function getSeasonFingerprint(seasonLabel) {
@@ -1157,7 +1145,9 @@
     }
 
     const criticalFailures = tests.filter(test => test.severity === "critical" && !test.passed);
-    const status = criticalFailures.length === 0 ? "Certified" : "Failed";
+    const snapshot = window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;
+    const fullEvaluation = Array.isArray(snapshot) && Object.isFrozen(snapshot) && prompts.length > 0 && evaluations > 0;
+    const status = criticalFailures.length ? "Failed" : fullEvaluation ? "Certified" : "DataValidated";
     const certifiedAt = new Date().toISOString();
     const fingerprint = seasonFingerprint(seasonLabel, entries, prompts);
 

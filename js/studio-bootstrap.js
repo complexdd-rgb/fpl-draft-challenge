@@ -23,6 +23,26 @@
   let dailyCutoverStarted = false;
   let publishingStarted = false;
   let scheduleManagerStarted = false;
+  let promptReady = false;
+  let publishingReady = false;
+  let bootFailed = false;
+  let readyNotified = false;
+
+  function updateReadiness() {
+    if (bootFailed) return;
+    const needsPublishing = Boolean(window.FPL_LEADERBOARD_CONFIG?.dailyPublishing?.enabled
+      && document.getElementById("downloadWeekBtn"));
+    const ready = promptReady && (!needsPublishing || publishingReady);
+    document.documentElement.dataset.studioBootstrap = ready ? "ready" : "loading";
+    if (ready && !readyNotified) {
+      readyNotified = true;
+      window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
+        detail: { version: "3.0.1", promptStudio: "clean-v1", promptFactory: "v1",
+          qualityAnalyser: "v1", promotion: "v1", libraryShards: "source-provenance-v1",
+          dailyCuratedAuthority: "frozen-4959-v2", dailyLibraryCutover: "v1", scheduleManager: "v2" }
+      }));
+    }
+  }
 
   function findExisting(src, marker) {
     if (marker) {
@@ -35,7 +55,11 @@
   }
 
   function loadScript(src, marker, { async = false } = {}, done = null) {
-    const existing = findExisting(src, marker);
+    let existing = findExisting(src, marker);
+    if (existing?.dataset.failed === "true") {
+      existing.remove();
+      existing = null;
+    }
     if (existing) {
       if (done) {
         if (existing.dataset.loaded === "true") queueMicrotask(done);
@@ -49,10 +73,18 @@
     script.async = async;
     if (marker) script.setAttribute(marker, "1");
     script.addEventListener("load", () => {
+      if (script.dataset.failed === "true") return;
       script.dataset.loaded = "true";
       done?.();
     }, { once: true });
     script.addEventListener("error", () => {
+      script.dataset.failed = "true";
+      started = promptStudioStarted = promptFactoryStarted = qualityAnalyserStarted = false;
+      promotionStarted = libraryShardsStarted = dailyCutoverStarted = false;
+      publishingStarted = scheduleManagerStarted = false;
+      promptReady = publishingReady = readyNotified = false;
+      bootFailed = true;
+      document.documentElement.dataset.studioBootstrap = "error";
       console.error(`Studio bootstrap could not load ${src}.`);
       window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-load-error", { detail: { src } }));
     }, { once: true });
@@ -70,13 +102,15 @@
     if (dailyCutoverStarted) return;
     dailyCutoverStarted = true;
     loadAsset("adminDailyCuratedAuthorityV1", "data-admin-daily-curated-authority-v1", { async: false }, () => {
-      loadAsset("adminDailyLibraryCutoverV1", "data-admin-daily-library-cutover-v1", { async: false });
+      loadAsset("adminDailyLibraryCutoverV1", "data-admin-daily-library-cutover-v1", { async: false }, () => {
+        promptReady = true;
+        updateReadiness();
+      });
     });
   }
 
   function ensureLibraryShards() {
     if (libraryShardsStarted) {
-      ensureDailyCutover();
       return;
     }
     libraryShardsStarted = true;
@@ -87,7 +121,6 @@
 
   function ensurePromotion() {
     if (promotionStarted) {
-      ensureLibraryShards();
       return;
     }
     promotionStarted = true;
@@ -96,7 +129,6 @@
 
   function ensureQualityAnalyser() {
     if (qualityAnalyserStarted) {
-      ensurePromotion();
       return;
     }
     qualityAnalyserStarted = true;
@@ -107,7 +139,6 @@
 
   function ensurePromptFactory() {
     if (promptFactoryStarted) {
-      ensureQualityAnalyser();
       return;
     }
     promptFactoryStarted = true;
@@ -118,7 +149,6 @@
 
   function ensurePromptStudio() {
     if (promptStudioStarted) {
-      ensurePromptFactory();
       return;
     }
     promptStudioStarted = true;
@@ -131,19 +161,27 @@
       return;
     }
     const config = window.FPL_LEADERBOARD_CONFIG;
-    if (!config?.dailyPublishing?.enabled || !document.getElementById("batchPlanner")) return;
+    if (!config?.dailyPublishing?.enabled || !document.getElementById("batchPlanner")) {
+      publishingReady = true;
+      updateReadiness();
+      return;
+    }
     scheduleManagerStarted = true;
-    loadAsset("adminScheduleManagerV2", "data-admin-schedule-manager-v2", { async: true });
+    loadAsset("adminScheduleManagerV2", "data-admin-schedule-manager-v2", { async: true }, () => {
+      publishingReady = true;
+      updateReadiness();
+    });
   }
 
   function ensurePublishing() {
     if (publishingStarted) {
-      ensureScheduleManager();
       return;
     }
     const config = window.FPL_LEADERBOARD_CONFIG;
     if (!config?.dailyPublishing?.enabled || !document.getElementById("downloadWeekBtn")) return;
     publishingStarted = true;
+    publishingReady = false;
+    updateReadiness();
     loadAsset("adminDailyPublish", "data-admin-daily-publish", { async: true }, ensureScheduleManager);
   }
 
@@ -156,6 +194,7 @@
     }
 
     started = true;
+    bootFailed = false;
     document.documentElement.dataset.studioBootstrap = "loading";
     document.documentElement.dataset.promptStudioArchitecture = "clean-v1-factory-quality-promotion-source-shards-curated-daily-authority-daily-cutover-schedule-v2";
 
@@ -163,20 +202,7 @@
     ensurePublishing();
 
     window.addEventListener("fpl:leaderboard-config-ready", ensurePublishing);
-    document.documentElement.dataset.studioBootstrap = "ready";
-    window.dispatchEvent(new CustomEvent("fpl:studio-bootstrap-ready", {
-      detail: {
-        version: "3.0.1",
-        promptStudio: "clean-v1",
-        promptFactory: "v1",
-        qualityAnalyser: "v1",
-        promotion: "v1",
-        libraryShards: "source-provenance-v1",
-        dailyCuratedAuthority: "frozen-4959-v2",
-        dailyLibraryCutover: "v1",
-        scheduleManager: "v2"
-      }
-    }));
+    updateReadiness();
   }
 
   window.FPL_STUDIO_BOOTSTRAP = Object.freeze({

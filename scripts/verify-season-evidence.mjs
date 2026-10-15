@@ -1,0 +1,37 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const document = { readyState: 'complete', querySelector(){return null}, getElementById(){return null}, addEventListener(){}, write(){} };
+const window = { console, document, location: {pathname: '/audit'}, addEventListener(){}, dispatchEvent(){} };
+window.window = window;
+const context = vm.createContext({ window, document, console, Date, Intl, URL, setTimeout(){return 0}, clearTimeout(){} });
+for (const file of ['players.js', 'nationality-enrichment.js', 'js/career-context.js', 'prompt-library.js', 'js/validation-engine.js', 'js/certification-approved-null-policy.js']) vm.runInContext(fs.readFileSync(file, 'utf8'), context, { filename: file });
+const engine = window.ValidationEngine;
+const player = window.FPL_PLAYERS.find(p => p.playerId === 'wayne-rooney');
+const allPlayers = window.FPL_PLAYERS;
+window.FPL_PLAYERS = [player];
+const record = player.seasons.find(r => r.season === '2011/12');
+const failures = [];
+for (const field of ['bonus', 'saves', 'cleanSheets', 'yellowCards', 'redCards', 'goalsConceded', 'startingPriceStatus', 'pricePromptEligible']) {
+  const before = engine.getSeasonFingerprint(record.season), saved = record[field];
+  record[field] = typeof saved === 'number' ? saved + 1 : !saved;
+  const changed = engine.getSeasonFingerprint(record.season) !== before;
+  record[field] = saved;
+  if (!changed) failures.push(field);
+}
+const before = engine.getSeasonFingerprint(record.season), saved = player.bio.nationality;
+player.bio.nationality = 'Fingerprint test';
+if (engine.getSeasonFingerprint(record.season) === before) failures.push('nationality');
+player.bio.nationality = saved;
+assert.deepEqual(failures, [], 'Answer-relevant mutations must invalidate evidence');
+window.FPL_PLAYERS = allPlayers;
+const dataOnly = engine.certifySeason(record.season);
+console.log("Data-only", dataOnly.status);
+assert.equal(dataOnly.status, 'DataValidated');
+assert.equal(dataOnly.certified, false);
+window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL = Object.freeze([{ id: 'positive-minutes', enabled: true, label: 'Midfielder with at least 1 minute', position: 'MID', test: r => r.minutes > 0 }]);
+const evaluated = engine.certifySeason(record.season);
+assert.ok(evaluated.promptSummary.evaluations > 0);
+assert.equal(evaluated.status, 'Certified');
+assert.equal(evaluated.certified, true);
+console.log('PASS complete answer fingerprints; data-only and explicit frozen certification states');

@@ -415,6 +415,25 @@
     await readSavedManifest();
   }
 
+  function queueEnsure() {
+    if (state.queued) return;
+    state.queued = true;
+    requestAnimationFrame(() => {
+      state.queued = false;
+      ensureMount();
+    });
+  }
+
+  function observe() {
+    if (state.observer || !document.body || typeof MutationObserver !== "function") return;
+    state.observer = new MutationObserver(() => {
+      // A clean-controller render can replace the mount. Changes inside the saved
+      // snapshot panel do not require another render of that same panel.
+      if (!document.getElementById("promptLibraryShardsMount")) queueEnsure();
+    });
+    state.observer.observe(document.body, { childList: true, subtree: true });
+  }
+
   function install() {
     ensureMount();
     observe();

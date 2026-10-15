@@ -13,7 +13,7 @@
   // Keep the public API major/minor version stable because the existing generator guard
   // deliberately checks for v1.0.0. policyRevision is the cache-busted behaviour revision.
   const VERSION = "1.0.0";
-  const POLICY_REVISION = "1.1.2";
+  const POLICY_REVISION = "1.1.3";
   const DEFAULT_WEEKLY_CAP = 7;
   const ANSWER_POOL_SIZE = 3;
   const RECENT_ANSWER_DAYS = 7;
@@ -28,6 +28,8 @@
   const topAnswerProfileCache = new WeakMap();
   let recentAnswerCacheKey = "";
   let recentAnswerCache = null;
+  let recentInputKey = "";
+  let generationHistorySnapshot = null;
 
   const clean = value => String(value ?? "")
     .normalize("NFD")
@@ -288,19 +290,24 @@
   function recentAnswerCounts() {
     const start = generationStartDate();
     if (!start) return EMPTY_RECENT_ANSWERS;
+    if (generationHistorySnapshot?.start === start) return generationHistorySnapshot.value;
     const { index } = promptIndex();
     // With no resolvable prompts, carry-over pressure is necessarily zero. The
     // registry is checked again on every call so later library readiness is seen.
-    if (!index.size) return EMPTY_RECENT_ANSWERS;
+    const curated = window.FPL_DAILY_LIBRARY_CUTOVER_V1;
+    if (!index.size && typeof curated?.getRuntimePrompt !== "function") return EMPTY_RECENT_ANSWERS;
     const entries = recentScheduleEntries();
     const cutoff = addDaysIso(start, -RECENT_ANSWER_DAYS);
+    const revision = window.FPL_STUDIO_API?.getPromptStatsRevision?.();
+    const inputKey = typeof revision === "number" ? JSON.stringify([start, revision, curated?.getRuntimeRevision?.(), [...index.keys()].sort(), entries.filter(entry => entry.date < start && entry.date >= cutoff).map(entry => [entry.date, entry.promptIds])]) : "";
+    if (inputKey && inputKey === recentInputKey && recentAnswerCache) return recentAnswerCache;
     const byDate = new Map();
     for (const entry of entries) {
       if (entry.date >= start || entry.date < cutoff) continue;
       const day = byDate.get(entry.date) || { leaders: new Set(), top3: new Set() };
       for (const rawId of entry.promptIds) {
         const id = String(rawId || "");
-        const prompt = index.get(id) || index.get(sourceIdFromPromptId(id));
+        const prompt = index.get(id) || index.get(sourceIdFromPromptId(id)) || curated?.getRuntimePrompt?.(id);
         if (!prompt) continue;
         const profile = topAnswerProfile(prompt);
         if (profile.leaderId) day.leaders.add(profile.leaderId);
@@ -313,6 +320,7 @@
     // a scheduled ID or refreshing its stats can change pressure at the same size.
     const key = JSON.stringify([start, [...byDate].sort(([left], [right]) => left.localeCompare(right))
       .map(([date, day]) => [date, [...day.leaders].sort(), [...day.top3].sort()])]);
+    recentInputKey = inputKey;
     if (key === recentAnswerCacheKey && recentAnswerCache) return recentAnswerCache;
 
     const leaders = new Map();
@@ -409,6 +417,12 @@
     filterDayCompatible,
     topAnswerProfile,
     answerPressureKeys,
+    beginRecentAnswerSnapshot: () => {
+      generationHistorySnapshot = null;
+      const start = generationStartDate();
+      generationHistorySnapshot = { start, value: recentAnswerCounts() };
+    },
+    endRecentAnswerSnapshot: () => { generationHistorySnapshot = null; },
     recentAnswerLoad,
     weeklyKeys,
     canAddWeekly,

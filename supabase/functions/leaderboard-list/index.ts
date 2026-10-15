@@ -1,4 +1,4 @@
-import { adminClient, bodyJson, errorResponse, getRankedRows, json, preflight, publicRow, requireBrowserKey, resolveIdentity, text } from "../_shared/backend.ts";
+import { adminClient, bodyJson, errorResponse, getRankedRows, json, loadVerifier, preflight, publicRow, requireBrowserKey, resolveIdentity, text } from "../_shared/backend.ts";
 
 Deno.serve(async (req) => {
   const options = preflight(req); if (options) return options;
@@ -11,6 +11,7 @@ Deno.serve(async (req) => {
     if (!challengeId) return json({ total: 0, entries: [], viewer: null, canViewTeams: false });
 
     const supabase = adminClient();
+    await loadVerifier(supabase, challengeId);
     const identity = await resolveIdentity(req, supabase, clientId, { allowEmpty: true });
     const rows = await getRankedRows(supabase, challengeId);
     const viewerIndex = identity.memberClientIds.length

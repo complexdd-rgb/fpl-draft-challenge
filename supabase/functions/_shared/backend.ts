@@ -205,17 +205,26 @@ export type PublicTeamPick = {
   skipped?: boolean;
 };
 
+export function ukReleaseDate(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit"
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
 export async function loadVerifier(supabase: ReturnType<typeof adminClient>, challengeId: string) {
   const { data, error } = await supabase
     .from("leaderboard_verifiers")
     .select("challenge_id, release_date, perfect_score, payload, active")
     .eq("challenge_id", challengeId)
     .eq("active", true)
+    .lte("release_date", ukReleaseDate())
     .maybeSingle();
   if (error) throw error;
   if (!data) throw httpError(404, "Leaderboard verifier is not available for this challenge.");
   const verifier = data.payload as Verifier;
-  if (!verifier || verifier.challengeId !== challengeId || !Array.isArray(verifier.prompts)) {
+  if (!verifier || verifier.challengeId !== challengeId || verifier.releaseDate !== String(data.release_date) || !Array.isArray(verifier.prompts)) {
     throw httpError(500, "Leaderboard verifier is invalid.");
   }
   return verifier;

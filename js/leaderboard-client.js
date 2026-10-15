@@ -12,6 +12,7 @@
   const NAME_KEY = "fpl-v5-leaderboard-display-name";
   const ATTEMPT_PREFIX = "fpl-v5.1-leaderboard-attempt-";
   const SUBMITTED_PREFIX = "fpl-v5-leaderboard-submitted-";
+  const OUTBOX_PREFIX = "fpl-v6-leaderboard-outbox-";
   const GAME_STORE = `fpl-v2-${challenge.id}`;
   const STATUS = Object.freeze({ IDLE:"idle", CONNECTING:"connecting", READY:"ready", VERIFYING:"verifying", ACCEPTED:"accepted", OFFLINE:"offline", ERROR:"error", DUPLICATE:"duplicate" });
   let requestQueue = Promise.resolve();
@@ -27,6 +28,7 @@
   const readJson = key => { try { return JSON.parse(localStorage.getItem(key) || "null"); } catch { return null; } };
   const writeJson = (key,value) => localStorage.setItem(key, JSON.stringify(value));
   const attemptKey = () => `${ATTEMPT_PREFIX}${challenge.id}`;
+  const outboxKey = () => `${OUTBOX_PREFIX}${challenge.id}`;
   const submittedKey = () => `${SUBMITTED_PREFIX}${challenge.id}`;
   const functionUrl = name => `${String(cfg.supabaseUrl || "").replace(/\/$/,"")}/functions/v1/${encodeURIComponent(name)}`;
   const formatTime = value => { const t=Math.max(0,Number(value)||0); return `${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`; };
@@ -61,6 +63,7 @@
         if (store.rejectNextPick) { store.rejectNextPick=false; store.penaltyPoints += 10; return {valid:false,penaltyPoints:store.penaltyPoints}; }
         return {valid:true,penaltyPoints:store.penaltyPoints};
       }
+      if (functionName === cfg.functions.finish && body.action === "complete") return {completed:true};
       if (functionName === cfg.functions.finish) {
         const existing=store.entries.find(e=>e.clientId===body.clientId&&e.challengeId===body.challengeId);
         if(existing) return {...existing,alreadySubmitted:true};
@@ -136,7 +139,7 @@
     input.addEventListener("input",()=>{localStorage.setItem(NAME_KEY,input.value.trim());renderNameState();updateSubmitButton();});
     document.getElementById("leaderboardEditName")?.addEventListener("click",()=>{input.disabled=false;input.focus();input.select();});
     document.getElementById("leaderboardSubmitResult")?.addEventListener("click",()=>submitPendingResult());
-    document.getElementById("leaderboardRefresh")?.addEventListener("click",()=>{if(!leaderboardActivated)activateLeaderboard();else loadLeaderboard({manual:true});});
+    document.getElementById("leaderboardRefresh")?.addEventListener("click",()=>{if(!leaderboardActivated)activateLeaderboard();else {queue(synchronizeAttempt);loadLeaderboard({manual:true});}});
     renderDeferredState();
     enhanceMobileNav();
   }
@@ -163,7 +166,7 @@
   function updateSubmitButton(){
     const button=document.getElementById("leaderboardSubmitResult"),input=document.getElementById("leaderboardDisplayName"); if(!button||!input)return;
     const attempt=readJson(attemptKey()),submitted=readJson(submittedKey());
-    button.disabled=!pendingCompletedRecord||!attempt?.attemptId||!!submitted||!validName(input.value)||state===STATUS.VERIFYING||state===STATUS.OFFLINE;
+    button.disabled=!pendingCompletedRecord||!attempt?.completionReady||!!submitted||!validName(input.value)||state===STATUS.VERIFYING||state===STATUS.OFFLINE;
     if(submitted)button.textContent="Result submitted";else if(state===STATUS.VERIFYING)button.textContent="Verifying…";else button.textContent="Submit verified result";
   }
 
@@ -171,31 +174,74 @@
   function handleError(error){
     const offline=!navigator.onLine||error instanceof TypeError||/offline|failed to fetch|network/i.test(String(error?.message||""));
     setState(offline?STATUS.OFFLINE:STATUS.ERROR); setStatus(offline?"Leaderboard is offline. Your game result is still safe on this device.":"Leaderboard submission needs attention.");
-    setMessage(offline?"No internet connection. Reconnect and press Refresh or Submit again.":(error?.message||"Leaderboard request failed."),"error"); updateSubmitButton();
+    setMessage(offline?"Your pending picks are saved. They will sync when you reconnect; server timing begins once the attempt connects.":(error?.message||"Leaderboard request failed."),"error"); updateSubmitButton();
   }
 
   async function ensureServerAttempt(){
     const existing=readJson(attemptKey()); if(existing?.attemptId)return existing;
     setState(STATUS.CONNECTING); setStatus("Starting a server-timed leaderboard attempt…");
     const data=await api(cfg.functions.start,{challengeId:challenge.id,challengeDate:challenge.releaseDate||runtime.selectedDate,clientId:getClientId()});
-    const attempt={attemptId:data.attemptId,serverStartedAt:data.startedAt}; writeJson(attemptKey(),attempt);
+    const attempt={attemptId:data.attemptId,serverStartedAt:data.startedAt,completionReady:Boolean(data.completionReady)}; writeJson(attemptKey(),attempt);
     if(data.alreadyCompleted){setState(STATUS.DUPLICATE);setStatus("This browser already has a verified result for today.");}else{setState(STATUS.READY);setStatus("Verified attempt active · server timing is running.");}
     updateSubmitButton(); return attempt;
   }
 
-  function onAttemptStarted(){queue(async()=>{await ensureServerAttempt();});}
-  function onPickAttempt(event){
-    const detail=event.detail||{}; queue(async()=>{const attempt=await ensureServerAttempt();if(!attempt?.attemptId)return;const result=await api(cfg.functions.pick,{attemptId:attempt.attemptId,challengeId:challenge.id,clientId:getClientId(),promptId:detail.promptId,playerId:detail.playerId,season:detail.season});setState(STATUS.READY);if(result.valid===false){setStatus(`Server rejected that pick · penalties now ${Number(result.penaltyPoints)||0}`);setMessage("That invalid attempt has been recorded by the leaderboard verifier.","info");}else{setStatus(`Verified attempt active · server penalties ${Number(result.penaltyPoints)||0}`);setMessage("");}});
+  function outbox() {
+    const saved = readJson(outboxKey());
+    return Array.isArray(saved) ? saved : [];
   }
-
-  function onCompleted(event){const record=event.detail?.record;if(!record||record.official===false||runtime.archiveMode)return;pendingCompletedRecord=record;activateLeaderboard();setState(STATUS.READY);setStatus("XI complete · ready for server verification.");setMessage("Enter or confirm your display name, then submit the result.","info");updateSubmitButton();}
+  function persistPick(detail) {
+    const events = outbox();
+    const eventId = crypto.randomUUID ? crypto.randomUUID() : `event-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    events.push({ eventId, promptId: detail.promptId, playerId: detail.playerId || "", season: detail.season || "", skipped: detail.skipped === true });
+    writeJson(outboxKey(), events);
+  }
+  async function synchronizeAttempt() {
+    const attempt = await ensureServerAttempt();
+    if (!attempt?.attemptId || readJson(submittedKey())) return;
+    if (attempt.completionReady) { updateSubmitButton(); return; }
+    // Capture recovered and Give Up selections before sending. Invalid events already
+    // in the outbox remain ahead of this final XI and retain their original IDs.
+    if (pendingCompletedRecord && !attempt.selectionsQueued) {
+      for (const selection of pendingCompletedRecord.selections || []) persistPick({ ...selection, skipped: !selection.playerId && !selection.season });
+      attempt.selectionsQueued = true;
+      writeJson(attemptKey(), attempt);
+    }
+    while (outbox().length) {
+      const event = outbox()[0];
+      const result = await api(cfg.functions.pick, { ...event, attemptId: attempt.attemptId, challengeId: challenge.id, clientId: getClientId() });
+      // Acknowledge only this ID: another interaction may have appended an event.
+      writeJson(outboxKey(), outbox().filter(item => item.eventId !== event.eventId));
+      setStatus(`Verified attempt active · server penalties ${Number(result.penaltyPoints) || 0}`);
+    }
+    if (pendingCompletedRecord) {
+      const selections = (pendingCompletedRecord.selections || []).map(item => ({ promptId: item.promptId, playerId: item.playerId || "", season: item.season || "" }));
+      await api(cfg.functions.finish, { action: "complete", attemptId: attempt.attemptId, challengeId: challenge.id, clientId: getClientId(), selections });
+      attempt.completionReady = true;
+      writeJson(attemptKey(), attempt);
+      setStatus("XI verified · completion time locked. Enter your name to publish the result.");
+    }
+    setState(STATUS.READY);
+    updateSubmitButton();
+  }
+  function onAttemptStarted() { queue(synchronizeAttempt); }
+  function onPickAttempt(event) { persistPick(event.detail || {}); queue(synchronizeAttempt); }
+  function onCompleted(event) {
+    const record = event.detail?.record;
+    if (!record || record.official === false || runtime.archiveMode) return;
+    pendingCompletedRecord = record;
+    activateLeaderboard();
+    setStatus("Syncing picks and locking completion time…");
+    updateSubmitButton();
+    queue(synchronizeAttempt);
+  }
 
   async function submitPendingResult(){
     if(!pendingCompletedRecord)return; const saved=readJson(submittedKey()); if(saved){showPersonal(saved);setState(STATUS.DUPLICATE);return;}
     const input=document.getElementById("leaderboardDisplayName"),displayName=(input?.value||"").trim(); if(!validName(displayName)){setMessage("Please enter a valid display name before submitting.","error");return;}
     localStorage.setItem(NAME_KEY,displayName); setState(STATUS.VERIFYING); setStatus("Verifying XI, penalties, score and completion time on the server…"); setMessage("Your browser score is not trusted; the backend is recalculating the result.","info");updateSubmitButton();
     await queue(async()=>{
-      const attempt=await ensureServerAttempt(); setState(STATUS.VERIFYING); setStatus("Verifying XI, penalties, score and completion time on the server…"); const selections=(pendingCompletedRecord.selections||[]).map(item=>({promptId:item.promptId,playerId:item.playerId,season:item.season}));
+      await synchronizeAttempt(); const attempt=await ensureServerAttempt(); setState(STATUS.VERIFYING); setStatus("Verifying XI, penalties, score and completion time on the server…"); const selections=(pendingCompletedRecord.selections||[]).map(item=>({promptId:item.promptId,playerId:item.playerId,season:item.season}));
       const result=await api(cfg.functions.finish,{attemptId:attempt.attemptId,challengeId:challenge.id,clientId:getClientId(),displayName,selections}); writeJson(submittedKey(),result);
       setState(result.alreadySubmitted?STATUS.DUPLICATE:STATUS.ACCEPTED,result.alreadySubmitted?"Already in":"Accepted"); setStatus(result.alreadySubmitted?"Your existing verified result has been restored.":`Verified result accepted · rank #${Number(result.rank)||"–"}.`); setMessage(result.alreadySubmitted?"One official result per browser/device is allowed for each challenge.":"Server verification complete. Your leaderboard place is locked for this challenge.","info");showPersonal(result);updateSubmitButton();await loadLeaderboard();
     });
@@ -239,12 +285,13 @@
     activationObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))activateLeaderboard();},{rootMargin:"650px 0px"});
     activationObserver.observe(panel);
   }
-  function networkChanged(){if(navigator.onLine){if(leaderboardActivated){setState(STATUS.CONNECTING);setStatus("Connection restored · refreshing leaderboard…");loadLeaderboard({manual:true});}else{setState(STATUS.READY,"Standby");setStatus("Leaderboard ready when you reach this section.");}}else handleError(new TypeError("Offline"));}
+  function networkChanged(){if(navigator.onLine){if(pendingCompletedRecord || outbox().length || readJson(attemptKey()))queue(synchronizeAttempt);if(leaderboardActivated){setState(STATUS.CONNECTING);setStatus("Connection restored · refreshing leaderboard…");loadLeaderboard({manual:true});}else{setState(STATUS.READY,"Standby");setStatus("Leaderboard ready when you reach this section.");}}else handleError(new TypeError("Offline"));}
 
   renderShell(); recoverCompletedRecord(); renderNameState();
   window.addEventListener("fpl:attempt-started",onAttemptStarted); window.addEventListener("fpl:pick-attempt",onPickAttempt); window.addEventListener("fpl:challenge-completed",onCompleted); window.addEventListener("online",networkChanged); window.addEventListener("offline",networkChanged);
-  window.FPL_LEADERBOARD_REFRESH=()=>{if(leaderboardActivated)loadLeaderboard({manual:true});};
+  window.FPL_LEADERBOARD_REFRESH=()=>{if(pendingCompletedRecord || outbox().length)queue(synchronizeAttempt);if(leaderboardActivated)loadLeaderboard({manual:true});};
   window.FPL_LEADERBOARD_ACTIVATE=activateLeaderboard;
   const saved=readJson(submittedKey());if(saved)showPersonal(saved);updateSubmitButton();installLazyActivation();
+  if(!saved && (pendingCompletedRecord || outbox().length || readJson(attemptKey())?.attemptId || readJson(GAME_STORE)?.startedAt))queue(synchronizeAttempt);
   if(pendingCompletedRecord||saved){requestAnimationFrame(()=>setTimeout(activateLeaderboard,120));}else{setState(STATUS.READY,"Standby");setStatus("Leaderboard loads when you reach this section.");}
 })();
