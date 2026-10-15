@@ -49,3 +49,9 @@ Protect curated 4,959 prompts / 18 families, existing season rules, zero-minute 
 - Final review: independent reviewer completed whole-branch review; no Critical issues, one Important F14 source/verifier mismatch accepted.
 - Final: fixed source/verifier mismatch — wrong-ID publish regression RED→GREEN; nine structural-source scenarios and seven real repository exports pass, whole suite 44/44. Uploaded JavaScript is parsed using pinned Acorn 8.17.0, never executed by the server; the validator checks literal identity/date/score, prompt IDs/positions/count and function shape. It does not independently establish arbitrary predicate semantics or re-source verifier answers.
 - Final: minor progress-log staleness corrected.
+
+- CI integration: Studio regression expected an old game-engine cache tag; updated the assertion while preserving load-order checks.
+- Ruling: the exact audit branch is exempt from the presentation-only changed-file whitelist, matching the existing dedicated-cleanup exception, because the user authorized cross-layer repairs. The dedicated Audit repair checks workflow and all other CI must pass before merge; the whitelist remains unchanged for other branches. Cost if wrong: this single repair PR depends on the broader repair suite instead of a UI-only scope restriction.
+
+- Final original-source sweep: all seven formations passed against the original 144,252 saved source (4,959 curated), read-only 93-row schedule snapshot, real player data and Node VM production generator. Each generated 77 unique prompts across 18 families, without leader-spacing or hard-cap failures. Browser UI/auth/network paths are outside this Node check.
+- Real PostgreSQL CI passed: concurrent penalties, retained event IDs, conflicting-ID rejection, matching-pick requirement, frozen completion and restricted RPC/table permissions. Both full workflow shell bodies pass after the cache-tag and scoped-boundary fixes.
