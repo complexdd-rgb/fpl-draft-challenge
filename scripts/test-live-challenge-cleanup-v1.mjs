@@ -41,7 +41,7 @@ for (const needle of [
   'js/prompt-helpers.js?v=1.0.0',
   'players-live.js?v=1.0.0',
   'js/career-context.js?v=1.5.0',
-  'js/game-engine.js?v=1.0.0'
+  'js/game-engine.js?v=audit-20261014'
 ]) requireText(index, needle, `Core live dependency missing: ${needle}`);
 
 const coreOrder = [
@@ -52,7 +52,7 @@ const coreOrder = [
   'js/prompt-helpers.js?v=1.0.0',
   'players-live.js?v=1.0.0',
   'js/career-context.js?v=1.5.0',
-  'js/game-engine.js?v=1.0.0'
+  'js/game-engine.js?v=audit-20261014'
 ].map(item => index.indexOf(item));
 if (!coreOrder.every(value => value >= 0) || !coreOrder.every((value, i) => i === 0 || value > coreOrder[i - 1])) {
   failures.push('Core challenge/data/game-engine load order must remain unchanged.');

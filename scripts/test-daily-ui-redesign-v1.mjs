@@ -17,7 +17,7 @@ const forbidText = (source, needle, message) => {
 
 requireText(index, 'player-daily-redesign-v1.css?v=1.0.0', 'index.html must load the Daily UI v1 stylesheet.');
 requireText(index, 'player-daily-redesign-v1-compat.css?v=1.2.0', 'index.html must load the consolidated Daily UI v1.2 compatibility boundary.');
-requireText(index, 'js/player-daily-redesign-v1.js?v=1.0.0', 'index.html must load the Daily UI v1 presentation script.');
+requireText(index, 'js/player-daily-redesign-v1.js?v=audit-20261014', 'index.html must load the Daily UI v1 presentation script.');
 requireText(index, 'js/player-daily-mobile-nav-visibility.js?v=1.1.2', 'index.html must load the mobile draft-board nav visibility helper.');
 
 for (const [needle, message] of [

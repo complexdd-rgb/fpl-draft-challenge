@@ -1,0 +1,35 @@
+name: Audit repair checks
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: audit
+          POSTGRES_PASSWORD: audit-fixture-password
+          POSTGRES_DB: audit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U audit -d audit"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax and behavior checks
+        run: |
+          for script in js/*.js scripts/lib/*.mjs; do node --check "$script"; done
+          for script in scripts/verify-*.mjs scripts/test-*.mjs; do node "$script"; done
+          node scripts/audit-2011-12-post-import.mjs
+      - name: Real transactional accounting
+        env:
+          AUDIT_DATABASE_URL: postgresql://audit:audit-fixture-password@localhost:5432/audit
+        run: python3 scripts/verify-ledger-postgres.py

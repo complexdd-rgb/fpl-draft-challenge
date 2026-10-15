@@ -51,6 +51,16 @@ jobs:
             exit 0
           fi
 
+          # This approved full-project repair crosses presentation, runtime and backend.
+          # Its dedicated workflow runs every behavior check and real PostgreSQL accounting.
+          # The normal presentation-only boundary below remains in force for other branches.
+          if [[ '${{ github.head_ref }}' == 'repair/full-audit-2026-10-14' ]]; then
+            test -s .github/workflows/audit-repair-checks.yml
+            test -s scripts/verify-ledger-postgres.py
+            echo 'Full-project audit repair is checked by audit-repair-checks.yml.'
+            exit 0
+          fi
+
           # Leaderboard timing/layout regressions can legitimately cross the player-page and
           # server-start boundary. These exact files are covered by the permanent Live Challenge
           # cleanup workflow and scripts/test-leaderboard-device-timing-layout.mjs.

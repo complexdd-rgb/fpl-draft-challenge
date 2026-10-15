@@ -35,17 +35,17 @@ Deno.serve(async (req) => {
     // but bind the active timer to the browser that is actually making this run.
     const { data: existing, error: existingError } = await supabase
       .from("leaderboard_attempts")
-      .select("id, started_at, completed")
+      .select("id, started_at, completed, completion_result")
       .eq("challenge_id", challengeId)
       .eq("client_id", identity.requestClientId)
       .maybeSingle();
     if (existingError) throw existingError;
-    if (existing) return json({ attemptId: existing.id, startedAt: existing.started_at, alreadyCompleted: Boolean(existing.completed) });
+    if (existing) return json({ attemptId: existing.id, startedAt: existing.started_at, alreadyCompleted: Boolean(existing.completed && !existing.completion_result), completionReady: Boolean(existing.completion_result) });
 
     const { data, error } = await supabase
       .from("leaderboard_attempts")
       .insert({ challenge_id: challengeId, client_id: identity.requestClientId })
-      .select("id, started_at, completed")
+      .select("id, started_at, completed, completion_result")
       .single();
     if (error) {
       // Simultaneous first-interaction requests on this browser can race the uniqueness
@@ -53,11 +53,11 @@ Deno.serve(async (req) => {
       // timer.
       const { data: raced } = await supabase
         .from("leaderboard_attempts")
-        .select("id, started_at, completed")
+        .select("id, started_at, completed, completion_result")
         .eq("challenge_id", challengeId)
         .eq("client_id", identity.requestClientId)
         .maybeSingle();
-      if (raced) return json({ attemptId: raced.id, startedAt: raced.started_at, alreadyCompleted: Boolean(raced.completed) });
+      if (raced) return json({ attemptId: raced.id, startedAt: raced.started_at, alreadyCompleted: Boolean(raced.completed && !raced.completion_result), completionReady: Boolean(raced.completion_result) });
       throw error;
     }
     return json({ attemptId: data.id, startedAt: data.started_at, alreadyCompleted: Boolean(data.completed) });

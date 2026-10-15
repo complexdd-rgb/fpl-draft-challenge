@@ -51,9 +51,18 @@ let active = {};
 
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const normalise=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const legacyPlayerIds=new Map();
+for(const player of groupedPlayers){
+  for(const id of Array.isArray(player.legacyPlayerIds)?player.legacyPlayerIds:[]){
+    if(!playerById.has(String(id)))legacyPlayerIds.set(String(id),player.playerId);
+  }
+}
+const canonicalPlayerId=id=>legacyPlayerIds.get(String(id))||String(id);
+const playerSearchNames=new Map(groupedPlayers.map(player=>[player.playerId,
+  [player.name,...(Array.isArray(player.aliases)?player.aliases:[])].map(normalise)]));
 const formatTime=n=>`${Math.floor(n/60)}:${String(Math.floor(n%60)).padStart(2,"0")}`;
-const getPlayer=id=>playerById.get(id);
-const getRecord=(playerId,season)=>recordByKey.get(`${playerId}\u0000${season}`);
+const getPlayer=id=>playerById.get(canonicalPlayerId(id));
+const getRecord=(playerId,season)=>recordByKey.get(`${canonicalPlayerId(playerId)}\u0000${season}`);
 const usedPlayerIds=()=>new Set(Object.values(picks).map(p=>p.playerId));
 /* Zero-minute answer eligibility rule. */
 const qualifiesForAnswer=record=>Number.isFinite(Number(record?.minutes))&&Number(record.minutes)>0;
@@ -102,13 +111,14 @@ function load(){
       }
     }
     const x=JSON.parse(localStorage.getItem(STORE)||"{}");
-    picks=x.picks||{};
+    picks=x.picks&&typeof x.picks==="object"&&!Array.isArray(x.picks)?x.picks:{};
     penalties=Number(x.penalties)||0;
     startedAt=Number.isFinite(Number(x.startedAt))&&Number(x.startedAt)>0?Number(x.startedAt):null;
     completedSeconds=Number.isFinite(Number(x.completedSeconds))?Number(x.completedSeconds):null;
     completedRecord=x.completedRecord&&x.completedRecord.challengeId===challenge.id?x.completedRecord:null;
+    if(!completedRecord)completedSeconds=null;
     if(completedRecord){
-      picks=completedRecord.picks||picks;
+      if(completedRecord.picks&&typeof completedRecord.picks==="object"&&!Array.isArray(completedRecord.picks))picks=completedRecord.picks;
       penalties=Number(completedRecord.penalties)||penalties;
       startedAt=Number(completedRecord.startedAt)||startedAt;
       completedSeconds=Number(completedRecord.elapsedSeconds)||completedSeconds||0;
@@ -243,7 +253,7 @@ function onSearch(e){
   const matches=groupedPlayers.filter(player=>
     !used.has(player.playerId) &&
     eligibleSeasons(player,prompt).length &&
-    normalise(player.name).includes(q)
+    playerSearchNames.get(player.playerId)?.some(name=>name.includes(q))
   ).slice(0,10);
   active[id]=-1;
   box.innerHTML=matches.length?matches.map((p,i)=>`<button class="suggestion" data-option="${p.playerId}" data-index="${i}" type="button"><strong>${esc(p.name)}</strong><small>${eligibleSeasons(p,prompt).map(s=>s.season).join(" · ")}</small></button>`).join(""):`<div class="suggestion">No matching unused players</div>`;
@@ -425,6 +435,19 @@ if(ARCHIVE_MODE){
   const overview=document.querySelector(".challenge-overview .overview-copy p");
   if(overview)overview.textContent="This is a previous daily challenge. Practice attempts are saved on this device but do not change your official games played or streak.";
 }
-const validIds=new Set(groupedPlayers.map(p=>p.playerId));Object.keys(picks).forEach(id=>{const p=picks[id],prompt=challenge.prompts.find(x=>x.id===id),r=getRecord(p.playerId,p.season);if(!prompt||!validIds.has(p.playerId)||!r||!qualifiesForAnswer(r)||!prompt.test(r))delete picks[id];else drafts[id]={...p};});if(!(ARCHIVE_MODE&&completedRecord&&completedRecord.official!==false))save();render();renderLocalHistory();tick();
+const restoredPlayers=new Set();
+for(const id of Object.keys(picks)){
+  const pick=picks[id],prompt=challenge.prompts.find(item=>item.id===id);
+  const playerId=pick&&typeof pick==="object"?canonicalPlayerId(pick.playerId):"";
+  const record=pick&&getRecord(playerId,pick.season);
+  if(!prompt||!playerById.has(playerId)||!record||!qualifiesForAnswer(record)
+    ||record.position!==prompt.position||restoredPlayers.has(playerId)||!prompt.test(record)){
+    delete picks[id];continue;
+  }
+  restoredPlayers.add(playerId);
+  picks[id]={...pick,playerId};
+  drafts[id]={...picks[id]};
+}
+if(!(ARCHIVE_MODE&&completedRecord&&completedRecord.official!==false))save();render();renderLocalHistory();tick();
 if(completedRecord){renderCompletedResult(completedRecord,true);}else{timerId=setInterval(tick,1000);}
 

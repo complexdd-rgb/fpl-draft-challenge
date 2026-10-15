@@ -31,7 +31,7 @@ sandbox.window.window = sandbox.window;
 vm.runInNewContext(source, sandbox, { filename: 'js/daily-semantic-diversity-v1.js' });
 const api = sandbox.window.FPL_DAILY_SEMANTIC_DIVERSITY;
 assert(api?.version === '1.0.0', 'Semantic diversity API did not initialise.');
-assert(api?.policyRevision === '1.1.2', 'Top-answer diversity policy revision did not initialise.');
+assert(api?.policyRevision === '1.1.3', 'Top-answer diversity policy revision did not initialise.');
 
 const record = (id, family, position, conditions, variantGroup = '') => ({ id, family, position, conditions, variantGroup });
 const prompt = (id, label, family, position, recordValue) => ({

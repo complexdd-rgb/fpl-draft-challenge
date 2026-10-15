@@ -137,6 +137,9 @@
     return false;
   }
 
+  const runtimePrompts = new Map();
+  let runtimeRevision = 0;
+
   async function refresh() {
     if (state.running) return getState();
     const shards = window.FPL_PROMPT_LIBRARY_SHARDS_V1;
@@ -148,6 +151,9 @@
       return getState();
     }
 
+    runtimeRevision += 1;
+    runtimePrompts.clear();
+    window.FPL_STUDIO_API?.invalidatePromptStats?.();
     state.running = true;
     state.status = "indexing";
     state.ready = false;
@@ -204,6 +210,7 @@
       state.familyCount = EXPECTED_FAMILIES.length;
       state.status = "ready";
       state.ready = true;
+      runtimeRevision += 1;
       state.reason = "Curated 18-family library passed the Daily structural certification boundary.";
       state.indexedAt = new Date().toISOString();
       dispatchState();
@@ -342,6 +349,17 @@
     refresh,
     getState,
     getCompactRecord: id => { const record = state.recordsById.get(String(id || "")); return record ? { ...record, conditions: record.conditions.map(cloneCondition) } : null; },
+    getRuntimeRevision: () => runtimeRevision,
+    getRuntimePrompt: id => {
+      if (!state.ready) return null;
+      const key = String(id || "");
+      if (runtimePrompts.has(key)) return runtimePrompts.get(key);
+      const match = key.match(/__(gk|def|mid|fwd)$/i);
+      const sourceId = match ? key.slice(0, -match[0].length) : key;
+      const prompt = materialiseRecord(sourceId, match?.[1]?.toUpperCase());
+      if (prompt) runtimePrompts.set(key, Object.freeze(prompt));
+      return prompt;
+    },
     buildTestSource,
     compileConditions,
     materialiseRecord,

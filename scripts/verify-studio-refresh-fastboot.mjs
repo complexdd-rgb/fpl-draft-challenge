@@ -19,7 +19,7 @@ const stage = read('js/admin-stage-one.js');
 requireText(html, '<html lang="en" class="studio-preboot">', 'preboot html class');
 requireText(html, stageUrl, 'Stage One cache bust');
 const stageIndex = html.indexOf(stageUrl);
-const playersIndex = html.indexOf('players.js?v=12.3.0');
+const playersIndex = html.indexOf('players.js?v=audit-20261014');
 if (stageIndex < 0 || playersIndex < 0 || stageIndex >= playersIndex) {
   throw new Error('Stage One must load before players.js and the rest of the heavy Studio boot chain.');
 }

@@ -82,7 +82,9 @@
     }
     const criticalFailures = (result.tests || []).filter(test => test.severity === "critical" && !test.passed);
     result.criticalFailures = criticalFailures.length;
-    result.status = criticalFailures.length === 0 ? "Certified" : "Failed";
+    const snapshot = window.FPL_VALIDATION_CERTIFICATION_PROMPT_POOL;
+    const fullEvaluation = Array.isArray(snapshot) && Object.isFrozen(snapshot) && result.promptSummary?.prompts > 0 && result.promptSummary?.evaluations > 0;
+    result.status = criticalFailures.length ? "Failed" : fullEvaluation ? "Certified" : "DataValidated";
     result.certified = result.status === "Certified";
     return result;
   }

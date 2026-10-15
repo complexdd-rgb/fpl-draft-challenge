@@ -138,3 +138,32 @@ test('carry-over counts appearance days once and uses only the preceding seven d
   );
   assert.equal(api.recentAnswerLoad(one), once);
 });
+
+test('curated carry-over works with empty staging and keeps that library empty', () => {
+  const { window, api, prompt } = fixture();
+  const one = prompt('frozen-one', 'p1'), two = prompt('candidate-two', 'p2');
+  window.FPL_DAILY_LIBRARY_CUTOVER_V1 = { getRuntimePrompt: id => id === one.id ? one : null };
+  window.FPL_CHALLENGE_MANIFEST = { challenges: [{ date: '2026-10-14', promptIds: [one.id] }] };
+  assert(api.recentAnswerLoad(one) > api.recentAnswerLoad(two));
+  assert.equal(window.FPL_PROMPT_LIBRARY.length, 0);
+});
+
+test('curated indexing readiness invalidates a previously empty history cache', () => {
+  const { window, api, prompt } = fixture();
+  let ready=false,revision=1;const one=prompt('frozen-ready','p1');
+  window.FPL_DAILY_LIBRARY_CUTOVER_V1={getRuntimeRevision:()=>revision,getRuntimePrompt:id=>ready&&id===one.id?one:null};
+  window.FPL_CHALLENGE_MANIFEST={challenges:[{date:'2026-10-14',promptIds:[one.id]}]};
+  assert.equal(api.recentAnswerLoad(one),0);
+  ready=true;revision++;
+  assert(api.recentAnswerLoad(one)>0);
+});
+
+test('one generation freezes recent history and releases it afterward', () => {
+  const { window, core, api, prompt } = fixture();
+  const one=prompt('one','p1'),two=prompt('two','p2');window.FPL_PROMPT_LIBRARY.push(one,two);
+  window.FPL_CHALLENGE_MANIFEST={challenges:[{date:'2026-10-14',promptIds:['one']}]};
+  api.beginRecentAnswerSnapshot();const pressure=api.recentAnswerLoad(one);assert(pressure>0);
+  window.FPL_CHALLENGE_MANIFEST.challenges[0].promptIds=['two'];core.invalidatePromptStats('irrelevant-candidate');
+  assert.equal(api.recentAnswerLoad(one),pressure);
+  api.endRecentAnswerSnapshot();assert.equal(api.recentAnswerLoad(one),0);assert(api.recentAnswerLoad(two)>0);
+});
